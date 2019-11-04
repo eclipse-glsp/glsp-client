@@ -1,0 +1,107 @@
+/********************************************************************************
+ * Copyright (c) 2019 EclipseSource and others.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v. 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is available at
+ * https://www.gnu.org/software/classpath/license.html.
+ *
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ ********************************************************************************/
+
+@import url("https://use.fontawesome.com/releases/v5.6.3/css/all.css");
+/* Css for main container */
+
+.tool-palette {
+    position: absolute;
+    right: 25px;
+    top: 25px;
+    text-align: center;
+    width: 150px;
+    display: block;
+    z-index: 1000;
+    border-style: solid;
+    border-width: 0px;
+    border-color: #bbb;
+    border-radius: 5px;
+    color: black;
+}
+
+/* Css for header compartment */
+
+.palette-header {
+    padding: 0.4em;
+    text-align: left;
+    font-size: 1.15em;
+    font-weight: bold;
+    background: #CCCCCC;
+    border: 1px solid rgba(60, 60, 60, 0.6);
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+.header-icon i {
+    margin-right: 0.2em
+}
+
+.header-tools i {
+    border: 1px solid #CCCCCC;
+    padding: 0.2em;
+    margin-right: 0.2em;
+}
+
+.header-tools i:hover {
+    background: #DFDFDF;
+}
+
+.header-tools .clicked {
+    background: #BDDAEF;
+    border: 1px solid rgba(60, 60, 60, 0.6);
+}
+
+/*Css for palette body compartment */
+
+.palette-body {
+    background: rgba(100, 100, 100, 0.2);
+    border: 1px solid rgba(60, 60, 60, 0.6);
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+.tool-group {
+    text-align: left;
+    background: #EDEDEE;
+}
+
+.group-header {
+    font-weight: bold;
+    background: #CCCCCC;
+}
+
+.group-header:hover {
+    background: #AAAAAA;
+}
+
+.group-header i {
+    padding: 0.4em;
+}
+
+.tool-button {
+    background: #EDEDEE;
+    padding: 0.4em;
+}
+
+.tool-button:hover {
+    background: #DFDFDF;
+}
+
+.tool-button.clicked {
+    background: #BDDAEF;
+}
+
+.tool-button.collapsed {
+    display: none;
+}

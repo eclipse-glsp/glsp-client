@@ -1,0 +1,51 @@
+{
+  "name": "@eclipse-glsp/client",
+  "version": "0.7.0",
+  "description": "A sprotty-based client for GLSP",
+  "license": "(EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0)",
+  "keywords": [
+    "eclipse",
+    "graphics",
+    "diagram",
+    "modeling",
+    "visualization",
+    "glsp",
+    "diagram editor"
+  ],
+  "homepage": "https://www.eclipse.org/glsp/",
+  "bugs": "https://github.com/eclipse-glsp/glsp-client/issues",
+  "files": [
+    "lib",
+    "src",
+    "css"
+  ],
+  "author": {
+    "name": "EclipseSource"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/eclipse-glsp/glsp-client.git"
+  },
+  "dependencies": {
+    "autocompleter": "^4.0.2",
+    "sprotty": "0.7.0",
+    "uuid": "latest",
+    "vscode-ws-jsonrpc": "^0.0.2-1"
+  },
+  "devDependencies": {
+    "@types/node": "10.14.18",
+    "@types/uuid": "3.4.5",
+    "rimraf": "^2.6.1",
+    "tslint": "^5.5.0",
+    "typescript": "3.6.4"
+  },
+  "scripts": {
+    "prepare": "yarn run clean && yarn run build",
+    "clean": "rimraf lib",
+    "build": "tsc && yarn run lint",
+    "lint": "tslint -c ./configs/tslint.json --project ./tsconfig.json",
+    "watch": "tsc -w",
+    "publish:latest": "yarn publish",
+    "publish:next": "yarn publish --exact --canary=next --npm-tag=next --yes"
+  }
+}
