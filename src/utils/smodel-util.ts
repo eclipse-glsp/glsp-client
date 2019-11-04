@@ -1,0 +1,103 @@
+/********************************************************************************
+ * Copyright (c) 2019 EclipseSource and others.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v. 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is available at
+ * https://www.gnu.org/software/classpath/license.html.
+ *
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ ********************************************************************************/
+import { BoundsAware, isBoundsAware, isSelectable, Selectable, SModelElement, SParentElement } from "sprotty/lib";
+
+import { isConfigurableNode, NodeEditConfig } from "../base/edit-config/edit-config";
+import { isRoutable } from "../features/reconnect/model";
+
+export function getIndex(element: SModelElement) {
+    return element.root.index;
+}
+
+export function forEachElement<T>(element: SModelElement, predicate: (element: SModelElement) => element is SModelElement & T, runnable: (element: SModelElement & T) => void) {
+    getIndex(element).all()
+        .filter(predicate)
+        .forEach(runnable);
+}
+
+export function getMatchingElements<T>(element: SModelElement, predicate: (element: SModelElement) => element is SModelElement & T): (SModelElement & T)[] {
+    const matching: (SModelElement & T)[] = [];
+    forEachElement(element, predicate, item => matching.push(item));
+    return matching;
+}
+
+export function hasSelectedElements(element: SModelElement) {
+    return getSelectedElementCount(element) > 0;
+}
+
+export function getSelectedElementCount(element: SModelElement): number {
+    let selected = 0;
+    getIndex(element).all()
+        .filter(isSelected)
+        .forEach(e => selected = selected + 1);
+    return selected;
+}
+
+export function isSelected(element: SModelElement | undefined): element is SModelElement & Selectable {
+    return isNotUndefined(element) && isSelectable(element) && element.selected;
+}
+
+export function isNotUndefined<T>(element: T | undefined): element is T {
+    return element !== undefined;
+}
+
+export function addCssClasses(root: SModelElement, cssClasses: string[]) {
+    if (root.cssClasses === undefined) {
+        root.cssClasses = [];
+    }
+    for (const cssClass of cssClasses) {
+        if (root.cssClasses.indexOf(cssClass) < 0) {
+            root.cssClasses.push(cssClass);
+        }
+    }
+}
+
+export function removeCssClasses(root: SModelElement, cssClasses: string[]) {
+    if (root.cssClasses === undefined || root.cssClasses.length === 0) {
+        return;
+    }
+    for (const cssClass of cssClasses) {
+        const index = root.cssClasses.indexOf(cssClass);
+        if (index !== -1) {
+            root.cssClasses.splice(root.cssClasses.indexOf(cssClass), 1);
+        }
+    }
+}
+
+export function isContainmentAllowed(element: SModelElement, containableElementTypeId: string)
+    : element is SParentElement & NodeEditConfig {
+    return isConfigurableNode(element) && element.isContainableElement(containableElementTypeId);
+}
+
+export function isNonRoutableSelectedBoundsAware(element: SModelElement): element is SelectableBoundsAware {
+    return isBoundsAware(element) && isSelected(element) && !isRoutable(element);
+}
+
+export type SelectableBoundsAware = SModelElement & BoundsAware & Selectable;
+
+export function toElementAndBounds(element: SModelElement & BoundsAware) {
+    return {
+        elementId: element.id,
+        newPosition: {
+            x: element.bounds.x,
+            y: element.bounds.y
+        },
+        newSize: {
+            width: element.bounds.width,
+            height: element.bounds.height
+        }
+    };
+}
