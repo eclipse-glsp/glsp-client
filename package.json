@@ -42,7 +42,7 @@
   "scripts": {
     "prepare": "yarn run clean && yarn run build",
     "clean": "rimraf lib",
-    "build": "tsc",
+    "build": "tsc && yarn run lint",
     "lint": "tslint -c ./configs/tslint.json --project ./tsconfig.json",
     "watch": "tsc -w",
     "publish:latest": "yarn publish",
