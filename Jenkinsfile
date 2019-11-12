@@ -51,6 +51,8 @@ pipeline {
                     withCredentials([string(credentialsId: 'npmjs-token', variable: 'NPM_AUTH_TOKEN')]) {
                     sh 'printf "//registry.npmjs.org/:_authToken=${NPM_AUTH_TOKEN}\n" >> /home/jenkins/.npmrc'
                     }
+                    sh  'git config  user.email "eclipse-glsp-bot@eclipse.org"'
+                    sh  'git config  user.name "eclipse-glsp-bot"'
                     sh 'yarn publish:next'
                 }
             }
