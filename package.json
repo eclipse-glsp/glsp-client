@@ -1,6 +1,6 @@
 {
   "name": "@eclipse-glsp/client",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "A sprotty-based client for GLSP",
   "license": "(EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0)",
   "keywords": [
@@ -28,7 +28,7 @@
   },
   "dependencies": {
     "autocompleter": "^4.0.2",
-    "sprotty": "0.7.0",
+    "sprotty": "next",
     "uuid": "latest",
     "vscode-ws-jsonrpc": "^0.0.2-1"
   },
@@ -45,7 +45,7 @@
     "build": "tsc && yarn run lint",
     "lint": "tslint -c ./configs/tslint.json --project ./tsconfig.json",
     "watch": "tsc -w",
-    "publish:latest": "yarn publish",
-    "publish:next": "yarn publish --exact --canary=next --npm-tag=next --yes"
+    "publish:latest": "yarn publish --tag latest",
+    "publish:next": "yarn publish --new-version \"$(semver $npm_package_version -i minor)-next.$(git rev-parse --short HEAD)\" --tag next"
   }
 }

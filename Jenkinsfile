@@ -4,7 +4,7 @@ kind: Pod
 spec:
   containers:
   - name: node
-    image: node:10.17.0-alpine
+    image: node:10.17.0
     tty: true
     resources:
       limits:
@@ -13,6 +13,15 @@ spec:
       requests:
         memory: "2Gi"
         cpu: "1"
+    command:
+    - cat
+    volumeMounts:
+    - mountPath: "/home/jenkins"
+      name: "jenkins-home"
+      readOnly: false
+  volumes:
+  - name: "jenkins-home"
+    emptyDir: {}
 """
 
 pipeline {
@@ -34,10 +43,16 @@ pipeline {
                 }
             }
         }
-        stage('Deploy (master)') {
+
+        stage('Deploy (master only)') {
             when { branch 'master'}
             steps {
-                sh 'echo "TODO deploy artifacts"'
+                container('node') {
+                    withCredentials([string(credentialsId: 'npmjs-token', variable: 'NPM_AUTH_TOKEN')]) {
+                    sh 'printf "//registry.npmjs.org/:_authToken=${NPM_AUTH_TOKEN}\n" >> /home/jenkins/.npmrc'
+                    }
+                    sh 'yarn publish:next'
+                }
             }
         }
     }
