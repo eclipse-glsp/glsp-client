@@ -43,8 +43,6 @@ export class SetModelActionHandler implements IActionHandler {
             return new UpdateModelAction(action.newRoot, false);
         }
     }
-
-    handledActionKinds = [SetModelCommand.KIND];
 }
 
 export function isSetModelAction(action: Action): action is SetModelAction {

@@ -24,21 +24,23 @@ import {
     SChildElement,
     Selectable,
     SModelElement,
-    SNode,
     SParentElement
 } from "sprotty/lib";
 
-import { isConfigurableNode, NodeEditConfig } from "../../base/edit-config/edit-config";
+export const resizeFeature = Symbol("resizeFeature");
+
+export interface Resizable extends BoundsAware, Selectable {
+}
+
+export function isResizable(element: SModelElement): element is SParentElement & Resizable {
+    return isBoundsAware(element) && isSelectable(element) && element instanceof SParentElement && element.hasFeature(resizeFeature);
+}
 
 export enum ResizeHandleLocation {
     TopLeft = "top-left",
     TopRight = "top-right",
     BottomLeft = "bottom-left",
     BottomRight = "bottom-right"
-}
-
-export function isResizeable(element: SModelElement): element is SNode & SParentElement & BoundsAware & Selectable & NodeEditConfig {
-    return isConfigurableNode(element) && element.resizable && isBoundsAware(element) && isSelectable(element) && element instanceof SParentElement;
 }
 
 export function isBoundsAwareMoveable(element: SModelElement): element is SModelElement & Locateable & BoundsAware {

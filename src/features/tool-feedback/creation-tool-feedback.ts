@@ -31,22 +31,21 @@ import {
     SChildElement,
     SConnectableElement,
     SDanglingAnchor,
+    SEdgeSchema,
     SModelElement,
     SModelRoot,
     SRoutableElement,
     TYPES
 } from "sprotty/lib";
 
-import { getAbsolutePosition } from "../../utils/viewpoint-util";
-import { isRoutable } from "../reconnect/model";
+import { isRoutable } from "../../utils/smodel-util";
+import { getAbsolutePosition, toAbsolutePosition } from "../../utils/viewpoint-util";
 import { FeedbackCommand } from "./model";
-
 
 export class DrawFeedbackEdgeAction implements Action {
     kind = DrawFeedbackEdgeCommand.KIND;
-    constructor(readonly elementTypeId: string, readonly sourceId: string) { }
+    constructor(readonly elementTypeId: string, readonly sourceId: string, readonly routerKind?: string) { }
 }
-
 
 @injectable()
 export class DrawFeedbackEdgeCommand extends FeedbackCommand {
@@ -57,7 +56,7 @@ export class DrawFeedbackEdgeCommand extends FeedbackCommand {
     }
 
     execute(context: CommandExecutionContext): CommandReturn {
-        drawFeedbackEdge(context, this.action.sourceId, this.action.elementTypeId);
+        drawFeedbackEdge(context, this.action.sourceId, this.action.elementTypeId, this.action.routerKind);
         return context.root;
     }
 }
@@ -126,7 +125,7 @@ export function feedbackEdgeEndId(root: SModelRoot): string {
     return root.id + '_feedback_anchor';
 }
 
-function drawFeedbackEdge(context: CommandExecutionContext, sourceId: string, elementTypeId: string) {
+function drawFeedbackEdge(context: CommandExecutionContext, sourceId: string, elementTypeId: string, routerKind?: string) {
     const root = context.root;
     const sourceChild = root.index.getById(sourceId);
     if (!sourceChild) {
@@ -140,13 +139,15 @@ function drawFeedbackEdge(context: CommandExecutionContext, sourceId: string, el
 
     const edgeEnd = new FeedbackEdgeEnd(source.id, elementTypeId);
     edgeEnd.id = feedbackEdgeEndId(root);
-    edgeEnd.position = { x: source.bounds.x, y: source.bounds.y };
+    edgeEnd.position = toAbsolutePosition(source);
 
-    const feedbackEdgeSchema = {
+    const feedbackEdgeSchema = <SEdgeSchema>{
         type: 'edge',
         id: feedbackEdgeId(root),
         sourceId: source.id,
         targetId: edgeEnd.id,
+        cssClasses: ["feedback-edge"],
+        routerKind,
         opacity: 0.3
     };
 

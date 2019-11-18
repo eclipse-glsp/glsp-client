@@ -18,12 +18,12 @@ import {
     Action,
     EnableDefaultToolsAction,
     isCtrlOrCmd,
+    isDeletable,
     isSelectable,
     KeyListener,
     KeyTool,
     MouseListener,
     SModelElement,
-    SModelRoot,
     Tool
 } from "sprotty/lib";
 import { matchesKeystroke } from "sprotty/lib/utils/keyboard";
@@ -59,7 +59,7 @@ export class DelKeyDeleteTool implements Tool {
 export class DeleteKeyListener extends KeyListener {
     keyDown(element: SModelElement, event: KeyboardEvent): Action[] {
         if (matchesKeystroke(event, 'Delete')) {
-            const deleteElementIds = Array.from(element.root.index.all().filter(e => isSelectable(e) && e.selected)
+            const deleteElementIds = Array.from(element.root.index.all().filter(e => isDeletable(e) && isSelectable(e) && e.selected)
                 .filter(e => e.id !== e.root.id).map(e => e.id));
             return [new DeleteElementOperationAction(deleteElementIds)];
         }
@@ -90,14 +90,12 @@ export class MouseDeleteTool implements Tool {
         this.mouseTool.deregister(this.deleteToolMouseListener);
         this.feedbackDispatcher.registerFeedback(this, [new ApplyCursorCSSFeedbackAction()]);
     }
-
-
 }
 
 @injectable()
 export class DeleteToolMouseListener extends MouseListener {
     mouseUp(target: SModelElement, event: MouseEvent): Action[] {
-        if (target instanceof SModelRoot) {
+        if (!isDeletable(target)) {
             return [];
         }
 

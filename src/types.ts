@@ -17,11 +17,14 @@ export const GLSP_TYPES = {
     ICommandPaletteActionProviderRegistry: Symbol.for("ICommandPaletteActionProviderRegistry"),
     IFeedbackActionDispatcher: Symbol.for("IFeedbackActionDispatcher"),
     IToolFactory: Symbol.for("Factory<Tool>"),
-    IEditConfigProvider: Symbol.for("IEditConfigProvider"),
+    ITypeHintProvider: Symbol.for("ITypeHintProvider"),
     IMovementRestrictor: Symbol.for("IMovmementRestrictor"),
-    RequestResponseSupport: Symbol.for("RequestResponseSupport"),
     SelectionService: Symbol.for("SelectionService"),
     SelectionListener: Symbol.for("SelectionListener"),
     SModelRootListener: Symbol.for("SModelRootListener"),
-    MouseTool: Symbol.for("MouseTool")
+    MouseTool: Symbol.for("MouseTool"),
+    IContextMenuService: Symbol.for("IContextMenuService"),
+    IContextMenuServiceProvider: Symbol.for("IContextMenuServiceProvider"),
+    IContextMenuProviderRegistry: Symbol.for("IContextMenuProviderRegistry"),
+    IContextMenuProvider: Symbol.for("IContextMenuProvider")
 };

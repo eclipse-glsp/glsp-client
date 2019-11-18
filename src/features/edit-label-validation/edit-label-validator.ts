@@ -18,25 +18,33 @@ import {
     Action,
     EditableLabel,
     EditLabelValidationResult,
+    generateRequestId,
     IEditLabelValidationDecorator,
     IEditLabelValidator,
+    RequestAction,
+    ResponseAction,
     Severity,
-    SModelElement
+    SModelElement,
+    TYPES
 } from "sprotty";
 
-import { GLSP_TYPES } from "../../types";
-import { RequestResponseSupport } from "../request-response/support";
+import { GLSPActionDispatcher } from "../request-response/glsp-action-dispatcher";
 
-export class ValidateLabelEditAction implements Action {
+export class ValidateLabelEditAction implements RequestAction<SetLabelEditValidationResultAction> {
     static readonly KIND = "validateLabelEdit";
     kind = ValidateLabelEditAction.KIND;
-    constructor(public readonly value: string, public readonly labelId: string) { }
+    constructor(
+        public readonly value: string,
+        public readonly labelId: string,
+        public readonly requestId: string = generateRequestId()) { }
 }
 
-export class SetLabelEditValidationResultAction implements Action {
+export class SetLabelEditValidationResultAction implements ResponseAction {
     static readonly KIND = "setLabelEditValidationResult";
     kind = SetLabelEditValidationResultAction.KIND;
-    constructor(public readonly result: EditLabelValidationResult) { }
+    constructor(
+        public readonly result: EditLabelValidationResult,
+        public readonly responseId: string = '') { }
 }
 
 export function isSetLabelEditValidationResultAction(action: Action): action is SetLabelEditValidationResultAction {
@@ -47,11 +55,11 @@ export function isSetLabelEditValidationResultAction(action: Action): action is 
 @injectable()
 export class ServerEditLabelValidator implements IEditLabelValidator {
 
-    @inject(GLSP_TYPES.RequestResponseSupport) protected requestResponseSupport: RequestResponseSupport;
+    @inject(TYPES.IActionDispatcher) protected actionDispatcher: GLSPActionDispatcher;
 
     validate(value: string, label: EditableLabel & SModelElement): Promise<EditLabelValidationResult> {
         const action = new ValidateLabelEditAction(value, label.id);
-        return this.requestResponseSupport.dispatchRequest(action, this.getValidationResultFromResponse);
+        return this.actionDispatcher.requestUntil(action).then(response => this.getValidationResultFromResponse(response));
     }
 
     getValidationResultFromResponse(action: Action): EditLabelValidationResult {

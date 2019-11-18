@@ -33,7 +33,7 @@ import {
 
 import { GLSP_TYPES } from "../../types";
 import { forEachElement, isNonRoutableSelectedBoundsAware, isSelected, toElementAndBounds } from "../../utils/smodel-util";
-import { isBoundsAwareMoveable, isResizeable, ResizeHandleLocation, SResizeHandle } from "../change-bounds/model";
+import { isBoundsAwareMoveable, isResizable, ResizeHandleLocation, SResizeHandle } from "../change-bounds/model";
 import { IMovementRestrictor } from "../change-bounds/movement-restrictor";
 import { IMouseTool } from "../mouse-tool/mouse-tool";
 import { ChangeBoundsOperationAction } from "../operation/operation-actions";
@@ -148,7 +148,7 @@ class ChangeBoundsListener extends MouseListener implements SelectionListener {
         const actions: Action[] = [];
         if (this.activeResizeHandle) {
             // An action. Resize, not move.
-            const resizeElement = findParentByFeature(this.activeResizeHandle, isResizeable);
+            const resizeElement = findParentByFeature(this.activeResizeHandle, isResizable);
             if (this.isActiveResizeElement(resizeElement)) {
                 createChangeBoundsAction(resizeElement).forEach(action => actions.push(action));
             }
@@ -238,7 +238,7 @@ class ChangeBoundsListener extends MouseListener implements SelectionListener {
         }
 
         const actions: Action[] = [];
-        const resizeElement = findParentByFeature(this.activeResizeHandle, isResizeable);
+        const resizeElement = findParentByFeature(this.activeResizeHandle, isResizable);
         if (this.isActiveResizeElement(resizeElement)) {
             switch (this.activeResizeHandle.location) {
                 case ResizeHandleLocation.TopLeft:
@@ -317,4 +317,5 @@ function minHeight(element: SModelElement & BoundsAware): number {
     // currently there are no element-specific constraints
     return 1;
 }
+
 

@@ -18,11 +18,9 @@ import "../../../css/command-palette.css";
 import { ContainerModule } from "inversify";
 import { TYPES } from "sprotty/lib";
 
-import { NavigationCommandPaletteActionProvider, ServerCommandPaletteActionProvider } from "./action-provider";
+import { ServerCommandPaletteActionProvider } from "./server-command-palette-provider";
 
-const glspCommandPaletteModule = new ContainerModule((bind, unbind, isBound, rebind) => {
-    bind(TYPES.ICommandPaletteActionProvider).to(NavigationCommandPaletteActionProvider);
-    bind(ServerCommandPaletteActionProvider).toSelf().inSingletonScope();
+const glspCommandPaletteModule = new ContainerModule((bind) => {
     bind(TYPES.ICommandPaletteActionProvider).to(ServerCommandPaletteActionProvider);
 });
 
