@@ -98,12 +98,12 @@ export class ChangeBoundsTool implements Tool {
 
 class ChangeBoundsListener extends MouseListener implements SelectionListener {
     // members for calculating the correct position change
-    private lastDragPosition: Point | undefined = undefined;
-    private positionDelta: Point = { x: 0, y: 0 };
+    protected lastDragPosition: Point | undefined = undefined;
+    protected positionDelta: Point = { x: 0, y: 0 };
 
     // members for resize mode
-    private activeResizeElementId: string | undefined = undefined;
-    private activeResizeHandle: SResizeHandle | undefined = undefined;
+    protected activeResizeElementId: string | undefined = undefined;
+    protected activeResizeHandle: SResizeHandle | undefined = undefined;
 
     constructor(protected tool: ChangeBoundsTool) {
         super();
@@ -183,7 +183,7 @@ class ChangeBoundsListener extends MouseListener implements SelectionListener {
         }
     }
 
-    private setActiveResizeElement(target: SModelElement): boolean {
+    protected setActiveResizeElement(target: SModelElement): boolean {
         // check if we have a selected, moveable element (multi-selection allowed)
         const moveableElement = findParentByFeature(target, isBoundsAwareMoveable);
         if (isSelected(moveableElement)) {
@@ -195,15 +195,15 @@ class ChangeBoundsListener extends MouseListener implements SelectionListener {
         return false;
     }
 
-    private isActiveResizeElement(element: SModelElement | undefined): element is SParentElement & BoundsAware {
+    protected isActiveResizeElement(element: SModelElement | undefined): element is SParentElement & BoundsAware {
         return element !== undefined && element.id === this.activeResizeElementId;
     }
 
-    private initPosition(event: MouseEvent) {
+    protected initPosition(event: MouseEvent) {
         this.lastDragPosition = { x: event.pageX, y: event.pageY };
     }
 
-    private updatePosition(target: SModelElement, event: MouseEvent): boolean {
+    protected updatePosition(target: SModelElement, event: MouseEvent): boolean {
         if (this.lastDragPosition) {
             const viewport = findParentByFeature(target, isViewport);
             const zoom = viewport ? viewport.zoom : 1;
@@ -217,22 +217,22 @@ class ChangeBoundsListener extends MouseListener implements SelectionListener {
         return false;
     }
 
-    private reset() {
+    protected reset() {
         this.tool.dispatchFeedback([new HideChangeBoundsToolResizeFeedbackAction()]);
         this.resetPosition();
     }
 
-    private resetPosition() {
+    protected resetPosition() {
         this.activeResizeHandle = undefined;
         this.lastDragPosition = undefined;
         this.positionDelta = { x: 0, y: 0 };
     }
 
-    private hasPositionDelta(): boolean {
+    protected hasPositionDelta(): boolean {
         return this.positionDelta.x !== 0 || this.positionDelta.y !== 0;
     }
 
-    private handleElementResize(): Action[] {
+    protected handleElementResize(): Action[] {
         if (!this.activeResizeHandle) {
             return [];
         }
@@ -317,5 +317,4 @@ function minHeight(element: SModelElement & BoundsAware): number {
     // currently there are no element-specific constraints
     return 1;
 }
-
 

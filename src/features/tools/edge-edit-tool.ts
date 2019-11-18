@@ -102,27 +102,27 @@ export class EdgeEditTool implements Tool {
 }
 
 class ReconnectEdgeListener extends MouseListener implements SelectionListener {
-    private isMouseDown: boolean;
+    protected isMouseDown: boolean;
 
     // active selection data
-    private edge?: SRoutableElement;
-    private routingHandle?: SRoutingHandle;
+    protected edge?: SRoutableElement;
+    protected routingHandle?: SRoutingHandle;
 
     // new connectable (source or target) for edge
-    private newConnectable?: SModelElement & Connectable;
+    protected newConnectable?: SModelElement & Connectable;
 
     // active reconnect handle data
-    private reconnectMode?: 'NEW_SOURCE' | 'NEW_TARGET';
+    protected reconnectMode?: 'NEW_SOURCE' | 'NEW_TARGET';
 
     constructor(protected tool: EdgeEditTool) {
         super();
     }
 
-    private isValidEdge(edge?: SRoutableElement): edge is SRoutableElement {
+    protected isValidEdge(edge?: SRoutableElement): edge is SRoutableElement {
         return edge !== undefined && edge.id !== feedbackEdgeId(edge.root) && isSelected(edge);
     }
 
-    private setEdgeSelected(edge: SRoutableElement) {
+    protected setEdgeSelected(edge: SRoutableElement) {
         if (this.edge && this.edge.id !== edge.id) {
             // reset from a previously selected edge
             this.reset();
@@ -133,11 +133,11 @@ class ReconnectEdgeListener extends MouseListener implements SelectionListener {
         this.tool.dispatchFeedback([new SwitchRoutingModeAction([this.edge.id], []), new ShowEdgeReconnectHandlesFeedbackAction(this.edge.id)]);
     }
 
-    private isEdgeSelected(): boolean {
+    protected isEdgeSelected(): boolean {
         return this.edge !== undefined && isSelected(this.edge);
     }
 
-    private setReconnectHandleSelected(edge: SRoutableElement, reconnectHandle: SReconnectHandle) {
+    protected setReconnectHandleSelected(edge: SRoutableElement, reconnectHandle: SReconnectHandle) {
         if (this.edge && this.edge.target && this.edge.source) {
             if (isSourceRoutingHandle(edge, reconnectHandle)) {
                 this.tool.dispatchFeedback([new HideEdgeReconnectHandlesFeedbackAction(),
@@ -153,33 +153,33 @@ class ReconnectEdgeListener extends MouseListener implements SelectionListener {
         }
     }
 
-    private isReconnecting(): boolean {
+    protected isReconnecting(): boolean {
         return this.reconnectMode !== undefined;
     }
 
-    private isReconnectingNewSource(): boolean {
+    protected isReconnectingNewSource(): boolean {
         return this.reconnectMode === "NEW_SOURCE";
     }
 
-    private setRoutingHandleSelected(edge: SRoutableElement, routingHandle: SRoutingHandle) {
+    protected setRoutingHandleSelected(edge: SRoutableElement, routingHandle: SRoutingHandle) {
         if (this.edge && this.edge.target && this.edge.source) {
             this.routingHandle = routingHandle;
         }
     }
 
-    private requiresReconnect(sourceId: string, targetId: string): boolean {
+    protected requiresReconnect(sourceId: string, targetId: string): boolean {
         return this.edge !== undefined && (this.edge.sourceId !== sourceId || this.edge.targetId !== targetId);
     }
 
-    private setNewConnectable(connectable?: SModelElement & Connectable) {
+    protected setNewConnectable(connectable?: SModelElement & Connectable) {
         this.newConnectable = connectable;
     }
 
-    private isReadyToReconnect() {
+    protected isReadyToReconnect() {
         return this.edge && this.isReconnecting() && this.newConnectable !== undefined;
     }
 
-    private isReadyToReroute() {
+    protected isReadyToReroute() {
         return this.routingHandle !== undefined;
     }
 
@@ -292,7 +292,7 @@ class ReconnectEdgeListener extends MouseListener implements SelectionListener {
         this.resetData();
     }
 
-    private resetData() {
+    protected resetData() {
         this.isMouseDown = false;
         this.edge = undefined;
         this.reconnectMode = undefined;
@@ -300,7 +300,7 @@ class ReconnectEdgeListener extends MouseListener implements SelectionListener {
         this.routingHandle = undefined;
     }
 
-    private resetFeedback() {
+    protected resetFeedback() {
         const result: Action[] = [];
         if (this.edge) {
             result.push(new SwitchRoutingModeAction([], [this.edge.id]));
