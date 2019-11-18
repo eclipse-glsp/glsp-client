@@ -80,12 +80,12 @@ export class NodeCreationTool implements Tool, TypeAware {
 
 @injectable()
 export class NodeCreationToolMouseListener extends DragAwareMouseListener {
-    private container?: SModelElement;
+    protected container?: SModelElement;
     constructor(protected elementTypeId: string, protected tool: NodeCreationTool) {
         super();
     }
 
-    private creationAllowed(target: SModelElement) {
+    protected creationAllowed(target: SModelElement) {
         return this.container || target instanceof SModelRoot;
     }
 
@@ -156,11 +156,11 @@ export class EdgeCreationTool implements Tool, TypeAware {
 
 @injectable()
 export class EdgeCreationToolMouseListener extends DragAwareMouseListener {
-    private source?: string;
-    private target?: string;
-    private currentTarget?: SModelElement;
-    private allowedTarget: boolean = false;
-    private edgeEditConfig?: EdgeEditConfig;
+    protected source?: string;
+    protected target?: string;
+    protected currentTarget?: SModelElement;
+    protected allowedTarget: boolean = false;
+    protected edgeEditConfig?: EdgeEditConfig;
 
     constructor(protected elementTypeId: string, protected tool: EdgeCreationTool) {
         super();
@@ -170,7 +170,7 @@ export class EdgeCreationToolMouseListener extends DragAwareMouseListener {
         }
     }
 
-    private reinitialize() {
+    protected reinitialize() {
         this.source = undefined;
         this.target = undefined;
         this.currentTarget = undefined;
@@ -205,11 +205,11 @@ export class EdgeCreationToolMouseListener extends DragAwareMouseListener {
         return result;
     }
 
-    private isSourceSelected() {
+    protected isSourceSelected() {
         return this.source !== undefined;
     }
 
-    private isTargetSelected() {
+    protected isTargetSelected() {
         return this.target !== undefined;
     }
 
@@ -235,11 +235,11 @@ export class EdgeCreationToolMouseListener extends DragAwareMouseListener {
         return [];
     }
 
-    private isAllowedSource(element: SModelElement | undefined): boolean {
+    protected isAllowedSource(element: SModelElement | undefined): boolean {
         return element !== undefined && this.edgeEditConfig ? this.edgeEditConfig.isAllowedSource(element) : false;
     }
 
-    private isAllowedTarget(element: SModelElement | undefined): boolean {
+    protected isAllowedTarget(element: SModelElement | undefined): boolean {
         return element !== undefined && this.edgeEditConfig ? this.edgeEditConfig.isAllowedTarget(element) : false;
     }
 }

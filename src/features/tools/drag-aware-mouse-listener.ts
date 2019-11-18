@@ -58,4 +58,8 @@ export class DragAwareMouseListener extends MouseListener {
         return [];
     }
 
+    get isDragging() {
+        return this.isMouseDrag;
+    }
+
 }
