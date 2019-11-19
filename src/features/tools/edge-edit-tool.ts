@@ -17,6 +17,7 @@ import { inject, injectable, optional } from "inversify";
 import {
     Action,
     AnchorComputerRegistry,
+    canEditRouting,
     Connectable,
     EdgeRouterRegistry,
     findParentByFeature,
@@ -29,15 +30,13 @@ import {
     Tool
 } from "sprotty/lib";
 
-import { isConfigurableEdge } from "../../base/edit-config/edit-config";
 import { GLSP_TYPES } from "../../types";
-import { isSelected } from "../../utils/smodel-util";
+import { isRoutable, isRoutingHandle, isSelected } from "../../utils/smodel-util";
 import { IMouseTool } from "../mouse-tool/mouse-tool";
 import { ReconnectConnectionOperationAction, RerouteConnectionOperationAction } from "../reconnect/action-definitions";
 import {
+    isReconnectable,
     isReconnectHandle,
-    isRoutable,
-    isRoutingHandle,
     isSourceRoutingHandle,
     isTargetRoutingHandle,
     SReconnectHandle
@@ -130,7 +129,14 @@ class ReconnectEdgeListener extends MouseListener implements SelectionListener {
 
         this.edge = edge;
         // note: order is important here as we want the reconnect handles to cover the routing handles
-        this.tool.dispatchFeedback([new SwitchRoutingModeAction([this.edge.id], []), new ShowEdgeReconnectHandlesFeedbackAction(this.edge.id)]);
+        const feedbackActions = [];
+        if (canEditRouting(edge)) {
+            feedbackActions.push(new SwitchRoutingModeAction([this.edge.id], []));
+        }
+        if (isReconnectable(edge)) {
+            feedbackActions.push(new ShowEdgeReconnectHandlesFeedbackAction(this.edge.id));
+        }
+        this.tool.dispatchFeedback(feedbackActions);
     }
 
     protected isEdgeSelected(): boolean {
@@ -244,9 +250,9 @@ class ReconnectEdgeListener extends MouseListener implements SelectionListener {
             const currentTarget = findParentByFeature(target, isConnectable);
             if (!this.newConnectable || currentTarget !== this.newConnectable) {
                 this.setNewConnectable(currentTarget);
-                if (currentTarget && isConfigurableEdge(this.edge)) {
-                    if ((this.reconnectMode === 'NEW_SOURCE' && this.edge.isAllowedSource(currentTarget.type)) ||
-                        (this.reconnectMode === 'NEW_TARGET' && this.edge.isAllowedTarget(currentTarget.type))) {
+                if (currentTarget) {
+                    if ((this.reconnectMode === 'NEW_SOURCE' && currentTarget.canConnect(this.edge, "source")) ||
+                        (this.reconnectMode === 'NEW_TARGET' && currentTarget.canConnect(this.edge, "target"))) {
 
                         this.tool.dispatchFeedback([new ApplyCursorCSSFeedbackAction(CursorCSS.EDGE_RECONNECT)]);
                         return [];

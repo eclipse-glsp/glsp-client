@@ -13,22 +13,20 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { SModelElement, SModelExtension } from "sprotty/lib";
+import { SModelElement, SModelElementSchema, SModelExtension } from "sprotty";
 
-export const nameFeature = Symbol('nameableFeature');
-
-export interface Nameable extends SModelExtension {
-    name: string
+export const containerFeature = Symbol("containable");
+export interface Containable extends SModelExtension {
+    isContainableElement(input: SModelElement | SModelElementSchema | string): boolean
 }
 
-export function isNameable(element: SModelElement): element is SModelElement & Nameable {
-    return element.hasFeature(nameFeature);
+export function isContainable(element: SModelElement): element is SModelElement & Containable {
+    return element.hasFeature(containerFeature);
 }
 
-export function name(element: SModelElement): string {
-    if (isNameable(element)) {
-        return element.name;
-    } else {
-        return 'unnamed';
-    }
+export const reparentFeature = Symbol("reparentFeature");
+export interface Reparentable extends SModelExtension { }
+
+export function isReparentable(element: SModelElement): element is SModelElement & Reparentable {
+    return element.hasFeature(reparentFeature);
 }

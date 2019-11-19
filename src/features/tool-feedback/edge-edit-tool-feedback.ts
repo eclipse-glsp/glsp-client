@@ -42,9 +42,9 @@ import {
     TYPES
 } from "sprotty/lib";
 
-import { isNotUndefined, isSelected } from "../../utils/smodel-util";
+import { isNotUndefined, isRoutable, isRoutingHandle, isSelected } from "../../utils/smodel-util";
 import { getAbsolutePosition } from "../../utils/viewpoint-util";
-import { addReconnectHandles, isRoutable, isRoutingHandle, removeReconnectHandles } from "../reconnect/model";
+import { addReconnectHandles, removeReconnectHandles } from "../reconnect/model";
 import {
     FeedbackEdgeEnd,
     feedbackEdgeEndId,
@@ -180,7 +180,6 @@ export class FeedbackEdgeSourceMovingMouseListener extends MouseListener {
         return [];
     }
 }
-
 
 export class FeedbackEdgeRouteMovingMouseListener extends MouseListener {
     hasDragged = false;

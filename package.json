@@ -39,6 +39,9 @@
     "tslint": "^5.5.0",
     "typescript": "3.6.4"
   },
+  "resolutions": {
+    "**/sprotty": "0.8.0-next.1d772ad"
+  },
   "scripts": {
     "prepare": "yarn run clean && yarn run build",
     "clean": "rimraf lib",

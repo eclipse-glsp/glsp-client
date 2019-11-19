@@ -13,13 +13,14 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-
-/** @jsx svg */
-import { injectable } from 'inversify';
-import { svg } from 'snabbdom-jsx';
+import { injectable } from "inversify";
+import * as snabbdom from "snabbdom-jsx";
 import { VNode } from "snabbdom/vnode";
 import { IView, ORIGIN_POINT, Point, RenderingContext, setAttr, SModelElement } from "sprotty/lib";
-import { isResizeable, ResizeHandleLocation, SResizeHandle } from '../change-bounds/model';
+
+import { isResizable, ResizeHandleLocation, SResizeHandle } from "../change-bounds/model";
+
+const JSX = { createElement: snabbdom.svg };
 
 /**
 * This view is used for the invisible end of the feedback edge.
@@ -49,7 +50,7 @@ export class SResizeHandleView implements IView {
 
     protected getPosition(handle: SResizeHandle): Point | undefined {
         const parent = handle.parent;
-        if (isResizeable(parent)) {
+        if (isResizable(parent)) {
             if (handle.location === ResizeHandleLocation.TopLeft) {
                 return { x: 0, y: 0 };
             } else if (handle.location === ResizeHandleLocation.TopRight) {

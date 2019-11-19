@@ -18,19 +18,19 @@ import {
     Action,
     AnchorComputerRegistry,
     EnableDefaultToolsAction,
-    findParent,
     findParentByFeature,
     isConnectable,
     isCtrlOrCmd,
+    SEdge,
     SModelElement,
-    SModelRoot,
     Tool
 } from "sprotty/lib";
 
-import { containmentAllowed, EdgeEditConfig, edgeEditConfig, IEditConfigProvider } from "../../base/edit-config/edit-config";
 import { TypeAware } from "../../base/tool-manager/tool-manager-action-handler";
 import { GLSP_TYPES } from "../../types";
 import { getAbsolutePosition } from "../../utils/viewpoint-util";
+import { Containable, isContainable } from "../hints/model";
+import { ITypeHintProvider } from "../hints/type-hints";
 import { IMouseTool } from "../mouse-tool/mouse-tool";
 import { CreateConnectionOperationAction, CreateNodeOperationAction } from "../operation/operation-actions";
 import { deriveOperationId, OperationKind } from "../operation/set-operations";
@@ -42,7 +42,6 @@ import {
 import { ApplyCursorCSSFeedbackAction, CursorCSS } from "../tool-feedback/cursor-feedback";
 import { IFeedbackActionDispatcher } from "../tool-feedback/feedback-action-dispatcher";
 import { DragAwareMouseListener } from "./drag-aware-mouse-listener";
-
 
 export const TOOL_ID_PREFIX = "tool";
 
@@ -80,18 +79,18 @@ export class NodeCreationTool implements Tool, TypeAware {
 
 @injectable()
 export class NodeCreationToolMouseListener extends DragAwareMouseListener {
-    protected container?: SModelElement;
+    protected container?: SModelElement & Containable;
     constructor(protected elementTypeId: string, protected tool: NodeCreationTool) {
         super();
     }
 
-    protected creationAllowed(target: SModelElement) {
-        return this.container || target instanceof SModelRoot;
+    protected creationAllowed(elementTypeId: string) {
+        return this.container && this.container.isContainableElement(elementTypeId);
     }
 
     nonDraggingMouseUp(target: SModelElement, event: MouseEvent): Action[] {
         const result: Action[] = [];
-        if (this.creationAllowed(target)) {
+        if (this.creationAllowed(this.elementTypeId)) {
             const containerId = this.container ? this.container.id : undefined;
             const location = getAbsolutePosition(target, event);
             result.push(new CreateNodeOperationAction(this.elementTypeId, location, containerId));
@@ -103,10 +102,10 @@ export class NodeCreationToolMouseListener extends DragAwareMouseListener {
     }
 
     mouseOver(target: SModelElement, event: MouseEvent): Action[] {
-        const currentContainer = findParent(target, e => containmentAllowed(e, this.elementTypeId));
+        const currentContainer = findParentByFeature(target, isContainable);
         if (!this.container || currentContainer !== this.container) {
             this.container = currentContainer;
-            const feedback = this.creationAllowed(target)
+            const feedback = this.creationAllowed(this.elementTypeId)
                 ? new ApplyCursorCSSFeedbackAction(CursorCSS.NODE_CREATION) :
                 new ApplyCursorCSSFeedbackAction(CursorCSS.OPERATION_NOT_ALLOWED);
             this.tool.dispatchFeedback([feedback]);
@@ -128,7 +127,7 @@ export class EdgeCreationTool implements Tool, TypeAware {
     constructor(@inject(GLSP_TYPES.MouseTool) protected mouseTool: IMouseTool,
         @inject(GLSP_TYPES.IFeedbackActionDispatcher) protected feedbackDispatcher: IFeedbackActionDispatcher,
         @inject(AnchorComputerRegistry) protected anchorRegistry: AnchorComputerRegistry,
-        @inject(GLSP_TYPES.IEditConfigProvider) public readonly editConfigProvider: IEditConfigProvider) { }
+        @inject(GLSP_TYPES.ITypeHintProvider) public readonly typeHintProvider: ITypeHintProvider) { }
 
     get id() {
         return deriveToolId(OperationKind.CREATE_CONNECTION, this.elementTypeId);
@@ -160,14 +159,11 @@ export class EdgeCreationToolMouseListener extends DragAwareMouseListener {
     protected target?: string;
     protected currentTarget?: SModelElement;
     protected allowedTarget: boolean = false;
-    protected edgeEditConfig?: EdgeEditConfig;
-
+    protected proxyEdge: SEdge;
     constructor(protected elementTypeId: string, protected tool: EdgeCreationTool) {
         super();
-        const config = tool.editConfigProvider.getEditConfig(this.elementTypeId);
-        if (config && config.configType === edgeEditConfig) {
-            this.edgeEditConfig = config as EdgeEditConfig;
-        }
+        this.proxyEdge = new SEdge();
+        this.proxyEdge.type = elementTypeId;
     }
 
     protected reinitialize() {
@@ -236,10 +232,11 @@ export class EdgeCreationToolMouseListener extends DragAwareMouseListener {
     }
 
     protected isAllowedSource(element: SModelElement | undefined): boolean {
-        return element !== undefined && this.edgeEditConfig ? this.edgeEditConfig.isAllowedSource(element) : false;
+        return element !== undefined && isConnectable(element) && element.canConnect(this.proxyEdge, "source");
     }
 
     protected isAllowedTarget(element: SModelElement | undefined): boolean {
-        return element !== undefined && this.edgeEditConfig ? this.edgeEditConfig.isAllowedTarget(element) : false;
+        return element !== undefined && isConnectable(element) && element.canConnect(this.proxyEdge, "target");
+
     }
 }

@@ -14,11 +14,6 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-export function contains<T>(array: T[], value: T): boolean {
-    if (value === undefined) return false;
-    return array.indexOf(value) >= 0;
-}
-
 export function remove<T>(array: T[], value: T): boolean {
     const index = array.indexOf(value);
     if (index >= 0) {
@@ -29,7 +24,7 @@ export function remove<T>(array: T[], value: T): boolean {
 }
 
 export function distinctAdd<T>(array: T[], value: T): boolean {
-    if (!contains(array, value)) {
+    if (!array.includes(value)) {
         array.push(value);
         return true;
     }

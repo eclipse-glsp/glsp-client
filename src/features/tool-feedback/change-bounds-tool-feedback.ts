@@ -34,7 +34,7 @@ import {
 
 import { isNotUndefined } from "../../utils/smodel-util";
 import { getAbsolutePosition } from "../../utils/viewpoint-util";
-import { addResizeHandles, isBoundsAwareMoveable, isResizeable, removeResizeHandles } from "../change-bounds/model";
+import { addResizeHandles, isBoundsAwareMoveable, isResizable, removeResizeHandles } from "../change-bounds/model";
 import { IMovementRestrictor } from "../change-bounds/movement-restrictor";
 import { FeedbackCommand } from "./model";
 
@@ -58,11 +58,11 @@ export class ShowChangeBoundsToolResizeFeedbackCommand extends FeedbackCommand {
 
     execute(context: CommandExecutionContext): CommandReturn {
         const index = context.root.index;
-        index.all().filter(isResizeable).forEach(removeResizeHandles);
+        index.all().filter(isResizable).forEach(removeResizeHandles);
 
         if (isNotUndefined(this.action.elementId)) {
             const resizeElement = index.getById(this.action.elementId);
-            if (isNotUndefined(resizeElement) && isResizeable(resizeElement)) {
+            if (isNotUndefined(resizeElement) && isResizable(resizeElement)) {
                 addResizeHandles(resizeElement);
             }
         }
@@ -80,7 +80,7 @@ export class HideChangeBoundsToolResizeFeedbackCommand extends FeedbackCommand {
 
     execute(context: CommandExecutionContext): CommandReturn {
         const index = context.root.index;
-        index.all().filter(isResizeable).forEach(removeResizeHandles);
+        index.all().filter(isResizable).forEach(removeResizeHandles);
         return context.root;
     }
 }

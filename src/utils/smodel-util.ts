@@ -13,10 +13,16 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { BoundsAware, isBoundsAware, isSelectable, Selectable, SModelElement, SParentElement } from "sprotty/lib";
+import {
+    BoundsAware,
+    isBoundsAware,
+    isSelectable,
+    Selectable,
+    SModelElement,
+    SRoutableElement,
+    SRoutingHandle
+} from "sprotty/lib";
 
-import { isConfigurableNode, NodeEditConfig } from "../base/edit-config/edit-config";
-import { isRoutable } from "../features/reconnect/model";
 
 export function getIndex(element: SModelElement) {
     return element.root.index;
@@ -77,13 +83,16 @@ export function removeCssClasses(root: SModelElement, cssClasses: string[]) {
     }
 }
 
-export function isContainmentAllowed(element: SModelElement, containableElementTypeId: string)
-    : element is SParentElement & NodeEditConfig {
-    return isConfigurableNode(element) && element.isContainableElement(containableElementTypeId);
-}
-
 export function isNonRoutableSelectedBoundsAware(element: SModelElement): element is SelectableBoundsAware {
     return isBoundsAware(element) && isSelected(element) && !isRoutable(element);
+}
+
+export function isRoutable<T extends SModelElement>(element: T): element is T & SRoutableElement {
+    return element instanceof SRoutableElement && (element as any).routingPoints !== undefined;
+}
+
+export function isRoutingHandle(element: SModelElement | undefined): element is SRoutingHandle {
+    return element !== undefined && element instanceof SRoutingHandle;
 }
 
 export type SelectableBoundsAware = SModelElement & BoundsAware & Selectable;

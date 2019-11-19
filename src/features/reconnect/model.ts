@@ -19,23 +19,25 @@ import {
     RoutingHandleKind,
     selectFeature,
     SModelElement,
+    SModelExtension,
     SRoutableElement,
     SRoutingHandle
 } from "sprotty/lib";
 
-const ROUTING_HANDLE_SOURCE_INDEX: number = -2;
-
-export function isRoutable<T extends SModelElement>(element: T): element is T & SRoutableElement {
-    return element instanceof SRoutableElement && (element as any).routingPoints !== undefined;
+export const reconnectFeature = Symbol("reconnectFeature");
+export interface Reconnectable extends SModelExtension {
 }
+
+export function isReconnectable(element: SModelElement): element is SRoutableElement & Reconnectable {
+    return element instanceof SRoutableElement && element.hasFeature(reconnectFeature);
+}
+
+const ROUTING_HANDLE_SOURCE_INDEX: number = -2;
 
 export function isReconnectHandle(element: SModelElement | undefined): element is SReconnectHandle {
     return element !== undefined && element instanceof SReconnectHandle;
 }
 
-export function isRoutingHandle(element: SModelElement | undefined): element is SRoutingHandle {
-    return element !== undefined && element instanceof SRoutingHandle;
-}
 
 export function addReconnectHandles(element: SRoutableElement) {
     removeReconnectHandles(element);

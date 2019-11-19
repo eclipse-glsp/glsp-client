@@ -13,12 +13,19 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Point } from "sprotty/lib";
-import { SModelElement } from "sprotty/lib";
-import { Viewport } from "sprotty/lib";
-
-import { findParentByFeature } from "sprotty/lib";
-import { isViewport } from "sprotty/lib";
+import {
+    Bounds,
+    BoundsAware,
+    Dimension,
+    findParentByFeature,
+    isAlignable,
+    isViewport,
+    ORIGIN_POINT,
+    Point,
+    SModelElement,
+    translateBounds,
+    Viewport
+} from "sprotty/lib";
 
 /**
  * Return the position corresponding to this mouse event (Browser coordinates)
@@ -55,4 +62,39 @@ export function getAbsolutePosition(target: SModelElement, mouseEvent: MouseEven
         x: xPos,
         y: yPos
     };
+}
+
+/**
+ * Translates the bounds of the diagram element (local coordinates) into the diagram coordinates system
+ * (i.e. relative to the Diagram's 0;0 point)
+ *
+ * @param target  A bounds-aware element from the diagram
+ */
+export function toAbsoluteBounds(element: SModelElement & BoundsAware): Bounds {
+    const location = isAlignable(element) ? element.alignment : ORIGIN_POINT;
+    const x = location.x;
+    const y = location.y;
+    const width = element.bounds.width;
+    const height = element.bounds.height;
+    return translateBounds({ x, y, width, height }, element, element.root);
+}
+
+/**
+ * Translates the position of the diagram element (local coordinates) into the diagram coordinates system
+ * (i.e. relative to the Diagram's 0;0 point)
+ *
+ * @param target  A bounds-aware element from the diagram
+ */
+export function toAbsolutePosition(target: SModelElement & BoundsAware): Point {
+    return toAbsoluteBounds(target);
+}
+
+/**
+ * Translates the size of the diagram element (local coordinates) into the diagram coordinates system
+ * (i.e. relative to the Diagram's 0;0 point)
+ *
+ * @param target  A bounds-aware element from the diagram
+ */
+export function toAbsoluteSize(target: SModelElement & BoundsAware): Dimension {
+    return toAbsoluteBounds(target);
 }

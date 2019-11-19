@@ -23,14 +23,14 @@ import {
 } from "sprotty";
 import * as rpc from "vscode-ws-jsonrpc";
 import { NotificationType } from "vscode-ws-jsonrpc";
-import { RequestCommandPaletteActions } from "../features/command-palette/action-definitions";
+import { RequestContextActions } from "../features/context-actions/action-definitions";
 import { ExecuteServerCommandAction } from "../features/execute/execute-command";
-import { RequestTypeHintsAction } from "../features/hints/action-definition";
+import { RequestTypeHintsAction } from "../features/hints/request-type-hints-action";
 import { OperationKind, RequestOperationsAction } from "../features/operation/set-operations";
-import { IdentifiableRequestAction } from "../features/request-response/action-definitions";
 import { SaveModelAction } from "../features/save/save";
 import { GlspRedoAction, GlspUndoAction } from "../features/undo-redo/model";
 import { RequestMarkersAction } from "../features/validation/validate";
+import { ValidateLabelEditAction } from "../features/edit-label-validation/edit-label-validator";
 
 @injectable()
 export class GLSPWebsocketDiagramServer extends DiagramServer {
@@ -46,7 +46,6 @@ export class GLSPWebsocketDiagramServer extends DiagramServer {
                 this.connection = connection;
             }
         });
-
     }
 
     protected sendMessage(message: ActionMessage): void {
@@ -99,8 +98,8 @@ export function registerDefaultGLSPServerActions(registry: ActionHandlerRegistry
     registry.register(ServerStatusAction.KIND, diagramServer);
     registry.register(RequestModelAction.KIND, diagramServer);
     registry.register(ExportSvgAction.KIND, diagramServer);
-    registry.register(RequestCommandPaletteActions.KIND, diagramServer);
-    registry.register(IdentifiableRequestAction.KIND, diagramServer);
+    registry.register(RequestContextActions.KIND, diagramServer);
+    registry.register(ValidateLabelEditAction.KIND, diagramServer);
     registry.register(RequestMarkersAction.KIND, diagramServer);
     registry.register(LayoutAction.KIND, diagramServer);
     registry.register(ApplyLabelEditAction.KIND, diagramServer);
