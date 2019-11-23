@@ -44,7 +44,7 @@ describe('ContextMenuProviderRegistry', () => {
                 }
             }
         ]);
-        expect(await reg.getItems(new SModelRoot())).to.lengthOf(1);
+        expect(await reg.getItems(new SModelRoot())).to.lengthOf(2);
     });
 
 });
