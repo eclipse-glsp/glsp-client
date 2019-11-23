@@ -65,10 +65,8 @@ pipeline {
     }
 
     post {
-        success {
-            junit 'artifacts/test/xunit.xml'
-            archiveArtifacts 'artifacts/coverage/**'
-        }
+        junit 'artifacts/test/xunit.xml'
+        archiveArtifacts 'artifacts/coverage/**'
     }
 }
 
