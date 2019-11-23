@@ -40,6 +40,7 @@ pipeline {
             steps {
                 container('node') {
                     sh "yarn install"
+                    sh "yarn test"
                 }
             }
         }
@@ -49,13 +50,20 @@ pipeline {
             steps {
                 container('node') {
                     withCredentials([string(credentialsId: 'npmjs-token', variable: 'NPM_AUTH_TOKEN')]) {
-                    sh 'printf "//registry.npmjs.org/:_authToken=${NPM_AUTH_TOKEN}\n" >> /home/jenkins/.npmrc'
+                        sh 'printf "//registry.npmjs.org/:_authToken=${NPM_AUTH_TOKEN}\n" >> /home/jenkins/.npmrc'
                     }
-                    sh  'git config  user.email "eclipse-glsp-bot@eclipse.org"'
-                    sh  'git config  user.name "eclipse-glsp-bot"'
+                    sh 'git config  user.email "eclipse-glsp-bot@eclipse.org"'
+                    sh 'git config  user.name "eclipse-glsp-bot"'
                     sh 'yarn publish:next'
                 }
             }
+        }
+    }
+
+    post {
+        success {
+            junit 'artifacts/test/xunit.xml'
+            archiveArtifacts 'artifacts/coverage/**'
         }
     }
 }
