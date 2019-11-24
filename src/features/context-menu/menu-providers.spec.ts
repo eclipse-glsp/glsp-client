@@ -13,10 +13,12 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import 'mocha';
-import { expect } from 'chai';
-import { ContextMenuProviderRegistry } from './menu-providers';
-import { SModelRoot } from 'sprotty';
+import "mocha";
+
+import { expect } from "chai";
+import { SModelRoot } from "sprotty";
+
+import { ContextMenuProviderRegistry } from "./menu-providers";
 
 describe('ContextMenuProviderRegistry', () => {
 
