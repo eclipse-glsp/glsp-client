@@ -18,7 +18,6 @@ import { TYPES } from "sprotty";
 
 import { GLSPActionDispatcher } from "./glsp-action-dispatcher";
 
-
 const requestResponseModule = new ContainerModule((bind, unbind, isBound, rebind) => {
     rebind(TYPES.IActionDispatcher).to(GLSPActionDispatcher).inSingletonScope();
 });
