@@ -109,8 +109,6 @@ export class FeedbackMoveMouseListener extends MouseListener {
         return [];
     }
 
-
-
     mouseMove(target: SModelElement, event: MouseEvent): Action[] {
         const result: Action[] = [];
         if (event.buttons === 0)
@@ -171,6 +169,5 @@ export class FeedbackMoveMouseListener extends MouseListener {
     decorate(vnode: VNode, element: SModelElement): VNode {
         return vnode;
     }
-
 
 }
