@@ -34,7 +34,13 @@ import {
 
 import { isNotUndefined } from "../../utils/smodel-util";
 import { getAbsolutePosition } from "../../utils/viewpoint-util";
-import { addResizeHandles, isBoundsAwareMoveable, isResizable, removeResizeHandles } from "../change-bounds/model";
+import {
+    addResizeHandles,
+    isBoundsAwareMoveable,
+    isResizable,
+    removeResizeHandles,
+    SResizeHandle
+} from "../change-bounds/model";
 import { IMovementRestrictor } from "../change-bounds/movement-restrictor";
 import { FeedbackCommand } from "./model";
 
@@ -97,7 +103,7 @@ export class FeedbackMoveMouseListener extends MouseListener {
     lastDragPosition: Point | undefined;
     constructor(protected movementRestrictor?: IMovementRestrictor) { super(); }
     mouseDown(target: SModelElement, event: MouseEvent): Action[] {
-        if (event.button === 0) {
+        if (event.button === 0 && !(target instanceof SResizeHandle)) {
             const moveable = findParentByFeature(target, isMoveable);
             if (moveable !== undefined) {
                 this.lastDragPosition = { x: event.pageX, y: event.pageY };
