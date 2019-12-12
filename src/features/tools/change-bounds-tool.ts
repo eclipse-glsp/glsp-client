@@ -22,6 +22,7 @@ import {
     findParentByFeature,
     isViewport,
     KeyTool,
+    ModelLayoutOptions,
     MouseListener,
     Point,
     SetBoundsAction,
@@ -63,8 +64,8 @@ export class ChangeBoundsTool implements Tool {
     static ID = "glsp.change-bounds-tool";
     readonly id = ChangeBoundsTool.ID;
 
-    protected feedbackMoveMouseListener: FeedbackMoveMouseListener;
-    protected changeBoundsListener: ChangeBoundsListener;
+    protected feedbackMoveMouseListener: MouseListener;
+    protected changeBoundsListener: MouseListener & SelectionListener;
 
     constructor(@inject(GLSP_TYPES.SelectionService) protected selectionService: SelectionService,
         @inject(GLSP_TYPES.MouseTool) protected mouseTool: IMouseTool,
@@ -74,14 +75,24 @@ export class ChangeBoundsTool implements Tool {
 
     enable() {
         // install feedback move mouse listener for client-side move updates
-        this.feedbackMoveMouseListener = new FeedbackMoveMouseListener(this.movementRestrictor);
+        this.feedbackMoveMouseListener = this.createMoveMouseListener();
         this.mouseTool.register(this.feedbackMoveMouseListener);
 
-        // instlal change bounds listener for client-side resize updates and server-side updates
-        this.changeBoundsListener = new ChangeBoundsListener(this);
+        // install change bounds listener for client-side resize updates and server-side updates
+        this.changeBoundsListener = this.createChangeBoundsListener();
         this.mouseTool.register(this.changeBoundsListener);
         this.selectionService.register(this.changeBoundsListener);
+
+        // register feedback
         this.feedbackDispatcher.registerFeedback(this, [new ShowChangeBoundsToolResizeFeedbackAction]);
+    }
+
+    protected createMoveMouseListener(): MouseListener {
+        return new FeedbackMoveMouseListener(this.movementRestrictor);
+    }
+
+    protected createChangeBoundsListener(): MouseListener & SelectionListener {
+        return new ChangeBoundsListener(this);
     }
 
     disable() {
@@ -96,7 +107,7 @@ export class ChangeBoundsTool implements Tool {
     }
 }
 
-class ChangeBoundsListener extends MouseListener implements SelectionListener {
+export class ChangeBoundsListener extends MouseListener implements SelectionListener {
     // members for calculating the correct position change
     protected lastDragPosition: Point | undefined = undefined;
     protected positionDelta: Point = { x: 0, y: 0 };
@@ -150,13 +161,13 @@ class ChangeBoundsListener extends MouseListener implements SelectionListener {
             // An action. Resize, not move.
             const resizeElement = findParentByFeature(this.activeResizeHandle, isResizable);
             if (this.isActiveResizeElement(resizeElement)) {
-                createChangeBoundsAction(resizeElement).forEach(action => actions.push(action));
+                this.createChangeBoundsAction(resizeElement).forEach(action => actions.push(action));
             }
         } else {
             // Bounds... Change Bounds.
             const newBounds: ElementAndBounds[] = [];
             forEachElement(target, isNonRoutableSelectedBoundsAware, element =>
-                createElementAndBounds(element).forEach(bounds => newBounds.push(bounds)));
+                this.createElementAndBounds(element).forEach(bounds => newBounds.push(bounds)));
             if (newBounds.length > 0) {
                 actions.push(new ChangeBoundsOperationAction(newBounds));
             }
@@ -242,7 +253,7 @@ class ChangeBoundsListener extends MouseListener implements SelectionListener {
         if (this.isActiveResizeElement(resizeElement)) {
             switch (this.activeResizeHandle.location) {
                 case ResizeHandleLocation.TopLeft:
-                    createSetBoundsAction(resizeElement,
+                    this.createSetBoundsAction(resizeElement,
                         resizeElement.bounds.x + this.positionDelta.x,
                         resizeElement.bounds.y + this.positionDelta.y,
                         resizeElement.bounds.width - this.positionDelta.x,
@@ -250,7 +261,7 @@ class ChangeBoundsListener extends MouseListener implements SelectionListener {
                         .forEach(action => actions.push(action));
                     break;
                 case ResizeHandleLocation.TopRight:
-                    createSetBoundsAction(resizeElement,
+                    this.createSetBoundsAction(resizeElement,
                         resizeElement.bounds.x,
                         resizeElement.bounds.y + this.positionDelta.y,
                         resizeElement.bounds.width + this.positionDelta.x,
@@ -258,7 +269,7 @@ class ChangeBoundsListener extends MouseListener implements SelectionListener {
                         .forEach(action => actions.push(action));
                     break;
                 case ResizeHandleLocation.BottomLeft:
-                    createSetBoundsAction(resizeElement,
+                    this.createSetBoundsAction(resizeElement,
                         resizeElement.bounds.x + this.positionDelta.x,
                         resizeElement.bounds.y,
                         resizeElement.bounds.width - this.positionDelta.x,
@@ -266,7 +277,7 @@ class ChangeBoundsListener extends MouseListener implements SelectionListener {
                         .forEach(action => actions.push(action));
                     break;
                 case ResizeHandleLocation.BottomRight:
-                    createSetBoundsAction(resizeElement,
+                    this.createSetBoundsAction(resizeElement,
                         resizeElement.bounds.x,
                         resizeElement.bounds.y,
                         resizeElement.bounds.width + this.positionDelta.x,
@@ -277,45 +288,56 @@ class ChangeBoundsListener extends MouseListener implements SelectionListener {
         }
         return actions;
     }
-}
 
-function createChangeBoundsAction(element: SModelElement & BoundsAware): Action[] {
-    if (isValidBoundChange(element, element.bounds, element.bounds)) {
-        return [new ChangeBoundsOperationAction([toElementAndBounds(element)])];
+    protected createChangeBoundsAction(element: SModelElement & BoundsAware): Action[] {
+        if (this.isValidBoundChange(element, element.bounds, element.bounds)) {
+            return [new ChangeBoundsOperationAction([toElementAndBounds(element)])];
+        }
+        return [];
     }
-    return [];
-}
 
-function createElementAndBounds(element: SModelElement & BoundsAware): ElementAndBounds[] {
-    if (isValidBoundChange(element, element.bounds, element.bounds)) {
-        return [toElementAndBounds(element)];
+    protected createElementAndBounds(element: SModelElement & BoundsAware): ElementAndBounds[] {
+        if (this.isValidBoundChange(element, element.bounds, element.bounds)) {
+            return [toElementAndBounds(element)];
+        }
+        return [];
     }
-    return [];
-}
 
-function createSetBoundsAction(element: SModelElement & BoundsAware, x: number, y: number, width: number, height: number): Action[] {
-    const newPosition = { x, y };
-    const newSize = { width, height };
-    if (isValidBoundChange(element, newPosition, newSize)) {
-        return [new SetBoundsAction([{ elementId: element.id, newPosition, newSize }])];
+    protected createSetBoundsAction(element: SModelElement & BoundsAware, x: number, y: number, width: number, height: number): Action[] {
+        const newPosition = { x, y };
+        const newSize = { width, height };
+        if (this.isValidBoundChange(element, newPosition, newSize)) {
+            return [new SetBoundsAction([{ elementId: element.id, newPosition, newSize }])];
 
+        }
+        return [];
     }
-    return [];
+
+    protected isValidBoundChange(element: SModelElement & BoundsAware, newPosition: Point, newSize: Dimension): boolean {
+        return newSize.width >= this.minWidth(element) && newSize.height >= this.minHeight(element);
+    }
+
+    protected minWidth(element: SModelElement & BoundsAware): number {
+        const layoutOptions = this.getLayoutOptions(element);
+        if (layoutOptions !== undefined && typeof layoutOptions.minWidth === 'number') {
+            return layoutOptions.minWidth;
+        }
+        return 1;
+    }
+
+    protected minHeight(element: SModelElement & BoundsAware): number {
+        const layoutOptions = this.getLayoutOptions(element);
+        if (layoutOptions !== undefined && typeof layoutOptions.minHeight === 'number') {
+            return layoutOptions.minHeight;
+        }
+        return 1;
+    }
+
+    protected getLayoutOptions(element: SModelElement): ModelLayoutOptions | undefined {
+        const layoutOptions = (element as any).layoutOptions;
+        if (layoutOptions !== undefined) {
+            return layoutOptions as ModelLayoutOptions;
+        }
+        return undefined;
+    }
 }
-
-
-function isValidBoundChange(element: SModelElement & BoundsAware, newPosition: Point, newSize: Dimension): boolean {
-    return newSize.width >= minWidth(element) && newSize.height >= minHeight(element);
-}
-
-function minWidth(element: SModelElement & BoundsAware): number {
-    // currently there are no element-specific constraints
-    return 1;
-}
-
-function minHeight(element: SModelElement & BoundsAware): number {
-    // currently there are no element-specific constraints
-    return 1;
-}
-
-
