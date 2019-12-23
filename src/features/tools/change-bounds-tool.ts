@@ -33,7 +33,12 @@ import {
 } from "sprotty/lib";
 
 import { GLSP_TYPES } from "../../types";
-import { forEachElement, isNonRoutableSelectedBoundsAware, isSelected, toElementAndBounds } from "../../utils/smodel-util";
+import {
+    forEachElement,
+    isNonRoutableSelectedMovableBoundsAware,
+    isSelected,
+    toElementAndBounds
+} from "../../utils/smodel-util";
 import { isBoundsAwareMoveable, isResizable, ResizeHandleLocation, SResizeHandle } from "../change-bounds/model";
 import { IMovementRestrictor } from "../change-bounds/movement-restrictor";
 import { IMouseTool } from "../mouse-tool/mouse-tool";
@@ -109,34 +114,33 @@ export class ChangeBoundsTool implements Tool {
 
 export class ChangeBoundsListener extends MouseListener implements SelectionListener {
     // members for calculating the correct position change
-    protected lastDragPosition: Point | undefined = undefined;
+    protected lastDragPosition?: Point;
     protected positionDelta: Point = { x: 0, y: 0 };
 
     // members for resize mode
-    protected activeResizeElementId: string | undefined = undefined;
-    protected activeResizeHandle: SResizeHandle | undefined = undefined;
+    protected activeResizeElementId?: string;
+    protected activeResizeHandle?: SResizeHandle;
 
     constructor(protected tool: ChangeBoundsTool) {
         super();
     }
 
     mouseDown(target: SModelElement, event: MouseEvent): Action[] {
-        super.mouseDown(target, event);
-        const actions: Action[] = [];
-        if (event.button === 0) {
-            // check if we have a resize handle (only single-selection)
-            if (this.activeResizeElementId && target instanceof SResizeHandle) {
-                this.activeResizeHandle = target;
-            } else {
-                this.setActiveResizeElement(target);
-            }
-            if (this.activeResizeElementId) {
-                this.initPosition(event);
-            } else {
-                this.reset();
-            }
+        if (event.button !== 0) {
+            return [];
         }
-        return actions;
+        // check if we have a resize handle (only single-selection)
+        if (this.activeResizeElementId && target instanceof SResizeHandle) {
+            this.activeResizeHandle = target;
+        } else {
+            this.setActiveResizeElement(target);
+        }
+        if (this.activeResizeElementId) {
+            this.initPosition(event);
+        } else {
+            this.reset();
+        }
+        return [];
     }
 
     mouseMove(target: SModelElement, event: MouseEvent): Action[] {
@@ -149,24 +153,22 @@ export class ChangeBoundsListener extends MouseListener implements SelectionList
     }
 
     mouseUp(target: SModelElement, event: MouseEvent): Action[] {
-        super.mouseUp(target, event);
-        if (!this.hasPositionDelta()) {
+        if (this.lastDragPosition === undefined) {
             this.resetPosition();
             return [];
         }
 
-        // no further bound changing, simply send the latest data to the server using a single change bounds action for all relevant elements
         const actions: Action[] = [];
         if (this.activeResizeHandle) {
-            // An action. Resize, not move.
+            // Resize, not move
             const resizeElement = findParentByFeature(this.activeResizeHandle, isResizable);
             if (this.isActiveResizeElement(resizeElement)) {
                 this.createChangeBoundsAction(resizeElement).forEach(action => actions.push(action));
             }
         } else {
-            // Bounds... Change Bounds.
+            // Move
             const newBounds: ElementAndBounds[] = [];
-            forEachElement(target, isNonRoutableSelectedBoundsAware, element =>
+            forEachElement(target, isNonRoutableSelectedMovableBoundsAware, element =>
                 this.createElementAndBounds(element).forEach(bounds => newBounds.push(bounds)));
             if (newBounds.length > 0) {
                 actions.push(new ChangeBoundsOperationAction(newBounds));
@@ -178,7 +180,7 @@ export class ChangeBoundsListener extends MouseListener implements SelectionList
 
     selectionChanged(root: SModelRoot, selectedElements: string[]): void {
         if (this.activeResizeElementId) {
-            if (selectedElements.indexOf(this.activeResizeElementId) > -1) {
+            if (selectedElements.includes(this.activeResizeElementId)) {
                 // our active element is still selected, nothing to do
                 return;
             }
@@ -206,7 +208,7 @@ export class ChangeBoundsListener extends MouseListener implements SelectionList
         return false;
     }
 
-    protected isActiveResizeElement(element: SModelElement | undefined): element is SParentElement & BoundsAware {
+    protected isActiveResizeElement(element?: SModelElement): element is SParentElement & BoundsAware {
         return element !== undefined && element.id === this.activeResizeElementId;
     }
 
@@ -237,10 +239,6 @@ export class ChangeBoundsListener extends MouseListener implements SelectionList
         this.activeResizeHandle = undefined;
         this.lastDragPosition = undefined;
         this.positionDelta = { x: 0, y: 0 };
-    }
-
-    protected hasPositionDelta(): boolean {
-        return this.positionDelta.x !== 0 || this.positionDelta.y !== 0;
     }
 
     protected handleElementResize(): Action[] {

@@ -16,6 +16,7 @@
 import {
     BoundsAware,
     isBoundsAware,
+    isMoveable,
     isSelectable,
     Selectable,
     SModelElement,
@@ -81,6 +82,10 @@ export function removeCssClasses(root: SModelElement, cssClasses: string[]) {
             root.cssClasses.splice(root.cssClasses.indexOf(cssClass), 1);
         }
     }
+}
+
+export function isNonRoutableSelectedMovableBoundsAware(element: SModelElement): element is SelectableBoundsAware {
+    return isNonRoutableSelectedBoundsAware(element) && isMoveable(element);
 }
 
 export function isNonRoutableSelectedBoundsAware(element: SModelElement): element is SelectableBoundsAware {
