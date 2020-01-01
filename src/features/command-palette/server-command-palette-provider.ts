@@ -14,9 +14,8 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { inject, injectable } from "inversify";
-import { Action, ICommandPaletteActionProvider, LabeledAction, Point, SModelElement, TYPES } from "sprotty/lib";
+import { Action, ICommandPaletteActionProvider, isSelected, LabeledAction, Point, SModelElement, TYPES } from "sprotty/lib";
 
-import { isSelected } from "../../utils/smodel-util";
 import { ContextActions, isSetContextActionsAction, RequestContextActions } from "../context-actions/action-definitions";
 import { GLSPActionDispatcher } from "../request-response/glsp-action-dispatcher";
 

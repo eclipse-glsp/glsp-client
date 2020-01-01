@@ -28,6 +28,7 @@ import {
     findParentByFeature,
     isBoundsAware,
     isConnectable,
+    isSelected,
     isViewport,
     MouseListener,
     MoveAction,
@@ -42,7 +43,7 @@ import {
     TYPES
 } from "sprotty/lib";
 
-import { isNotUndefined, isRoutable, isRoutingHandle, isSelected } from "../../utils/smodel-util";
+import { isNotUndefined, isRoutable, isRoutingHandle } from "../../utils/smodel-util";
 import { getAbsolutePosition } from "../../utils/viewpoint-util";
 import { addReconnectHandles, removeReconnectHandles } from "../reconnect/model";
 import {
