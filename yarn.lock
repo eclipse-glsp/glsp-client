@@ -1148,7 +1148,7 @@ safe-buffer@~5.1.1:
   resolved "https://registry.yarnpkg.com/semver/-/semver-5.7.1.tgz#a954f931aeba508d307bbf069eff0c01c96116f7"
   integrity sha512-sauaDf/PZdVgrLTNYHRtpXa1iRiKcaebiKQ1BJdpQlWH2lCvexQdX55snPFyK7QzpudqbCI0qXFfOasHdyNDGQ==
 
-semver@^6.0.0:
+semver@6.3.0, semver@^6.0.0:
   version "6.3.0"
   resolved "https://registry.yarnpkg.com/semver/-/semver-6.3.0.tgz#ee0a64c8af5e8ceea67687b133761e1becbd1d3d"
   integrity sha512-b39TBaTSfV6yBrapU89p5fKekE2m/NwnDocOVruQFS1/veMgdzuPcnOM34M6CwxW8jH/lxEa5rBoDeUwu5HHTw==
@@ -1262,10 +1262,10 @@ sprintf-js@~1.0.2:
   resolved "https://registry.yarnpkg.com/sprintf-js/-/sprintf-js-1.0.3.tgz#04e6926f662895354f3dd015203633b857297e2c"
   integrity sha1-BOaSb2YolTVPPdAVIDYzuFcpfiw=
 
-sprotty@0.8.0-next.1d772ad, sprotty@next:
-  version "0.8.0-next.1d772ad"
-  resolved "https://registry.yarnpkg.com/sprotty/-/sprotty-0.8.0-next.1d772ad.tgz#fa5e83d74882bf9e07830990b31335b9b44e1797"
-  integrity sha512-kUa86D0tQHc9nRONtdhxoi04EBd6KX1VN7DNVaRBuudD25zOIorhz6T7VTdFoSS3gAsTfy7HcWQBH5UttBz+Ig==
+sprotty@0.8.0-next.9533a22, sprotty@next:
+  version "0.8.0-next.9533a22"
+  resolved "https://registry.yarnpkg.com/sprotty/-/sprotty-0.8.0-next.9533a22.tgz#1ac8b2a52b2edf4b4b9edd28493f0470ecf06f44"
+  integrity sha512-90JhbavaipW4nOt0525bYb4AJ3EXK1VsEjrsNgVTRu0K6XrirgR8SsOlmhEepp7Wq+9bI/RgPMKwJFsSmJ7a/A==
   dependencies:
     autocompleter "5.1.0"
     file-saver "2.0.2"

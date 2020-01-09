@@ -16,27 +16,10 @@
 import { ContainerModule } from "inversify";
 import { TYPES } from "sprotty/lib";
 
-import { GLSP_TYPES } from "../../types";
-import { IContextMenuService } from "./context-menu-service";
-import { ContextMenuProviderRegistry } from "./menu-providers";
-import { ContextMenuMouseListener } from "./mouse-listener";
 import { ServerContextMenuItemProvider } from "./server-context-menu-provider";
 
 const glspContextMenuModule = new ContainerModule(bind => {
-    bind(GLSP_TYPES.IContextMenuServiceProvider).toProvider<IContextMenuService>(ctx => {
-        return () => {
-            return new Promise<IContextMenuService>((resolve, reject) => {
-                if (ctx.container.isBound(GLSP_TYPES.IContextMenuService)) {
-                    resolve(ctx.container.get<IContextMenuService>(GLSP_TYPES.IContextMenuService));
-                } else {
-                    reject();
-                }
-            });
-        };
-    });
-    bind(TYPES.MouseListener).to(ContextMenuMouseListener);
-    bind(GLSP_TYPES.IContextMenuProviderRegistry).to(ContextMenuProviderRegistry);
-    bind(GLSP_TYPES.IContextMenuProvider).to(ServerContextMenuItemProvider);
+    bind(TYPES.IContextMenuItemProvider).to(ServerContextMenuItemProvider);
 });
 
 export default glspContextMenuModule;

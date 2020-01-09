@@ -22,6 +22,7 @@ import {
     EdgeRouterRegistry,
     findParentByFeature,
     isConnectable,
+    isSelected,
     MouseListener,
     SModelElement,
     SModelRoot,
@@ -31,7 +32,7 @@ import {
 } from "sprotty/lib";
 
 import { GLSP_TYPES } from "../../types";
-import { isRoutable, isRoutingHandle, isSelected } from "../../utils/smodel-util";
+import { isRoutable, isRoutingHandle } from "../../utils/smodel-util";
 import { IMouseTool } from "../mouse-tool/mouse-tool";
 import { ReconnectConnectionOperationAction, RerouteConnectionOperationAction } from "../reconnect/action-definitions";
 import {
