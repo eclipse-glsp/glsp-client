@@ -184,8 +184,7 @@ export class ChangeBoundsListener extends MouseListener implements SelectionList
                     element.incomingEdges.map(toElementAndRoutingPoints).forEach(ear => newRoutingPoints.push(ear));
                     element.outgoingEdges.map(toElementAndRoutingPoints).forEach(ear => newRoutingPoints.push(ear));
                 }
-            }
-            );
+            });
 
             if (newBounds.length > 0) {
                 actions.push(new ChangeBoundsOperationAction(newBounds));
