@@ -83,7 +83,7 @@ export function registerDefaultGLSPServerActions(registry: ActionHandlerRegistry
     registry.register(GlspRedoAction.KIND, diagramServer);
     registry.register(OperationKind.CREATE_CONNECTION, diagramServer);
     registry.register(OperationKind.RECONNECT_CONNECTION, diagramServer);
-    registry.register(OperationKind.REROUTE_CONNECTION, diagramServer);
+    registry.register(OperationKind.CHANGE_ROUTING_POINTS, diagramServer);
     registry.register(OperationKind.CREATE_NODE, diagramServer);
     registry.register(OperationKind.CHANGE_BOUNDS, diagramServer);
     registry.register(OperationKind.DELETE_ELEMENT, diagramServer);

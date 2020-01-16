@@ -23,6 +23,7 @@ import {
     SRoutableElement,
     SRoutingHandle
 } from "sprotty/lib";
+import { ElementAndRoutingPoints } from "src/features/operation/operation-actions";
 
 
 export function getIndex(element: SModelElement) {
@@ -109,5 +110,12 @@ export function toElementAndBounds(element: SModelElement & BoundsAware) {
             width: element.bounds.width,
             height: element.bounds.height
         }
+    };
+}
+
+export function toElementAndRoutingPoints(element: SRoutableElement): ElementAndRoutingPoints {
+    return {
+        elementId: element.id,
+        newRoutingPoints: element.routingPoints
     };
 }

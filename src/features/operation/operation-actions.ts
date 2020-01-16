@@ -53,6 +53,19 @@ export class ChangeContainerOperation implements Action {
         public readonly location?: string) { }
 }
 
+export class ReconnectConnectionOperationAction implements Action {
+    readonly kind = OperationKind.RECONNECT_CONNECTION;
+
+    constructor(public readonly connectionElementId: string,
+        public readonly sourceElementId: string,
+        public readonly targetElementId: string) { }
+}
+
+export class ChangeRoutingPointsOperation implements Action {
+    readonly kind = OperationKind.CHANGE_ROUTING_POINTS;
+    constructor(public newRoutingPoints: ElementAndRoutingPoints[]) { }
+}
+
 export class GenericOperationAction implements Action {
     readonly kind = OperationKind.GENERIC;
 
@@ -61,3 +74,7 @@ export class GenericOperationAction implements Action {
         public readonly location?: Point) { }
 }
 
+export interface ElementAndRoutingPoints {
+    elementId: string
+    newRoutingPoints?: Point[];
+}
