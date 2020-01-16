@@ -18,6 +18,7 @@ import {
     Action,
     BoundsAware,
     Dimension,
+    EdgeRouterRegistry,
     ElementAndBounds,
     findParentByFeature,
     isSelected,
@@ -26,6 +27,7 @@ import {
     ModelLayoutOptions,
     MouseListener,
     Point,
+    SConnectableElement,
     SetBoundsAction,
     SModelElement,
     SModelRoot,
@@ -34,11 +36,20 @@ import {
 } from "sprotty/lib";
 
 import { GLSP_TYPES } from "../../types";
-import { forEachElement, isNonRoutableSelectedMovableBoundsAware, toElementAndBounds } from "../../utils/smodel-util";
+import {
+    forEachElement,
+    isNonRoutableSelectedMovableBoundsAware,
+    toElementAndBounds,
+    toElementAndRoutingPoints
+} from "../../utils/smodel-util";
 import { isBoundsAwareMoveable, isResizable, ResizeHandleLocation, SResizeHandle } from "../change-bounds/model";
 import { IMovementRestrictor } from "../change-bounds/movement-restrictor";
 import { IMouseTool } from "../mouse-tool/mouse-tool";
-import { ChangeBoundsOperationAction } from "../operation/operation-actions";
+import {
+    ChangeBoundsOperationAction,
+    ChangeRoutingPointsOperation,
+    ElementAndRoutingPoints
+} from "../operation/operation-actions";
 import { SelectionListener, SelectionService } from "../select/selection-service";
 import {
     FeedbackMoveMouseListener,
@@ -72,6 +83,7 @@ export class ChangeBoundsTool implements Tool {
         @inject(GLSP_TYPES.MouseTool) protected mouseTool: IMouseTool,
         @inject(KeyTool) protected keyTool: KeyTool,
         @inject(GLSP_TYPES.IFeedbackActionDispatcher) protected feedbackDispatcher: IFeedbackActionDispatcher,
+        @inject(EdgeRouterRegistry) @optional() readonly edgeRouterRegistry?: EdgeRouterRegistry,
         @inject(GLSP_TYPES.IMovementRestrictor) @optional() protected movementRestrictor?: IMovementRestrictor) { }
 
     enable() {
@@ -164,10 +176,21 @@ export class ChangeBoundsListener extends MouseListener implements SelectionList
         } else {
             // Move
             const newBounds: ElementAndBounds[] = [];
-            forEachElement(target, isNonRoutableSelectedMovableBoundsAware, element =>
-                this.createElementAndBounds(element).forEach(bounds => newBounds.push(bounds)));
+            const newRoutingPoints: ElementAndRoutingPoints[] = [];
+            forEachElement(target, isNonRoutableSelectedMovableBoundsAware, element => {
+                this.createElementAndBounds(element).forEach(bounds => newBounds.push(bounds));
+                //  If client routing is enabled -> delegate routingpoints of connected edges to server
+                if (this.tool.edgeRouterRegistry && element instanceof SConnectableElement) {
+                    element.incomingEdges.map(toElementAndRoutingPoints).forEach(ear => newRoutingPoints.push(ear));
+                    element.outgoingEdges.map(toElementAndRoutingPoints).forEach(ear => newRoutingPoints.push(ear));
+                }
+            });
+
             if (newBounds.length > 0) {
                 actions.push(new ChangeBoundsOperationAction(newBounds));
+            }
+            if (newRoutingPoints.length > 0) {
+                actions.push(new ChangeRoutingPointsOperation(newRoutingPoints));
             }
         }
         this.resetPosition();

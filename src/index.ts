@@ -48,7 +48,6 @@ export * from './features/mouse-tool/mouse-tool';
 export * from './features/operation/operation-actions';
 export * from './features/operation/set-operations';
 export * from './features/rank/model';
-export * from './features/reconnect/action-definitions';
 export * from './features/reconnect/model';
 export * from './features/request-response/glsp-action-dispatcher';
 export * from './features/save/model';

@@ -34,7 +34,7 @@ import {
 import { GLSP_TYPES } from "../../types";
 import { isRoutable, isRoutingHandle } from "../../utils/smodel-util";
 import { IMouseTool } from "../mouse-tool/mouse-tool";
-import { ReconnectConnectionOperationAction, RerouteConnectionOperationAction } from "../reconnect/action-definitions";
+import { ChangeRoutingPointsOperation, ReconnectConnectionOperationAction } from "../operation/operation-actions";
 import {
     isReconnectable,
     isReconnectHandle,
@@ -239,7 +239,7 @@ class ReconnectEdgeListener extends MouseListener implements SelectionListener {
             // we need to re-retrieve the edge as it might have changed due to a server udpate since we do not reset the state between reroute actions
             const latestEdge = target.index.getById(this.edge.id);
             if (latestEdge && isRoutable(latestEdge)) {
-                result.push(new RerouteConnectionOperationAction(latestEdge.id, latestEdge.routingPoints));
+                result.push(new ChangeRoutingPointsOperation([{ elementId: latestEdge.id, newRoutingPoints: latestEdge.routingPoints }]));
                 this.routingHandle = undefined;
             }
         }
