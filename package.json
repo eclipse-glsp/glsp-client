@@ -47,9 +47,6 @@
     "typescript": "3.6.4",
     "semver": "6.3.0"
   },
-  "resolutions": {
-    "**/sprotty": "0.8.0-next.9533a22"
-  },
   "scripts": {
     "prepare": "yarn run clean && yarn run build",
     "clean": "rimraf lib",

@@ -31,7 +31,7 @@ import { matchesKeystroke } from "sprotty/lib/utils/keyboard";
 import { GLSP_TYPES } from "../../types";
 import { IMouseTool } from "../mouse-tool/mouse-tool";
 import { DeleteElementOperationAction } from "../operation/operation-actions";
-import { ApplyCursorCSSFeedbackAction, CursorCSS } from "../tool-feedback/cursor-feedback";
+import { CursorCSS, cursorFeedbackAction } from "../tool-feedback/css-feedback";
 import { IFeedbackActionDispatcher } from "../tool-feedback/feedback-action-dispatcher";
 
 /**
@@ -83,12 +83,12 @@ export class MouseDeleteTool implements Tool {
 
     enable() {
         this.mouseTool.register(this.deleteToolMouseListener);
-        this.feedbackDispatcher.registerFeedback(this, [new ApplyCursorCSSFeedbackAction(CursorCSS.ELEMENT_DELETION)]);
+        this.feedbackDispatcher.registerFeedback(this, [cursorFeedbackAction(CursorCSS.ELEMENT_DELETION)]);
     }
 
     disable() {
         this.mouseTool.deregister(this.deleteToolMouseListener);
-        this.feedbackDispatcher.registerFeedback(this, [new ApplyCursorCSSFeedbackAction()]);
+        this.feedbackDispatcher.registerFeedback(this, [cursorFeedbackAction()]);
     }
 }
 

@@ -44,7 +44,7 @@ import {
 } from "../reconnect/model";
 import { SelectionListener, SelectionService } from "../select/selection-service";
 import { DrawFeedbackEdgeAction, feedbackEdgeId, RemoveFeedbackEdgeAction } from "../tool-feedback/creation-tool-feedback";
-import { ApplyCursorCSSFeedbackAction, CursorCSS } from "../tool-feedback/cursor-feedback";
+import { CursorCSS, cursorFeedbackAction } from "../tool-feedback/css-feedback";
 import {
     DrawFeedbackEdgeSourceAction,
     FeedbackEdgeRouteMovingMouseListener,
@@ -148,12 +148,12 @@ class ReconnectEdgeListener extends MouseListener implements SelectionListener {
         if (this.edge && this.edge.target && this.edge.source) {
             if (isSourceRoutingHandle(edge, reconnectHandle)) {
                 this.tool.dispatchFeedback([new HideEdgeReconnectHandlesFeedbackAction(),
-                new ApplyCursorCSSFeedbackAction(CursorCSS.EDGE_RECONNECT),
+                cursorFeedbackAction(CursorCSS.EDGE_RECONNECT),
                 new DrawFeedbackEdgeSourceAction(this.edge.type, this.edge.targetId)]);
                 this.reconnectMode = "NEW_SOURCE";
             } else if (isTargetRoutingHandle(edge, reconnectHandle)) {
                 this.tool.dispatchFeedback([new HideEdgeReconnectHandlesFeedbackAction(),
-                new ApplyCursorCSSFeedbackAction(CursorCSS.EDGE_CREATION_TARGET),
+                cursorFeedbackAction(CursorCSS.EDGE_CREATION_TARGET),
                 new DrawFeedbackEdgeAction(this.edge.type, this.edge.sourceId)]);
                 this.reconnectMode = "NEW_TARGET";
             }
@@ -255,11 +255,11 @@ class ReconnectEdgeListener extends MouseListener implements SelectionListener {
                     if ((this.reconnectMode === 'NEW_SOURCE' && currentTarget.canConnect(this.edge, "source")) ||
                         (this.reconnectMode === 'NEW_TARGET' && currentTarget.canConnect(this.edge, "target"))) {
 
-                        this.tool.dispatchFeedback([new ApplyCursorCSSFeedbackAction(CursorCSS.EDGE_RECONNECT)]);
+                        this.tool.dispatchFeedback([cursorFeedbackAction(CursorCSS.EDGE_RECONNECT)]);
                         return [];
                     }
                 }
-                this.tool.dispatchFeedback([new ApplyCursorCSSFeedbackAction(CursorCSS.OPERATION_NOT_ALLOWED)]);
+                this.tool.dispatchFeedback([cursorFeedbackAction(CursorCSS.OPERATION_NOT_ALLOWED)]);
             }
         }
         return [];
@@ -313,7 +313,7 @@ class ReconnectEdgeListener extends MouseListener implements SelectionListener {
             result.push(new SwitchRoutingModeAction([], [this.edge.id]));
         }
         result.push(...[new HideEdgeReconnectHandlesFeedbackAction(),
-        new ApplyCursorCSSFeedbackAction(), new RemoveFeedbackEdgeAction()]);
+        cursorFeedbackAction(), new RemoveFeedbackEdgeAction()]);
         this.tool.dispatchFeedback(result);
     }
 }

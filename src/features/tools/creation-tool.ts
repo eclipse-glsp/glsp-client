@@ -39,7 +39,7 @@ import {
     FeedbackEdgeEndMovingMouseListener,
     RemoveFeedbackEdgeAction
 } from "../tool-feedback/creation-tool-feedback";
-import { ApplyCursorCSSFeedbackAction, CursorCSS } from "../tool-feedback/cursor-feedback";
+import { CursorCSS, cursorFeedbackAction } from "../tool-feedback/css-feedback";
 import { IFeedbackActionDispatcher } from "../tool-feedback/feedback-action-dispatcher";
 import { DragAwareMouseListener } from "./drag-aware-mouse-listener";
 
@@ -64,12 +64,12 @@ export class NodeCreationTool implements Tool, TypeAware {
     enable() {
         this.creationToolMouseListener = new NodeCreationToolMouseListener(this.elementTypeId, this);
         this.mouseTool.register(this.creationToolMouseListener);
-        this.feedbackDispatcher.registerFeedback(this, [new ApplyCursorCSSFeedbackAction(CursorCSS.NODE_CREATION)]);
+        this.feedbackDispatcher.registerFeedback(this, [cursorFeedbackAction(CursorCSS.NODE_CREATION)]);
     }
 
     disable() {
         this.mouseTool.deregister(this.creationToolMouseListener);
-        this.feedbackDispatcher.deregisterFeedback(this, [new ApplyCursorCSSFeedbackAction()]);
+        this.feedbackDispatcher.deregisterFeedback(this, [cursorFeedbackAction()]);
     }
 
     dispatchFeedback(actions: Action[]) {
@@ -106,8 +106,8 @@ export class NodeCreationToolMouseListener extends DragAwareMouseListener {
         if (!this.container || currentContainer !== this.container) {
             this.container = currentContainer;
             const feedback = this.creationAllowed(this.elementTypeId)
-                ? new ApplyCursorCSSFeedbackAction(CursorCSS.NODE_CREATION) :
-                new ApplyCursorCSSFeedbackAction(CursorCSS.OPERATION_NOT_ALLOWED);
+                ? cursorFeedbackAction(CursorCSS.NODE_CREATION) :
+                cursorFeedbackAction(CursorCSS.OPERATION_NOT_ALLOWED);
             this.tool.dispatchFeedback([feedback]);
         }
         return [];
@@ -138,13 +138,13 @@ export class EdgeCreationTool implements Tool, TypeAware {
         this.mouseTool.register(this.creationToolMouseListener);
         this.feedbackEndMovingMouseListener = new FeedbackEdgeEndMovingMouseListener(this.anchorRegistry);
         this.mouseTool.register(this.feedbackEndMovingMouseListener);
-        this.dispatchFeedback([new ApplyCursorCSSFeedbackAction(CursorCSS.OPERATION_NOT_ALLOWED)]);
+        this.dispatchFeedback([cursorFeedbackAction(CursorCSS.OPERATION_NOT_ALLOWED)]);
     }
 
     disable() {
         this.mouseTool.deregister(this.creationToolMouseListener);
         this.mouseTool.deregister(this.feedbackEndMovingMouseListener);
-        this.feedbackDispatcher.deregisterFeedback(this, [new RemoveFeedbackEdgeAction(), new ApplyCursorCSSFeedbackAction()]);
+        this.feedbackDispatcher.deregisterFeedback(this, [new RemoveFeedbackEdgeAction(), cursorFeedbackAction()]);
     }
 
     dispatchFeedback(actions: Action[]) {
@@ -221,12 +221,12 @@ export class EdgeCreationToolMouseListener extends DragAwareMouseListener {
                     this.allowedTarget = this.isAllowedTarget(newCurrentTarget);
                 }
                 if (this.allowedTarget) {
-                    const action = !this.isSourceSelected() ? new ApplyCursorCSSFeedbackAction(CursorCSS.EDGE_CREATION_SOURCE) :
-                        new ApplyCursorCSSFeedbackAction(CursorCSS.EDGE_CREATION_TARGET);
+                    const action = !this.isSourceSelected() ? cursorFeedbackAction(CursorCSS.EDGE_CREATION_SOURCE) :
+                        cursorFeedbackAction(CursorCSS.EDGE_CREATION_TARGET);
                     return [action];
                 }
             }
-            return [new ApplyCursorCSSFeedbackAction(CursorCSS.OPERATION_NOT_ALLOWED)];
+            return [cursorFeedbackAction(CursorCSS.OPERATION_NOT_ALLOWED)];
         }
         return [];
     }

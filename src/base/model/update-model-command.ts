@@ -29,8 +29,8 @@ import {
     TYPES
 } from "sprotty/lib";
 import { UpdateModelAction, UpdateModelCommand } from "sprotty/lib/features/update/update-model";
-import { IFeedbackActionDispatcher } from "src/features/tool-feedback/feedback-action-dispatcher";
 
+import { IFeedbackActionDispatcher } from "../../features/tool-feedback/feedback-action-dispatcher";
 import { FeedbackCommand } from "../../features/tool-feedback/model";
 import { GLSP_TYPES } from "../../types";
 
@@ -60,16 +60,18 @@ export interface SModelRootListener {
  */
 @injectable()
 export class FeedbackAwareUpdateModelCommand extends UpdateModelCommand {
+    protected actionHandlerRegistry?: ActionHandlerRegistry;
     constructor(@inject(TYPES.Action) action: UpdateModelAction,
         @inject(TYPES.ILogger) protected logger: ILogger,
         @inject(GLSP_TYPES.IFeedbackActionDispatcher) @optional() protected readonly feedbackActionDispatcher: IFeedbackActionDispatcher,
-        @inject(TYPES.ActionHandlerRegistryProvider) protected actionHandlerRegistryProvider: () => Promise<ActionHandlerRegistry>,
+        @inject(TYPES.ActionHandlerRegistryProvider) actionHandlerRegistryProvider: () => Promise<ActionHandlerRegistry>,
         @multiInject(GLSP_TYPES.SModelRootListener) @optional() protected modelRootListeners: SModelRootListener[] = []) {
         super(action);
+        actionHandlerRegistryProvider().then(registry => this.actionHandlerRegistry = registry);
     }
 
     protected performUpdate(oldRoot: SModelRoot, newRoot: SModelRoot, context: CommandExecutionContext): CommandReturn {
-        if (this.feedbackActionDispatcher) {
+        if (this.feedbackActionDispatcher && this.actionHandlerRegistry) {
             // Create a temporary context wich defines the `newRoot` as `root`
             // This way we do not corrupt the redo/undo behavior of the super class
             const tempContext: CommandExecutionContext = {
@@ -80,10 +82,10 @@ export class FeedbackAwareUpdateModelCommand extends UpdateModelCommand {
                 modelFactory: context.modelFactory,
                 syncer: context.syncer
             };
-            this.actionHandlerRegistryProvider().then(registry => {
-                const feedbackCommands = this.getFeedbackCommands(registry);
-                feedbackCommands.forEach(command => command.execute(tempContext));
-            });
+
+            const feedbackCommands = this.getFeedbackCommands(this.actionHandlerRegistry);
+            feedbackCommands.forEach(command => command.execute(tempContext));
+
         }
         this.modelRootListeners.forEach(listener => listener.modelRootChanged(newRoot));
         return super.performUpdate(oldRoot, newRoot, context);

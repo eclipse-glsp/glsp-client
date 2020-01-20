@@ -54,7 +54,7 @@ export * from './features/save/model';
 export * from './features/save/save';
 export * from './features/tool-feedback/change-bounds-tool-feedback';
 export * from './features/tool-feedback/creation-tool-feedback';
-export * from './features/tool-feedback/cursor-feedback';
+export * from './features/tool-feedback/css-feedback';
 export * from './features/tool-feedback/edge-edit-tool-feedback';
 export * from './features/tool-feedback/feedback-action-dispatcher';
 export * from './features/tool-feedback/model';

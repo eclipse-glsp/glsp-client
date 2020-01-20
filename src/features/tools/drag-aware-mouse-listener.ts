@@ -25,25 +25,25 @@ import { Action, MouseListener, SModelElement } from "sprotty/lib";
  */
 export class DragAwareMouseListener extends MouseListener {
 
-    private isMouseDown: boolean = false;
-    private isMouseDrag: boolean = false;
+    private _isMouseDown: boolean = false;
+    private _isMouseDrag: boolean = false;
 
     mouseDown(target: SModelElement, event: MouseEvent): Action[] {
-        this.isMouseDown = true;
+        this._isMouseDown = true;
         return [];
     }
 
     mouseMove(target: SModelElement, event: MouseEvent): Action[] {
-        if (this.isMouseDown) {
-            this.isMouseDrag = true;
+        if (this._isMouseDown) {
+            this._isMouseDrag = true;
         }
         return [];
     }
 
     mouseUp(element: SModelElement, event: MouseEvent): Action[] {
-        this.isMouseDown = false;
-        if (this.isMouseDrag) {
-            this.isMouseDrag = false;
+        this._isMouseDown = false;
+        if (this._isMouseDrag) {
+            this._isMouseDrag = false;
             return this.draggingMouseUp(element, event);
         }
 
@@ -58,8 +58,12 @@ export class DragAwareMouseListener extends MouseListener {
         return [];
     }
 
-    get isDragging() {
-        return this.isMouseDrag;
+    get isMouseDrag() {
+        return this._isMouseDrag;
+    }
+
+    get isMouseDown() {
+        return this._isMouseDown;
     }
 
 }

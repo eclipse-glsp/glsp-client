@@ -14,10 +14,36 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { inject, injectable } from "inversify";
-import { Action, CommandExecutionContext, SModelRoot, TYPES } from "sprotty/lib";
+import { Action, CommandExecutionContext, SModelElement, SModelRoot, TYPES } from "sprotty/lib";
 
 import { addCssClasses, removeCssClasses } from "../../utils/smodel-util";
 import { FeedbackCommand } from "./model";
+
+export class ModifyCSSFeedbackAction implements Action {
+    kind = ModifyCssFeedbackCommand.KIND;
+    constructor(readonly element?: SModelElement, readonly addClasses?: string[], readonly removeClasses?: string[]) { }
+}
+
+@injectable()
+export class ModifyCssFeedbackCommand extends FeedbackCommand {
+    static readonly KIND = 'modifyCSSFeedback';
+
+    constructor(@inject(TYPES.Action) readonly action: ModifyCSSFeedbackAction) {
+        super();
+    }
+
+    execute(context: CommandExecutionContext): SModelRoot {
+        const element = this.action.element ? this.action.element : context.root;
+        if (this.action.removeClasses) {
+            removeCssClasses(element, this.action.removeClasses);
+        }
+
+        if (this.action.addClasses) {
+            addCssClasses(element, this.action.addClasses);
+        }
+        return context.root;
+    }
+}
 
 export enum CursorCSS {
     DEFAULT = 'default-mode',
@@ -30,23 +56,13 @@ export enum CursorCSS {
     ELEMENT_DELETION = "element-deletion-mode"
 }
 
-export class ApplyCursorCSSFeedbackAction implements Action {
-    kind = ApplyCursorCSSFeedbackActionCommand.KIND;
-    constructor(readonly cssClass?: CursorCSS) { }
+export function cursorFeedbackAction(cursorCss?: CursorCSS): ModifyCSSFeedbackAction {
+    const addCss = [];
+    if (cursorCss) {
+        addCss.push(cursorCss);
+    }
+    return new ModifyCSSFeedbackAction(undefined, addCss, Object.values(CursorCSS));
 }
 
-@injectable()
-export class ApplyCursorCSSFeedbackActionCommand extends FeedbackCommand {
-    static readonly KIND = 'applyCursorCssFeedback';
 
-    constructor(@inject(TYPES.Action) readonly action: ApplyCursorCSSFeedbackAction) {
-        super();
-    }
-    execute(context: CommandExecutionContext): SModelRoot {
-        removeCssClasses(context.root, Object.values(CursorCSS));
-        if (this.action.cssClass) {
-            addCssClasses(context.root, [this.action.cssClass]);
-        }
-        return context.root;
-    }
-}
+
