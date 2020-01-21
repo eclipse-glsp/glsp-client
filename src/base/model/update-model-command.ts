@@ -85,11 +85,10 @@ export class FeedbackAwareUpdateModelCommand extends UpdateModelCommand {
 
             const feedbackCommands = this.getFeedbackCommands(this.actionHandlerRegistry);
             feedbackCommands.forEach(command => command.execute(tempContext));
-
         }
+
         this.modelRootListeners.forEach(listener => listener.modelRootChanged(newRoot));
         return super.performUpdate(oldRoot, newRoot, context);
-
     }
 
     private getFeedbackCommands(registry: ActionHandlerRegistry): Command[] {

@@ -35,6 +35,7 @@ export * from './base/tool-manager/tool-manager-action-handler';
 export * from './base/command-stack';
 export * from './features/change-bounds/model';
 export * from './features/change-bounds/movement-restrictor';
+export * from './features/change-bounds/snap';
 export * from './features/context-actions/action-definitions';
 export * from './features/command-palette/server-command-palette-provider';
 export * from './features/edit-label-validation/edit-label-validator';

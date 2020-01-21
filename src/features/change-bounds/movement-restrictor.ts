@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { injectable } from "inversify";
-import { BoundsAware, Point, SModelElement, SNode, SParentElement } from "sprotty/lib";
+import { Action, BoundsAware, Point, SModelElement, SNode, SParentElement } from "sprotty/lib";
 
 import { toAbsoluteBounds } from "../../utils/viewpoint-util";
 import { ModifyCSSFeedbackAction } from "../tool-feedback/css-feedback";
@@ -25,25 +25,21 @@ export interface IMovementRestrictor {
     cssClasses?: string[];
 }
 
-
-
-
-export function modifyMovemenRestrictionFeedbackAction(element: SModelElement, remove: boolean, movementRestrictor?: IMovementRestrictor): ModifyCSSFeedbackAction[] {
-    const result: ModifyCSSFeedbackAction[] = [];
-    if (!movementRestrictor) {
-        return result;
+export function createMovementRestrictionFeedback(element: SModelElement, movementRestrictor: IMovementRestrictor): Action[] {
+    const result: Action[] = [];
+    result.push(new ModifyCSSFeedbackAction(element, movementRestrictor.cssClasses));
+    if (element instanceof SParentElement) {
+        element.children.filter(child => child instanceof SResizeHandle).forEach(child => result.push(new ModifyCSSFeedbackAction(child, movementRestrictor.cssClasses)));
     }
-    if (!remove) {
-        result.push(new ModifyCSSFeedbackAction(element, movementRestrictor.cssClasses));
-        if (element instanceof SParentElement) {
-            element.children.filter(child => child instanceof SResizeHandle).forEach(child => result.push(new ModifyCSSFeedbackAction(child, movementRestrictor.cssClasses)));
-        }
-    } else {
-        result.push(new ModifyCSSFeedbackAction(element, undefined, movementRestrictor.cssClasses));
-        if (element instanceof SParentElement) {
-            element.children.filter(child => child instanceof SResizeHandle)
-                .forEach(child => result.push(new ModifyCSSFeedbackAction(child, undefined, movementRestrictor.cssClasses)));
-        }
+    return result;
+}
+
+export function removeMovementRestrictionFeedback(element: SModelElement, movementRestrictor: IMovementRestrictor): Action[] {
+    const result: Action[] = [];
+    result.push(new ModifyCSSFeedbackAction(element, undefined, movementRestrictor.cssClasses));
+    if (element instanceof SParentElement) {
+        element.children.filter(child => child instanceof SResizeHandle).
+            forEach(child => result.push(new ModifyCSSFeedbackAction(child, undefined, movementRestrictor.cssClasses)));
     }
     return result;
 }
@@ -62,13 +58,13 @@ export class NoOverlapMovmentRestrictor implements IMovementRestrictor {
         ghostElement.type = "Ghost";
         ghostElement.id = element.id;
         return !Array.from(element.root.index.all().filter(e => e.id !== ghostElement.id && e !== ghostElement.root && (e instanceof SNode))
-            .map(e => e as SModelElement & BoundsAware)).some(e => doOverlap(e, ghostElement));
+            .map(e => e as SModelElement & BoundsAware)).some(e => areOverlapping(e, ghostElement));
     }
 
     cssClasses = ["movement-not-allowed"];
 }
 
-export function doOverlap(element1: SModelElement & BoundsAware, element2: SModelElement & BoundsAware) {
+export function areOverlapping(element1: SModelElement & BoundsAware, element2: SModelElement & BoundsAware) {
     const b1 = toAbsoluteBounds(element1);
     const b2 = toAbsoluteBounds(element2);
     const r1TopLeft: Point = b1;

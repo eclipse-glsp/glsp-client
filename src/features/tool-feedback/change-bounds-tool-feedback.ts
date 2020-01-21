@@ -34,7 +34,7 @@ import {
 
 import { isNotUndefined } from "../../utils/smodel-util";
 import { addResizeHandles, isResizable, removeResizeHandles, SResizeHandle } from "../change-bounds/model";
-import { modifyMovemenRestrictionFeedbackAction } from "../change-bounds/movement-restrictor";
+import { createMovementRestrictionFeedback, removeMovementRestrictionFeedback } from "../change-bounds/movement-restrictor";
 import { ChangeBoundsTool } from "../tools/change-bounds-tool";
 import { FeedbackCommand } from "./model";
 
@@ -195,13 +195,13 @@ export class FeedbackMoveMouseListener extends MouseListener {
             const valid = this.tool.movementRestrictor.validate(toPosition, element);
             let actions;
             if (!valid) {
-                actions = modifyMovemenRestrictionFeedbackAction(element, false, this.tool.movementRestrictor);
+                actions = createMovementRestrictionFeedback(element, this.tool.movementRestrictor);
 
                 if (isFinished) {
                     newPosition = startPostion;
                 }
             } else {
-                actions = modifyMovemenRestrictionFeedbackAction(element, true, this.tool.movementRestrictor);
+                actions = removeMovementRestrictionFeedback(element, this.tool.movementRestrictor);
             }
 
             this.tool.dispatchFeedback(this, actions);
@@ -226,9 +226,9 @@ export class FeedbackMoveMouseListener extends MouseListener {
             if (moveAction) {
                 result.push(moveAction);
             }
-            const actions = modifyMovemenRestrictionFeedbackAction(target, true, this.tool.movementRestrictor);
-
-            this.tool.dispatchFeedback(this, actions);
+            if (this.tool.movementRestrictor) {
+                result.push(...removeMovementRestrictionFeedback(target, this.tool.movementRestrictor));
+            }
 
         }
         this.hasDragged = false;

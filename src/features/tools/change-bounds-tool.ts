@@ -46,7 +46,11 @@ import {
     toElementAndRoutingPoints
 } from "../../utils/smodel-util";
 import { isBoundsAwareMoveable, isResizable, ResizeHandleLocation, SResizeHandle } from "../change-bounds/model";
-import { IMovementRestrictor, modifyMovemenRestrictionFeedbackAction } from "../change-bounds/movement-restrictor";
+import {
+    createMovementRestrictionFeedback,
+    IMovementRestrictor,
+    removeMovementRestrictionFeedback
+} from "../change-bounds/movement-restrictor";
 import { IMouseTool } from "../mouse-tool/mouse-tool";
 import {
     ChangeBoundsOperationAction,
@@ -327,7 +331,10 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements Sele
         if (this.isValidBoundChange(element, element.bounds, element.bounds)) {
             return [new ChangeBoundsOperationAction([toElementAndBounds(element)])];
         } else if (this.initialBounds) {
-            const actions = modifyMovemenRestrictionFeedbackAction(element, true, this.tool.movementRestrictor);
+            const actions: Action[] = [];
+            if (this.tool.movementRestrictor) {
+                actions.push(...removeMovementRestrictionFeedback(element, this.tool.movementRestrictor));
+            }
             actions.push(new SetBoundsAction([{ elementId: element.id, newPosition: this.initialBounds, newSize: this.initialBounds }]));
             return actions;
         }
@@ -344,19 +351,34 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements Sele
     protected createSetBoundsAction(element: SModelElement & BoundsAware, x: number, y: number, width: number, height: number): Action[] {
         const newPosition = { x, y };
         const newSize = { width, height };
-        const result = !this.isValidBoundChange(element, newPosition, newSize) ?
-            modifyMovemenRestrictionFeedbackAction(element, false, this.tool.movementRestrictor) :
-            modifyMovemenRestrictionFeedbackAction(element, true, this.tool.movementRestrictor);
-        result.push(new SetBoundsAction([{ elementId: element.id, newPosition, newSize }]));
+        const result: Action[] = [];
+        if (this.isValidBoundChange(element, newPosition, newSize)) {
+            if (this.tool.movementRestrictor) {
+                result.push(...removeMovementRestrictionFeedback(element, this.tool.movementRestrictor));
+            }
+
+            result.push(new SetBoundsAction([{ elementId: element.id, newPosition, newSize }]));
+
+        } else if (this.isValidSize(element, newSize)) {
+            if (this.tool.movementRestrictor) {
+                result.push(...createMovementRestrictionFeedback(element, this.tool.movementRestrictor));
+            }
+            result.push(new SetBoundsAction([{ elementId: element.id, newPosition, newSize }]));
+        }
         return result;
+
     }
 
     protected isValidBoundChange(element: SModelElement & BoundsAware, newPosition: Point, newSize: Dimension): boolean {
-        const valid = newSize.width >= this.minWidth(element) && newSize.height >= this.minHeight(element);
+        const valid = this.isValidSize(element, newSize);
         if (this.tool.movementRestrictor) {
             return valid && this.tool.movementRestrictor.validate(newPosition, element);
         }
         return valid;
+    }
+
+    protected isValidSize(element: SModelElement & BoundsAware, size: Dimension) {
+        return size.width >= this.minWidth(element) && size.height >= this.minHeight(element);
     }
 
     protected minWidth(element: SModelElement & BoundsAware): number {
