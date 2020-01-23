@@ -23,7 +23,7 @@ import {
     ShowChangeBoundsToolResizeFeedbackCommand
 } from "./change-bounds-tool-feedback";
 import { DrawFeedbackEdgeCommand, FeedbackEdgeEnd, RemoveFeedbackEdgeCommand } from "./creation-tool-feedback";
-import { ApplyCursorCSSFeedbackActionCommand } from "./cursor-feedback";
+import { ModifyCssFeedbackCommand } from "./css-feedback";
 import {
     DrawFeedbackEdgeSourceCommand,
     HideEdgeReconnectHandlesFeedbackCommand,
@@ -36,8 +36,9 @@ import { FeedbackEdgeEndView, SResizeHandleView } from "./view";
 const toolFeedbackModule = new ContainerModule((bind, _unbind, isBound) => {
     bind(GLSP_TYPES.IFeedbackActionDispatcher).to(FeedbackActionDispatcher).inSingletonScope();
 
+    configureCommand({ bind, isBound }, ModifyCssFeedbackCommand);
+
     // create node and edge tool feedback
-    configureCommand({ bind, isBound }, ApplyCursorCSSFeedbackActionCommand);
     configureCommand({ bind, isBound }, DrawFeedbackEdgeCommand);
     configureCommand({ bind, isBound }, RemoveFeedbackEdgeCommand);
 

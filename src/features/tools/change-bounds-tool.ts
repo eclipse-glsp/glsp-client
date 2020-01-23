@@ -16,11 +16,13 @@
 import { inject, injectable, optional } from "inversify";
 import {
     Action,
+    Bounds,
     BoundsAware,
     Dimension,
     EdgeRouterRegistry,
     ElementAndBounds,
     findParentByFeature,
+    ISnapper,
     isSelected,
     isViewport,
     KeyTool,
@@ -32,7 +34,8 @@ import {
     SModelElement,
     SModelRoot,
     SParentElement,
-    Tool
+    Tool,
+    TYPES
 } from "sprotty/lib";
 
 import { GLSP_TYPES } from "../../types";
@@ -43,7 +46,11 @@ import {
     toElementAndRoutingPoints
 } from "../../utils/smodel-util";
 import { isBoundsAwareMoveable, isResizable, ResizeHandleLocation, SResizeHandle } from "../change-bounds/model";
-import { IMovementRestrictor } from "../change-bounds/movement-restrictor";
+import {
+    createMovementRestrictionFeedback,
+    IMovementRestrictor,
+    removeMovementRestrictionFeedback
+} from "../change-bounds/movement-restrictor";
 import { IMouseTool } from "../mouse-tool/mouse-tool";
 import {
     ChangeBoundsOperationAction,
@@ -56,7 +63,8 @@ import {
     HideChangeBoundsToolResizeFeedbackAction,
     ShowChangeBoundsToolResizeFeedbackAction
 } from "../tool-feedback/change-bounds-tool-feedback";
-import { IFeedbackActionDispatcher } from "../tool-feedback/feedback-action-dispatcher";
+import { IFeedbackActionDispatcher, IFeedbackEmitter } from "../tool-feedback/feedback-action-dispatcher";
+import { DragAwareMouseListener } from "./drag-aware-mouse-listener";
 
 /**
  * The change bounds tool has the license to move multiple elements or resize a single element by implementing the ChangeBounds operation.
@@ -84,7 +92,8 @@ export class ChangeBoundsTool implements Tool {
         @inject(KeyTool) protected keyTool: KeyTool,
         @inject(GLSP_TYPES.IFeedbackActionDispatcher) protected feedbackDispatcher: IFeedbackActionDispatcher,
         @inject(EdgeRouterRegistry) @optional() readonly edgeRouterRegistry?: EdgeRouterRegistry,
-        @inject(GLSP_TYPES.IMovementRestrictor) @optional() protected movementRestrictor?: IMovementRestrictor) { }
+        @inject(TYPES.ISnapper) @optional() readonly snapper?: ISnapper,
+        @inject(GLSP_TYPES.IMovementRestrictor) @optional() readonly movementRestrictor?: IMovementRestrictor) { }
 
     enable() {
         // install feedback move mouse listener for client-side move updates
@@ -101,7 +110,7 @@ export class ChangeBoundsTool implements Tool {
     }
 
     protected createMoveMouseListener(): MouseListener {
-        return new FeedbackMoveMouseListener(this.movementRestrictor);
+        return new FeedbackMoveMouseListener(this);
     }
 
     protected createChangeBoundsListener(): MouseListener & SelectionListener {
@@ -112,18 +121,21 @@ export class ChangeBoundsTool implements Tool {
         this.mouseTool.deregister(this.changeBoundsListener);
         this.selectionService.deregister(this.changeBoundsListener);
         this.mouseTool.deregister(this.feedbackMoveMouseListener);
-        this.feedbackDispatcher.deregisterFeedback(this, [new HideChangeBoundsToolResizeFeedbackAction]);
+        this.feedbackDispatcher.deregisterFeedback(this.feedbackMoveMouseListener, []);
+        this.feedbackDispatcher.deregisterFeedback(this.changeBoundsListener, [new HideChangeBoundsToolResizeFeedbackAction]);
     }
 
-    dispatchFeedback(actions: Action[]) {
-        this.feedbackDispatcher.registerFeedback(this, actions);
+    dispatchFeedback(feedbackEmmmiter: IFeedbackEmitter, actions: Action[]) {
+        this.feedbackDispatcher.registerFeedback(feedbackEmmmiter, actions);
     }
 }
 
-export class ChangeBoundsListener extends MouseListener implements SelectionListener {
+export class ChangeBoundsListener extends DragAwareMouseListener implements SelectionListener {
     // members for calculating the correct position change
     protected lastDragPosition?: Point;
     protected positionDelta: Point = { x: 0, y: 0 };
+    protected initialPositon: Point | undefined = undefined;
+    protected initialBounds: Bounds | undefined;
 
     // members for resize mode
     protected activeResizeElementId?: string;
@@ -134,6 +146,7 @@ export class ChangeBoundsListener extends MouseListener implements SelectionList
     }
 
     mouseDown(target: SModelElement, event: MouseEvent): Action[] {
+        super.mouseDown(target, event);
         if (event.button !== 0) {
             return [];
         }
@@ -152,7 +165,8 @@ export class ChangeBoundsListener extends MouseListener implements SelectionList
     }
 
     mouseMove(target: SModelElement, event: MouseEvent): Action[] {
-        if (this.updatePosition(target, event)) {
+        super.mouseMove(target, event);
+        if (this.updatePosition(target, event) && this.activeResizeHandle) {
             // rely on the FeedbackMoveMouseListener to update the element bounds of selected elements
             // consider resize handles ourselves
             return this.handleElementResize();
@@ -160,7 +174,7 @@ export class ChangeBoundsListener extends MouseListener implements SelectionList
         return [];
     }
 
-    mouseUp(target: SModelElement, event: MouseEvent): Action[] {
+    draggingMouseUp(target: SModelElement, event: MouseEvent): Action[] {
         if (this.lastDragPosition === undefined) {
             this.resetPosition();
             return [];
@@ -221,7 +235,7 @@ export class ChangeBoundsListener extends MouseListener implements SelectionList
         if (isSelected(moveableElement)) {
             // only allow one element to have the element resize handles
             this.activeResizeElementId = moveableElement.id;
-            this.tool.dispatchFeedback([new ShowChangeBoundsToolResizeFeedbackAction(this.activeResizeElementId)]);
+            this.tool.dispatchFeedback(this, [new ShowChangeBoundsToolResizeFeedbackAction(this.activeResizeElementId)]);
             return true;
         }
         return false;
@@ -232,7 +246,13 @@ export class ChangeBoundsListener extends MouseListener implements SelectionList
     }
 
     protected initPosition(event: MouseEvent) {
+        this.initialPositon = { x: event.pageX, y: event.pageY };
         this.lastDragPosition = { x: event.pageX, y: event.pageY };
+        if (this.activeResizeHandle) {
+            const resizeElement = findParentByFeature(this.activeResizeHandle, isResizable);
+            this.initialBounds = { x: resizeElement!.bounds.x, y: resizeElement!.bounds.y, width: resizeElement!.bounds.width, height: resizeElement!.bounds.height };
+        }
+
     }
 
     protected updatePosition(target: SModelElement, event: MouseEvent): boolean {
@@ -250,13 +270,14 @@ export class ChangeBoundsListener extends MouseListener implements SelectionList
     }
 
     protected reset() {
-        this.tool.dispatchFeedback([new HideChangeBoundsToolResizeFeedbackAction()]);
+        this.tool.dispatchFeedback(this, [new HideChangeBoundsToolResizeFeedbackAction()]);
         this.resetPosition();
     }
 
     protected resetPosition() {
         this.activeResizeHandle = undefined;
         this.lastDragPosition = undefined;
+        this.initialPositon = undefined;
         this.positionDelta = { x: 0, y: 0 };
     }
 
@@ -309,6 +330,13 @@ export class ChangeBoundsListener extends MouseListener implements SelectionList
     protected createChangeBoundsAction(element: SModelElement & BoundsAware): Action[] {
         if (this.isValidBoundChange(element, element.bounds, element.bounds)) {
             return [new ChangeBoundsOperationAction([toElementAndBounds(element)])];
+        } else if (this.initialBounds) {
+            const actions: Action[] = [];
+            if (this.tool.movementRestrictor) {
+                actions.push(...removeMovementRestrictionFeedback(element, this.tool.movementRestrictor));
+            }
+            actions.push(new SetBoundsAction([{ elementId: element.id, newPosition: this.initialBounds, newSize: this.initialBounds }]));
+            return actions;
         }
         return [];
     }
@@ -323,15 +351,34 @@ export class ChangeBoundsListener extends MouseListener implements SelectionList
     protected createSetBoundsAction(element: SModelElement & BoundsAware, x: number, y: number, width: number, height: number): Action[] {
         const newPosition = { x, y };
         const newSize = { width, height };
+        const result: Action[] = [];
         if (this.isValidBoundChange(element, newPosition, newSize)) {
-            return [new SetBoundsAction([{ elementId: element.id, newPosition, newSize }])];
+            if (this.tool.movementRestrictor) {
+                result.push(...removeMovementRestrictionFeedback(element, this.tool.movementRestrictor));
+            }
 
+            result.push(new SetBoundsAction([{ elementId: element.id, newPosition, newSize }]));
+
+        } else if (this.isValidSize(element, newSize)) {
+            if (this.tool.movementRestrictor) {
+                result.push(...createMovementRestrictionFeedback(element, this.tool.movementRestrictor));
+            }
+            result.push(new SetBoundsAction([{ elementId: element.id, newPosition, newSize }]));
         }
-        return [];
+        return result;
+
     }
 
     protected isValidBoundChange(element: SModelElement & BoundsAware, newPosition: Point, newSize: Dimension): boolean {
-        return newSize.width >= this.minWidth(element) && newSize.height >= this.minHeight(element);
+        const valid = this.isValidSize(element, newSize);
+        if (this.tool.movementRestrictor) {
+            return valid && this.tool.movementRestrictor.validate(newPosition, element);
+        }
+        return valid;
+    }
+
+    protected isValidSize(element: SModelElement & BoundsAware, size: Dimension) {
+        return size.width >= this.minWidth(element) && size.height >= this.minHeight(element);
     }
 
     protected minWidth(element: SModelElement & BoundsAware): number {

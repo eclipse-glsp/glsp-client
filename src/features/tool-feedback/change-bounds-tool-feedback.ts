@@ -33,15 +33,9 @@ import {
 } from "sprotty/lib";
 
 import { isNotUndefined } from "../../utils/smodel-util";
-import { getAbsolutePosition } from "../../utils/viewpoint-util";
-import {
-    addResizeHandles,
-    isBoundsAwareMoveable,
-    isResizable,
-    removeResizeHandles,
-    SResizeHandle
-} from "../change-bounds/model";
-import { IMovementRestrictor } from "../change-bounds/movement-restrictor";
+import { addResizeHandles, isResizable, removeResizeHandles, SResizeHandle } from "../change-bounds/model";
+import { createMovementRestrictionFeedback, removeMovementRestrictionFeedback } from "../change-bounds/movement-restrictor";
+import { ChangeBoundsTool } from "../tools/change-bounds-tool";
 import { FeedbackCommand } from "./model";
 
 export class ShowChangeBoundsToolResizeFeedbackAction implements Action {
@@ -56,15 +50,21 @@ export class HideChangeBoundsToolResizeFeedbackAction implements Action {
 
 @injectable()
 export class ShowChangeBoundsToolResizeFeedbackCommand extends FeedbackCommand {
-    static readonly KIND = 'showChangeBoundsToolResizeFeedback';
+    static readonly KIND = "showChangeBoundsToolResizeFeedback";
 
-    constructor(@inject(TYPES.Action) protected action: ShowChangeBoundsToolResizeFeedbackAction) {
+    constructor(
+        @inject(TYPES.Action)
+        protected action: ShowChangeBoundsToolResizeFeedbackAction
+    ) {
         super();
     }
 
     execute(context: CommandExecutionContext): CommandReturn {
         const index = context.root.index;
-        index.all().filter(isResizable).forEach(removeResizeHandles);
+        index
+            .all()
+            .filter(isResizable)
+            .forEach(removeResizeHandles);
 
         if (isNotUndefined(this.action.elementId)) {
             const resizeElement = index.getById(this.action.elementId);
@@ -78,15 +78,21 @@ export class ShowChangeBoundsToolResizeFeedbackCommand extends FeedbackCommand {
 
 @injectable()
 export class HideChangeBoundsToolResizeFeedbackCommand extends FeedbackCommand {
-    static readonly KIND = 'hideChangeBoundsToolResizeFeedback';
+    static readonly KIND = "hideChangeBoundsToolResizeFeedback";
 
-    constructor(@inject(TYPES.Action) protected action: HideChangeBoundsToolResizeFeedbackAction) {
+    constructor(
+        @inject(TYPES.Action)
+        protected action: HideChangeBoundsToolResizeFeedbackAction
+    ) {
         super();
     }
 
     execute(context: CommandExecutionContext): CommandReturn {
         const index = context.root.index;
-        index.all().filter(isResizable).forEach(removeResizeHandles);
+        index
+            .all()
+            .filter(isResizable)
+            .forEach(removeResizeHandles);
         return context.root;
     }
 }
@@ -100,15 +106,19 @@ export class HideChangeBoundsToolResizeFeedbackCommand extends FeedbackCommand {
  */
 export class FeedbackMoveMouseListener extends MouseListener {
     hasDragged = false;
-    lastDragPosition: Point | undefined;
-    constructor(protected movementRestrictor?: IMovementRestrictor) { super(); }
+    startDragPosition: Point | undefined;
+    elementId2startPos = new Map<string, Point>();
+
+    constructor(protected tool: ChangeBoundsTool) {
+        super();
+    }
     mouseDown(target: SModelElement, event: MouseEvent): Action[] {
         if (event.button === 0 && !(target instanceof SResizeHandle)) {
             const moveable = findParentByFeature(target, isMoveable);
             if (moveable !== undefined) {
-                this.lastDragPosition = { x: event.pageX, y: event.pageY };
+                this.startDragPosition = { x: event.pageX, y: event.pageY };
             } else {
-                this.lastDragPosition = undefined;
+                this.startDragPosition = undefined;
             }
             this.hasDragged = false;
         }
@@ -117,47 +127,90 @@ export class FeedbackMoveMouseListener extends MouseListener {
 
     mouseMove(target: SModelElement, event: MouseEvent): Action[] {
         const result: Action[] = [];
-        if (event.buttons === 0)
-            this.mouseUp(target, event);
-        else if (this.lastDragPosition) {
-            const viewport = findParentByFeature(target, isViewport);
-            this.hasDragged = true;
-            const zoom = viewport ? viewport.zoom : 1;
-            const mousePoint: Point = getAbsolutePosition(target, event);
-            const dx = (event.pageX - this.lastDragPosition.x) / zoom;
-            const dy = (event.pageY - this.lastDragPosition.y) / zoom;
-            const nodeMoves: ElementMove[] = [];
-            let isValidMove: boolean = true;
-
-            target.root.index.all()
-                .filter(element => isSelectable(element) && element.selected)
-                .forEach(element => {
-                    if (isBoundsAwareMoveable(element)) {
-                        // If a movement restrictor is bound attemt a non restricted move
-                        if (this.movementRestrictor) {
-                            isValidMove = this.movementRestrictor.attemptMove(element, mousePoint, target, { x: dx, y: dy }, result);
-                        }
-                    }
-                    if (isMoveable(element) && isValidMove) {
-                        nodeMoves.push({
-                            elementId: element.id,
-                            fromPosition: {
-                                x: element.position.x,
-                                y: element.position.y
-                            },
-                            toPosition: {
-                                x: element.position.x + dx,
-                                y: element.position.y + dy
-                            }
-                        });
-                    }
-                });
-            this.lastDragPosition = { x: event.pageX, y: event.pageY };
-            if (nodeMoves.length > 0 && isValidMove) {
-                result.push(new MoveAction(nodeMoves, false));
+        if (event.buttons === 0) this.mouseUp(target, event);
+        else if (this.startDragPosition) {
+            if (this.elementId2startPos.size === 0) {
+                this.collectStartPositions(target.root);
             }
+            this.hasDragged = true;
+            const moveAction = this.getElementMoves(target, event, false);
+            if (moveAction) result.push(moveAction);
         }
         return result;
+    }
+
+    protected collectStartPositions(root: SModelRoot) {
+        root.index
+            .all()
+            .filter(element => isSelectable(element) && element.selected)
+            .forEach(element => {
+                if (isMoveable(element)) {
+                    this.elementId2startPos.set(element.id, element.position);
+                }
+            });
+    }
+
+    protected getElementMoves(target: SModelElement, event: MouseEvent, isFinished: boolean): MoveAction | undefined {
+        if (!this.startDragPosition) return undefined;
+        const elementMoves: ElementMove[] = [];
+        const viewport = findParentByFeature(target, isViewport);
+        const zoom = viewport ? viewport.zoom : 1;
+        const delta = {
+            x: (event.pageX - this.startDragPosition.x) / zoom,
+            y: (event.pageY - this.startDragPosition.y) / zoom
+        };
+        this.elementId2startPos.forEach((startPosition, elementId) => {
+            const element = target.root.index.getById(elementId);
+            if (element) {
+                let toPosition = this.snap(
+                    {
+                        x: startPosition.x + delta.x,
+                        y: startPosition.y + delta.y
+                    },
+                    element,
+                    !event.shiftKey
+                );
+
+                if (isMoveable(element)) {
+                    toPosition = this.validateMove(startPosition, toPosition, element, isFinished);
+                    elementMoves.push({
+                        elementId: element.id,
+                        fromPosition: {
+                            x: element.position.x,
+                            y: element.position.y
+                        },
+                        toPosition
+                    });
+                }
+            }
+        });
+        if (elementMoves.length > 0)
+            return new MoveAction(elementMoves, false, isFinished);
+        else return undefined;
+    }
+
+    protected validateMove(startPostion: Point, toPosition: Point, element: SModelElement, isFinished: boolean) {
+        let newPosition = toPosition;
+        if (this.tool.movementRestrictor) {
+            const valid = this.tool.movementRestrictor.validate(toPosition, element);
+            let actions;
+            if (!valid) {
+                actions = createMovementRestrictionFeedback(element, this.tool.movementRestrictor);
+
+                if (isFinished) {
+                    newPosition = startPostion;
+                }
+            } else {
+                actions = removeMovementRestrictionFeedback(element, this.tool.movementRestrictor);
+            }
+
+            this.tool.dispatchFeedback(this, actions);
+        }
+        return newPosition;
+    }
+    protected snap(position: Point, element: SModelElement, isSnap: boolean): Point {
+        if (isSnap && this.tool.snapper) return this.tool.snapper.snap(position, element);
+        else return position;
     }
 
     mouseEnter(target: SModelElement, event: MouseEvent): Action[] {
@@ -167,13 +220,24 @@ export class FeedbackMoveMouseListener extends MouseListener {
     }
 
     mouseUp(target: SModelElement, event: MouseEvent): Action[] {
+        const result: Action[] = [];
+        if (this.startDragPosition) {
+            const moveAction = this.getElementMoves(target, event, true);
+            if (moveAction) {
+                result.push(moveAction);
+            }
+            if (this.tool.movementRestrictor) {
+                result.push(...removeMovementRestrictionFeedback(target, this.tool.movementRestrictor));
+            }
+
+        }
         this.hasDragged = false;
-        this.lastDragPosition = undefined;
-        return [];
+        this.startDragPosition = undefined;
+        this.elementId2startPos.clear();
+        return result;
     }
 
     decorate(vnode: VNode, element: SModelElement): VNode {
         return vnode;
     }
-
 }
