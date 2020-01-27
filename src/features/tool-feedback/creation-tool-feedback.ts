@@ -142,7 +142,7 @@ function drawFeedbackEdge(context: CommandExecutionContext, sourceId: string, el
     edgeEnd.position = toAbsolutePosition(source);
 
     const feedbackEdgeSchema = <SEdgeSchema>{
-        type: 'edge',
+        type: elementTypeId,
         id: feedbackEdgeId(root),
         sourceId: source.id,
         targetId: edgeEnd.id,
