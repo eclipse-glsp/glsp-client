@@ -39,6 +39,7 @@ export * from './features/change-bounds/model';
 export * from './features/change-bounds/movement-restrictor';
 export * from './features/change-bounds/snap';
 export * from './features/context-actions/action-definitions';
+export * from './features/context-menu/delete-element-context-menu';
 export * from './features/command-palette/server-command-palette-provider';
 export * from './features/copy-paste/copy-paste-handler';
 export * from './features/edit-label-validation/edit-label-validator';
