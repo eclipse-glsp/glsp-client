@@ -34,6 +34,7 @@ export * from 'sprotty/lib';
 export * from './base/model/update-model-command';
 export * from './base/tool-manager/tool-manager-action-handler';
 export * from './base/command-stack';
+export * from './base/editor-context';
 export * from './features/change-bounds/model';
 export * from './features/change-bounds/movement-restrictor';
 export * from './features/change-bounds/snap';

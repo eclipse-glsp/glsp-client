@@ -14,12 +14,11 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { inject, injectable } from "inversify";
-import { MousePositionTracker, TYPES } from "sprotty";
+import { TYPES } from "sprotty";
 import uuid = require("uuid");
 
-import { GLSP_TYPES } from "../../types";
+import { EditorContextService } from "../../base/editor-context";
 import { GLSPActionDispatcher } from "../request-response/glsp-action-dispatcher";
-import { SelectionService } from "../select/selection-service";
 import { ClipboardData, CutOperationAction, PasteOperationAction, RequestClipboardDataAction } from "./copy-paste-actions";
 
 export interface ICopyPasteHandler {
@@ -65,16 +64,14 @@ export class ServerCopyPasteHandler implements ICopyPasteHandler {
 
     @inject(TYPES.IActionDispatcher) protected actionDispatcher: GLSPActionDispatcher;
     @inject(LocalClipboardDataStore) protected clipboadDataStore: LocalClipboardDataStore;
-    @inject(GLSP_TYPES.SelectionService) protected selectionService: SelectionService;
-    @inject(MousePositionTracker) protected mousePositionTracker: MousePositionTracker;
+    @inject(EditorContextService) protected editorContext: EditorContextService;
 
     handleCopy(e: ClipboardEvent) {
         if (e.clipboardData && this.shouldCopy(e)) {
             const clipboardId = uuid();
             e.clipboardData.setData(CLIPBOARD_DATA_FORMAT, toClipboardId(clipboardId));
             this.actionDispatcher
-                .request(RequestClipboardDataAction.create(Array.from(this.selectionService.getSelectedElementIDs()),
-                    this.mousePositionTracker.lastPositionOnDiagram))
+                .request(RequestClipboardDataAction.create(this.editorContext.get()))
                 .then(action => this.clipboadDataStore.put(clipboardId, action.clipboardData));
             e.preventDefault();
         }
@@ -83,8 +80,7 @@ export class ServerCopyPasteHandler implements ICopyPasteHandler {
     handleCut(e: ClipboardEvent): void {
         if (e.clipboardData && this.shouldCopy(e)) {
             this.handleCopy(e);
-            this.actionDispatcher.dispatch(new CutOperationAction(Array.from(this.selectionService.getSelectedElementIDs()),
-                this.mousePositionTracker.lastPositionOnDiagram));
+            this.actionDispatcher.dispatch(new CutOperationAction(this.editorContext.get()));
         }
     }
 
@@ -95,15 +91,14 @@ export class ServerCopyPasteHandler implements ICopyPasteHandler {
                 const clipboardData = this.clipboadDataStore.get(jsonData.clipboardId);
                 if (clipboardData) {
                     this.actionDispatcher
-                        .dispatch(new PasteOperationAction(clipboardData, Array.from(this.selectionService.getSelectedElementIDs()),
-                            this.mousePositionTracker.lastPositionOnDiagram));
+                        .dispatch(new PasteOperationAction(clipboardData, this.editorContext.get()));
                 }
             }
         }
     }
 
     protected shouldCopy(e: ClipboardEvent) {
-        return this.selectionService.hasSelectedElements() && e.srcElement instanceof HTMLBodyElement;
+        return this.editorContext.get().selectedElementIds.length > 0 && e.srcElement instanceof HTMLBodyElement;
     }
 
 }

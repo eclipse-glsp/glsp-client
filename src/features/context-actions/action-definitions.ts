@@ -13,7 +13,9 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, generateRequestId, LabeledAction, Point, RequestAction, ResponseAction } from "sprotty/lib";
+import { Action, generateRequestId, LabeledAction, RequestAction, ResponseAction } from "sprotty/lib";
+
+import { EditorContext } from "../../base/editor-context";
 
 export namespace ContextActions {
     export const UI_CONTROL_KEY = "ui-control";
@@ -22,10 +24,7 @@ export namespace ContextActions {
 export class RequestContextActions implements RequestAction<SetContextActions> {
     static readonly KIND = "requestContextActions";
     kind = RequestContextActions.KIND;
-    constructor(
-        public readonly selectedElementIds: string[] = [],
-        public readonly lastMousePosition?: Point,
-        public readonly args?: { [key: string]: string | number | boolean },
+    constructor(public readonly editorContext: EditorContext,
         public readonly requestId: string = generateRequestId()) { }
 }
 

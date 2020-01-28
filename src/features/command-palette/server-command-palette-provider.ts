@@ -14,8 +14,9 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { inject, injectable } from "inversify";
-import { Action, ICommandPaletteActionProvider, isSelected, LabeledAction, Point, SModelElement, TYPES } from "sprotty/lib";
+import { Action, ICommandPaletteActionProvider, LabeledAction, Point, SModelElement, TYPES } from "sprotty/lib";
 
+import { EditorContextService } from "../../base/editor-context";
 import { ContextActions, isSetContextActionsAction, RequestContextActions } from "../context-actions/action-definitions";
 import { GLSPActionDispatcher } from "../request-response/glsp-action-dispatcher";
 
@@ -28,15 +29,15 @@ export namespace ServerCommandPalette {
 @injectable()
 export class ServerCommandPaletteActionProvider implements ICommandPaletteActionProvider {
 
-    constructor(@inject(TYPES.IActionDispatcher) protected actionDispatcher: GLSPActionDispatcher) { }
+    constructor(@inject(TYPES.IActionDispatcher) protected actionDispatcher: GLSPActionDispatcher,
+        @inject(EditorContextService) protected editorContext: EditorContextService) { }
 
     getActions(root: Readonly<SModelElement>, text: string, lastMousePosition?: Point, index?: number): Promise<LabeledAction[]> {
-        const selectedElementIds = Array.from(root.index.all().filter(isSelected).map(e => e.id));
-        const requestAction = new RequestContextActions(selectedElementIds, lastMousePosition, {
+        const requestAction = new RequestContextActions(this.editorContext.get({
             [ContextActions.UI_CONTROL_KEY]: ServerCommandPalette.KEY,
             [ServerCommandPalette.TEXT]: text,
             [ServerCommandPalette.INDEX]: index ? index : 0
-        });
+        }));
         return this.actionDispatcher.requestUntil(requestAction).then(response => this.getPaletteActionsFromResponse(response));
     }
 

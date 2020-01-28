@@ -13,15 +13,14 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, generateRequestId, Point, RequestAction, ResponseAction } from "sprotty";
+import { Action, generateRequestId, RequestAction, ResponseAction } from "sprotty";
+
+import { EditorContext } from "../../base/editor-context";
 
 export class CutOperationAction implements Action {
     static readonly KIND = "cut";
     kind = CutOperationAction.KIND;
-    constructor(
-        public readonly selectedElementIds: string[] = [],
-        public readonly lastMousePosition?: Point,
-        public readonly args?: { [key: string]: string | number | boolean }) { }
+    constructor(public readonly editorContext: EditorContext) { }
 }
 
 export class PasteOperationAction implements Action {
@@ -29,9 +28,7 @@ export class PasteOperationAction implements Action {
     kind = PasteOperationAction.KIND;
     constructor(
         public readonly clipboardData: ClipboardData,
-        public readonly selectedElementIds: string[] = [],
-        public readonly lastMousePosition?: Point,
-        public readonly args?: { [key: string]: string | number | boolean }) { }
+        public readonly editorContext: EditorContext) { }
 }
 
 export class RequestClipboardDataAction implements RequestAction<SetClipboardDataAction> {
@@ -39,15 +36,11 @@ export class RequestClipboardDataAction implements RequestAction<SetClipboardDat
     kind = RequestClipboardDataAction.KIND;
 
     constructor(
-        public readonly selectedElementIds: string[] = [],
-        public readonly lastMousePosition?: Point,
-        public readonly args?: { [key: string]: string | number | boolean },
+        public readonly editorContext: EditorContext,
         public readonly requestId: string = generateRequestId()) { }
 
-    static create(selectedElementIds: string[] = [],
-        lastMousePosition?: Point,
-        args?: { [key: string]: string | number | boolean }): RequestAction<SetClipboardDataAction> {
-        return new RequestClipboardDataAction(selectedElementIds, lastMousePosition, args);
+    static create(editorContext: EditorContext): RequestAction<SetClipboardDataAction> {
+        return new RequestClipboardDataAction(editorContext);
     }
 }
 
