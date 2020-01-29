@@ -27,8 +27,8 @@ export namespace ServerContextMenu {
 @injectable()
 export class ServerContextMenuItemProvider implements IContextMenuItemProvider {
 
-    constructor(@inject(TYPES.IActionDispatcher) protected actionDispatcher: GLSPActionDispatcher,
-        @inject(EditorContextService) protected editorContext: EditorContextService) { }
+    @inject(TYPES.IActionDispatcher) protected actionDispatcher: GLSPActionDispatcher;
+    @inject(EditorContextService) protected editorContext: EditorContextService;
 
     getItems(root: Readonly<SModelElement>, lastMousePosition?: Point): Promise<LabeledAction[]> {
         const selectedElementIds = Array.from(root.index.all().filter(isSelected).map(e => e.id));

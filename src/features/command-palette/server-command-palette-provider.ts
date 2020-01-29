@@ -29,8 +29,8 @@ export namespace ServerCommandPalette {
 @injectable()
 export class ServerCommandPaletteActionProvider implements ICommandPaletteActionProvider {
 
-    constructor(@inject(TYPES.IActionDispatcher) protected actionDispatcher: GLSPActionDispatcher,
-        @inject(EditorContextService) protected editorContext: EditorContextService) { }
+    @inject(TYPES.IActionDispatcher) protected actionDispatcher: GLSPActionDispatcher;
+    @inject(EditorContextService) protected editorContext: EditorContextService;
 
     getActions(root: Readonly<SModelElement>, text: string, lastMousePosition?: Point, index?: number): Promise<LabeledAction[]> {
         const requestAction = new RequestContextActions(this.editorContext.get({
