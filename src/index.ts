@@ -16,6 +16,7 @@
 import defaultGLSPModule from "./base/di.config";
 import glspCommandPaletteModule from "./features/command-palette/di.config";
 import glspContextMenuModule from "./features/context-menu/di.config";
+import glspServerCopyPasteModule from "./features/copy-paste/di.config";
 import glspEditLabelValidationModule from "./features/edit-label-validation/di.config";
 import executeModule from "./features/execute/di.config";
 import modelHintsModule from "./features/hints/di.config";
@@ -33,11 +34,14 @@ export * from 'sprotty/lib';
 export * from './base/model/update-model-command';
 export * from './base/tool-manager/tool-manager-action-handler';
 export * from './base/command-stack';
+export * from './base/editor-context';
 export * from './features/change-bounds/model';
 export * from './features/change-bounds/movement-restrictor';
 export * from './features/change-bounds/snap';
 export * from './features/context-actions/action-definitions';
+export * from './features/context-menu/delete-element-context-menu';
 export * from './features/command-palette/server-command-palette-provider';
+export * from './features/copy-paste/copy-paste-handler';
 export * from './features/edit-label-validation/edit-label-validator';
 export * from './features/execute/execute-command';
 export * from './features/execute/model';
@@ -80,7 +84,7 @@ export * from './model-source/websocket-diagram-server';
 export * from "./model-source/glsp-server-status";
 export {
     validationModule, saveModule, executeModule, paletteModule, toolFeedbackModule, defaultGLSPModule, modelHintsModule, glspCommandPaletteModule, requestResponseModule, //
-    glspContextMenuModule, glspSelectModule, glspMouseToolModule, layoutCommandsModule, glspEditLabelValidationModule
+    glspContextMenuModule, glspServerCopyPasteModule, glspSelectModule, glspMouseToolModule, layoutCommandsModule, glspEditLabelValidationModule
 };
 
 

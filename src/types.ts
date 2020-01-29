@@ -26,5 +26,6 @@ export const GLSP_TYPES = {
     IContextMenuService: Symbol.for("IContextMenuService"),
     IContextMenuServiceProvider: Symbol.for("IContextMenuServiceProvider"),
     IContextMenuProviderRegistry: Symbol.for("IContextMenuProviderRegistry"),
-    IContextMenuProvider: Symbol.for("IContextMenuProvider")
+    IContextMenuProvider: Symbol.for("IContextMenuProvider"),
+    ICopyPasteHandler: Symbol.for("ICopyPasteHandler")
 };

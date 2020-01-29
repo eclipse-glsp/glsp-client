@@ -21,15 +21,16 @@ import { configureActionHandler, configureCommand, SetModelCommand, Tool, TYPES 
 import { SetOperationsAction } from "../features/operation/set-operations";
 import { GLSP_TYPES } from "../types";
 import { GLSPCommandStack } from "./command-stack";
+import { EditorContextService } from "./editor-context";
 import { FeedbackAwareUpdateModelCommand, SetModelActionHandler } from "./model/update-model-command";
 import { createToolFactory, GLSPToolManagerActionHandler } from "./tool-manager/tool-manager-action-handler";
-
 
 const defaultGLSPModule = new ContainerModule((bind, _unbind, isBound, rebind) => {
     const context = { bind, _unbind, isBound, rebind };
     // Tool manager initialization ------------------------------------
     configureActionHandler(context, SetOperationsAction.KIND, GLSPToolManagerActionHandler);
     bind(GLSP_TYPES.IToolFactory).toFactory<Tool>((createToolFactory()));
+    bind(EditorContextService).toSelf().inSingletonScope();
 
     // Model update initialization ------------------------------------
     configureCommand(context, FeedbackAwareUpdateModelCommand);
