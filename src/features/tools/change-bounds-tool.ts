@@ -45,7 +45,7 @@ import {
     toElementAndBounds,
     toElementAndRoutingPoints
 } from "../../utils/smodel-util";
-import { isBoundsAwareMoveable, isResizable, ResizeHandleLocation, SResizeHandle } from "../change-bounds/model";
+import { isBoundsAwareMoveable, isResizable, Resizable, ResizeHandleLocation, SResizeHandle } from "../change-bounds/model";
 import {
     createMovementRestrictionFeedback,
     IMovementRestrictor,
@@ -286,45 +286,52 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements Sele
             return [];
         }
 
-        const actions: Action[] = [];
         const resizeElement = findParentByFeature(this.activeResizeHandle, isResizable);
         if (this.isActiveResizeElement(resizeElement)) {
             switch (this.activeResizeHandle.location) {
                 case ResizeHandleLocation.TopLeft:
-                    this.createSetBoundsAction(resizeElement,
-                        resizeElement.bounds.x + this.positionDelta.x,
-                        resizeElement.bounds.y + this.positionDelta.y,
-                        resizeElement.bounds.width - this.positionDelta.x,
-                        resizeElement.bounds.height - this.positionDelta.y)
-                        .forEach(action => actions.push(action));
-                    break;
+                    return this.handleTopLeftResize(resizeElement);
                 case ResizeHandleLocation.TopRight:
-                    this.createSetBoundsAction(resizeElement,
-                        resizeElement.bounds.x,
-                        resizeElement.bounds.y + this.positionDelta.y,
-                        resizeElement.bounds.width + this.positionDelta.x,
-                        resizeElement.bounds.height - this.positionDelta.y)
-                        .forEach(action => actions.push(action));
-                    break;
+                    return this.handleTopRightResize(resizeElement);
                 case ResizeHandleLocation.BottomLeft:
-                    this.createSetBoundsAction(resizeElement,
-                        resizeElement.bounds.x + this.positionDelta.x,
-                        resizeElement.bounds.y,
-                        resizeElement.bounds.width - this.positionDelta.x,
-                        resizeElement.bounds.height + this.positionDelta.y)
-                        .forEach(action => actions.push(action));
-                    break;
+                    return this.handleBottomLeftResize(resizeElement);
                 case ResizeHandleLocation.BottomRight:
-                    this.createSetBoundsAction(resizeElement,
-                        resizeElement.bounds.x,
-                        resizeElement.bounds.y,
-                        resizeElement.bounds.width + this.positionDelta.x,
-                        resizeElement.bounds.height + this.positionDelta.y)
-                        .forEach(action => actions.push(action));
-                    break;
+                    return this.handleBottomRightResize(resizeElement);
             }
         }
-        return actions;
+        return [];
+    }
+
+    protected handleTopLeftResize(resizeElement: SParentElement & Resizable): Action[] {
+        return this.createSetBoundsAction(resizeElement,
+            resizeElement.bounds.x + this.positionDelta.x,
+            resizeElement.bounds.y + this.positionDelta.y,
+            resizeElement.bounds.width - this.positionDelta.x,
+            resizeElement.bounds.height - this.positionDelta.y);
+    }
+
+    protected handleTopRightResize(resizeElement: SParentElement & Resizable): Action[] {
+        return this.createSetBoundsAction(resizeElement,
+            resizeElement.bounds.x,
+            resizeElement.bounds.y + this.positionDelta.y,
+            resizeElement.bounds.width + this.positionDelta.x,
+            resizeElement.bounds.height - this.positionDelta.y);
+    }
+
+    protected handleBottomLeftResize(resizeElement: SParentElement & Resizable): Action[] {
+        return this.createSetBoundsAction(resizeElement,
+            resizeElement.bounds.x + this.positionDelta.x,
+            resizeElement.bounds.y,
+            resizeElement.bounds.width - this.positionDelta.x,
+            resizeElement.bounds.height + this.positionDelta.y);
+    }
+
+    protected handleBottomRightResize(resizeElement: SParentElement & Resizable): Action[] {
+        return this.createSetBoundsAction(resizeElement,
+            resizeElement.bounds.x,
+            resizeElement.bounds.y,
+            resizeElement.bounds.width + this.positionDelta.x,
+            resizeElement.bounds.height + this.positionDelta.y);
     }
 
     protected createChangeBoundsAction(element: SModelElement & BoundsAware): Action[] {
