@@ -49,8 +49,10 @@ pipeline {
         stage('Build package') {
             steps {
                 container('node') {
-                    sh "yarn install"
-                    sh "yarn test"
+                    timeout(30){
+                        sh "yarn install"
+                        sh "yarn test"
+                    }
                 }
             }
         }
