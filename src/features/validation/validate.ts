@@ -30,6 +30,7 @@ import {
 
 import { GLSP_TYPES } from "../../types";
 import { Marker, MarkerKind } from "../../utils/marker";
+import { addCssClasses, removeCssClasses } from "../../utils/smodel-util";
 import { getSeverity } from "../hover/hover";
 import { IFeedbackActionDispatcher, IFeedbackEmitter } from "../tool-feedback/feedback-action-dispatcher";
 import { FeedbackCommand } from "../tool-feedback/model";
@@ -172,21 +173,11 @@ export class ApplyMarkersCommand extends FeedbackCommand {
 }
 
 function addCSSClassToIssueParent(modelElement: SParentElement, issueMarker: SIssueMarker) {
-    if (modelElement.cssClasses === undefined) {
-        modelElement.cssClasses = [getSeverity(issueMarker)];
-    } else {
-        modelElement.cssClasses.push(getSeverity(issueMarker));
-    }
+    addCssClasses(modelElement, [getSeverity(issueMarker)]);
 }
 
 function removeCSSClassFromIssueParent(modelElement: SParentElement, issueMarker: SIssueMarker) {
-    if (modelElement.cssClasses !== undefined) {
-        const severity = getSeverity(issueMarker);
-        const index = modelElement.cssClasses.indexOf(severity, 0);
-        if (index > -1) {
-            modelElement.cssClasses.splice(index, 1);
-        }
-    }
+    removeCssClasses(modelElement, [getSeverity(issueMarker)]);
 }
 
 /**
