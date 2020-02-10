@@ -20,6 +20,7 @@ import {
     CommandExecutionContext,
     CommandReturn,
     IActionDispatcher,
+    SDecoration,
     SIssue,
     SIssueMarker,
     SModelElement,
@@ -29,6 +30,8 @@ import {
 
 import { GLSP_TYPES } from "../../types";
 import { Marker, MarkerKind } from "../../utils/marker";
+import { addCssClasses, removeCssClasses } from "../../utils/smodel-util";
+import { getSeverity } from "../hover/hover";
 import { IFeedbackActionDispatcher, IFeedbackEmitter } from "../tool-feedback/feedback-action-dispatcher";
 import { FeedbackCommand } from "../tool-feedback/model";
 
@@ -154,6 +157,7 @@ export class ApplyMarkersCommand extends FeedbackCommand {
                 const issueMarker: SIssueMarker = getOrCreateSIssueMarker(modelElement);
                 const issue: SIssue = createSIssue(marker);
                 issueMarker.issues.push(issue);
+                addCSSClassToIssueParent(modelElement, issueMarker);
             }
         }
         return context.root;
@@ -166,6 +170,14 @@ export class ApplyMarkersCommand extends FeedbackCommand {
     redo(context: CommandExecutionContext): CommandReturn {
         return this.execute(context);
     }
+}
+
+function addCSSClassToIssueParent(modelElement: SParentElement, issueMarker: SIssueMarker) {
+    addCssClasses(modelElement, [getSeverity(issueMarker)]);
+}
+
+function removeCSSClassFromIssueParent(modelElement: SParentElement, issueMarker: SIssueMarker) {
+    removeCssClasses(modelElement, [getSeverity(issueMarker)]);
 }
 
 /**
@@ -181,7 +193,7 @@ function getOrCreateSIssueMarker(modelElement: SParentElement): SIssueMarker {
     issueMarker = getSIssueMarker(modelElement);
 
     if (issueMarker === undefined) {
-        issueMarker = new SIssueMarker();
+        issueMarker = new GIssueMarker();
         issueMarker.type = "marker";
         issueMarker.issues = new Array<SIssue>();
         modelElement.add(issueMarker);
@@ -263,6 +275,7 @@ export class ClearMarkersCommand extends Command {
             if (modelElement instanceof SParentElement) {
                 const issueMarker: SIssueMarker | undefined = getSIssueMarker(modelElement);
                 if (issueMarker !== undefined) {
+                    removeCSSClassFromIssueParent(modelElement, issueMarker);
                     for (let index = 0; index < issueMarker.issues.length; ++index) {
                         const issue: SIssue = issueMarker.issues[index];
                         if (issue.message === marker.description) {
@@ -271,6 +284,8 @@ export class ClearMarkersCommand extends Command {
                     }
                     if (issueMarker.issues.length === 0) {
                         modelElement.remove(issueMarker);
+                    } else {
+                        addCSSClassToIssueParent(modelElement, issueMarker);
                     }
                 }
             }
@@ -286,3 +301,11 @@ export class ClearMarkersCommand extends Command {
         return this.execute(context);
     }
 }
+
+export class GIssueMarker extends SIssueMarker {
+    constructor() {
+        super();
+        this.features = new Set<symbol>(SDecoration.DEFAULT_FEATURES);
+    }
+}
+

@@ -20,6 +20,7 @@ import glspServerCopyPasteModule from "./features/copy-paste/di.config";
 import glspEditLabelValidationModule from "./features/edit-label-validation/di.config";
 import executeModule from "./features/execute/di.config";
 import modelHintsModule from "./features/hints/di.config";
+import glspHoverModule from "./features/hover/di.config";
 import layoutCommandsModule from "./features/layout/di.config";
 import glspMouseToolModule from "./features/mouse-tool/di.config";
 import requestResponseModule from "./features/request-response/di.config";
@@ -48,6 +49,7 @@ export * from './features/execute/model';
 export * from './features/hints/request-type-hints-action';
 export * from './features/hints/type-hints';
 export * from './features/hints/model';
+export * from "./features/hover/hover";
 export * from './features/layout/layout-commands';
 export * from './features/mouse-tool/mouse-tool';
 export * from './features/operation/operation-actions';
@@ -84,7 +86,7 @@ export * from './model-source/websocket-diagram-server';
 export * from "./model-source/glsp-server-status";
 export {
     validationModule, saveModule, executeModule, paletteModule, toolFeedbackModule, defaultGLSPModule, modelHintsModule, glspCommandPaletteModule, requestResponseModule, //
-    glspContextMenuModule, glspServerCopyPasteModule, glspSelectModule, glspMouseToolModule, layoutCommandsModule, glspEditLabelValidationModule
+    glspContextMenuModule, glspServerCopyPasteModule, glspSelectModule, glspMouseToolModule, layoutCommandsModule, glspEditLabelValidationModule, glspHoverModule
 };
 
 
