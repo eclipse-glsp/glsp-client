@@ -16,11 +16,11 @@
 import { ContainerModule } from "inversify";
 
 import { GLSP_TYPES } from "../../types";
-import { LocalClipboardDataStore, ServerCopyPasteHandler } from "./copy-paste-handler";
+import { LocalClipboardService, ServerCopyPasteHandler } from "./copy-paste-handler";
 
 const glspServerCopyPasteModule = new ContainerModule(bind => {
     bind(GLSP_TYPES.ICopyPasteHandler).to(ServerCopyPasteHandler);
-    bind(LocalClipboardDataStore).toSelf().inSingletonScope();
+    bind(GLSP_TYPES.IAsyncClipboardService).to(LocalClipboardService).inSingletonScope();
 });
 
 export default glspServerCopyPasteModule;

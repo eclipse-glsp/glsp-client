@@ -14,6 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 export const GLSP_TYPES = {
+    IAsyncClipboardService: Symbol.for("IAsyncClipboardService"),
     ICommandPaletteActionProviderRegistry: Symbol.for("ICommandPaletteActionProviderRegistry"),
     IFeedbackActionDispatcher: Symbol.for("IFeedbackActionDispatcher"),
     IToolFactory: Symbol.for("Factory<Tool>"),
