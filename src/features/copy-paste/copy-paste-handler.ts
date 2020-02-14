@@ -18,6 +18,7 @@ import { TYPES } from "sprotty";
 import uuid = require("uuid");
 
 import { EditorContextService } from "../../base/editor-context";
+import { GLSP_TYPES } from "../../types";
 import { GLSPActionDispatcher } from "../request-response/glsp-action-dispatcher";
 import { ClipboardData, CutOperationAction, PasteOperationAction, RequestClipboardDataAction } from "./copy-paste-actions";
 
@@ -27,18 +28,45 @@ export interface ICopyPasteHandler {
     handlePaste(e: ClipboardEvent): void;
 }
 
+export interface IAsyncClipboardService {
+    clear(): void;
+    put(data: ClipboardData, id?: string): void;
+    get(id?: string): ClipboardData | undefined;
+}
+
+/**
+ * A local implementation of the async clipboard interface.
+ *
+ * This implementation just stores the clipboard data in memory, but not in the clipboard.
+ * This implementation can be used if you don't need to support cross-widget/browser/application
+ * data transfer and you would like to avoid to require the permission of the user for accessing the
+ * system clipboard asynchronously.
+ *
+ * In order to detect whether the user copied something else since we recorded the clipboard data
+ * we put a uuid into the system clipboard synchronously. If on paste this ID has changed or is not
+ * available anymore, we know that the user copied in another application or context, so we shouldn't
+ * paste what we have stored locally and just return undefined.
+ *
+ * Real async clipboard service implementations can just ignore the ID that is passed and rely on the
+ * system clipboard's content instead.
+ */
 @injectable()
-export class LocalClipboardDataStore {
-    protected id?: string;
+export class LocalClipboardService implements IAsyncClipboardService {
+    protected currentId?: string;
     protected data?: ClipboardData;
 
-    put(id: string, data: ClipboardData) {
-        this.id = id;
+    clear() {
+        this.currentId = undefined;
+        this.data = undefined;
+    }
+
+    put(data: ClipboardData, id: string) {
+        this.currentId = id;
         this.data = data;
     }
 
-    get(id: string): ClipboardData | undefined {
-        if (id !== this.id) {
+    get(id?: string): ClipboardData | undefined {
+        if (id !== this.currentId) {
             return undefined;
         }
         return this.data;
@@ -57,13 +85,19 @@ function isClipboardId(jsonData: any): jsonData is ClipboardId {
     return 'clipboardId' in jsonData;
 }
 
+function getClipboardIdFromDataTransfer(dataTransfer: DataTransfer): string | undefined {
+    const jsonString = dataTransfer.getData(CLIPBOARD_DATA_FORMAT);
+    const jsonObject = jsonString ? JSON.parse(jsonString) : undefined;
+    return isClipboardId(jsonObject) ? jsonObject.clipboardId : undefined;
+}
+
 const CLIPBOARD_DATA_FORMAT = "application/json";
 
 @injectable()
 export class ServerCopyPasteHandler implements ICopyPasteHandler {
 
     @inject(TYPES.IActionDispatcher) protected actionDispatcher: GLSPActionDispatcher;
-    @inject(LocalClipboardDataStore) protected clipboadDataStore: LocalClipboardDataStore;
+    @inject(GLSP_TYPES.IAsyncClipboardService) protected clipboadService: IAsyncClipboardService;
     @inject(EditorContextService) protected editorContext: EditorContextService;
 
     handleCopy(e: ClipboardEvent) {
@@ -72,8 +106,11 @@ export class ServerCopyPasteHandler implements ICopyPasteHandler {
             e.clipboardData.setData(CLIPBOARD_DATA_FORMAT, toClipboardId(clipboardId));
             this.actionDispatcher
                 .request(RequestClipboardDataAction.create(this.editorContext.get()))
-                .then(action => this.clipboadDataStore.put(clipboardId, action.clipboardData));
+                .then(action => this.clipboadService.put(action.clipboardData, clipboardId));
             e.preventDefault();
+        } else {
+            if (e.clipboardData) { e.clipboardData.clearData(); }
+            this.clipboadService.clear();
         }
     }
 
@@ -81,24 +118,25 @@ export class ServerCopyPasteHandler implements ICopyPasteHandler {
         if (e.clipboardData && this.shouldCopy(e)) {
             this.handleCopy(e);
             this.actionDispatcher.dispatch(new CutOperationAction(this.editorContext.get()));
+            e.preventDefault();
         }
     }
 
     handlePaste(e: ClipboardEvent): void {
-        if (e.clipboardData && e.clipboardData.getData(CLIPBOARD_DATA_FORMAT)) {
-            const jsonData = JSON.parse(e.clipboardData.getData(CLIPBOARD_DATA_FORMAT));
-            if (isClipboardId(jsonData)) {
-                const clipboardData = this.clipboadDataStore.get(jsonData.clipboardId);
-                if (clipboardData) {
-                    this.actionDispatcher
-                        .dispatch(new PasteOperationAction(clipboardData, this.editorContext.get()));
-                }
+        if (e.clipboardData) {
+            const clipboardId = getClipboardIdFromDataTransfer(e.clipboardData);
+            const clipboardData = this.clipboadService.get(clipboardId);
+            if (clipboardData) {
+                this.actionDispatcher
+                    .dispatch(new PasteOperationAction(clipboardData, this.editorContext.get()));
             }
+            e.preventDefault();
         }
     }
 
     protected shouldCopy(e: ClipboardEvent) {
-        return this.editorContext.get().selectedElementIds.length > 0 && e.srcElement instanceof HTMLBodyElement;
+        return this.editorContext.get().selectedElementIds.length > 0
+            && (e.srcElement instanceof HTMLBodyElement || e.srcElement instanceof SVGElement);
     }
 
 }
