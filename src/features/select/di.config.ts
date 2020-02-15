@@ -16,7 +16,7 @@
 import { ContainerModule } from "inversify";
 import { configureCommand, SelectKeyboardListener, TYPES } from "sprotty";
 
-import { GLSP_TYPES } from "../../types";
+import { GLSP_TYPES } from "../../base/types";
 import { SelectAllCommand, SelectAllFeedbackCommand, SelectCommand, SelectFeedbackCommand } from "./action-definitions";
 import { RankedSelectMouseListener } from "./select-mouse-listener";
 import { SelectionService } from "./selection-service";

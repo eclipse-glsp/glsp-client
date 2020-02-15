@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019 EclipseSource and others.
+ * Copyright (c) 2020 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,24 +13,21 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { inject, injectable } from "inversify";
-import { CommandStack, IActionDispatcher, SModelRoot, TYPES } from "sprotty";
+import { injectable, multiInject, optional } from "inversify";
+import { Tool, ToolManager } from "sprotty";
 
-import { GlspRedoAction, GlspUndoAction } from "../features/undo-redo/model";
+import { GLSP_TYPES } from "../../base/types";
 
+/**
+ * TODO: contributed to upstream sprotty project
+ */
 @injectable()
-export class GLSPCommandStack extends CommandStack {
+export class GLSPToolManager extends ToolManager {
 
-    @inject(TYPES.IActionDispatcherProvider) protected actionDispatcher: () => Promise<IActionDispatcher>;
-
-    undo(): Promise<SModelRoot> {
-        this.actionDispatcher().then(dispatcher => dispatcher.dispatch(new GlspUndoAction()));
-        return this.thenUpdate();
-    }
-
-    redo(): Promise<SModelRoot> {
-        this.actionDispatcher().then(dispatcher => dispatcher.dispatch(new GlspRedoAction()));
-        return this.thenUpdate();
+    constructor(@multiInject(GLSP_TYPES.ITool) @optional() tools: Tool[],
+        @multiInject(GLSP_TYPES.IDefaultTool) @optional() defaultTools: Tool[]) {
+        super();
+        this.registerTools(...tools);
+        this.registerDefaultTools(...defaultTools);
     }
 }
-

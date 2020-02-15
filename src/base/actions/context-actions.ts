@@ -13,18 +13,16 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, generateRequestId, LabeledAction, RequestAction, ResponseAction } from "sprotty/lib";
+import { Action, generateRequestId, LabeledAction, RequestAction, ResponseAction } from "sprotty";
 
-import { EditorContext } from "../../base/editor-context";
-
-export namespace ContextActions {
-    export const UI_CONTROL_KEY = "ui-control";
-}
+import { EditorContext } from "../editor-context";
 
 export class RequestContextActions implements RequestAction<SetContextActions> {
     static readonly KIND = "requestContextActions";
     kind = RequestContextActions.KIND;
-    constructor(public readonly editorContext: EditorContext,
+    constructor(
+        public readonly contextId: string,
+        public readonly editorContext: EditorContext,
         public readonly requestId: string = generateRequestId()) { }
 }
 
@@ -32,7 +30,8 @@ export class SetContextActions implements ResponseAction {
     static readonly KIND = "setContextActions";
     kind = SetContextActions.KIND;
     constructor(public readonly actions: LabeledAction[],
-        public readonly responseId: string = '') { }
+        public readonly responseId: string = '',
+        readonly args?: { [key: string]: string | number | boolean }) { }
 }
 
 export function isSetContextActionsAction(action: Action): action is SetContextActions {

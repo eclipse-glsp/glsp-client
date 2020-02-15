@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { inject, injectable } from "inversify";
-import { Action, CommandExecutionContext, SModelElement, SModelRoot, TYPES } from "sprotty/lib";
+import { Action, CommandExecutionContext, SModelElement, SModelRoot, TYPES } from "sprotty";
 
 import { addCssClasses, removeCssClasses } from "../../utils/smodel-util";
 import { FeedbackCommand } from "./model";

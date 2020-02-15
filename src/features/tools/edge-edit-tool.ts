@@ -28,12 +28,12 @@ import {
     SRoutableElement,
     SRoutingHandle,
     Tool
-} from "sprotty/lib";
+} from "sprotty";
 
-import { GLSP_TYPES } from "../../types";
+import { ChangeRoutingPointsOperation, ReconnectConnectionOperation } from "../../base/operations/operation";
+import { GLSP_TYPES } from "../../base/types";
 import { isRoutable, isRoutingHandle } from "../../utils/smodel-util";
 import { IMouseTool } from "../mouse-tool/mouse-tool";
-import { ChangeRoutingPointsOperation, ReconnectConnectionOperationAction } from "../operation/operation-actions";
 import {
     isReconnectable,
     isReconnectHandle,
@@ -237,7 +237,7 @@ class EdgeEditListener extends DragAwareMouseListener implements SelectionListen
             const sourceId = this.isReconnectingNewSource() ? this.newConnectable.id : this.edge.sourceId;
             const targetId = this.isReconnectingNewSource() ? this.edge.targetId : this.newConnectable.id;
             if (this.requiresReconnect(sourceId, targetId)) {
-                result.push(new ReconnectConnectionOperationAction(this.edge.id, sourceId, targetId));
+                result.push(new ReconnectConnectionOperation(this.edge.id, sourceId, targetId));
             }
             this.reset();
         } else if (this.edge && this.routingHandle) {

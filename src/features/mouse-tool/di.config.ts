@@ -16,7 +16,7 @@
 import { ContainerModule } from "inversify";
 import { MouseTool } from "sprotty";
 
-import { GLSP_TYPES } from "../../types";
+import { GLSP_TYPES } from "../../base/types";
 import { RankingMouseTool } from "./mouse-tool";
 
 const glspMouseToolModule = new ContainerModule((bind, _unbind, _isBound, rebind) => {

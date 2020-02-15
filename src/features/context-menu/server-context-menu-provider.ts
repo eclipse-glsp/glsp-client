@@ -14,14 +14,14 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { inject, injectable } from "inversify";
-import { Action, IContextMenuItemProvider, isSelected, LabeledAction, Point, SModelElement, TYPES } from "sprotty/lib";
+import { Action, IContextMenuItemProvider, isSelected, LabeledAction, Point, SModelElement, TYPES } from "sprotty";
 
+import { isSetContextActionsAction, RequestContextActions } from "../../base/actions/context-actions";
 import { EditorContextService } from "../../base/editor-context";
-import { ContextActions, isSetContextActionsAction, RequestContextActions } from "../context-actions/action-definitions";
 import { GLSPActionDispatcher } from "../request-response/glsp-action-dispatcher";
 
 export namespace ServerContextMenu {
-    export const KEY = "context-menu";
+    export const CONTEXT_ID = "context-menu";
 }
 
 @injectable()
@@ -32,8 +32,8 @@ export class ServerContextMenuItemProvider implements IContextMenuItemProvider {
 
     getItems(root: Readonly<SModelElement>, lastMousePosition?: Point): Promise<LabeledAction[]> {
         const selectedElementIds = Array.from(root.index.all().filter(isSelected).map(e => e.id));
-        const context = this.editorContext.getWithSelection(selectedElementIds, { [ContextActions.UI_CONTROL_KEY]: ServerContextMenu.KEY });
-        const requestAction = new RequestContextActions(context);
+        const context = this.editorContext.getWithSelection(selectedElementIds);
+        const requestAction = new RequestContextActions(ServerContextMenu.CONTEXT_ID, context);
         return this.actionDispatcher.requestUntil(requestAction).then(response => this.getContextActionsFromResponse(response));
     }
 

@@ -16,7 +16,7 @@
 import { injectable } from "inversify";
 import * as snabbdom from "snabbdom-jsx";
 import { VNode } from "snabbdom/vnode";
-import { IView, ORIGIN_POINT, Point, RenderingContext, setAttr, SModelElement } from "sprotty/lib";
+import { IView, ORIGIN_POINT, Point, RenderingContext, setAttr, SModelElement } from "sprotty";
 
 import { isResizable, ResizeHandleLocation, SResizeHandle } from "../change-bounds/model";
 

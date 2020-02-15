@@ -41,7 +41,7 @@ import {
     SwitchEditModeAction,
     SwitchEditModeCommand,
     TYPES
-} from "sprotty/lib";
+} from "sprotty";
 
 import { isNotUndefined, isRoutable, isRoutingHandle } from "../../utils/smodel-util";
 import { getAbsolutePosition } from "../../utils/viewpoint-util";

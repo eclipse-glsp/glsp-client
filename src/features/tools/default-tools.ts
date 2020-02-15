@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { interfaces } from "inversify";
-import { ToolManager, TYPES } from "sprotty/lib";
+import { ToolManager, TYPES } from "sprotty";
 
 import { ChangeBoundsTool } from "./change-bounds-tool";
 import { DelKeyDeleteTool, MouseDeleteTool } from "./delete-tool";

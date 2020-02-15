@@ -30,7 +30,7 @@ import {
     SModelElement,
     SModelRoot,
     TYPES
-} from "sprotty/lib";
+} from "sprotty";
 
 import { isNotUndefined } from "../../utils/smodel-util";
 import { addResizeHandles, isResizable, removeResizeHandles, SResizeHandle } from "../change-bounds/model";

@@ -25,7 +25,7 @@ import {
     Selectable,
     SModelElement,
     SParentElement
-} from "sprotty/lib";
+} from "sprotty";
 
 export const resizeFeature = Symbol("resizeFeature");
 

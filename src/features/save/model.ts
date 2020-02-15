@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { SModelElement, SModelExtension, SModelRoot } from "sprotty/lib";
+import { SModelElement, SModelExtension, SModelRoot } from "sprotty";
 
 export const saveFeature = Symbol.for('saveFeature');
 

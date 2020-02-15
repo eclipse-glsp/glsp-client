@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { ContainerModule } from "inversify";
-import { TYPES } from "sprotty/lib";
+import { TYPES } from "sprotty";
 
 import { ServerContextMenuItemProvider } from "./server-context-menu-provider";
 

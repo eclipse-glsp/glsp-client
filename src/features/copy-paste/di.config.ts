@@ -16,7 +16,7 @@
 import { ContainerModule } from "inversify";
 import { configureActionHandler } from "sprotty/lib";
 
-import { GLSP_TYPES } from "../../types";
+import { GLSP_TYPES } from "../../base/types";
 import {
     CopyPasteContextMenuItemProvider,
     InvokeCopyAction,

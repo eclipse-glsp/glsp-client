@@ -24,16 +24,13 @@ import {
     SEdge,
     SModelElement,
     Tool
-} from "sprotty/lib";
+} from "sprotty";
 
-import { TypeAware } from "../../base/tool-manager/tool-manager-action-handler";
-import { GLSP_TYPES } from "../../types";
+import { CreateConnectionOperation, CreateNodeOperation, InitCreateOperationAction } from "../../base/operations/operation";
+import { GLSP_TYPES } from "../../base/types";
 import { getAbsolutePosition } from "../../utils/viewpoint-util";
 import { Containable, isContainable } from "../hints/model";
-import { ITypeHintProvider } from "../hints/type-hints";
 import { IMouseTool } from "../mouse-tool/mouse-tool";
-import { CreateConnectionOperationAction, CreateNodeOperationAction } from "../operation/operation-actions";
-import { deriveOperationId, OperationKind } from "../operation/set-operations";
 import {
     DrawFeedbackEdgeAction,
     FeedbackEdgeEndMovingMouseListener,
@@ -43,26 +40,17 @@ import { CursorCSS, cursorFeedbackAction } from "../tool-feedback/css-feedback";
 import { IFeedbackActionDispatcher } from "../tool-feedback/feedback-action-dispatcher";
 import { DragAwareMouseListener } from "./drag-aware-mouse-listener";
 
-export const TOOL_ID_PREFIX = "tool";
-
-export function deriveToolId(operationKind: string, elementTypeId?: string) {
-    return `${TOOL_ID_PREFIX}_${deriveOperationId(operationKind, elementTypeId)}`;
-}
-
 @injectable()
-export class NodeCreationTool implements Tool, TypeAware {
-    public elementTypeId: string = "unknown";
+export class NodeCreationTool implements Tool {
+    static ID = "tool_create_node";
+    readonly id = NodeCreationTool.ID;
     protected creationToolMouseListener: NodeCreationToolMouseListener;
-
+    initAction: InitCreateOperationAction = new InitCreateOperationAction(CreateNodeOperation.KIND, "unknown");
     constructor(@inject(GLSP_TYPES.MouseTool) protected mouseTool: IMouseTool,
         @inject(GLSP_TYPES.IFeedbackActionDispatcher) protected feedbackDispatcher: IFeedbackActionDispatcher) { }
 
-    get id() {
-        return deriveToolId(OperationKind.CREATE_NODE, this.elementTypeId);
-    }
-
     enable() {
-        this.creationToolMouseListener = new NodeCreationToolMouseListener(this.elementTypeId, this);
+        this.creationToolMouseListener = new NodeCreationToolMouseListener(this.initAction.elementTypeId, this);
         this.mouseTool.register(this.creationToolMouseListener);
         this.feedbackDispatcher.registerFeedback(this, [cursorFeedbackAction(CursorCSS.NODE_CREATION)]);
     }
@@ -93,7 +81,7 @@ export class NodeCreationToolMouseListener extends DragAwareMouseListener {
         if (this.creationAllowed(this.elementTypeId)) {
             const containerId = this.container ? this.container.id : undefined;
             const location = getAbsolutePosition(target, event);
-            result.push(new CreateNodeOperationAction(this.elementTypeId, location, containerId));
+            result.push(new CreateNodeOperation(this.elementTypeId, location, containerId));
             if (!isCtrlOrCmd(event)) {
                 result.push(new EnableDefaultToolsAction());
             }
@@ -112,29 +100,26 @@ export class NodeCreationToolMouseListener extends DragAwareMouseListener {
         }
         return [];
     }
-
 }
 
 /**
  * Tool to create connections in a Diagram, by selecting a source and target node.
  */
 @injectable()
-export class EdgeCreationTool implements Tool, TypeAware {
-    public elementTypeId: string = "unknown";
+export class EdgeCreationTool implements Tool {
+    static ID = "tool_create_edge";
+    readonly id = EdgeCreationTool.ID;
+    initAction: InitCreateOperationAction = new InitCreateOperationAction(CreateConnectionOperation.KIND, "unknown");
+
     protected creationToolMouseListener: EdgeCreationToolMouseListener;
     protected feedbackEndMovingMouseListener: FeedbackEdgeEndMovingMouseListener;
 
     constructor(@inject(GLSP_TYPES.MouseTool) protected mouseTool: IMouseTool,
         @inject(GLSP_TYPES.IFeedbackActionDispatcher) protected feedbackDispatcher: IFeedbackActionDispatcher,
-        @inject(AnchorComputerRegistry) protected anchorRegistry: AnchorComputerRegistry,
-        @inject(GLSP_TYPES.ITypeHintProvider) public readonly typeHintProvider: ITypeHintProvider) { }
-
-    get id() {
-        return deriveToolId(OperationKind.CREATE_CONNECTION, this.elementTypeId);
-    }
+        @inject(AnchorComputerRegistry) protected anchorRegistry: AnchorComputerRegistry) { }
 
     enable() {
-        this.creationToolMouseListener = new EdgeCreationToolMouseListener(this.elementTypeId, this);
+        this.creationToolMouseListener = new EdgeCreationToolMouseListener(this.initAction.elementTypeId, this);
         this.mouseTool.register(this.creationToolMouseListener);
         this.feedbackEndMovingMouseListener = new FeedbackEdgeEndMovingMouseListener(this.anchorRegistry);
         this.mouseTool.register(this.feedbackEndMovingMouseListener);
@@ -150,7 +135,6 @@ export class EdgeCreationTool implements Tool, TypeAware {
     dispatchFeedback(actions: Action[]) {
         this.feedbackDispatcher.registerFeedback(this, actions);
     }
-
 }
 
 @injectable()
@@ -188,7 +172,7 @@ export class EdgeCreationToolMouseListener extends DragAwareMouseListener {
                 }
             }
             if (this.isSourceSelected() && this.isTargetSelected()) {
-                result.push(new CreateConnectionOperationAction(this.elementTypeId, this.source, this.target));
+                result.push(new CreateConnectionOperation(this.elementTypeId, this.source, this.target));
                 if (!isCtrlOrCmd(event)) {
                     result.push(new EnableDefaultToolsAction());
                 } else {
@@ -208,7 +192,6 @@ export class EdgeCreationToolMouseListener extends DragAwareMouseListener {
     protected isTargetSelected() {
         return this.target !== undefined;
     }
-
 
     mouseOver(target: SModelElement, event: MouseEvent): Action[] {
         const newCurrentTarget = findParentByFeature(target, isConnectable);
@@ -237,6 +220,5 @@ export class EdgeCreationToolMouseListener extends DragAwareMouseListener {
 
     protected isAllowedTarget(element: SModelElement | undefined): boolean {
         return element !== undefined && isConnectable(element) && element.canConnect(this.proxyEdge, "target");
-
     }
 }

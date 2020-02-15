@@ -36,9 +36,14 @@ import {
     SParentElement,
     Tool,
     TYPES
-} from "sprotty/lib";
+} from "sprotty";
 
-import { GLSP_TYPES } from "../../types";
+import {
+    ChangeBoundsOperation,
+    ChangeRoutingPointsOperation,
+    ElementAndRoutingPoints
+} from "../../base/operations/operation";
+import { GLSP_TYPES } from "../../base/types";
 import {
     forEachElement,
     isNonRoutableSelectedMovableBoundsAware,
@@ -52,11 +57,6 @@ import {
     removeMovementRestrictionFeedback
 } from "../change-bounds/movement-restrictor";
 import { IMouseTool } from "../mouse-tool/mouse-tool";
-import {
-    ChangeBoundsOperationAction,
-    ChangeRoutingPointsOperation,
-    ElementAndRoutingPoints
-} from "../operation/operation-actions";
 import { SelectionListener, SelectionService } from "../select/selection-service";
 import {
     FeedbackMoveMouseListener,
@@ -201,7 +201,7 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements Sele
             });
 
             if (newBounds.length > 0) {
-                actions.push(new ChangeBoundsOperationAction(newBounds));
+                actions.push(new ChangeBoundsOperation(newBounds));
             }
             if (newRoutingPoints.length > 0) {
                 actions.push(new ChangeRoutingPointsOperation(newRoutingPoints));
@@ -336,7 +336,7 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements Sele
 
     protected createChangeBoundsAction(element: SModelElement & BoundsAware): Action[] {
         if (this.isValidBoundChange(element, element.bounds, element.bounds)) {
-            return [new ChangeBoundsOperationAction([toElementAndBounds(element)])];
+            return [new ChangeBoundsOperation([toElementAndBounds(element)])];
         } else if (this.initialBounds) {
             const actions: Action[] = [];
             if (this.tool.movementRestrictor) {

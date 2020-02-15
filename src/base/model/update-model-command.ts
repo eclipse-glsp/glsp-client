@@ -27,12 +27,12 @@ import {
     SetModelCommand,
     SModelRoot,
     TYPES
-} from "sprotty/lib";
+} from "sprotty";
 import { UpdateModelAction, UpdateModelCommand } from "sprotty/lib/features/update/update-model";
 
 import { IFeedbackActionDispatcher } from "../../features/tool-feedback/feedback-action-dispatcher";
 import { FeedbackCommand } from "../../features/tool-feedback/model";
-import { GLSP_TYPES } from "../../types";
+import { GLSP_TYPES } from "../types";
 
 /* ActionHandler that transforms a SetModelAction into an (feedback-aware) UpdateModelAction. This can be done because in sprotty
 *  UpdateModel behaves the same as SetModel if no model is present yet.*/

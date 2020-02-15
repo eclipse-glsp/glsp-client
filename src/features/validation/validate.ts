@@ -26,9 +26,9 @@ import {
     SModelElement,
     SParentElement,
     TYPES
-} from "sprotty/lib";
+} from "sprotty";
 
-import { GLSP_TYPES } from "../../types";
+import { GLSP_TYPES } from "../../base/types";
 import { Marker, MarkerKind } from "../../utils/marker";
 import { addCssClasses, removeCssClasses } from "../../utils/smodel-util";
 import { getSeverity } from "../hover/hover";

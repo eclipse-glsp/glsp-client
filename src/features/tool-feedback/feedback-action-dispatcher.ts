@@ -13,13 +13,8 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action } from "sprotty/lib";
-import { IActionDispatcher } from "sprotty/lib";
-import { ILogger } from "sprotty/lib";
-import { TYPES } from "sprotty/lib";
-
-import { inject } from "inversify";
-import { injectable } from "inversify";
+import { inject, injectable } from "inversify";
+import { Action, IActionDispatcher, ILogger, TYPES } from "sprotty";
 
 export interface IFeedbackEmitter { }
 
