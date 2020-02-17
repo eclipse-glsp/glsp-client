@@ -31,7 +31,6 @@ const toolPaletteModule = new ContainerModule((bind, _unbind, isBound) => {
     configureActionHandler({ bind, isBound }, EnableDefaultToolsAction.KIND, ToolPalette);
     bind(GLSP_TYPES.ITool).to(ToolPaletteNodeCreationTool);
     bind(GLSP_TYPES.ITool).to(ToolPaletteEdgeCreationTool);
-
 });
 
 export default toolPaletteModule;

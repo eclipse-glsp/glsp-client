@@ -42,6 +42,7 @@ export class EnableToolPaletteAction implements Action {
     static readonly KIND = "enableToolPalette";
     readonly kind = EnableToolPaletteAction.KIND;
 }
+
 @injectable()
 export class ToolPalette extends AbstractUIExtension implements IActionHandler {
 
@@ -142,8 +143,8 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler {
             this.selectionProvider.setSelection(item);
             this.onClickToolButton(button, toolId)(ev);
         };
-
     }
+
     protected onClickToolButton(button: HTMLElement, toolId?: string) {
         return (ev: MouseEvent) => {
             const action = toolId ? new EnableToolsAction([toolId]) : new EnableDefaultToolsAction();
@@ -168,7 +169,6 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler {
 
     handle(action: Action): ICommand | Action | void {
         if (action.kind === EnableToolPaletteAction.KIND) {
-
             const requestAction = new RequestContextActions(ToolPalette.ID, {
                 selectedElementIds: []
             });
@@ -227,4 +227,3 @@ function deriveToolId(initAction?: InitCreateOperationAction): string {
 
     return "unkown";
 }
-

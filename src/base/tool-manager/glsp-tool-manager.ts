@@ -18,9 +18,6 @@ import { Tool, ToolManager } from "sprotty";
 
 import { GLSP_TYPES } from "../../base/types";
 
-/**
- * TODO: contributed to upstream sprotty project
- */
 @injectable()
 export class GLSPToolManager extends ToolManager {
 
