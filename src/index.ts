@@ -16,7 +16,7 @@
 import defaultGLSPModule from "./base/di.config";
 import glspCommandPaletteModule from "./features/command-palette/di.config";
 import glspContextMenuModule from "./features/context-menu/di.config";
-import glspServerCopyPasteModule from "./features/copy-paste/di.config";
+import { copyPasteContextMenuModule, glspServerCopyPasteModule } from "./features/copy-paste/di.config";
 import glspEditLabelValidationModule from "./features/edit-label-validation/di.config";
 import executeModule from "./features/execute/di.config";
 import modelHintsModule from "./features/hints/di.config";
@@ -86,7 +86,8 @@ export * from './model-source/websocket-diagram-server';
 export * from "./model-source/glsp-server-status";
 export {
     validationModule, saveModule, executeModule, paletteModule, toolFeedbackModule, defaultGLSPModule, modelHintsModule, glspCommandPaletteModule, requestResponseModule, //
-    glspContextMenuModule, glspServerCopyPasteModule, glspSelectModule, glspMouseToolModule, layoutCommandsModule, glspEditLabelValidationModule, glspHoverModule
+    glspContextMenuModule, glspServerCopyPasteModule, copyPasteContextMenuModule, glspSelectModule, glspMouseToolModule, layoutCommandsModule, glspEditLabelValidationModule, //
+    glspHoverModule
 };
 
 
