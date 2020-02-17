@@ -14,13 +14,27 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { ContainerModule } from "inversify";
+import { configureActionHandler } from "sprotty/lib";
 
 import { GLSP_TYPES } from "../../types";
+import {
+    CopyPasteContextMenuItemProvider,
+    InvokeCopyAction,
+    InvokeCopyPasteActionHandler,
+    InvokeCutAction,
+    InvokePasteAction
+} from "./copy-paste-context-menu";
 import { LocalClipboardService, ServerCopyPasteHandler } from "./copy-paste-handler";
 
-const glspServerCopyPasteModule = new ContainerModule(bind => {
+export const glspServerCopyPasteModule = new ContainerModule((bind, _unbind, isBound) => {
     bind(GLSP_TYPES.ICopyPasteHandler).to(ServerCopyPasteHandler);
     bind(GLSP_TYPES.IAsyncClipboardService).to(LocalClipboardService).inSingletonScope();
 });
 
-export default glspServerCopyPasteModule;
+export const copyPasteContextMenuModule = new ContainerModule((bind, _unbind, isBound) => {
+    bind(GLSP_TYPES.IContextMenuProvider).to(CopyPasteContextMenuItemProvider).inSingletonScope();
+    bind(InvokeCopyPasteActionHandler).toSelf().inSingletonScope();
+    configureActionHandler({ bind, isBound }, InvokeCopyAction.KIND, InvokeCopyPasteActionHandler);
+    configureActionHandler({ bind, isBound }, InvokeCutAction.KIND, InvokeCopyPasteActionHandler);
+    configureActionHandler({ bind, isBound }, InvokePasteAction.KIND, InvokeCopyPasteActionHandler);
+});

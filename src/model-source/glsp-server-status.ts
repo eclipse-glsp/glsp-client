@@ -16,9 +16,10 @@
 import { ServerStatusAction } from "sprotty";
 
 export class GLSPServerStatusAction extends ServerStatusAction {
-    details: string;
+    details: string = '';
+    timeout: number = -1;
 }
 
 export function isGLSPServerStatusAction(serverStatusAction: ServerStatusAction): serverStatusAction is GLSPServerStatusAction {
-    return (<GLSPServerStatusAction>serverStatusAction).details !== undefined;
+    return (<GLSPServerStatusAction>serverStatusAction).details !== undefined || (<GLSPServerStatusAction>serverStatusAction).timeout !== undefined;
 }
