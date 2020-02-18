@@ -18,19 +18,13 @@ import "../../../css/tool-palette.css";
 import { ContainerModule } from "inversify";
 import { configureActionHandler, EnableDefaultToolsAction, TYPES } from "sprotty";
 
-import { GLSP_TYPES } from "../../base/types";
-import { ToolPaletteEdgeCreationTool, ToolPaletteNodeCreationTool } from "./creation-tool";
-import { PaletteItemSelectionProvider } from "./palette-item";
 import { EnableToolPaletteAction, ToolPalette } from "./tool-palette";
 
 const toolPaletteModule = new ContainerModule((bind, _unbind, isBound) => {
     bind(ToolPalette).toSelf().inSingletonScope();
     bind(TYPES.IUIExtension).toService(ToolPalette);
-    bind(PaletteItemSelectionProvider).toSelf().inSingletonScope();
     configureActionHandler({ bind, isBound }, EnableToolPaletteAction.KIND, ToolPalette);
     configureActionHandler({ bind, isBound }, EnableDefaultToolsAction.KIND, ToolPalette);
-    bind(GLSP_TYPES.ITool).to(ToolPaletteNodeCreationTool);
-    bind(GLSP_TYPES.ITool).to(ToolPaletteEdgeCreationTool);
 });
 
 export default toolPaletteModule;

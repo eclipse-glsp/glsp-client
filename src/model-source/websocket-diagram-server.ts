@@ -27,7 +27,7 @@ import { RequestContextActions } from "../base/actions/context-actions";
 import { ExecuteServerCommandAction } from "../features/execute/execute-command";
 import { RequestTypeHintsAction } from "../features/hints/request-type-hints-action";
 import {
-    CreateConnectionOperation, ReconnectConnectionOperation,
+    CreateEdgeOperation, ReconnectConnectionOperation,
     ChangeRoutingPointsOperation, CreateNodeOperation, ChangeBoundsOperation,
     DeleteElementOperation
 } from "../base/operations/operation";
@@ -84,7 +84,7 @@ export function registerDefaultGLSPServerActions(registry: ActionHandlerRegistry
     registry.register(SaveModelAction.KIND, diagramServer);
     registry.register(GlspUndoAction.KIND, diagramServer);
     registry.register(GlspRedoAction.KIND, diagramServer);
-    registry.register(CreateConnectionOperation.KIND, diagramServer);
+    registry.register(CreateEdgeOperation.KIND, diagramServer);
     registry.register(ReconnectConnectionOperation.KIND, diagramServer);
     registry.register(ChangeRoutingPointsOperation.KIND, diagramServer);
     registry.register(CreateNodeOperation.KIND, diagramServer);

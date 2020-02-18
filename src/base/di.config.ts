@@ -22,7 +22,6 @@ import { GLSPCommandStack } from "./command-stack";
 import { EditorContextService } from "./editor-context";
 import { FeedbackAwareUpdateModelCommand, SetModelActionHandler } from "./model/update-model-command";
 import { SelectionClearingMouseListener } from "./selection-clearing-mouse-listener";
-import { createToolFactory, GLSPToolManagerActionHandler } from "./tool-manager/tool-manager-action-handler";
 import { GLSPToolManager } from "./tool-manager/glsp-tool-manager";
 
 const defaultGLSPModule = new ContainerModule((bind, _unbind, isBound, rebind) => {

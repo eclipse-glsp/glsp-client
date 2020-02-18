@@ -13,10 +13,9 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { injectable } from "inversify";
 import { isLabeledAction, LabeledAction } from "sprotty";
 
-import { InitCreateOperationAction, isInitCreateOperationAction } from "../../base/operations/operation";
+import { isTriggerElementTypeCreationAction, TriggerElementCreationAction } from "../../base/operations/operation";
 
 export interface PaletteItem extends LabeledAction {
     readonly id: string;
@@ -29,26 +28,13 @@ export function isPaletteItem(object?: any): object is PaletteItem {
 }
 
 export namespace PaletteItem {
-    export function getInitAction(item?: PaletteItem): InitCreateOperationAction | undefined {
+    export function getTriggerAction(item?: PaletteItem): TriggerElementCreationAction | undefined {
         if (item) {
-            const initiAction = item.actions.filter(a => isInitCreateOperationAction(a))
-                .map(a => a as InitCreateOperationAction);
+            const initiAction = item.actions.filter(a => isTriggerElementTypeCreationAction(a))
+                .map(a => a as TriggerElementCreationAction);
             return initiAction.length > 0 ? initiAction[0] : undefined;
         }
         return undefined;
-    }
-}
-
-@injectable()
-export class PaletteItemSelectionProvider {
-    private currentSelection?: PaletteItem;
-
-    setSelection(currentSelection?: PaletteItem) {
-        this.currentSelection = currentSelection;
-    }
-
-    getSelection(): PaletteItem | undefined {
-        return this.currentSelection;
     }
 }
 

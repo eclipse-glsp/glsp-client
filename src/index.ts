@@ -28,13 +28,13 @@ import saveModule from "./features/save/di.config";
 import glspSelectModule from "./features/select/di.config";
 import toolFeedbackModule from "./features/tool-feedback/di.config";
 import paletteModule from "./features/tool-palette/di.config";
+import toolsModule from "./features/tools/di.config";
 import validationModule from "./features/validation/di.config";
 
 export * from 'sprotty';
 
 export * from './base/model/update-model-command';
 export * from './base/operations/operation';
-export * from './base/tool-manager/glsp-tool-manager';
 export * from './base/command-stack';
 export * from './base/editor-context';
 export * from './base/selection-clearing-mouse-listener';
@@ -52,7 +52,7 @@ export * from './features/execute/model';
 export * from './features/hints/request-type-hints-action';
 export * from './features/hints/type-hints';
 export * from './features/hints/model';
-export * from "./features/hover/hover";
+export * from './features/hover/hover';
 export * from './features/layout/layout-commands';
 export * from './features/mouse-tool/mouse-tool';
 export * from './features/rank/model';
@@ -68,10 +68,8 @@ export * from './features/tool-feedback/feedback-action-dispatcher';
 export * from './features/tool-feedback/model';
 export * from './features/tool-feedback/model';
 export * from './features/tool-palette/tool-palette';
-export * from './features/tool-palette/creation-tool';
 export * from './features/tools/change-bounds-tool';
 export * from './features/tools/creation-tool';
-export * from './features/tools/default-tools';
 export * from './features/tools/delete-tool';
 export * from './features/tools/drag-aware-mouse-listener';
 export * from './features/tools/edge-edit-tool';
@@ -85,12 +83,9 @@ export * from './utils/marker';
 export * from './utils/smodel-util';
 export * from './utils/viewpoint-util';
 export * from './model-source/websocket-diagram-server';
-export * from "./model-source/glsp-server-status";
+export * from './model-source/glsp-server-status';
 export {
-    glspHoverModule,toolsModule
-    validationModule, saveModule, executeModule, paletteModule, toolFeedbackModule, defaultGLSPModule, modelHintsModule, glspCommandPaletteModule, requestResponseModule, //
+    validationModule, saveModule, executeCommandModule, paletteModule, toolFeedbackModule, defaultGLSPModule, modelHintsModule, glspCommandPaletteModule, requestResponseModule, //
     glspContextMenuModule, glspServerCopyPasteModule, copyPasteContextMenuModule, glspSelectModule, glspMouseToolModule, layoutCommandsModule, glspEditLabelValidationModule, //
-    glspHoverModule
+    glspHoverModule, toolsModule
 };
-
-

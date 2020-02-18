@@ -19,6 +19,7 @@ export interface Operation extends Action { }
 
 export interface CreateOperation extends Operation {
     elementTypeId: string;
+    args?: { [key: string]: string | number | boolean };
 }
 
 export function isCreateOperation(object?: any): object is CreateOperation {
@@ -31,25 +32,26 @@ export class CreateNodeOperation implements CreateOperation {
 
     constructor(public readonly elementTypeId: string,
         public location?: Point,
-        public containerId?: string) { }
+        public containerId?: string,
+        public args?: { [key: string]: string | number | boolean }) { }
 }
 
 export function isCreateNodeOperation(object?: any): object is CreateNodeOperation {
     return isCreateOperation() && object.kind === CreateNodeOperation.KIND;
 }
 
-export class CreateConnectionOperation implements CreateOperation {
-    static readonly KIND = "createConnection";
-    readonly kind = CreateConnectionOperation.KIND;
-
+export class CreateEdgeOperation implements CreateOperation {
+    static readonly KIND = "createEdge";
+    readonly kind = CreateEdgeOperation.KIND;
 
     constructor(public readonly elementTypeId: string,
         public sourceElementId?: string,
-        public targetElementId?: string) { }
+        public targetElementId?: string,
+        public args?: { [key: string]: string | number | boolean }) { }
 }
 
-export function isCreateConnectionOperation(object?: any): object is CreateConnectionOperation {
-    return isCreateOperation() && object.kind === CreateConnectionOperation.KIND;
+export function isCreateConnectionOperation(object?: any): object is CreateEdgeOperation {
+    return isCreateOperation() && object.kind === CreateEdgeOperation.KIND;
 }
 
 export class DeleteElementOperation implements Operation {
@@ -91,16 +93,30 @@ export interface ElementAndRoutingPoints {
     newRoutingPoints?: Point[];
 }
 
-export class InitCreateOperationAction implements Action {
-    static KIND = "initCreateOperation";
-    readonly kind = InitCreateOperationAction.KIND;
-    constructor(public operationKind: string,
-        public elementTypeId: string = "unkown",
+export abstract class TriggerElementCreationAction implements Action {
+    abstract readonly kind: string;
+    constructor(public readonly elementTypeId: string,
         readonly args?: { [key: string]: string | number | boolean }) { }
-
 }
 
-export function isInitCreateOperationAction(object?: any): object is InitCreateOperationAction {
-    return isAction(object) && object.kind === InitCreateOperationAction.KIND
-        && "operationKind" in object && "elementTypeId" in object;
+export class TriggerNodeCreationAction extends TriggerElementCreationAction {
+    static readonly KIND = "triggerNodeCreation";
+    kind = TriggerNodeCreationAction.KIND;
+}
+
+export class TriggerEdgeCreationAction extends TriggerElementCreationAction {
+    static readonly KIND = "triggerEdgeCreation";
+    kind = TriggerEdgeCreationAction.KIND;
+}
+
+export function isTriggerElementTypeCreationAction(object?: any): object is TriggerElementCreationAction {
+    return isAction(object) && "elementTypeId" in object;
+}
+
+export function isTriggerNodeCreationAction(object?: any): object is TriggerNodeCreationAction {
+    return isTriggerElementTypeCreationAction(object) && object.kind === TriggerNodeCreationAction.KIND;
+}
+
+export function isTriggerEdgeCreationAction(object?: any): object is TriggerEdgeCreationAction {
+    return isTriggerElementTypeCreationAction(object) && object.kind === TriggerEdgeCreationAction.KIND;
 }

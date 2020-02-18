@@ -17,6 +17,7 @@ import { injectable, multiInject, optional } from "inversify";
 import { Tool, ToolManager } from "sprotty";
 
 import { GLSP_TYPES } from "../../base/types";
+import { distinctAdd } from "../../utils/array-utils";
 
 @injectable()
 export class GLSPToolManager extends ToolManager {
@@ -26,5 +27,18 @@ export class GLSPToolManager extends ToolManager {
         super();
         this.registerTools(...tools);
         this.registerDefaultTools(...defaultTools);
+        this.enableDefaultTools();
+    }
+
+    registerDefaultTools(...tools: Tool[]) {
+        for (const tool of tools) {
+            distinctAdd(this.defaultTools, tool);
+        }
+    }
+
+    registerTools(...tools: Tool[]) {
+        for (const tool of tools) {
+            distinctAdd(this.tools, tool);
+        }
     }
 }

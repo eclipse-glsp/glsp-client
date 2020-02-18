@@ -18,7 +18,9 @@ import {
     Action,
     AnchorComputerRegistry,
     EnableDefaultToolsAction,
+    EnableToolsAction,
     findParentByFeature,
+    IActionHandler,
     isConnectable,
     isCtrlOrCmd,
     SEdge,
@@ -26,7 +28,12 @@ import {
     Tool
 } from "sprotty";
 
-import { CreateConnectionOperation, CreateNodeOperation, InitCreateOperationAction } from "../../base/operations/operation";
+import {
+    CreateEdgeOperation,
+    CreateNodeOperation,
+    isTriggerElementTypeCreationAction,
+    isTriggerNodeCreationAction
+} from "../../base/operations/operation";
 import { GLSP_TYPES } from "../../base/types";
 import { getAbsolutePosition } from "../../utils/viewpoint-util";
 import { Containable, isContainable } from "../hints/model";
@@ -41,16 +48,17 @@ import { IFeedbackActionDispatcher } from "../tool-feedback/feedback-action-disp
 import { DragAwareMouseListener } from "./drag-aware-mouse-listener";
 
 @injectable()
-export class NodeCreationTool implements Tool {
+export class NodeCreationTool implements Tool, IActionHandler {
     static ID = "tool_create_node";
-    readonly id = NodeCreationTool.ID;
+    readonly id = NodeCreationTool.ID = "unknown";
     protected creationToolMouseListener: NodeCreationToolMouseListener;
-    initAction: InitCreateOperationAction = new InitCreateOperationAction(CreateNodeOperation.KIND, "unknown");
+    protected elementTypeId: string;
+
     constructor(@inject(GLSP_TYPES.MouseTool) protected mouseTool: IMouseTool,
         @inject(GLSP_TYPES.IFeedbackActionDispatcher) protected feedbackDispatcher: IFeedbackActionDispatcher) { }
 
     enable() {
-        this.creationToolMouseListener = new NodeCreationToolMouseListener(this.initAction.elementTypeId, this);
+        this.creationToolMouseListener = new NodeCreationToolMouseListener(this.elementTypeId, this);
         this.mouseTool.register(this.creationToolMouseListener);
         this.feedbackDispatcher.registerFeedback(this, [cursorFeedbackAction(CursorCSS.NODE_CREATION)]);
     }
@@ -62,6 +70,13 @@ export class NodeCreationTool implements Tool {
 
     dispatchFeedback(actions: Action[]) {
         this.feedbackDispatcher.registerFeedback(this, actions);
+    }
+
+    handle(action: Action): Action | void {
+        if (isTriggerNodeCreationAction(action)) {
+            this.elementTypeId = action.elementTypeId;
+            return new EnableToolsAction([this.id]);
+        }
     }
 }
 
@@ -106,10 +121,10 @@ export class NodeCreationToolMouseListener extends DragAwareMouseListener {
  * Tool to create connections in a Diagram, by selecting a source and target node.
  */
 @injectable()
-export class EdgeCreationTool implements Tool {
+export class EdgeCreationTool implements Tool, IActionHandler {
     static ID = "tool_create_edge";
     readonly id = EdgeCreationTool.ID;
-    initAction: InitCreateOperationAction = new InitCreateOperationAction(CreateConnectionOperation.KIND, "unknown");
+    protected elementTypeId = "unknown";
 
     protected creationToolMouseListener: EdgeCreationToolMouseListener;
     protected feedbackEndMovingMouseListener: FeedbackEdgeEndMovingMouseListener;
@@ -119,7 +134,7 @@ export class EdgeCreationTool implements Tool {
         @inject(AnchorComputerRegistry) protected anchorRegistry: AnchorComputerRegistry) { }
 
     enable() {
-        this.creationToolMouseListener = new EdgeCreationToolMouseListener(this.initAction.elementTypeId, this);
+        this.creationToolMouseListener = new EdgeCreationToolMouseListener(this.elementTypeId, this);
         this.mouseTool.register(this.creationToolMouseListener);
         this.feedbackEndMovingMouseListener = new FeedbackEdgeEndMovingMouseListener(this.anchorRegistry);
         this.mouseTool.register(this.feedbackEndMovingMouseListener);
@@ -134,6 +149,13 @@ export class EdgeCreationTool implements Tool {
 
     dispatchFeedback(actions: Action[]) {
         this.feedbackDispatcher.registerFeedback(this, actions);
+    }
+
+    handle(action: Action): Action | void {
+        if (isTriggerElementTypeCreationAction(action)) {
+            this.elementTypeId = action.elementTypeId;
+            return new EnableToolsAction([this.id]);
+        }
     }
 }
 
@@ -172,7 +194,7 @@ export class EdgeCreationToolMouseListener extends DragAwareMouseListener {
                 }
             }
             if (this.isSourceSelected() && this.isTargetSelected()) {
-                result.push(new CreateConnectionOperation(this.elementTypeId, this.source, this.target));
+                result.push(new CreateEdgeOperation(this.elementTypeId, this.source, this.target));
                 if (!isCtrlOrCmd(event)) {
                     result.push(new EnableDefaultToolsAction());
                 } else {

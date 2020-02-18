@@ -28,12 +28,10 @@ import {
 } from "sprotty";
 
 import { isSetContextActionsAction, RequestContextActions } from "../../base/actions/context-actions";
-import { CreateConnectionOperation, CreateNodeOperation, InitCreateOperationAction } from "../../base/operations/operation";
 import { GLSPActionDispatcher } from "../request-response/glsp-action-dispatcher";
 import { MouseDeleteTool } from "../tools/delete-tool";
 import { RequestMarkersAction } from "../validation/validate";
-import { ToolPaletteEdgeCreationTool, ToolPaletteNodeCreationTool } from "./creation-tool";
-import { PaletteItem, PaletteItemSelectionProvider } from "./palette-item";
+import { PaletteItem } from "./palette-item";
 
 const CLICKED_CSS_CLASS = "clicked";
 
@@ -48,7 +46,6 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler {
 
     @inject(TYPES.IActionDispatcher) protected readonly actionDispatcher: GLSPActionDispatcher;
     @inject(TYPES.IToolManager) protected readonly toolManager: IToolManager;
-    @inject(PaletteItemSelectionProvider) protected readonly selectionProvider: PaletteItemSelectionProvider;
     static readonly ID = "tool-palette";
 
     readonly id = ToolPalette.ID;
@@ -108,13 +105,13 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler {
         // Create button for DefaultTools
         this.defaultToolsButton = createIcon(["fas", "fa-mouse-pointer", "fa-xs", "clicked"]);
         this.defaultToolsButton.id = "btn_default_tools";
-        this.defaultToolsButton.onclick = this.onClickToolButton(this.defaultToolsButton);
+        this.defaultToolsButton.onclick = this.onClickStaticToolButton(this.defaultToolsButton);
         headerTools.appendChild(this.defaultToolsButton);
         this.lastActivebutton = this.defaultToolsButton;
 
         // Create button for MouseDeleteTool
         const deleteToolButton = createIcon(["fas", "fa-eraser", "fa-xs"]);
-        deleteToolButton.onclick = this.onClickToolButton(deleteToolButton, MouseDeleteTool.ID);
+        deleteToolButton.onclick = this.onClickStaticToolButton(deleteToolButton, MouseDeleteTool.ID);
         headerTools.appendChild(deleteToolButton);
 
         // Create button for ValidationTool
@@ -139,13 +136,13 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler {
 
     protected onClickCreateToolButton(button: HTMLElement, item: PaletteItem) {
         return (ev: MouseEvent) => {
-            const toolId = deriveToolId(PaletteItem.getInitAction(item));
-            this.selectionProvider.setSelection(item);
-            this.onClickToolButton(button, toolId)(ev);
+            this.actionDispatcher.dispatchAll(item.actions);
+            this.changeActiveButton(button);
+            this.restoreFocus();
         };
     }
 
-    protected onClickToolButton(button: HTMLElement, toolId?: string) {
+    protected onClickStaticToolButton(button: HTMLElement, toolId?: string) {
         return (ev: MouseEvent) => {
             const action = toolId ? new EnableToolsAction([toolId]) : new EnableDefaultToolsAction();
             this.actionDispatcher.dispatch(action);
@@ -214,16 +211,4 @@ function createToolGroup(item: PaletteItem): HTMLElement {
 function changeCSSClass(element: Element, css: string) {
     element.classList.contains(css) ? element.classList.remove(css) :
         element.classList.add(css);
-}
-
-function deriveToolId(initAction?: InitCreateOperationAction): string {
-    if (initAction) {
-        if (initAction.operationKind === CreateConnectionOperation.KIND) {
-            return ToolPaletteEdgeCreationTool.ID;
-        } else if (initAction.operationKind === CreateNodeOperation.KIND) {
-            return ToolPaletteNodeCreationTool.ID;
-        }
-    }
-
-    return "unkown";
 }
