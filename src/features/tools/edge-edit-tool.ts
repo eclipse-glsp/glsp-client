@@ -23,7 +23,6 @@ import {
     findParentByFeature,
     isConnectable,
     isSelected,
-    MouseListener,
     SModelElement,
     SModelRoot,
     SRoutableElement,
@@ -55,6 +54,7 @@ import {
     SwitchRoutingModeAction
 } from "../tool-feedback/edge-edit-tool-feedback";
 import { IFeedbackActionDispatcher } from "../tool-feedback/feedback-action-dispatcher";
+import { DragAwareMouseListener } from "./drag-aware-mouse-listener";
 
 @injectable()
 export class EdgeEditTool implements Tool {
@@ -64,7 +64,7 @@ export class EdgeEditTool implements Tool {
     protected feedbackEdgeSourceMovingListener: FeedbackEdgeSourceMovingMouseListener;
     protected feedbackEdgeTargetMovingListener: FeedbackEdgeTargetMovingMouseListener;
     protected feedbackMovingListener: FeedbackEdgeRouteMovingMouseListener;
-    protected reconnectEdgeListener: ReconnectEdgeListener;
+    protected edgeEditListener: EdgeEditListener;
 
     constructor(@inject(GLSP_TYPES.SelectionService) protected selectionService: SelectionService,
         @inject(GLSP_TYPES.MouseTool) protected mouseTool: IMouseTool,
@@ -74,26 +74,33 @@ export class EdgeEditTool implements Tool {
     }
 
     enable(): void {
-        this.reconnectEdgeListener = new ReconnectEdgeListener(this);
-        this.mouseTool.register(this.reconnectEdgeListener);
-        this.selectionService.register(this.reconnectEdgeListener);
+        this.edgeEditListener = new EdgeEditListener(this);
+        this.mouseTool.register(this.edgeEditListener);
+        this.selectionService.register(this.edgeEditListener);
 
         // install feedback move mouse listener for client-side move updates
         this.feedbackEdgeSourceMovingListener = new FeedbackEdgeSourceMovingMouseListener(this.anchorRegistry);
         this.feedbackEdgeTargetMovingListener = new FeedbackEdgeTargetMovingMouseListener(this.anchorRegistry);
         this.feedbackMovingListener = new FeedbackEdgeRouteMovingMouseListener(this.edgeRouterRegistry);
-        this.mouseTool.register(this.feedbackEdgeSourceMovingListener);
-        this.mouseTool.register(this.feedbackEdgeTargetMovingListener);
-        this.mouseTool.register(this.feedbackMovingListener);
     }
 
-    disable(): void {
-        this.reconnectEdgeListener.reset();
-        this.selectionService.deregister(this.reconnectEdgeListener);
+    registerFeedbackListeners(): void {
+        this.mouseTool.register(this.feedbackMovingListener);
+        this.mouseTool.register(this.feedbackEdgeSourceMovingListener);
+        this.mouseTool.register(this.feedbackEdgeTargetMovingListener);
+    }
+
+    deregisterFeedbackListeners(): void {
         this.mouseTool.deregister(this.feedbackEdgeSourceMovingListener);
         this.mouseTool.deregister(this.feedbackEdgeTargetMovingListener);
         this.mouseTool.deregister(this.feedbackMovingListener);
-        this.mouseTool.deregister(this.reconnectEdgeListener);
+    }
+
+    disable(): void {
+        this.edgeEditListener.reset();
+        this.selectionService.deregister(this.edgeEditListener);
+        this.deregisterFeedbackListeners();
+        this.mouseTool.deregister(this.edgeEditListener);
     }
 
     dispatchFeedback(actions: Action[]) {
@@ -101,9 +108,7 @@ export class EdgeEditTool implements Tool {
     }
 }
 
-class ReconnectEdgeListener extends MouseListener implements SelectionListener {
-    protected isMouseDown: boolean;
-
+class EdgeEditListener extends DragAwareMouseListener implements SelectionListener {
     // active selection data
     protected edge?: SRoutableElement;
     protected routingHandle?: SRoutingHandle;
@@ -191,8 +196,7 @@ class ReconnectEdgeListener extends MouseListener implements SelectionListener {
     }
 
     mouseDown(target: SModelElement, event: MouseEvent): Action[] {
-        const result: Action[] = [];
-        this.isMouseDown = true;
+        const result: Action[] = super.mouseDown(target, event);
         if (event.button === 0) {
             const reconnectHandle = findParentByFeature(target, isReconnectHandle);
             const routingHandle = !reconnectHandle ? findParentByFeature(target, isRoutingHandle) : undefined;
@@ -205,6 +209,7 @@ class ReconnectEdgeListener extends MouseListener implements SelectionListener {
                 this.setRoutingHandleSelected(edge, routingHandle);
             } else if (this.isValidEdge(edge)) {
                 // PHASE 1: Select edge
+                this.tool.registerFeedbackListeners();
                 this.setEdgeSelected(edge);
             }
         } else if (event.button === 2) {
@@ -214,20 +219,20 @@ class ReconnectEdgeListener extends MouseListener implements SelectionListener {
     }
 
     mouseMove(target: SModelElement, event: MouseEvent): Action[] {
-        if (this.isMouseDown) {
+        const result = super.mouseMove(target, event);
+        if (this.isMouseDrag) {
             // reset any selected connectables when we are dragging, maybe the user is just panning
             this.setNewConnectable(undefined);
         }
-        return [];
+        return result;
     }
 
     mouseUp(target: SModelElement, event: MouseEvent): Action[] {
-        this.isMouseDown = false;
+        const result = super.mouseUp(target, event);
         if (!this.isReadyToReconnect() && !this.isReadyToReroute()) {
-            return [];
+            return result;
         }
 
-        const result: Action[] = [];
         if (this.edge && this.newConnectable) {
             const sourceId = this.isReconnectingNewSource() ? this.newConnectable.id : this.edge.sourceId;
             const targetId = this.isReconnectingNewSource() ? this.edge.targetId : this.newConnectable.id;
@@ -300,7 +305,6 @@ class ReconnectEdgeListener extends MouseListener implements SelectionListener {
     }
 
     protected resetData() {
-        this.isMouseDown = false;
         this.edge = undefined;
         this.reconnectMode = undefined;
         this.newConnectable = undefined;
@@ -315,5 +319,6 @@ class ReconnectEdgeListener extends MouseListener implements SelectionListener {
         result.push(...[new HideEdgeReconnectHandlesFeedbackAction(),
         cursorFeedbackAction(), new RemoveFeedbackEdgeAction()]);
         this.tool.dispatchFeedback(result);
+        this.tool.deregisterFeedbackListeners();
     }
 }
