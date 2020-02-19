@@ -23,6 +23,7 @@ import { GLSP_TYPES } from "../types";
 import { GLSPCommandStack } from "./command-stack";
 import { EditorContextService } from "./editor-context";
 import { FeedbackAwareUpdateModelCommand, SetModelActionHandler } from "./model/update-model-command";
+import { SelectionClearingMouseListener } from "./selection-clearing-mouse-listener";
 import { createToolFactory, GLSPToolManagerActionHandler } from "./tool-manager/tool-manager-action-handler";
 
 const defaultGLSPModule = new ContainerModule((bind, _unbind, isBound, rebind) => {
@@ -35,6 +36,8 @@ const defaultGLSPModule = new ContainerModule((bind, _unbind, isBound, rebind) =
     // Model update initialization ------------------------------------
     configureCommand(context, FeedbackAwareUpdateModelCommand);
     configureActionHandler(context, SetModelCommand.KIND, SetModelActionHandler);
+
+    bind(TYPES.MouseListener).to(SelectionClearingMouseListener);
 
     rebind(TYPES.ICommandStack).to(GLSPCommandStack);
 });
