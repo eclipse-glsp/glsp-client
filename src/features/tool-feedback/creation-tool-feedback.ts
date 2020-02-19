@@ -44,7 +44,7 @@ import { FeedbackCommand } from "./model";
 
 export class DrawFeedbackEdgeAction implements Action {
     kind = DrawFeedbackEdgeCommand.KIND;
-    constructor(readonly elementTypeId: string, readonly sourceId: string, readonly routerKind?: string) { }
+    constructor(readonly elementTypeId: string, readonly sourceId: string, readonly edgeSchema?: SEdgeSchema) { }
 }
 
 @injectable()
@@ -56,7 +56,8 @@ export class DrawFeedbackEdgeCommand extends FeedbackCommand {
     }
 
     execute(context: CommandExecutionContext): CommandReturn {
-        drawFeedbackEdge(context, this.action.sourceId, this.action.elementTypeId, this.action.routerKind);
+        const feedbackEdgeSchema = this.action.edgeSchema ? this.action.edgeSchema : defaultFeedbackEdgeSchema;
+        drawFeedbackEdge(context, this.action.sourceId, this.action.elementTypeId, feedbackEdgeSchema);
         return context.root;
     }
 }
@@ -76,7 +77,6 @@ export class RemoveFeedbackEdgeCommand extends FeedbackCommand {
     }
 }
 
-
 export class FeedbackEdgeEnd extends SDanglingAnchor {
     static readonly TYPE = 'feedback-edge-end';
     type = FeedbackEdgeEnd.TYPE;
@@ -86,6 +86,7 @@ export class FeedbackEdgeEnd extends SDanglingAnchor {
         super();
     }
 }
+
 export class FeedbackEdgeEndMovingMouseListener extends MouseListener {
     constructor(protected anchorRegistry: AnchorComputerRegistry) {
         super();
@@ -125,7 +126,12 @@ export function feedbackEdgeEndId(root: SModelRoot): string {
     return root.id + '_feedback_anchor';
 }
 
-function drawFeedbackEdge(context: CommandExecutionContext, sourceId: string, elementTypeId: string, routerKind?: string) {
+export const defaultFeedbackEdgeSchema: SEdgeSchema = <SEdgeSchema>{
+    cssClasses: ["feedback-edge"],
+    opacity: 0.3
+};
+
+export function drawFeedbackEdge(context: CommandExecutionContext, sourceId: string, elementTypeId: string, feedbackEdgeSchema: SEdgeSchema) {
     const root = context.root;
     const sourceChild = root.index.getById(sourceId);
     if (!sourceChild) {
@@ -141,15 +147,10 @@ function drawFeedbackEdge(context: CommandExecutionContext, sourceId: string, el
     edgeEnd.id = feedbackEdgeEndId(root);
     edgeEnd.position = toAbsolutePosition(source);
 
-    const feedbackEdgeSchema = <SEdgeSchema>{
-        type: elementTypeId,
-        id: feedbackEdgeId(root),
-        sourceId: source.id,
-        targetId: edgeEnd.id,
-        cssClasses: ["feedback-edge"],
-        routerKind,
-        opacity: 0.3
-    };
+    feedbackEdgeSchema.id = feedbackEdgeId(root);
+    feedbackEdgeSchema.type = elementTypeId;
+    feedbackEdgeSchema.sourceId = source.id;
+    feedbackEdgeSchema.targetId = edgeEnd.id;
 
     const feedbackEdge = context.modelFactory.createElement(feedbackEdgeSchema);
     if (isRoutable(feedbackEdge)) {
@@ -159,7 +160,7 @@ function drawFeedbackEdge(context: CommandExecutionContext, sourceId: string, el
     }
 }
 
-function removeFeedbackEdge(root: SModelRoot) {
+export function removeFeedbackEdge(root: SModelRoot) {
     const feedbackEdge = root.index.getById(feedbackEdgeId(root));
     const feedbackEdgeEnd = root.index.getById(feedbackEdgeEndId(root));
     if (feedbackEdge instanceof SChildElement)
