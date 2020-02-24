@@ -181,13 +181,13 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler {
     }
 }
 
-function createIcon(cssClasses: string[]) {
+export function createIcon(cssClasses: string[]) {
     const icon = document.createElement("i");
     icon.classList.add(...cssClasses);
     return icon;
 }
 
-function createToolGroup(item: PaletteItem): HTMLElement {
+export function createToolGroup(item: PaletteItem): HTMLElement {
     const group = document.createElement("div");
     group.classList.add("tool-group");
     group.id = item.id;
@@ -208,7 +208,7 @@ function createToolGroup(item: PaletteItem): HTMLElement {
     return group;
 }
 
-function changeCSSClass(element: Element, css: string) {
+export function changeCSSClass(element: Element, css: string) {
     element.classList.contains(css) ? element.classList.remove(css) :
         element.classList.add(css);
 }
