@@ -74,9 +74,9 @@ export class ChangeContainerOperation implements Operation {
         public readonly location?: string) { }
 }
 
-export class ReconnectConnectionOperation implements Operation {
-    static readonly KIND = "reconnectConnection";
-    readonly kind = ReconnectConnectionOperation.KIND;
+export class ReconnectEdgeOperation implements Operation {
+    static readonly KIND = "reconnectEdge";
+    readonly kind = ReconnectEdgeOperation.KIND;
     constructor(public readonly connectionElementId: string,
         public readonly sourceElementId: string,
         public readonly targetElementId: string) { }
