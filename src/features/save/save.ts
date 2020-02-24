@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, KeyListener, SModelRoot } from "sprotty/lib";
+import { Action, KeyListener, SModelRoot } from "sprotty";
 import { matchesKeystroke } from "sprotty/lib/utils/keyboard";
 
 export class SaveModelAction implements Action {

@@ -32,9 +32,9 @@ import {
     SModelRoot,
     SShapeElement,
     TYPES
-} from "sprotty/lib";
+} from "sprotty";
 
-import { GLSP_TYPES } from "../../types";
+import { GLSP_TYPES } from "../../base/types";
 import { resizeFeature } from "../change-bounds/model";
 import { reconnectFeature } from "../reconnect/model";
 import { IFeedbackActionDispatcher } from "../tool-feedback/feedback-action-dispatcher";

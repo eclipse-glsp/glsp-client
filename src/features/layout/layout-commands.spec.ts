@@ -39,9 +39,8 @@ import {
     TYPES
 } from "sprotty";
 
-import { GLSP_TYPES } from "../../types";
-import { ChangeBoundsOperationAction } from "../operation/operation-actions";
-import { OperationKind } from "../operation/set-operations";
+import { ChangeBoundsOperation } from "../../base/operations/operation";
+import { GLSP_TYPES } from "../../base/types";
 import { SelectionService } from "../select/selection-service";
 import { FeedbackActionDispatcher } from "../tool-feedback/feedback-action-dispatcher";
 import {
@@ -348,6 +347,6 @@ function isMoveAction(action: Action): action is MoveAction {
     return action.kind === MoveCommand.KIND;
 }
 
-function isChangeBounds(action: Action): action is ChangeBoundsOperationAction {
-    return action.kind === OperationKind.CHANGE_BOUNDS;
+function isChangeBounds(action: Action): action is ChangeBoundsOperation {
+    return action.kind === ChangeBoundsOperation.KIND;
 }

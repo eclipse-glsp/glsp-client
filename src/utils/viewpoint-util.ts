@@ -25,7 +25,7 @@ import {
     SModelElement,
     translateBounds,
     Viewport
-} from "sprotty/lib";
+} from "sprotty";
 
 /**
  * Return the position corresponding to this mouse event (Browser coordinates)

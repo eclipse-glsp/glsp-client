@@ -16,17 +16,15 @@
 import "../../../css/tool-palette.css";
 
 import { ContainerModule } from "inversify";
-import { configureActionHandler, EnableDefaultToolsAction, TYPES } from "sprotty/lib";
+import { configureActionHandler, EnableDefaultToolsAction, TYPES } from "sprotty";
 
-import { SetOperationsAction } from "../operation/set-operations";
-import { ToolPalette, ToolPaletteActionHandler } from "./tool-palette";
+import { EnableToolPaletteAction, ToolPalette } from "./tool-palette";
 
 const toolPaletteModule = new ContainerModule((bind, _unbind, isBound) => {
     bind(ToolPalette).toSelf().inSingletonScope();
     bind(TYPES.IUIExtension).toService(ToolPalette);
-    bind(ToolPaletteActionHandler).toSelf().inSingletonScope();
-    configureActionHandler({ bind, isBound }, SetOperationsAction.KIND, ToolPaletteActionHandler);
-    configureActionHandler({ bind, isBound }, EnableDefaultToolsAction.KIND, ToolPaletteActionHandler);
+    configureActionHandler({ bind, isBound }, EnableToolPaletteAction.KIND, ToolPalette);
+    configureActionHandler({ bind, isBound }, EnableDefaultToolsAction.KIND, ToolPalette);
 });
 
 export default toolPaletteModule;

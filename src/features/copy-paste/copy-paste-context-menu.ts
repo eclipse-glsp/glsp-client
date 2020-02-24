@@ -27,8 +27,8 @@ import {
     TYPES
 } from "sprotty/lib";
 
+import { GLSP_TYPES } from "../../base/types";
 import { GLSPServerStatusAction } from "../../model-source/glsp-server-status";
-import { GLSP_TYPES } from "../../types";
 import { SelectionService } from "../select/selection-service";
 
 export class InvokeCopyAction implements Action {

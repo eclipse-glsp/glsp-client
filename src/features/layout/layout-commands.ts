@@ -32,9 +32,9 @@ import {
 } from "sprotty";
 import { matchesKeystroke } from "sprotty/lib/utils/keyboard";
 
-import { GLSP_TYPES } from "../../types";
+import { ChangeBoundsOperation } from "../../base/operations/operation";
+import { GLSP_TYPES } from "../../base/types";
 import { isNonRoutableSelectedBoundsAware, SelectableBoundsAware } from "../../utils/smodel-util";
-import { ChangeBoundsOperationAction } from "../operation/operation-actions";
 import { SelectionService } from "../select/selection-service";
 
 export enum ResizeDimension {
@@ -226,7 +226,7 @@ export class ResizeElementsCommand extends LayoutElementsCommand {
     dispatchResizeActions(elements: SelectableBoundsAware[], change: (element: SelectableBoundsAware, bounds: WriteableElementAndBounds) => void) {
         const elementAndBounds: ElementAndBounds[] = []; // client- and server-side resize
         elements.forEach(element => elementAndBounds.push(this.createElementAndBounds(element, change)));
-        this.dispatchActions([new SetBoundsAction(elementAndBounds), new ChangeBoundsOperationAction(elementAndBounds)]);
+        this.dispatchActions([new SetBoundsAction(elementAndBounds), new ChangeBoundsOperation(elementAndBounds)]);
     }
 
     createElementAndBounds(element: SelectableBoundsAware, change: (element: SelectableBoundsAware, bounds: WriteableElementAndBounds) => void) {
@@ -345,7 +345,7 @@ export class AlignElementsCommand extends LayoutElementsCommand {
             const elementAndBound = this.createElementAndBounds(element, move);
             elementAndBounds.push(elementAndBound);
         });
-        this.dispatchActions([new MoveAction(moves), new ChangeBoundsOperationAction(elementAndBounds)]);
+        this.dispatchActions([new MoveAction(moves), new ChangeBoundsOperation(elementAndBounds)]);
     }
 
     createElementMove(element: SelectableBoundsAware, change: (element: SelectableBoundsAware, move: WriteableElementMove) => void) {

@@ -16,7 +16,7 @@
 import "../../../css/command-palette.css";
 
 import { ContainerModule } from "inversify";
-import { TYPES } from "sprotty/lib";
+import { TYPES } from "sprotty";
 
 import { ServerCommandPaletteActionProvider } from "./server-command-palette-provider";
 

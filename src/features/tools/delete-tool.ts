@@ -25,12 +25,12 @@ import {
     MouseListener,
     SModelElement,
     Tool
-} from "sprotty/lib";
+} from "sprotty";
 import { matchesKeystroke } from "sprotty/lib/utils/keyboard";
 
-import { GLSP_TYPES } from "../../types";
+import { DeleteElementOperation } from "../../base/operations/operation";
+import { GLSP_TYPES } from "../../base/types";
 import { IMouseTool } from "../mouse-tool/mouse-tool";
-import { DeleteElementOperationAction } from "../operation/operation-actions";
 import { CursorCSS, cursorFeedbackAction } from "../tool-feedback/css-feedback";
 import { IFeedbackActionDispatcher } from "../tool-feedback/feedback-action-dispatcher";
 
@@ -61,7 +61,7 @@ export class DeleteKeyListener extends KeyListener {
         if (matchesKeystroke(event, 'Delete')) {
             const deleteElementIds = Array.from(element.root.index.all().filter(e => isDeletable(e) && isSelectable(e) && e.selected)
                 .filter(e => e.id !== e.root.id).map(e => e.id));
-            return [new DeleteElementOperationAction(deleteElementIds)];
+            return [new DeleteElementOperation(deleteElementIds)];
         }
         return [];
     }
@@ -100,7 +100,7 @@ export class DeleteToolMouseListener extends MouseListener {
         }
 
         const result: Action[] = [];
-        result.push(new DeleteElementOperationAction([target.id]));
+        result.push(new DeleteElementOperation([target.id]));
         if (!isCtrlOrCmd(event)) {
             result.push(new EnableDefaultToolsAction());
         }

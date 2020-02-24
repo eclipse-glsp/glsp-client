@@ -17,7 +17,7 @@ import { inject, injectable, multiInject, optional } from "inversify";
 import { Action, ILogger, SModelRoot, TYPES } from "sprotty";
 
 import { SModelRootListener } from "../../base/model/update-model-command";
-import { GLSP_TYPES } from "../../types";
+import { GLSP_TYPES } from "../../base/types";
 import { distinctAdd, remove } from "../../utils/array-utils";
 import { IFeedbackActionDispatcher } from "../tool-feedback/feedback-action-dispatcher";
 import { SelectFeedbackAction } from "./action-definitions";

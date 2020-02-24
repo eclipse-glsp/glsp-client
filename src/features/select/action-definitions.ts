@@ -29,7 +29,7 @@ import {
     TYPES
 } from "sprotty";
 
-import { GLSP_TYPES } from "../../types";
+import { GLSP_TYPES } from "../../base/types";
 import { SelectionService } from "./selection-service";
 
 export class SelectFeedbackAction {

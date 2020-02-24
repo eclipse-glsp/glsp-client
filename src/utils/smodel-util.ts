@@ -22,8 +22,9 @@ import {
     SModelElement,
     SRoutableElement,
     SRoutingHandle
-} from "sprotty/lib";
-import { ElementAndRoutingPoints } from "src/features/operation/operation-actions";
+} from "sprotty";
+
+import { ElementAndRoutingPoints } from "../base/operations/operation";
 
 
 export function getIndex(element: SModelElement) {

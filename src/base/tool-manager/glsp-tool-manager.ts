@@ -13,24 +13,32 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { injectable } from "inversify";
-import { IContextMenuItemProvider, isDeletable, isSelected, MenuItem, Point, SModelRoot } from "sprotty";
+import { injectable, multiInject, optional } from "inversify";
+import { Tool, ToolManager } from "sprotty";
 
-import { DeleteElementOperation } from "../../base/operations/operation";
+import { GLSP_TYPES } from "../../base/types";
+import { distinctAdd } from "../../utils/array-utils";
 
 @injectable()
-export class DeleteElementContextMenuItemProvider implements IContextMenuItemProvider {
-    getItems(root: Readonly<SModelRoot>, lastMousePosition?: Point): Promise<MenuItem[]> {
-        const selectedElements = Array.from(root.index.all().filter(isSelected).filter(isDeletable));
-        return Promise.resolve([
-            {
-                id: "delete",
-                label: "Delete",
-                sortString: "d",
-                group: "edit",
-                actions: [new DeleteElementOperation(selectedElements.map(e => e.id))],
-                isEnabled: () => selectedElements.length > 0
-            }
-        ]);
+export class GLSPToolManager extends ToolManager {
+
+    constructor(@multiInject(GLSP_TYPES.ITool) @optional() tools: Tool[],
+        @multiInject(GLSP_TYPES.IDefaultTool) @optional() defaultTools: Tool[]) {
+        super();
+        this.registerTools(...tools);
+        this.registerDefaultTools(...defaultTools);
+        this.enableDefaultTools();
+    }
+
+    registerDefaultTools(...tools: Tool[]) {
+        for (const tool of tools) {
+            distinctAdd(this.defaultTools, tool);
+        }
+    }
+
+    registerTools(...tools: Tool[]) {
+        for (const tool of tools) {
+            distinctAdd(this.tools, tool);
+        }
     }
 }

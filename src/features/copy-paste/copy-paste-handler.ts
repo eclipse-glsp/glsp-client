@@ -18,7 +18,7 @@ import { TYPES } from "sprotty";
 import uuid = require("uuid");
 
 import { EditorContextService } from "../../base/editor-context";
-import { GLSP_TYPES } from "../../types";
+import { GLSP_TYPES } from "../../base/types";
 import { GLSPActionDispatcher } from "../request-response/glsp-action-dispatcher";
 import { ClipboardData, CutOperationAction, PasteOperationAction, RequestClipboardDataAction } from "./copy-paste-actions";
 

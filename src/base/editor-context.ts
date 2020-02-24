@@ -17,7 +17,7 @@ import { inject, injectable } from "inversify";
 import { MousePositionTracker, Point } from "sprotty";
 
 import { SelectionService } from "../features/select/selection-service";
-import { GLSP_TYPES } from "../types";
+import { GLSP_TYPES } from "./types";
 
 export interface EditorContext {
     readonly selectedElementIds: string[];

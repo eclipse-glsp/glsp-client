@@ -19,35 +19,44 @@ import {
     Action,
     EnableDefaultToolsAction,
     EnableToolsAction,
-    IActionDispatcher,
     IActionHandler,
     ICommand,
+    IToolManager,
     SetUIExtensionVisibilityAction,
     SModelRoot,
     TYPES
-} from "sprotty/lib";
+} from "sprotty";
 
-import { isSetOperationsAction, Operation, parentGroup } from "../operation/set-operations";
-import { deriveToolId } from "../tools/creation-tool";
+import { isSetContextActionsAction, RequestContextActions } from "../../base/actions/context-actions";
+import { GLSPActionDispatcher } from "../request-response/glsp-action-dispatcher";
 import { MouseDeleteTool } from "../tools/delete-tool";
 import { RequestMarkersAction } from "../validation/validate";
+import { PaletteItem } from "./palette-item";
 
 const CLICKED_CSS_CLASS = "clicked";
+
 @injectable()
-export class ToolPalette extends AbstractUIExtension {
-    @inject(TYPES.IActionDispatcher) protected readonly actionDispatcher: IActionDispatcher;
-    static readonly ID = "glsp_tool_palette";
+export class EnableToolPaletteAction implements Action {
+    static readonly KIND = "enableToolPalette";
+    readonly kind = EnableToolPaletteAction.KIND;
+}
+
+@injectable()
+export class ToolPalette extends AbstractUIExtension implements IActionHandler {
+
+    @inject(TYPES.IActionDispatcher) protected readonly actionDispatcher: GLSPActionDispatcher;
+    @inject(TYPES.IToolManager) protected readonly toolManager: IToolManager;
+    static readonly ID = "tool-palette";
 
     readonly id = ToolPalette.ID;
     readonly containerClass = "tool-palette";
-    protected operations: Operation[];
+    protected paletteItems: PaletteItem[];
     protected lastActivebutton?: HTMLElement;
     protected defaultToolsButton: HTMLElement;
     modelRootId: string;
 
-
     initialize() {
-        if (!this.operations) {
+        if (!this.paletteItems) {
             return false;
         }
         return super.initialize();
@@ -65,26 +74,18 @@ export class ToolPalette extends AbstractUIExtension {
     protected createBody(): void {
         const bodyDiv = document.createElement("div");
         bodyDiv.classList.add("palette-body");
-        // Greate operation groups
-        const groups: Map<string, HTMLElement> = new Map();
-        this.operations.map(parentGroup).forEach(group => {
-            if (!groups.has(group.id)) {
-                groups.set(group.id, createToolGroup(group.label, group.id));
-            }
-        });
+        const compareFn = (a: PaletteItem, b: PaletteItem) => a.sortString.localeCompare(b.sortString);
+        this.paletteItems.sort(compareFn)
+            .forEach(item => {
+                if (item.children) {
+                    const group = createToolGroup(item);
+                    item.children.sort(compareFn).forEach(child => group.appendChild(this.createToolButton(child)));
+                    bodyDiv.appendChild(group);
+                } else {
+                    bodyDiv.appendChild(this.createToolButton(item));
+                }
+            });
 
-        // Fill groups
-        this.operations.forEach(op => {
-            const button = this.createToolButton(op);
-            const group = parentGroup(op);
-            const htmlGroup = groups.get(group.id);
-            if (htmlGroup) {
-                htmlGroup.appendChild(button);
-            }
-        });
-
-        // Add groups to container
-        Array.from(groups.values()).forEach(group => bodyDiv.appendChild(group));
         this.containerElement.appendChild(bodyDiv);
     }
     protected createHeader(): void {
@@ -104,13 +105,13 @@ export class ToolPalette extends AbstractUIExtension {
         // Create button for DefaultTools
         this.defaultToolsButton = createIcon(["fas", "fa-mouse-pointer", "fa-xs", "clicked"]);
         this.defaultToolsButton.id = "btn_default_tools";
-        this.defaultToolsButton.onclick = this.onClickToolButton(this.defaultToolsButton);
+        this.defaultToolsButton.onclick = this.onClickStaticToolButton(this.defaultToolsButton);
         headerTools.appendChild(this.defaultToolsButton);
         this.lastActivebutton = this.defaultToolsButton;
 
         // Create button for MouseDeleteTool
         const deleteToolButton = createIcon(["fas", "fa-eraser", "fa-xs"]);
-        deleteToolButton.onclick = this.onClickToolButton(deleteToolButton, MouseDeleteTool.ID);
+        deleteToolButton.onclick = this.onClickStaticToolButton(deleteToolButton, MouseDeleteTool.ID);
         headerTools.appendChild(deleteToolButton);
 
         // Create button for ValidationTool
@@ -125,25 +126,29 @@ export class ToolPalette extends AbstractUIExtension {
         this.containerElement.appendChild(headerCompartment);
     }
 
-    protected createToolButton(operation: Operation): HTMLElement {
+    protected createToolButton(item: PaletteItem): HTMLElement {
         const button = document.createElement("div");
         button.classList.add("tool-button");
-        button.innerHTML = operation.label;
-        button.onclick = this.onClickToolButton(button, deriveToolId(operation.operationKind, operation.elementTypeId));
+        button.innerHTML = item.label;
+        button.onclick = this.onClickCreateToolButton(button, item);
         return button;
     }
 
-    protected onClickToolButton(button: HTMLElement, toolId?: string) {
+    protected onClickCreateToolButton(button: HTMLElement, item: PaletteItem) {
+        return (ev: MouseEvent) => {
+            this.actionDispatcher.dispatchAll(item.actions);
+            this.changeActiveButton(button);
+            this.restoreFocus();
+        };
+    }
+
+    protected onClickStaticToolButton(button: HTMLElement, toolId?: string) {
         return (ev: MouseEvent) => {
             const action = toolId ? new EnableToolsAction([toolId]) : new EnableDefaultToolsAction();
             this.actionDispatcher.dispatch(action);
             this.changeActiveButton(button);
             this.restoreFocus();
         };
-    }
-
-    setOperations(operations: Operation[]) {
-        this.operations = operations;
     }
 
     changeActiveButton(button?: HTMLElement) {
@@ -158,26 +163,44 @@ export class ToolPalette extends AbstractUIExtension {
             this.lastActivebutton = this.defaultToolsButton;
         }
     }
+
+    handle(action: Action): ICommand | Action | void {
+        if (action.kind === EnableToolPaletteAction.KIND) {
+            const requestAction = new RequestContextActions(ToolPalette.ID, {
+                selectedElementIds: []
+            });
+            this.actionDispatcher.requestUntil(requestAction).then(response => {
+                if (isSetContextActionsAction(response)) {
+                    this.paletteItems = response.actions.map(e => e as PaletteItem);
+                    this.actionDispatcher.dispatch(new SetUIExtensionVisibilityAction(ToolPalette.ID, true));
+                }
+            });
+        } else if (action instanceof EnableToolsAction && action.toolIds.includes(ToolPalette.ID)) {
+            this.changeActiveButton();
+        }
+    }
 }
 
-function createIcon(cssClasses: string[]) {
+export function createIcon(cssClasses: string[]) {
     const icon = document.createElement("i");
     icon.classList.add(...cssClasses);
     return icon;
 }
 
-function createToolGroup(label: string, groupId: string): HTMLElement {
+export function createToolGroup(item: PaletteItem): HTMLElement {
     const group = document.createElement("div");
     group.classList.add("tool-group");
-    group.id = groupId;
+    group.id = item.id;
     const header = document.createElement("div");
     header.classList.add("group-header");
-    header.appendChild(createIcon(["fas", "fa-hammer"]));
-    header.insertAdjacentText('beforeend', label);
+    if (item.icon) {
+        header.appendChild(createIcon(["fas", item.icon]));
+    }
+    header.insertAdjacentText('beforeend', item.label);
     header.ondblclick = (ev) => {
         const css = "collapsed";
         changeCSSClass(group, css);
-        Array.from(group.children).forEach(item => changeCSSClass(item, css));
+        Array.from(group.children).forEach(child => changeCSSClass(child, css));
         window!.getSelection()!.removeAllRanges();
     };
 
@@ -185,20 +208,7 @@ function createToolGroup(label: string, groupId: string): HTMLElement {
     return group;
 }
 
-function changeCSSClass(element: Element, css: string) {
+export function changeCSSClass(element: Element, css: string) {
     element.classList.contains(css) ? element.classList.remove(css) :
         element.classList.add(css);
-}
-@injectable()
-export class ToolPaletteActionHandler implements IActionHandler {
-    @inject(ToolPalette) protected readonly toolPalette: ToolPalette;
-
-    handle(action: Action): ICommand | Action | void {
-        if (isSetOperationsAction(action)) {
-            this.toolPalette.setOperations(action.operations);
-            return new SetUIExtensionVisibilityAction(ToolPalette.ID, true);
-        } else if (action instanceof EnableDefaultToolsAction) {
-            this.toolPalette.changeActiveButton();
-        }
-    }
 }

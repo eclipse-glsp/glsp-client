@@ -22,7 +22,7 @@ import {
     SModelExtension,
     SRoutableElement,
     SRoutingHandle
-} from "sprotty/lib";
+} from "sprotty";
 
 export const reconnectFeature = Symbol("reconnectFeature");
 export interface Reconnectable extends SModelExtension {

@@ -23,16 +23,19 @@ import {
 } from "sprotty";
 import * as rpc from "vscode-ws-jsonrpc";
 import { NotificationType } from "vscode-ws-jsonrpc";
-import { RequestContextActions } from "../features/context-actions/action-definitions";
+import { RequestContextActions } from "../base/actions/context-actions";
 import { ExecuteServerCommandAction } from "../features/execute/execute-command";
 import { RequestTypeHintsAction } from "../features/hints/request-type-hints-action";
-import { OperationKind, RequestOperationsAction } from "../features/operation/set-operations";
+import {
+    CreateEdgeOperation, ReconnectEdgeOperation,
+    ChangeRoutingPointsOperation, CreateNodeOperation, ChangeBoundsOperation,
+    DeleteElementOperation
+} from "../base/operations/operation";
 import { SaveModelAction } from "../features/save/save";
 import { GlspRedoAction, GlspUndoAction } from "../features/undo-redo/model";
 import { RequestMarkersAction } from "../features/validation/validate";
 import { ValidateLabelEditAction } from "../features/edit-label-validation/edit-label-validator";
 import { RequestClipboardDataAction, PasteOperationAction, CutOperationAction } from "../features/copy-paste/copy-paste-actions";
-
 @injectable()
 export class GLSPWebsocketDiagramServer extends DiagramServer {
     protected _sourceUri: string;
@@ -78,16 +81,15 @@ export class GLSPWebsocketDiagramServer extends DiagramServer {
 }
 
 export function registerDefaultGLSPServerActions(registry: ActionHandlerRegistry, diagramServer: DiagramServer) {
-    registry.register(RequestOperationsAction.KIND, diagramServer);
     registry.register(SaveModelAction.KIND, diagramServer);
     registry.register(GlspUndoAction.KIND, diagramServer);
     registry.register(GlspRedoAction.KIND, diagramServer);
-    registry.register(OperationKind.CREATE_CONNECTION, diagramServer);
-    registry.register(OperationKind.RECONNECT_CONNECTION, diagramServer);
-    registry.register(OperationKind.CHANGE_ROUTING_POINTS, diagramServer);
-    registry.register(OperationKind.CREATE_NODE, diagramServer);
-    registry.register(OperationKind.CHANGE_BOUNDS, diagramServer);
-    registry.register(OperationKind.DELETE_ELEMENT, diagramServer);
+    registry.register(CreateEdgeOperation.KIND, diagramServer);
+    registry.register(ReconnectEdgeOperation.KIND, diagramServer);
+    registry.register(ChangeRoutingPointsOperation.KIND, diagramServer);
+    registry.register(CreateNodeOperation.KIND, diagramServer);
+    registry.register(ChangeBoundsOperation.KIND, diagramServer);
+    registry.register(DeleteElementOperation.KIND, diagramServer);
     registry.register(ExecuteServerCommandAction.KIND, diagramServer);
     registry.register(RequestTypeHintsAction.KIND, diagramServer);
     registry.register(ComputedBoundsAction.KIND, diagramServer);

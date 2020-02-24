@@ -36,7 +36,7 @@ import {
     SModelRoot,
     SRoutableElement,
     TYPES
-} from "sprotty/lib";
+} from "sprotty";
 
 import { isRoutable } from "../../utils/smodel-util";
 import { getAbsolutePosition, toAbsolutePosition } from "../../utils/viewpoint-util";

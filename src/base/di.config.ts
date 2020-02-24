@@ -16,21 +16,16 @@
 import "../../css/glsp-sprotty.css";
 
 import { ContainerModule } from "inversify";
-import { configureActionHandler, configureCommand, SetModelCommand, Tool, TYPES } from "sprotty/lib";
+import { configureActionHandler, configureCommand, SetModelCommand, TYPES } from "sprotty";
 
-import { SetOperationsAction } from "../features/operation/set-operations";
-import { GLSP_TYPES } from "../types";
 import { GLSPCommandStack } from "./command-stack";
 import { EditorContextService } from "./editor-context";
 import { FeedbackAwareUpdateModelCommand, SetModelActionHandler } from "./model/update-model-command";
 import { SelectionClearingMouseListener } from "./selection-clearing-mouse-listener";
-import { createToolFactory, GLSPToolManagerActionHandler } from "./tool-manager/tool-manager-action-handler";
+import { GLSPToolManager } from "./tool-manager/glsp-tool-manager";
 
 const defaultGLSPModule = new ContainerModule((bind, _unbind, isBound, rebind) => {
     const context = { bind, _unbind, isBound, rebind };
-    // Tool manager initialization ------------------------------------
-    configureActionHandler(context, SetOperationsAction.KIND, GLSPToolManagerActionHandler);
-    bind(GLSP_TYPES.IToolFactory).toFactory<Tool>((createToolFactory()));
     bind(EditorContextService).toSelf().inSingletonScope();
 
     // Model update initialization ------------------------------------
@@ -40,6 +35,7 @@ const defaultGLSPModule = new ContainerModule((bind, _unbind, isBound, rebind) =
     bind(TYPES.MouseListener).to(SelectionClearingMouseListener);
 
     rebind(TYPES.ICommandStack).to(GLSPCommandStack);
+    rebind(TYPES.IToolManager).to(GLSPToolManager).inSingletonScope();
 });
 
 export default defaultGLSPModule;
