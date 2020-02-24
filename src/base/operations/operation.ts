@@ -75,7 +75,7 @@ export class ChangeContainerOperation implements Operation {
 }
 
 export class ReconnectConnectionOperation implements Operation {
-    static readonly KIND = "reconnectOperationAction";
+    static readonly KIND = "reconnectConnection";
     readonly kind = ReconnectConnectionOperation.KIND;
     constructor(public readonly connectionElementId: string,
         public readonly sourceElementId: string,
