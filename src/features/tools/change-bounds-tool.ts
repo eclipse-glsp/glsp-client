@@ -26,7 +26,6 @@ import {
     isSelected,
     isViewport,
     KeyTool,
-    ModelLayoutOptions,
     MouseListener,
     Point,
     SConnectableElement,
@@ -44,6 +43,7 @@ import {
     ElementAndRoutingPoints
 } from "../../base/operations/operation";
 import { GLSP_TYPES } from "../../base/types";
+import { isValidMove, isValidSize } from "../../utils/layout-utils";
 import {
     forEachElement,
     isNonRoutableSelectedMovableBoundsAware,
@@ -65,6 +65,7 @@ import {
 } from "../tool-feedback/change-bounds-tool-feedback";
 import { IFeedbackActionDispatcher, IFeedbackEmitter } from "../tool-feedback/feedback-action-dispatcher";
 import { DragAwareMouseListener } from "./drag-aware-mouse-listener";
+
 
 /**
  * The change bounds tool has the license to move multiple elements or resize a single element by implementing the ChangeBounds operation.
@@ -377,38 +378,14 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements Sele
     }
 
     protected isValidBoundChange(element: SModelElement & BoundsAware, newPosition: Point, newSize: Dimension): boolean {
-        const valid = this.isValidSize(element, newSize);
-        if (this.tool.movementRestrictor) {
-            return valid && this.tool.movementRestrictor.validate(newPosition, element);
-        }
-        return valid;
+        return this.isValidSize(element, newSize) && this.isValidMove(element, newPosition);
     }
 
     protected isValidSize(element: SModelElement & BoundsAware, size: Dimension) {
-        return size.width >= this.minWidth(element) && size.height >= this.minHeight(element);
+        return isValidSize(element, size);
     }
 
-    protected minWidth(element: SModelElement & BoundsAware): number {
-        const layoutOptions = this.getLayoutOptions(element);
-        if (layoutOptions !== undefined && typeof layoutOptions.minWidth === 'number') {
-            return layoutOptions.minWidth;
-        }
-        return 1;
-    }
-
-    protected minHeight(element: SModelElement & BoundsAware): number {
-        const layoutOptions = this.getLayoutOptions(element);
-        if (layoutOptions !== undefined && typeof layoutOptions.minHeight === 'number') {
-            return layoutOptions.minHeight;
-        }
-        return 1;
-    }
-
-    protected getLayoutOptions(element: SModelElement): ModelLayoutOptions | undefined {
-        const layoutOptions = (element as any).layoutOptions;
-        if (layoutOptions !== undefined) {
-            return layoutOptions as ModelLayoutOptions;
-        }
-        return undefined;
+    protected isValidMove(element: SModelElement & BoundsAware, newPosition: Point) {
+        return isValidMove(element, newPosition, this.tool.movementRestrictor);
     }
 }

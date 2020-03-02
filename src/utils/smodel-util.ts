@@ -100,6 +100,8 @@ export function isRoutingHandle(element: SModelElement | undefined): element is 
 
 export type SelectableBoundsAware = SModelElement & BoundsAware & Selectable;
 
+export type BoundsAwareModelElement = SModelElement & BoundsAware;
+
 export function toElementAndBounds(element: SModelElement & BoundsAware) {
     return {
         elementId: element.id,

@@ -50,11 +50,14 @@ export class NoOverlapMovmentRestrictor implements IMovementRestrictor {
         if (!isBoundsAwareMoveable(element)) {
             return false;
         }
-        // Create ghost element at the newLocation;
-        const ghostElement = Object.create(element);
-
-        ghostElement.bounds.x = newLocation.x - element.bounds.width / 2;
-        ghostElement.bounds.y = newLocation.y - element.bounds.height / 2;
+        // Create ghost element at the newLocation
+        const ghostElement = Object.create(element) as SModelElement & BoundsAware;
+        ghostElement.bounds = {
+            x: newLocation.x,
+            y: newLocation.y,
+            width: element.bounds.width,
+            height: element.bounds.height
+        };
         ghostElement.type = "Ghost";
         ghostElement.id = element.id;
         return !Array.from(element.root.index.all().filter(e => e.id !== ghostElement.id && e !== ghostElement.root && (e instanceof SNode))
