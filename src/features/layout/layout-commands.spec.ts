@@ -27,11 +27,13 @@ import {
     defaultModule,
     ElementAndBounds,
     ElementMove,
+    FeatureSet,
     IActionDispatcher,
     MoveAction,
     MoveCommand,
     RequestAction,
     ResponseAction,
+    SChildElement,
     SetBoundsAction,
     SetBoundsCommand,
     SGraphFactory,
@@ -41,6 +43,7 @@ import {
 
 import { ChangeBoundsOperation } from "../../base/operations/operation";
 import { GLSP_TYPES } from "../../base/types";
+import { resizeFeature } from "../change-bounds/model";
 import { SelectionService } from "../select/selection-service";
 import { FeedbackActionDispatcher } from "../tool-feedback/feedback-action-dispatcher";
 import {
@@ -91,11 +94,21 @@ const node3 = {
     id: 'node3', type: 'node:circle',
     selected: true
 };
-const model = graphFactory.createRoot({
-    id: 'model1',
-    type: 'graph',
-    children: [node1, node2, node3]
-});
+const model = createModel();
+
+function createModel() {
+    const root = graphFactory.createRoot({
+        id: 'model1',
+        type: 'graph',
+        children: [node1, node2, node3]
+    });
+    root.children.forEach(child => applyFeature(child, resizeFeature));
+    return root;
+}
+
+function applyFeature(element: SChildElement, feature: symbol) {
+    (element.features as FeatureSet & Set<symbol>).add(feature);
+}
 
 const context: CommandExecutionContext = {
     root: model,

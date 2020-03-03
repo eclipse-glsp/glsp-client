@@ -13,19 +13,17 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { inject, injectable } from "inversify";
+import { inject, injectable, optional } from "inversify";
 import {
     Action,
     Command,
     CommandExecutionContext,
     CommandReturn,
-    Dimension,
     ElementAndBounds,
     ElementMove,
     IActionDispatcher,
     KeyListener,
     MoveAction,
-    Point,
     SetBoundsAction,
     SModelElement,
     TYPES
@@ -34,7 +32,15 @@ import { matchesKeystroke } from "sprotty/lib/utils/keyboard";
 
 import { ChangeBoundsOperation } from "../../base/operations/operation";
 import { GLSP_TYPES } from "../../base/types";
-import { isNonRoutableSelectedBoundsAware, SelectableBoundsAware } from "../../utils/smodel-util";
+import {
+    toValidElementAndBounds,
+    toValidElementMove,
+    WriteableElementAndBounds,
+    WriteableElementMove
+} from "../../utils/layout-utils";
+import { BoundsAwareModelElement } from "../../utils/smodel-util";
+import { isBoundsAwareMoveable, isResizable } from "../change-bounds/model";
+import { IMovementRestrictor } from "../change-bounds/movement-restrictor";
 import { SelectionService } from "../select/selection-service";
 
 export enum ResizeDimension {
@@ -94,15 +100,15 @@ export enum Alignment {
 }
 
 export namespace Select {
-    export function all(elements: SelectableBoundsAware[]) {
+    export function all(elements: BoundsAwareModelElement[]) {
         return elements;
     }
 
-    export function first(elements: SelectableBoundsAware[]) {
+    export function first(elements: BoundsAwareModelElement[]) {
         return [elements[0]];
     }
 
-    export function last(elements: SelectableBoundsAware[]) {
+    export function last(elements: BoundsAwareModelElement[]) {
         return [elements[elements.length - 1]];
     }
 }
@@ -123,7 +129,7 @@ export class AlignElementsAction implements Action {
         /**
          * Function to selected elements that are considered during alignment calculation, see Select.* for potential functions.
          */
-        public readonly selectionFunction: (elements: SelectableBoundsAware[]) => SelectableBoundsAware[] = Select.all) {
+        public readonly selectionFunction: (elements: BoundsAwareModelElement[]) => BoundsAwareModelElement[] = Select.all) {
     }
 }
 
@@ -131,26 +137,29 @@ export class AlignElementsAction implements Action {
 abstract class LayoutElementsCommand extends Command {
     constructor(@inject(TYPES.Action) protected action: ResizeElementsAction | AlignElementsAction,
         @inject(TYPES.IActionDispatcher) protected actionDispatcher: IActionDispatcher,
-        @inject(GLSP_TYPES.SelectionService) protected selectionService: SelectionService) {
+        @inject(GLSP_TYPES.SelectionService) protected selectionService: SelectionService,
+        @inject(GLSP_TYPES.IMovementRestrictor) @optional() readonly movementRestrictor?: IMovementRestrictor) {
         super();
     }
 
-    getActionElements(context: CommandExecutionContext): SelectableBoundsAware[] {
+    getActionElements(context: CommandExecutionContext): BoundsAwareModelElement[] {
         const model = context.root;
         const elementIDs = this.action.elementIds;
         if (elementIDs.length === 0) {
             // collect the selected elements from the selection service (selection order is kept by service)
             this.selectionService.getSelectedElementIDs().forEach(elementID => elementIDs.push(elementID));
         }
-        const selectableBoundsAware: SelectableBoundsAware[] = [];
+        const boundsAwareElements: BoundsAwareModelElement[] = [];
         elementIDs.forEach(id => {
             const element = model.index.getById(id);
-            if (element && isNonRoutableSelectedBoundsAware(element)) {
-                selectableBoundsAware.push(element);
+            if (element && this.isActionElement(element)) {
+                boundsAwareElements.push(element);
             }
         });
-        return selectableBoundsAware;
+        return boundsAwareElements;
     }
+
+    protected abstract isActionElement(element: SModelElement): element is BoundsAwareModelElement;
 
     dispatchAction(action: Action) {
         this.actionDispatcher.dispatch(action);
@@ -167,8 +176,13 @@ export class ResizeElementsCommand extends LayoutElementsCommand {
 
     constructor(@inject(TYPES.Action) protected action: ResizeElementsAction,
         @inject(TYPES.IActionDispatcher) protected actionDispatcher: IActionDispatcher,
-        @inject(GLSP_TYPES.SelectionService) protected selectionService: SelectionService) {
-        super(action, actionDispatcher, selectionService);
+        @inject(GLSP_TYPES.SelectionService) protected selectionService: SelectionService,
+        @inject(GLSP_TYPES.IMovementRestrictor) @optional() readonly movementRestrictor?: IMovementRestrictor) {
+        super(action, actionDispatcher, selectionService, movementRestrictor);
+    }
+
+    protected isActionElement(element: SModelElement): element is BoundsAwareModelElement {
+        return isResizable(element);
     }
 
     execute(context: CommandExecutionContext): CommandReturn {
@@ -189,7 +203,7 @@ export class ResizeElementsCommand extends LayoutElementsCommand {
         return context.root;
     }
 
-    resizeWidth(elements: SelectableBoundsAware[]) {
+    resizeWidth(elements: BoundsAwareModelElement[]) {
         const targetWidth = this.action.reductionFunction(...elements.map(element => element.bounds.width));
         this.dispatchResizeActions(elements, (element, bounds) => {
             // resize around center
@@ -199,7 +213,7 @@ export class ResizeElementsCommand extends LayoutElementsCommand {
         });
     }
 
-    resizeHeight(elements: SelectableBoundsAware[]) {
+    resizeHeight(elements: BoundsAwareModelElement[]) {
         const targetHeight = this.action.reductionFunction(...elements.map(element => element.bounds.height));
         this.dispatchResizeActions(elements, (element, bounds) => {
             // resize around middle
@@ -209,7 +223,7 @@ export class ResizeElementsCommand extends LayoutElementsCommand {
         });
     }
 
-    resizeWidthAndHeight(elements: SelectableBoundsAware[]) {
+    resizeWidthAndHeight(elements: BoundsAwareModelElement[]) {
         const targetWidth = this.action.reductionFunction(...elements.map(element => element.bounds.width));
         const targetHeight = this.action.reductionFunction(...elements.map(element => element.bounds.height));
         this.dispatchResizeActions(elements, (element, bounds) => {
@@ -223,13 +237,19 @@ export class ResizeElementsCommand extends LayoutElementsCommand {
         });
     }
 
-    dispatchResizeActions(elements: SelectableBoundsAware[], change: (element: SelectableBoundsAware, bounds: WriteableElementAndBounds) => void) {
+    dispatchResizeActions(elements: BoundsAwareModelElement[], change: (element: BoundsAwareModelElement, bounds: WriteableElementAndBounds) => void) {
         const elementAndBounds: ElementAndBounds[] = []; // client- and server-side resize
-        elements.forEach(element => elementAndBounds.push(this.createElementAndBounds(element, change)));
+        elements.forEach(element => {
+            const elementChange = this.createElementAndBounds(element, change);
+            if (elementChange) {
+                // simply skip invalid changes
+                elementAndBounds.push(elementChange);
+            }
+        });
         this.dispatchActions([new SetBoundsAction(elementAndBounds), new ChangeBoundsOperation(elementAndBounds)]);
     }
 
-    createElementAndBounds(element: SelectableBoundsAware, change: (element: SelectableBoundsAware, bounds: WriteableElementAndBounds) => void) {
+    createElementAndBounds(element: BoundsAwareModelElement, change: (element: BoundsAwareModelElement, bounds: WriteableElementAndBounds) => void) {
         const bounds: WriteableElementAndBounds = {
             elementId: element.id,
             newPosition: {
@@ -242,7 +262,7 @@ export class ResizeElementsCommand extends LayoutElementsCommand {
             }
         };
         change(element, bounds);
-        return bounds;
+        return toValidElementAndBounds(element, bounds, this.movementRestrictor);
     }
 
     undo(context: CommandExecutionContext): CommandReturn {
@@ -262,8 +282,13 @@ export class AlignElementsCommand extends LayoutElementsCommand {
 
     constructor(@inject(TYPES.Action) protected action: AlignElementsAction,
         @inject(TYPES.IActionDispatcher) protected actionDispatcher: IActionDispatcher,
-        @inject(GLSP_TYPES.SelectionService) protected selectionService: SelectionService) {
-        super(action, actionDispatcher, selectionService);
+        @inject(GLSP_TYPES.SelectionService) protected selectionService: SelectionService,
+        @inject(GLSP_TYPES.IMovementRestrictor) @optional() readonly movementRestrictor?: IMovementRestrictor) {
+        super(action, actionDispatcher, selectionService, movementRestrictor);
+    }
+
+    protected isActionElement(element: SModelElement): element is BoundsAwareModelElement {
+        return isBoundsAwareMoveable(element);
     }
 
     execute(context: CommandExecutionContext): CommandReturn {
@@ -293,13 +318,13 @@ export class AlignElementsCommand extends LayoutElementsCommand {
         return context.root;
     }
 
-    alignLeft(elements: SelectableBoundsAware[]) {
+    alignLeft(elements: BoundsAwareModelElement[]) {
         const calculationElements = this.action.selectionFunction(elements);
         const minX = calculationElements.map(element => element.bounds.x).reduce((a, b) => Math.min(a, b));
         this.dispatchAlignActions(elements, (_, move) => move.toPosition.x = minX);
     }
 
-    alignCenter(elements: SelectableBoundsAware[]) {
+    alignCenter(elements: BoundsAwareModelElement[]) {
         const calculationElements = this.action.selectionFunction(elements);
         const minX = calculationElements.map(element => element.bounds.x).reduce((a, b) => Math.min(a, b));
         const maxX = calculationElements.map(element => element.bounds.x + element.bounds.width).reduce((a, b) => Math.max(a, b));
@@ -308,19 +333,19 @@ export class AlignElementsCommand extends LayoutElementsCommand {
         this.dispatchAlignActions(elements, (element, move) => move.toPosition.x = centerX - 0.5 * element.bounds.width);
     }
 
-    alignRight(elements: SelectableBoundsAware[]) {
+    alignRight(elements: BoundsAwareModelElement[]) {
         const calculationElements = this.action.selectionFunction(elements);
         const maxX = calculationElements.map(element => element.bounds.x + element.bounds.width).reduce((a, b) => Math.max(a, b));
         this.dispatchAlignActions(elements, (element, move) => move.toPosition.x = maxX - element.bounds.width);
     }
 
-    alignTop(elements: SelectableBoundsAware[]) {
+    alignTop(elements: BoundsAwareModelElement[]) {
         const calculationElements = this.action.selectionFunction(elements);
         const minY = calculationElements.map(element => element.bounds.y).reduce((a, b) => Math.min(a, b));
         this.dispatchAlignActions(elements, (_, move) => move.toPosition.y = minY);
     }
 
-    alignMiddle(elements: SelectableBoundsAware[]) {
+    alignMiddle(elements: BoundsAwareModelElement[]) {
         const calculationElements = this.action.selectionFunction(elements);
         const minY = calculationElements.map(element => element.bounds.y).reduce((a, b) => Math.min(a, b));
         const maxY = calculationElements.map(element => element.bounds.y + element.bounds.height).reduce((a, b) => Math.max(a, b));
@@ -329,26 +354,28 @@ export class AlignElementsCommand extends LayoutElementsCommand {
         this.dispatchAlignActions(elements, (element, move) => move.toPosition.y = middleY - 0.5 * element.bounds.height);
     }
 
-    alignBottom(elements: SelectableBoundsAware[]) {
+    alignBottom(elements: BoundsAwareModelElement[]) {
         const calculationElements = this.action.selectionFunction(elements);
         const maxY = calculationElements.map(element => element.bounds.y + element.bounds.height).reduce((a, b) => Math.max(a, b));
         this.dispatchAlignActions(elements, (element, move) => move.toPosition.y = maxY - element.bounds.height);
     }
 
-    dispatchAlignActions(elements: SelectableBoundsAware[], change: (element: SelectableBoundsAware, move: WriteableElementMove) => void) {
+    dispatchAlignActions(elements: BoundsAwareModelElement[], change: (element: BoundsAwareModelElement, move: WriteableElementMove) => void) {
         const moves: ElementMove[] = []; // client-side move
         const elementAndBounds: ElementAndBounds[] = []; // server-side move
         elements.forEach(element => {
             const move = this.createElementMove(element, change);
-            moves.push(move);
-
-            const elementAndBound = this.createElementAndBounds(element, move);
-            elementAndBounds.push(elementAndBound);
+            if (move) {
+                // simply skip invalid changes
+                moves.push(move);
+                const elementAndBound = this.createElementAndBounds(element, move);
+                elementAndBounds.push(elementAndBound);
+            }
         });
         this.dispatchActions([new MoveAction(moves), new ChangeBoundsOperation(elementAndBounds)]);
     }
 
-    createElementMove(element: SelectableBoundsAware, change: (element: SelectableBoundsAware, move: WriteableElementMove) => void) {
+    createElementMove(element: BoundsAwareModelElement, change: (element: BoundsAwareModelElement, move: WriteableElementMove) => void) {
         const move: WriteableElementMove = {
             elementId: element.id,
             fromPosition: {
@@ -361,10 +388,10 @@ export class AlignElementsCommand extends LayoutElementsCommand {
             }
         };
         change(element, move);
-        return move;
+        return toValidElementMove(element, move, this.movementRestrictor);
     }
 
-    createElementAndBounds(element: SelectableBoundsAware, move: ElementMove): ElementAndBounds {
+    createElementAndBounds(element: BoundsAwareModelElement, move: ElementMove): ElementAndBounds {
         return {
             elementId: element.id,
             newPosition: {
@@ -399,23 +426,4 @@ export class LayoutKeyboardListener extends KeyListener {
         }
         return [];
     }
-}
-
-interface WriteablePoint extends Point {
-    x: number;
-    y: number;
-}
-
-interface WriteableElementMove extends ElementMove {
-    fromPosition?: WriteablePoint;
-    toPosition: WriteablePoint;
-}
-
-interface WriteableDimension extends Dimension {
-    width: number
-    height: number
-}
-interface WriteableElementAndBounds extends ElementAndBounds {
-    newPosition: WriteablePoint;
-    newSize: WriteableDimension
 }
