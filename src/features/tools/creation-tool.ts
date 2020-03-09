@@ -32,7 +32,9 @@ import {
     CreateEdgeOperation,
     CreateNodeOperation,
     isTriggerElementTypeCreationAction,
-    isTriggerNodeCreationAction
+    isTriggerNodeCreationAction,
+    TriggerEdgeCreationAction,
+    TriggerNodeCreationAction
 } from "../../base/operations/operation";
 import { GLSP_TYPES } from "../../base/types";
 import { getAbsolutePosition } from "../../utils/viewpoint-util";
@@ -52,13 +54,16 @@ export class NodeCreationTool implements Tool, IActionHandler {
     static ID = "tool_create_node";
     readonly id = NodeCreationTool.ID = "unknown";
     protected creationToolMouseListener: NodeCreationToolMouseListener;
-    protected elementTypeId: string;
+    protected triggerAction: TriggerNodeCreationAction;
 
     constructor(@inject(GLSP_TYPES.MouseTool) protected mouseTool: IMouseTool,
         @inject(GLSP_TYPES.IFeedbackActionDispatcher) protected feedbackDispatcher: IFeedbackActionDispatcher) { }
 
     enable() {
-        this.creationToolMouseListener = new NodeCreationToolMouseListener(this.elementTypeId, this);
+        if (this.triggerAction === undefined) {
+            throw new TypeError(`Could not enable tool ${this.id}.The triggerAction cannot be undefined.`);
+        }
+        this.creationToolMouseListener = new NodeCreationToolMouseListener(this.triggerAction, this);
         this.mouseTool.register(this.creationToolMouseListener);
         this.feedbackDispatcher.registerFeedback(this, [cursorFeedbackAction(CursorCSS.NODE_CREATION)]);
     }
@@ -74,7 +79,7 @@ export class NodeCreationTool implements Tool, IActionHandler {
 
     handle(action: Action): Action | void {
         if (isTriggerNodeCreationAction(action)) {
-            this.elementTypeId = action.elementTypeId;
+            this.triggerAction = action;
             return new EnableToolsAction([this.id]);
         }
     }
@@ -83,20 +88,23 @@ export class NodeCreationTool implements Tool, IActionHandler {
 @injectable()
 export class NodeCreationToolMouseListener extends DragAwareMouseListener {
     protected container?: SModelElement & Containable;
-    constructor(protected elementTypeId: string, protected tool: NodeCreationTool) {
+    constructor(protected triggerAction: TriggerNodeCreationAction, protected tool: NodeCreationTool) {
         super();
     }
 
     protected creationAllowed(elementTypeId: string) {
-        return this.container && this.container.isContainableElement(elementTypeId);
+        return this.container && this.container.isContainableElement(this.elementTypeId);
     }
 
+    get elementTypeId() {
+        return this.triggerAction.elementTypeId;
+    }
     nonDraggingMouseUp(target: SModelElement, event: MouseEvent): Action[] {
         const result: Action[] = [];
         if (this.creationAllowed(this.elementTypeId)) {
             const containerId = this.container ? this.container.id : undefined;
             const location = getAbsolutePosition(target, event);
-            result.push(new CreateNodeOperation(this.elementTypeId, location, containerId));
+            result.push(new CreateNodeOperation(this.elementTypeId, location, containerId, this.triggerAction.args));
             if (!isCtrlOrCmd(event)) {
                 result.push(new EnableDefaultToolsAction());
             }
@@ -124,7 +132,7 @@ export class NodeCreationToolMouseListener extends DragAwareMouseListener {
 export class EdgeCreationTool implements Tool, IActionHandler {
     static ID = "tool_create_edge";
     readonly id = EdgeCreationTool.ID;
-    protected elementTypeId = "unknown";
+    protected triggerAction: TriggerEdgeCreationAction;
 
     protected creationToolMouseListener: EdgeCreationToolMouseListener;
     protected feedbackEndMovingMouseListener: FeedbackEdgeEndMovingMouseListener;
@@ -134,7 +142,10 @@ export class EdgeCreationTool implements Tool, IActionHandler {
         @inject(AnchorComputerRegistry) protected anchorRegistry: AnchorComputerRegistry) { }
 
     enable() {
-        this.creationToolMouseListener = new EdgeCreationToolMouseListener(this.elementTypeId, this);
+        if (this.triggerAction === undefined) {
+            throw new TypeError(`Could not enable tool ${this.id}.The triggerAction cannot be undefined.`);
+        }
+        this.creationToolMouseListener = new EdgeCreationToolMouseListener(this.triggerAction, this);
         this.mouseTool.register(this.creationToolMouseListener);
         this.feedbackEndMovingMouseListener = new FeedbackEdgeEndMovingMouseListener(this.anchorRegistry);
         this.mouseTool.register(this.feedbackEndMovingMouseListener);
@@ -153,7 +164,7 @@ export class EdgeCreationTool implements Tool, IActionHandler {
 
     handle(action: Action): Action | void {
         if (isTriggerElementTypeCreationAction(action)) {
-            this.elementTypeId = action.elementTypeId;
+            this.triggerAction = action;
             return new EnableToolsAction([this.id]);
         }
     }
@@ -166,10 +177,10 @@ export class EdgeCreationToolMouseListener extends DragAwareMouseListener {
     protected currentTarget?: SModelElement;
     protected allowedTarget: boolean = false;
     protected proxyEdge: SEdge;
-    constructor(protected elementTypeId: string, protected tool: EdgeCreationTool) {
+    constructor(protected triggerAction: TriggerEdgeCreationAction, protected tool: EdgeCreationTool) {
         super();
         this.proxyEdge = new SEdge();
-        this.proxyEdge.type = elementTypeId;
+        this.proxyEdge.type = triggerAction.elementTypeId;
     }
 
     protected reinitialize() {
@@ -186,7 +197,7 @@ export class EdgeCreationToolMouseListener extends DragAwareMouseListener {
             if (!this.isSourceSelected()) {
                 if (this.currentTarget && this.allowedTarget) {
                     this.source = this.currentTarget.id;
-                    this.tool.dispatchFeedback([new DrawFeedbackEdgeAction(this.elementTypeId, this.source)]);
+                    this.tool.dispatchFeedback([new DrawFeedbackEdgeAction(this.triggerAction.elementTypeId, this.source)]);
                 }
             } else {
                 if (this.currentTarget && this.allowedTarget) {
@@ -194,7 +205,7 @@ export class EdgeCreationToolMouseListener extends DragAwareMouseListener {
                 }
             }
             if (this.isSourceSelected() && this.isTargetSelected()) {
-                result.push(new CreateEdgeOperation(this.elementTypeId, this.source, this.target));
+                result.push(new CreateEdgeOperation(this.triggerAction.elementTypeId, this.source, this.target, this.triggerAction.args));
                 if (!isCtrlOrCmd(event)) {
                     result.push(new EnableDefaultToolsAction());
                 } else {
