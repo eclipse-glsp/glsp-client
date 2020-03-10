@@ -193,18 +193,18 @@ export class FeedbackMoveMouseListener extends MouseListener {
         let newPosition = toPosition;
         if (this.tool.movementRestrictor) {
             const valid = this.tool.movementRestrictor.validate(toPosition, element);
-            let actions;
+            let action;
             if (!valid) {
-                actions = createMovementRestrictionFeedback(element, this.tool.movementRestrictor);
+                action = createMovementRestrictionFeedback(element, this.tool.movementRestrictor);
 
                 if (isFinished) {
                     newPosition = startPostion;
                 }
             } else {
-                actions = removeMovementRestrictionFeedback(element, this.tool.movementRestrictor);
+                action = removeMovementRestrictionFeedback(element, this.tool.movementRestrictor);
             }
 
-            this.tool.dispatchFeedback(this, actions);
+            this.tool.dispatchFeedback(this, [action]);
         }
         return newPosition;
     }
@@ -227,7 +227,7 @@ export class FeedbackMoveMouseListener extends MouseListener {
                 result.push(moveAction);
             }
             if (this.tool.movementRestrictor) {
-                result.push(...removeMovementRestrictionFeedback(target, this.tool.movementRestrictor));
+                result.push(removeMovementRestrictionFeedback(target, this.tool.movementRestrictor));
             }
 
         }

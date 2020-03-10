@@ -21,7 +21,7 @@ import { FeedbackCommand } from "./model";
 
 export class ModifyCSSFeedbackAction implements Action {
     kind = ModifyCssFeedbackCommand.KIND;
-    constructor(readonly element?: SModelElement, readonly addClasses?: string[], readonly removeClasses?: string[]) { }
+    constructor(readonly elements?: SModelElement[], readonly addClasses?: string[], readonly removeClasses?: string[]) { }
 }
 
 @injectable()
@@ -33,14 +33,23 @@ export class ModifyCssFeedbackCommand extends FeedbackCommand {
     }
 
     execute(context: CommandExecutionContext): SModelRoot {
-        const element = this.action.element ? this.action.element : context.root;
-        if (this.action.removeClasses) {
-            removeCssClasses(element, this.action.removeClasses);
+        const elements: SModelElement[] = [];
+        if (this.action.elements) {
+            elements.push(...this.action.elements);
+        } else {
+            elements.push(context.root);
         }
 
-        if (this.action.addClasses) {
-            addCssClasses(element, this.action.addClasses);
-        }
+        elements.forEach(e => {
+            if (this.action.removeClasses) {
+                removeCssClasses(e, this.action.removeClasses);
+            }
+
+            if (this.action.addClasses) {
+                addCssClasses(e, this.action.addClasses);
+            }
+        });
+
         return context.root;
     }
 }
