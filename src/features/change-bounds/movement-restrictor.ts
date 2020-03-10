@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { injectable } from "inversify";
-import { Action, BoundsAware, Point, SModelElement, SNode, SParentElement } from "sprotty";
+import { BoundsAware, Point, SModelElement, SNode, SParentElement } from "sprotty";
 
 import { toAbsoluteBounds } from "../../utils/viewpoint-util";
 import { ModifyCSSFeedbackAction } from "../tool-feedback/css-feedback";
@@ -25,23 +25,22 @@ export interface IMovementRestrictor {
     cssClasses?: string[];
 }
 
-export function createMovementRestrictionFeedback(element: SModelElement, movementRestrictor: IMovementRestrictor): Action[] {
-    const result: Action[] = [];
-    result.push(new ModifyCSSFeedbackAction(element, movementRestrictor.cssClasses));
+export function createMovementRestrictionFeedback(element: SModelElement, movementRestrictor: IMovementRestrictor): ModifyCSSFeedbackAction {
+    const elements: SModelElement[] = [element];
     if (element instanceof SParentElement) {
-        element.children.filter(child => child instanceof SResizeHandle).forEach(child => result.push(new ModifyCSSFeedbackAction(child, movementRestrictor.cssClasses)));
+        element.children.filter(child => child instanceof SResizeHandle).forEach(e => elements.push(e));
     }
-    return result;
+    return new ModifyCSSFeedbackAction(elements, movementRestrictor.cssClasses);
+
 }
 
-export function removeMovementRestrictionFeedback(element: SModelElement, movementRestrictor: IMovementRestrictor): Action[] {
-    const result: Action[] = [];
-    result.push(new ModifyCSSFeedbackAction(element, undefined, movementRestrictor.cssClasses));
+export function removeMovementRestrictionFeedback(element: SModelElement, movementRestrictor: IMovementRestrictor): ModifyCSSFeedbackAction {
+    const elements: SModelElement[] = [element];
     if (element instanceof SParentElement) {
-        element.children.filter(child => child instanceof SResizeHandle).
-            forEach(child => result.push(new ModifyCSSFeedbackAction(child, undefined, movementRestrictor.cssClasses)));
+        element.children.filter(child => child instanceof SResizeHandle).forEach(e => elements.push(e));
     }
-    return result;
+
+    return new ModifyCSSFeedbackAction(elements, undefined, movementRestrictor.cssClasses);
 }
 
 @injectable()

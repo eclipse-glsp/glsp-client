@@ -341,7 +341,7 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements Sele
         } else if (this.initialBounds) {
             const actions: Action[] = [];
             if (this.tool.movementRestrictor) {
-                actions.push(...removeMovementRestrictionFeedback(element, this.tool.movementRestrictor));
+                actions.push(removeMovementRestrictionFeedback(element, this.tool.movementRestrictor));
             }
             actions.push(new SetBoundsAction([{ elementId: element.id, newPosition: this.initialBounds, newSize: this.initialBounds }]));
             return actions;
@@ -362,14 +362,14 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements Sele
         const result: Action[] = [];
         if (this.isValidBoundChange(element, newPosition, newSize)) {
             if (this.tool.movementRestrictor) {
-                result.push(...removeMovementRestrictionFeedback(element, this.tool.movementRestrictor));
+                result.push(removeMovementRestrictionFeedback(element, this.tool.movementRestrictor));
             }
 
             result.push(new SetBoundsAction([{ elementId: element.id, newPosition, newSize }]));
 
         } else if (this.isValidSize(element, newSize)) {
             if (this.tool.movementRestrictor) {
-                result.push(...createMovementRestrictionFeedback(element, this.tool.movementRestrictor));
+                result.push(createMovementRestrictionFeedback(element, this.tool.movementRestrictor));
             }
             result.push(new SetBoundsAction([{ elementId: element.id, newPosition, newSize }]));
         }
