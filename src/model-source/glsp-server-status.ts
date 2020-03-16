@@ -29,7 +29,7 @@ export class ServerMessageAction implements Action {
     static KIND = 'serverMessage';
 
     kind = ServerMessageAction.KIND;
-    severity: string;
+    severity: 'NONE' | 'INFO' | 'WARNING' | 'ERROR' | 'FATAL';
     message: string;
     details: string = '';
     timeout: number = -1;
