@@ -74,20 +74,19 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler {
     protected createBody(): void {
         const bodyDiv = document.createElement("div");
         bodyDiv.classList.add("palette-body");
-        const compareFn = (a: PaletteItem, b: PaletteItem) => a.sortString.localeCompare(b.sortString);
-        this.paletteItems.sort(compareFn)
+        this.paletteItems.sort(compare)
             .forEach(item => {
                 if (item.children) {
                     const group = createToolGroup(item);
-                    item.children.sort(compareFn).forEach(child => group.appendChild(this.createToolButton(child)));
+                    item.children.sort(compare).forEach(child => group.appendChild(this.createToolButton(child)));
                     bodyDiv.appendChild(group);
                 } else {
                     bodyDiv.appendChild(this.createToolButton(item));
                 }
             });
-
         this.containerElement.appendChild(bodyDiv);
     }
+
     protected createHeader(): void {
         const headerCompartment = document.createElement("div");
         headerCompartment.classList.add("palette-header");
@@ -179,6 +178,14 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler {
             this.changeActiveButton();
         }
     }
+}
+
+export function compare(a: PaletteItem, b: PaletteItem): number {
+    const sortStringBased = a.sortString.localeCompare(b.sortString);
+    if (sortStringBased !== 0) {
+        return sortStringBased;
+    }
+    return a.label.localeCompare(b.label);
 }
 
 export function createIcon(cssClasses: string[]) {
