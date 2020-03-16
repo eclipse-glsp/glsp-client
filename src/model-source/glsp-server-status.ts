@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019 EclipseSource and others.
+ * Copyright (c) 2020 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -15,11 +15,26 @@
  ********************************************************************************/
 import { ServerStatusAction } from "sprotty";
 
+import { Action } from "../";
+
 export class GLSPServerStatusAction extends ServerStatusAction {
-    details: string = '';
     timeout: number = -1;
 }
 
 export function isGLSPServerStatusAction(serverStatusAction: ServerStatusAction): serverStatusAction is GLSPServerStatusAction {
-    return (<GLSPServerStatusAction>serverStatusAction).details !== undefined || (<GLSPServerStatusAction>serverStatusAction).timeout !== undefined;
+    return (<GLSPServerStatusAction>serverStatusAction).timeout !== undefined;
+}
+
+export class ServerMessageAction implements Action {
+    static KIND = 'serverMessage';
+
+    kind = ServerMessageAction.KIND;
+    severity: string;
+    message: string;
+    details: string = '';
+    timeout: number = -1;
+}
+
+export function isServerMessageAction(action: Action): action is ServerMessageAction {
+    return ServerMessageAction.KIND === action.kind && 'severity' in action && 'message' in action;
 }
