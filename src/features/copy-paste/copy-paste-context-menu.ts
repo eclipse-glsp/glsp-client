@@ -28,7 +28,7 @@ import {
 } from "sprotty/lib";
 
 import { GLSP_TYPES } from "../../base/types";
-import { GLSPServerStatusAction } from "../../model-source/glsp-server-status";
+import { GLSPServerStatusAction, ServerMessageAction } from "../../model-source/glsp-server-status";
 import { SelectionService } from "../select/selection-service";
 
 export class InvokeCopyAction implements Action {
@@ -57,17 +57,22 @@ export class InvokeCopyPasteActionHandler implements IActionHandler {
             case InvokePasteAction.KIND:
                 // in a browser without additional permission we can't invoke the paste command
                 // the user needs to invoke it from the browser, so notify the user about it
-                this.dispatcher.dispatch(
-                    <GLSPServerStatusAction>{
-                        kind: GLSPServerStatusAction.KIND, severity: 'WARNING', timeout: 10000,
-                        message: 'Please use the browser\'s paste command or shortcut.'
-                    }
-                );
+                this.notifyUserToUseShortcut();
                 break;
             case InvokeCutAction.KIND:
                 document.execCommand('cut');
                 break;
         }
+    }
+
+    protected notifyUserToUseShortcut() {
+        const message = 'Please use the browser\'s paste command or shortcut.';
+        const timeout = 10000;
+        const severity = 'WARNING';
+        this.dispatcher.dispatchAll([
+            <GLSPServerStatusAction>{ kind: GLSPServerStatusAction.KIND, severity, timeout, message },
+            <ServerMessageAction>{ kind: ServerMessageAction.KIND, severity, timeout, message }
+        ]);
     }
 }
 
