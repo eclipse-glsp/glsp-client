@@ -15,7 +15,7 @@
  ********************************************************************************/
 import { inject, injectable } from "inversify";
 import { TYPES } from "sprotty";
-import uuid = require("uuid");
+import { v4 as uuid } from "uuid";
 
 import { EditorContextService } from "../../base/editor-context";
 import { GLSP_TYPES } from "../../base/types";
