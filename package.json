@@ -27,7 +27,7 @@
     "url": "https://github.com/eclipse-glsp/glsp-client.git"
   },
   "dependencies": {
-    "autocompleter": "^4.0.2",
+    "autocompleter": "5.1.0",
     "sprotty": "next",
     "uuid": "latest",
     "vscode-ws-jsonrpc": "^0.0.2-1"
