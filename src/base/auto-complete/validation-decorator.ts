@@ -18,6 +18,7 @@ import { ValidationStatus } from "../actions/edit-validation-actions";
 export interface IValidationDecorator {
     decorateValidationResult(status: ValidationStatus): void;
     isValidatedOk(): boolean;
+    invalidate(): void;
     dispose(): void;
 }
 
@@ -25,6 +26,7 @@ export namespace IValidationDecorator {
     export const NO_DECORATION: IValidationDecorator = {
         decorateValidationResult(status: ValidationStatus) { },
         isValidatedOk(): boolean { return false; },
+        invalidate() { },
         dispose() { }
     };
 }
@@ -58,19 +60,24 @@ export class ValidationDecorator implements IValidationDecorator {
     }
 
     protected decorateError(message: string): void {
-        this.containerElement.classList.add(...this.errorClasses);
+        this.switchCssClasses(this.containerElement, this.errorClasses);
         const div = this.createDecorationDiv();
-        div.classList.add(...this.errorClasses);
+        this.switchCssClasses(div, this.errorClasses);
         div.innerHTML = `<span class="${this.errorIconClasses.join(' ')}"></span> ${message}`;
         this.adjustPosition();
     }
 
     protected decorateWarning(message: string): void {
-        this.containerElement.classList.add(...this.warningClasses);
+        this.switchCssClasses(this.containerElement, this.warningClasses);
         const div = this.createDecorationDiv();
-        div.classList.add(...this.warningClasses);
+        this.switchCssClasses(div, this.warningClasses);
         div.innerHTML = `<span class="${this.warningIconClasses.join(' ')}"></span> ${message}`;
         this.adjustPosition();
+    }
+
+    protected switchCssClasses(element: HTMLElement, cssClasses: string[]) {
+        element.classList.remove(...this.errorClasses, ...this.warningClasses);
+        element.classList.add(...cssClasses);
     }
 
     protected createDecorationDiv(): HTMLDivElement {
@@ -99,12 +106,16 @@ export class ValidationDecorator implements IValidationDecorator {
         return this.isValidated && !this.hasValidationError;
     }
 
+    invalidate(): void {
+        this.isValidated = false;
+    }
+
     dispose(): void {
         this.hasValidationError = false;
         this.isValidated = false;
         if (this.decorationDiv && this.containerElement && this.containerElement.contains(this.decorationDiv)) {
             this.containerElement.removeChild(this.decorationDiv);
-            this.containerElement.classList.remove(...this.errorClasses, ...this.warningClasses);
+            this.switchCssClasses(this.containerElement, []);
             this.decorationDiv = undefined;
         }
     }

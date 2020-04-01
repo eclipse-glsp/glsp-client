@@ -129,7 +129,7 @@ export class AutoCompleteWidget {
 
     protected invalidateValidationResultAndContextActions() {
         this.contextActions = undefined;
-        this.validationDecorator.dispose();
+        this.validationDecorator.invalidate();
     }
 
     open(root: Readonly<SModelRoot>, ...contextElementIds: string[]) {
@@ -197,7 +197,7 @@ export class AutoCompleteWidget {
         if (this.containerElement.contains(this.loadingIndicator)) {
             this.containerElement.removeChild(this.loadingIndicator);
         }
-        this.validationDecorator.dispose();
+        this.validationDecorator.invalidate();
         this.validateInputIfNoContextActions();
         this.previousContent = this.inputElement.value;
     }
@@ -243,6 +243,8 @@ export class AutoCompleteWidget {
     protected validateInputIfNoContextActions() {
         if (this.isNoOrExactlyOneMatchingContextAction()) {
             this.validateInput();
+        } else {
+            this.validationDecorator.dispose();
         }
     }
 
