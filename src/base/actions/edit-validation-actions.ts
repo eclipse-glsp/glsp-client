@@ -19,6 +19,7 @@ export class RequestEditValidationAction implements RequestAction<SetEditValidat
     static readonly KIND = "requestEditValidation";
     kind = RequestEditValidationAction.KIND;
     constructor(
+        public readonly contextId: string,
         public readonly modelElementId: string,
         public readonly text: string,
         public readonly requestId: string = generateRequestId()) { }
