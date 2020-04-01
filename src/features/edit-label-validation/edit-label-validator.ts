@@ -18,38 +18,38 @@ import {
     Action,
     EditableLabel,
     EditLabelValidationResult,
-    generateRequestId,
     IEditLabelValidationDecorator,
     IEditLabelValidator,
-    RequestAction,
-    ResponseAction,
     Severity,
     SModelElement,
     TYPES
 } from "sprotty";
 
+import {
+    isSetEditValidationResultAction,
+    RequestEditValidationAction,
+    ValidationStatus
+} from "../../base/actions/edit-validation-actions";
 import { GLSPActionDispatcher } from "../request-response/glsp-action-dispatcher";
 
-export class ValidateLabelEditAction implements RequestAction<SetLabelEditValidationResultAction> {
-    static readonly KIND = "validateLabelEdit";
-    kind = ValidateLabelEditAction.KIND;
-    constructor(
-        public readonly value: string,
-        public readonly labelId: string,
-        public readonly requestId: string = generateRequestId()) { }
+export namespace LabelEditValidation {
+    export const CONTEXT_ID = 'label-edit';
+    export function toEditLabelValidationResult(status: ValidationStatus): EditLabelValidationResult {
+        const message = status.message;
+        let severity = <Severity>'ok';
+        if (ValidationStatus.isError(status)) {
+            severity = <Severity>'error';
+        } else if (ValidationStatus.isWarning(status)) {
+            severity = <Severity>'warning';
+        }
+        return { message, severity };
+    }
 }
 
-export class SetLabelEditValidationResultAction implements ResponseAction {
-    static readonly KIND = "setLabelEditValidationResult";
-    kind = SetLabelEditValidationResultAction.KIND;
-    constructor(
-        public readonly result: EditLabelValidationResult,
-        public readonly responseId: string = '') { }
-}
-
-export function isSetLabelEditValidationResultAction(action: Action): action is SetLabelEditValidationResultAction {
-    return action !== undefined && (action.kind === SetLabelEditValidationResultAction.KIND)
-        && (<SetLabelEditValidationResultAction>action).result !== undefined;
+export class ValidateLabelEditAction extends RequestEditValidationAction {
+    constructor(value: string, labelId: string) {
+        super(LabelEditValidation.CONTEXT_ID, labelId, value);
+    }
 }
 
 @injectable()
@@ -63,8 +63,8 @@ export class ServerEditLabelValidator implements IEditLabelValidator {
     }
 
     getValidationResultFromResponse(action: Action): EditLabelValidationResult {
-        if (isSetLabelEditValidationResultAction(action)) {
-            return action.result;
+        if (isSetEditValidationResultAction(action)) {
+            return LabelEditValidation.toEditLabelValidationResult(action.status);
         }
         return { severity: <Severity>'ok' };
     }
