@@ -19,7 +19,7 @@ import { toArray } from "sprotty/lib/utils/iterable";
 import { matchesKeystroke } from "sprotty/lib/utils/keyboard";
 
 import { ValidationStatus } from "../actions/edit-validation-actions";
-import { SetAutoCompleteValueAction } from "./auto-complete-actions";
+import { isSetAutoCompleteValueAction } from "./auto-complete-actions";
 import { IValidationDecorator } from "./validation-decorator";
 
 export interface AutoCompleteSettings {
@@ -29,24 +29,24 @@ export interface AutoCompleteSettings {
     readonly showOnFocus: boolean;
 }
 
-export abstract class InputValidator {
-    abstract validate(input: string): Promise<ValidationStatus>;
+export interface InputValidator {
+    validate(input: string): Promise<ValidationStatus>;
 }
 
-export abstract class SuggestionProvider {
-    abstract provideSuggestions(input: string): Promise<LabeledAction[]>;
+export interface SuggestionProvider {
+    provideSuggestions(input: string): Promise<LabeledAction[]>;
 }
 
-export abstract class InputValueInitializer {
-    abstract initializeValue(containerElement: HTMLElement, root: Readonly<SModelRoot>, ...contextElementIds: string[]): string;
+export interface InputValueInitializer {
+    initializeValue(containerElement: HTMLElement, root: Readonly<SModelRoot>, ...contextElementIds: string[]): string;
 }
 
-export abstract class SuggestionSubmitHandler {
-    abstract executeFromSuggestion(input: LabeledAction | Action | Action[]): void;
+export interface SuggestionSubmitHandler {
+    executeFromSuggestion(input: LabeledAction | Action | Action[]): void;
 }
 
-export abstract class TextSubmitHandler {
-    abstract executeFromTextOnlyInput(input: string): void;
+export interface TextSubmitHandler {
+    executeFromTextOnlyInput(input: string): void;
 }
 
 const configureAutocomplete: (settings: AutocompleteSettings<LabeledAction>) => AutocompleteResult = require('autocompleter');
@@ -230,7 +230,7 @@ export class AutoCompleteWidget {
     }
 
     protected onSelect(item: LabeledAction) {
-        if (SetAutoCompleteValueAction.is(item)) {
+        if (isSetAutoCompleteValueAction(item)) {
             this.inputElement.value = item.text;
             // trigger update of suggestions with an keyup event
             window.setTimeout(() => this.inputElement.dispatchEvent(new Event('keyup')));

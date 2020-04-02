@@ -19,8 +19,6 @@ export interface SetAutoCompleteValueAction extends LabeledAction {
     readonly text: string;
 }
 
-export namespace SetAutoCompleteValueAction {
-    export function is(action: LabeledAction): action is SetAutoCompleteValueAction {
-        return action !== undefined && (<SetAutoCompleteValueAction>action).text !== undefined;
-    }
+export function isSetAutoCompleteValueAction(action: LabeledAction): action is SetAutoCompleteValueAction {
+    return action !== undefined && (<SetAutoCompleteValueAction>action).text !== undefined;
 }
