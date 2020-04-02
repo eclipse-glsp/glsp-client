@@ -36,6 +36,8 @@ import { GlspRedoAction, GlspUndoAction } from "../features/undo-redo/model";
 import { RequestMarkersAction } from "../features/validation/validate";
 import { ValidateLabelEditAction } from "../features/edit-label-validation/edit-label-validator";
 import { RequestClipboardDataAction, PasteOperationAction, CutOperationAction } from "../features/copy-paste/copy-paste-actions";
+import { RequestEditValidationAction } from "../base/actions/edit-validation-actions";
+
 @injectable()
 export class GLSPWebsocketDiagramServer extends DiagramServer {
     protected _sourceUri: string;
@@ -109,6 +111,7 @@ export function registerDefaultGLSPServerActions(registry: ActionHandlerRegistry
     registry.register(RequestClipboardDataAction.KIND, diagramServer);
     registry.register(PasteOperationAction.KIND, diagramServer);
     registry.register(CutOperationAction.KIND, diagramServer);
+    registry.register(RequestEditValidationAction.KIND, diagramServer);
 
     // Register an empty handler for SwitchEditMode, to avoid runtime exceptions.
     // We don't want to support SwitchEditMode, but sprotty still sends some corresponding
