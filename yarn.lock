@@ -1233,9 +1233,9 @@ sprintf-js@~1.0.2:
   integrity sha1-BOaSb2YolTVPPdAVIDYzuFcpfiw=
 
 sprotty@next:
-  version "0.8.0-next.15163a3"
-  resolved "https://registry.yarnpkg.com/sprotty/-/sprotty-0.8.0-next.15163a3.tgz#9c3da255955651c7b0ddb1f543f0651c6ef4039c"
-  integrity sha512-vudzv1V4IG1YSQ2KBGhojn1sX9y6bJNCrKwDTaQyRz1ndXrxbODWfCBtWtJ7sVq5Huv1zL1IRJWGVLyXo0mwsw==
+  version "0.8.0-next.b8a6e44"
+  resolved "https://registry.yarnpkg.com/sprotty/-/sprotty-0.8.0-next.b8a6e44.tgz#4d05bef1274787555a664520ebd18bc3ce73a90d"
+  integrity sha512-S6zj7lIJg9RGRMa4bCvsCUR1MM4sqOT6lssfMSy3XYhtwEgWhFzlzm+5poQsEKz9mMVEu4L/QWeLgCHGH4jYnA==
   dependencies:
     autocompleter "5.1.0"
     file-saver "2.0.2"
