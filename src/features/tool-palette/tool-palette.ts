@@ -48,12 +48,13 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler {
     @inject(TYPES.IToolManager) protected readonly toolManager: IToolManager;
     static readonly ID = "tool-palette";
 
-    readonly id = ToolPalette.ID;
-    readonly containerClass = "tool-palette";
     protected paletteItems: PaletteItem[];
     protected lastActivebutton?: HTMLElement;
     protected defaultToolsButton: HTMLElement;
     modelRootId: string;
+
+    id() { return ToolPalette.ID; }
+    containerClass() { return ToolPalette.ID; }
 
     initialize() {
         if (!this.paletteItems) {
