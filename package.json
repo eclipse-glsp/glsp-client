@@ -29,7 +29,7 @@
   "dependencies": {
     "autocompleter": "5.1.0",
     "sprotty": "next",
-    "uuid": "latest",
+    "uuid": "7.0.3",
     "vscode-ws-jsonrpc": "^0.0.2-1"
   },
   "devDependencies": {
