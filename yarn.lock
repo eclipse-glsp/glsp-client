@@ -1232,10 +1232,10 @@ sprintf-js@~1.0.2:
   resolved "https://registry.yarnpkg.com/sprintf-js/-/sprintf-js-1.0.3.tgz#04e6926f662895354f3dd015203633b857297e2c"
   integrity sha1-BOaSb2YolTVPPdAVIDYzuFcpfiw=
 
-sprotty@next:
-  version "0.8.0-next.b8a6e44"
-  resolved "https://registry.yarnpkg.com/sprotty/-/sprotty-0.8.0-next.b8a6e44.tgz#4d05bef1274787555a664520ebd18bc3ce73a90d"
-  integrity sha512-S6zj7lIJg9RGRMa4bCvsCUR1MM4sqOT6lssfMSy3XYhtwEgWhFzlzm+5poQsEKz9mMVEu4L/QWeLgCHGH4jYnA==
+sprotty@0.9.0-next.7028f2a:
+  version "0.9.0-next.7028f2a"
+  resolved "https://registry.yarnpkg.com/sprotty/-/sprotty-0.9.0-next.7028f2a.tgz#48bae07b119f561b225159d66c43ada8174fb6f3"
+  integrity sha512-XiI/8WXqjJM8KXu68wujwJRC8V2hqusgyTHu2XdAANLngbpWPRYhFCqvmtMiH7lsFLSHSdv1JYp5KvUaI3YoWA==
   dependencies:
     autocompleter "5.1.0"
     file-saver "2.0.2"
