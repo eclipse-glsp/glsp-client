@@ -60,6 +60,10 @@
     fill: #66a;
 }
 
+.sprotty-resize-handle.active {
+    fill: var(--theia-menu-selectionBackground);
+}
+
 .sprotty-resize-handle.mouseover {
     stroke: #112;
     stroke-width: 1;
@@ -87,4 +91,8 @@
 
 .edge-creation-select-target-mode, .edge-reconnect-select-target-mode {
     cursor: crosshair;
+}
+
+.resize-mode {
+    cursor: none;
 }

@@ -43,7 +43,7 @@ import {
     ElementAndRoutingPoints
 } from "../../base/operations/operation";
 import { GLSP_TYPES } from "../../base/types";
-import { isValidMove, isValidSize } from "../../utils/layout-utils";
+import { isValidMove, isValidSize, WriteablePoint } from "../../utils/layout-utils";
 import {
     forEachElement,
     isNonRoutableSelectedMovableBoundsAware,
@@ -63,6 +63,7 @@ import {
     HideChangeBoundsToolResizeFeedbackAction,
     ShowChangeBoundsToolResizeFeedbackAction
 } from "../tool-feedback/change-bounds-tool-feedback";
+import { applyCssClasses, CursorCSS, cursorFeedbackAction, deleteCssClasses } from "../tool-feedback/css-feedback";
 import { IFeedbackActionDispatcher, IFeedbackEmitter } from "../tool-feedback/feedback-action-dispatcher";
 import { DragAwareMouseListener } from "./drag-aware-mouse-listener";
 
@@ -133,10 +134,9 @@ export class ChangeBoundsTool implements Tool {
 
 export class ChangeBoundsListener extends DragAwareMouseListener implements SelectionListener {
     // members for calculating the correct position change
-    protected lastDragPosition?: Point;
-    protected positionDelta: Point = { x: 0, y: 0 };
-    protected initialPositon: Point | undefined = undefined;
     protected initialBounds: Bounds | undefined;
+    protected lastDragPosition?: Point;
+    protected positionDelta: WriteablePoint = { x: 0, y: 0 };
 
     // members for resize mode
     protected activeResizeElementId?: string;
@@ -167,10 +167,16 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements Sele
 
     mouseMove(target: SModelElement, event: MouseEvent): Action[] {
         super.mouseMove(target, event);
-        if (this.updatePosition(target, event) && this.activeResizeHandle) {
+        if (this.isMouseDrag && this.activeResizeHandle) {
             // rely on the FeedbackMoveMouseListener to update the element bounds of selected elements
             // consider resize handles ourselves
-            return this.handleElementResize();
+            const actions: Action[] = [cursorFeedbackAction(CursorCSS.RESIZE), applyCssClasses(this.activeResizeHandle, 'active')];
+            const positionUpdate = this.updatePosition(target, event);
+            if (positionUpdate) {
+                const resizeActions = this.handleElementResize(positionUpdate);
+                actions.push(...resizeActions);
+            }
+            return actions;
         }
         return [];
     }
@@ -180,10 +186,12 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements Sele
             this.resetPosition();
             return [];
         }
-
         const actions: Action[] = [];
+
         if (this.activeResizeHandle) {
             // Resize, not move
+            actions.push(cursorFeedbackAction(CursorCSS.DEFAULT));
+            actions.push(deleteCssClasses(this.activeResizeHandle, 'active'));
             const resizeElement = findParentByFeature(this.activeResizeHandle, isResizable);
             if (this.isActiveResizeElement(resizeElement)) {
                 this.createChangeBoundsAction(resizeElement).forEach(action => actions.push(action));
@@ -247,27 +255,41 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements Sele
     }
 
     protected initPosition(event: MouseEvent) {
-        this.initialPositon = { x: event.pageX, y: event.pageY };
         this.lastDragPosition = { x: event.pageX, y: event.pageY };
         if (this.activeResizeHandle) {
             const resizeElement = findParentByFeature(this.activeResizeHandle, isResizable);
             this.initialBounds = { x: resizeElement!.bounds.x, y: resizeElement!.bounds.y, width: resizeElement!.bounds.width, height: resizeElement!.bounds.height };
         }
-
     }
 
-    protected updatePosition(target: SModelElement, event: MouseEvent): boolean {
+    protected updatePosition(target: SModelElement, event: MouseEvent): Point | undefined {
         if (this.lastDragPosition) {
+            const newDragPosition = { x: event.pageX, y: event.pageY };
+
             const viewport = findParentByFeature(target, isViewport);
             const zoom = viewport ? viewport.zoom : 1;
             const dx = (event.pageX - this.lastDragPosition.x) / zoom;
             const dy = (event.pageY - this.lastDragPosition.y) / zoom;
+            const deltaToLastPosition = { x: dx, y: dy };
+            this.lastDragPosition = newDragPosition;
 
-            this.positionDelta = { x: dx, y: dy };
-            this.lastDragPosition = { x: event.pageX, y: event.pageY };
-            return true;
+            // update position delta with latest delta
+            this.positionDelta.x += deltaToLastPosition.x;
+            this.positionDelta.y += deltaToLastPosition.y;
+
+            // snap our delta and only send update if the position actually changes
+            // otherwise accumulate delta until we do snap to an update
+            const positionUpdate = this.snap(this.positionDelta, target, !event.shiftKey);
+            if (positionUpdate.x === 0 && positionUpdate.y === 0) {
+                return undefined;
+            }
+
+            // we update our position so we need to reset our delta
+            this.positionDelta.x = 0;
+            this.positionDelta.y = 0;
+            return positionUpdate;
         }
-        return false;
+        return undefined;
     }
 
     protected reset() {
@@ -278,11 +300,10 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements Sele
     protected resetPosition() {
         this.activeResizeHandle = undefined;
         this.lastDragPosition = undefined;
-        this.initialPositon = undefined;
         this.positionDelta = { x: 0, y: 0 };
     }
 
-    protected handleElementResize(): Action[] {
+    protected handleElementResize(positionUpdate: Point): Action[] {
         if (!this.activeResizeHandle) {
             return [];
         }
@@ -291,48 +312,48 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements Sele
         if (this.isActiveResizeElement(resizeElement)) {
             switch (this.activeResizeHandle.location) {
                 case ResizeHandleLocation.TopLeft:
-                    return this.handleTopLeftResize(resizeElement);
+                    return this.handleTopLeftResize(resizeElement, positionUpdate);
                 case ResizeHandleLocation.TopRight:
-                    return this.handleTopRightResize(resizeElement);
+                    return this.handleTopRightResize(resizeElement, positionUpdate);
                 case ResizeHandleLocation.BottomLeft:
-                    return this.handleBottomLeftResize(resizeElement);
+                    return this.handleBottomLeftResize(resizeElement, positionUpdate);
                 case ResizeHandleLocation.BottomRight:
-                    return this.handleBottomRightResize(resizeElement);
+                    return this.handleBottomRightResize(resizeElement, positionUpdate);
             }
         }
         return [];
     }
 
-    protected handleTopLeftResize(resizeElement: SParentElement & Resizable): Action[] {
+    protected handleTopLeftResize(resizeElement: SParentElement & Resizable, positionUpdate: Point): Action[] {
         return this.createSetBoundsAction(resizeElement,
-            resizeElement.bounds.x + this.positionDelta.x,
-            resizeElement.bounds.y + this.positionDelta.y,
-            resizeElement.bounds.width - this.positionDelta.x,
-            resizeElement.bounds.height - this.positionDelta.y);
+            resizeElement.bounds.x + positionUpdate.x,
+            resizeElement.bounds.y + positionUpdate.y,
+            resizeElement.bounds.width - positionUpdate.x,
+            resizeElement.bounds.height - positionUpdate.y);
     }
 
-    protected handleTopRightResize(resizeElement: SParentElement & Resizable): Action[] {
+    protected handleTopRightResize(resizeElement: SParentElement & Resizable, positionUpdate: Point): Action[] {
         return this.createSetBoundsAction(resizeElement,
             resizeElement.bounds.x,
-            resizeElement.bounds.y + this.positionDelta.y,
-            resizeElement.bounds.width + this.positionDelta.x,
-            resizeElement.bounds.height - this.positionDelta.y);
+            resizeElement.bounds.y + positionUpdate.y,
+            resizeElement.bounds.width + positionUpdate.x,
+            resizeElement.bounds.height - positionUpdate.y);
     }
 
-    protected handleBottomLeftResize(resizeElement: SParentElement & Resizable): Action[] {
+    protected handleBottomLeftResize(resizeElement: SParentElement & Resizable, positionUpdate: Point): Action[] {
         return this.createSetBoundsAction(resizeElement,
-            resizeElement.bounds.x + this.positionDelta.x,
+            resizeElement.bounds.x + positionUpdate.x,
             resizeElement.bounds.y,
-            resizeElement.bounds.width - this.positionDelta.x,
-            resizeElement.bounds.height + this.positionDelta.y);
+            resizeElement.bounds.width - positionUpdate.x,
+            resizeElement.bounds.height + positionUpdate.y);
     }
 
-    protected handleBottomRightResize(resizeElement: SParentElement & Resizable): Action[] {
+    protected handleBottomRightResize(resizeElement: SParentElement & Resizable, positionUpdate: Point): Action[] {
         return this.createSetBoundsAction(resizeElement,
             resizeElement.bounds.x,
             resizeElement.bounds.y,
-            resizeElement.bounds.width + this.positionDelta.x,
-            resizeElement.bounds.height + this.positionDelta.y);
+            resizeElement.bounds.width + positionUpdate.x,
+            resizeElement.bounds.height + positionUpdate.y);
     }
 
     protected createChangeBoundsAction(element: SModelElement & BoundsAware): Action[] {
@@ -360,11 +381,11 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements Sele
         const newPosition = { x, y };
         const newSize = { width, height };
         const result: Action[] = [];
+
         if (this.isValidBoundChange(element, newPosition, newSize)) {
             if (this.tool.movementRestrictor) {
                 result.push(removeMovementRestrictionFeedback(element, this.tool.movementRestrictor));
             }
-
             result.push(new SetBoundsAction([{ elementId: element.id, newPosition, newSize }]));
 
         } else if (this.isValidSize(element, newSize)) {
@@ -373,8 +394,14 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements Sele
             }
             result.push(new SetBoundsAction([{ elementId: element.id, newPosition, newSize }]));
         }
-        return result;
 
+        return result;
+    }
+
+    protected snap(position: Point, element: SModelElement, isSnap: boolean): Point {
+        return isSnap && this.tool.snapper
+            ? this.tool.snapper.snap(position, element)
+            : { x: position.x, y: position.y };
     }
 
     protected isValidBoundChange(element: SModelElement & BoundsAware, newPosition: Point, newSize: Dimension): boolean {

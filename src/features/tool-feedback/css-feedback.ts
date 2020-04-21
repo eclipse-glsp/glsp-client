@@ -62,7 +62,8 @@ export enum CursorCSS {
     EDGE_CREATION_TARGET = 'edge-creation-select-target-mode',
     EDGE_RECONNECT = 'edge-reconnect-select-target-mode',
     OPERATION_NOT_ALLOWED = 'edge-modification-not-allowed-mode',
-    ELEMENT_DELETION = "element-deletion-mode"
+    ELEMENT_DELETION = "element-deletion-mode",
+    RESIZE = "resize-mode"
 }
 
 export function cursorFeedbackAction(cursorCss?: CursorCSS): ModifyCSSFeedbackAction {
@@ -73,5 +74,10 @@ export function cursorFeedbackAction(cursorCss?: CursorCSS): ModifyCSSFeedbackAc
     return new ModifyCSSFeedbackAction(undefined, addCss, Object.values(CursorCSS));
 }
 
+export function applyCssClasses(element: SModelElement, ...classes: string[]) {
+    return new ModifyCSSFeedbackAction([element], classes, []);
+}
 
-
+export function deleteCssClasses(element: SModelElement, ...classes: string[]) {
+    return new ModifyCSSFeedbackAction([element], [], classes);
+}
