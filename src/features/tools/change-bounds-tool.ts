@@ -22,6 +22,7 @@ import {
     EdgeRouterRegistry,
     ElementAndBounds,
     findParentByFeature,
+    IActionDispatcher,
     ISnapper,
     isSelected,
     isViewport,
@@ -93,6 +94,7 @@ export class ChangeBoundsTool implements Tool {
         @inject(GLSP_TYPES.MouseTool) protected mouseTool: IMouseTool,
         @inject(KeyTool) protected keyTool: KeyTool,
         @inject(GLSP_TYPES.IFeedbackActionDispatcher) protected feedbackDispatcher: IFeedbackActionDispatcher,
+        @inject(TYPES.IActionDispatcher) protected actionDispatcher: IActionDispatcher,
         @inject(EdgeRouterRegistry) @optional() readonly edgeRouterRegistry?: EdgeRouterRegistry,
         @inject(TYPES.ISnapper) @optional() readonly snapper?: ISnapper,
         @inject(GLSP_TYPES.IMovementRestrictor) @optional() readonly movementRestrictor?: IMovementRestrictor) { }
@@ -130,9 +132,15 @@ export class ChangeBoundsTool implements Tool {
     dispatchFeedback(feedbackEmmmiter: IFeedbackEmitter, actions: Action[]) {
         this.feedbackDispatcher.registerFeedback(feedbackEmmmiter, actions);
     }
+
+    dispatchAction(action: Action) {
+        this.actionDispatcher.dispatch(action);
+    }
 }
 
 export class ChangeBoundsListener extends DragAwareMouseListener implements SelectionListener {
+    static readonly CSS_CLASS_ACTIVE = 'active';
+
     // members for calculating the correct position change
     protected initialBounds: Bounds | undefined;
     protected lastDragPosition?: Point;
@@ -170,10 +178,10 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements Sele
         if (this.isMouseDrag && this.activeResizeHandle) {
             // rely on the FeedbackMoveMouseListener to update the element bounds of selected elements
             // consider resize handles ourselves
-            const actions: Action[] = [cursorFeedbackAction(CursorCSS.RESIZE), applyCssClasses(this.activeResizeHandle, 'active')];
+            const actions: Action[] = [cursorFeedbackAction(CursorCSS.RESIZE), applyCssClasses(this.activeResizeHandle, ChangeBoundsListener.CSS_CLASS_ACTIVE)];
             const positionUpdate = this.updatePosition(target, event);
             if (positionUpdate) {
-                const resizeActions = this.handleElementResize(positionUpdate);
+                const resizeActions = this.handleResizeOnClient(positionUpdate);
                 actions.push(...resizeActions);
             }
             return actions;
@@ -189,34 +197,59 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements Sele
         const actions: Action[] = [];
 
         if (this.activeResizeHandle) {
-            // Resize, not move
-            actions.push(cursorFeedbackAction(CursorCSS.DEFAULT));
-            actions.push(deleteCssClasses(this.activeResizeHandle, 'active'));
-            const resizeElement = findParentByFeature(this.activeResizeHandle, isResizable);
-            if (this.isActiveResizeElement(resizeElement)) {
-                this.createChangeBoundsAction(resizeElement).forEach(action => actions.push(action));
-            }
+            // Resize
+            actions.push(...this.handleResize(this.activeResizeHandle));
         } else {
             // Move
-            const newBounds: ElementAndBounds[] = [];
-            const newRoutingPoints: ElementAndRoutingPoints[] = [];
-            forEachElement(target, isNonRoutableSelectedMovableBoundsAware, element => {
-                this.createElementAndBounds(element).forEach(bounds => newBounds.push(bounds));
-                //  If client routing is enabled -> delegate routingpoints of connected edges to server
-                if (this.tool.edgeRouterRegistry && element instanceof SConnectableElement) {
-                    element.incomingEdges.map(toElementAndRoutingPoints).forEach(ear => newRoutingPoints.push(ear));
-                    element.outgoingEdges.map(toElementAndRoutingPoints).forEach(ear => newRoutingPoints.push(ear));
-                }
-            });
-
-            if (newBounds.length > 0) {
-                actions.push(new ChangeBoundsOperation(newBounds));
-            }
-            if (newRoutingPoints.length > 0) {
-                actions.push(new ChangeRoutingPointsOperation(newRoutingPoints));
-            }
+            actions.push(...this.handleMoveOnServer(target));
         }
         this.resetPosition();
+        return actions;
+    }
+
+    protected handleMoveOnServer(target: SModelElement): Action[] {
+        const actions: Action[] = [];
+        actions.push(...this.handleMoveElementsOnServer(target));
+        actions.push(...this.handleMoveRoutingPointsOnServer(target));
+        return actions;
+    }
+
+    protected handleMoveElementsOnServer(target: SModelElement) {
+        const actions: Action[] = [];
+        const newBounds: ElementAndBounds[] = [];
+        forEachElement(target, isNonRoutableSelectedMovableBoundsAware, element => {
+            this.createElementAndBounds(element).forEach(bounds => newBounds.push(bounds));
+        });
+        if (newBounds.length > 0) {
+            actions.push(new ChangeBoundsOperation(newBounds));
+        }
+        return actions;
+    }
+
+    protected handleMoveRoutingPointsOnServer(target: SModelElement) {
+        const actions: Action[] = [];
+        const newRoutingPoints: ElementAndRoutingPoints[] = [];
+        forEachElement(target, isNonRoutableSelectedMovableBoundsAware, element => {
+            //  If client routing is enabled -> delegate routingpoints of connected edges to server
+            if (this.tool.edgeRouterRegistry && element instanceof SConnectableElement) {
+                element.incomingEdges.map(toElementAndRoutingPoints).forEach(ear => newRoutingPoints.push(ear));
+                element.outgoingEdges.map(toElementAndRoutingPoints).forEach(ear => newRoutingPoints.push(ear));
+            }
+        });
+        if (newRoutingPoints.length > 0) {
+            actions.push(new ChangeRoutingPointsOperation(newRoutingPoints));
+        }
+        return actions;
+    }
+
+    protected handleResize(activeResizeHandle: SResizeHandle): Action[] {
+        const actions: Action[] = [];
+        actions.push(cursorFeedbackAction(CursorCSS.DEFAULT));
+        actions.push(deleteCssClasses(activeResizeHandle, ChangeBoundsListener.CSS_CLASS_ACTIVE));
+        const resizeElement = findParentByFeature(activeResizeHandle, isResizable);
+        if (this.isActiveResizeElement(resizeElement)) {
+            this.createChangeBoundsAction(resizeElement).forEach(action => actions.push(action));
+        }
         return actions;
     }
 
@@ -294,6 +327,7 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements Sele
 
     protected reset() {
         this.tool.dispatchFeedback(this, [new HideChangeBoundsToolResizeFeedbackAction()]);
+        this.tool.dispatchAction(cursorFeedbackAction(CursorCSS.DEFAULT));
         this.resetPosition();
     }
 
@@ -303,7 +337,7 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements Sele
         this.positionDelta = { x: 0, y: 0 };
     }
 
-    protected handleElementResize(positionUpdate: Point): Action[] {
+    protected handleResizeOnClient(positionUpdate: Point): Action[] {
         if (!this.activeResizeHandle) {
             return [];
         }
