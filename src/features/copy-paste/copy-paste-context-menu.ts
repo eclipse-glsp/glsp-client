@@ -19,7 +19,6 @@ import {
     IActionDispatcher,
     IActionHandler,
     IContextMenuItemProvider,
-    isDeletable,
     isSelected,
     MenuItem,
     Point,
@@ -27,9 +26,7 @@ import {
     TYPES
 } from "sprotty/lib";
 
-import { GLSP_TYPES } from "../../base/types";
 import { GLSPServerStatusAction, ServerMessageAction } from "../../model-source/glsp-server-status";
-import { SelectionService } from "../select/selection-service";
 
 export class InvokeCopyAction implements Action {
     static readonly KIND = "invoke-copy";
@@ -78,31 +75,20 @@ export class InvokeCopyPasteActionHandler implements IActionHandler {
 
 @injectable()
 export class CopyPasteContextMenuItemProvider implements IContextMenuItemProvider {
-    @inject(GLSP_TYPES.SelectionService) protected selectionService: SelectionService;
     getItems(root: Readonly<SModelRoot>, lastMousePosition?: Point): Promise<MenuItem[]> {
-        const selectedElements = Array.from(root.index.all().filter(isSelected).filter(isDeletable));
-        this.selectionService.updateSelection(root, selectedElements.map(element => element.id), []);
+        const hasSelectedElements = Array.from(root.index.all().filter(isSelected)).length > 0;
         return Promise.resolve([
             {
-                id: "copy",
-                label: "Copy",
-                group: "copy-paste",
-                actions: [new InvokeCopyAction()],
-                isEnabled: () => selectedElements.length > 0
+                id: "copy", label: "Copy", group: "copy-paste",
+                actions: [new InvokeCopyAction()], isEnabled: () => hasSelectedElements
             },
             {
-                id: "cut",
-                label: "Cut",
-                group: "copy-paste",
-                actions: [new InvokeCutAction()],
-                isEnabled: () => selectedElements.length > 0
+                id: "cut", label: "Cut", group: "copy-paste",
+                actions: [new InvokeCutAction()], isEnabled: () => hasSelectedElements
             },
             {
-                id: "paste",
-                label: "Paste",
-                group: "copy-paste",
-                actions: [new InvokePasteAction()],
-                isEnabled: () => true
+                id: "paste", label: "Paste", group: "copy-paste",
+                actions: [new InvokePasteAction()], isEnabled: () => true
             }
         ]);
     }

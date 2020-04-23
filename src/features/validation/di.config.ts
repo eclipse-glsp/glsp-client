@@ -14,15 +14,33 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { ContainerModule } from "inversify";
-import { configureCommand } from "sprotty";
+import { configureCommand, TYPES } from "sprotty";
 
+import { GLSP_TYPES } from "../../base/types";
+import {
+    LeftToRightTopToBottomComparator,
+    MarkerNavigator,
+    MarkerNavigatorContextMenuItemProvider,
+    MarkerNavigatorKeyListener,
+    NavigateToMarkerCommand,
+    SModelElementComparator
+} from "./marker-navigator";
 import { ApplyMarkersCommand, ClearMarkersCommand, SetMarkersCommand, ValidationFeedbackEmitter } from "./validate";
 
-const validationModule = new ContainerModule((bind, _unbind, isBound) => {
+export const validationModule = new ContainerModule((bind, _unbind, isBound) => {
     configureCommand({ bind, isBound }, SetMarkersCommand);
     configureCommand({ bind, isBound }, ApplyMarkersCommand);
     configureCommand({ bind, isBound }, ClearMarkersCommand);
     bind(ValidationFeedbackEmitter).toSelf().inSingletonScope();
 });
 
-export default validationModule;
+export const markerNavigatorModule = new ContainerModule((bind, _unbind, isBound) => {
+    bind(SModelElementComparator).to(LeftToRightTopToBottomComparator).inSingletonScope();
+    bind(MarkerNavigator).toSelf().inSingletonScope();
+    configureCommand({ bind, isBound }, NavigateToMarkerCommand);
+});
+
+export const markerNavigatorContextMenuModule = new ContainerModule((bind, _unbind, isBound) => {
+    bind(GLSP_TYPES.IContextMenuProvider).to(MarkerNavigatorContextMenuItemProvider).inSingletonScope();
+    bind(TYPES.KeyListener).to(MarkerNavigatorKeyListener).inSingletonScope();
+});

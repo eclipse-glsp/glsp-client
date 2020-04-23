@@ -17,6 +17,7 @@ import {
     BoundsAware,
     isBoundsAware,
     isMoveable,
+    isSelectable,
     isSelected,
     Selectable,
     SModelElement,
@@ -96,6 +97,10 @@ export function isRoutable<T extends SModelElement>(element: T): element is T & 
 
 export function isRoutingHandle(element: SModelElement | undefined): element is SRoutingHandle {
     return element !== undefined && element instanceof SRoutingHandle;
+}
+
+export function isSelectableAndBoundsAware(element: SModelElement): element is BoundsAware & Selectable & SModelElement {
+    return isSelectable(element) && isBoundsAware(element);
 }
 
 export type SelectableBoundsAware = SModelElement & BoundsAware & Selectable;
