@@ -13,6 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { SIssueMarker, SParentElement } from "sprotty";
 
 export namespace MarkerKind {
     export const INFO = "info";
@@ -20,13 +21,31 @@ export namespace MarkerKind {
     export const ERROR = "error";
 }
 
+export namespace MarkerPredicates {
+    export const ALL = () => true;
+    export const ERRORS = (marker: SIssueMarker) => hasIssueWithSeverity(marker, MarkerKind.ERROR);
+    export const WARNINGS = (marker: SIssueMarker) => hasIssueWithSeverity(marker, MarkerKind.WARNING);
+    export const INFOS = (marker: SIssueMarker) => hasIssueWithSeverity(marker, MarkerKind.INFO);
+
+    export function hasIssueWithSeverity(marker: SIssueMarker, severity: 'info' | 'warning' | 'error') {
+        return marker.issues.find(issue => issue.severity === severity) !== undefined;
+    }
+}
+
+export function collectIssueMarkers(root: SParentElement): SIssueMarker[] {
+    const markers = [];
+    for (const child of root.children) {
+        if (child instanceof SIssueMarker) {
+            markers.push(child);
+        }
+        markers.push(...collectIssueMarkers(child));
+    }
+    return markers;
+}
+
 export interface Marker {
-
     readonly label: string;
-
     readonly description: string;
-
     readonly elementId: string;
-
     readonly kind: string;
 }

@@ -29,7 +29,7 @@ import glspSelectModule from "./features/select/di.config";
 import toolFeedbackModule from "./features/tool-feedback/di.config";
 import paletteModule from "./features/tool-palette/di.config";
 import toolsModule from "./features/tools/di.config";
-import validationModule from "./features/validation/di.config";
+import { markerNavigatorContextMenuModule, markerNavigatorModule, validationModule } from "./features/validation/di.config";
 
 export * from 'sprotty';
 
@@ -91,5 +91,5 @@ export * from './model-source/glsp-server-status';
 export {
     validationModule, saveModule, executeCommandModule, paletteModule, toolFeedbackModule, defaultGLSPModule, modelHintsModule, glspCommandPaletteModule, requestResponseModule, //
     glspContextMenuModule, glspServerCopyPasteModule, copyPasteContextMenuModule, glspSelectModule, glspMouseToolModule, layoutCommandsModule, glspEditLabelValidationModule, //
-    glspHoverModule, toolsModule
+    glspHoverModule, toolsModule, markerNavigatorModule, markerNavigatorContextMenuModule,
 };
