@@ -38,6 +38,7 @@ export * from './base/operations/operation';
 export * from './base/command-stack';
 export * from './base/editor-context';
 export * from './base/selection-clearing-mouse-listener';
+export * from './base/source-uri-aware';
 export * from './features/change-bounds/model';
 export * from './features/change-bounds/movement-restrictor';
 export * from './features/change-bounds/snap';
