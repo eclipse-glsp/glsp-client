@@ -13,11 +13,37 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { inject } from "inversify";
 import { Action, ActionDispatcher, isResponseAction, RequestAction, ResponseAction } from "sprotty";
+
+import { ModelInitializationConstraint } from "./model-initialization-constraint";
 
 export class GLSPActionDispatcher extends ActionDispatcher {
 
     protected readonly timeouts: Map<string, NodeJS.Timeout> = new Map();
+
+    @inject(ModelInitializationConstraint) protected initiailizationConstraint: ModelInitializationConstraint;
+    protected onModelInitialized: Promise<void> = Promise.resolve();
+
+    initialize(): Promise<void> {
+        return super.initialize().then(() => this.startModelInitialization());
+    }
+
+    startModelInitialization() {
+        this.logger.log(this, 'Starting model initialization mode');
+        this.onModelInitialized = this.initiailizationConstraint.onInitialized();
+        this.onModelInitialized.then(() => this.logger.log(this, 'Model initialization completed'));
+    }
+
+    onceModelInitialized(): Promise<void> {
+        return this.onModelInitialized;
+    }
+
+    dispatch(action: Action): Promise<void> {
+        const result = super.dispatch(action);
+        this.initiailizationConstraint.notifyDispatched(action);
+        return result;
+    }
 
     protected handleAction(action: Action): Promise<void> {
         if (isResponseAction(action)) {
