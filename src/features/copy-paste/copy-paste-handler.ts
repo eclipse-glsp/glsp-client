@@ -17,9 +17,9 @@ import { inject, injectable } from "inversify";
 import { TYPES } from "sprotty";
 import { v4 as uuid } from "uuid";
 
+import { GLSPActionDispatcher } from "../../base/action-dispatcher";
 import { EditorContextService } from "../../base/editor-context";
 import { GLSP_TYPES } from "../../base/types";
-import { GLSPActionDispatcher } from "../request-response/glsp-action-dispatcher";
 import { ClipboardData, CutOperationAction, PasteOperationAction, RequestClipboardDataAction } from "./copy-paste-actions";
 
 export interface ICopyPasteHandler {

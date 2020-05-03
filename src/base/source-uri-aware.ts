@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019 EclipseSource and others.
+ * Copyright (c) 2020 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,13 +13,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { ContainerModule } from "inversify";
-import { TYPES } from "sprotty";
+export abstract class SourceUriAware {
+    abstract getSourceURI(): string;
+}
 
-import { GLSPActionDispatcher } from "./glsp-action-dispatcher";
-
-const requestResponseModule = new ContainerModule((bind, unbind, isBound, rebind) => {
-    rebind(TYPES.IActionDispatcher).to(GLSPActionDispatcher).inSingletonScope();
-});
-
-export default requestResponseModule;
+export function isSourceUriAware(obj: any): obj is SourceUriAware {
+    return obj !== undefined && typeof obj.getSourceURI === 'function';
+}

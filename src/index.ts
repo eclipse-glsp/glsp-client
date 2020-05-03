@@ -23,7 +23,6 @@ import modelHintsModule from "./features/hints/di.config";
 import glspHoverModule from "./features/hover/di.config";
 import layoutCommandsModule from "./features/layout/di.config";
 import glspMouseToolModule from "./features/mouse-tool/di.config";
-import requestResponseModule from "./features/request-response/di.config";
 import saveModule from "./features/save/di.config";
 import glspSelectModule from "./features/select/di.config";
 import toolFeedbackModule from "./features/tool-feedback/di.config";
@@ -36,13 +35,16 @@ export * from 'sprotty';
 export * from './base/model/update-model-command';
 export * from './base/operations/operation';
 export * from './base/command-stack';
+export * from './base/action-dispatcher';
+export * from './base/model-initialization-constraint';
 export * from './base/editor-context';
 export * from './base/selection-clearing-mouse-listener';
+export * from './base/source-uri-aware';
+export * from './base/actions/context-actions';
 export * from './features/change-bounds/model';
 export * from './features/change-bounds/movement-restrictor';
 export * from './features/change-bounds/snap';
 export * from './features/tool-palette/palette-item';
-export * from './base/actions/context-actions';
 export * from './features/context-menu/delete-element-context-menu';
 export * from './features/command-palette/server-command-palette-provider';
 export * from './features/copy-paste/copy-paste-handler';
@@ -57,7 +59,6 @@ export * from './features/layout/layout-commands';
 export * from './features/mouse-tool/mouse-tool';
 export * from './features/rank/model';
 export * from './features/reconnect/model';
-export * from './features/request-response/glsp-action-dispatcher';
 export * from './features/save/model';
 export * from './features/save/save';
 export * from './features/tool-feedback/change-bounds-tool-feedback';
@@ -89,7 +90,7 @@ export * from './utils/viewpoint-util';
 export * from './model-source/websocket-diagram-server';
 export * from './model-source/glsp-server-status';
 export {
-    validationModule, saveModule, executeCommandModule, paletteModule, toolFeedbackModule, defaultGLSPModule, modelHintsModule, glspCommandPaletteModule, requestResponseModule, //
+    validationModule, saveModule, executeCommandModule, paletteModule, toolFeedbackModule, defaultGLSPModule, modelHintsModule, glspCommandPaletteModule, //
     glspContextMenuModule, glspServerCopyPasteModule, copyPasteContextMenuModule, glspSelectModule, glspMouseToolModule, layoutCommandsModule, glspEditLabelValidationModule, //
     glspHoverModule, toolsModule, markerNavigatorModule, markerNavigatorContextMenuModule,
 };

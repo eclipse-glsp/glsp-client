@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { inject, injectable } from "inversify";
+import { inject, injectable, optional } from "inversify";
 import {
     Action,
     Command,
@@ -28,6 +28,7 @@ import {
     TYPES
 } from "sprotty";
 
+import { EditorContextService } from "../../base/editor-context";
 import { GLSP_TYPES } from "../../base/types";
 import { Marker, MarkerKind } from "../../utils/marker";
 import { addCssClasses, removeCssClasses } from "../../utils/smodel-util";
@@ -97,6 +98,36 @@ export class SetMarkersAction implements MarkersAction {
     constructor(public readonly markers: Marker[]) { }
 }
 
+export function isSetMarkersAction(action: Action): action is SetMarkersAction {
+    return SetMarkersCommand.KIND === action.kind && ('markers' in action);
+}
+
+/**
+ * Manages current markers for the outside of the GLSP.
+ *
+ * Typically this is rebound by the surrounding tool, e.g. Theia, to be aware of
+ * and propagate current markers.
+ */
+@injectable()
+export abstract class ExternalMarkerManager {
+
+    languageLabel: string;
+
+    protected actionDispatcher?: IActionDispatcher;
+
+    connect(actionDispatcher: IActionDispatcher) {
+        this.actionDispatcher = actionDispatcher;
+    }
+
+    removeMarkers(markers: Marker[]) {
+        if (this.actionDispatcher) {
+            this.actionDispatcher.dispatch(new ClearMarkersAction(markers));
+        }
+    }
+
+    abstract setMarkers(markers: Marker[], sourceUri?: string): void;
+}
+
 /**
  * Command for handling `SetMarkersAction`
  */
@@ -104,6 +135,8 @@ export class SetMarkersAction implements MarkersAction {
 export class SetMarkersCommand extends Command {
 
     @inject(ValidationFeedbackEmitter) protected validationFeedbackEmitter: ValidationFeedbackEmitter;
+    @inject(ExternalMarkerManager) @optional() protected externalMarkerManager?: ExternalMarkerManager;
+    @inject(EditorContextService) protected editorContextService: EditorContextService;
 
     static readonly KIND = 'setMarkers';
 
@@ -113,6 +146,7 @@ export class SetMarkersCommand extends Command {
 
     execute(context: CommandExecutionContext): CommandReturn {
         const markers: Marker[] = this.action.markers;
+        if (this.externalMarkerManager) this.externalMarkerManager.setMarkers(markers, this.editorContextService.getSourceUri());
         const applyMarkersAction: ApplyMarkersAction = new ApplyMarkersAction(markers);
         this.validationFeedbackEmitter.registerValidationFeedbackAction(applyMarkersAction);
         return context.root;

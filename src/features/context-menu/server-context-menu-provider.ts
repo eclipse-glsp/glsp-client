@@ -16,9 +16,9 @@
 import { inject, injectable } from "inversify";
 import { Action, IContextMenuItemProvider, isSelected, LabeledAction, Point, SModelElement, TYPES } from "sprotty";
 
+import { GLSPActionDispatcher } from "../../base/action-dispatcher";
 import { isSetContextActionsAction, RequestContextActions } from "../../base/actions/context-actions";
 import { EditorContextService } from "../../base/editor-context";
-import { GLSPActionDispatcher } from "../request-response/glsp-action-dispatcher";
 
 export namespace ServerContextMenu {
     export const CONTEXT_ID = "context-menu";

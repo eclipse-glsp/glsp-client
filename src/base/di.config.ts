@@ -18,8 +18,10 @@ import "../../css/glsp-sprotty.css";
 import { ContainerModule } from "inversify";
 import { configureActionHandler, configureCommand, SetModelCommand, TYPES } from "sprotty";
 
+import { GLSPActionDispatcher } from "./action-dispatcher";
 import { GLSPCommandStack } from "./command-stack";
 import { EditorContextService } from "./editor-context";
+import { DefaultModelInitializationConstraint, ModelInitializationConstraint } from "./model-initialization-constraint";
 import { FeedbackAwareUpdateModelCommand, SetModelActionHandler } from "./model/update-model-command";
 import { SelectionClearingMouseListener } from "./selection-clearing-mouse-listener";
 import { GLSPToolManager } from "./tool-manager/glsp-tool-manager";
@@ -36,6 +38,9 @@ const defaultGLSPModule = new ContainerModule((bind, _unbind, isBound, rebind) =
 
     rebind(TYPES.ICommandStack).to(GLSPCommandStack);
     rebind(TYPES.IToolManager).to(GLSPToolManager).inSingletonScope();
+
+    rebind(TYPES.IActionDispatcher).to(GLSPActionDispatcher).inSingletonScope();
+    bind(ModelInitializationConstraint).to(DefaultModelInitializationConstraint).inSingletonScope();
 });
 
 export default defaultGLSPModule;

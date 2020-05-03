@@ -25,12 +25,12 @@ import {
     TYPES
 } from "sprotty";
 
+import { GLSPActionDispatcher } from "../../base/action-dispatcher";
 import {
     isSetEditValidationResultAction,
     RequestEditValidationAction,
     ValidationStatus
 } from "../../base/actions/edit-validation-actions";
-import { GLSPActionDispatcher } from "../request-response/glsp-action-dispatcher";
 
 export namespace LabelEditValidation {
     export const CONTEXT_ID = 'label-edit';

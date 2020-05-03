@@ -27,8 +27,8 @@ import {
     TYPES
 } from "sprotty";
 
+import { GLSPActionDispatcher } from "../../base/action-dispatcher";
 import { isSetContextActionsAction, RequestContextActions } from "../../base/actions/context-actions";
-import { GLSPActionDispatcher } from "../request-response/glsp-action-dispatcher";
 import { MouseDeleteTool } from "../tools/delete-tool";
 import { RequestMarkersAction } from "../validation/validate";
 import { PaletteItem } from "./palette-item";

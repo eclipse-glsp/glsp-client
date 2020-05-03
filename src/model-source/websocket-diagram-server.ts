@@ -37,9 +37,10 @@ import { RequestMarkersAction } from "../features/validation/validate";
 import { ValidateLabelEditAction } from "../features/edit-label-validation/edit-label-validator";
 import { RequestClipboardDataAction, PasteOperationAction, CutOperationAction } from "../features/copy-paste/copy-paste-actions";
 import { RequestEditValidationAction } from "../base/actions/edit-validation-actions";
+import { SourceUriAware } from "../base/source-uri-aware";
 
 @injectable()
-export class GLSPWebsocketDiagramServer extends DiagramServer {
+export class GLSPWebsocketDiagramServer extends DiagramServer implements SourceUriAware {
     protected _sourceUri: string;
     protected connection: rpc.MessageConnection;
 
