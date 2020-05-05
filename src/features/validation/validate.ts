@@ -24,6 +24,7 @@ import {
     SIssue,
     SIssueMarker,
     SModelElement,
+    SModelRoot,
     SParentElement,
     TYPES
 } from "sprotty";
@@ -144,9 +145,10 @@ export class SetMarkersCommand extends Command {
         super();
     }
 
-    execute(context: CommandExecutionContext): CommandReturn {
+    async execute(context: CommandExecutionContext): Promise<SModelRoot> {
         const markers: Marker[] = this.action.markers;
-        if (this.externalMarkerManager) this.externalMarkerManager.setMarkers(markers, this.editorContextService.getSourceUri());
+        const uri = await this.editorContextService.getSourceUri();
+        if (this.externalMarkerManager) this.externalMarkerManager.setMarkers(markers, uri);
         const applyMarkersAction: ApplyMarkersAction = new ApplyMarkersAction(markers);
         this.validationFeedbackEmitter.registerValidationFeedbackAction(applyMarkersAction);
         return context.root;
