@@ -24,6 +24,7 @@ import {
     SRoutableElement,
     SRoutingHandle
 } from "sprotty";
+import { SModelElementSchema } from "src";
 
 import { ElementAndRoutingPoints } from "../base/operations/operation";
 
@@ -126,4 +127,21 @@ export function toElementAndRoutingPoints(element: SRoutableElement): ElementAnd
         elementId: element.id,
         newRoutingPoints: element.routingPoints
     };
+}
+
+/**
+ * Checks if the model is compatible with the passed type string.
+ * (either has the same type or a subtype of this type)
+ */
+export function hasCompatibleType(input: SModelElement | SModelElementSchema | string, type: string) {
+    const inputType = getElementTypeId(input);
+    return inputType === type ? true : inputType.split(":").includes(type);
+}
+
+export function getElementTypeId(input: SModelElement | SModelElementSchema | string) {
+    if (typeof input === 'string') {
+        return <string>input;
+    } else {
+        return <string>(<any>input)["type"];
+    }
 }

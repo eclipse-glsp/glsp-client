@@ -35,6 +35,7 @@ import {
 } from "sprotty";
 
 import { GLSP_TYPES } from "../../base/types";
+import { getElementTypeId, hasCompatibleType } from "../../utils/smodel-util";
 import { resizeFeature } from "../change-bounds/model";
 import { reconnectFeature } from "../reconnect/model";
 import { IFeedbackActionDispatcher } from "../tool-feedback/feedback-action-dispatcher";
@@ -220,31 +221,36 @@ export class TypeHintProvider implements IActionHandler, ITypeHintProvider {
         if (role === "source") {
             return Array.from(
                 Array.from(this.edgeHints.values())
-                    .filter(hint => hint.sourceElementTypeIds.includes(elementTypeId))
+                    .filter(hint => hint.sourceElementTypeIds.some(sourceElementTypeId => hasCompatibleType(elementTypeId, sourceElementTypeId)))
                     .map(hint => hint.elementTypeId));
         } else {
             return Array.from(
                 Array.from(this.edgeHints.values())
-                    .filter(hint => hint.targetElementTypeIds.includes(elementTypeId))
+                    .filter(hint => hint.targetElementTypeIds.some(targetElementTypeId => hasCompatibleType(elementTypeId, targetElementTypeId)))
                     .map(hint => hint.elementTypeId));
         }
     }
 
     getShapeTypeHint(input: SModelElement | SModelElement | string) {
-        const type = getElementTypeId(input);
-        return this.shapeHints.get(type);
+        return getTypeHint(input, this.shapeHints);
     }
 
     getEdgeTypeHint(input: SModelElement | SModelElement | string) {
-        const type = getElementTypeId(input);
-        return this.edgeHints.get(type);
+        return getTypeHint(input, this.edgeHints);
     }
 }
-export function getElementTypeId(input: SModelElement | SModelElementSchema | string) {
-    if (typeof input === 'string') {
-        return <string>input;
-    } else {
-        return <string>(<any>input)["type"];
+
+function getTypeHint<T extends TypeHint>(input: SModelElement | SModelElement | string, hints: Map<string, T>): T | undefined {
+    const type = getElementTypeId(input);
+    let hint = hints.get(type);
+    // Check subtypes
+    if (hint === undefined) {
+        const subtypes = type.split(":");
+        while (hint === undefined && subtypes.length > 0) {
+            subtypes.pop();
+            hint = hints.get(subtypes.join(":"));
+        }
     }
+    return hint;
 }
 
