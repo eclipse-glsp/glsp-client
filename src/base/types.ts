@@ -16,6 +16,7 @@
 export const GLSP_TYPES = {
     IAsyncClipboardService: Symbol.for("IAsyncClipboardService"),
     ICommandPaletteActionProviderRegistry: Symbol.for("ICommandPaletteActionProviderRegistry"),
+    IEditorContextServiceProvider: Symbol.for("IEditorContextProvider"),
     IFeedbackActionDispatcher: Symbol.for("IFeedbackActionDispatcher"),
     IToolFactory: Symbol.for("Factory<Tool>"),
     ITypeHintProvider: Symbol.for("ITypeHintProvider"),

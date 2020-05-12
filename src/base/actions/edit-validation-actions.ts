@@ -15,6 +15,8 @@
  ********************************************************************************/
 import { Action, generateRequestId, RequestAction, ResponseAction } from "sprotty";
 
+import { Args } from "../../base/args";
+
 export class RequestEditValidationAction implements RequestAction<SetEditValidationResultAction> {
     static readonly KIND = "requestEditValidation";
     kind = RequestEditValidationAction.KIND;
@@ -30,7 +32,7 @@ export class SetEditValidationResultAction implements ResponseAction {
     kind = SetEditValidationResultAction.KIND;
     constructor(public readonly status: ValidationStatus,
         public readonly responseId: string = '',
-        readonly args?: { [key: string]: string | number | boolean }) { }
+        readonly args?: Args) { }
 }
 
 export function isSetEditValidationResultAction(action: Action): action is SetEditValidationResultAction {

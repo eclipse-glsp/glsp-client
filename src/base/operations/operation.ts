@@ -15,11 +15,13 @@
  ********************************************************************************/
 import { Action, ElementAndBounds, isAction, Point } from "sprotty";
 
+import { Args } from "../../base/args";
+
 export interface Operation extends Action { }
 
 export interface CreateOperation extends Operation {
     elementTypeId: string;
-    args?: { [key: string]: string | number | boolean };
+    args?: Args;
 }
 
 export function isCreateOperation(object?: any): object is CreateOperation {
@@ -33,7 +35,7 @@ export class CreateNodeOperation implements CreateOperation {
     constructor(public readonly elementTypeId: string,
         public location?: Point,
         public containerId?: string,
-        public args?: { [key: string]: string | number | boolean }) { }
+        public args?: Args) { }
 }
 
 export function isCreateNodeOperation(object?: any): object is CreateNodeOperation {
@@ -47,7 +49,7 @@ export class CreateEdgeOperation implements CreateOperation {
     constructor(public readonly elementTypeId: string,
         public sourceElementId?: string,
         public targetElementId?: string,
-        public args?: { [key: string]: string | number | boolean }) { }
+        public args?: Args) { }
 }
 
 export function isCreateConnectionOperation(object?: any): object is CreateEdgeOperation {
@@ -95,8 +97,7 @@ export interface ElementAndRoutingPoints {
 
 export abstract class TriggerElementCreationAction implements Action {
     abstract readonly kind: string;
-    constructor(public readonly elementTypeId: string,
-        readonly args?: { [key: string]: string | number | boolean }) { }
+    constructor(public readonly elementTypeId: string, readonly args?: Args) { }
 }
 
 export class TriggerNodeCreationAction extends TriggerElementCreationAction {

@@ -15,6 +15,7 @@
  ********************************************************************************/
 import { Action, generateRequestId, LabeledAction, RequestAction, ResponseAction } from "sprotty";
 
+import { Args } from "../../base/args";
 import { EditorContext } from "../editor-context";
 
 export class RequestContextActions implements RequestAction<SetContextActions> {
@@ -31,7 +32,7 @@ export class SetContextActions implements ResponseAction {
     kind = SetContextActions.KIND;
     constructor(public readonly actions: LabeledAction[],
         public readonly responseId: string = '',
-        readonly args?: { [key: string]: string | number | boolean }) { }
+        readonly args?: Args) { }
 }
 
 export function isSetContextActionsAction(action: Action): action is SetContextActions {

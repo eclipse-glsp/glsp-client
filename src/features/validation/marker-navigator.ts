@@ -215,15 +215,15 @@ export class MarkerNavigatorContextMenuItemProvider implements IContextMenuItemP
         const hasMarkers = collectIssueMarkers(root).length > 0;
         return Promise.resolve([
             {
-                id: "navigate", label: "Navigate to", group: "navigate", actions: [],
+                id: "navigate", label: "Go to", group: "navigate", actions: [],
                 children: [
                     {
-                        id: "next-marker", label: "Navigate to next marker", group: "marker",
+                        id: "next-marker", label: "Next marker", group: "marker",
                         actions: [new NavigateToMarkerAction('next', selectedElementIds)],
                         isEnabled: () => hasMarkers
                     },
                     {
-                        id: "previous-marker", label: "Navigate to previous marker", group: "marker",
+                        id: "previous-marker", label: "Previous marker", group: "marker",
                         actions: [new NavigateToMarkerAction('previous', selectedElementIds)],
                         isEnabled: () => hasMarkers
                     }
