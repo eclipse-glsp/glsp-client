@@ -38,6 +38,8 @@ import { ValidateLabelEditAction } from "../features/edit-label-validation/edit-
 import { RequestClipboardDataAction, PasteOperationAction, CutOperationAction } from "../features/copy-paste/copy-paste-actions";
 import { RequestEditValidationAction } from "../base/actions/edit-validation-actions";
 import { SourceUriAware } from "../base/source-uri-aware";
+import { RequestNavigationTargetsAction } from "../features/navigation/navigation-action-handler";
+import { ResolveNavigationTargetAction } from "../features/navigation/navigation-target-resolver";
 
 @injectable()
 export class GLSPWebsocketDiagramServer extends DiagramServer implements SourceUriAware {
@@ -113,6 +115,8 @@ export function registerDefaultGLSPServerActions(registry: ActionHandlerRegistry
     registry.register(PasteOperationAction.KIND, diagramServer);
     registry.register(CutOperationAction.KIND, diagramServer);
     registry.register(RequestEditValidationAction.KIND, diagramServer);
+    registry.register(RequestNavigationTargetsAction.KIND, diagramServer);
+    registry.register(ResolveNavigationTargetAction.KIND, diagramServer);
 
     // Register an empty handler for SwitchEditMode, to avoid runtime exceptions.
     // We don't want to support SwitchEditMode, but sprotty still sends some corresponding

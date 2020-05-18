@@ -16,6 +16,7 @@
 import { inject, injectable } from "inversify";
 import { ModelSource, MousePositionTracker, Point, TYPES } from "sprotty";
 
+import { Args } from "../base/args";
 import { isSourceUriAware } from "../base/source-uri-aware";
 import { SelectionService } from "../features/select/selection-service";
 import { GLSP_TYPES } from "./types";
@@ -24,7 +25,7 @@ export interface EditorContext {
     readonly selectedElementIds: string[];
     readonly sourceUri?: string;
     readonly lastMousePosition?: Point;
-    readonly args?: { [key: string]: string | number | boolean };
+    readonly args?: Args;
 }
 
 @injectable()
@@ -34,7 +35,7 @@ export class EditorContextService {
     @inject(MousePositionTracker) protected mousePositionTracker: MousePositionTracker;
     @inject(TYPES.ModelSourceProvider) protected modelSource: () => Promise<ModelSource>;
 
-    get(args?: { [key: string]: string | number | boolean }): EditorContext {
+    get(args?: Args): EditorContext {
         return {
             selectedElementIds: Array.from(this.selectionService.getSelectedElementIDs()),
             lastMousePosition: this.mousePositionTracker.lastPositionOnDiagram,
@@ -50,7 +51,7 @@ export class EditorContextService {
         return undefined;
     }
 
-    getWithSelection(selectedElementIds: string[], args?: { [key: string]: string | number | boolean }): EditorContext {
+    getWithSelection(selectedElementIds: string[], args?: Args): EditorContext {
         return {
             selectedElementIds,
             lastMousePosition: this.mousePositionTracker.lastPositionOnDiagram,
@@ -58,3 +59,6 @@ export class EditorContextService {
         };
     }
 }
+
+export type EditorContextServiceProvider = () => Promise<EditorContextService>;
+

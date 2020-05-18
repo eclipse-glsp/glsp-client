@@ -41,23 +41,13 @@ export class SelectionServiceAwareContextMenuMouseListener extends MouseListener
     mouseDown(target: SModelElement, event: MouseEvent): (Action | Promise<Action>)[] {
         if (event.button === 2 && this.contextMenuService && this.menuProvider) {
             const mousePosition = { x: event.x, y: event.y };
-            let isTargetSelected = false;
             const selectableTarget = findParentByFeature(target, isSelectable);
             if (selectableTarget) {
-                isTargetSelected = selectableTarget.selected;
                 selectableTarget.selected = true;
                 this.selectionService.updateSelection(target.root, [selectableTarget.id], []);
             }
-            const restoreSelection = () => {
-                if (selectableTarget) {
-                    selectableTarget.selected = isTargetSelected;
-                    if (!isTargetSelected) {
-                        this.selectionService.updateSelection(target.root, [], [selectableTarget.id]);
-                    }
-                }
-            };
             Promise.all([this.contextMenuService(), this.menuProvider.getItems(target.root, mousePosition)])
-                .then(([menuService, menuItems]) => menuService.show(menuItems, mousePosition, restoreSelection));
+                .then(([menuService, menuItems]) => menuService.show(menuItems, mousePosition));
         }
         return [];
     }

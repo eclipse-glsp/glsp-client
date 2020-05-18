@@ -25,10 +25,22 @@ import { DefaultModelInitializationConstraint, ModelInitializationConstraint } f
 import { FeedbackAwareUpdateModelCommand, SetModelActionHandler } from "./model/update-model-command";
 import { SelectionClearingMouseListener } from "./selection-clearing-mouse-listener";
 import { GLSPToolManager } from "./tool-manager/glsp-tool-manager";
+import { GLSP_TYPES } from "./types";
 
 const defaultGLSPModule = new ContainerModule((bind, _unbind, isBound, rebind) => {
     const context = { bind, _unbind, isBound, rebind };
     bind(EditorContextService).toSelf().inSingletonScope();
+    bind(GLSP_TYPES.IEditorContextServiceProvider).toProvider<EditorContextService>(ctx => {
+        return () => {
+            return new Promise<EditorContextService>((resolve, reject) => {
+                if (ctx.container.isBound(EditorContextService)) {
+                    resolve(ctx.container.get<EditorContextService>(EditorContextService));
+                } else {
+                    reject();
+                }
+            });
+        };
+    });
 
     // Model update initialization ------------------------------------
     configureCommand(context, FeedbackAwareUpdateModelCommand);
