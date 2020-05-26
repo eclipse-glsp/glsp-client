@@ -17,6 +17,7 @@ import defaultGLSPModule from "./base/di.config";
 import glspCommandPaletteModule from "./features/command-palette/di.config";
 import glspContextMenuModule from "./features/context-menu/di.config";
 import { copyPasteContextMenuModule, glspServerCopyPasteModule } from "./features/copy-paste/di.config";
+import glspDecorationModule from "./features/decoration/di.config";
 import glspEditLabelValidationModule from "./features/edit-label-validation/di.config";
 import executeCommandModule from "./features/execute/di.config";
 import modelHintsModule from "./features/hints/di.config";
@@ -50,6 +51,8 @@ export * from './features/tool-palette/palette-item';
 export * from './features/context-menu/delete-element-context-menu';
 export * from './features/command-palette/server-command-palette-provider';
 export * from './features/copy-paste/copy-paste-handler';
+export * from './features/decoration/decoration-placer';
+export * from './features/decoration/view';
 export * from './features/edit-label-validation/edit-label-validator';
 export * from './features/execute/execute-command';
 export * from './features/execute/model';
@@ -97,5 +100,5 @@ export * from './model-source/glsp-server-status';
 export {
     validationModule, saveModule, executeCommandModule, paletteModule, toolFeedbackModule, defaultGLSPModule, modelHintsModule, glspCommandPaletteModule, //
     glspContextMenuModule, glspServerCopyPasteModule, copyPasteContextMenuModule, glspSelectModule, glspMouseToolModule, layoutCommandsModule, glspEditLabelValidationModule, //
-    glspHoverModule, toolsModule, navigationModule, markerNavigatorModule, markerNavigatorContextMenuModule,
+    glspHoverModule, toolsModule, navigationModule, markerNavigatorModule, markerNavigatorContextMenuModule, glspDecorationModule
 };

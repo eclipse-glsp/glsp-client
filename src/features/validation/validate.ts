@@ -32,7 +32,7 @@ import {
 import { EditorContextService } from "../../base/editor-context";
 import { GLSP_TYPES } from "../../base/types";
 import { Marker, MarkerKind } from "../../utils/marker";
-import { addCssClasses, removeCssClasses } from "../../utils/smodel-util";
+import { removeCssClasses } from "../../utils/smodel-util";
 import { getSeverity } from "../hover/hover";
 import { IFeedbackActionDispatcher, IFeedbackEmitter } from "../tool-feedback/feedback-action-dispatcher";
 import { FeedbackCommand } from "../tool-feedback/model";
@@ -193,7 +193,7 @@ export class ApplyMarkersCommand extends FeedbackCommand {
                 const issueMarker: SIssueMarker = getOrCreateSIssueMarker(modelElement);
                 const issue: SIssue = createSIssue(marker);
                 issueMarker.issues.push(issue);
-                addCSSClassToIssueParent(modelElement, issueMarker);
+                addMaxSeverityCSSClassToIssueParent(modelElement, issueMarker);
             }
         }
         return context.root;
@@ -208,8 +208,24 @@ export class ApplyMarkersCommand extends FeedbackCommand {
     }
 }
 
-function addCSSClassToIssueParent(modelElement: SParentElement, issueMarker: SIssueMarker) {
-    addCssClasses(modelElement, [getSeverity(issueMarker)]);
+function addMaxSeverityCSSClassToIssueParent(modelElement: SParentElement, issueMarker: SIssueMarker) {
+    const severityCSSClass = getSeverity(issueMarker);
+
+    if (modelElement.cssClasses === undefined) {
+        modelElement.cssClasses = [severityCSSClass];
+    } else {
+        modelElement.cssClasses.push(severityCSSClass);
+        modelElement.cssClasses = getMaxSeverity(modelElement.cssClasses);
+    }
+}
+
+function getMaxSeverity(severities: string[]): string[] {
+    let currentSeverity: string = 'info';
+    for (const severity of severities) {
+        if (severity === 'error' || (severity === 'warning' && currentSeverity === 'info'))
+            currentSeverity = severity;
+    }
+    return [currentSeverity];
 }
 
 function removeCSSClassFromIssueParent(modelElement: SParentElement, issueMarker: SIssueMarker) {
@@ -321,7 +337,7 @@ export class ClearMarkersCommand extends Command {
                     if (issueMarker.issues.length === 0) {
                         modelElement.remove(issueMarker);
                     } else {
-                        addCSSClassToIssueParent(modelElement, issueMarker);
+                        addMaxSeverityCSSClassToIssueParent(modelElement, issueMarker);
                     }
                 }
             }
@@ -344,4 +360,3 @@ export class GIssueMarker extends SIssueMarker {
         this.features = new Set<symbol>(SDecoration.DEFAULT_FEATURES);
     }
 }
-
