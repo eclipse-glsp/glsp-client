@@ -214,11 +214,8 @@ function addMaxSeverityCSSClassToIssueParent(modelElement: SParentElement, issue
     if (!modelElement.cssClasses) {
         modelElement.cssClasses = [maxSeverityCSSClass];
     } else {
-        modelElement.cssClasses.forEach((value: string, index: number, array: string[]) => {
-            if (value.match('info|warning|error')) {
-                array[index] = maxSeverityCSSClass;
-            }
-        });
+        modelElement.cssClasses = modelElement.cssClasses.filter((value: string) => !value.match('info|warning|error'));
+        modelElement.cssClasses.push(maxSeverityCSSClass);
     }
 }
 
