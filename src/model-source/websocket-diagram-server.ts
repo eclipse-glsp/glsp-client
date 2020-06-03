@@ -29,7 +29,8 @@ import { RequestTypeHintsAction } from "../features/hints/request-type-hints-act
 import {
     CreateEdgeOperation, ReconnectEdgeOperation,
     ChangeRoutingPointsOperation, CreateNodeOperation, ChangeBoundsOperation,
-    DeleteElementOperation
+    DeleteElementOperation,
+    CompoundOperation
 } from "../base/operations/operation";
 import { SaveModelAction } from "../features/save/save";
 import { GlspRedoAction, GlspUndoAction } from "../features/undo-redo/model";
@@ -117,7 +118,7 @@ export function registerDefaultGLSPServerActions(registry: ActionHandlerRegistry
     registry.register(RequestEditValidationAction.KIND, diagramServer);
     registry.register(RequestNavigationTargetsAction.KIND, diagramServer);
     registry.register(ResolveNavigationTargetAction.KIND, diagramServer);
-
+    registry.register(CompoundOperation.KIND, diagramServer);
     // Register an empty handler for SwitchEditMode, to avoid runtime exceptions.
     // We don't want to support SwitchEditMode, but sprotty still sends some corresponding
     // actions.

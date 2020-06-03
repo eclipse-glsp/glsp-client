@@ -41,7 +41,9 @@ import {
 import {
     ChangeBoundsOperation,
     ChangeRoutingPointsOperation,
-    ElementAndRoutingPoints
+    CompoundOperation,
+    ElementAndRoutingPoints,
+    Operation
 } from "../../base/operations/operation";
 import { GLSP_TYPES } from "../../base/types";
 import { isValidMove, isValidSize, WriteablePoint } from "../../utils/layout-utils";
@@ -208,26 +210,27 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements Sele
     }
 
     protected handleMoveOnServer(target: SModelElement): Action[] {
-        const actions: Action[] = [];
-        actions.push(...this.handleMoveElementsOnServer(target));
-        actions.push(...this.handleMoveRoutingPointsOnServer(target));
-        return actions;
+        const operations: Operation[] = [];
+
+        operations.push(...this.handleMoveElementsOnServer(target));
+        operations.push(...this.handleMoveRoutingPointsOnServer(target));
+        return [new CompoundOperation(operations)];
     }
 
-    protected handleMoveElementsOnServer(target: SModelElement) {
-        const actions: Action[] = [];
+    protected handleMoveElementsOnServer(target: SModelElement): Operation[] {
+        const result: Operation[] = [];
         const newBounds: ElementAndBounds[] = [];
         forEachElement(target, isNonRoutableSelectedMovableBoundsAware, element => {
             this.createElementAndBounds(element).forEach(bounds => newBounds.push(bounds));
         });
         if (newBounds.length > 0) {
-            actions.push(new ChangeBoundsOperation(newBounds));
+            result.push(new ChangeBoundsOperation(newBounds));
         }
-        return actions;
+        return result;
     }
 
-    protected handleMoveRoutingPointsOnServer(target: SModelElement) {
-        const actions: Action[] = [];
+    protected handleMoveRoutingPointsOnServer(target: SModelElement): Operation[] {
+        const result: Operation[] = [];
         const newRoutingPoints: ElementAndRoutingPoints[] = [];
         forEachElement(target, isNonRoutableSelectedMovableBoundsAware, element => {
             //  If client routing is enabled -> delegate routingpoints of connected edges to server
@@ -237,9 +240,9 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements Sele
             }
         });
         if (newRoutingPoints.length > 0) {
-            actions.push(new ChangeRoutingPointsOperation(newRoutingPoints));
+            result.push(new ChangeRoutingPointsOperation(newRoutingPoints));
         }
-        return actions;
+        return result;
     }
 
     protected handleResize(activeResizeHandle: SResizeHandle): Action[] {

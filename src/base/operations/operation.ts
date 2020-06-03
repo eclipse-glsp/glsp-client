@@ -89,7 +89,12 @@ export class ChangeRoutingPointsOperation implements Operation {
     readonly kind = ChangeRoutingPointsOperation.KIND;
     constructor(public newRoutingPoints: ElementAndRoutingPoints[]) { }
 }
+export class CompoundOperation implements Operation {
+    static readonly KIND = "compound";
+    readonly kind = CompoundOperation.KIND;
 
+    constructor(public operationList: Operation[]) { }
+}
 export interface ElementAndRoutingPoints {
     elementId: string
     newRoutingPoints?: Point[];
