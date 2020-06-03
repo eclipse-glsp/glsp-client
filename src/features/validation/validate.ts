@@ -209,23 +209,17 @@ export class ApplyMarkersCommand extends FeedbackCommand {
 }
 
 function addMaxSeverityCSSClassToIssueParent(modelElement: SParentElement, issueMarker: SIssueMarker) {
-    const severityCSSClass = getSeverity(issueMarker);
+    const maxSeverityCSSClass = getSeverity(issueMarker);
 
-    if (modelElement.cssClasses === undefined) {
-        modelElement.cssClasses = [severityCSSClass];
+    if (!modelElement.cssClasses) {
+        modelElement.cssClasses = [maxSeverityCSSClass];
     } else {
-        modelElement.cssClasses.push(severityCSSClass);
-        modelElement.cssClasses = getMaxSeverity(modelElement.cssClasses);
+        modelElement.cssClasses.forEach((value: string, index: number, array: string[]) => {
+            if (value.match('info|warning|error')) {
+                array[index] = maxSeverityCSSClass;
+            }
+        });
     }
-}
-
-function getMaxSeverity(severities: string[]): string[] {
-    let currentSeverity: string = 'info';
-    for (const severity of severities) {
-        if (severity === 'error' || (severity === 'warning' && currentSeverity === 'info'))
-            currentSeverity = severity;
-    }
-    return [currentSeverity];
 }
 
 function removeCSSClassFromIssueParent(modelElement: SParentElement, issueMarker: SIssueMarker) {

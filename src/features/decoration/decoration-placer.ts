@@ -28,14 +28,16 @@ import {
 @injectable()
 export class GlspDecorationPlacer extends DecorationPlacer {
 
+    protected static readonly DECORATION_OFFSET: Point = { x: 12, y: 10 };
+
     protected getPosition(element: SModelElement & Decoration): Point {
         if (element instanceof SChildElement && element.parent instanceof SRoutableElement) {
             return super.getPosition(element);
         }
         if (isSizeable(element))
             return {
-                x: 12 * element.bounds.width,
-                y: 10 * element.bounds.height
+                x: GlspDecorationPlacer.DECORATION_OFFSET.x * element.bounds.width,
+                y: GlspDecorationPlacer.DECORATION_OFFSET.y * element.bounds.height
             };
         return ORIGIN_POINT;
     }
