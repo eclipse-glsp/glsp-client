@@ -52,9 +52,7 @@ export class GlspHoverMouseListener extends HoverMouseListener {
 
     protected createPopupModel(marker: GIssueMarker, bounds: Bounds): SModelRootSchema {
         if (marker.issues !== undefined && marker.issues.length > 0) {
-            const message = marker.issues
-                .map(i => i.message)
-                .join("\n");
+            const message = '<ul>' + marker.issues.map(i => '<li>' + i.severity.toUpperCase() + ': ' + i.message + '</li>').join('') + '</ul>';
             return {
                 type: 'html',
                 id: 'sprotty-popup',
