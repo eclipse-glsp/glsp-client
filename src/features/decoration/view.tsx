@@ -27,12 +27,16 @@ export class GlspIssueMarkerView extends IssueMarkerView {
         const maxSeverity = super.getMaxSeverity(marker);
         const group = <g class-sprotty-issue={true} >
             <g>
-                <rect class-sprotty-issue-overlay={true} />
+                <circle class-sprotty-issue-background={true} r={this.radius} cx={this.radius} cy={this.radius} />
                 <path d={this.getGlspIssueMarkerPath(maxSeverity)} />
             </g>
         </g>;
         setClass(group, 'sprotty-' + maxSeverity, true);
         return group;
+    }
+
+    protected get radius(): number {
+        return 8; // var(--theia-icon-size)=16px => 16/2=8
     }
 
     protected getGlspIssueMarkerPath(severity: SIssueSeverity): string {
