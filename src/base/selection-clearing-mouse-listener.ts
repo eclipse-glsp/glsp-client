@@ -36,7 +36,7 @@ export class SelectionClearingMouseListener extends MouseListener {
             return [];
         }
         selection.removeAllRanges();
-        selection.empty();
+        selection.addRange(document.createRange());
         return [];
     }
 }
