@@ -4,10 +4,8 @@
     --glsp-info-foreground: var(--theia-editorInfo-foreground);
 }
 
-.sprotty-issue-overlay {
-    fill: transparent;
-    width: var(--theia-icon-size);
-    height: var(--theia-icon-size);
+.sprotty-issue-background {
+    fill: var(--theia-editor-background);
 }
 
 .sprotty-issue.sprotty-error {
