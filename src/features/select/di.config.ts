@@ -14,13 +14,12 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { ContainerModule } from "inversify";
-import { configureCommand, SelectKeyboardListener, TYPES } from "sprotty";
+import { configureCommand, TYPES } from "sprotty";
 
 import { GLSP_TYPES } from "../../base/types";
 import { SelectAllCommand, SelectAllFeedbackCommand, SelectCommand, SelectFeedbackCommand } from "./action-definitions";
 import { RankedSelectMouseListener } from "./select-mouse-listener";
 import { SelectionService } from "./selection-service";
-
 
 const glspSelectModule = new ContainerModule((bind, _unbind, isBound) => {
     bind(SelectionService).toSelf().inSingletonScope();
@@ -29,7 +28,6 @@ const glspSelectModule = new ContainerModule((bind, _unbind, isBound) => {
     configureCommand({ bind, isBound }, SelectAllCommand);
     configureCommand({ bind, isBound }, SelectFeedbackCommand);
     configureCommand({ bind, isBound }, SelectAllFeedbackCommand);
-    bind(TYPES.KeyListener).to(SelectKeyboardListener);
     bind(TYPES.MouseListener).to(RankedSelectMouseListener);
     bind(GLSP_TYPES.SModelRootListener).toService(SelectionService);
 });
