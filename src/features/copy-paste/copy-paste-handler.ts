@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { inject, injectable } from "inversify";
-import { TYPES } from "sprotty";
+import { TYPES, ViewerOptions } from "sprotty";
 import { v4 as uuid } from "uuid";
 
 import { GLSPActionDispatcher } from "../../base/action-dispatcher";
@@ -82,7 +82,7 @@ function toClipboardId(clipboardId: string): string {
 }
 
 function isClipboardId(jsonData: any): jsonData is ClipboardId {
-    return 'clipboardId' in jsonData;
+    return jsonData !== undefined && 'clipboardId' in jsonData;
 }
 
 function getClipboardIdFromDataTransfer(dataTransfer: DataTransfer): string | undefined {
@@ -97,6 +97,7 @@ const CLIPBOARD_DATA_FORMAT = "application/json";
 export class ServerCopyPasteHandler implements ICopyPasteHandler {
 
     @inject(TYPES.IActionDispatcher) protected actionDispatcher: GLSPActionDispatcher;
+    @inject(TYPES.ViewerOptions) protected viewerOptions: ViewerOptions;
     @inject(GLSP_TYPES.IAsyncClipboardService) protected clipboadService: IAsyncClipboardService;
     @inject(EditorContextService) protected editorContext: EditorContextService;
 
@@ -127,16 +128,15 @@ export class ServerCopyPasteHandler implements ICopyPasteHandler {
             const clipboardId = getClipboardIdFromDataTransfer(e.clipboardData);
             const clipboardData = this.clipboadService.get(clipboardId);
             if (clipboardData) {
-                this.actionDispatcher
-                    .dispatch(new PasteOperationAction(clipboardData, this.editorContext.get()));
+                this.actionDispatcher.dispatch(new PasteOperationAction(clipboardData, this.editorContext.get()));
             }
             e.preventDefault();
         }
     }
 
     protected shouldCopy(e: ClipboardEvent) {
-        return this.editorContext.get().selectedElementIds.length > 0
-            && (e.srcElement instanceof HTMLBodyElement || e.srcElement instanceof SVGElement);
+        return this.editorContext.get().selectedElementIds.length > 0 && document.activeElement instanceof SVGElement
+            && document.activeElement.parentElement && document.activeElement.parentElement.id === this.viewerOptions.baseDiv;
     }
 
 }
