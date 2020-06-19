@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { inject, injectable, multiInject, optional } from "inversify";
-import { Action, ILogger, SModelRoot, TYPES } from "sprotty";
+import { Action, ILogger, isSelected, SModelElement, SModelRoot, TYPES } from "sprotty";
 
 import { SModelRootListener } from "../../base/model/update-model-command";
 import { GLSP_TYPES } from "../../base/types";
@@ -102,6 +102,14 @@ export class SelectionService implements SModelRootListener {
 
     notifyListeners(root: SModelRoot, selectedElementIDs: Set<string>) {
         this.selectionListeners.forEach(listener => listener.selectionChanged(root, Array.from(selectedElementIDs)));
+    }
+
+    getModelRoot(): Readonly<SModelRoot> {
+        return this.root;
+    }
+
+    getSelectedElements(): Readonly<SModelElement>[] {
+        return Array.from(this.root.index.all().filter(isSelected));
     }
 
     /**

@@ -31,6 +31,11 @@ export const glspServerCopyPasteModule = new ContainerModule((bind, _unbind, isB
     bind(GLSP_TYPES.IAsyncClipboardService).to(LocalClipboardService).inSingletonScope();
 });
 
+/**
+ * This module is not required if the diagram is deployed in Theia but only intended to be used
+ * in a standalone deployment of GLSP. If the GLSP diagram in Theia use the Theia-native
+ * `CopyPasteMenuContribution` in `glsp-theia-integration` instead.
+ */
 export const copyPasteContextMenuModule = new ContainerModule((bind, _unbind, isBound) => {
     bind(GLSP_TYPES.IContextMenuProvider).to(CopyPasteContextMenuItemProvider).inSingletonScope();
     bind(InvokeCopyPasteActionHandler).toSelf().inSingletonScope();

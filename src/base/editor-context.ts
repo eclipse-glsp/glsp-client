@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { inject, injectable } from "inversify";
-import { ModelSource, MousePositionTracker, Point, TYPES } from "sprotty";
+import { ModelSource, MousePositionTracker, Point, SModelElement, SModelRoot, TYPES } from "sprotty";
 
 import { Args } from "../base/args";
 import { isSourceUriAware } from "../base/source-uri-aware";
@@ -23,7 +23,6 @@ import { GLSP_TYPES } from "./types";
 
 export interface EditorContext {
     readonly selectedElementIds: string[];
-    readonly sourceUri?: string;
     readonly lastMousePosition?: Point;
     readonly args?: Args;
 }
@@ -43,6 +42,14 @@ export class EditorContextService {
         };
     }
 
+    getWithSelection(selectedElementIds: string[], args?: Args): EditorContext {
+        return {
+            selectedElementIds,
+            lastMousePosition: this.mousePositionTracker.lastPositionOnDiagram,
+            args
+        };
+    }
+
     async getSourceUri() {
         const modelSource = await this.modelSource();
         if (isSourceUriAware(modelSource)) {
@@ -51,12 +58,12 @@ export class EditorContextService {
         return undefined;
     }
 
-    getWithSelection(selectedElementIds: string[], args?: Args): EditorContext {
-        return {
-            selectedElementIds,
-            lastMousePosition: this.mousePositionTracker.lastPositionOnDiagram,
-            args
-        };
+    get modelRoot(): Readonly<SModelRoot> {
+        return this.selectionService.getModelRoot();
+    }
+
+    get selectedElements(): Readonly<SModelElement>[] {
+        return this.selectionService.getSelectedElements();
     }
 }
 
