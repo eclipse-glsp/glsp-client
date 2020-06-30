@@ -22,13 +22,11 @@ import {
     ElementAndBounds,
     ElementMove,
     IActionDispatcher,
-    KeyListener,
     MoveAction,
     SetBoundsAction,
     SModelElement,
     TYPES
 } from "sprotty";
-import { matchesKeystroke } from "sprotty/lib/utils/keyboard";
 
 import { ChangeBoundsOperation } from "../../base/operations/operation";
 import { GLSP_TYPES } from "../../base/types";
@@ -413,17 +411,5 @@ export class AlignElementsCommand extends LayoutElementsCommand {
     redo(context: CommandExecutionContext): CommandReturn {
         // we dispatch another action which can be redone, so no explicit implementation necessary
         return context.root;
-    }
-}
-
-export class LayoutKeyboardListener extends KeyListener {
-    keyDown(element: SModelElement, event: KeyboardEvent): Action[] {
-        if (matchesKeystroke(event, 'KeyW', 'shift')) {
-            return [new ResizeElementsAction([], ResizeDimension.Width, Reduce.max)];
-        }
-        if (matchesKeystroke(event, 'KeyH', 'shift')) {
-            return [new ResizeElementsAction([], ResizeDimension.Height, Reduce.max)];
-        }
-        return [];
     }
 }

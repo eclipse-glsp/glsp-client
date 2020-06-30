@@ -18,6 +18,10 @@ import { TYPES } from "sprotty";
 
 import { SaveModelKeyboardListener } from "./save";
 
+/**
+ * This module is not required the diagram is deployed in Theia with the `GLSPDiagramWidget`
+ * but only intended to be used in a standalone deployment of GLSP.
+ */
 const saveModule = new ContainerModule(bind => {
     bind(TYPES.KeyListener).to(SaveModelKeyboardListener);
 

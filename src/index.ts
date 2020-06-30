@@ -30,7 +30,7 @@ import glspSelectModule from "./features/select/di.config";
 import toolFeedbackModule from "./features/tool-feedback/di.config";
 import paletteModule from "./features/tool-palette/di.config";
 import toolsModule from "./features/tools/di.config";
-import { markerNavigatorContextMenuModule, markerNavigatorModule, validationModule } from "./features/validation/di.config";
+import { markerNavigatorModule, validationModule } from "./features/validation/di.config";
 
 export * from 'sprotty';
 
@@ -65,6 +65,7 @@ export * from './features/mouse-tool/mouse-tool';
 export * from './features/navigation/external-navigate-to-target-handler';
 export * from './features/navigation/navigation-action-handler';
 export * from './features/navigation/navigation-target-resolver';
+export * from './features/validation/marker-navigator';
 export * from './features/rank/model';
 export * from './features/reconnect/model';
 export * from './features/save/model';
@@ -100,5 +101,5 @@ export * from './model-source/glsp-server-status';
 export {
     validationModule, saveModule, executeCommandModule, paletteModule, toolFeedbackModule, defaultGLSPModule, modelHintsModule, glspCommandPaletteModule, //
     glspContextMenuModule, glspServerCopyPasteModule, copyPasteContextMenuModule, glspSelectModule, glspMouseToolModule, layoutCommandsModule, glspEditLabelValidationModule, //
-    glspHoverModule, toolsModule, navigationModule, markerNavigatorModule, markerNavigatorContextMenuModule, glspDecorationModule
+    glspHoverModule, toolsModule, navigationModule, markerNavigatorModule, glspDecorationModule
 };
