@@ -22,7 +22,7 @@
     right: 25px;
     top: 25px;
     text-align: center;
-    width: 150px;
+    width: 180px;
     display: block;
     z-index: 1000;
     border-style: solid;
@@ -104,4 +104,28 @@
 
 .tool-button.collapsed {
     display: none;
+}
+
+.collapsible-palette {
+    overflow: auto;
+    transition: max-height 0.2s ease-out;
+}
+
+.minimize-palette-button {
+    position: absolute;
+    right: 12px;
+    top: 25px;
+    z-index: 1000;
+}
+
+.search-input {
+    background: var(--theia-input-background);
+    color: var(--theia-input-foreground);
+    border: var(--theia-border-width) solid var(--theia-input-border);
+    font-family: var(--theia-ui-font-family);
+    font-size: var(--theia-ui-font-size1);
+    line-height: var(--theia-content-line-height);
+    padding-left: 3px;
+    width: 150px;
+    margin-left: 5px;
 }

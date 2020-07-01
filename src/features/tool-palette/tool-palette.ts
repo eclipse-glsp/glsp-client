@@ -26,14 +26,19 @@ import {
     SModelRoot,
     TYPES
 } from "sprotty";
+import { matchesKeystroke } from "sprotty/lib/utils/keyboard";
 
 import { GLSPActionDispatcher } from "../../base/action-dispatcher";
-import { isSetContextActionsAction, RequestContextActions } from "../../base/actions/context-actions";
+import { isSetContextActionsAction, RequestContextActions, SetContextActions } from "../../base/actions/context-actions";
 import { MouseDeleteTool } from "../tools/delete-tool";
 import { RequestMarkersAction } from "../validation/validate";
 import { PaletteItem } from "./palette-item";
 
 const CLICKED_CSS_CLASS = "clicked";
+const SEARCH_ICON = "fa-search";
+const PALETTE_ICON = "fa-palette";
+const CHEVRON_DOWN = "fa-chevron-down";
+const PALETTE_HEIGHT = "500px";
 
 @injectable()
 export class EnableToolPaletteAction implements Action {
@@ -49,8 +54,11 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler {
     static readonly ID = "tool-palette";
 
     protected paletteItems: PaletteItem[];
+    protected paletteItemsCopy: PaletteItem[] = [];
+    protected bodyDiv?: HTMLElement;
     protected lastActivebutton?: HTMLElement;
     protected defaultToolsButton: HTMLElement;
+    protected searchField: HTMLInputElement;
     modelRootId: string;
 
     id() { return ToolPalette.ID; }
@@ -70,6 +78,30 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler {
 
     protected onBeforeShow(containerElement: HTMLElement, root: Readonly<SModelRoot>) {
         this.modelRootId = root.id;
+        this.containerElement.style.maxHeight = PALETTE_HEIGHT;
+    }
+
+    protected addMinimizePaletteButton(): void {
+        const baseDiv = document.getElementById(this.options.baseDiv);
+        const minPaletteDiv = document.createElement("div");
+        minPaletteDiv.classList.add("minimize-palette-button");
+        this.containerElement.classList.add("collapsible-palette");
+        if (baseDiv) {
+            const insertedDiv = baseDiv.insertBefore(minPaletteDiv, baseDiv.firstChild);
+            const minimizeIcon = createIcon(["fas", CHEVRON_DOWN]);
+            minimizeIcon.onclick = (ev) => {
+                if (this.containerElement.style.maxHeight !== "0px") {
+                    this.containerElement.style.maxHeight = "0px";
+                } else {
+                    this.containerElement.style.maxHeight = PALETTE_HEIGHT;
+                }
+                changeCSSClass(minimizeIcon, PALETTE_ICON);
+                changeCSSClass(minimizeIcon, "fa");
+                changeCSSClass(minimizeIcon, "fas");
+                changeCSSClass(minimizeIcon, CHEVRON_DOWN);
+            };
+            insertedDiv.appendChild(minimizeIcon);
+        }
     }
 
     protected createBody(): void {
@@ -85,10 +117,22 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler {
                     bodyDiv.appendChild(this.createToolButton(item));
                 }
             });
+        if (this.paletteItems.length === 0) {
+            const noResultsDiv = document.createElement("div");
+            noResultsDiv.innerText = "No results found.";
+            noResultsDiv.classList.add("tool-button");
+            bodyDiv.appendChild(noResultsDiv);
+        }
+        // Remove existing body to refresh filtered entries
+        if (this.bodyDiv) {
+            this.containerElement.removeChild(this.bodyDiv);
+        }
         this.containerElement.appendChild(bodyDiv);
+        this.bodyDiv = bodyDiv;
     }
 
     protected createHeader(): void {
+        this.addMinimizePaletteButton();
         const headerCompartment = document.createElement("div");
         headerCompartment.classList.add("palette-header");
 
@@ -122,7 +166,32 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler {
         };
         headerTools.appendChild(validateActionButton);
 
+        // Create button for Search
+        const searchIcon = createIcon(["fas", SEARCH_ICON, "state-icon", "fa-xs"]);
+        searchIcon.onclick = (ev) => {
+            const searchField = document.getElementById("palette_search_field");
+            if (searchField) {
+                if (searchField.style.display === "inline") {
+                    searchField.style.display = "none";
+                } else {
+                    searchField.style.display = "inline";
+                    searchField.focus();
+                }
+            }
+        };
+        searchIcon.classList.add("search-icon");
+        this.searchField = document.createElement("input");
+        this.searchField.classList.add("search-input");
+        this.searchField.id = "palette_search_field";
+        this.searchField.type = "text";
+        this.searchField.placeholder = " Search...";
+        this.searchField.style.display = "none";
+        this.searchField.onkeyup = () => this.requestFilterUpdate(this.searchField.value);
+        this.searchField.onkeydown = (ev) => this.clearOnEspace(ev);
+
+        headerTools.appendChild(searchIcon);
         headerCompartment.appendChild(headerTools);
+        headerCompartment.appendChild(this.searchField);
         this.containerElement.appendChild(headerCompartment);
     }
 
@@ -178,6 +247,47 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler {
         } else if (action instanceof EnableToolsAction && action.toolIds.includes(ToolPalette.ID)) {
             this.changeActiveButton();
         }
+    }
+
+    protected clearOnEspace(event: KeyboardEvent) {
+        if (matchesKeystroke(event, 'Escape')) {
+            this.searchField.value = '';
+            this.requestFilterUpdate('');
+        }
+    }
+
+    protected handleSetContextActions(action: SetContextActions) {
+        this.paletteItems = action.actions.map(e => e as PaletteItem);
+        this.createBody();
+    }
+
+    protected requestFilterUpdate(filter: string): void {
+        // Initialize the copy if it's empty
+        if (this.paletteItemsCopy.length === 0) {
+            // Creating deep copy
+            this.paletteItemsCopy = JSON.parse(JSON.stringify(this.paletteItems));
+        }
+
+        // Reset the paletteItems before searching
+        this.paletteItems = JSON.parse(JSON.stringify(this.paletteItemsCopy));
+        // Filter the entries
+        const filteredPaletteItems: PaletteItem[] = [];
+        for (const itemGroup of this.paletteItems) {
+            if (itemGroup.children) {
+                // Fetch the labels according to the filter
+                const matchingChildren = itemGroup.children.filter(child => child.label.toLowerCase().includes(filter.toLowerCase()));
+                // Add the itemgroup containing the correct entries
+                if (matchingChildren.length > 0) {
+                    // Clear existing children
+                    itemGroup.children.splice(0, itemGroup.children.length);
+                    // Push the matching children
+                    matchingChildren.forEach(child => itemGroup.children!.push(child));
+                    filteredPaletteItems.push(itemGroup);
+                }
+            }
+        }
+        this.paletteItems = filteredPaletteItems;
+        this.createBody();
     }
 }
 
