@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { inject, injectable } from "inversify";
+import { inject, injectable, optional } from "inversify";
 import {
     Action,
     AnchorComputerRegistry,
@@ -23,9 +23,12 @@ import {
     IActionHandler,
     isConnectable,
     isCtrlOrCmd,
+    ISnapper,
     SEdge,
     SModelElement,
-    Tool
+    SNode,
+    Tool,
+    TYPES
 } from "sprotty";
 
 import {
@@ -52,12 +55,14 @@ import { DragAwareMouseListener } from "./drag-aware-mouse-listener";
 @injectable()
 export class NodeCreationTool implements Tool, IActionHandler {
     static ID = "tool_create_node";
+
+    @inject(GLSP_TYPES.MouseTool) protected mouseTool: IMouseTool;
+    @inject(GLSP_TYPES.IFeedbackActionDispatcher) protected feedbackDispatcher: IFeedbackActionDispatcher;
+    @inject(TYPES.ISnapper) @optional() readonly snapper?: ISnapper;
+
     readonly id = NodeCreationTool.ID = "unknown";
     protected creationToolMouseListener: NodeCreationToolMouseListener;
     protected triggerAction: TriggerNodeCreationAction;
-
-    constructor(@inject(GLSP_TYPES.MouseTool) protected mouseTool: IMouseTool,
-        @inject(GLSP_TYPES.IFeedbackActionDispatcher) protected feedbackDispatcher: IFeedbackActionDispatcher) { }
 
     enable() {
         if (this.triggerAction === undefined) {
@@ -91,7 +96,6 @@ export class NodeCreationToolMouseListener extends DragAwareMouseListener {
     constructor(protected triggerAction: TriggerNodeCreationAction, protected tool: NodeCreationTool) {
         super();
     }
-
     protected creationAllowed(elementTypeId: string) {
         return this.container && this.container.isContainableElement(this.elementTypeId);
     }
@@ -103,7 +107,13 @@ export class NodeCreationToolMouseListener extends DragAwareMouseListener {
         const result: Action[] = [];
         if (this.creationAllowed(this.elementTypeId)) {
             const containerId = this.container ? this.container.id : undefined;
-            const location = getAbsolutePosition(target, event);
+            let location = getAbsolutePosition(target, event);
+            if (this.tool.snapper) {
+                // Create a 0-bounds proxy element for snapping
+                const elementProxy = new SNode();
+                elementProxy.size = { width: 0, height: 0 };
+                location = this.tool.snapper.snap(location, elementProxy);
+            }
             result.push(new CreateNodeOperation(this.elementTypeId, location, containerId, this.triggerAction.args));
             if (!isCtrlOrCmd(event)) {
                 result.push(new EnableDefaultToolsAction());
@@ -132,14 +142,15 @@ export class NodeCreationToolMouseListener extends DragAwareMouseListener {
 export class EdgeCreationTool implements Tool, IActionHandler {
     static ID = "tool_create_edge";
     readonly id = EdgeCreationTool.ID;
+
+    @inject(GLSP_TYPES.MouseTool) protected mouseTool: IMouseTool;
+    @inject(GLSP_TYPES.IFeedbackActionDispatcher) protected feedbackDispatcher: IFeedbackActionDispatcher;
+    @inject(AnchorComputerRegistry) protected anchorRegistry: AnchorComputerRegistry;
+
     protected triggerAction: TriggerEdgeCreationAction;
 
     protected creationToolMouseListener: EdgeCreationToolMouseListener;
     protected feedbackEndMovingMouseListener: FeedbackEdgeEndMovingMouseListener;
-
-    constructor(@inject(GLSP_TYPES.MouseTool) protected mouseTool: IMouseTool,
-        @inject(GLSP_TYPES.IFeedbackActionDispatcher) protected feedbackDispatcher: IFeedbackActionDispatcher,
-        @inject(AnchorComputerRegistry) protected anchorRegistry: AnchorComputerRegistry) { }
 
     enable() {
         if (this.triggerAction === undefined) {
