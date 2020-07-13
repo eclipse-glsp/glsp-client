@@ -169,7 +169,7 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler {
         // Create button for Search
         const searchIcon = createIcon(["fas", SEARCH_ICON, "state-icon", "fa-xs"]);
         searchIcon.onclick = (ev) => {
-            const searchField = document.getElementById("palette_search_field");
+            const searchField = document.getElementById(this.containerElement.id + "_search_field");
             if (searchField) {
                 if (searchField.style.display === "inline") {
                     searchField.style.display = "none";
@@ -182,7 +182,7 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler {
         searchIcon.classList.add("search-icon");
         this.searchField = document.createElement("input");
         this.searchField.classList.add("search-input");
-        this.searchField.id = "palette_search_field";
+        this.searchField.id = this.containerElement.id + "_search_field";
         this.searchField.type = "text";
         this.searchField.placeholder = " Search...";
         this.searchField.style.display = "none";
