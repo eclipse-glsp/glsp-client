@@ -19,6 +19,7 @@ import { ContainerModule } from "inversify";
 import { configureActionHandler, configureCommand, SetModelCommand, TYPES } from "sprotty";
 
 import { GLSPActionDispatcher } from "./action-dispatcher";
+import { SetEditModeAction } from "./actions/edit-mode-action";
 import { GLSPCommandStack } from "./command-stack";
 import { EditorContextService } from "./editor-context";
 import { DefaultModelInitializationConstraint, ModelInitializationConstraint } from "./model-initialization-constraint";
@@ -42,6 +43,8 @@ const defaultGLSPModule = new ContainerModule((bind, _unbind, isBound, rebind) =
         };
     });
 
+    configureActionHandler(context, SetEditModeAction.KIND, EditorContextService);
+
     // Model update initialization ------------------------------------
     configureCommand(context, FeedbackAwareUpdateModelCommand);
     configureActionHandler(context, SetModelCommand.KIND, SetModelActionHandler);
@@ -49,9 +52,12 @@ const defaultGLSPModule = new ContainerModule((bind, _unbind, isBound, rebind) =
     bind(TYPES.MouseListener).to(SelectionClearingMouseListener);
 
     rebind(TYPES.ICommandStack).to(GLSPCommandStack);
-    rebind(TYPES.IToolManager).to(GLSPToolManager).inSingletonScope();
+    bind(GLSPToolManager).toSelf().inSingletonScope();
+    bind(GLSP_TYPES.IGLSPToolManager).toService(GLSPToolManager);
+    rebind(TYPES.IToolManager).toService(GLSPToolManager);
+    bind(GLSPActionDispatcher).toSelf().inSingletonScope();
+    rebind(TYPES.IActionDispatcher).toService(GLSPActionDispatcher);
 
-    rebind(TYPES.IActionDispatcher).to(GLSPActionDispatcher).inSingletonScope();
     bind(ModelInitializationConstraint).to(DefaultModelInitializationConstraint).inSingletonScope();
 });
 

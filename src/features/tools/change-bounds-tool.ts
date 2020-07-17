@@ -22,11 +22,9 @@ import {
     EdgeRouterRegistry,
     ElementAndBounds,
     findParentByFeature,
-    IActionDispatcher,
     ISnapper,
     isSelected,
     isViewport,
-    KeyTool,
     MouseListener,
     Point,
     SConnectableElement,
@@ -34,7 +32,6 @@ import {
     SModelElement,
     SModelRoot,
     SParentElement,
-    Tool,
     TYPES
 } from "sprotty";
 
@@ -59,7 +56,6 @@ import {
     IMovementRestrictor,
     removeMovementRestrictionFeedback
 } from "../change-bounds/movement-restrictor";
-import { IMouseTool } from "../mouse-tool/mouse-tool";
 import { SelectionListener, SelectionService } from "../select/selection-service";
 import {
     FeedbackMoveMouseListener,
@@ -67,7 +63,7 @@ import {
     ShowChangeBoundsToolResizeFeedbackAction
 } from "../tool-feedback/change-bounds-tool-feedback";
 import { applyCssClasses, CursorCSS, cursorFeedbackAction, deleteCssClasses } from "../tool-feedback/css-feedback";
-import { IFeedbackActionDispatcher, IFeedbackEmitter } from "../tool-feedback/feedback-action-dispatcher";
+import { BaseGLSPTool } from "./base-glsp-tool";
 import { DragAwareMouseListener } from "./drag-aware-mouse-listener";
 
 
@@ -85,21 +81,16 @@ import { DragAwareMouseListener } from "./drag-aware-mouse-listener";
  * and send the server updates we install the `ChangeBoundsListener`.
  */
 @injectable()
-export class ChangeBoundsTool implements Tool {
+export class ChangeBoundsTool extends BaseGLSPTool {
     static ID = "glsp.change-bounds-tool";
     readonly id = ChangeBoundsTool.ID;
 
+    @inject(GLSP_TYPES.SelectionService) protected selectionService: SelectionService;
+    @inject(EdgeRouterRegistry) @optional() readonly edgeRouterRegistry?: EdgeRouterRegistry;
+    @inject(TYPES.ISnapper) @optional() readonly snapper?: ISnapper;
+    @inject(GLSP_TYPES.IMovementRestrictor) @optional() readonly movementRestrictor?: IMovementRestrictor;
     protected feedbackMoveMouseListener: MouseListener;
     protected changeBoundsListener: MouseListener & SelectionListener;
-
-    constructor(@inject(GLSP_TYPES.SelectionService) protected selectionService: SelectionService,
-        @inject(GLSP_TYPES.MouseTool) protected mouseTool: IMouseTool,
-        @inject(KeyTool) protected keyTool: KeyTool,
-        @inject(GLSP_TYPES.IFeedbackActionDispatcher) protected feedbackDispatcher: IFeedbackActionDispatcher,
-        @inject(TYPES.IActionDispatcher) protected actionDispatcher: IActionDispatcher,
-        @inject(EdgeRouterRegistry) @optional() readonly edgeRouterRegistry?: EdgeRouterRegistry,
-        @inject(TYPES.ISnapper) @optional() readonly snapper?: ISnapper,
-        @inject(GLSP_TYPES.IMovementRestrictor) @optional() readonly movementRestrictor?: IMovementRestrictor) { }
 
     enable() {
         // install feedback move mouse listener for client-side move updates
@@ -129,14 +120,6 @@ export class ChangeBoundsTool implements Tool {
         this.mouseTool.deregister(this.feedbackMoveMouseListener);
         this.feedbackDispatcher.deregisterFeedback(this.feedbackMoveMouseListener, []);
         this.feedbackDispatcher.deregisterFeedback(this.changeBoundsListener, [new HideChangeBoundsToolResizeFeedbackAction]);
-    }
-
-    dispatchFeedback(feedbackEmmmiter: IFeedbackEmitter, actions: Action[]) {
-        this.feedbackDispatcher.registerFeedback(feedbackEmmmiter, actions);
-    }
-
-    dispatchAction(action: Action) {
-        this.actionDispatcher.dispatch(action);
     }
 }
 
@@ -330,7 +313,7 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements Sele
 
     protected reset() {
         this.tool.dispatchFeedback(this, [new HideChangeBoundsToolResizeFeedbackAction()]);
-        this.tool.dispatchAction(cursorFeedbackAction(CursorCSS.DEFAULT));
+        this.tool.dispatchActions([cursorFeedbackAction(CursorCSS.DEFAULT)]);
         this.resetPosition();
     }
 

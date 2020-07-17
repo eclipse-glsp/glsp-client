@@ -13,24 +13,29 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { injectable } from "inversify";
-import { IContextMenuItemProvider, isDeletable, isSelected, MenuItem, Point, SModelRoot } from "sprotty";
+import { inject, injectable } from "inversify";
+import { IContextMenuItemProvider, MenuItem, Point, SModelRoot } from "sprotty";
 
+import { EditorContextServiceProvider } from "../../base/editor-context";
 import { DeleteElementOperation } from "../../base/operations/operation";
+import { GLSP_TYPES } from "../../base/types";
 
 @injectable()
 export class DeleteElementContextMenuItemProvider implements IContextMenuItemProvider {
-    getItems(root: Readonly<SModelRoot>, lastMousePosition?: Point): Promise<MenuItem[]> {
-        const selectedElements = Array.from(root.index.all().filter(isSelected).filter(isDeletable));
-        return Promise.resolve([
+    @inject(GLSP_TYPES.IEditorContextServiceProvider) editorContextServiceProvider: EditorContextServiceProvider;
+
+    async getItems(root: Readonly<SModelRoot>, lastMousePosition?: Point): Promise<MenuItem[]> {
+        const editorContextService = await this.editorContextServiceProvider();
+
+        return [
             {
                 id: "delete",
                 label: "Delete",
                 sortString: "d",
                 group: "edit",
-                actions: [new DeleteElementOperation(selectedElements.map(e => e.id))],
-                isEnabled: () => selectedElements.length > 0
+                actions: [new DeleteElementOperation(editorContextService.selectedElements.map(e => e.id))],
+                isEnabled: () => !editorContextService.isReadonly && editorContextService.selectedElements.length > 0
             }
-        ]);
+        ];
     }
 }

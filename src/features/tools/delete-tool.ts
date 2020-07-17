@@ -23,12 +23,12 @@ import {
     KeyListener,
     KeyTool,
     MouseListener,
-    SModelElement,
-    Tool
+    SModelElement
 } from "sprotty";
 import { matchesKeystroke } from "sprotty/lib/utils/keyboard";
 
 import { DeleteElementOperation } from "../../base/operations/operation";
+import { GLSPTool } from "../../base/tool-manager/glsp-tool-manager";
 import { GLSP_TYPES } from "../../base/types";
 import { IMouseTool } from "../mouse-tool/mouse-tool";
 import { CursorCSS, cursorFeedbackAction } from "../tool-feedback/css-feedback";
@@ -38,10 +38,11 @@ import { IFeedbackActionDispatcher } from "../tool-feedback/feedback-action-disp
  * Deletes selected elements when hitting the `Del` key.
  */
 @injectable()
-export class DelKeyDeleteTool implements Tool {
+export class DelKeyDeleteTool implements GLSPTool {
     static ID = "glsp.delete-keyboard";
     readonly id = DelKeyDeleteTool.ID;
 
+    isEditTool = true;
     protected deleteKeyListener: DeleteKeyListener = new DeleteKeyListener();
 
     constructor(@inject(KeyTool) protected readonly keytool: KeyTool) { }
@@ -71,13 +72,13 @@ export class DeleteKeyListener extends KeyListener {
  * Deletes selected elements when clicking on them.
  */
 @injectable()
-export class MouseDeleteTool implements Tool {
+export class MouseDeleteTool implements GLSPTool {
 
     static ID = "glsp.delete-mouse";
     readonly id = MouseDeleteTool.ID;
 
     protected deleteToolMouseListener: DeleteToolMouseListener = new DeleteToolMouseListener();
-
+    isEditTool = true;
     constructor(@inject(GLSP_TYPES.MouseTool) protected mouseTool: IMouseTool,
         @inject(GLSP_TYPES.IFeedbackActionDispatcher) protected readonly feedbackDispatcher: IFeedbackActionDispatcher) { }
 

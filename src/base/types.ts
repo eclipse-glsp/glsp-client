@@ -30,6 +30,8 @@ export const GLSP_TYPES = {
     IContextMenuProviderRegistry: Symbol.for("IContextMenuProviderRegistry"),
     IContextMenuProvider: Symbol.for("IContextMenuProvider"),
     ICopyPasteHandler: Symbol.for("ICopyPasteHandler"),
+    IGLSPToolManager: Symbol.for("IGLSPToolManager"),
     ITool: Symbol.for("ITool"),
-    IDefaultTool: Symbol.for("IDefaultTool")
+    IDefaultTool: Symbol.for("IDefaultTool"),
+    IEditModeListener: Symbol.for("IEditModeListener")
 };

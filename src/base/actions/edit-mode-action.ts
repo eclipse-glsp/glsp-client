@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019 EclipseSource and others.
+ * Copyright (c) 2020 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,14 +13,23 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { ContainerModule } from "inversify";
-import { TYPES } from "sprotty";
+import { Action } from "sprotty";
+import { injectable } from "inversify";
 
-import { BalloonLabelValidationDecorator, ServerEditLabelValidator } from "./edit-label-validator";
+@injectable()
+export class SetEditModeAction implements Action {
+    static readonly KIND = "setEditMode";
+    kind = SetEditModeAction.KIND;
 
-const glspEditLabelValidationModule = new ContainerModule(bind => {
-    bind(TYPES.IEditLabelValidator).to(ServerEditLabelValidator);
-    bind(TYPES.IEditLabelValidationDecorator).to(BalloonLabelValidationDecorator);
-});
+    constructor(public readonly editMode: string = EditMode.EDITABLE) { }
+}
 
-export default glspEditLabelValidationModule;
+export function isSetEditModeAction(action: Action): action is SetEditModeAction {
+    return action !== undefined && (action.kind === SetEditModeAction.KIND)
+        && "editMode" in action && typeof action["editMode"] === "string";
+}
+
+export namespace EditMode {
+    export const READONLY: string = "readonly";
+    export const EDITABLE: string = "editable";
+}

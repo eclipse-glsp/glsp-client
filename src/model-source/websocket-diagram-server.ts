@@ -35,13 +35,15 @@ import {
 import { SaveModelAction } from "../features/save/save";
 import { GlspRedoAction, GlspUndoAction } from "../features/undo-redo/model";
 import { RequestMarkersAction } from "../features/validation/validate";
-import { ValidateLabelEditAction } from "../features/edit-label-validation/edit-label-validator";
+import { ValidateLabelEditAction } from "../features/edit-label/edit-label-validator";
 import { RequestClipboardDataAction, PasteOperationAction, CutOperationAction } from "../features/copy-paste/copy-paste-actions";
 import { RequestEditValidationAction } from "../base/actions/edit-validation-actions";
 import { SourceUriAware } from "../base/source-uri-aware";
 import { RequestNavigationTargetsAction } from "../features/navigation/navigation-action-handler";
 import { ResolveNavigationTargetAction } from "../features/navigation/navigation-target-resolver";
+import { SetEditModeAction, isSetEditModeAction } from "../base/actions/edit-mode-action";
 
+const receivedFromServerProperty = '__receivedFromServer';
 @injectable()
 export class GLSPWebsocketDiagramServer extends DiagramServer implements SourceUriAware {
     protected _sourceUri: string;
@@ -77,12 +79,23 @@ export class GLSPWebsocketDiagramServer extends DiagramServer implements SourceU
         return super.handle(action);
     }
 
-    public getSourceURI(): string {
-        return this._sourceUri;
+    handleLocally(action: Action): boolean {
+        if (isSetEditModeAction(action)) {
+            return this.handleSetEditModeAction(action);
+        }
+        return super.handleLocally(action);
     }
 
     protected handleComputedBounds(action: ComputedBoundsAction): boolean {
         return true;
+    }
+
+    protected handleSetEditModeAction(action: SetEditModeAction): boolean {
+        return (action as any)[receivedFromServerProperty] !== true;
+    }
+
+    public getSourceURI(): string {
+        return this._sourceUri;
     }
 }
 
@@ -119,6 +132,8 @@ export function registerDefaultGLSPServerActions(registry: ActionHandlerRegistry
     registry.register(RequestNavigationTargetsAction.KIND, diagramServer);
     registry.register(ResolveNavigationTargetAction.KIND, diagramServer);
     registry.register(CompoundOperation.KIND, diagramServer);
+    registry.register(SetEditModeAction.KIND, diagramServer);
+
     // Register an empty handler for SwitchEditMode, to avoid runtime exceptions.
     // We don't want to support SwitchEditMode, but sprotty still sends some corresponding
     // actions.
