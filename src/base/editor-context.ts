@@ -13,12 +13,14 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { inject, injectable } from "inversify";
-import { ModelSource, MousePositionTracker, Point, SModelElement, SModelRoot, TYPES } from "sprotty";
+import { inject, injectable, multiInject, optional } from "inversify";
+import { Action, IActionHandler, ModelSource, MousePositionTracker, Point, SModelElement, SModelRoot, TYPES } from "sprotty";
 
 import { Args } from "../base/args";
 import { isSourceUriAware } from "../base/source-uri-aware";
 import { SelectionService } from "../features/select/selection-service";
+import { distinctAdd, remove } from "../utils/array-utils";
+import { EditMode, isSetEditModeAction } from "./actions/edit-mode-action";
 import { GLSP_TYPES } from "./types";
 
 export interface EditorContext {
@@ -27,12 +29,26 @@ export interface EditorContext {
     readonly args?: Args;
 }
 
+export interface EditModeListener {
+    editModeChanged(newValue: string, oldvalue: string): void;
+}
 @injectable()
-export class EditorContextService {
+export class EditorContextService implements IActionHandler {
 
     @inject(GLSP_TYPES.SelectionService) protected selectionService: SelectionService;
     @inject(MousePositionTracker) protected mousePositionTracker: MousePositionTracker;
     @inject(TYPES.ModelSourceProvider) protected modelSource: () => Promise<ModelSource>;
+    editMode: string;
+
+    constructor(@multiInject(GLSP_TYPES.IEditModeListener) @optional() protected editModeListeners: EditModeListener[] = []) { }
+
+    register(editModeListener: EditModeListener) {
+        distinctAdd(this.editModeListeners, editModeListener);
+    }
+
+    deregister(editModeListener: EditModeListener) {
+        remove(this.editModeListeners, editModeListener);
+    }
 
     get(args?: Args): EditorContext {
         return {
@@ -50,6 +66,18 @@ export class EditorContextService {
         };
     }
 
+    handle(action: Action) {
+        if (isSetEditModeAction(action)) {
+            const oldValue = this.editMode;
+            this.editMode = action.editMode;
+            this.notifiyEditModeListeners(oldValue);
+        }
+    }
+
+    protected notifiyEditModeListeners(oldValue: string) {
+        this.editModeListeners.forEach(listener => listener.editModeChanged(oldValue, this.editMode));
+    }
+
     async getSourceUri() {
         const modelSource = await this.modelSource();
         if (isSourceUriAware(modelSource)) {
@@ -64,6 +92,10 @@ export class EditorContextService {
 
     get selectedElements(): Readonly<SModelElement>[] {
         return this.selectionService.getSelectedElements();
+    }
+
+    get isReadonly(): boolean {
+        return this.editMode === EditMode.READONLY;
     }
 }
 

@@ -13,22 +13,18 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import "../../../css/command-palette.css";
-
 import { ContainerModule } from "inversify";
-import { CommandPalette, CommandPaletteActionProviderRegistry, TYPES } from "sprotty";
+import { ApplyLabelEditCommand, configureCommand, TYPES } from "sprotty";
 
 import { GLSP_TYPES } from "../../base/types";
-import { CommandPaletteTool } from "./command-palette-tool";
-import { ServerCommandPaletteActionProvider } from "./server-command-palette-provider";
+import { DirectLabelEditTool } from "./edit-label-tool";
+import { BalloonLabelValidationDecorator, ServerEditLabelValidator } from "./edit-label-validator";
 
-const glspCommandPaletteModule = new ContainerModule((bind) => {
-    bind(CommandPalette).toSelf().inSingletonScope();
-    bind(TYPES.IUIExtension).toService(CommandPalette);
-    bind(CommandPaletteActionProviderRegistry).toSelf().inSingletonScope();
-    bind(TYPES.ICommandPaletteActionProviderRegistry).toService(CommandPaletteActionProviderRegistry);
-    bind(TYPES.ICommandPaletteActionProvider).to(ServerCommandPaletteActionProvider);
-    bind(GLSP_TYPES.IDefaultTool).to(CommandPaletteTool);
+const glspEditLabelModule = new ContainerModule((bind, _unbind, isBound, _rebind) => {
+    bind(TYPES.IEditLabelValidator).to(ServerEditLabelValidator);
+    bind(TYPES.IEditLabelValidationDecorator).to(BalloonLabelValidationDecorator);
+    bind(GLSP_TYPES.IDefaultTool).to(DirectLabelEditTool);
+    configureCommand({ bind, isBound }, ApplyLabelEditCommand);
 });
 
-export default glspCommandPaletteModule;
+export default glspEditLabelModule;

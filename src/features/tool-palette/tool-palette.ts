@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { inject, injectable } from "inversify";
+import { inject, injectable, postConstruct } from "inversify";
 import {
     AbstractUIExtension,
     Action,
@@ -30,6 +30,7 @@ import { matchesKeystroke } from "sprotty/lib/utils/keyboard";
 
 import { GLSPActionDispatcher } from "../../base/action-dispatcher";
 import { isSetContextActionsAction, RequestContextActions, SetContextActions } from "../../base/actions/context-actions";
+import { EditModeListener, EditorContextService } from "../../base/editor-context";
 import { MouseDeleteTool } from "../tools/delete-tool";
 import { RequestMarkersAction } from "../validation/validate";
 import { PaletteItem } from "./palette-item";
@@ -47,11 +48,11 @@ export class EnableToolPaletteAction implements Action {
 }
 
 @injectable()
-export class ToolPalette extends AbstractUIExtension implements IActionHandler {
+export class ToolPalette extends AbstractUIExtension implements IActionHandler, EditModeListener {
 
     @inject(TYPES.IActionDispatcher) protected readonly actionDispatcher: GLSPActionDispatcher;
     @inject(TYPES.IToolManager) protected readonly toolManager: IToolManager;
-    static readonly ID = "tool-palette";
+    @inject(EditorContextService) protected readonly editorContext: EditorContextService;
 
     protected paletteItems: PaletteItem[];
     protected paletteItemsCopy: PaletteItem[] = [];
@@ -63,6 +64,13 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler {
 
     id() { return ToolPalette.ID; }
     containerClass() { return ToolPalette.ID; }
+
+    static readonly ID = "tool-palette";
+
+    @postConstruct()
+    postConstruct() {
+        this.editorContext.register(this);
+    }
 
     initialize() {
         if (!this.paletteItems) {
@@ -205,18 +213,22 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler {
 
     protected onClickCreateToolButton(button: HTMLElement, item: PaletteItem) {
         return (ev: MouseEvent) => {
-            this.actionDispatcher.dispatchAll(item.actions);
-            this.changeActiveButton(button);
-            this.restoreFocus();
+            if (!this.editorContext.isReadonly) {
+                this.actionDispatcher.dispatchAll(item.actions);
+                this.changeActiveButton(button);
+                this.restoreFocus();
+            }
         };
     }
 
     protected onClickStaticToolButton(button: HTMLElement, toolId?: string) {
         return (ev: MouseEvent) => {
-            const action = toolId ? new EnableToolsAction([toolId]) : new EnableDefaultToolsAction();
-            this.actionDispatcher.dispatch(action);
-            this.changeActiveButton(button);
-            this.restoreFocus();
+            if (!this.editorContext.isReadonly) {
+                const action = toolId ? new EnableToolsAction([toolId]) : new EnableDefaultToolsAction();
+                this.actionDispatcher.dispatch(action);
+                this.changeActiveButton(button);
+                this.restoreFocus();
+            }
         };
     }
 
@@ -241,12 +253,16 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler {
             this.actionDispatcher.requestUntil(requestAction).then(response => {
                 if (isSetContextActionsAction(response)) {
                     this.paletteItems = response.actions.map(e => e as PaletteItem);
-                    this.actionDispatcher.dispatch(new SetUIExtensionVisibilityAction(ToolPalette.ID, true));
+                    this.actionDispatcher.dispatch(new SetUIExtensionVisibilityAction(ToolPalette.ID, !this.editorContext.isReadonly));
                 }
             });
         } else if (action instanceof EnableToolsAction && action.toolIds.includes(ToolPalette.ID)) {
             this.changeActiveButton();
         }
+    }
+
+    editModeChanged(oldValue: string, newValue: string) {
+        this.actionDispatcher.dispatch(new SetUIExtensionVisibilityAction(ToolPalette.ID, !this.editorContext.isReadonly));
     }
 
     protected clearOnEspace(event: KeyboardEvent) {

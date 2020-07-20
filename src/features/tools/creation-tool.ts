@@ -27,7 +27,6 @@ import {
     SEdge,
     SModelElement,
     SNode,
-    Tool,
     TYPES
 } from "sprotty";
 
@@ -39,28 +38,24 @@ import {
     TriggerEdgeCreationAction,
     TriggerNodeCreationAction
 } from "../../base/operations/operation";
-import { GLSP_TYPES } from "../../base/types";
 import { getAbsolutePosition } from "../../utils/viewpoint-util";
 import { Containable, isContainable } from "../hints/model";
-import { IMouseTool } from "../mouse-tool/mouse-tool";
 import {
     DrawFeedbackEdgeAction,
     FeedbackEdgeEndMovingMouseListener,
     RemoveFeedbackEdgeAction
 } from "../tool-feedback/creation-tool-feedback";
 import { CursorCSS, cursorFeedbackAction } from "../tool-feedback/css-feedback";
-import { IFeedbackActionDispatcher } from "../tool-feedback/feedback-action-dispatcher";
+import { BaseGLSPTool } from "./base-glsp-tool";
 import { DragAwareMouseListener } from "./drag-aware-mouse-listener";
 
 @injectable()
-export class NodeCreationTool implements Tool, IActionHandler {
+export class NodeCreationTool extends BaseGLSPTool implements IActionHandler {
     static ID = "tool_create_node";
+    readonly id = NodeCreationTool.ID = "unknown";
 
-    @inject(GLSP_TYPES.MouseTool) protected mouseTool: IMouseTool;
-    @inject(GLSP_TYPES.IFeedbackActionDispatcher) protected feedbackDispatcher: IFeedbackActionDispatcher;
     @inject(TYPES.ISnapper) @optional() readonly snapper?: ISnapper;
 
-    readonly id = NodeCreationTool.ID = "unknown";
     protected creationToolMouseListener: NodeCreationToolMouseListener;
     protected triggerAction: TriggerNodeCreationAction;
 
@@ -76,10 +71,6 @@ export class NodeCreationTool implements Tool, IActionHandler {
     disable() {
         this.mouseTool.deregister(this.creationToolMouseListener);
         this.feedbackDispatcher.deregisterFeedback(this, [cursorFeedbackAction()]);
-    }
-
-    dispatchFeedback(actions: Action[]) {
-        this.feedbackDispatcher.registerFeedback(this, actions);
     }
 
     handle(action: Action): Action | void {
@@ -129,7 +120,7 @@ export class NodeCreationToolMouseListener extends DragAwareMouseListener {
             const feedback = this.creationAllowed(this.elementTypeId)
                 ? cursorFeedbackAction(CursorCSS.NODE_CREATION) :
                 cursorFeedbackAction(CursorCSS.OPERATION_NOT_ALLOWED);
-            this.tool.dispatchFeedback([feedback]);
+            this.tool.dispatchFeedback(this, [feedback]);
         }
         return [];
     }
@@ -139,16 +130,13 @@ export class NodeCreationToolMouseListener extends DragAwareMouseListener {
  * Tool to create connections in a Diagram, by selecting a source and target node.
  */
 @injectable()
-export class EdgeCreationTool implements Tool, IActionHandler {
+export class EdgeCreationTool extends BaseGLSPTool implements IActionHandler {
     static ID = "tool_create_edge";
     readonly id = EdgeCreationTool.ID;
 
-    @inject(GLSP_TYPES.MouseTool) protected mouseTool: IMouseTool;
-    @inject(GLSP_TYPES.IFeedbackActionDispatcher) protected feedbackDispatcher: IFeedbackActionDispatcher;
     @inject(AnchorComputerRegistry) protected anchorRegistry: AnchorComputerRegistry;
 
     protected triggerAction: TriggerEdgeCreationAction;
-
     protected creationToolMouseListener: EdgeCreationToolMouseListener;
     protected feedbackEndMovingMouseListener: FeedbackEdgeEndMovingMouseListener;
 
@@ -160,17 +148,13 @@ export class EdgeCreationTool implements Tool, IActionHandler {
         this.mouseTool.register(this.creationToolMouseListener);
         this.feedbackEndMovingMouseListener = new FeedbackEdgeEndMovingMouseListener(this.anchorRegistry);
         this.mouseTool.register(this.feedbackEndMovingMouseListener);
-        this.dispatchFeedback([cursorFeedbackAction(CursorCSS.OPERATION_NOT_ALLOWED)]);
+        this.dispatchFeedback(this, [cursorFeedbackAction(CursorCSS.OPERATION_NOT_ALLOWED)]);
     }
 
     disable() {
         this.mouseTool.deregister(this.creationToolMouseListener);
         this.mouseTool.deregister(this.feedbackEndMovingMouseListener);
         this.feedbackDispatcher.deregisterFeedback(this, [new RemoveFeedbackEdgeAction(), cursorFeedbackAction()]);
-    }
-
-    dispatchFeedback(actions: Action[]) {
-        this.feedbackDispatcher.registerFeedback(this, actions);
     }
 
     handle(action: Action): Action | void {
@@ -188,6 +172,7 @@ export class EdgeCreationToolMouseListener extends DragAwareMouseListener {
     protected currentTarget?: SModelElement;
     protected allowedTarget: boolean = false;
     protected proxyEdge: SEdge;
+
     constructor(protected triggerAction: TriggerEdgeCreationAction, protected tool: EdgeCreationTool) {
         super();
         this.proxyEdge = new SEdge();
@@ -199,7 +184,7 @@ export class EdgeCreationToolMouseListener extends DragAwareMouseListener {
         this.target = undefined;
         this.currentTarget = undefined;
         this.allowedTarget = false;
-        this.tool.dispatchFeedback([new RemoveFeedbackEdgeAction()]);
+        this.tool.dispatchFeedback(this, [new RemoveFeedbackEdgeAction()]);
     }
 
     nonDraggingMouseUp(element: SModelElement, event: MouseEvent): Action[] {
@@ -208,7 +193,7 @@ export class EdgeCreationToolMouseListener extends DragAwareMouseListener {
             if (!this.isSourceSelected()) {
                 if (this.currentTarget && this.allowedTarget) {
                     this.source = this.currentTarget.id;
-                    this.tool.dispatchFeedback([new DrawFeedbackEdgeAction(this.triggerAction.elementTypeId, this.source)]);
+                    this.tool.dispatchFeedback(this, [new DrawFeedbackEdgeAction(this.triggerAction.elementTypeId, this.source)]);
                 }
             } else {
                 if (this.currentTarget && this.allowedTarget) {

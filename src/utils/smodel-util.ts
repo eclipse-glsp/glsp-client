@@ -21,10 +21,10 @@ import {
     isSelected,
     Selectable,
     SModelElement,
+    SModelElementSchema,
     SRoutableElement,
     SRoutingHandle
 } from "sprotty";
-import { SModelElementSchema } from "src";
 
 import { ElementAndRoutingPoints } from "../base/operations/operation";
 
