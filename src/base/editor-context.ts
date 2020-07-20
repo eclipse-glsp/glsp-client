@@ -40,7 +40,7 @@ export class EditorContextService implements IActionHandler {
     @inject(TYPES.ModelSourceProvider) protected modelSource: () => Promise<ModelSource>;
     editMode: string;
 
-    constructor(@multiInject(GLSP_TYPES.SelectionListener) @optional() protected editModeListeners: EditModeListener[] = []) { }
+    constructor(@multiInject(GLSP_TYPES.IEditModeListener) @optional() protected editModeListeners: EditModeListener[] = []) { }
 
     register(editModeListener: EditModeListener) {
         distinctAdd(this.editModeListeners, editModeListener);

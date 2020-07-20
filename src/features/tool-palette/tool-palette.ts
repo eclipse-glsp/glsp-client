@@ -65,7 +65,6 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
     id() { return ToolPalette.ID; }
     containerClass() { return ToolPalette.ID; }
 
-
     static readonly ID = "tool-palette";
 
     @postConstruct()

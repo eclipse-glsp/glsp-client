@@ -29,8 +29,6 @@ const glspCommandPaletteModule = new ContainerModule((bind) => {
     bind(TYPES.ICommandPaletteActionProviderRegistry).toService(CommandPaletteActionProviderRegistry);
     bind(TYPES.ICommandPaletteActionProvider).to(ServerCommandPaletteActionProvider);
     bind(GLSP_TYPES.IDefaultTool).to(CommandPaletteTool);
-
-
 });
 
 export default glspCommandPaletteModule;
