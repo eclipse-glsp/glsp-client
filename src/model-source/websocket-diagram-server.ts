@@ -15,11 +15,9 @@
  ********************************************************************************/
 import { injectable } from "inversify";
 import {
-    Action, ActionHandlerRegistry, ActionMessage,
-    ApplyLabelEditAction, CollapseExpandAction, CollapseExpandAllAction,
-    ComputedBoundsAction, DiagramServer, ExportSvgAction, ICommand, LayoutAction,
-    OpenAction, RequestBoundsCommand, RequestModelAction, RequestPopupModelAction,
-    ServerStatusAction, SwitchEditModeCommand
+    Action, ActionHandlerRegistry, ActionMessage, ApplyLabelEditAction, ComputedBoundsAction,
+    DiagramServer, ExportSvgAction, ICommand, LayoutAction, RequestBoundsCommand,
+    RequestModelAction, RequestPopupModelAction, ServerStatusAction, SwitchEditModeCommand
 } from "sprotty";
 import * as rpc from "vscode-ws-jsonrpc";
 import { NotificationType } from "vscode-ws-jsonrpc";
@@ -114,9 +112,6 @@ export function registerDefaultGLSPServerActions(registry: ActionHandlerRegistry
     registry.register(ComputedBoundsAction.KIND, diagramServer);
     registry.register(RequestBoundsCommand.KIND, diagramServer);
     registry.register(RequestPopupModelAction.KIND, diagramServer);
-    registry.register(CollapseExpandAction.KIND, diagramServer);
-    registry.register(CollapseExpandAllAction.KIND, diagramServer);
-    registry.register(OpenAction.KIND, diagramServer);
     registry.register(ServerStatusAction.KIND, diagramServer);
     registry.register(RequestModelAction.KIND, diagramServer);
     registry.register(ExportSvgAction.KIND, diagramServer);
