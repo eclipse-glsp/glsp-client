@@ -61,7 +61,7 @@
 }
 
 .sprotty-resize-handle.active {
-    fill: var(--theia-menu-selectionBackground);
+    fill: #0074e8;
 }
 
 .sprotty-resize-handle.mouseover {
