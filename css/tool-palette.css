@@ -129,12 +129,9 @@
 }
 
 .search-input {
-    background: var(--theia-input-background);
-    color: var(--theia-input-foreground);
-    border: var(--theia-border-width) solid var(--theia-input-border);
-    font-family: var(--theia-ui-font-family);
-    font-size: var(--theia-ui-font-size1);
-    line-height: var(--theia-content-line-height);
+    background: #DFDFDF;
+    color: black;
+    border: v#BDDAEF;
     padding-left: 3px;
     width: 150px;
     margin-left: 5px;
