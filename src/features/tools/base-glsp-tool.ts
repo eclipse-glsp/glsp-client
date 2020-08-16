@@ -39,11 +39,15 @@ export abstract class BaseGLSPTool implements GLSPTool {
         return true;
     }
 
-    dispatchFeedback(feedbackEmitter: IFeedbackEmitter, actions: Action[]) {
-        this.feedbackDispatcher.registerFeedback(feedbackEmitter, actions);
+    dispatchFeedback(actions: Action[], feedbackeEmitter?: IFeedbackEmitter) {
+        this.feedbackDispatcher.registerFeedback(feedbackeEmitter ? feedbackeEmitter : this, actions);
     }
 
     dispatchActions(actions: Action[]) {
         this.actionDispatcher.dispatchAll(actions);
+    }
+
+    deregisterFeedback(actions: Action[], feedbackeEmitter?: IFeedbackEmitter) {
+        this.feedbackDispatcher.deregisterFeedback(feedbackeEmitter ? feedbackeEmitter : this, actions);
     }
 }

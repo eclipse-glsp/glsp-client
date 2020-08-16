@@ -204,7 +204,7 @@ export class FeedbackMoveMouseListener extends MouseListener {
                 action = removeMovementRestrictionFeedback(element, this.tool.movementRestrictor);
             }
 
-            this.tool.dispatchFeedback(this, [action]);
+            this.tool.dispatchFeedback([action], this);
         }
         return newPosition;
     }
@@ -227,7 +227,7 @@ export class FeedbackMoveMouseListener extends MouseListener {
                 result.push(moveAction);
             }
             if (this.tool.movementRestrictor) {
-                result.push(removeMovementRestrictionFeedback(target, this.tool.movementRestrictor));
+                this.tool.deregisterFeedback([removeMovementRestrictionFeedback(target, this.tool.movementRestrictor)], this);
             }
 
         }

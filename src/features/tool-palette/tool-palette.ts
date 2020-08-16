@@ -256,7 +256,7 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
                     this.actionDispatcher.dispatch(new SetUIExtensionVisibilityAction(ToolPalette.ID, !this.editorContext.isReadonly));
                 }
             });
-        } else if (action instanceof EnableToolsAction && action.toolIds.includes(ToolPalette.ID)) {
+        } else if (action instanceof EnableDefaultToolsAction) {
             this.changeActiveButton();
         }
     }

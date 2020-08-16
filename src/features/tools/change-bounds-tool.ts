@@ -35,6 +35,7 @@ import {
     TYPES
 } from "sprotty";
 
+import { DragAwareMouseListener } from "../../base/drag-aware-mouse-listener";
 import {
     ChangeBoundsOperation,
     ChangeRoutingPointsOperation,
@@ -64,8 +65,6 @@ import {
 } from "../tool-feedback/change-bounds-tool-feedback";
 import { applyCssClasses, CursorCSS, cursorFeedbackAction, deleteCssClasses } from "../tool-feedback/css-feedback";
 import { BaseGLSPTool } from "./base-glsp-tool";
-import { DragAwareMouseListener } from "./drag-aware-mouse-listener";
-
 
 /**
  * The change bounds tool has the license to move multiple elements or resize a single element by implementing the ChangeBounds operation.
@@ -101,9 +100,6 @@ export class ChangeBoundsTool extends BaseGLSPTool {
         this.changeBoundsListener = this.createChangeBoundsListener();
         this.mouseTool.register(this.changeBoundsListener);
         this.selectionService.register(this.changeBoundsListener);
-
-        // register feedback
-        this.feedbackDispatcher.registerFeedback(this, [new ShowChangeBoundsToolResizeFeedbackAction]);
     }
 
     protected createMoveMouseListener(): MouseListener {
@@ -118,8 +114,8 @@ export class ChangeBoundsTool extends BaseGLSPTool {
         this.mouseTool.deregister(this.changeBoundsListener);
         this.selectionService.deregister(this.changeBoundsListener);
         this.mouseTool.deregister(this.feedbackMoveMouseListener);
-        this.feedbackDispatcher.deregisterFeedback(this.feedbackMoveMouseListener, []);
-        this.feedbackDispatcher.deregisterFeedback(this.changeBoundsListener, [new HideChangeBoundsToolResizeFeedbackAction]);
+        this.deregisterFeedback([], this.feedbackMoveMouseListener);
+        this.deregisterFeedback([new HideChangeBoundsToolResizeFeedbackAction], this.changeBoundsListener);
     }
 }
 
@@ -132,7 +128,7 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements Sele
     protected positionDelta: WriteablePoint = { x: 0, y: 0 };
 
     // members for resize mode
-    protected activeResizeElementId?: string;
+    protected activeResizeElement?: SModelElement;
     protected activeResizeHandle?: SResizeHandle;
 
     constructor(protected tool: ChangeBoundsTool) {
@@ -145,12 +141,12 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements Sele
             return [];
         }
         // check if we have a resize handle (only single-selection)
-        if (this.activeResizeElementId && target instanceof SResizeHandle) {
+        if (this.activeResizeElement && target instanceof SResizeHandle) {
             this.activeResizeHandle = target;
         } else {
             this.setActiveResizeElement(target);
         }
-        if (this.activeResizeElementId) {
+        if (this.activeResizeElement) {
             this.initPosition(event);
         } else {
             this.reset();
@@ -197,10 +193,13 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements Sele
 
         operations.push(...this.handleMoveElementsOnServer(target));
         operations.push(...this.handleMoveRoutingPointsOnServer(target));
-        return [new CompoundOperation(operations)];
+        if (operations.length > 0) {
+            return [new CompoundOperation(operations)];
+        }
+        return operations;
     }
 
-    protected handleMoveElementsOnServer(target: SModelElement): Operation[] {
+    protected handleMoveElementsOnServer(target: SModelElement): Action[] {
         const result: Operation[] = [];
         const newBounds: ElementAndBounds[] = [];
         forEachElement(target, isNonRoutableSelectedMovableBoundsAware, element => {
@@ -212,7 +211,7 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements Sele
         return result;
     }
 
-    protected handleMoveRoutingPointsOnServer(target: SModelElement): Operation[] {
+    protected handleMoveRoutingPointsOnServer(target: SModelElement): Action[] {
         const result: Operation[] = [];
         const newRoutingPoints: ElementAndRoutingPoints[] = [];
         forEachElement(target, isNonRoutableSelectedMovableBoundsAware, element => {
@@ -240,8 +239,8 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements Sele
     }
 
     selectionChanged(root: SModelRoot, selectedElements: string[]): void {
-        if (this.activeResizeElementId) {
-            if (selectedElements.includes(this.activeResizeElementId)) {
+        if (this.activeResizeElement) {
+            if (selectedElements.includes(this.activeResizeElement.id)) {
                 // our active element is still selected, nothing to do
                 return;
             }
@@ -262,15 +261,17 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements Sele
         const moveableElement = findParentByFeature(target, isBoundsAwareMoveable);
         if (isSelected(moveableElement)) {
             // only allow one element to have the element resize handles
-            this.activeResizeElementId = moveableElement.id;
-            this.tool.dispatchFeedback(this, [new ShowChangeBoundsToolResizeFeedbackAction(this.activeResizeElementId)]);
+            this.activeResizeElement = moveableElement;
+            if (isResizable(this.activeResizeElement)) {
+                this.tool.dispatchFeedback([new ShowChangeBoundsToolResizeFeedbackAction(this.activeResizeElement.id)], this);
+            }
             return true;
         }
         return false;
     }
 
     protected isActiveResizeElement(element?: SModelElement): element is SParentElement & BoundsAware {
-        return element !== undefined && element.id === this.activeResizeElementId;
+        return element !== undefined && this.activeResizeElement !== undefined && element.id === this.activeResizeElement.id;
     }
 
     protected initPosition(event: MouseEvent) {
@@ -312,7 +313,10 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements Sele
     }
 
     protected reset() {
-        this.tool.dispatchFeedback(this, [new HideChangeBoundsToolResizeFeedbackAction()]);
+        if (this.activeResizeElement && isResizable(this.activeResizeElement)) {
+            this.tool.dispatchFeedback([new HideChangeBoundsToolResizeFeedbackAction()], this);
+
+        }
         this.tool.dispatchActions([cursorFeedbackAction(CursorCSS.DEFAULT)]);
         this.resetPosition();
     }

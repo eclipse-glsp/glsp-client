@@ -62,7 +62,9 @@ export class DeleteKeyListener extends KeyListener {
         if (matchesKeystroke(event, 'Delete')) {
             const deleteElementIds = Array.from(element.root.index.all().filter(e => isDeletable(e) && isSelectable(e) && e.selected)
                 .filter(e => e.id !== e.root.id).map(e => e.id));
-            return [new DeleteElementOperation(deleteElementIds)];
+            if (deleteElementIds.length > 0) {
+                return [new DeleteElementOperation(deleteElementIds)];
+            }
         }
         return [];
     }
@@ -99,7 +101,6 @@ export class DeleteToolMouseListener extends MouseListener {
         if (!isDeletable(target)) {
             return [];
         }
-
         const result: Action[] = [];
         result.push(new DeleteElementOperation([target.id]));
         if (!isCtrlOrCmd(event)) {
