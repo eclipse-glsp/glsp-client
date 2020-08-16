@@ -26,14 +26,13 @@ import {
     SModelElement,
     SModelRoot,
     SRoutableElement,
-    SRoutingHandle,
-    Tool
+    SRoutingHandle
 } from "sprotty";
 
+import { DragAwareMouseListener } from "../../base/drag-aware-mouse-listener";
 import { ChangeRoutingPointsOperation, ReconnectEdgeOperation } from "../../base/operations/operation";
 import { GLSP_TYPES } from "../../base/types";
 import { isRoutable, isRoutingHandle } from "../../utils/smodel-util";
-import { IMouseTool } from "../mouse-tool/mouse-tool";
 import {
     isReconnectable,
     isReconnectHandle,
@@ -53,25 +52,21 @@ import {
     ShowEdgeReconnectHandlesFeedbackAction,
     SwitchRoutingModeAction
 } from "../tool-feedback/edge-edit-tool-feedback";
-import { IFeedbackActionDispatcher } from "../tool-feedback/feedback-action-dispatcher";
-import { DragAwareMouseListener } from "./drag-aware-mouse-listener";
+import { BaseGLSPTool } from "./base-glsp-tool";
 
 @injectable()
-export class EdgeEditTool implements Tool {
+export class EdgeEditTool extends BaseGLSPTool {
     static ID = "glsp.edge-edit-tool";
-    readonly id = EdgeEditTool.ID;
+
+    @inject(GLSP_TYPES.SelectionService) protected selectionService: SelectionService;
+    @inject(AnchorComputerRegistry) protected anchorRegistry: AnchorComputerRegistry;
+    @inject(EdgeRouterRegistry) @optional() protected edgeRouterRegistry?: EdgeRouterRegistry;
 
     protected feedbackEdgeSourceMovingListener: FeedbackEdgeSourceMovingMouseListener;
     protected feedbackEdgeTargetMovingListener: FeedbackEdgeTargetMovingMouseListener;
     protected feedbackMovingListener: FeedbackEdgeRouteMovingMouseListener;
     protected edgeEditListener: EdgeEditListener;
-
-    constructor(@inject(GLSP_TYPES.SelectionService) protected selectionService: SelectionService,
-        @inject(GLSP_TYPES.MouseTool) protected mouseTool: IMouseTool,
-        @inject(GLSP_TYPES.IFeedbackActionDispatcher) protected feedbackDispatcher: IFeedbackActionDispatcher,
-        @inject(AnchorComputerRegistry) protected anchorRegistry: AnchorComputerRegistry,
-        @inject(EdgeRouterRegistry) @optional() protected edgeRouterRegistry?: EdgeRouterRegistry) {
-    }
+    readonly id = EdgeEditTool.ID;
 
     enable(): void {
         this.edgeEditListener = new EdgeEditListener(this);
@@ -101,10 +96,6 @@ export class EdgeEditTool implements Tool {
         this.selectionService.deregister(this.edgeEditListener);
         this.deregisterFeedbackListeners();
         this.mouseTool.deregister(this.edgeEditListener);
-    }
-
-    dispatchFeedback(actions: Action[]) {
-        this.feedbackDispatcher.registerFeedback(this, actions);
     }
 }
 
@@ -318,7 +309,7 @@ class EdgeEditListener extends DragAwareMouseListener implements SelectionListen
         }
         result.push(...[new HideEdgeReconnectHandlesFeedbackAction(),
         cursorFeedbackAction(), new RemoveFeedbackEdgeAction()]);
-        this.tool.dispatchFeedback(result);
+        this.tool.deregisterFeedback(result);
         this.tool.deregisterFeedbackListeners();
     }
 }

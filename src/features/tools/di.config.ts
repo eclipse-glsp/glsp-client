@@ -19,9 +19,10 @@ import { configureActionHandler } from "sprotty";
 import { TriggerEdgeCreationAction, TriggerNodeCreationAction } from "../../base/operations/operation";
 import { GLSP_TYPES } from "../../base/types";
 import { ChangeBoundsTool } from "./change-bounds-tool";
-import { EdgeCreationTool, NodeCreationTool } from "./creation-tool";
 import { DelKeyDeleteTool, MouseDeleteTool } from "./delete-tool";
+import { EdgeCreationTool } from "./edge-creation-tool";
 import { EdgeEditTool } from "./edge-edit-tool";
+import { NodeCreationTool } from "./node-creation-tool";
 
 const toolsModule = new ContainerModule((bind, _unbind, isBound) => {
     // Register default tools

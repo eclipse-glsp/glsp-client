@@ -33,41 +33,44 @@ import toolsModule from "./features/tools/di.config";
 import { markerNavigatorModule, validationModule } from "./features/validation/di.config";
 
 export * from 'sprotty';
-
-export * from './base/args';
-export * from './base/model/update-model-command';
-export * from './base/operations/operation';
-export * from './base/command-stack';
 export * from './base/action-dispatcher';
-export * from './base/model-initialization-constraint';
-export * from './base/editor-context';
-export * from './base/selection-clearing-mouse-listener';
-export * from './base/source-uri-aware';
 export * from './base/actions/context-actions';
 export * from './base/actions/edit-mode-action';
+export * from './base/actions/edit-validation-actions';
+export * from './base/args';
+export * from './base/auto-complete/auto-complete-actions';
+export * from './base/auto-complete/auto-complete-widget';
+export * from './base/auto-complete/validation-decorator';
+export * from './base/command-stack';
+export * from './base/drag-aware-mouse-listener';
+export * from './base/editor-context';
+export * from './base/model-initialization-constraint';
+export * from './base/model/update-model-command';
+export * from './base/operations/operation';
+export * from './base/selection-clearing-mouse-listener';
+export * from './base/source-uri-aware';
+export * from './base/types';
 export * from './features/change-bounds/model';
 export * from './features/change-bounds/movement-restrictor';
 export * from './features/change-bounds/snap';
-export * from './features/tool-palette/palette-item';
-export * from './features/context-menu/delete-element-context-menu';
 export * from './features/command-palette/server-command-palette-provider';
+export * from './features/context-menu/delete-element-context-menu';
 export * from './features/copy-paste/copy-paste-handler';
 export * from './features/decoration/decoration-placer';
 export * from './features/decoration/view';
-export * from './features/edit-label/edit-label-validator';
 export * from './features/edit-label/edit-label-tool';
+export * from './features/edit-label/edit-label-validator';
 export * from './features/execute/execute-command';
 export * from './features/execute/model';
+export * from './features/hints/model';
 export * from './features/hints/request-type-hints-action';
 export * from './features/hints/type-hints';
-export * from './features/hints/model';
 export * from './features/hover/hover';
 export * from './features/layout/layout-commands';
 export * from './features/mouse-tool/mouse-tool';
 export * from './features/navigation/external-navigate-to-target-handler';
 export * from './features/navigation/navigation-action-handler';
 export * from './features/navigation/navigation-target-resolver';
-export * from './features/validation/marker-navigator';
 export * from './features/rank/model';
 export * from './features/reconnect/model';
 export * from './features/save/model';
@@ -78,30 +81,25 @@ export * from './features/tool-feedback/css-feedback';
 export * from './features/tool-feedback/edge-edit-tool-feedback';
 export * from './features/tool-feedback/feedback-action-dispatcher';
 export * from './features/tool-feedback/model';
-export * from './features/tool-feedback/model';
+export * from './features/tool-palette/palette-item';
 export * from './features/tool-palette/tool-palette';
 export * from './features/tools/change-bounds-tool';
-export * from './features/tools/creation-tool';
 export * from './features/tools/delete-tool';
-export * from './features/tools/drag-aware-mouse-listener';
+export * from './features/tools/edge-creation-tool';
 export * from './features/tools/edge-edit-tool';
-
+export * from './features/tools/node-creation-tool';
 export * from './features/undo-redo/model';
+export * from './features/validation/marker-navigator';
 export * from './features/validation/validate';
 export * from './lib/model';
-export * from './base/auto-complete/auto-complete-actions';
-export * from './base/auto-complete/auto-complete-widget';
-export * from './base/auto-complete/validation-decorator';
-export * from './base/actions/edit-validation-actions';
-export * from './base/types';
+export * from './model-source/glsp-server-status';
+export * from './model-source/websocket-diagram-server';
 export * from './utils/array-utils';
 export * from './utils/marker';
 export * from './utils/smodel-util';
 export * from './utils/viewpoint-util';
-export * from './model-source/websocket-diagram-server';
-export * from './model-source/glsp-server-status';
 export {
-    validationModule, saveModule, executeCommandModule, paletteModule, toolFeedbackModule, defaultGLSPModule, modelHintsModule, glspCommandPaletteModule, //
-    glspContextMenuModule, glspServerCopyPasteModule, copyPasteContextMenuModule, glspSelectModule, glspMouseToolModule, layoutCommandsModule, glspEditLabelModule, //
+    validationModule, saveModule, executeCommandModule, paletteModule, toolFeedbackModule, defaultGLSPModule, modelHintsModule, glspCommandPaletteModule,
+    glspContextMenuModule, glspServerCopyPasteModule, copyPasteContextMenuModule, glspSelectModule, glspMouseToolModule, layoutCommandsModule, glspEditLabelModule,
     glspHoverModule, toolsModule, navigationModule, markerNavigatorModule, glspDecorationModule
 };
