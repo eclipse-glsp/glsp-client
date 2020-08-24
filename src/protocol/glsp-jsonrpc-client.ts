@@ -45,6 +45,7 @@ export class BaseJsonrpcGLSPClient implements GLSPClient {
     protected resolvedConnection?: MessageConnection;
     protected state: ClientState;
     protected onStop?: Promise<void>;
+
     constructor(options: JsonrpcGLSPClient.Options) {
         Object.assign(this, options);
         this.state = ClientState.Initial;
@@ -85,7 +86,6 @@ export class BaseJsonrpcGLSPClient implements GLSPClient {
     async start(): Promise<void> {
         try {
             this.state = ClientState.Starting;
-
             const connection = await this.resolveConnection();
             connection.listen();
             this.resolvedConnection = connection;
@@ -150,7 +150,6 @@ export class BaseJsonrpcGLSPClient implements GLSPClient {
 
         this.error('Connection to server got closed. Server will not be restarted.');
         this.state = ClientState.ServerError;
-
     }
 
     protected error(message: string, ...optionalParams: any[]): void {
