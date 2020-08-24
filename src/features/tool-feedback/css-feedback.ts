@@ -21,7 +21,12 @@ import { FeedbackCommand } from "./model";
 
 export class ModifyCSSFeedbackAction implements Action {
     kind = ModifyCssFeedbackCommand.KIND;
-    constructor(readonly elements?: SModelElement[], readonly addClasses?: string[], readonly removeClasses?: string[]) { }
+    readonly elementIds?: string[];
+    constructor(elements?: SModelElement[], readonly addClasses?: string[], readonly removeClasses?: string[]) {
+        if (elements) {
+            this.elementIds = elements.map(elt => elt.id);
+        }
+    }
 }
 
 @injectable()
@@ -34,8 +39,8 @@ export class ModifyCssFeedbackCommand extends FeedbackCommand {
 
     execute(context: CommandExecutionContext): SModelRoot {
         const elements: SModelElement[] = [];
-        if (this.action.elements) {
-            elements.push(...this.action.elements);
+        if (this.action.elementIds) {
+            elements.push(...this.action.elementIds.map(elementId => context.root.index.getById(elementId)).filter(exists));
         } else {
             elements.push(context.root);
         }
@@ -52,6 +57,10 @@ export class ModifyCssFeedbackCommand extends FeedbackCommand {
 
         return context.root;
     }
+}
+
+function exists(elt?: SModelElement): elt is SModelElement {
+    return elt !== undefined;
 }
 
 export enum CursorCSS {
