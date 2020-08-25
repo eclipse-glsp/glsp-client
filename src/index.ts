@@ -90,16 +90,17 @@ export * from './features/tools/edge-creation-tool';
 export * from './features/tools/edge-edit-tool';
 export * from './features/tools/node-creation-tool';
 export * from './features/undo-redo/model';
-export * from './features/validation/marker-navigator';
+export * from './features/validation/issue-marker';
 export * from './features/validation/validate';
+export * from './features/validation/marker-navigator';
 export * from './lib/model';
 export * from './model-source/glsp-server-status';
-export * from './model-source/websocket-diagram-server';
+export * from './model-source/glsp-diagram-server';
+export * from './protocol';
 export * from './utils/array-utils';
 export * from './utils/marker';
 export * from './utils/smodel-util';
 export * from './utils/viewpoint-util';
-export * from './protocol';
 export {
     validationModule, saveModule, executeCommandModule, paletteModule, toolFeedbackModule, defaultGLSPModule, modelHintsModule, glspCommandPaletteModule,
     glspContextMenuModule, glspServerCopyPasteModule, copyPasteContextMenuModule, glspSelectModule, glspMouseToolModule, layoutCommandsModule, glspEditLabelModule,

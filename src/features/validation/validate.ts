@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019 EclipseSource and others.
+ * Copyright (c) 2019-2020 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -20,7 +20,6 @@ import {
     CommandExecutionContext,
     CommandReturn,
     IActionDispatcher,
-    SDecoration,
     SIssue,
     SIssueMarker,
     SModelElement,
@@ -31,22 +30,13 @@ import {
 
 import { EditorContextService } from "../../base/editor-context";
 import { GLSP_TYPES } from "../../base/types";
-import { Marker, MarkerKind } from "../../utils/marker";
+import { Marker } from "../../utils/marker";
 import { removeCssClasses } from "../../utils/smodel-util";
 import { getSeverity } from "../hover/hover";
 import { IFeedbackActionDispatcher, IFeedbackEmitter } from "../tool-feedback/feedback-action-dispatcher";
 import { FeedbackCommand } from "../tool-feedback/model";
+import { createSIssue, getOrCreateSIssueMarker, getSIssueMarker } from "./issue-marker";
 
-/**
-* Action to retrieve markers for a model
-*/
-export class RequestMarkersAction implements Action {
-
-    static readonly KIND = 'requestMarkers';
-    readonly kind = RequestMarkersAction.KIND;
-
-    constructor(public readonly elementsIDs: string[] = []) { }
-}
 
 /**
  * Feedback emitter sending actions for visualizing model validation feedback and
@@ -81,14 +71,6 @@ export class ValidationFeedbackEmitter implements IFeedbackEmitter {
         this.feedbackActionDispatcher.registerFeedback(this, [action]);
         this.registeredAction = action;
     }
-
-}
-
-/**
- * Interface for actions processing markers
- */
-export interface MarkersAction extends Action {
-    readonly markers: Marker[];
 }
 
 /**
@@ -163,6 +145,25 @@ export class SetMarkersCommand extends Command {
     }
 }
 
+
+/**
+* Action to retrieve markers for a model
+*/
+export class RequestMarkersAction implements Action {
+
+    static readonly KIND = 'requestMarkers';
+    readonly kind = RequestMarkersAction.KIND;
+
+    constructor(public readonly elementsIDs: string[] = []) { }
+}
+
+/**
+ * Interface for actions processing markers
+ */
+export interface MarkersAction extends Action {
+    readonly markers: Marker[];
+}
+
 /**
  * Action for applying makers to a model
  */
@@ -177,7 +178,6 @@ export class ApplyMarkersAction implements MarkersAction {
  */
 @injectable()
 export class ApplyMarkersCommand extends FeedbackCommand {
-
     static KIND = "applyMarkers";
     readonly priority = 0;
 
@@ -223,73 +223,6 @@ function removeCSSClassFromIssueParent(modelElement: SParentElement, issueMarker
     removeCssClasses(modelElement, [getSeverity(issueMarker)]);
 }
 
-/**
- * Retrieves the `SIssueMarker` contained by the provided model element as
- * direct child or a newly instantiated `SIssueMarker` if no child
- * `SIssueMarker` exists.
- * @param modelElement for which the `SIssueMarker` should be retrieved or created.
- * @returns the child `SIssueMarker` or a new `SIssueMarker` if no such child exists.
- */
-function getOrCreateSIssueMarker(modelElement: SParentElement): SIssueMarker {
-    let issueMarker: SIssueMarker | undefined;
-
-    issueMarker = getSIssueMarker(modelElement);
-
-    if (issueMarker === undefined) {
-        issueMarker = new GIssueMarker();
-        issueMarker.type = "marker";
-        issueMarker.issues = new Array<SIssue>();
-        modelElement.add(issueMarker);
-    }
-
-    return issueMarker;
-}
-
-/**
- * Retrieves the `SIssueMarker` contained by the provided model element as
- * direct child or `undefined` if such an `SIssueMarker` does not exist.
- * @param modelElement for which the `SIssueMarker` should be retrieved.
- * @returns the child `SIssueMarker` or `undefined` if no such child exists.
- */
-function getSIssueMarker(modelElement: SParentElement): SIssueMarker | undefined {
-    let issueMarker: SIssueMarker | undefined;
-
-    for (const child of modelElement.children) {
-        if (child instanceof SIssueMarker) {
-            issueMarker = child;
-        }
-    }
-
-    return issueMarker;
-}
-
-/**
- * Creates an `SIssue` with `severity` and `message` set according to
- * the `kind` and `description` of the provided `Marker`.
- * @param marker `Marker` for that an `SIssue` should be created.
- * @returns the created `SIssue`.
- */
-function createSIssue(marker: Marker): SIssue {
-    const issue: SIssue = new SIssue();
-    issue.message = marker.description;
-
-    switch (marker.kind) {
-        case MarkerKind.ERROR: {
-            issue.severity = 'error';
-            break;
-        }
-        case MarkerKind.INFO: {
-            issue.severity = 'info';
-            break;
-        }
-        case MarkerKind.WARNING: {
-            issue.severity = 'warning';
-            break;
-        }
-    }
-
-    return issue;
-}
 
 /**
  * Action for clearing makers of a model
@@ -345,9 +278,4 @@ export class ClearMarkersCommand extends Command {
     }
 }
 
-export class GIssueMarker extends SIssueMarker {
-    constructor() {
-        super();
-        this.features = new Set<symbol>(SDecoration.DEFAULT_FEATURES);
-    }
-}
+

@@ -14,28 +14,11 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { ActionMessage } from "sprotty";
-import { Message, MessageConnection, NotificationType, RequestType } from "vscode-jsonrpc";
-import { NotificationType0 } from "vscode-ws-jsonrpc";
+import { Message, MessageConnection } from "vscode-ws-jsonrpc";
 
-import { ActionMessageHandler, ClientState, GLSPClient, InitializeParameters } from "./glsp-client";
+import { ActionMessageHandler, ClientState, GLSPClient, InitializeParameters } from "../glsp-client";
+import { ConnectionProvider, JsonrpcGLSPClient } from "./glsp-jsonrpc-client";
 
-export type MaybePromise<T> = T | Promise<T> | PromiseLike<T>;
-export type ConnectionProvider = MessageConnection | (() => MaybePromise<MessageConnection>);
-
-export namespace JsonrpcGLSPClient {
-    export interface Options extends GLSPClient.Options {
-        connectionProvider: ConnectionProvider;
-    }
-
-    export function isOptions(object: any): object is Options {
-        return GLSPClient.isOptions(object) && "connectionProvider" in object;
-    }
-
-    export const ActionMessageNotification = new NotificationType<ActionMessage, void>('process');
-    export const InitializeRequest = new RequestType<InitializeParameters, Boolean, void, void>('initialize');
-    export const ShutdownNotification = new NotificationType0<void>('shutdown');
-    export const ClientNotReadyMsg = 'JsonrpcGLSPClient is not ready yet';
-}
 export class BaseJsonrpcGLSPClient implements GLSPClient {
 
     readonly name: string;
@@ -91,7 +74,7 @@ export class BaseJsonrpcGLSPClient implements GLSPClient {
             this.resolvedConnection = connection;
             this.state = ClientState.Running;
         } catch (error) {
-            this.error('Failed to start connection to server', error);
+            JsonrpcGLSPClient.error('Failed to start connection to server', error);
             this.state = ClientState.StartFailed;
         }
     }
@@ -129,7 +112,7 @@ export class BaseJsonrpcGLSPClient implements GLSPClient {
     }
 
     protected handleConnectionError(error: Error, message: Message, count: number): void {
-        this.error('Connection to server is erroring. Shutting down server.', error);
+        JsonrpcGLSPClient.error('Connection to server is erroring. Shutting down server.', error);
         this.stop();
         this.state = ClientState.ServerError;
     }
@@ -148,12 +131,8 @@ export class BaseJsonrpcGLSPClient implements GLSPClient {
             // Disposing a connection could fail if error cases.
         }
 
-        this.error('Connection to server got closed. Server will not be restarted.');
+        JsonrpcGLSPClient.error('Connection to server got closed. Server will not be restarted.');
         this.state = ClientState.ServerError;
-    }
-
-    protected error(message: string, ...optionalParams: any[]): void {
-        console.error(`[JsonrpcGLSPClient] ${message}`, optionalParams);
     }
 
     protected isConnectionActive(): boolean {

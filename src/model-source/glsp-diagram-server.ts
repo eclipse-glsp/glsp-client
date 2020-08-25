@@ -15,55 +15,73 @@
  ********************************************************************************/
 import { injectable } from "inversify";
 import {
-    Action, ActionHandlerRegistry, ActionMessage, ApplyLabelEditAction, ComputedBoundsAction,
-    DiagramServer, ExportSvgAction, ICommand, LayoutAction, RequestBoundsCommand,
-    RequestModelAction, RequestPopupModelAction, ServerStatusAction, SwitchEditModeCommand
+    Action,
+    ActionHandlerRegistry,
+    ActionMessage,
+    ApplyLabelEditAction,
+    ComputedBoundsAction,
+    DiagramServer,
+    ExportSvgAction,
+    ICommand,
+    LayoutAction,
+    RequestBoundsCommand,
+    RequestModelAction,
+    RequestPopupModelAction,
+    ServerStatusAction,
+    SwitchEditModeCommand
 } from "sprotty";
-import * as rpc from "vscode-ws-jsonrpc";
-import { NotificationType } from "vscode-ws-jsonrpc";
+
 import { RequestContextActions } from "../base/actions/context-actions";
+import { isSetEditModeAction, SetEditModeAction } from "../base/actions/edit-mode-action";
+import { RequestEditValidationAction } from "../base/actions/edit-validation-actions";
+import { DisposeClientAction } from "../base/actions/protocol-actions";
+import {
+    ChangeBoundsOperation,
+    ChangeRoutingPointsOperation,
+    CompoundOperation,
+    CreateEdgeOperation,
+    CreateNodeOperation,
+    DeleteElementOperation,
+    ReconnectEdgeOperation
+} from "../base/operations/operation";
+import { SourceUriAware } from "../base/source-uri-aware";
+import {
+    CutOperationAction,
+    PasteOperationAction,
+    RequestClipboardDataAction
+} from "../features/copy-paste/copy-paste-actions";
+import { ValidateLabelEditAction } from "../features/edit-label/edit-label-validator";
 import { ExecuteServerCommandAction } from "../features/execute/execute-command";
 import { RequestTypeHintsAction } from "../features/hints/request-type-hints-action";
-import {
-    CreateEdgeOperation, ReconnectEdgeOperation,
-    ChangeRoutingPointsOperation, CreateNodeOperation, ChangeBoundsOperation,
-    DeleteElementOperation,
-    CompoundOperation
-} from "../base/operations/operation";
+import { RequestNavigationTargetsAction } from "../features/navigation/navigation-action-handler";
+import { ResolveNavigationTargetAction } from "../features/navigation/navigation-target-resolver";
 import { SaveModelAction } from "../features/save/save";
 import { GlspRedoAction, GlspUndoAction } from "../features/undo-redo/model";
 import { RequestMarkersAction } from "../features/validation/validate";
-import { ValidateLabelEditAction } from "../features/edit-label/edit-label-validator";
-import { RequestClipboardDataAction, PasteOperationAction, CutOperationAction } from "../features/copy-paste/copy-paste-actions";
-import { RequestEditValidationAction } from "../base/actions/edit-validation-actions";
-import { SourceUriAware } from "../base/source-uri-aware";
-import { RequestNavigationTargetsAction } from "../features/navigation/navigation-action-handler";
-import { ResolveNavigationTargetAction } from "../features/navigation/navigation-target-resolver";
-import { SetEditModeAction, isSetEditModeAction } from "../base/actions/edit-mode-action";
-import { DisposeClientAction } from "../base/actions/protocol-actions";
+import { GLSPClient } from "../protocol";
 
 const receivedFromServerProperty = '__receivedFromServer';
 @injectable()
-export class GLSPWebsocketDiagramServer extends DiagramServer implements SourceUriAware {
+export class GLSPDiagramServer extends DiagramServer implements SourceUriAware {
     protected _sourceUri: string;
-    protected connection: rpc.MessageConnection;
+    protected _glspClient?: GLSPClient;
+    protected ready = false;
 
-    listen(webSocket: WebSocket): void {
-        rpc.listen({
-            webSocket,
-            onConnection: (connection: rpc.MessageConnection) => {
-                connection.listen();
-                connection.onNotification(ActionMessageNotification.type, (message: ActionMessage) => this.messageReceived(message));
-                this.connection = connection;
-            }
-        });
+    async connect(client: GLSPClient) {
+        await client.start();
+        client.onActionMessage(message => this.messageReceived(message));
+        this._glspClient = client;
+    }
+
+    public get glspClient(): GLSPClient | undefined {
+        return this._glspClient;
     }
 
     protected sendMessage(message: ActionMessage): void {
-        if (this.connection) {
-            this.connection.sendNotification(ActionMessageNotification.type, message);
+        if (this.glspClient) {
+            this.glspClient.sendActionMessage(message);
         } else {
-            throw new Error('WebSocket is not connected');
+            throw new Error('GLSPClient is not connected');
         }
     }
 
@@ -90,12 +108,16 @@ export class GLSPWebsocketDiagramServer extends DiagramServer implements SourceU
     }
 
     protected handleSetEditModeAction(action: SetEditModeAction): boolean {
-        return (action as any)[receivedFromServerProperty] !== true;
+        return !isReceivedFromServer(action);
     }
 
     public getSourceURI(): string {
         return this._sourceUri;
     }
+}
+
+export function isReceivedFromServer(action: Action) {
+    return (action as any)[receivedFromServerProperty] === true;
 }
 
 export function registerDefaultGLSPServerActions(registry: ActionHandlerRegistry, diagramServer: DiagramServer) {
@@ -136,8 +158,3 @@ export function registerDefaultGLSPServerActions(registry: ActionHandlerRegistry
     // actions.
     registry.register(SwitchEditModeCommand.KIND, { handle: action => undefined });
 }
-
-namespace ActionMessageNotification {
-    export const type = new NotificationType<ActionMessage, void>('process');
-}
-
