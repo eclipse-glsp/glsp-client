@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019 EclipseSource and others.
+ * Copyright (c) 2019-2020 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -40,6 +40,7 @@ import { SourceUriAware } from "../base/source-uri-aware";
 import { RequestNavigationTargetsAction } from "../features/navigation/navigation-action-handler";
 import { ResolveNavigationTargetAction } from "../features/navigation/navigation-target-resolver";
 import { SetEditModeAction, isSetEditModeAction } from "../base/actions/edit-mode-action";
+import { DisposeClientAction } from "../base/actions/protocol-actions";
 
 const receivedFromServerProperty = '__receivedFromServer';
 @injectable()
@@ -128,6 +129,7 @@ export function registerDefaultGLSPServerActions(registry: ActionHandlerRegistry
     registry.register(ResolveNavigationTargetAction.KIND, diagramServer);
     registry.register(CompoundOperation.KIND, diagramServer);
     registry.register(SetEditModeAction.KIND, diagramServer);
+    registry.register(DisposeClientAction.KIND, diagramServer);
 
     // Register an empty handler for SwitchEditMode, to avoid runtime exceptions.
     // We don't want to support SwitchEditMode, but sprotty still sends some corresponding

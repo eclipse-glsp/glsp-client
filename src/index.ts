@@ -37,6 +37,7 @@ export * from './base/action-dispatcher';
 export * from './base/actions/context-actions';
 export * from './base/actions/edit-mode-action';
 export * from './base/actions/edit-validation-actions';
+export * from './base/actions/protocol-actions';
 export * from './base/args';
 export * from './base/auto-complete/auto-complete-actions';
 export * from './base/auto-complete/auto-complete-widget';
@@ -98,6 +99,7 @@ export * from './utils/array-utils';
 export * from './utils/marker';
 export * from './utils/smodel-util';
 export * from './utils/viewpoint-util';
+export * from './protocol';
 export {
     validationModule, saveModule, executeCommandModule, paletteModule, toolFeedbackModule, defaultGLSPModule, modelHintsModule, glspCommandPaletteModule,
     glspContextMenuModule, glspServerCopyPasteModule, copyPasteContextMenuModule, glspSelectModule, glspMouseToolModule, layoutCommandsModule, glspEditLabelModule,
