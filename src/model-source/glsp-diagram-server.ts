@@ -59,6 +59,7 @@ import { SaveModelAction } from "../features/save/save";
 import { GlspRedoAction, GlspUndoAction } from "../features/undo-redo/model";
 import { RequestMarkersAction } from "../features/validation/validate";
 import { GLSPClient } from "../protocol";
+import { isServerMessageAction, ServerMessageAction } from "./glsp-server-status";
 
 const receivedFromServerProperty = '__receivedFromServer';
 @injectable()
@@ -67,10 +68,11 @@ export class GLSPDiagramServer extends DiagramServer implements SourceUriAware {
     protected _glspClient?: GLSPClient;
     protected ready = false;
 
-    async connect(client: GLSPClient) {
+    async connect(client: GLSPClient): Promise<GLSPClient> {
         await client.start();
         client.onActionMessage(message => this.messageReceived(message));
         this._glspClient = client;
+        return this._glspClient;
     }
 
     public get glspClient(): GLSPClient | undefined {
@@ -87,7 +89,8 @@ export class GLSPDiagramServer extends DiagramServer implements SourceUriAware {
 
     initialize(registry: ActionHandlerRegistry): void {
         registerDefaultGLSPServerActions(registry, this);
-        this.clientId = this.viewerOptions.baseDiv;
+        if (!this.clientId)
+            this.clientId = this.viewerOptions.baseDiv;
     }
 
     handle(action: Action): void | ICommand | Action {
@@ -96,11 +99,19 @@ export class GLSPDiagramServer extends DiagramServer implements SourceUriAware {
         return super.handle(action);
     }
 
+
     handleLocally(action: Action): boolean {
+        if (isServerMessageAction(action)) {
+            return this.handleServerMessageAction(action);
+        }
         if (isSetEditModeAction(action)) {
             return this.handleSetEditModeAction(action);
         }
         return super.handleLocally(action);
+    }
+    protected handleServerMessageAction(action: ServerMessageAction): boolean {
+        alert(`[${action.severity}] -${action.message}`);
+        return false;
     }
 
     protected handleComputedBounds(action: ComputedBoundsAction): boolean {
@@ -152,6 +163,7 @@ export function registerDefaultGLSPServerActions(registry: ActionHandlerRegistry
     registry.register(CompoundOperation.KIND, diagramServer);
     registry.register(SetEditModeAction.KIND, diagramServer);
     registry.register(DisposeClientAction.KIND, diagramServer);
+    registry.register(ServerMessageAction.KIND, diagramServer);
 
     // Register an empty handler for SwitchEditMode, to avoid runtime exceptions.
     // We don't want to support SwitchEditMode, but sprotty still sends some corresponding
