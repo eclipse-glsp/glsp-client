@@ -41,8 +41,7 @@ import { matchesKeystroke } from "sprotty/lib/utils/keyboard";
 import { GLSP_TYPES } from "../../base/types";
 import { collectIssueMarkers, MarkerPredicates } from "../../utils/marker";
 import { isSelectableAndBoundsAware } from "../../utils/smodel-util";
-import { SelectCommand } from "../select/action-definitions";
-import { SelectionService } from "../select/selection-service";
+import { SelectCommand, SelectionService } from "../select/selection-service";
 
 export class NavigateToMarkerAction implements Action {
     static readonly KIND = 'navigateToMarker';

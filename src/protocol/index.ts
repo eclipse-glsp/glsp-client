@@ -14,4 +14,5 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 export * from './glsp-client';
-export * from './glsp-jsonrpc-client';
+export * from './jsonrpc/glsp-jsonrpc-client';
+export * from './jsonrpc/base-jsonrpc-glsp-client';

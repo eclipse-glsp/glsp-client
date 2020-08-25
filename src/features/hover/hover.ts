@@ -28,7 +28,7 @@ import {
     SModelRootSchema
 } from "sprotty";
 
-import { GIssueMarker } from "../validation/validate";
+import { GIssueMarker } from "../validation/issue-marker";
 
 @injectable()
 export class GlspHoverMouseListener extends HoverMouseListener {

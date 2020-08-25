@@ -19,7 +19,7 @@ import { Action, defaultModule, SGraphFactory, SModelElementSchema, SModelRoot, 
 
 import { GLSP_TYPES } from "../../base/types";
 import { IFeedbackActionDispatcher, IFeedbackEmitter } from "../tool-feedback/feedback-action-dispatcher";
-import { SelectFeedbackAction } from "./action-definitions";
+import { SelectFeedbackAction } from "./select-feedback-action";
 import { SelectionListener, SelectionService } from "./selection-service";
 
 @injectable()

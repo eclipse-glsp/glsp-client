@@ -14,10 +14,10 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { ContainerModule } from "inversify";
-import { configureCommand, TYPES } from "sprotty";
+import { configureCommand, SelectAllCommand, SelectCommand, TYPES } from "sprotty";
 
 import { GLSP_TYPES } from "../../base/types";
-import { SelectAllCommand, SelectAllFeedbackCommand, SelectCommand, SelectFeedbackCommand } from "./action-definitions";
+import { SelectAllFeedbackCommand, SelectFeedbackCommand } from "./select-feedback-action";
 import { RankedSelectMouseListener } from "./select-mouse-listener";
 import { SelectionService } from "./selection-service";
 
