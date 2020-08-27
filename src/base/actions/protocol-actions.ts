@@ -17,15 +17,35 @@ import { injectable } from "inversify";
 import { Action } from "sprotty";
 
 /**
- * Send to the server if the graphical representation (diagram) for a specific
- * client/widget id is no longer needed. e.g. the tab containing the diagram has been closed.
+ * Initializes the graphical representation (diagram) for a specific client session.
+ * Each individual diagram on the client side counts as one session and has to provide
+ * a unique clientId.
  */
 @injectable()
-export class DisposeClientAction implements Action {
-    static readonly KIND = "disposeClient";
-    readonly kind = DisposeClientAction.KIND;
+export class InitializeClientSessionAction implements Action {
+    static readonly KIND = "initializeClientSession";
+    readonly kind = InitializeClientSessionAction.KIND;
+
+    constructor(public readonly clientId: string) { }
+
 }
 
-export function isDisposeClientAction(action: Action): action is DisposeClientAction {
-    return action.kind === DisposeClientAction.KIND;
+export function initializeClientSessionAction(action: Action): action is InitializeClientSessionAction {
+    return action.kind === InitializeClientSessionAction.KIND;
+}
+
+/**
+ * Sent to the server if the graphical representation (diagram) for a specific client session
+ * is no longer needed. e.g. the tab containing the diagram widget has been closed.
+ */
+@injectable()
+export class DisposeClientSessionAction implements Action {
+    static readonly KIND = "disposeClientSession";
+    readonly kind = DisposeClientSessionAction.KIND;
+
+    constructor(public readonly clientId: string) { }
+}
+
+export function isDisposeClientSessionAction(action: Action): action is DisposeClientSessionAction {
+    return action.kind === DisposeClientSessionAction.KIND;
 }
