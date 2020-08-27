@@ -34,7 +34,7 @@ import {
 import { RequestContextActions } from "../base/actions/context-actions";
 import { isSetEditModeAction, SetEditModeAction } from "../base/actions/edit-mode-action";
 import { RequestEditValidationAction } from "../base/actions/edit-validation-actions";
-import { DisposeClientAction } from "../base/actions/protocol-actions";
+import { DisposeClientSessionAction, InitializeClientSessionAction } from "../base/actions/protocol-actions";
 import {
     ChangeBoundsOperation,
     ChangeRoutingPointsOperation,
@@ -142,6 +142,7 @@ export function registerDefaultGLSPServerActions(registry: ActionHandlerRegistry
     registry.register(ChangeBoundsOperation.KIND, diagramServer);
     registry.register(DeleteElementOperation.KIND, diagramServer);
     registry.register(ExecuteServerCommandAction.KIND, diagramServer);
+    registry.register(InitializeClientSessionAction.KIND, diagramServer);
     registry.register(RequestTypeHintsAction.KIND, diagramServer);
     registry.register(ComputedBoundsAction.KIND, diagramServer);
     registry.register(RequestBoundsCommand.KIND, diagramServer);
@@ -162,7 +163,7 @@ export function registerDefaultGLSPServerActions(registry: ActionHandlerRegistry
     registry.register(ResolveNavigationTargetAction.KIND, diagramServer);
     registry.register(CompoundOperation.KIND, diagramServer);
     registry.register(SetEditModeAction.KIND, diagramServer);
-    registry.register(DisposeClientAction.KIND, diagramServer);
+    registry.register(DisposeClientSessionAction.KIND, diagramServer);
     registry.register(ServerMessageAction.KIND, diagramServer);
 
     // Register an empty handler for SwitchEditMode, to avoid runtime exceptions.
