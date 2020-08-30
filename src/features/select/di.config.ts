@@ -14,12 +14,12 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { ContainerModule } from "inversify";
-import { configureCommand, SelectAllCommand, SelectCommand, TYPES } from "sprotty";
+import { configureCommand, TYPES } from "sprotty";
 
 import { GLSP_TYPES } from "../../base/types";
 import { SelectAllFeedbackCommand, SelectFeedbackCommand } from "./select-feedback-action";
 import { RankedSelectMouseListener } from "./select-mouse-listener";
-import { SelectionService } from "./selection-service";
+import { SelectAllCommand, SelectCommand, SelectionService } from "./selection-service";
 
 const glspSelectModule = new ContainerModule((bind, _unbind, isBound) => {
     bind(SelectionService).toSelf().inSingletonScope();
