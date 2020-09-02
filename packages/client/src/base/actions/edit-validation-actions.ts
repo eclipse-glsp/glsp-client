@@ -15,7 +15,7 @@
  ********************************************************************************/
 import { Action, generateRequestId, RequestAction, ResponseAction } from "sprotty";
 
-import { Args } from "../../base/args";
+import { Args } from "../args";
 
 export class RequestEditValidationAction implements RequestAction<SetEditValidationResultAction> {
     static readonly KIND = "requestEditValidation";

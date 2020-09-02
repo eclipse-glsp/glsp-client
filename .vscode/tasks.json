@@ -4,9 +4,12 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "Build glsp-client",
+      "label": "Build all",
       "type": "shell",
-      "group": "build",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
       "command": "yarn",
       "presentation": {
         "reveal": "always",
@@ -18,7 +21,7 @@
       ]
     },
     {
-      "label": "Watch glsp-client",
+      "label": "Watch all",
       "type": "shell",
       "group": "build",
       "command": "yarn watch",
@@ -29,6 +32,16 @@
       "problemMatcher": [
         "$tsc-watch"
       ]
+    },
+    {
+      "label": "Open Workflow example (Chrome)",
+      "type": "shell",
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      },
+      "command": "google-chrome example/workflow-standalone/app/diagram.html"
     }
   ]
 }

@@ -15,7 +15,7 @@
  ********************************************************************************/
 import { Action, ElementAndBounds, isAction, Point } from "sprotty";
 
-import { Args } from "../../base/args";
+import { Args } from "../args";
 
 export interface Operation extends Action { }
 

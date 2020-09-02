@@ -1,9 +1,11 @@
 .idea/
 .nyc_output/
 node_modules/
-/lib/
-/artifacts/
+lib/
+artifacts/
 bundle.js
 bundle.js.map
-npm-debug.log
-yarn-error.log
+
+*.log
+
+!packages/client/src/lib

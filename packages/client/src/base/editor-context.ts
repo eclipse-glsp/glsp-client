@@ -16,11 +16,11 @@
 import { inject, injectable, multiInject, optional } from "inversify";
 import { Action, IActionHandler, ModelSource, MousePositionTracker, Point, SModelElement, SModelRoot, TYPES } from "sprotty";
 
-import { Args } from "../base/args";
-import { isSourceUriAware } from "../base/source-uri-aware";
 import { SelectionService } from "../features/select/selection-service";
 import { distinctAdd, remove } from "../utils/array-utils";
 import { EditMode, isSetEditModeAction } from "./actions/edit-mode-action";
+import { Args } from "./args";
+import { isSourceUriAware } from "./source-uri-aware";
 import { GLSP_TYPES } from "./types";
 
 export interface EditorContext {

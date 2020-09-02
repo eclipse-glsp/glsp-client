@@ -15,7 +15,7 @@
  ********************************************************************************/
 import { Action, generateRequestId, LabeledAction, RequestAction, ResponseAction } from "sprotty";
 
-import { Args } from "../../base/args";
+import { Args } from "../args";
 import { EditorContext } from "../editor-context";
 
 export class RequestContextActions implements RequestAction<SetContextActions> {

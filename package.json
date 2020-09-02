@@ -1,63 +1,28 @@
 {
-  "name": "@eclipse-glsp/client",
-  "version": "0.7.1",
-  "description": "A sprotty-based client for GLSP",
-  "license": "(EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0)",
-  "keywords": [
-    "eclipse",
-    "graphics",
-    "diagram",
-    "modeling",
-    "visualization",
-    "glsp",
-    "diagram editor"
-  ],
-  "homepage": "https://www.eclipse.org/glsp/",
-  "bugs": "https://github.com/eclipse-glsp/glsp-client/issues",
-  "files": [
-    "lib",
-    "src",
-    "css"
-  ],
-  "author": {
-    "name": "EclipseSource"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/eclipse-glsp/glsp-client.git"
-  },
-  "dependencies": {
-    "autocompleter": "5.1.0",
-    "sprotty": "0.9.0",
-    "uuid": "7.0.3",
-    "vscode-ws-jsonrpc": "0.2.0"
-  },
-  "devDependencies": {
-    "@types/node": "10.14.18",
-    "@types/uuid": "3.4.5",
-    "@types/mocha": "^5.2.7",
-    "@babel/runtime": "^7.11.2",
-    "@types/chai": "4.1.3",
-    "mocha": "^6.2.0",
-    "jenkins-mocha": "^8.0.0",
-    "chai": "^4.2.0",
-    "ts-node": "^8.3.0",
-    "reflect-metadata": "^0.1.13",
-    "rimraf": "^2.6.1",
-    "tslint": "^5.5.0",
-    "typescript": "^3.9.2",
-    "semver": "6.3.0"
+  "private": true,
+  "name": "parent",
+  "version": "0.7.0",
+  "engines": {
+    "yarn": "1.0.x || >=1.2.1"
   },
   "scripts": {
-    "prepare": "yarn run clean && yarn run build",
-    "clean": "rimraf lib",
-    "build": "tsc && yarn run lint",
-    "lint": "tslint -c ./configs/tslint.json --project ./tsconfig.json",
-    "watch": "tsc -w",
-    "test": "jenkins-mocha --opts ./configs/mocha.opts \"./src/**/*.spec.?(ts|tsx)\"",
-    "publish:latest": "yarn publish --tag latest",
-    "publish:next": "yarn publish --new-version \"$(semver $npm_package_version -i minor)-next.$(git rev-parse --short HEAD)\" --tag next"
+    "test": "yarn",
+    "prepare": "lerna run prepare",
+    "watch": "lerna run --parallel watch",
+    "rebuild:browser": "theia rebuild:browser",
+    "publish": "yarn && yarn publish:latest",
+    "publish:latest": "lerna publish",
+    "publish:next": "lerna publish --exact --canary=next --npm-tag=next --yes --access public",
+    "update:next": "yarn upgrade -p \"sprotty|@eclipse-glsp/.*\" --next "
   },
-  "main": "lib/index",
-  "types": "lib/index"
+  "devDependencies": {
+    "lerna": "^2.2.0",
+    "tslint": "^5.5.0",
+    "tslint-loader": "^3.4.3",
+    "typescript": "^3.9.2"
+  },
+  "workspaces": [
+    "packages/*",
+    "examples/*"
+  ]
 }
