@@ -41,7 +41,7 @@
         "reveal": "always",
         "panel": "new"
       },
-      "command": "google-chrome example/workflow-standalone/app/diagram.html"
+      "command": "google-chrome examples/workflow-standalone/app/diagram.html"
     }
   ]
 }
