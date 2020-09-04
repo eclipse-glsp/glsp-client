@@ -4,12 +4,10 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "Build all",
+      "label": "[Client] Build all",
+      "detail": "Build all glsp-client packages & examples",
       "type": "shell",
-      "group": {
-        "kind": "build",
-        "isDefault": true
-      },
+      "group": "build",
       "command": "yarn",
       "presentation": {
         "reveal": "always",
@@ -21,7 +19,8 @@
       ]
     },
     {
-      "label": "Watch all",
+      "label": "[Client] Watch all",
+      "detail": "Watch all glsp-client packages & examples",
       "type": "shell",
       "group": "build",
       "command": "yarn watch",
@@ -34,7 +33,7 @@
       ]
     },
     {
-      "label": "Open Workflow example (Chrome)",
+      "label": "[Client] Open Workflow example (Chrome)",
       "type": "shell",
       "group": "test",
       "presentation": {
