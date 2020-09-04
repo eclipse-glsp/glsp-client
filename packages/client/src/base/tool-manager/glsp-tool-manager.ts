@@ -16,10 +16,10 @@
 import { inject, injectable, multiInject, optional } from "inversify";
 import { Tool, ToolManager } from "sprotty";
 
-import { GLSP_TYPES } from "../../base/types";
 import { distinctAdd } from "../../utils/array-utils";
 import { EditMode } from "../actions/edit-mode-action";
 import { EditModeListener, EditorContextService, EditorContextServiceProvider } from "../editor-context";
+import { GLSP_TYPES } from "../types";
 
 export interface IGLSPToolManager extends ToolManager {
     /* Disables all actives tools and activates only default tool with non-edit function*/

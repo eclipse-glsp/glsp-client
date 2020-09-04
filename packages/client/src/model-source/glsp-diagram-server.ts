@@ -13,6 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { GLSPClient } from "@eclipse-glsp/protocol";
 import { injectable } from "inversify";
 import {
     Action,
@@ -58,7 +59,6 @@ import { ResolveNavigationTargetAction } from "../features/navigation/navigation
 import { SaveModelAction } from "../features/save/save";
 import { GlspRedoAction, GlspUndoAction } from "../features/undo-redo/model";
 import { RequestMarkersAction } from "../features/validation/validate";
-import { GLSPClient } from "../protocol";
 import { isServerMessageAction, ServerMessageAction } from "./glsp-server-status";
 
 const receivedFromServerProperty = '__receivedFromServer';
@@ -110,7 +110,7 @@ export class GLSPDiagramServer extends DiagramServer implements SourceUriAware {
         return super.handleLocally(action);
     }
     protected handleServerMessageAction(action: ServerMessageAction): boolean {
-        alert(`[${action.severity}] -${action.message}`);
+        this.logger.log('GLSPDiagramServer', `[${action.severity}] -${action.message}`);
         return false;
     }
 

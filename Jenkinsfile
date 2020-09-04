@@ -4,7 +4,7 @@ kind: Pod
 spec:
   containers:
   - name: node
-    image: node:10.17.0
+    image: node:12.14.1
     tty: true
     resources:
       limits:
@@ -51,7 +51,9 @@ pipeline {
                 container('node') {
                     timeout(30){
                         sh "yarn install"
-                        sh "yarn test"
+                        dir('packages/client') {
+                            sh "yarn test"
+                        }
                     }
                 }
             }
@@ -62,15 +64,6 @@ pipeline {
             steps {
                 build job: 'deploy-npm-glsp-client', wait: false
             }
-        }
-    }
-
-    post {
-        always {
-            junit 'artifacts/test/xunit.xml'
-        }
-        success {
-            archiveArtifacts 'artifacts/coverage/**'
         }
     }
 }

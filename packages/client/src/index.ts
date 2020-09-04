@@ -96,7 +96,6 @@ export * from './features/validation/marker-navigator';
 export * from './lib/model';
 export * from './model-source/glsp-server-status';
 export * from './model-source/glsp-diagram-server';
-export * from './protocol';
 export * from './utils/array-utils';
 export * from './utils/marker';
 export * from './utils/smodel-util';
