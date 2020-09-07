@@ -9,11 +9,22 @@
  * Licenses when the conditions for such availability set forth in the Eclipse
  * Public License v. 2.0 are satisfied: GNU General Public License, version 2
  * with the GNU Classpath Exception which is available at
- * https://www.gnu.org/software/classpath/license.html.
+ * https://www.gnu.npmorg/software/classpath/license.html.
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-export * from './glsp-client';
-export * from './launch-util';
-export * from './jsonrpc/glsp-jsonrpc-client';
-export * from './jsonrpc/base-jsonrpc-glsp-client';
+
+/**
+ * Utility function to parse a serverport that is defined via command line arg.
+ * @param argsKey Name/Key of the commandline arg
+ * @param defaultPort Default port that should be returned if no (valid) port was passed via CLI
+ */
+export function getPort(argsKey: string, defaultPort?: number): number {
+    argsKey = `--${argsKey.replace("--", "").replace("=", "")}=`;
+    const args = process.argv.filter(a => a.startsWith(argsKey));
+    if (args.length > 0) {
+        return Number.parseInt(args[0].substring(argsKey.length), 10);
+    }
+    return defaultPort ? defaultPort : NaN;
+}
+
