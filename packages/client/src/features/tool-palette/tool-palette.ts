@@ -115,14 +115,15 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
     protected createBody(): void {
         const bodyDiv = document.createElement("div");
         bodyDiv.classList.add("palette-body");
+        let tabIndex = 0;
         this.paletteItems.sort(compare)
             .forEach(item => {
                 if (item.children) {
                     const group = createToolGroup(item);
-                    item.children.sort(compare).forEach(child => group.appendChild(this.createToolButton(child)));
+                    item.children.sort(compare).forEach(child => group.appendChild(this.createToolButton(child, tabIndex++)));
                     bodyDiv.appendChild(group);
                 } else {
-                    bodyDiv.appendChild(this.createToolButton(item));
+                    bodyDiv.appendChild(this.createToolButton(item, tabIndex++));
                 }
             });
         if (this.paletteItems.length === 0) {
@@ -195,7 +196,7 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
         this.searchField.placeholder = " Search...";
         this.searchField.style.display = "none";
         this.searchField.onkeyup = () => this.requestFilterUpdate(this.searchField.value);
-        this.searchField.onkeydown = (ev) => this.clearOnEspace(ev);
+        this.searchField.onkeydown = (ev) => this.clearOnEscape(ev);
 
         headerTools.appendChild(searchIcon);
         headerCompartment.appendChild(headerTools);
@@ -203,11 +204,13 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
         this.containerElement.appendChild(headerCompartment);
     }
 
-    protected createToolButton(item: PaletteItem): HTMLElement {
+    protected createToolButton(item: PaletteItem, index: number): HTMLElement {
         const button = document.createElement("div");
+        button.tabIndex = index;
         button.classList.add("tool-button");
         button.innerHTML = item.label;
         button.onclick = this.onClickCreateToolButton(button, item);
+        button.onkeydown = (ev) => this.clearToolOnEscape(ev);
         return button;
     }
 
@@ -216,7 +219,7 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
             if (!this.editorContext.isReadonly) {
                 this.actionDispatcher.dispatchAll(item.actions);
                 this.changeActiveButton(button);
-                this.restoreFocus();
+                button.focus();
             }
         };
     }
@@ -227,7 +230,7 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
                 const action = toolId ? new EnableToolsAction([toolId]) : new EnableDefaultToolsAction();
                 this.actionDispatcher.dispatch(action);
                 this.changeActiveButton(button);
-                this.restoreFocus();
+                button.focus();
             }
         };
     }
@@ -258,6 +261,7 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
             });
         } else if (action instanceof EnableDefaultToolsAction) {
             this.changeActiveButton();
+            this.restoreFocus();
         }
     }
 
@@ -265,10 +269,16 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
         this.actionDispatcher.dispatch(new SetUIExtensionVisibilityAction(ToolPalette.ID, !this.editorContext.isReadonly));
     }
 
-    protected clearOnEspace(event: KeyboardEvent) {
-        if (matchesKeystroke(event, 'Escape')) {
-            this.searchField.value = '';
-            this.requestFilterUpdate('');
+    protected clearOnEscape(event: KeyboardEvent) {
+        if (matchesKeystroke(event, "Escape")) {
+            this.searchField.value = "";
+            this.requestFilterUpdate("");
+        }
+    }
+
+    protected clearToolOnEscape(event: KeyboardEvent) {
+        if (matchesKeystroke(event, "Escape")) {
+            this.actionDispatcher.dispatch(new EnableDefaultToolsAction());
         }
     }
 
