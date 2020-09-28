@@ -59,13 +59,11 @@ import { FeedbackCommand } from "./model";
  */
 
 export class ShowEdgeReconnectHandlesFeedbackAction implements Action {
-    kind = ShowEdgeReconnectHandlesFeedbackCommand.KIND;
-    constructor(readonly elementId?: string) { }
+    constructor(readonly elementId?: string, public readonly kind: string = ShowEdgeReconnectHandlesFeedbackCommand.KIND) { }
 }
 
 export class HideEdgeReconnectHandlesFeedbackAction implements Action {
-    kind = HideEdgeReconnectHandlesFeedbackCommand.KIND;
-    constructor() { }
+    constructor(public readonly kind: string = HideEdgeReconnectHandlesFeedbackCommand.KIND) { }
 }
 
 @injectable()
@@ -109,8 +107,13 @@ export class HideEdgeReconnectHandlesFeedbackCommand extends FeedbackCommand {
  */
 
 export class SwitchRoutingModeAction extends SwitchEditModeAction {
-    readonly kind = SwitchRoutingModeCommand.KIND;
+    constructor(public readonly elementsToActivate: string[] = [],
+        public readonly elementsToDeactivate: string[] = [],
+        public readonly kind: string = SwitchRoutingModeCommand.KIND) {
+        super(elementsToActivate, elementsToDeactivate);
+    }
 }
+
 @injectable()
 export class SwitchRoutingModeCommand extends SwitchEditModeCommand {
     static KIND = "switchRoutingMode";
@@ -122,10 +125,8 @@ export class SwitchRoutingModeCommand extends SwitchEditModeCommand {
  */
 
 export class DrawFeedbackEdgeSourceAction implements Action {
-    kind = DrawFeedbackEdgeSourceCommand.KIND;
-    constructor(readonly elementTypeId: string, readonly targetId: string) { }
+    constructor(readonly elementTypeId: string, readonly targetId: string, public readonly kind: string = DrawFeedbackEdgeSourceCommand.KIND) { }
 }
-
 
 @injectable()
 export class DrawFeedbackEdgeSourceCommand extends FeedbackCommand {
@@ -183,8 +184,8 @@ export class FeedbackEdgeSourceMovingMouseListener extends MouseListener {
 }
 
 export class FeedbackEdgeRouteMovingMouseListener extends MouseListener {
-    hasDragged = false;
-    lastDragPosition: Point | undefined;
+    protected hasDragged = false;
+    protected lastDragPosition: Point | undefined;
 
     constructor(protected edgeRouterRegistry?: EdgeRouterRegistry) {
         super();
@@ -258,13 +259,13 @@ export class FeedbackEdgeRouteMovingMouseListener extends MouseListener {
         return [];
     }
 
-    mouseUp(target: SModelElement, event: MouseEvent): Action[] {
+    mouseUp(_target: SModelElement, event: MouseEvent): Action[] {
         this.hasDragged = false;
         this.lastDragPosition = undefined;
         return [];
     }
 
-    decorate(vnode: VNode, element: SModelElement): VNode {
+    decorate(vnode: VNode, _element: SModelElement): VNode {
         return vnode;
     }
 }

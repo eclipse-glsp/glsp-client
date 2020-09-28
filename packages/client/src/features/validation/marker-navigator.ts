@@ -45,14 +45,16 @@ import { SelectCommand, SelectionService } from "../select/selection-service";
 
 export class NavigateToMarkerAction implements Action {
     static readonly KIND = 'navigateToMarker';
-    readonly kind = NavigateToMarkerAction.KIND;
-    constructor(readonly direction: 'next' | 'previous' = 'next',
-        readonly selectedElementIds?: string[],
-        readonly severities: SIssueSeverity[] = MarkerNavigator.ALL_SEVERITIES) { }
+
+    constructor(
+        public readonly direction: 'next' | 'previous' = 'next',
+        public readonly selectedElementIds?: string[],
+        public readonly severities: SIssueSeverity[] = MarkerNavigator.ALL_SEVERITIES,
+        public kind = NavigateToMarkerAction.KIND) { }
 }
 
 export class SModelElementComparator {
-    compare(one: SModelElement, other: SModelElement): number {
+    compare(_one: SModelElement, _other: SModelElement): number {
         return 0;
     }
 }
@@ -209,6 +211,7 @@ export class NavigateToMarkerCommand extends Command {
 @injectable()
 export class MarkerNavigatorContextMenuItemProvider implements IContextMenuItemProvider {
     @inject(GLSP_TYPES.SelectionService) protected selectionService: SelectionService;
+
     getItems(root: Readonly<SModelRoot>, lastMousePosition?: Point): Promise<MenuItem[]> {
         const selectedElementIds = Array.from(this.selectionService.getSelectedElementIDs());
         const hasMarkers = collectIssueMarkers(root).length > 0;
@@ -234,7 +237,7 @@ export class MarkerNavigatorContextMenuItemProvider implements IContextMenuItemP
 
 @injectable()
 export class MarkerNavigatorKeyListener extends KeyListener {
-    keyDown(element: SModelElement, event: KeyboardEvent): Action[] {
+    keyDown(_element: SModelElement, event: KeyboardEvent): Action[] {
         if (matchesKeystroke(event, 'Period', 'ctrl')) {
             return [new NavigateToMarkerAction('next')];
         } else if (matchesKeystroke(event, 'Comma', 'ctrl')) {

@@ -16,6 +16,7 @@
 import { SModelElement, SModelElementSchema, SModelExtension } from "sprotty";
 
 export const containerFeature = Symbol("containable");
+
 export interface Containable extends SModelExtension {
     isContainableElement(input: SModelElement | SModelElementSchema | string): boolean
 }
@@ -25,6 +26,7 @@ export function isContainable(element: SModelElement): element is SModelElement 
 }
 
 export const reparentFeature = Symbol("reparentFeature");
+
 export interface Reparentable extends SModelExtension { }
 
 export function isReparentable(element: SModelElement): element is SModelElement & Reparentable {

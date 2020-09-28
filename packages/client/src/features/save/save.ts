@@ -18,12 +18,11 @@ import { matchesKeystroke } from "sprotty/lib/utils/keyboard";
 
 export class SaveModelAction implements Action {
     static readonly KIND = "saveModel";
-    readonly kind = SaveModelAction.KIND;
-    constructor() { }
+    constructor(public readonly kind: string = SaveModelAction.KIND) { }
 }
 
 export class SaveModelKeyboardListener extends KeyListener {
-    keyDown(element: SModelRoot, event: KeyboardEvent): Action[] {
+    keyDown(_element: SModelRoot, event: KeyboardEvent): Action[] {
         if (matchesKeystroke(event, 'KeyS', 'ctrlCmd')) {
             return [new SaveModelAction()];
         }

@@ -40,12 +40,15 @@ import { IFeedbackActionDispatcher } from "../tool-feedback/feedback-action-disp
 @injectable()
 export class DelKeyDeleteTool implements GLSPTool {
     static ID = "glsp.delete-keyboard";
-    readonly id = DelKeyDeleteTool.ID;
 
-    isEditTool = true;
+    public isEditTool = true;
     protected deleteKeyListener: DeleteKeyListener = new DeleteKeyListener();
 
-    constructor(@inject(KeyTool) protected readonly keytool: KeyTool) { }
+    @inject(KeyTool) protected readonly keytool: KeyTool;
+
+    get id(): string {
+        return DelKeyDeleteTool.ID;
+    }
 
     enable() {
         this.keytool.register(this.deleteKeyListener);
@@ -75,14 +78,18 @@ export class DeleteKeyListener extends KeyListener {
  */
 @injectable()
 export class MouseDeleteTool implements GLSPTool {
-
     static ID = "glsp.delete-mouse";
-    readonly id = MouseDeleteTool.ID;
+
+    public isEditTool = true;
 
     protected deleteToolMouseListener: DeleteToolMouseListener = new DeleteToolMouseListener();
-    isEditTool = true;
-    constructor(@inject(GLSP_TYPES.MouseTool) protected mouseTool: IMouseTool,
-        @inject(GLSP_TYPES.IFeedbackActionDispatcher) protected readonly feedbackDispatcher: IFeedbackActionDispatcher) { }
+
+    @inject(GLSP_TYPES.MouseTool) protected mouseTool: IMouseTool;
+    @inject(GLSP_TYPES.IFeedbackActionDispatcher) protected readonly feedbackDispatcher: IFeedbackActionDispatcher;
+
+    get id(): string {
+        return MouseDeleteTool.ID;
+    }
 
     enable() {
         this.mouseTool.register(this.deleteToolMouseListener);

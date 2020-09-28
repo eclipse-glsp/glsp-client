@@ -16,7 +16,7 @@
 import { inject, injectable } from "inversify";
 import { IContextMenuItemProvider, MenuItem, Point, SModelRoot } from "sprotty";
 
-import { EditorContextServiceProvider } from "../../base/editor-context";
+import { EditorContextService, EditorContextServiceProvider } from "../../base/editor-context";
 import { DeleteElementOperation } from "../../base/operations/operation";
 import { GLSP_TYPES } from "../../base/types";
 
@@ -24,18 +24,19 @@ import { GLSP_TYPES } from "../../base/types";
 export class DeleteElementContextMenuItemProvider implements IContextMenuItemProvider {
     @inject(GLSP_TYPES.IEditorContextServiceProvider) editorContextServiceProvider: EditorContextServiceProvider;
 
-    async getItems(root: Readonly<SModelRoot>, lastMousePosition?: Point): Promise<MenuItem[]> {
+    async getItems(_root: Readonly<SModelRoot>, _lastMousePosition?: Point): Promise<MenuItem[]> {
         const editorContextService = await this.editorContextServiceProvider();
+        return [this.createDeleteMenuItem(editorContextService)];
+    }
 
-        return [
-            {
-                id: "delete",
-                label: "Delete",
-                sortString: "d",
-                group: "edit",
-                actions: [new DeleteElementOperation(editorContextService.selectedElements.map(e => e.id))],
-                isEnabled: () => !editorContextService.isReadonly && editorContextService.selectedElements.length > 0
-            }
-        ];
+    protected createDeleteMenuItem(editorContextService: EditorContextService): MenuItem {
+        return {
+            id: "delete",
+            label: "Delete",
+            sortString: "d",
+            group: "edit",
+            actions: [new DeleteElementOperation(editorContextService.selectedElements.map(e => e.id))],
+            isEnabled: () => !editorContextService.isReadonly && editorContextService.selectedElements.length > 0
+        };
     }
 }

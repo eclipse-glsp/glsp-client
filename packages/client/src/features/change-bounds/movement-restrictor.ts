@@ -45,6 +45,8 @@ export function removeMovementRestrictionFeedback(element: SModelElement, moveme
 
 @injectable()
 export class NoOverlapMovmentRestrictor implements IMovementRestrictor {
+    public cssClasses = ["movement-not-allowed"];
+
     validate(newLocation: Point, element: SModelElement): boolean {
         if (!isBoundsAwareMoveable(element)) {
             return false;
@@ -62,8 +64,6 @@ export class NoOverlapMovmentRestrictor implements IMovementRestrictor {
         return !Array.from(element.root.index.all().filter(e => e.id !== ghostElement.id && e !== ghostElement.root && (e instanceof SNode))
             .map(e => e as SModelElement & BoundsAware)).some(e => areOverlapping(e, ghostElement));
     }
-
-    cssClasses = ["movement-not-allowed"];
 }
 
 export function areOverlapping(element1: SModelElement & BoundsAware, element2: SModelElement & BoundsAware) {

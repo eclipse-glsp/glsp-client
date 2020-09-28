@@ -19,12 +19,14 @@ import { isCommandExecutor } from "./model";
 
 export class ExecuteServerCommandAction implements Action {
     static readonly KIND = "executeServerCommand";
-    kind = ExecuteServerCommandAction.KIND;
-    constructor(public readonly commandId: String, public readonly options?: { [key: string]: string }) { }
+    constructor(
+        public readonly commandId: String,
+        public readonly options?: { [key: string]: string },
+        public readonly kind: string = ExecuteServerCommandAction.KIND) { }
 }
 
 export class ExecuteCommandMouseListener extends MouseListener {
-    doubleClick(target: SModelElement, event: WheelEvent): (Action | Promise<Action>)[] {
+    doubleClick(target: SModelElement, _event: WheelEvent): (Action | Promise<Action>)[] {
         const result: Action[] = [];
         const commandExecutorTarget = findParentByFeature(target, isCommandExecutor);
         if (commandExecutorTarget) {

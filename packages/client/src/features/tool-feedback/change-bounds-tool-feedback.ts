@@ -39,25 +39,18 @@ import { ChangeBoundsTool } from "../tools/change-bounds-tool";
 import { FeedbackCommand } from "./model";
 
 export class ShowChangeBoundsToolResizeFeedbackAction implements Action {
-    kind = ShowChangeBoundsToolResizeFeedbackCommand.KIND;
-    constructor(readonly elementId?: string) { }
+    constructor(readonly elementId?: string, public readonly kind: string = ShowChangeBoundsToolResizeFeedbackCommand.KIND) { }
 }
 
 export class HideChangeBoundsToolResizeFeedbackAction implements Action {
-    kind = HideChangeBoundsToolResizeFeedbackCommand.KIND;
-    constructor() { }
+    constructor(public readonly kind: string = HideChangeBoundsToolResizeFeedbackCommand.KIND) { }
 }
 
 @injectable()
 export class ShowChangeBoundsToolResizeFeedbackCommand extends FeedbackCommand {
     static readonly KIND = "showChangeBoundsToolResizeFeedback";
 
-    constructor(
-        @inject(TYPES.Action)
-        protected action: ShowChangeBoundsToolResizeFeedbackAction
-    ) {
-        super();
-    }
+    @inject(TYPES.Action) protected action: ShowChangeBoundsToolResizeFeedbackAction;
 
     execute(context: CommandExecutionContext): CommandReturn {
         const index = context.root.index;
@@ -80,12 +73,7 @@ export class ShowChangeBoundsToolResizeFeedbackCommand extends FeedbackCommand {
 export class HideChangeBoundsToolResizeFeedbackCommand extends FeedbackCommand {
     static readonly KIND = "hideChangeBoundsToolResizeFeedback";
 
-    constructor(
-        @inject(TYPES.Action)
-        protected action: HideChangeBoundsToolResizeFeedbackAction
-    ) {
-        super();
-    }
+    @inject(TYPES.Action) protected action: HideChangeBoundsToolResizeFeedbackAction;
 
     execute(context: CommandExecutionContext): CommandReturn {
         const index = context.root.index;
@@ -105,13 +93,14 @@ export class HideChangeBoundsToolResizeFeedbackCommand extends FeedbackCommand {
  * (see also `tools/MoveTool`).
  */
 export class FeedbackMoveMouseListener extends MouseListener {
-    hasDragged = false;
-    startDragPosition: Point | undefined;
-    elementId2startPos = new Map<string, Point>();
+    protected hasDragged = false;
+    protected startDragPosition: Point | undefined;
+    protected elementId2startPos = new Map<string, Point>();
 
     constructor(protected tool: ChangeBoundsTool) {
         super();
     }
+
     mouseDown(target: SModelElement, event: MouseEvent): Action[] {
         if (event.button === 0 && !(target instanceof SResizeHandle)) {
             const moveable = findParentByFeature(target, isMoveable);
@@ -208,6 +197,7 @@ export class FeedbackMoveMouseListener extends MouseListener {
         }
         return newPosition;
     }
+
     protected snap(position: Point, element: SModelElement, isSnap: boolean): Point {
         if (isSnap && this.tool.snapper) return this.tool.snapper.snap(position, element);
         else return position;
@@ -237,7 +227,7 @@ export class FeedbackMoveMouseListener extends MouseListener {
         return result;
     }
 
-    decorate(vnode: VNode, element: SModelElement): VNode {
+    decorate(vnode: VNode, _element: SModelElement): VNode {
         return vnode;
     }
 }

@@ -24,7 +24,7 @@ export interface IValidationDecorator {
 
 export namespace IValidationDecorator {
     export const NO_DECORATION: IValidationDecorator = {
-        decorateValidationResult(status: ValidationStatus) { },
+        decorateValidationResult(_status: ValidationStatus) { },
         isValidatedOk(): boolean { return false; },
         invalidate() { },
         dispose() { }
@@ -32,14 +32,13 @@ export namespace IValidationDecorator {
 }
 
 export class ValidationDecorator implements IValidationDecorator {
+    public warningClasses = ['warning'];
+    public warningIconClasses = ['fa', 'fa-question-circle'];
+    public errorClasses = ['error'];
+    public errorIconClasses = ['fa', 'fa-exclamation-circle'];
 
-    warningClasses = ['warning'];
-    warningIconClasses = ['fa', 'fa-question-circle'];
-    errorClasses = ['error'];
-    errorIconClasses = ['fa', 'fa-exclamation-circle'];
-
-    isValidated: boolean = false;
-    hasValidationError: boolean = false;
+    public isValidated: boolean = false;
+    public hasValidationError: boolean = false;
 
     protected decorationDiv?: HTMLDivElement;
 

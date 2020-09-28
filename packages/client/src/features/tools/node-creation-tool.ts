@@ -41,12 +41,15 @@ import { BaseGLSPTool } from "./base-glsp-tool";
 @injectable()
 export class NodeCreationTool extends BaseGLSPTool implements IActionHandler {
     static ID = "tool_create_node";
-    readonly id = NodeCreationTool.ID;
 
     @inject(TYPES.ISnapper) @optional() readonly snapper?: ISnapper;
 
     protected creationToolMouseListener: NodeCreationToolMouseListener;
     protected triggerAction: TriggerNodeCreationAction;
+
+    get id(): string {
+        return NodeCreationTool.ID;
+    }
 
     enable() {
         if (this.triggerAction === undefined) {

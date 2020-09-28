@@ -24,10 +24,7 @@ import { Action, ActionHandlerRegistry, IActionHandler, ModelSource, TYPES } fro
 @injectable()
 export class InitializeClientSessionAction implements Action {
     static readonly KIND = "initializeClientSession";
-    readonly kind = InitializeClientSessionAction.KIND;
-
-    constructor(public readonly clientId: string) { }
-
+    constructor(public readonly clientId: string, public readonly kind: string = InitializeClientSessionAction.KIND) { }
 }
 
 export function initializeClientSessionAction(action: Action): action is InitializeClientSessionAction {
@@ -41,9 +38,7 @@ export function initializeClientSessionAction(action: Action): action is Initial
 @injectable()
 export class DisposeClientSessionAction implements Action {
     static readonly KIND = "disposeClientSession";
-    readonly kind = DisposeClientSessionAction.KIND;
-
-    constructor(public readonly clientId: string) { }
+    constructor(public readonly clientId: string, public readonly kind: string = DisposeClientSessionAction.KIND) { }
 }
 
 export function isDisposeClientSessionAction(action: Action): action is DisposeClientSessionAction {

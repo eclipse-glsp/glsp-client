@@ -13,15 +13,13 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action } from "sprotty";
 import { injectable } from "inversify";
+import { Action } from "sprotty";
 
 @injectable()
 export class SetEditModeAction implements Action {
     static readonly KIND = "setEditMode";
-    kind = SetEditModeAction.KIND;
-
-    constructor(public readonly editMode: string = EditMode.EDITABLE) { }
+    constructor(public readonly editMode: string = EditMode.EDITABLE, public readonly kind: string = SetEditModeAction.KIND) { }
 }
 
 export function isSetEditModeAction(action: Action): action is SetEditModeAction {

@@ -61,10 +61,8 @@ export interface IFeedbackActionDispatcher {
 export class FeedbackActionDispatcher implements IFeedbackActionDispatcher {
     protected feedbackEmitters: Map<IFeedbackEmitter, Action[]> = new Map;
 
-    constructor(
-        @inject(TYPES.IActionDispatcherProvider) protected actionDispatcher: () => Promise<IActionDispatcher>,
-        @inject(TYPES.ILogger) protected logger: ILogger) {
-    }
+    @inject(TYPES.IActionDispatcherProvider) protected actionDispatcher: () => Promise<IActionDispatcher>;
+    @inject(TYPES.ILogger) protected logger: ILogger;
 
     registerFeedback(feedbackEmitter: IFeedbackEmitter, actions: Action[]): void {
         this.feedbackEmitters.set(feedbackEmitter, actions);

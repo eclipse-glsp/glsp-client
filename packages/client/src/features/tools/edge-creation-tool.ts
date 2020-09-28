@@ -47,13 +47,16 @@ import { BaseGLSPTool } from "./base-glsp-tool";
 @injectable()
 export class EdgeCreationTool extends BaseGLSPTool implements IActionHandler {
     static ID = "tool_create_edge";
-    readonly id = EdgeCreationTool.ID;
 
     @inject(AnchorComputerRegistry) protected anchorRegistry: AnchorComputerRegistry;
 
     protected triggerAction: TriggerEdgeCreationAction;
     protected creationToolMouseListener: EdgeCreationToolMouseListener;
     protected feedbackEndMovingMouseListener: FeedbackEdgeEndMovingMouseListener;
+
+    get id(): string {
+        return EdgeCreationTool.ID;
+    }
 
     enable() {
         if (this.triggerAction === undefined) {
@@ -102,7 +105,7 @@ export class EdgeCreationToolMouseListener extends DragAwareMouseListener {
         this.tool.dispatchFeedback([new RemoveFeedbackEdgeAction()]);
     }
 
-    nonDraggingMouseUp(element: SModelElement, event: MouseEvent): Action[] {
+    nonDraggingMouseUp(_element: SModelElement, event: MouseEvent): Action[] {
         const result: Action[] = [];
         if (event.button === 0) {
             if (!this.isSourceSelected()) {

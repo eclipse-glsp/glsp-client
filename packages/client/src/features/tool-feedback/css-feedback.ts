@@ -20,9 +20,13 @@ import { addCssClasses, removeCssClasses } from "../../utils/smodel-util";
 import { FeedbackCommand } from "./model";
 
 export class ModifyCSSFeedbackAction implements Action {
-    kind = ModifyCssFeedbackCommand.KIND;
-    readonly elementIds?: string[];
-    constructor(elements?: SModelElement[], readonly addClasses?: string[], readonly removeClasses?: string[]) {
+    public readonly elementIds?: string[];
+
+    constructor(
+        public readonly elements?: SModelElement[],
+        public readonly addClasses?: string[],
+        public readonly removeClasses?: string[],
+        public kind = ModifyCssFeedbackCommand.KIND) {
         if (elements) {
             this.elementIds = elements.map(elt => elt.id);
         }

@@ -25,6 +25,7 @@ import {
 } from "sprotty";
 
 export const reconnectFeature = Symbol("reconnectFeature");
+
 export interface Reconnectable extends SModelExtension {
 }
 

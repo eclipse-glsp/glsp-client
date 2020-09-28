@@ -51,9 +51,10 @@ export interface TextSubmitHandler {
 
 const configureAutocomplete: (settings: AutocompleteSettings<LabeledAction>) => AutocompleteResult = require('autocompleter');
 
-export class AutoCompleteWidget {
 
-    loadingIndicatorClasses = ['loading', 'fa', 'fa-spinner', 'fa-pulse', 'fa-3x', 'fa-fw'];
+
+export class AutoCompleteWidget {
+    public loadingIndicatorClasses = ['loading', 'fa', 'fa-spinner', 'fa-pulse', 'fa-3x', 'fa-fw'];
 
     protected containerElement: HTMLElement;
     protected inputElement: HTMLInputElement;
@@ -87,16 +88,21 @@ export class AutoCompleteWidget {
 
     initialize(containerElement: HTMLElement): void {
         this.containerElement = containerElement;
-        this.inputElement = document.createElement('input');
-        this.inputElement.style.position = 'absolute';
-        this.inputElement.spellcheck = false;
-        this.inputElement.autocapitalize = 'false';
-        this.inputElement.autocomplete = 'false';
-        this.inputElement.style.width = '100%';
-        this.inputElement.addEventListener('keydown', event => this.handleKeyDown(event));
-        this.inputElement.addEventListener('blur', () => window.setTimeout(() => this.notifyClose(), 200));
+        this.inputElement = this.createInputElement();
         this.containerElement.appendChild(this.inputElement);
         this.containerElement.style.position = 'absolute';
+    }
+
+    protected createInputElement(): HTMLInputElement {
+        const inputElement = document.createElement('input');
+        inputElement.style.position = 'absolute';
+        inputElement.spellcheck = false;
+        inputElement.autocapitalize = 'false';
+        inputElement.autocomplete = 'false';
+        inputElement.style.width = '100%';
+        inputElement.addEventListener('keydown', event => this.handleKeyDown(event));
+        inputElement.addEventListener('blur', () => window.setTimeout(() => this.notifyClose(), 200));
+        return inputElement;
     }
 
     protected handleKeyDown(event: KeyboardEvent) {
@@ -193,7 +199,7 @@ export class AutoCompleteWidget {
         return this.suggestionProvider.provideSuggestions(text);
     }
 
-    protected onLoaded(success: 'success' | 'error') {
+    protected onLoaded(_success: 'success' | 'error') {
         if (this.containerElement.contains(this.loadingIndicator)) {
             this.containerElement.removeChild(this.loadingIndicator);
         }

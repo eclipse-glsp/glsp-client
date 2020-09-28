@@ -43,8 +43,11 @@ import { getAbsolutePosition, toAbsolutePosition } from "../../utils/viewpoint-u
 import { FeedbackCommand } from "./model";
 
 export class DrawFeedbackEdgeAction implements Action {
-    kind = DrawFeedbackEdgeCommand.KIND;
-    constructor(readonly elementTypeId: string, readonly sourceId: string, readonly edgeSchema?: SEdgeSchema) { }
+    constructor(
+        public readonly elementTypeId: string,
+        public readonly sourceId: string,
+        public readonly edgeSchema?: SEdgeSchema,
+        public readonly kind: string = DrawFeedbackEdgeCommand.KIND) { }
 }
 
 @injectable()
@@ -63,8 +66,7 @@ export class DrawFeedbackEdgeCommand extends FeedbackCommand {
 }
 
 export class RemoveFeedbackEdgeAction implements Action {
-    kind = RemoveFeedbackEdgeCommand.KIND;
-    constructor() { }
+    constructor(public readonly kind: string = RemoveFeedbackEdgeCommand.KIND) { }
 }
 
 @injectable()
@@ -79,10 +81,10 @@ export class RemoveFeedbackEdgeCommand extends FeedbackCommand {
 
 export class FeedbackEdgeEnd extends SDanglingAnchor {
     static readonly TYPE = 'feedback-edge-end';
-    type = FeedbackEdgeEnd.TYPE;
     constructor(readonly sourceId: string,
         readonly elementTypeId: string,
-        public feedbackEdge: SRoutableElement | undefined = undefined) {
+        public feedbackEdge: SRoutableElement | undefined = undefined,
+        public readonly type: string = FeedbackEdgeEnd.TYPE) {
         super();
     }
 }
@@ -102,7 +104,7 @@ export class FeedbackEdgeEndMovingMouseListener extends MouseListener {
         const edge = edgeEnd.feedbackEdge;
         const position = getAbsolutePosition(edgeEnd, event);
         const endAtMousePosition = findChildrenAtPosition(target.root, position)
-            .find(e => isConnectable(e) && e.canConnect(edge, 'target'));
+            .find(element => isConnectable(element) && element.canConnect(edge, 'target'));
 
         if (endAtMousePosition instanceof SConnectableElement && edge.source && isBoundsAware(edge.source)) {
             const anchorComputer = this.anchorRegistry.get(PolylineEdgeRouter.KIND, endAtMousePosition.anchorKind);
