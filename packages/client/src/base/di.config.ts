@@ -20,6 +20,7 @@ import { configureActionHandler, configureCommand, SetModelCommand, TYPES } from
 
 import { GLSPActionDispatcher } from "./action-dispatcher";
 import { SetEditModeAction } from "./actions/edit-mode-action";
+import { ConfigureServerHandlersAction, ConfigureServerHandlersActionHandler } from "./actions/protocol-actions";
 import { GLSPCommandStack } from "./command-stack";
 import { EditorContextService } from "./editor-context";
 import { DefaultModelInitializationConstraint, ModelInitializationConstraint } from "./model-initialization-constraint";
@@ -48,6 +49,9 @@ const defaultGLSPModule = new ContainerModule((bind, _unbind, isBound, rebind) =
     // Model update initialization ------------------------------------
     configureCommand(context, FeedbackAwareUpdateModelCommand);
     configureActionHandler(context, SetModelCommand.KIND, SetModelActionHandler);
+
+    // Dynamically register all server-side action/operation handlers
+    configureActionHandler(context, ConfigureServerHandlersAction.KIND, ConfigureServerHandlersActionHandler);
 
     bind(TYPES.MouseListener).to(SelectionClearingMouseListener);
 

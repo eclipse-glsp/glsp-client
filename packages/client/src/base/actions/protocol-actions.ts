@@ -13,8 +13,8 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { injectable } from "inversify";
-import { Action } from "sprotty";
+import { inject, injectable } from "inversify";
+import { Action, ActionHandlerRegistry, IActionHandler, ModelSource, TYPES } from "sprotty";
 
 /**
  * Initializes the graphical representation (diagram) for a specific client session.
@@ -48,4 +48,40 @@ export class DisposeClientSessionAction implements Action {
 
 export function isDisposeClientSessionAction(action: Action): action is DisposeClientSessionAction {
     return action.kind === DisposeClientSessionAction.KIND;
+}
+
+/**
+ * Sent by the server after ClientSessionInitialization, to indicate
+ * all the action kinds that the server can handle.
+ */
+@injectable()
+export class ConfigureServerHandlersAction implements Action {
+    static readonly KIND = "configureServerHandlers";
+    readonly kind = ConfigureServerHandlersAction.KIND;
+
+    constructor(readonly actionKinds: string[]) { }
+}
+
+export function isConfigureServerHandlersAction(action: Action): action is ConfigureServerHandlersAction {
+    return action.kind === ConfigureServerHandlersAction.KIND;
+}
+
+@injectable()
+export class ConfigureServerHandlersActionHandler implements IActionHandler {
+
+    @inject(TYPES.ModelSource)
+    protected diagramServer: ModelSource;
+
+    @inject(TYPES.ActionHandlerRegistryProvider)
+    actionHandlerRegistryProvider: () => Promise<ActionHandlerRegistry>;
+
+    handle(action: Action): void {
+        if (isConfigureServerHandlersAction(action)) {
+            this.actionHandlerRegistryProvider().then(registry => {
+                for (const actionKind of action.actionKinds) {
+                    registry.register(actionKind, this.diagramServer);
+                }
+            });
+        }
+    }
 }
