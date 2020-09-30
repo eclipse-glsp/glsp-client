@@ -19,46 +19,19 @@ import {
     Action,
     ActionHandlerRegistry,
     ActionMessage,
-    ApplyLabelEditAction,
     ComputedBoundsAction,
     DiagramServer,
-    ExportSvgAction,
     ICommand,
-    LayoutAction,
-    RequestBoundsCommand,
     RequestModelAction,
-    RequestPopupModelAction,
     ServerStatusAction,
     SwitchEditModeCommand
 } from "sprotty";
 
 import { RequestContextActions } from "../base/actions/context-actions";
 import { isSetEditModeAction, SetEditModeAction } from "../base/actions/edit-mode-action";
-import { RequestEditValidationAction } from "../base/actions/edit-validation-actions";
-import { DisposeClientSessionAction, InitializeClientSessionAction } from "../base/actions/protocol-actions";
-import {
-    ChangeBoundsOperation,
-    ChangeRoutingPointsOperation,
-    CompoundOperation,
-    CreateEdgeOperation,
-    CreateNodeOperation,
-    DeleteElementOperation,
-    ReconnectEdgeOperation
-} from "../base/operations/operation";
+import { InitializeClientSessionAction } from "../base/actions/protocol-actions";
 import { SourceUriAware } from "../base/source-uri-aware";
-import {
-    CutOperationAction,
-    PasteOperationAction,
-    RequestClipboardDataAction
-} from "../features/copy-paste/copy-paste-actions";
-import { ValidateLabelEditAction } from "../features/edit-label/edit-label-validator";
-import { ExecuteServerCommandAction } from "../features/execute/execute-command";
 import { RequestTypeHintsAction } from "../features/hints/request-type-hints-action";
-import { RequestNavigationTargetsAction } from "../features/navigation/navigation-action-handler";
-import { ResolveNavigationTargetAction } from "../features/navigation/navigation-target-resolver";
-import { SaveModelAction } from "../features/save/save";
-import { GlspRedoAction, GlspUndoAction } from "../features/undo-redo/model";
-import { RequestMarkersAction } from "../features/validation/validate";
 import { isServerMessageAction, ServerMessageAction } from "./glsp-server-status";
 
 const receivedFromServerProperty = '__receivedFromServer';
@@ -132,42 +105,19 @@ export function isReceivedFromServer(action: Action) {
 }
 
 export function registerDefaultGLSPServerActions(registry: ActionHandlerRegistry, diagramServer: DiagramServer) {
-    registry.register(SaveModelAction.KIND, diagramServer);
-    registry.register(GlspUndoAction.KIND, diagramServer);
-    registry.register(GlspRedoAction.KIND, diagramServer);
-    registry.register(CreateEdgeOperation.KIND, diagramServer);
-    registry.register(ReconnectEdgeOperation.KIND, diagramServer);
-    registry.register(ChangeRoutingPointsOperation.KIND, diagramServer);
-    registry.register(CreateNodeOperation.KIND, diagramServer);
-    registry.register(ChangeBoundsOperation.KIND, diagramServer);
-    registry.register(DeleteElementOperation.KIND, diagramServer);
-    registry.register(ExecuteServerCommandAction.KIND, diagramServer);
+    // Register the InitializeClientSessionAction as a server action. Then, the server will
+    // notify us about all actions it handles (Via ConfigureServerHandlersAction/Handler)
     registry.register(InitializeClientSessionAction.KIND, diagramServer);
+
+    // Register some additional early actions, that will happen before the server can tell us
+    // which actions it handles
     registry.register(RequestTypeHintsAction.KIND, diagramServer);
-    registry.register(ComputedBoundsAction.KIND, diagramServer);
-    registry.register(RequestBoundsCommand.KIND, diagramServer);
-    registry.register(RequestPopupModelAction.KIND, diagramServer);
-    registry.register(ServerStatusAction.KIND, diagramServer);
     registry.register(RequestModelAction.KIND, diagramServer);
-    registry.register(ExportSvgAction.KIND, diagramServer);
     registry.register(RequestContextActions.KIND, diagramServer);
-    registry.register(ValidateLabelEditAction.KIND, diagramServer);
-    registry.register(RequestMarkersAction.KIND, diagramServer);
-    registry.register(LayoutAction.KIND, diagramServer);
-    registry.register(ApplyLabelEditAction.KIND, diagramServer);
-    registry.register(RequestClipboardDataAction.KIND, diagramServer);
-    registry.register(PasteOperationAction.KIND, diagramServer);
-    registry.register(CutOperationAction.KIND, diagramServer);
-    registry.register(RequestEditValidationAction.KIND, diagramServer);
-    registry.register(RequestNavigationTargetsAction.KIND, diagramServer);
-    registry.register(ResolveNavigationTargetAction.KIND, diagramServer);
-    registry.register(CompoundOperation.KIND, diagramServer);
-    registry.register(SetEditModeAction.KIND, diagramServer);
-    registry.register(DisposeClientSessionAction.KIND, diagramServer);
-    registry.register(ServerMessageAction.KIND, diagramServer);
+
+    registry.register(ServerStatusAction.KIND, diagramServer);
 
     // Register an empty handler for SwitchEditMode, to avoid runtime exceptions.
-    // We don't want to support SwitchEditMode, but sprotty still sends some corresponding
-    // actions.
+    // We don't support SwitchEditMode, but Sprotty still sends those actions, so ignore them.
     registry.register(SwitchEditModeCommand.KIND, { handle: action => undefined });
 }
