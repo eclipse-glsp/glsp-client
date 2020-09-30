@@ -23,6 +23,7 @@ import {
     DiagramServer,
     ICommand,
     RequestModelAction,
+    ServerStatusAction,
     SwitchEditModeCommand
 } from "sprotty";
 
@@ -114,8 +115,9 @@ export function registerDefaultGLSPServerActions(registry: ActionHandlerRegistry
     registry.register(RequestModelAction.KIND, diagramServer);
     registry.register(RequestContextActions.KIND, diagramServer);
 
+    registry.register(ServerStatusAction.KIND, diagramServer);
+
     // Register an empty handler for SwitchEditMode, to avoid runtime exceptions.
-    // We don't want to support SwitchEditMode, but sprotty still sends some corresponding
-    // actions.
+    // We don't support SwitchEditMode, but Sprotty still sends those actions, so ignore them.
     registry.register(SwitchEditModeCommand.KIND, { handle: action => undefined });
 }
