@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, ElementAndBounds, isAction, Point } from "sprotty";
+import { Action, ApplyLabelEditAction, ElementAndBounds, isAction, LayoutAction, Point } from "sprotty";
 
 import { Args } from "../args";
 
@@ -50,8 +50,8 @@ export class CreateEdgeOperation implements CreateOperation {
     static readonly KIND = "createEdge";
 
     constructor(public readonly elementTypeId: string,
-        public sourceElementId?: string,
-        public targetElementId?: string,
+        public sourceElementId: string,
+        public targetElementId: string,
         public args?: Args,
         public readonly kind: string = CreateEdgeOperation.KIND) { }
 }
@@ -80,7 +80,7 @@ export class ChangeContainerOperation implements Operation {
 
 export class ReconnectEdgeOperation implements Operation {
     static readonly KIND = "reconnectEdge";
-    constructor(public readonly connectionElementId: string,
+    constructor(public readonly edgeElementId: string,
         public readonly sourceElementId: string,
         public readonly targetElementId: string,
         public readonly kind: string = ReconnectEdgeOperation.KIND) { }
@@ -96,8 +96,18 @@ export class CompoundOperation implements Operation {
     constructor(public operationList: Operation[], public readonly kind: string = CompoundOperation.KIND) { }
 }
 
+/**
+ * The `ElementAndRoutingPoints` type is used to associate an edge with specific routing points.
+ */
 export interface ElementAndRoutingPoints {
+    /**
+     * The identifier of an element.
+     */
     elementId: string
+
+    /**
+     * The new list of routing points.
+     */
     newRoutingPoints?: Point[];
 }
 
@@ -132,3 +142,7 @@ export function isTriggerNodeCreationAction(object?: any): object is TriggerNode
 export function isTriggerEdgeCreationAction(object?: any): object is TriggerEdgeCreationAction {
     return isTriggerElementTypeCreationAction(object) && object.kind === TriggerEdgeCreationAction.KIND;
 }
+
+export class LayoutOperation extends LayoutAction implements Operation { }
+
+export class ApplyLabelEditOperation extends ApplyLabelEditAction implements Operation { }

@@ -20,7 +20,7 @@ import { v4 as uuid } from "uuid";
 import { GLSPActionDispatcher } from "../../base/action-dispatcher";
 import { EditorContextService } from "../../base/editor-context";
 import { GLSP_TYPES } from "../../base/types";
-import { ClipboardData, CutOperationAction, PasteOperationAction, RequestClipboardDataAction } from "./copy-paste-actions";
+import { ClipboardData, CutOperation, PasteOperation, RequestClipboardDataAction } from "./copy-paste-actions";
 
 export interface ICopyPasteHandler {
     handleCopy(event: ClipboardEvent): void;
@@ -118,7 +118,7 @@ export class ServerCopyPasteHandler implements ICopyPasteHandler {
     handleCut(event: ClipboardEvent): void {
         if (event.clipboardData && this.shouldCopy(event)) {
             this.handleCopy(event);
-            this.actionDispatcher.dispatch(new CutOperationAction(this.editorContext.get()));
+            this.actionDispatcher.dispatch(new CutOperation(this.editorContext.get()));
             event.preventDefault();
         }
     }
@@ -128,7 +128,7 @@ export class ServerCopyPasteHandler implements ICopyPasteHandler {
             const clipboardId = getClipboardIdFromDataTransfer(event.clipboardData);
             const clipboardData = this.clipboadService.get(clipboardId);
             if (clipboardData) {
-                this.actionDispatcher.dispatch(new PasteOperationAction(clipboardData, this.editorContext.get()));
+                this.actionDispatcher.dispatch(new PasteOperation(clipboardData, this.editorContext.get()));
             }
             event.preventDefault();
         }

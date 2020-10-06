@@ -28,7 +28,6 @@ import {
     DiamondNodeView,
     edgeLayoutModule,
     editLabelFeature,
-    executeCommandModule,
     ExpandButtonView,
     expandModule,
     exportModule,
@@ -117,7 +116,7 @@ export default function createContainer(widgetId: string): Container {
 
     container.load(validationModule, defaultModule, glspMouseToolModule, defaultGLSPModule, glspSelectModule, boundsModule, viewportModule, toolsModule,
         glspHoverModule, fadeModule, exportModule, expandModule, openModule, buttonModule, modelSourceModule, labelEditUiModule, glspEditLabelModule,
-        workflowDiagramModule, executeCommandModule, toolFeedbackModule, modelHintsModule, glspContextMenuModule, glspServerCopyPasteModule,
+        workflowDiagramModule, toolFeedbackModule, modelHintsModule, glspContextMenuModule, glspServerCopyPasteModule,
         glspCommandPaletteModule, paletteModule, routingModule, glspDecorationModule, edgeLayoutModule, zorderModule,
         layoutCommandsModule, directTaskEditor, navigationModule, markerNavigatorModule);
 

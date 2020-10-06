@@ -42,14 +42,36 @@ export function isSetEditValidationResultAction(action: Action): action is SetEd
 }
 
 export interface ValidationStatus {
+    /**
+     * The severity of the validation returned by the server.
+     */
     readonly severity: ValidationStatus.Severity;
-    readonly message: string;
-    readonly error: ResponseError;
+
+    /**
+     * The validation status message which may be rendered in the view.
+     */
+    readonly message?: string;
+
+    /**
+     * A potential error that encodes more details.
+     */
+    readonly error?: ResponseError;
 }
 
 export interface ResponseError {
+    /**
+     * Code identifying the error kind.
+     */
     readonly code: number;
+
+    /**
+     * Error message.
+     */
     readonly message: string;
+
+    /**
+     * Additional custom data, e.g., a serialized stacktrace.
+     */
     readonly data: Object;
 }
 

@@ -18,9 +18,13 @@ import * as uuid from "uuid";
 
 export interface InitializeParameters<> {
     /**
-    * Unique identifier for the current client application
-    */
+     * Unique identifier for the current client application.
+     */
     applicationId: string;
+
+    /**
+     * Options that can include application-specific parameters.
+     */
     options?: any
 }
 
@@ -37,49 +41,88 @@ export class ApplicationIdProvider {
 export type ActionMessageHandler = (message: ActionMessage) => void;
 
 export enum ClientState {
+    /**
+     * The client has been created.
+     */
     Initial,
+    /**
+     * `Start` has been called on the client and the start process is still on-going.
+     */
     Starting,
+    /**
+     * The client failed to complete the start process.
+     */
     StartFailed,
+    /**
+     * The client was successfully started and is now running.
+     */
     Running,
+    /**
+     * `Stop` has been called on the client and the stop process is still on-going.
+     */
     Stopping,
+    /**
+     * The client stopped and disposed the server connection. Thus, action messages can no longer be sent.
+     */
     Stopped,
+    /**
+     * An error was encountered while connecting to the server. No action messages can be sent.
+     */
     ServerError
 }
 
 export interface GLSPClient {
-    readonly id: string;
-    readonly name: string;
-    currentState(): ClientState;
     /**
-     *  Initialize the client and the server connection.
-     *
+     * Unique client Id.
+     */
+    readonly id: string;
+
+    /**
+     * Client name.
+     */
+    readonly name: string;
+
+    /**
+     * Current client state.
+     */
+    currentState(): ClientState;
+
+    /**
+     * Initializes the client and the server connection. During the start procedure the client is in the `Starting` state and will transition to either `Running` or `StartFailed`.
      */
     start(): Promise<void>;
+
     /**
-     * Send an initalize request to ther server. The server needs to be initialized
-     * in order to accept and process action messages
+     * Send an `initialize` request to the server. The server needs to be initialized in order to accept and process action messages.
+     *
      * @param params Initialize parameter
-     * @returns true if the initialization was successfull
+     * @returns true if the initialization was successful
      */
     initializeServer(params: InitializeParameters): Promise<Boolean>;
+
     /**
-     * Send a shutdown notification to the server
+     * Send a `shutdown` notification to the server.
      */
     shutdownServer(): void
+
     /**
-     * Stop the client and cleanup/dispose resources
+     * Stops the client and disposes any resources. During the stop procedure the client is in the `Stopping` state and will transition to either `Stopped` or `ServerError`.
      */
     stop(): Promise<void>;
+
     /**
-     * Set a handler/listener for action messages received from the server
-     * @param handler The action message handler
-     */
-    onActionMessage(handler: ActionMessageHandler): void;
-    /**
-     * Send an action message to the server
+     * Send an action message to the server.
+     *
      * @param message The message
      */
     sendActionMessage(message: ActionMessage): void;
+
+    /**
+     * Sets a handler/listener for action messages received from the server.
+     *
+     * @param handler The action message handler
+     */
+    onActionMessage(handler: ActionMessageHandler): void;
 }
 
 export namespace GLSPClient {

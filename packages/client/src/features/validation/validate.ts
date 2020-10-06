@@ -63,8 +63,8 @@ export class ValidationFeedbackEmitter implements IFeedbackEmitter {
 
         // Clear existing markers
         if (this.registeredAction !== undefined) {
-            const clearMarkersAction = new ClearMarkersAction(this.registeredAction.markers);
-            this.actionDispatcher().then(dispatcher => dispatcher.dispatch(clearMarkersAction));
+            const deleteMarkersAction = new DeleteMarkersAction(this.registeredAction.markers);
+            this.actionDispatcher().then(dispatcher => dispatcher.dispatch(deleteMarkersAction));
         }
 
         // Register new action responsible for applying markers and re-applying them when the model is updated
@@ -103,7 +103,7 @@ export abstract class ExternalMarkerManager {
 
     removeMarkers(markers: Marker[]) {
         if (this.actionDispatcher) {
-            this.actionDispatcher.dispatch(new ClearMarkersAction(markers));
+            this.actionDispatcher.dispatch(new DeleteMarkersAction(markers));
         }
     }
 
@@ -149,7 +149,7 @@ export class SetMarkersCommand extends Command {
 * Action to retrieve markers for a model
 */
 export class RequestMarkersAction implements Action {
-    static readonly KIND = 'requestMarkers';
+    static readonly KIND = "requestMarkers";
     constructor(public readonly elementsIDs: string[] = [], public readonly kind = RequestMarkersAction.KIND) { }
 }
 
@@ -223,18 +223,18 @@ function removeCSSClassFromIssueParent(modelElement: SParentElement, issueMarker
  * Action for clearing makers of a model
  */
 @injectable()
-export class ClearMarkersAction implements MarkersAction {
-    constructor(public readonly markers: Marker[], public readonly kind = ClearMarkersCommand.KIND) { }
+export class DeleteMarkersAction implements MarkersAction {
+    constructor(public readonly markers: Marker[], public readonly kind = DeleteMarkersCommand.KIND) { }
 }
 
 /**
- * Command for handling `ClearMarkersAction`
+ * Command for handling `DeleteMarkersAction`
  */
 @injectable()
-export class ClearMarkersCommand extends Command {
-    static KIND = "clearMarkers";
+export class DeleteMarkersCommand extends Command {
+    static KIND = "deleteMarkers";
 
-    constructor(@inject(TYPES.Action) protected action: ClearMarkersAction) {
+    constructor(@inject(TYPES.Action) protected action: DeleteMarkersAction) {
         super();
     }
 

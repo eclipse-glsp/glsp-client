@@ -13,25 +13,26 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, generateRequestId, RequestAction, ResponseAction } from "sprotty";
+import { generateRequestId, RequestAction, ResponseAction } from "sprotty";
+import { Operation } from "src/base/operations/operation";
 
 import { EditorContext } from "../../base/editor-context";
 
-export class CutOperationAction implements Action {
+export class CutOperation implements Operation {
     static readonly KIND = "cut";
 
     constructor(
         public readonly editorContext: EditorContext,
-        public readonly kind: string = CutOperationAction.KIND) { }
+        public readonly kind: string = CutOperation.KIND) { }
 }
 
-export class PasteOperationAction implements Action {
+export class PasteOperation implements Operation {
     static readonly KIND = "paste";
 
     constructor(
         public readonly clipboardData: ClipboardData,
         public readonly editorContext: EditorContext,
-        public readonly kind: string = PasteOperationAction.KIND) { }
+        public readonly kind: string = PasteOperation.KIND) { }
 }
 
 export class RequestClipboardDataAction implements RequestAction<SetClipboardDataAction> {

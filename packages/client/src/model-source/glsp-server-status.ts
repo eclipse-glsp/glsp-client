@@ -13,13 +13,13 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, ServerStatusAction } from "sprotty";
+import { Action, ServerStatusAction as SprottyServerStatusAction } from "sprotty";
 
-export class GLSPServerStatusAction extends ServerStatusAction {
+export class GLSPServerStatusAction extends SprottyServerStatusAction {
     timeout: number = -1;
 }
 
-export function isGLSPServerStatusAction(serverStatusAction: ServerStatusAction): serverStatusAction is GLSPServerStatusAction {
+export function isGLSPServerStatusAction(serverStatusAction: SprottyServerStatusAction): serverStatusAction is GLSPServerStatusAction {
     return (<GLSPServerStatusAction>serverStatusAction).timeout !== undefined;
 }
 

@@ -16,7 +16,7 @@
 import { inject, injectable } from "inversify";
 import { CommandStack, IActionDispatcher, SModelRoot, TYPES } from "sprotty";
 
-import { GlspRedoAction, GlspUndoAction } from "../features/undo-redo/model";
+import { RedoOperation, UndoOperation } from "../features/undo-redo/model";
 
 @injectable()
 export class GLSPCommandStack extends CommandStack {
@@ -24,12 +24,12 @@ export class GLSPCommandStack extends CommandStack {
     @inject(TYPES.IActionDispatcherProvider) protected actionDispatcher: () => Promise<IActionDispatcher>;
 
     undo(): Promise<SModelRoot> {
-        this.actionDispatcher().then(dispatcher => dispatcher.dispatch(new GlspUndoAction()));
+        this.actionDispatcher().then(dispatcher => dispatcher.dispatch(new UndoOperation()));
         return this.thenUpdate();
     }
 
     redo(): Promise<SModelRoot> {
-        this.actionDispatcher().then(dispatcher => dispatcher.dispatch(new GlspRedoAction()));
+        this.actionDispatcher().then(dispatcher => dispatcher.dispatch(new RedoOperation()));
         return this.thenUpdate();
     }
 }
