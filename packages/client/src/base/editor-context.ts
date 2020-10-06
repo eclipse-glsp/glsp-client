@@ -23,9 +23,25 @@ import { Args } from "./args";
 import { isSourceUriAware } from "./source-uri-aware";
 import { GLSP_TYPES } from "./types";
 
+/**
+ * The `EditorContext` may be used to represent the current state of the editor for particular actions.
+ * It encompasses the last recorded mouse position, the list of selected elements, and may contain
+ * custom arguments to encode additional state information.
+ */
 export interface EditorContext {
+    /**
+     * The list of selected element identifiers.
+     */
     readonly selectedElementIds: string[];
+
+    /**
+     * The last recorded mouse position.
+     */
     readonly lastMousePosition?: Point;
+
+    /**
+     * Custom arguments.
+     */
     readonly args?: Args;
 }
 

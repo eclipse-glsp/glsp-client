@@ -25,12 +25,12 @@ import {
     NavigateToMarkerCommand,
     SModelElementComparator
 } from "./marker-navigator";
-import { ApplyMarkersCommand, ClearMarkersCommand, SetMarkersCommand, ValidationFeedbackEmitter } from "./validate";
+import { ApplyMarkersCommand, DeleteMarkersCommand, SetMarkersCommand, ValidationFeedbackEmitter } from "./validate";
 
 export const validationModule = new ContainerModule((bind, _unbind, isBound) => {
     configureCommand({ bind, isBound }, SetMarkersCommand);
     configureCommand({ bind, isBound }, ApplyMarkersCommand);
-    configureCommand({ bind, isBound }, ClearMarkersCommand);
+    configureCommand({ bind, isBound }, DeleteMarkersCommand);
     bind(ValidationFeedbackEmitter).toSelf().inSingletonScope();
 });
 

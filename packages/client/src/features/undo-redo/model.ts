@@ -13,14 +13,14 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action } from "sprotty";
+import { Operation } from "../../base/operations/operation";
 
-export class GlspUndoAction implements Action {
+export class UndoOperation implements Operation {
     static readonly KIND = 'glspUndo';
-    constructor(public readonly kind = GlspUndoAction.KIND) { }
+    constructor(public readonly kind = UndoOperation.KIND) { }
 }
 
-export class GlspRedoAction implements Action {
+export class RedoOperation implements Operation {
     static readonly KIND = 'glspRedo';
-    constructor(public readonly kind = GlspRedoAction.KIND) { }
+    constructor(public readonly kind = RedoOperation.KIND) { }
 }

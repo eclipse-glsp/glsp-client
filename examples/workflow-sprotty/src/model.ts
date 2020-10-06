@@ -14,13 +14,10 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import {
-    Bounds,
     boundsFeature,
-    CommandExecutor,
     connectableFeature,
     deletableFeature,
     DiamondNode,
-    executeCommandFeature,
     fadeFeature,
     hoverFeedbackFeature,
     isEditableLabel,
@@ -80,13 +77,11 @@ export class ActivityNode extends DiamondNode {
 }
 
 
-export class Icon extends SShapeElement implements LayoutContainer, CommandExecutor {
-    static readonly DEFAULT_FEATURES = [boundsFeature, layoutContainerFeature, layoutableChildFeature, fadeFeature, executeCommandFeature];
+export class Icon extends SShapeElement implements LayoutContainer {
+    static readonly DEFAULT_FEATURES = [boundsFeature, layoutContainerFeature, layoutableChildFeature, fadeFeature];
 
-    commandId: string;
     layout: string;
     layoutOptions?: { [key: string]: string | number | boolean; };
-    bounds: Bounds;
     size = {
         width: 32,
         height: 32

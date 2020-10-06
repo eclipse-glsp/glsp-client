@@ -10,7 +10,6 @@
           "id": "task0_header",
           "children": [
             {
-              "commandId": "simulate-command",
               "id": "task0_icon",
               "children": [
                 {
@@ -96,7 +95,6 @@
           "id": "task1_header",
           "children": [
             {
-              "commandId": "simulate-command",
               "id": "task1_icon",
               "children": [
                 {
@@ -182,7 +180,6 @@
           "id": "task2_header",
           "children": [
             {
-              "commandId": "simulate-command",
               "id": "task2_icon",
               "children": [
                 {
@@ -268,7 +265,6 @@
           "id": "task3_header",
           "children": [
             {
-              "commandId": "simulate-command",
               "id": "task3_icon",
               "children": [
                 {
@@ -354,7 +350,6 @@
           "id": "task4_header",
           "children": [
             {
-              "commandId": "simulate-command",
               "id": "task4_icon",
               "children": [
                 {
@@ -440,7 +435,6 @@
           "id": "task6_header",
           "children": [
             {
-              "commandId": "simulate-command",
               "id": "task6_icon",
               "children": [
                 {
@@ -526,7 +520,6 @@
           "id": "task8_header",
           "children": [
             {
-              "commandId": "simulate-command",
               "id": "task8_icon",
               "children": [
                 {
@@ -612,7 +605,6 @@
           "id": "task9_header",
           "children": [
             {
-              "commandId": "simulate-command",
               "id": "task9_icon",
               "children": [
                 {
