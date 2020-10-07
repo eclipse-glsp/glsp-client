@@ -41,7 +41,7 @@ import { IFeedbackActionDispatcher } from "../tool-feedback/feedback-action-disp
 export class DelKeyDeleteTool implements GLSPTool {
     static ID = "glsp.delete-keyboard";
 
-    public isEditTool = true;
+    isEditTool = true;
     protected deleteKeyListener: DeleteKeyListener = new DeleteKeyListener();
 
     @inject(KeyTool) protected readonly keytool: KeyTool;
@@ -80,7 +80,7 @@ export class DeleteKeyListener extends KeyListener {
 export class MouseDeleteTool implements GLSPTool {
     static ID = "glsp.delete-mouse";
 
-    public isEditTool = true;
+    isEditTool = true;
 
     protected deleteToolMouseListener: DeleteToolMouseListener = new DeleteToolMouseListener();
 

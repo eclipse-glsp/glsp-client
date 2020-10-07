@@ -54,7 +54,7 @@ const configureAutocomplete: (settings: AutocompleteSettings<LabeledAction>) => 
 
 
 export class AutoCompleteWidget {
-    public loadingIndicatorClasses = ['loading', 'fa', 'fa-spinner', 'fa-pulse', 'fa-3x', 'fa-fw'];
+    loadingIndicatorClasses = ['loading', 'fa', 'fa-spinner', 'fa-pulse', 'fa-3x', 'fa-fw'];
 
     protected containerElement: HTMLElement;
     protected inputElement: HTMLInputElement;

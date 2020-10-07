@@ -45,7 +45,7 @@ export function removeMovementRestrictionFeedback(element: SModelElement, moveme
 
 @injectable()
 export class NoOverlapMovmentRestrictor implements IMovementRestrictor {
-    public cssClasses = ["movement-not-allowed"];
+    cssClasses = ["movement-not-allowed"];
 
     validate(newLocation: Point, element: SModelElement): boolean {
         if (!isBoundsAwareMoveable(element)) {

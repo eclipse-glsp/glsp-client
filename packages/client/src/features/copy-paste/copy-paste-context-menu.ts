@@ -80,18 +80,18 @@ export class CopyPasteContextMenuItemProvider implements IContextMenuItemProvide
         return Promise.resolve([
             this.createCopyMenuItem(hasSelectedElements),
             this.createCutMenuItem(hasSelectedElements),
-            this.ceratePasteMenuItem()
+            this.createPasteMenuItem()
         ]);
     }
 
-    private ceratePasteMenuItem(): MenuItem {
+    protected createPasteMenuItem(): MenuItem {
         return {
             id: "paste", label: "Paste", group: "copy-paste",
             actions: [new InvokePasteAction()], isEnabled: () => true
         };
     }
 
-    private createCutMenuItem(hasSelectedElements: boolean): MenuItem {
+    protected createCutMenuItem(hasSelectedElements: boolean): MenuItem {
         return {
             id: "cut", label: "Cut", group: "copy-paste",
             actions: [new InvokeCutAction()], isEnabled: () => hasSelectedElements

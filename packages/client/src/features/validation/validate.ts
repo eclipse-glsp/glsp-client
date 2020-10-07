@@ -93,7 +93,7 @@ export function isSetMarkersAction(action: Action): action is SetMarkersAction {
 @injectable()
 export abstract class ExternalMarkerManager {
 
-    public languageLabel: string;
+    languageLabel: string;
 
     protected actionDispatcher?: IActionDispatcher;
 

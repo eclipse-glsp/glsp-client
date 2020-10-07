@@ -20,7 +20,7 @@ import { addCssClasses, removeCssClasses } from "../../utils/smodel-util";
 import { FeedbackCommand } from "./model";
 
 export class ModifyCSSFeedbackAction implements Action {
-    public readonly elementIds?: string[];
+    readonly elementIds?: string[];
 
     constructor(
         public readonly elements?: SModelElement[],

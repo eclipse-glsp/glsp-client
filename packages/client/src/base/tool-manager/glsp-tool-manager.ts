@@ -30,9 +30,9 @@ export interface IGLSPToolManager extends ToolManager {
 export class GLSPToolManager extends ToolManager implements IGLSPToolManager, EditModeListener {
     protected editorContext?: EditorContextService;
 
-    @multiInject(GLSP_TYPES.ITool) @optional() public tools: Tool[];
-    @multiInject(GLSP_TYPES.IDefaultTool) @optional() public defaultTools: Tool[];
-    @inject(GLSP_TYPES.IEditorContextServiceProvider) public contextServiceProvider: EditorContextServiceProvider;
+    @multiInject(GLSP_TYPES.ITool) @optional() tools: Tool[];
+    @multiInject(GLSP_TYPES.IDefaultTool) @optional() defaultTools: Tool[];
+    @inject(GLSP_TYPES.IEditorContextServiceProvider) contextServiceProvider: EditorContextServiceProvider;
 
     @postConstruct()
     protected initialize(): void {

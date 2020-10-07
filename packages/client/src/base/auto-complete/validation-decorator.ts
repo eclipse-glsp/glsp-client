@@ -32,13 +32,13 @@ export namespace IValidationDecorator {
 }
 
 export class ValidationDecorator implements IValidationDecorator {
-    public warningClasses = ['warning'];
-    public warningIconClasses = ['fa', 'fa-question-circle'];
-    public errorClasses = ['error'];
-    public errorIconClasses = ['fa', 'fa-exclamation-circle'];
+    warningClasses = ['warning'];
+    warningIconClasses = ['fa', 'fa-question-circle'];
+    errorClasses = ['error'];
+    errorIconClasses = ['fa', 'fa-exclamation-circle'];
 
-    public isValidated: boolean = false;
-    public hasValidationError: boolean = false;
+    isValidated: boolean = false;
+    hasValidationError: boolean = false;
 
     protected decorationDiv?: HTMLDivElement;
 
