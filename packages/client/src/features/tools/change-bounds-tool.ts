@@ -82,7 +82,6 @@ import { BaseGLSPTool } from "./base-glsp-tool";
 @injectable()
 export class ChangeBoundsTool extends BaseGLSPTool {
     static ID = "glsp.change-bounds-tool";
-    readonly id = ChangeBoundsTool.ID;
 
     @inject(GLSP_TYPES.SelectionService) protected selectionService: SelectionService;
     @inject(EdgeRouterRegistry) @optional() readonly edgeRouterRegistry?: EdgeRouterRegistry;
@@ -90,6 +89,10 @@ export class ChangeBoundsTool extends BaseGLSPTool {
     @inject(GLSP_TYPES.IMovementRestrictor) @optional() readonly movementRestrictor?: IMovementRestrictor;
     protected feedbackMoveMouseListener: MouseListener;
     protected changeBoundsListener: MouseListener & SelectionListener;
+
+    get id(): string {
+        return ChangeBoundsTool.ID;
+    }
 
     enable() {
         // install feedback move mouse listener for client-side move updates

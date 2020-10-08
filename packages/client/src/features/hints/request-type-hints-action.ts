@@ -19,14 +19,15 @@ import { EdgeTypeHint, ShapeTypeHint } from "./type-hints";
 
 export class RequestTypeHintsAction implements Action {
     static readonly KIND = "requestTypeHints";
-    kind = RequestTypeHintsAction.KIND;
-    constructor(public readonly diagramType?: string) { }
+    constructor(public readonly diagramType?: string, public readonly kind: string = RequestTypeHintsAction.KIND) { }
 }
 
 export class SetTypeHintsAction implements Action {
     static readonly KIND = "setTypeHints";
-    kind = SetTypeHintsAction.KIND;
-    constructor(public readonly shapeHints: ShapeTypeHint[], public readonly edgeHints: EdgeTypeHint[]) { }
+    constructor(
+        public readonly shapeHints: ShapeTypeHint[],
+        public readonly edgeHints: EdgeTypeHint[],
+        public readonly kind: string = SetTypeHintsAction.KIND) { }
 }
 
 export function isSetTypeHintsAction(action: Action): action is SetTypeHintsAction {

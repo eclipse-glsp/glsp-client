@@ -32,13 +32,14 @@ export interface EditorContext {
 export interface EditModeListener {
     editModeChanged(newValue: string, oldvalue: string): void;
 }
+
 @injectable()
 export class EditorContextService implements IActionHandler {
 
     @inject(GLSP_TYPES.SelectionService) protected selectionService: SelectionService;
     @inject(MousePositionTracker) protected mousePositionTracker: MousePositionTracker;
     @inject(TYPES.ModelSourceProvider) protected modelSource: () => Promise<ModelSource>;
-    editMode: string;
+    protected _editMode: string;
 
     constructor(@multiInject(GLSP_TYPES.IEditModeListener) @optional() protected editModeListeners: EditModeListener[] = []) { }
 
@@ -68,8 +69,8 @@ export class EditorContextService implements IActionHandler {
 
     handle(action: Action) {
         if (isSetEditModeAction(action)) {
-            const oldValue = this.editMode;
-            this.editMode = action.editMode;
+            const oldValue = this._editMode;
+            this._editMode = action.editMode;
             this.notifiyEditModeListeners(oldValue);
         }
     }
@@ -84,6 +85,10 @@ export class EditorContextService implements IActionHandler {
             return modelSource.getSourceURI();
         }
         return undefined;
+    }
+
+    get editMode(): string {
+        return this._editMode;
     }
 
     get modelRoot(): Readonly<SModelRoot> {

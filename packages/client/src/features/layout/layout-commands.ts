@@ -70,8 +70,6 @@ export namespace Reduce {
 }
 
 export class ResizeElementsAction implements Action {
-    readonly kind = ResizeElementsCommand.KIND;
-
     constructor(
         /**
          * IDs of the elements that should be resized. If no IDs are given, the selected elements will be resized.
@@ -84,7 +82,8 @@ export class ResizeElementsAction implements Action {
         /**
          * Function to reduce the dimension to a target dimension value, see Reduce.* for potential functions.
          */
-        public readonly reductionFunction: (...values: number[]) => number) {
+        public readonly reductionFunction: (...values: number[]) => number,
+        public readonly kind: string = ResizeElementsCommand.KIND) {
     }
 }
 
@@ -113,8 +112,6 @@ export namespace Select {
 
 
 export class AlignElementsAction implements Action {
-    readonly kind = AlignElementsCommand.KIND;
-
     constructor(
         /**
          * IDs of the elements that should be aligned. If no IDs are given, the selected elements will be aligned.
@@ -127,7 +124,8 @@ export class AlignElementsAction implements Action {
         /**
          * Function to selected elements that are considered during alignment calculation, see Select.* for potential functions.
          */
-        public readonly selectionFunction: (elements: BoundsAwareModelElement[]) => BoundsAwareModelElement[] = Select.all) {
+        public readonly selectionFunction: (elements: BoundsAwareModelElement[]) => BoundsAwareModelElement[] = Select.all,
+        public readonly kind = AlignElementsCommand.KIND) {
     }
 }
 

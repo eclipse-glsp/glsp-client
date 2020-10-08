@@ -23,9 +23,9 @@ import { GLSP_TYPES } from "../../base/types";
 import { ClipboardData, CutOperationAction, PasteOperationAction, RequestClipboardDataAction } from "./copy-paste-actions";
 
 export interface ICopyPasteHandler {
-    handleCopy(e: ClipboardEvent): void;
-    handleCut(e: ClipboardEvent): void;
-    handlePaste(e: ClipboardEvent): void;
+    handleCopy(event: ClipboardEvent): void;
+    handleCut(event: ClipboardEvent): void;
+    handlePaste(event: ClipboardEvent): void;
 }
 
 export interface IAsyncClipboardService {
@@ -101,40 +101,40 @@ export class ServerCopyPasteHandler implements ICopyPasteHandler {
     @inject(GLSP_TYPES.IAsyncClipboardService) protected clipboadService: IAsyncClipboardService;
     @inject(EditorContextService) protected editorContext: EditorContextService;
 
-    handleCopy(e: ClipboardEvent) {
-        if (e.clipboardData && this.shouldCopy(e)) {
+    handleCopy(event: ClipboardEvent) {
+        if (event.clipboardData && this.shouldCopy(event)) {
             const clipboardId = uuid();
-            e.clipboardData.setData(CLIPBOARD_DATA_FORMAT, toClipboardId(clipboardId));
+            event.clipboardData.setData(CLIPBOARD_DATA_FORMAT, toClipboardId(clipboardId));
             this.actionDispatcher
                 .request(RequestClipboardDataAction.create(this.editorContext.get()))
                 .then(action => this.clipboadService.put(action.clipboardData, clipboardId));
-            e.preventDefault();
+            event.preventDefault();
         } else {
-            if (e.clipboardData) { e.clipboardData.clearData(); }
+            if (event.clipboardData) { event.clipboardData.clearData(); }
             this.clipboadService.clear();
         }
     }
 
-    handleCut(e: ClipboardEvent): void {
-        if (e.clipboardData && this.shouldCopy(e)) {
-            this.handleCopy(e);
+    handleCut(event: ClipboardEvent): void {
+        if (event.clipboardData && this.shouldCopy(event)) {
+            this.handleCopy(event);
             this.actionDispatcher.dispatch(new CutOperationAction(this.editorContext.get()));
-            e.preventDefault();
+            event.preventDefault();
         }
     }
 
-    handlePaste(e: ClipboardEvent): void {
-        if (e.clipboardData) {
-            const clipboardId = getClipboardIdFromDataTransfer(e.clipboardData);
+    handlePaste(event: ClipboardEvent): void {
+        if (event.clipboardData) {
+            const clipboardId = getClipboardIdFromDataTransfer(event.clipboardData);
             const clipboardData = this.clipboadService.get(clipboardId);
             if (clipboardData) {
                 this.actionDispatcher.dispatch(new PasteOperationAction(clipboardData, this.editorContext.get()));
             }
-            e.preventDefault();
+            event.preventDefault();
         }
     }
 
-    protected shouldCopy(e: ClipboardEvent) {
+    protected shouldCopy(_event: ClipboardEvent) {
         return this.editorContext.get().selectedElementIds.length > 0 && document.activeElement instanceof SVGElement
             && document.activeElement.parentElement && document.activeElement.parentElement.id === this.viewerOptions.baseDiv;
     }

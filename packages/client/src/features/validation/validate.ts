@@ -77,8 +77,7 @@ export class ValidationFeedbackEmitter implements IFeedbackEmitter {
  * Action to set markers for a model
  */
 export class SetMarkersAction implements MarkersAction {
-    readonly kind = SetMarkersCommand.KIND;
-    constructor(public readonly markers: Marker[]) { }
+    constructor(public readonly markers: Marker[], public readonly kind = SetMarkersCommand.KIND) { }
 }
 
 export function isSetMarkersAction(action: Action): action is SetMarkersAction {
@@ -150,11 +149,8 @@ export class SetMarkersCommand extends Command {
 * Action to retrieve markers for a model
 */
 export class RequestMarkersAction implements Action {
-
     static readonly KIND = 'requestMarkers';
-    readonly kind = RequestMarkersAction.KIND;
-
-    constructor(public readonly elementsIDs: string[] = []) { }
+    constructor(public readonly elementsIDs: string[] = [], public readonly kind = RequestMarkersAction.KIND) { }
 }
 
 /**
@@ -169,8 +165,7 @@ export interface MarkersAction extends Action {
  */
 @injectable()
 export class ApplyMarkersAction implements MarkersAction {
-    readonly kind = ApplyMarkersCommand.KIND;
-    constructor(public readonly markers: Marker[]) { }
+    constructor(public readonly markers: Marker[], public readonly kind = ApplyMarkersCommand.KIND) { }
 }
 
 /**
@@ -229,8 +224,7 @@ function removeCSSClassFromIssueParent(modelElement: SParentElement, issueMarker
  */
 @injectable()
 export class ClearMarkersAction implements MarkersAction {
-    readonly kind = ClearMarkersCommand.KIND;
-    constructor(public readonly markers: Marker[]) { }
+    constructor(public readonly markers: Marker[], public readonly kind = ClearMarkersCommand.KIND) { }
 }
 
 /**

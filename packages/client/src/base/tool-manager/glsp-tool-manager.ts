@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { inject, injectable, multiInject, optional } from "inversify";
+import { inject, injectable, multiInject, optional, postConstruct } from "inversify";
 import { Tool, ToolManager } from "sprotty";
 
 import { distinctAdd } from "../../utils/array-utils";
@@ -25,17 +25,21 @@ export interface IGLSPToolManager extends ToolManager {
     /* Disables all actives tools and activates only default tool with non-edit function*/
     disableEditTools(): void;
 }
+
 @injectable()
 export class GLSPToolManager extends ToolManager implements IGLSPToolManager, EditModeListener {
     protected editorContext?: EditorContextService;
-    constructor(@multiInject(GLSP_TYPES.ITool) @optional() tools: Tool[],
-        @multiInject(GLSP_TYPES.IDefaultTool) @optional() defaultTools: Tool[],
-        @inject(GLSP_TYPES.IEditorContextServiceProvider) contextServiceProvider: EditorContextServiceProvider) {
-        super();
-        this.registerTools(...tools);
-        this.registerDefaultTools(...defaultTools);
+
+    @multiInject(GLSP_TYPES.ITool) @optional() tools: Tool[];
+    @multiInject(GLSP_TYPES.IDefaultTool) @optional() defaultTools: Tool[];
+    @inject(GLSP_TYPES.IEditorContextServiceProvider) contextServiceProvider: EditorContextServiceProvider;
+
+    @postConstruct()
+    protected initialize(): void {
+        this.registerTools(...this.tools);
+        this.registerDefaultTools(...this.defaultTools);
         this.enableDefaultTools();
-        contextServiceProvider().then(editorContext => {
+        this.contextServiceProvider().then(editorContext => {
             editorContext.register(this);
             this.editorContext = editorContext;
         });

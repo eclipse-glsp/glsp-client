@@ -20,6 +20,7 @@ export abstract class FeedbackCommand extends Command {
     readonly priority: number = 0;
 
     abstract execute(context: CommandExecutionContext): CommandReturn;
+
     undo(context: CommandExecutionContext): CommandReturn {
         return context.root;
     }

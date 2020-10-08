@@ -35,6 +35,7 @@ import { RequestTypeHintsAction } from "../features/hints/request-type-hints-act
 import { isServerMessageAction, ServerMessageAction } from "./glsp-server-status";
 
 const receivedFromServerProperty = '__receivedFromServer';
+
 @injectable()
 export class GLSPDiagramServer extends DiagramServer implements SourceUriAware {
     protected _sourceUri: string;
@@ -72,7 +73,6 @@ export class GLSPDiagramServer extends DiagramServer implements SourceUriAware {
         return super.handle(action);
     }
 
-
     handleLocally(action: Action): boolean {
         if (isServerMessageAction(action)) {
             return this.handleServerMessageAction(action);
@@ -82,12 +82,13 @@ export class GLSPDiagramServer extends DiagramServer implements SourceUriAware {
         }
         return super.handleLocally(action);
     }
+
     protected handleServerMessageAction(action: ServerMessageAction): boolean {
         this.logger.log('GLSPDiagramServer', `[${action.severity}] -${action.message}`);
         return false;
     }
 
-    protected handleComputedBounds(action: ComputedBoundsAction): boolean {
+    protected handleComputedBounds(_action: ComputedBoundsAction): boolean {
         return true;
     }
 

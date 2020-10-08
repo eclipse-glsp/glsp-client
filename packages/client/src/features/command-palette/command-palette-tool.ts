@@ -31,9 +31,11 @@ export class CommandPaletteTool implements Tool {
     get id(): string {
         return CommandPaletteTool.ID;
     }
+
     enable(): void {
         this.keyTool.register(this.commandPaletteKeyListener);
     }
+
     disable(): void {
         this.keyTool.deregister(this.commandPaletteKeyListener);
     }

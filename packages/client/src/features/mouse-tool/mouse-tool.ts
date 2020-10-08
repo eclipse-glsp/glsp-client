@@ -54,7 +54,7 @@ export class RankingMouseTool extends MouseTool implements IMouseTool {
             overwriteOn(vnode, 'mouseup', this.mouseUp.bind(this), element);
             overwriteOn(vnode, 'mousemove', this.mouseMove.bind(this), element);
             overwriteOn(vnode, 'wheel', this.wheel.bind(this), element);
-            overwriteOn(vnode, 'contextmenu', (target: SModelElement, event: any) => {
+            overwriteOn(vnode, 'contextmenu', (_target: SModelElement, event: any) => {
                 event.preventDefault();
             }, element);
             overwriteOn(vnode, 'dblclick', this.doubleClick.bind(this), element);

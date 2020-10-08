@@ -19,20 +19,21 @@ import { Args } from "../args";
 
 export class RequestEditValidationAction implements RequestAction<SetEditValidationResultAction> {
     static readonly KIND = "requestEditValidation";
-    kind = RequestEditValidationAction.KIND;
     constructor(
         public readonly contextId: string,
         public readonly modelElementId: string,
         public readonly text: string,
-        public readonly requestId: string = generateRequestId()) { }
+        public readonly requestId: string = generateRequestId(),
+        public readonly kind: string = RequestEditValidationAction.KIND) { }
 }
 
 export class SetEditValidationResultAction implements ResponseAction {
     static readonly KIND = "setEditValidationResult";
-    kind = SetEditValidationResultAction.KIND;
-    constructor(public readonly status: ValidationStatus,
+    constructor(
+        public readonly status: ValidationStatus,
         public readonly responseId: string = '',
-        readonly args?: Args) { }
+        public readonly args?: Args,
+        public readonly kind: string = SetEditValidationResultAction.KIND) { }
 }
 
 export function isSetEditValidationResultAction(action: Action): action is SetEditValidationResultAction {

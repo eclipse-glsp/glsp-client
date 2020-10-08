@@ -24,20 +24,18 @@ import {
 } from "sprotty";
 
 export class SelectFeedbackAction {
-    kind = SelectFeedbackCommand.KIND;
-
-    constructor(public readonly selectedElementsIDs: string[] = [],
-        public readonly deselectedElementsIDs: string[] = []) {
+    constructor(
+        public readonly selectedElementsIDs: string[] = [],
+        public readonly deselectedElementsIDs: string[] = [],
+        public readonly kind: string = SelectFeedbackCommand.KIND) {
     }
 }
 
 export class SelectAllFeedbackAction {
-    kind = SelectAllFeedbackCommand.KIND;
-
     /**
      * If `select` is true, all elements are selected, othewise they are deselected.
      */
-    constructor(public readonly select: boolean = true) {
+    constructor(public readonly select: boolean = true, public readonly kind: string = SelectFeedbackCommand.KIND) {
     }
 }
 

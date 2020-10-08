@@ -30,17 +30,17 @@ import { GLSPServerStatusAction, ServerMessageAction } from "../../model-source/
 
 export class InvokeCopyAction implements Action {
     static readonly KIND = "invoke-copy";
-    kind = InvokeCopyAction.KIND;
+    constructor(public readonly kind = InvokeCopyAction.KIND) { }
 }
 
 export class InvokePasteAction implements Action {
     static readonly KIND = "invoke-paste";
-    kind = InvokePasteAction.KIND;
+    constructor(public readonly kind = InvokePasteAction.KIND) { }
 }
 
 export class InvokeCutAction implements Action {
     static readonly KIND = "invoke-cut";
-    kind = InvokeCutAction.KIND;
+    constructor(public readonly kind = InvokeCutAction.KIND) { }
 }
 
 @injectable()
@@ -75,21 +75,33 @@ export class InvokeCopyPasteActionHandler implements IActionHandler {
 
 @injectable()
 export class CopyPasteContextMenuItemProvider implements IContextMenuItemProvider {
-    getItems(root: Readonly<SModelRoot>, lastMousePosition?: Point): Promise<MenuItem[]> {
+    getItems(root: Readonly<SModelRoot>, _lastMousePosition?: Point): Promise<MenuItem[]> {
         const hasSelectedElements = Array.from(root.index.all().filter(isSelected)).length > 0;
         return Promise.resolve([
-            {
-                id: "copy", label: "Copy", group: "copy-paste",
-                actions: [new InvokeCopyAction()], isEnabled: () => hasSelectedElements
-            },
-            {
-                id: "cut", label: "Cut", group: "copy-paste",
-                actions: [new InvokeCutAction()], isEnabled: () => hasSelectedElements
-            },
-            {
-                id: "paste", label: "Paste", group: "copy-paste",
-                actions: [new InvokePasteAction()], isEnabled: () => true
-            }
+            this.createCopyMenuItem(hasSelectedElements),
+            this.createCutMenuItem(hasSelectedElements),
+            this.createPasteMenuItem()
         ]);
+    }
+
+    protected createPasteMenuItem(): MenuItem {
+        return {
+            id: "paste", label: "Paste", group: "copy-paste",
+            actions: [new InvokePasteAction()], isEnabled: () => true
+        };
+    }
+
+    protected createCutMenuItem(hasSelectedElements: boolean): MenuItem {
+        return {
+            id: "cut", label: "Cut", group: "copy-paste",
+            actions: [new InvokeCutAction()], isEnabled: () => hasSelectedElements
+        };
+    }
+
+    protected createCopyMenuItem(hasSelectedElements: boolean): MenuItem {
+        return {
+            id: "copy", label: "Copy", group: "copy-paste",
+            actions: [new InvokeCopyAction()], isEnabled: () => hasSelectedElements
+        };
     }
 }

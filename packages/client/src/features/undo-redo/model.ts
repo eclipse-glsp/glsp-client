@@ -17,10 +17,10 @@ import { Action } from "sprotty";
 
 export class GlspUndoAction implements Action {
     static readonly KIND = 'glspUndo';
-    readonly kind = GlspUndoAction.KIND;
+    constructor(public readonly kind = GlspUndoAction.KIND) { }
 }
 
 export class GlspRedoAction implements Action {
     static readonly KIND = 'glspRedo';
-    readonly kind = GlspRedoAction.KIND;
+    constructor(public readonly kind = GlspRedoAction.KIND) { }
 }

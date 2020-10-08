@@ -30,7 +30,7 @@ import { MouseListener, SModelElement } from "sprotty";
  */
 @injectable()
 export class SelectionClearingMouseListener extends MouseListener {
-    mouseDown(target: SModelElement, event: MouseEvent) {
+    mouseDown(_target: SModelElement, event: MouseEvent) {
         const selection = document.getSelection();
         if (selection === null) {
             return [];

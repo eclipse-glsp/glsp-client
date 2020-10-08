@@ -23,6 +23,7 @@ export interface InitializeParameters<> {
     applicationId: string;
     options?: any
 }
+
 export class ApplicationIdProvider {
     private static _applicationId?: string;
     static get(): string {
@@ -32,6 +33,7 @@ export class ApplicationIdProvider {
         return ApplicationIdProvider._applicationId;
     }
 }
+
 export type ActionMessageHandler = (message: ActionMessage) => void;
 
 export enum ClientState {

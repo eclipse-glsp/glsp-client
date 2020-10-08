@@ -66,7 +66,10 @@ export class EdgeEditTool extends BaseGLSPTool {
     protected feedbackEdgeTargetMovingListener: FeedbackEdgeTargetMovingMouseListener;
     protected feedbackMovingListener: FeedbackEdgeRouteMovingMouseListener;
     protected edgeEditListener: EdgeEditListener;
-    readonly id = EdgeEditTool.ID;
+
+    get id(): string {
+        return EdgeEditTool.ID;
+    }
 
     enable(): void {
         this.edgeEditListener = new EdgeEditListener(this);

@@ -23,7 +23,7 @@ const JSX = { createElement: snabbdom.svg };
 @injectable()
 export class GlspIssueMarkerView extends IssueMarkerView {
 
-    render(marker: SIssueMarker, context: RenderingContext): VNode {
+    render(marker: SIssueMarker, _context: RenderingContext): VNode {
         const maxSeverity = super.getMaxSeverity(marker);
         const group = <g class-sprotty-issue={true} >
             <g>

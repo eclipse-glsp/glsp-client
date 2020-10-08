@@ -34,6 +34,7 @@ import {
 
 export namespace LabelEditValidation {
     export const CONTEXT_ID = 'label-edit';
+
     export function toEditLabelValidationResult(status: ValidationStatus): EditLabelValidationResult {
         const message = status.message;
         let severity = <Severity>'ok';

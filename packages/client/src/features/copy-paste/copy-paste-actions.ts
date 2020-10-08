@@ -19,25 +19,28 @@ import { EditorContext } from "../../base/editor-context";
 
 export class CutOperationAction implements Action {
     static readonly KIND = "cut";
-    kind = CutOperationAction.KIND;
-    constructor(public readonly editorContext: EditorContext) { }
+
+    constructor(
+        public readonly editorContext: EditorContext,
+        public readonly kind: string = CutOperationAction.KIND) { }
 }
 
 export class PasteOperationAction implements Action {
     static readonly KIND = "paste";
-    kind = PasteOperationAction.KIND;
+
     constructor(
         public readonly clipboardData: ClipboardData,
-        public readonly editorContext: EditorContext) { }
+        public readonly editorContext: EditorContext,
+        public readonly kind: string = PasteOperationAction.KIND) { }
 }
 
 export class RequestClipboardDataAction implements RequestAction<SetClipboardDataAction> {
     static readonly KIND = "requestClipboardData";
-    kind = RequestClipboardDataAction.KIND;
 
     constructor(
         public readonly editorContext: EditorContext,
-        public readonly requestId: string = generateRequestId()) { }
+        public readonly requestId: string = generateRequestId(),
+        public readonly kind: string = RequestClipboardDataAction.KIND) { }
 
     static create(editorContext: EditorContext): RequestAction<SetClipboardDataAction> {
         return new RequestClipboardDataAction(editorContext);
@@ -48,8 +51,9 @@ export type ClipboardData = { [format: string]: string };
 
 export class SetClipboardDataAction implements ResponseAction {
     static readonly KIND = "setClipboardData";
-    kind = SetClipboardDataAction.KIND;
+
     constructor(
         public readonly clipboardData: ClipboardData,
-        public readonly responseId: string = '') { }
+        public readonly responseId: string = '',
+        public readonly kind: string = SetClipboardDataAction.KIND) { }
 }

@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { inject, injectable, multiInject, optional } from "inversify";
+import { inject, injectable, multiInject, optional, postConstruct } from "inversify";
 import {
     Action,
     ActionHandlerRegistry,
@@ -60,14 +60,20 @@ export interface SModelRootListener {
  */
 @injectable()
 export class FeedbackAwareUpdateModelCommand extends UpdateModelCommand {
+    @inject(TYPES.ILogger) protected logger: ILogger;
+    @inject(GLSP_TYPES.IFeedbackActionDispatcher) @optional() protected readonly feedbackActionDispatcher: IFeedbackActionDispatcher;
+    @inject(TYPES.ActionHandlerRegistryProvider) protected actionHandlerRegistryProvider: () => Promise<ActionHandlerRegistry>;
+    @multiInject(GLSP_TYPES.SModelRootListener) @optional() protected modelRootListeners: SModelRootListener[] = [];
+
     protected actionHandlerRegistry?: ActionHandlerRegistry;
-    constructor(@inject(TYPES.Action) action: UpdateModelAction,
-        @inject(TYPES.ILogger) protected logger: ILogger,
-        @inject(GLSP_TYPES.IFeedbackActionDispatcher) @optional() protected readonly feedbackActionDispatcher: IFeedbackActionDispatcher,
-        @inject(TYPES.ActionHandlerRegistryProvider) actionHandlerRegistryProvider: () => Promise<ActionHandlerRegistry>,
-        @multiInject(GLSP_TYPES.SModelRootListener) @optional() protected modelRootListeners: SModelRootListener[] = []) {
+
+    constructor(@inject(TYPES.Action) action: UpdateModelAction) {
         super(action);
-        actionHandlerRegistryProvider().then(registry => this.actionHandlerRegistry = registry);
+    }
+
+    @postConstruct()
+    protected initialize(): void {
+        this.actionHandlerRegistryProvider().then(registry => this.actionHandlerRegistry = registry);
     }
 
     protected performUpdate(oldRoot: SModelRoot, newRoot: SModelRoot, context: CommandExecutionContext): CommandReturn {
@@ -91,7 +97,7 @@ export class FeedbackAwareUpdateModelCommand extends UpdateModelCommand {
         return super.performUpdate(oldRoot, newRoot, context);
     }
 
-    private getFeedbackCommands(registry: ActionHandlerRegistry): Command[] {
+    protected getFeedbackCommands(registry: ActionHandlerRegistry): Command[] {
         const result: Command[] = [];
         this.feedbackActionDispatcher.getRegisteredFeedback().forEach(action => {
             const handler = registry.get(action.kind).find(h => h instanceof CommandActionHandler);

@@ -31,7 +31,7 @@ export namespace PaletteItem {
     export function getTriggerAction(item?: PaletteItem): TriggerElementCreationAction | undefined {
         if (item) {
             const initiAction = item.actions.filter(a => isTriggerElementTypeCreationAction(a))
-                .map(a => a as TriggerElementCreationAction);
+                .map(action => action as TriggerElementCreationAction);
             return initiAction.length > 0 ? initiAction[0] : undefined;
         }
         return undefined;

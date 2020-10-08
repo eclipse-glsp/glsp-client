@@ -30,13 +30,9 @@ import { SelectionService } from "../select/selection-service";
 
 @injectable()
 export class SelectionServiceAwareContextMenuMouseListener extends MouseListener {
-
-    constructor(
-        @inject(TYPES.IContextMenuServiceProvider) @optional() protected readonly contextMenuService: IContextMenuServiceProvider,
-        @inject(TYPES.IContextMenuProviderRegistry) @optional() protected readonly menuProvider: ContextMenuProviderRegistry,
-        @inject(GLSP_TYPES.SelectionService) protected selectionService: SelectionService) {
-        super();
-    }
+    @inject(TYPES.IContextMenuServiceProvider) @optional() protected readonly contextMenuService: IContextMenuServiceProvider;
+    @inject(TYPES.IContextMenuProviderRegistry) @optional() protected readonly menuProvider: ContextMenuProviderRegistry;
+    @inject(GLSP_TYPES.SelectionService) protected selectionService: SelectionService;
 
     mouseDown(target: SModelElement, event: MouseEvent): (Action | Promise<Action>)[] {
         if (event.button === 2 && this.contextMenuService && this.menuProvider) {

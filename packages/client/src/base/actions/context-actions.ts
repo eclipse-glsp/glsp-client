@@ -20,19 +20,21 @@ import { EditorContext } from "../editor-context";
 
 export class RequestContextActions implements RequestAction<SetContextActions> {
     static readonly KIND = "requestContextActions";
-    kind = RequestContextActions.KIND;
     constructor(
         public readonly contextId: string,
         public readonly editorContext: EditorContext,
-        public readonly requestId: string = generateRequestId()) { }
+        public readonly requestId: string = generateRequestId(),
+        public readonly kind: string = RequestContextActions.KIND) { }
 }
 
 export class SetContextActions implements ResponseAction {
     static readonly KIND = "setContextActions";
-    kind = SetContextActions.KIND;
-    constructor(public readonly actions: LabeledAction[],
+    constructor(
+        public readonly actions: LabeledAction[],
         public readonly responseId: string = '',
-        readonly args?: Args) { }
+        public readonly args?: Args,
+        public readonly kind: string = SetContextActions.KIND) {
+    }
 }
 
 export function isSetContextActionsAction(action: Action): action is SetContextActions {

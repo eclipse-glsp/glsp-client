@@ -107,17 +107,17 @@ export class EdgeTypeHint extends TypeHint {
 @injectable()
 export class ApplyTypeHintsAction implements Action {
     readonly kind = ApplyTypeHintsCommand.KIND;
-    constructor() { }
 }
 
 @injectable()
 export class ApplyTypeHintsCommand extends FeedbackCommand {
 
-    static KIND = "applyTypeHints";
-    readonly priority = 10;
+    public static KIND = "applyTypeHints";
+    public readonly priority = 10;
 
-    constructor(@inject(TYPES.Action) protected action: ApplyTypeHintsAction,
-        @inject(GLSP_TYPES.ITypeHintProvider) protected typeHintProvider: ITypeHintProvider) {
+    @inject(GLSP_TYPES.ITypeHintProvider) protected typeHintProvider: ITypeHintProvider;
+
+    constructor(@inject(TYPES.Action) protected action: ApplyTypeHintsAction) {
         super();
     }
 
@@ -189,6 +189,7 @@ function addOrRemove(features: Set<symbol>, feature: symbol, add: boolean) {
         features.delete(feature);
     }
 }
+
 function isModifiableFetureSet(featureSet?: FeatureSet): featureSet is FeatureSet & Set<symbol> {
     return featureSet !== undefined && featureSet instanceof Set;
 }

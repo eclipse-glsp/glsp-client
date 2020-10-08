@@ -25,6 +25,7 @@ import {
     SIssueMarker,
     SIssueSeverity,
     SModelElement,
+    SModelElementSchema,
     SModelRootSchema
 } from "sprotty";
 
@@ -52,21 +53,27 @@ export class GlspHoverMouseListener extends HoverMouseListener {
 
     protected createPopupModel(marker: GIssueMarker, bounds: Bounds): SModelRootSchema {
         if (marker.issues !== undefined && marker.issues.length > 0) {
-            const message = '<ul>' + marker.issues.map(i => '<li>' + i.severity.toUpperCase() + ': ' + i.message + '</li>').join('') + '</ul>';
             return {
                 type: 'html',
                 id: 'sprotty-popup',
-                children: [
-                    <PreRenderedElementSchema>{
-                        type: 'pre-rendered',
-                        id: 'popup-title',
-                        code: `<div class="${getSeverity(marker)}"><div class="sprotty-popup-title">${message}</div></div>`
-                    }
-                ],
+                children: [this.createMarkerIssuePopup(marker)],
                 canvasBounds: this.modifyBounds(bounds)
             };
         }
         return { type: EMPTY_ROOT.type, id: EMPTY_ROOT.id };
+    }
+
+    protected createMarkerIssuePopup(marker: GIssueMarker): SModelElementSchema {
+        const message = this.createIssueMessage(marker);
+        return <PreRenderedElementSchema>{
+            type: 'pre-rendered',
+            id: 'popup-title',
+            code: `<div class="${getSeverity(marker)}"><div class="sprotty-popup-title">${message}</div></div>`
+        };
+    }
+
+    protected createIssueMessage(marker: GIssueMarker): string {
+        return '<ul>' + marker.issues.map(i => '<li>' + i.severity.toUpperCase() + ': ' + i.message + '</li>').join('') + '</ul>';
     }
 
     protected modifyBounds(bounds: Bounds): Bounds {

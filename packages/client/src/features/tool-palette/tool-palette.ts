@@ -49,6 +49,7 @@ export class EnableToolPaletteAction implements Action {
 
 @injectable()
 export class ToolPalette extends AbstractUIExtension implements IActionHandler, EditModeListener {
+    static readonly ID = "tool-palette";
 
     @inject(TYPES.IActionDispatcher) protected readonly actionDispatcher: GLSPActionDispatcher;
     @inject(TYPES.IToolManager) protected readonly toolManager: IToolManager;
@@ -65,26 +66,25 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
     id() { return ToolPalette.ID; }
     containerClass() { return ToolPalette.ID; }
 
-    static readonly ID = "tool-palette";
-
     @postConstruct()
-    postConstruct() {
+    postConstruct(): void {
         this.editorContext.register(this);
     }
 
-    initialize() {
+    initialize(): boolean {
         if (!this.paletteItems) {
             return false;
         }
         return super.initialize();
     }
 
-    protected initializeContents(containerElement: HTMLElement): void {
+    protected initializeContents(_containerElement: HTMLElement): void {
         this.createHeader();
         this.createBody();
+        this.lastActivebutton = this.defaultToolsButton;
     }
 
-    protected onBeforeShow(containerElement: HTMLElement, root: Readonly<SModelRoot>) {
+    protected onBeforeShow(_containerElement: HTMLElement, root: Readonly<SModelRoot>) {
         this.modelRootId = root.id;
         this.containerElement.style.maxHeight = PALETTE_HEIGHT;
     }
@@ -97,7 +97,7 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
         if (baseDiv) {
             const insertedDiv = baseDiv.insertBefore(minPaletteDiv, baseDiv.firstChild);
             const minimizeIcon = createIcon(["fas", CHEVRON_DOWN]);
-            minimizeIcon.onclick = (ev) => {
+            minimizeIcon.onclick = _event => {
                 if (this.containerElement.style.maxHeight !== "0px") {
                     this.containerElement.style.maxHeight = "0px";
                 } else {
@@ -144,14 +144,13 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
         this.addMinimizePaletteButton();
         const headerCompartment = document.createElement("div");
         headerCompartment.classList.add("palette-header");
+        headerCompartment.append(this.createHeaderTitle());
+        headerCompartment.appendChild(this.createHeaderTools());
+        headerCompartment.appendChild(this.searchField = this.createHeaderSearchField());
+        this.containerElement.appendChild(headerCompartment);
+    }
 
-        // Title header
-        const header = document.createElement("div");
-        header.classList.add("header-icon");
-        header.appendChild(createIcon(["fa", "fa-palette"]));
-        header.insertAdjacentText("beforeend", "Palette");
-        headerCompartment.append(header);
-        // Header Tools Compartment
+    private createHeaderTools(): HTMLElement {
         const headerTools = document.createElement("div");
         headerTools.classList.add("header-tools");
 
@@ -160,7 +159,6 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
         this.defaultToolsButton.id = "btn_default_tools";
         this.defaultToolsButton.onclick = this.onClickStaticToolButton(this.defaultToolsButton);
         headerTools.appendChild(this.defaultToolsButton);
-        this.lastActivebutton = this.defaultToolsButton;
 
         // Create button for MouseDeleteTool
         const deleteToolButton = createIcon(["fas", "fa-eraser", "fa-xs"]);
@@ -169,15 +167,22 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
 
         // Create button for ValidationTool
         const validateActionButton = createIcon(["fas", "fa-check-square", "fa-xs"]);
-        validateActionButton.onclick = (ev: MouseEvent) => {
+        validateActionButton.onclick = _event => {
             const modelIds: string[] = [this.modelRootId];
             this.actionDispatcher.dispatch(new RequestMarkersAction(modelIds));
         };
         headerTools.appendChild(validateActionButton);
 
         // Create button for Search
+        const searchIcon = this.createSearchButton();
+
+        headerTools.appendChild(searchIcon);
+        return headerTools;
+    }
+
+    protected createSearchButton() {
         const searchIcon = createIcon(["fas", SEARCH_ICON, "state-icon", "fa-xs"]);
-        searchIcon.onclick = (ev) => {
+        searchIcon.onclick = (_ev) => {
             const searchField = document.getElementById(this.containerElement.id + "_search_field");
             if (searchField) {
                 if (searchField.style.display === "inline") {
@@ -189,19 +194,27 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
             }
         };
         searchIcon.classList.add("search-icon");
-        this.searchField = document.createElement("input");
-        this.searchField.classList.add("search-input");
-        this.searchField.id = this.containerElement.id + "_search_field";
-        this.searchField.type = "text";
-        this.searchField.placeholder = " Search...";
-        this.searchField.style.display = "none";
-        this.searchField.onkeyup = () => this.requestFilterUpdate(this.searchField.value);
-        this.searchField.onkeydown = (ev) => this.clearOnEscape(ev);
+        return searchIcon;
+    }
 
-        headerTools.appendChild(searchIcon);
-        headerCompartment.appendChild(headerTools);
-        headerCompartment.appendChild(this.searchField);
-        this.containerElement.appendChild(headerCompartment);
+    protected createHeaderSearchField(): HTMLInputElement {
+        const searchField = document.createElement("input");
+        searchField.classList.add("search-input");
+        searchField.id = this.containerElement.id + "_search_field";
+        searchField.type = "text";
+        searchField.placeholder = " Search...";
+        searchField.style.display = "none";
+        searchField.onkeyup = () => this.requestFilterUpdate(this.searchField.value);
+        searchField.onkeydown = (ev) => this.clearOnEscape(ev);
+        return searchField;
+    }
+
+    protected createHeaderTitle(): HTMLElement {
+        const header = document.createElement("div");
+        header.classList.add("header-icon");
+        header.appendChild(createIcon(["fa", "fa-palette"]));
+        header.insertAdjacentText("beforeend", "Palette");
+        return header;
     }
 
     protected createToolButton(item: PaletteItem, index: number): HTMLElement {
@@ -215,7 +228,7 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
     }
 
     protected onClickCreateToolButton(button: HTMLElement, item: PaletteItem) {
-        return (ev: MouseEvent) => {
+        return (_ev: MouseEvent) => {
             if (!this.editorContext.isReadonly) {
                 this.actionDispatcher.dispatchAll(item.actions);
                 this.changeActiveButton(button);
@@ -225,7 +238,7 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
     }
 
     protected onClickStaticToolButton(button: HTMLElement, toolId?: string) {
-        return (ev: MouseEvent) => {
+        return (_ev: MouseEvent) => {
             if (!this.editorContext.isReadonly) {
                 const action = toolId ? new EnableToolsAction([toolId]) : new EnableDefaultToolsAction();
                 this.actionDispatcher.dispatch(action);
@@ -265,7 +278,7 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
         }
     }
 
-    editModeChanged(oldValue: string, newValue: string) {
+    editModeChanged(_oldValue: string, _newValue: string) {
         this.actionDispatcher.dispatch(new SetUIExtensionVisibilityAction(ToolPalette.ID, !this.editorContext.isReadonly));
     }
 
@@ -341,7 +354,7 @@ export function createToolGroup(item: PaletteItem): HTMLElement {
         header.appendChild(createIcon(["fas", item.icon]));
     }
     header.insertAdjacentText('beforeend', item.label);
-    header.ondblclick = (ev) => {
+    header.ondblclick = (_ev) => {
         const css = "collapsed";
         changeCSSClass(group, css);
         Array.from(group.children).forEach(child => changeCSSClass(child, css));
