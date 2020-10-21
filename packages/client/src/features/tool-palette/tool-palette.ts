@@ -97,12 +97,14 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
         if (baseDiv) {
             const insertedDiv = baseDiv.insertBefore(minPaletteDiv, baseDiv.firstChild);
             const minimizeIcon = createIcon(["fas", CHEVRON_DOWN]);
+            this.updateMinimizePaletteButtonTooltip(minPaletteDiv);
             minimizeIcon.onclick = _event => {
-                if (this.containerElement.style.maxHeight !== "0px") {
+                if (this.isPaletteMaximized()) {
                     this.containerElement.style.maxHeight = "0px";
                 } else {
                     this.containerElement.style.maxHeight = PALETTE_HEIGHT;
                 }
+                this.updateMinimizePaletteButtonTooltip(minPaletteDiv);
                 changeCSSClass(minimizeIcon, PALETTE_ICON);
                 changeCSSClass(minimizeIcon, "fa");
                 changeCSSClass(minimizeIcon, "fas");
@@ -110,6 +112,18 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
             };
             insertedDiv.appendChild(minimizeIcon);
         }
+    }
+
+    protected updateMinimizePaletteButtonTooltip(button: HTMLDivElement) {
+        if (this.isPaletteMaximized()) {
+            button.title = 'Minimize palette';
+        } else {
+            button.title = 'Maximize palette';
+        }
+    }
+
+    protected isPaletteMaximized() {
+        return this.containerElement && this.containerElement.style.maxHeight !== "0px";
     }
 
     protected createBody(): void {
@@ -154,30 +168,45 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
         const headerTools = document.createElement("div");
         headerTools.classList.add("header-tools");
 
-        // Create button for DefaultTools
-        this.defaultToolsButton = createIcon(["fas", "fa-mouse-pointer", "fa-xs", "clicked"]);
-        this.defaultToolsButton.id = "btn_default_tools";
-        this.defaultToolsButton.onclick = this.onClickStaticToolButton(this.defaultToolsButton);
+        this.defaultToolsButton = this.createDefaultToolButton();
         headerTools.appendChild(this.defaultToolsButton);
 
-        // Create button for MouseDeleteTool
-        const deleteToolButton = createIcon(["fas", "fa-eraser", "fa-xs"]);
-        deleteToolButton.onclick = this.onClickStaticToolButton(deleteToolButton, MouseDeleteTool.ID);
+        const deleteToolButton = this.createMouseDeleteToolButton();
         headerTools.appendChild(deleteToolButton);
 
-        // Create button for ValidationTool
-        const validateActionButton = createIcon(["fas", "fa-check-square", "fa-xs"]);
-        validateActionButton.onclick = _event => {
-            const modelIds: string[] = [this.modelRootId];
-            this.actionDispatcher.dispatch(new RequestMarkersAction(modelIds));
-        };
+        const validateActionButton = this.createValidateButton();
         headerTools.appendChild(validateActionButton);
 
         // Create button for Search
         const searchIcon = this.createSearchButton();
-
         headerTools.appendChild(searchIcon);
+
         return headerTools;
+    }
+
+    protected createDefaultToolButton() {
+        const button = createIcon(["fas", "fa-mouse-pointer", "fa-xs", "clicked"]);
+        button.id = "btn_default_tools";
+        button.title = 'Enable selection tool';
+        button.onclick = this.onClickStaticToolButton(this.defaultToolsButton);
+        return button;
+    }
+
+    protected createMouseDeleteToolButton() {
+        const deleteToolButton = createIcon(["fas", "fa-eraser", "fa-xs"]);
+        deleteToolButton.title = 'Enable deletion tool';
+        deleteToolButton.onclick = this.onClickStaticToolButton(deleteToolButton, MouseDeleteTool.ID);
+        return deleteToolButton;
+    }
+
+    protected createValidateButton() {
+        const validateActionButton = createIcon(["fas", "fa-check-square", "fa-xs"]);
+        validateActionButton.title = 'Validate model';
+        validateActionButton.onclick = _event => {
+            const modelIds: string[] = [this.modelRootId];
+            this.actionDispatcher.dispatch(new RequestMarkersAction(modelIds));
+        };
+        return validateActionButton;
     }
 
     protected createSearchButton() {
@@ -194,6 +223,7 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
             }
         };
         searchIcon.classList.add("search-icon");
+        searchIcon.title = 'Filter palette entries';
         return searchIcon;
     }
 

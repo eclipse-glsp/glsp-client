@@ -96,3 +96,7 @@
 .resize-mode {
     cursor: none;
 }
+
+.element-deletion-mode {
+    cursor: pointer;
+}
