@@ -17,6 +17,7 @@ import { inject, injectable } from "inversify";
 import {
     Action,
     EnableDefaultToolsAction,
+    findParentByFeature,
     isCtrlOrCmd,
     isDeletable,
     isSelectable,
@@ -105,11 +106,12 @@ export class MouseDeleteTool implements GLSPTool {
 @injectable()
 export class DeleteToolMouseListener extends MouseListener {
     mouseUp(target: SModelElement, event: MouseEvent): Action[] {
-        if (!isDeletable(target)) {
+        const deletableParent = findParentByFeature(target, isDeletable);
+        if (deletableParent === undefined) {
             return [];
         }
         const result: Action[] = [];
-        result.push(new DeleteElementOperation([target.id]));
+        result.push(new DeleteElementOperation([deletableParent.id]));
         if (!isCtrlOrCmd(event)) {
             result.push(new EnableDefaultToolsAction());
         }
