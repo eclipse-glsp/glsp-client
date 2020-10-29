@@ -51,6 +51,7 @@ import {
     markerNavigatorModule,
     modelHintsModule,
     modelSourceModule,
+    modelSourceWatcherModule,
     navigationModule,
     NoOverlapMovmentRestrictor,
     openModule,
@@ -116,7 +117,7 @@ export default function createContainer(widgetId: string): Container {
 
     container.load(validationModule, defaultModule, glspMouseToolModule, defaultGLSPModule, glspSelectModule, boundsModule, viewportModule, toolsModule,
         glspHoverModule, fadeModule, exportModule, expandModule, openModule, buttonModule, modelSourceModule, labelEditUiModule, glspEditLabelModule,
-        workflowDiagramModule, toolFeedbackModule, modelHintsModule, glspContextMenuModule, glspServerCopyPasteModule,
+        workflowDiagramModule, toolFeedbackModule, modelHintsModule, glspContextMenuModule, glspServerCopyPasteModule, modelSourceWatcherModule,
         glspCommandPaletteModule, paletteModule, routingModule, glspDecorationModule, edgeLayoutModule, zorderModule,
         layoutCommandsModule, directTaskEditor, navigationModule, markerNavigatorModule);
 
