@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { inject, injectable } from "inversify";
-import { Action, generateRequestId, IActionDispatcher, RequestAction, ResponseAction, TYPES } from "sprotty";
+import { Action, generateRequestId, IActionDispatcher, ILogger, RequestAction, ResponseAction, TYPES } from "sprotty";
 
 import { Args } from "../../base/args";
 import { EditorContextServiceProvider } from "../../base/editor-context";
@@ -114,6 +114,7 @@ export class NavigationTargetResolver {
 
     @inject(GLSP_TYPES.IEditorContextServiceProvider) protected editorContextService: EditorContextServiceProvider;
     @inject(TYPES.IActionDispatcher) protected dispatcher: IActionDispatcher;
+    @inject(TYPES.ILogger) protected readonly logger: ILogger;
 
     async resolve(navigationTarget: NavigationTarget): Promise<SetResolvedNavigationTargetAction | undefined> {
         const contextService = await this.editorContextService();
@@ -122,8 +123,10 @@ export class NavigationTargetResolver {
     }
 
     async resolveWithSourceUri(sourceUri: string | undefined, target: NavigationTarget): Promise<SetResolvedNavigationTargetAction | undefined> {
-        if (sourceUri && sourceUri !== target.uri && `file://${sourceUri}` !== target.uri) {
+        const targetUri = decodeURIComponent(target.uri);
+        if (sourceUri && sourceUri !== targetUri && `file://${sourceUri}` !== targetUri) {
             // different URI, so we can't resolve it locally
+            this.logger.info("Source and Target URI are different. Can't resolve locally.", sourceUri, targetUri);
             return undefined;
         }
         if (NavigationTarget.getElementIds(target).length > 0) {
