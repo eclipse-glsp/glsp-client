@@ -15,5 +15,8 @@
  ********************************************************************************/
 import createWorkflowDiagramContainer from "./di.config";
 
+export * from "./model";
+export * from "./workflow-views";
+export * from "./direct-task-editing/direct-task-editor";
 export { createWorkflowDiagramContainer };
 
