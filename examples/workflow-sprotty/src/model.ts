@@ -37,7 +37,6 @@ import {
     withEditLabelFeature
 } from "@eclipse-glsp/client";
 
-import { ActivityNodeSchema } from "./model-schema";
 
 export class TaskNode extends RectangularNode implements Nameable, WithEditableLabel {
     static readonly DEFAULT_FEATURES = [connectableFeature, deletableFeature, selectFeature, boundsFeature,
@@ -67,8 +66,9 @@ export class WeightedEdge extends SEdge {
     probability?: string;
 }
 
+
 export class ActivityNode extends DiamondNode {
-    nodeType: string = ActivityNodeSchema.Type.UNDEFINED;
+    nodeType: string = ActivityNode.Type.UNDEFINED;
     size = {
         width: 32,
         height: 32
@@ -76,6 +76,17 @@ export class ActivityNode extends DiamondNode {
     strokeWidth = 1;
 }
 
+export namespace ActivityNode {
+    export namespace Type {
+        export const INITIAL = 'initalNode';
+        export const FINAL = 'finalNode';
+        export const DECISION = 'decisionNode';
+        export const MERGE = 'mergeNode';
+        export const JOIN = 'joinNode';
+        export const FORK = 'forkNode';
+        export const UNDEFINED = "undefined";
+    }
+}
 
 export class Icon extends SShapeElement implements LayoutContainer {
     static readonly DEFAULT_FEATURES = [boundsFeature, layoutContainerFeature, layoutableChildFeature, fadeFeature];
