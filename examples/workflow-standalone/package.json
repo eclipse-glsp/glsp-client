@@ -4,7 +4,7 @@
   "version": "0.7.0",
   "description": "Standalone browser-app for the Workflow example",
   "dependencies": {
-    "@eclipse-glsp-examples/workflow-sprotty": "0.7.0",
+    "@eclipse-glsp-examples/workflow-glsp": "0.7.0",
     "@eclipse-glsp/client": "0.7.1"
   },
   "author": "Eclipse GLSP",
