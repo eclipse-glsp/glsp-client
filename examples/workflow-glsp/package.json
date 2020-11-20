@@ -1,7 +1,7 @@
 {
-  "name": "@eclipse-glsp-examples/workflow-sprotty",
+  "name": "@eclipse-glsp-examples/workflow-glsp",
   "version": "0.7.0",
-  "description": "GLSP sprotty diagrams for the Workflow DSL",
+  "description": "GLSP diagrams for the Workflow DSL",
   "license": "(EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0)",
   "author": "Eclipse GLSP",
   "contributors": [

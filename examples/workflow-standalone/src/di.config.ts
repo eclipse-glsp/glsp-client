@@ -15,7 +15,7 @@
  ********************************************************************************/
 import "../css/diagram.css";
 
-import { createWorkflowDiagramContainer } from "@eclipse-glsp-examples/workflow-sprotty/lib";
+import { createWorkflowDiagramContainer } from "@eclipse-glsp-examples/workflow-glsp/lib";
 import { GLSPDiagramServer } from "@eclipse-glsp/client";
 import { Container } from "inversify";
 import { ConsoleLogger, LogLevel, TYPES } from "sprotty";
