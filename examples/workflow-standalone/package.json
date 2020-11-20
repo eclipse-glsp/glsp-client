@@ -1,11 +1,11 @@
 {
   "private": true,
   "name": "workflow-standalone",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "Standalone browser-app for the Workflow example",
   "dependencies": {
-    "@eclipse-glsp-examples/workflow-glsp": "0.7.0",
-    "@eclipse-glsp/client": "0.7.1"
+    "@eclipse-glsp-examples/workflow-glsp": "0.8.0",
+    "@eclipse-glsp/client": "0.8.1"
   },
   "author": "Eclipse GLSP",
   "contributors": [
