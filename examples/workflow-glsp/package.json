@@ -50,5 +50,8 @@
     "css"
   ],
   "main": "lib/index",
-  "types": "lib/index"
+  "types": "lib/index",
+  "publishConfig": {
+    "access": "public"
+  }
 }
