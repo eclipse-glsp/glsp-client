@@ -1,6 +1,6 @@
 {
   "name": "@eclipse-glsp/protocol",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "description": "The protocol definition for client-server communication in GLSP",
   "license": "(EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0)",
   "keywords": [
