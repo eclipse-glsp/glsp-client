@@ -13,8 +13,9 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { inject, injectable, optional } from "inversify";
+import { inject, injectable } from "inversify";
 import {
+    ActionHandlerRegistry,
     CenterAction,
     generateRequestId,
     ILogger,
@@ -29,7 +30,6 @@ import { Args } from "../../base/args";
 import { EditorContext, EditorContextServiceProvider } from "../../base/editor-context";
 import { GLSP_TYPES } from "../../base/types";
 import { GLSPServerStatusAction, ServerMessageAction } from "../../model-source/glsp-server-status";
-import { ExternalNavigateToTargetHandler } from "./external-navigate-to-target-handler";
 import { NavigationTarget, NavigationTargetResolver, SetResolvedNavigationTargetAction } from "./navigation-target-resolver";
 
 /**
@@ -86,6 +86,17 @@ export function isNavigateToTargetAction(action: Action): action is NavigateToTa
         && (<NavigateToTargetAction>action).target !== undefined;
 }
 
+export class NavigateToExternalTargetAction implements Action {
+    static readonly KIND = 'navigateToExternalTarget';
+    readonly kind = NavigateToExternalTargetAction.KIND;
+    constructor(readonly target: NavigationTarget) { }
+}
+
+export function isNavigateToExternalTargetAction(action: Action): action is NavigateToExternalTargetAction {
+    return action !== undefined && (action.kind === NavigateToExternalTargetAction.KIND)
+        && (<NavigateToExternalTargetAction>action).target !== undefined;
+}
+
 /** Action to trigger the processing of additional navigation arguments.
  *
  * The resolution of a `NavigationTarget` may entail additional arguments. In this case, this action is
@@ -123,9 +134,9 @@ export function isProcessNavigationArgumentsAction(action: Action): action is Pr
  *         navigation target needs to be resolved into actual elment IDs by the `NavigationTargetResolver`.
  *         This can for instance be useful, if the navigation deals with queries or some other more complex
  *         logic that can't be dealt with on the client.
-  *  *(c)* the target isn't resolved by the `NavigationTargetResolver`, e.g. because the `uri` doesn't match
-  *        the URI of the current diagram. In this case, the navigation request is forwarded to the
-  *        `ExternalNavigateToTargetHandler`, if it exists.
+ *  *(c)* the target isn't resolved by the `NavigationTargetResolver`, e.g. because the `uri` doesn't match
+ *        the URI of the current diagram. In this case, the navigation request is forwarded by dispatching
+ *        a `NavigateToExternalTargetAction`.
  */
 @injectable()
 export class NavigationActionHandler implements IActionHandler {
@@ -134,9 +145,9 @@ export class NavigationActionHandler implements IActionHandler {
 
     @inject(TYPES.ILogger) protected logger: ILogger;
     @inject(TYPES.IActionDispatcher) protected dispatcher: IActionDispatcher;
+    @inject(TYPES.ActionHandlerRegistryProvider) protected actionHandlerRegistryProvider: () => Promise<ActionHandlerRegistry>;
     @inject(GLSP_TYPES.IEditorContextServiceProvider) protected editorContextService: EditorContextServiceProvider;
     @inject(NavigationTargetResolver) protected resolver: NavigationTargetResolver;
-    @inject(ExternalNavigateToTargetHandler) @optional() protected externalHandler: ExternalNavigateToTargetHandler;
 
     handle(action: Action): ICommand | Action | void {
         if (isNavigateAction(action)) {
@@ -145,6 +156,8 @@ export class NavigationActionHandler implements IActionHandler {
             this.handleNavigateToTarget(action);
         } else if (isProcessNavigationArgumentsAction(action)) {
             this.processNavigationArguments(action.args);
+        } else if (isNavigateToExternalTargetAction(action)) {
+            this.handleNavigateToExternalTarget(action);
         }
     }
 
@@ -173,11 +186,10 @@ export class NavigationActionHandler implements IActionHandler {
                 this.navigateTo(resolvedElements);
                 this.handleResolutionArguments(resolvedElements);
                 return;
-            } else if (this.externalHandler) {
+            } else {
                 this.navigateToExternal(action.target);
                 return;
             }
-            this.warnAboutFailedNavigation('Could not resolve or navigate to target', action.target);
         } catch (reason) {
             this.logger.error(this, 'Failed to navigate', reason, action);
         }
@@ -216,7 +228,7 @@ export class NavigationActionHandler implements IActionHandler {
     }
 
     protected navigateToExternal(target: NavigationTarget): Promise<void> {
-        return this.externalHandler.navigateTo(target.uri, target.args);
+        return this.dispatcher.dispatch(new NavigateToExternalTargetAction(target));
     }
 
     protected processNavigationArguments(args: Args) {
@@ -228,6 +240,15 @@ export class NavigationActionHandler implements IActionHandler {
         }
         if (args.error && args.error.toString().length > 0) {
             this.notify('ERROR', args.error.toString());
+        }
+    }
+
+    protected async handleNavigateToExternalTarget(action: NavigateToExternalTargetAction) {
+        const registry = await this.actionHandlerRegistryProvider();
+        const handlers = registry.get(NavigateToExternalTargetAction.KIND);
+        if (handlers.length === 1) {
+            // we are the only handler so we know nobody took care of it
+            this.warnAboutFailedNavigation('Could not resolve or navigate to target', action.target);
         }
     }
 

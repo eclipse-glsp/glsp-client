@@ -18,6 +18,7 @@ import { configureActionHandler } from "sprotty/lib";
 
 import {
     NavigateAction,
+    NavigateToExternalTargetAction,
     NavigateToTargetAction,
     NavigationActionHandler,
     ProcessNavigationArgumentsAction
@@ -30,4 +31,5 @@ export const navigationModule = new ContainerModule((bind, _unbind, isBound) => 
     configureActionHandler({ bind, isBound }, NavigateAction.KIND, NavigationActionHandler);
     configureActionHandler({ bind, isBound }, NavigateToTargetAction.KIND, NavigationActionHandler);
     configureActionHandler({ bind, isBound }, ProcessNavigationArgumentsAction.KIND, NavigationActionHandler);
+    configureActionHandler({ bind, isBound }, NavigateToExternalTargetAction.KIND, NavigationActionHandler);
 });
