@@ -69,7 +69,6 @@ export * from './features/layout/layout-commands';
 export * from './features/model-source-watcher/model-source-changed-action';
 export * from './features/model-source-watcher/model-source-changed-action-handler';
 export * from './features/mouse-tool/mouse-tool';
-export * from './features/navigation/external-navigate-to-target-handler';
 export * from './features/navigation/navigation-action-handler';
 export * from './features/navigation/navigation-target-resolver';
 export * from './features/rank/model';
