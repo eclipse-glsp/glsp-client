@@ -27,7 +27,7 @@ Once both the Server and the Client packages are built, you can start both:
 
 ### Where to find the sources?
 
-In addition to this repository, the related source code can be found here:
+In addition to this repository, the source code of the example diagram server can be found here: https://github.com/eclipse-glsp/glsp-server/tree/master/examples/org.eclipse.glsp.example.workflow
 
 -   https://github.com/eclipse-glsp/glsp-server
 
