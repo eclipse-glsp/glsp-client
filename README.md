@@ -2,6 +2,10 @@
 
 A web-based diagram client framework for the [Graphical Language Server Platform (GLSP)](https://github.com/eclipse-glsp/glsp) based on [Eclipse Sprotty](https://github.com/eclipse/sprotty).
 
+## Structure
+- `@eclipse-glsp/protocol`: Generic client-server communication protocol
+- `@eclipse-glsp/client`: sprotty-based GLSP client
+
 ## Building
 This project is built with `yarn` and is available from npm via [@eclipse-glsp/protocol](https://www.npmjs.com/package/@eclipse-glsp/protocol) and [@eclipse-glsp/client](https://www.npmjs.com/package/@eclipse-glsp/client).
 
