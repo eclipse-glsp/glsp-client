@@ -25,7 +25,7 @@ yarn install
 
 Then you need to build and run the Workflow Diagram Server example. Therefore, clone the [`glsp-server`](https://github.com/eclipse-glsp/glsp-server) repository and run the following command in the root of this repository.
 
-    mvn clean install -Pfatjar
+    mvn clean verify -Pm2 -Pfatjar
 
 In the folder `glsp-server/examples/org.eclipse.glsp.example.workflow/target`, you should have a jar file `org.eclipse.glsp.example.workflow-X.X.X-SNAPSHOT-glsp.jar` whereas `X.X.X` is the current version. You can now start the server by executing the following commands (make sure you add the parameters `--port=8081 --websocket` as indicated below):
 
