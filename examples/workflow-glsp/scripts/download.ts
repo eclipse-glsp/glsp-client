@@ -24,11 +24,10 @@ const version = "0.9.0";
 const classifier = "glsp";
 const { exec } = require("child_process");
 
-console.log("Download latest version of the Workflow Example Java Server from the maven repository.");
+console.log("Downloading latest version of the Workflow Example Java Server from the maven repository...");
 download({ groupId, artifactId, version, classifier, isSnapShot: true }, downloadDir, mavenRepository)
     .then(() => console.log("Download completed. Start the server using this command: \njava -jar org.eclipse.glsp.example.workflow-"
         + version + "-SNAPSHOT-glsp.jar org.eclipse.glsp.example.workflow.launch.ExampleServerLauncher --port=8081 --websocket\n"
         + "After starting the server, access the following file locally in your browser to see the running example:\n"
         + "./glsp-client/examples/workflow-standalone/app/diagram.html"
     ));
-
