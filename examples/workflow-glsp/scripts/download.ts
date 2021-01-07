@@ -29,5 +29,5 @@ download({ groupId, artifactId, version, classifier, isSnapShot: true }, downloa
     .then(() => console.log("Download completed. Start the server using this command: \njava -jar org.eclipse.glsp.example.workflow-"
         + version + "-SNAPSHOT-glsp.jar org.eclipse.glsp.example.workflow.launch.ExampleServerLauncher --port=8081 --websocket\n\n"
         + "After starting the server, access the following file locally in your browser to see the running example:\n"
-        + "./glsp-client/examples/workflow-standalone/app/diagram.html"
+        + "./examples/workflow-standalone/app/diagram.html"
     ));
