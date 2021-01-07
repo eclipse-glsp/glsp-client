@@ -17,24 +17,21 @@ See [our project website](https://www.eclipse.org/glsp/documentation/#workflowov
 ![Workflow Diagram](/documentation/standalone-diagram.gif)
 
 ### How to start the Workflow Diagram example?
-First, you need to build the glsp-client packages:
+Clone this repository and build the glsp-client packages:
 
 ```
 yarn install
 ```
-
-Then you need to build and run the Workflow Diagram Server example. Therefore, clone the [`glsp-server`](https://github.com/eclipse-glsp/glsp-server) repository and run the following command in the root of this repository.
-
-    mvn clean verify -Pm2 -Pfatjar
-
-In the folder `glsp-server/examples/org.eclipse.glsp.example.workflow/target`, you should have a jar file `org.eclipse.glsp.example.workflow-X.X.X-SNAPSHOT-glsp.jar` whereas `X.X.X` is the current version. You can now start the server by executing the following commands (make sure you add the parameters `--port=8081 --websocket` as indicated below):
-
-	cd examples/org.eclipse.glsp.example.workflow/target
-	java -jar org.eclipse.glsp.example.workflow-X.X.X-SNAPSHOT-glsp.jar org.eclipse.glsp.example.workflow.launch.ExampleServerLauncher --port=8081 --websocket
-
-To start the example server from within your IDE, run the main method of the class [ExampleServerLauncher.java](https://github.com/eclipse-glsp/glsp-server/blob/master/examples/org.eclipse.glsp.example.workflow/src/org/eclipse/glsp/example/workflow/launch/WorkflowServerLauncher.java) in the module `glsp-server/examples/org.eclipse.glsp.example.workflow` with the arguments `--websocket --port=8081` or use the included `Start_Workflow_Example_Server_(Websocket).launch` Launch Configuration for Eclipse.
-
+Next, download a pre-built version of the Workflow Example Diagram Server and start it (replace X.X.X with the current version, the download script will print out the correct command on the console):
+```
+yarn download:exampleServer
+java -jar org.eclipse.glsp.example.workflow-X.X.X-SNAPSHOT-glsp.jar org.eclipse.glsp.example.workflow.launch.ExampleServerLauncher --port=8081 --websocket
+```
 Once the server is running, open the `glsp-client/examples/workflow-standalone/app/diagram.html` file in your favorite browser.
+
+### How to start the Workflow Diagram example server from the sources
+If you want to explore or change the Workflow Diagram Server too, you can clone, build and start the [`workflow example glsp-server`](https://github.com/eclipse-glsp/glsp-server#workflow-diagram-example) from your IDE instead of using the pre-built version of the Workflow Diagram Server. See [`workflow example glsp-server`](https://github.com/eclipse-glsp/glsp-server#workflow-diagram-example) for instructions on building and running the Workflow Diagram Server example
+
 
 ### Where to find the sources?
 In addition to this repository, the source code of the Workflow Diagram server example can be found here: https://github.com/eclipse-glsp/glsp-server/tree/master/examples/org.eclipse.glsp.example.workflow
