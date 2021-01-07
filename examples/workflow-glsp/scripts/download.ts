@@ -22,7 +22,6 @@ const groupId = "org.eclipse.glsp.example";
 const artifactId = "org.eclipse.glsp.example.workflow";
 const version = "0.9.0";
 const classifier = "glsp";
-const { exec } = require("child_process");
 
 console.log("Downloading latest version of the Workflow Example Java Server from the maven repository...");
 download({ groupId, artifactId, version, classifier, isSnapShot: true }, downloadDir, mavenRepository)
