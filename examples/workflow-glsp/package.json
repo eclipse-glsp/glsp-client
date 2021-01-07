@@ -34,7 +34,8 @@
   "devDependencies": {
     "rimraf": "^2.6.1",
     "tslint": "^5.5.0",
-    "typescript": "^3.9.2"
+    "typescript": "^3.9.2",
+    "mvn-artifact-download": "5.1.0"
   },
   "scripts": {
     "prepare": "yarn run clean && yarn run build",
@@ -47,7 +48,8 @@
     "lib",
     "src",
     "build",
-    "css"
+    "css",
+    "scripts"
   ],
   "main": "lib/index",
   "types": "lib/index",
