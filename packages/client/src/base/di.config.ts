@@ -20,9 +20,11 @@ import { configureActionHandler, configureCommand, SetModelCommand, TYPES } from
 
 import { GLSPActionDispatcher } from "./action-dispatcher";
 import { SetEditModeAction } from "./actions/edit-mode-action";
+import { FocusStateChangedAction } from "./actions/focus-change-action";
 import { ConfigureServerHandlersAction, ConfigureServerHandlersActionHandler } from "./actions/protocol-actions";
 import { GLSPCommandStack } from "./command-stack";
 import { EditorContextService } from "./editor-context";
+import { FocusTracker } from "./focus-tracker";
 import { DefaultModelInitializationConstraint, ModelInitializationConstraint } from "./model-initialization-constraint";
 import { FeedbackAwareUpdateModelCommand, SetModelActionHandler } from "./model/update-model-command";
 import { SelectionClearingMouseListener } from "./selection-clearing-mouse-listener";
@@ -45,6 +47,9 @@ const defaultGLSPModule = new ContainerModule((bind, _unbind, isBound, rebind) =
     });
 
     configureActionHandler(context, SetEditModeAction.KIND, EditorContextService);
+
+    bind(FocusTracker).toSelf().inSingletonScope();
+    configureActionHandler(context, FocusStateChangedAction.KIND, FocusTracker);
 
     // Model update initialization ------------------------------------
     configureCommand(context, FeedbackAwareUpdateModelCommand);

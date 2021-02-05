@@ -31,8 +31,8 @@ import {
 } from "sprotty";
 import { PopupPositionUpdater } from "sprotty/lib/features/hover/popup-position-updater";
 
+import { FocusStateChangedAction } from "../../base/actions/focus-change-action";
 import { GlspHoverMouseListener } from "./hover";
-
 
 const glspHoverModule = new ContainerModule((bind, _unbind, isBound) => {
     bind(TYPES.PopupVNodePostprocessor).to(PopupPositionUpdater).inSingletonScope();
@@ -55,6 +55,7 @@ const glspHoverModule = new ContainerModule((bind, _unbind, isBound) => {
     configureActionHandler(context, CenterCommand.KIND, ClosePopupActionHandler);
     configureActionHandler(context, SetViewportCommand.KIND, ClosePopupActionHandler);
     configureActionHandler(context, MoveCommand.KIND, ClosePopupActionHandler);
+    configureActionHandler(context, FocusStateChangedAction.KIND, ClosePopupActionHandler);
 });
 
 export default glspHoverModule;
