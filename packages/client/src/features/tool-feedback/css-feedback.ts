@@ -16,6 +16,7 @@
 import { inject, injectable } from "inversify";
 import { Action, CommandExecutionContext, SModelElement, SModelRoot, TYPES } from "sprotty";
 
+import { isStringArray } from "../../utils/array-utils";
 import { addCssClasses, removeCssClasses } from "../../utils/smodel-util";
 import { FeedbackCommand } from "./model";
 
@@ -23,12 +24,12 @@ export class ModifyCSSFeedbackAction implements Action {
     readonly elementIds?: string[];
 
     constructor(
-        public readonly elements?: SModelElement[],
+        public readonly input?: string[] | SModelElement[],
         public readonly addClasses?: string[],
         public readonly removeClasses?: string[],
         public kind = ModifyCssFeedbackCommand.KIND) {
-        if (elements) {
-            this.elementIds = elements.map(elt => elt.id);
+        if (input) {
+            this.elementIds = isStringArray(input) ? input : input.map(element => element.id);
         }
     }
 }
