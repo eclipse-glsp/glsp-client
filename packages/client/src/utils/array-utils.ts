@@ -31,4 +31,25 @@ export function distinctAdd<T>(array: T[], value: T): boolean {
     return false;
 }
 
+interface Constructor<T> { new(...args: any[]): T }
+type PrimitiveType = 'bigint' | 'boolean' | 'function' | 'number' | 'object' | 'string' | 'symbol' | 'undefined';
 
+export function isArrayOfType<T>(object: any, typeGuard: (elem: any) => elem is T, supportEmpty = false): object is T[] {
+    return isArrayMatching(object, element => typeGuard(element), supportEmpty);
+}
+
+export function isArrayOfClass<T>(object: any, className: Constructor<T>, supportEmpty = false): object is T[] {
+    return isArrayMatching(object, element => element instanceof className, supportEmpty);
+}
+
+export function isArrayOfPrimitive<T>(object: any, primitiveType: PrimitiveType, supportEmpty = false): object is T[] {
+    return isArrayMatching(object, element => typeof element === primitiveType, supportEmpty);
+}
+
+export function isStringArray(object: any, supportEmpty = false): object is string[] {
+    return isArrayOfPrimitive(object, 'string', supportEmpty);
+}
+
+export function isArrayMatching(object: any, predicate: (elem: any) => boolean, supportEmpty = false): boolean {
+    return Array.isArray(object) && object.every(predicate) && (supportEmpty || object.length > 0);
+}
