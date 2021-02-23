@@ -23,10 +23,10 @@ import { isSetAutoCompleteValueAction } from "./auto-complete-actions";
 import { IValidationDecorator } from "./validation-decorator";
 
 export interface AutoCompleteSettings {
-    readonly noSuggestionsMessage: string;
-    readonly suggestionsClass: string;
-    readonly debounceWaitMs: number;
-    readonly showOnFocus: boolean;
+    readonly noSuggestionsMessage?: string;
+    readonly suggestionsClass?: string;
+    readonly debounceWaitMs?: number;
+    readonly showOnFocus?: boolean;
 }
 
 export interface InputValidator {
@@ -51,8 +51,6 @@ export interface TextSubmitHandler {
 
 const configureAutocomplete: (settings: AutocompleteSettings<LabeledAction>) => AutocompleteResult = require('autocompleter');
 
-
-
 export class AutoCompleteWidget {
     loadingIndicatorClasses = ['loading', 'fa', 'fa-spinner', 'fa-pulse', 'fa-3x', 'fa-fw'];
 
@@ -69,9 +67,9 @@ export class AutoCompleteWidget {
     protected textSubmitHandler?: TextSubmitHandler;
 
     constructor(
-        protected autoSuggestionSettings: AutoCompleteSettings,
-        protected suggestionProvider: SuggestionProvider,
-        protected suggestionSubmitHandler: SuggestionSubmitHandler,
+        public autoSuggestionSettings: AutoCompleteSettings,
+        public suggestionProvider: SuggestionProvider,
+        public suggestionSubmitHandler: SuggestionSubmitHandler,
         protected notifyClose: () => void = () => { },
         protected logger?: ILogger
     ) { }
