@@ -3151,10 +3151,10 @@ invariant@^2.2.0, invariant@^2.2.2:
   dependencies:
     loose-envify "^1.0.0"
 
-inversify@5.0.1:
-  version "5.0.1"
-  resolved "https://registry.yarnpkg.com/inversify/-/inversify-5.0.1.tgz#500d709b1434896ce5a0d58915c4a4210e34fb6e"
-  integrity sha512-Ieh06s48WnEYGcqHepdsJUIJUXpwH5o5vodAX+DK2JA/gjy4EbEcQZxw+uFfzysmKjiLXGYwNG3qDZsKVMcINQ==
+inversify@^5.0.1:
+  version "5.0.5"
+  resolved "https://registry.yarnpkg.com/inversify/-/inversify-5.0.5.tgz#bd1f8e6d8e0f739331acd8ba9bc954635aae0bbf"
+  integrity sha512-60QsfPz8NAU/GZqXu8hJ+BhNf/C/c+Hp0eDc6XMIJTxBiP36AQyyQKpBkOVTLWBFDQWYVHpbbEuIsHu9dLuJDA==
 
 invert-kv@^1.0.0:
   version "1.0.0"
@@ -6130,13 +6130,13 @@ sprintf-js@~1.0.2:
   integrity sha1-BOaSb2YolTVPPdAVIDYzuFcpfiw=
 
 sprotty@next:
-  version "0.10.0-next.c7530a5"
-  resolved "https://registry.yarnpkg.com/sprotty/-/sprotty-0.10.0-next.c7530a5.tgz#95ae29c54f885d3d7a94630fe7bc3eef81c0495b"
-  integrity sha512-9xBVixg4V30C3M5lmCycxIRz0gQOdwnGDhewAoEZhdzaJJSQ7zdg91iA3PrarRRg6qaV9IDAgH2tgSF/6q2rRA==
+  version "0.10.0-next.4ff8590"
+  resolved "https://registry.yarnpkg.com/sprotty/-/sprotty-0.10.0-next.4ff8590.tgz#4df234d489e770f8616d93d9f9c644afd4f4c1bb"
+  integrity sha512-rkwX7KKn7m4bqN4wylkFnv96pIimgRvFpA2Je+i0vc48pGHO3DGp5GGnSgUAdWpRpWEWrx2CyF7fxHeZ2zBl/g==
   dependencies:
     autocompleter "5.1.0"
     file-saver "2.0.2"
-    inversify "5.0.1"
+    inversify "^5.0.1"
     snabbdom "0.7.3"
     snabbdom-jsx "0.4.2"
     snabbdom-virtualize "0.7.0"

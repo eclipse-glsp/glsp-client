@@ -75,7 +75,9 @@ export class NodeCreationTool extends BaseGLSPTool implements IActionHandler {
 
 @injectable()
 export class NodeCreationToolMouseListener extends DragAwareMouseListener {
+
     protected container?: SModelElement & Containable;
+
     constructor(protected triggerAction: TriggerNodeCreationAction, protected tool: NodeCreationTool) {
         super();
     }
@@ -87,6 +89,7 @@ export class NodeCreationToolMouseListener extends DragAwareMouseListener {
     get elementTypeId() {
         return this.triggerAction.elementTypeId;
     }
+
     nonDraggingMouseUp(target: SModelElement, event: MouseEvent): Action[] {
         const result: Action[] = [];
         if (this.creationAllowed(this.elementTypeId)) {

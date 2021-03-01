@@ -85,6 +85,7 @@ export * from './features/tool-feedback/feedback-action-dispatcher';
 export * from './features/tool-feedback/model';
 export * from './features/tool-palette/palette-item';
 export * from './features/tool-palette/tool-palette';
+export * from './features/tools/base-glsp-tool';
 export * from './features/tools/change-bounds-tool';
 export * from './features/tools/delete-tool';
 export * from './features/tools/edge-creation-tool';
