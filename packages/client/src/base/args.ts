@@ -21,6 +21,6 @@ export interface SArgumentable {
     args: Args;
 }
 
-export function hasArguments(element: SModelElement | undefined): element is SModelElement & SArgumentable {
+export function hasArguments(element?: SModelElement): element is SModelElement & SArgumentable {
     return element !== undefined && 'args' in element;
 }
