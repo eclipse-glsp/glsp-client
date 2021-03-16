@@ -23,15 +23,19 @@ import { DelKeyDeleteTool, MouseDeleteTool } from "./delete-tool";
 import { EdgeCreationTool } from "./edge-creation-tool";
 import { EdgeEditTool } from "./edge-edit-tool";
 import { NodeCreationTool } from "./node-creation-tool";
+import { MarqueeMouseTool } from "./marquee-mouse-tool";
+import { MarqueeTool } from "./marquee-tool";
 
 const toolsModule = new ContainerModule((bind, _unbind, isBound) => {
     // Register default tools
     bind(GLSP_TYPES.IDefaultTool).to(ChangeBoundsTool);
     bind(GLSP_TYPES.IDefaultTool).to(EdgeEditTool);
     bind(GLSP_TYPES.IDefaultTool).to(DelKeyDeleteTool);
+    bind(GLSP_TYPES.IDefaultTool).to(MarqueeTool);
 
     // Register  tools
     bind(GLSP_TYPES.ITool).to(MouseDeleteTool);
+    bind(GLSP_TYPES.ITool).to(MarqueeMouseTool);
     bind(NodeCreationTool).toSelf().inSingletonScope();
     bind(EdgeCreationTool).toSelf().inSingletonScope();
     bind(GLSP_TYPES.ITool).toService(EdgeCreationTool);

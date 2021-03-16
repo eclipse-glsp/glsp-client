@@ -31,6 +31,7 @@ import toolFeedbackModule from "./features/tool-feedback/di.config";
 import paletteModule from "./features/tool-palette/di.config";
 import toolsModule from "./features/tools/di.config";
 import { markerNavigatorModule, validationModule } from "./features/validation/di.config";
+import glspViewportModule from "./features/viewport/di.config";
 
 export * from 'sprotty';
 export * from './base/action-dispatcher';
@@ -95,6 +96,7 @@ export * from './features/undo-redo/model';
 export * from './features/validation/issue-marker';
 export * from './features/validation/validate';
 export * from './features/validation/marker-navigator';
+export * from './features/viewport/glsp-scroll-mouse-listener';
 export * from './lib/model';
 export * from './model-source/glsp-server-status';
 export * from './model-source/glsp-diagram-server';
@@ -105,5 +107,5 @@ export * from './utils/viewpoint-util';
 export {
     validationModule, saveModule, paletteModule, toolFeedbackModule, defaultGLSPModule, modelHintsModule, glspCommandPaletteModule,
     glspContextMenuModule, glspServerCopyPasteModule, copyPasteContextMenuModule, glspSelectModule, glspMouseToolModule, layoutCommandsModule, glspEditLabelModule,
-    glspHoverModule, toolsModule, navigationModule, markerNavigatorModule, glspDecorationModule, modelSourceWatcherModule
+    glspHoverModule, toolsModule, navigationModule, markerNavigatorModule, glspDecorationModule, modelSourceWatcherModule, glspViewportModule
 };

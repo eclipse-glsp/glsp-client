@@ -74,14 +74,14 @@ import {
     toolsModule,
     TYPES,
     validationModule,
-    viewportModule,
+    glspViewportModule,
     zorderModule
 } from "@eclipse-glsp/client";
 import { Container, ContainerModule } from "inversify";
 
 import { directTaskEditor } from "./direct-task-editing/di.config";
-import { ActivityNode, Icon, TaskNode, WeightedEdge } from "./model";
-import { ForkOrJoinNodeView, IconView, TaskNodeView, WeightedEdgeView, WorkflowEdgeView } from "./workflow-views";
+import { ActivityNode, Icon, MarqueeNode, TaskNode, WeightedEdge } from "./model";
+import { ForkOrJoinNodeView, IconView, MarqueeView, TaskNodeView, WeightedEdgeView, WorkflowEdgeView } from "./workflow-views";
 
 const workflowDiagramModule = new ContainerModule((bind, unbind, isBound, rebind) => {
     rebind(TYPES.ILogger).to(ConsoleLogger).inSingletonScope();
@@ -110,12 +110,13 @@ const workflowDiagramModule = new ContainerModule((bind, unbind, isBound, rebind
     configureModelElement(context, 'activityNode:decision', ActivityNode, DiamondNodeView);
     configureModelElement(context, 'activityNode:fork', ActivityNode, ForkOrJoinNodeView);
     configureModelElement(context, 'activityNode:join', ActivityNode, ForkOrJoinNodeView);
+    configureModelElement(context, 'marquee', MarqueeNode, MarqueeView);
 });
 
 export default function createContainer(widgetId: string): Container {
     const container = new Container();
 
-    container.load(validationModule, defaultModule, glspMouseToolModule, defaultGLSPModule, glspSelectModule, boundsModule, viewportModule, toolsModule,
+    container.load(validationModule, defaultModule, glspMouseToolModule, defaultGLSPModule, glspSelectModule, boundsModule, glspViewportModule, toolsModule,
         glspHoverModule, fadeModule, exportModule, expandModule, openModule, buttonModule, modelSourceModule, labelEditUiModule, glspEditLabelModule,
         workflowDiagramModule, toolFeedbackModule, modelHintsModule, glspContextMenuModule, glspServerCopyPasteModule, modelSourceWatcherModule,
         glspCommandPaletteModule, paletteModule, routingModule, glspDecorationModule, edgeLayoutModule, zorderModule,

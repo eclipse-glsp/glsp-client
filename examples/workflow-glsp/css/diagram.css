@@ -115,6 +115,11 @@
     stroke-width: 1px;
 }
 
+.sprotty-node.marquee {
+    fill: grey;
+    opacity: 0.2;
+}
+
 .sprotty-node.task.automated {
     fill: gray;
 }

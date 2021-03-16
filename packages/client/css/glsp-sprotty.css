@@ -100,3 +100,7 @@
 .element-deletion-mode {
     cursor: pointer;
 }
+
+.marquee-mode {
+    cursor: crosshair;
+}

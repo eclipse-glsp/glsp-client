@@ -28,7 +28,7 @@ import { injectable } from "inversify";
 import * as snabbdom from "snabbdom-jsx";
 import { VNode } from "snabbdom/vnode";
 
-import { ActivityNode, Icon, TaskNode, WeightedEdge } from "./model";
+import { ActivityNode, Icon, MarqueeNode, TaskNode, WeightedEdge } from "./model";
 
 const JSX = { createElement: snabbdom.svg };
 
@@ -60,6 +60,21 @@ export class ForkOrJoinNodeView extends RectangularNodeView {
             <rect class-sprotty-node={true} class-forkOrJoin={true}
                 class-mouseover={node.hoverFeedback} class-selected={node.selected}
                 width={10} height={Math.max(50, node.bounds.height)}></rect>
+        </g>;
+        return graph;
+    }
+}
+
+@injectable()
+export class MarqueeView extends RectangularNodeView {
+    render(node: MarqueeNode, context: RenderingContext): VNode {
+        const graph = <g>
+            <rect class-sprotty-node={true} class-marquee={true}
+                x={((node.startPoint.x - node.endPoint.x) <= 0) ? node.startPoint.x : node.endPoint.x}
+                y={((node.startPoint.y - node.endPoint.y) <= 0) ? node.startPoint.y : node.endPoint.y}
+                rx={0} ry={0}
+                width={Math.abs(node.startPoint.x - node.endPoint.x)}
+                height={Math.abs(node.startPoint.y - node.endPoint.y)}></rect>
         </g>;
         return graph;
     }

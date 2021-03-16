@@ -27,6 +27,7 @@ import {
     moveFeature,
     Nameable,
     nameFeature,
+    Point,
     popupFeature,
     RectangularNode,
     SEdge,
@@ -56,6 +57,13 @@ export class TaskNode extends RectangularNode implements Nameable, WithEditableL
         }
         return undefined;
     }
+}
+
+export class MarqueeNode extends RectangularNode {
+    static readonly DEFAULT_FEATURES = [connectableFeature, deletableFeature, selectFeature, boundsFeature,
+        moveFeature, layoutContainerFeature, fadeFeature, hoverFeedbackFeature, popupFeature, nameFeature, withEditLabelFeature];
+    startPoint: Point;
+    endPoint: Point;
 }
 
 export function isTaskNode(element: SModelElement): element is TaskNode {
