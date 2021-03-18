@@ -14,16 +14,16 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { inject, injectable } from "inversify";
-import { Action, BoundsAware, EnableDefaultToolsAction, KeyListener, KeyTool, Point, SelectAction, SModelElement, SNode } from "sprotty";
+import { Action, BoundsAware, EnableDefaultToolsAction, isSelectable, KeyListener, KeyTool, Point, SEdge, SelectAction, SModelElement, SNode, TYPES } from "sprotty";
 import { DragAwareMouseListener } from "../../base/drag-aware-mouse-listener";
 import { GLSP_TYPES } from "../../base/types";
 import { IMouseTool } from "../mouse-tool/mouse-tool";
-import { SelectionService } from "../select/selection-service";
 import { CursorCSS, cursorFeedbackAction } from "../tool-feedback/css-feedback";
 import { IFeedbackActionDispatcher } from "../tool-feedback/feedback-action-dispatcher";
 import { DrawMarqueeAction, RemoveMarqueeAction } from "../tool-feedback/selection-tool-feedback";
 import { BaseGLSPTool } from "./base-glsp-tool";
 import { getAbsolutePosition, toAbsoluteBounds } from "../../utils/viewpoint-util";
+import { DOMHelper } from "sprotty/lib/base/views/dom-helper";
 
 @injectable()
 export class MarqueeMouseTool extends BaseGLSPTool {
@@ -32,8 +32,9 @@ export class MarqueeMouseTool extends BaseGLSPTool {
     @inject(GLSP_TYPES.MouseTool) protected mouseTool: IMouseTool;
     @inject(KeyTool) protected readonly keytool: KeyTool;
     @inject(GLSP_TYPES.IFeedbackActionDispatcher) protected readonly feedbackDispatcher: IFeedbackActionDispatcher;
+    @inject(TYPES.DOMHelper) protected domHelper: DOMHelper;
 
-    protected marqueeMouseListener: MarqueeMouseListener = new MarqueeMouseListener();
+    protected marqueeMouseListener: MarqueeMouseListener;
     protected shiftKeyListener: ShiftKeyListener = new ShiftKeyListener();
 
     get id(): string {
@@ -41,6 +42,7 @@ export class MarqueeMouseTool extends BaseGLSPTool {
     }
 
     enable(): void {
+        this.marqueeMouseListener = new MarqueeMouseListener(this.domHelper);
         this.mouseTool.register(this.marqueeMouseListener);
         this.keyTool.register(this.shiftKeyListener);
         this.feedbackDispatcher.registerFeedback(this, [cursorFeedbackAction(CursorCSS.MARQUEE)]);
@@ -56,11 +58,18 @@ export class MarqueeMouseTool extends BaseGLSPTool {
 @injectable()
 export class MarqueeMouseListener extends DragAwareMouseListener {
 
-    @inject(GLSP_TYPES.SelectionService) protected selectionService: SelectionService;
-
     protected startPoint: Point;
 
+    protected currentPoint: Point;
+
+    protected domHelper: DOMHelper;
+
     protected isActive: boolean = false;
+
+    constructor(domHelper: DOMHelper) {
+        super();
+        this.domHelper = domHelper;
+    }
 
     mouseDown(target: SModelElement, event: MouseEvent): Action[] {
         if (event.shiftKey) {
@@ -72,24 +81,21 @@ export class MarqueeMouseListener extends DragAwareMouseListener {
     }
 
     mouseMove(target: SModelElement, event: MouseEvent): Action[] {
+        this.currentPoint = { x: getAbsolutePosition(target, event).x, y: getAbsolutePosition(target, event).y };
         if (this.isActive) {
-            const ids_in = Array.from(target.root.index.all()
+            const nodeIdsSelected = Array.from(target.root.index.all()
                 .map(e => e as SModelElement & BoundsAware)
+                .filter(e => isSelectable(e))
                 .filter(e => e instanceof SNode)
-                .filter(e => this.isMarked(e, this.startPoint, {
-                    x: getAbsolutePosition(target, event).x,
-                    y: getAbsolutePosition(target, event).y
-                })).map(e => e.id));
-            const ids_out = Array.from(target.root.index.all()
-                .map(e => e as SModelElement & BoundsAware)
-                .filter(e => e instanceof SNode)
-                .filter(e => !this.isMarked(e, this.startPoint, {
-                    x: getAbsolutePosition(target, event).x,
-                    y: getAbsolutePosition(target, event).y
-                }))
-                .map(e => e.id));
-            return [new SelectAction(ids_in, ids_out), new DrawMarqueeAction(this.startPoint,
-                { x: getAbsolutePosition(target, event).x, y: getAbsolutePosition(target, event).y })];
+                .filter(e => this.isNodeMarked(e)).map(e => e.id));
+            const edgeIdsSelected = this.getMarkedEdges(target.root);
+            const selected = nodeIdsSelected.concat(edgeIdsSelected);
+            return [
+                new SelectAction([], Array.from(target.index.all().map(e => e.id))),
+                new SelectAction(selected, []),
+                new DrawMarqueeAction(this.startPoint,
+                    { x: getAbsolutePosition(target, event).x, y: getAbsolutePosition(target, event).y })
+            ];
         }
         if (event.shiftKey) {
             return [];
@@ -105,13 +111,68 @@ export class MarqueeMouseListener extends DragAwareMouseListener {
         return [new RemoveMarqueeAction(), new EnableDefaultToolsAction()];
     }
 
-    isMarked(element: SModelElement & BoundsAware, start: Point, current: Point): boolean {
-        const horizontallyIn = start.x < current.x ?
-            this.isElementBetweenXAxis(element, start.x, current.x) :
-            this.isElementBetweenXAxis(element, current.x, start.x);
-        const verticallyIn = start.y < current.y ?
-            this.isElementBetweenYAxis(element, start.y, current.y) :
-            this.isElementBetweenYAxis(element, current.y, start.y);
+    getMarkedEdges(root: SModelElement): string[] {
+        const elements = Array.from(document.querySelectorAll("g"));
+        const edges = Array.from(root.index.all().filter(e => e instanceof SEdge).
+            filter(e => isSelectable(e)).map(e => e.id));
+        return elements.filter(e => edges.includes(this.domHelper.findSModelIdByDOMElement(e)))
+            .filter(e => this.isEdgeMarked(e)).map(e => this.domHelper.findSModelIdByDOMElement(e));
+    }
+
+    isEdgeMarked(element: SVGElement): boolean {
+        if (element.getAttribute("transform") == null) {
+            if (element.children[0] != null) {
+                const path = element.children[0].getAttribute("d");
+                if (path != null) {
+                    const points = path.split(/M|L/);
+                    for (let i = 0; i < points.length - 1; i++) {
+                        const coord1 = points[i].split(",");
+                        const coord2 = points[i + 1].split(",");
+                        const point1 = { x: parseInt(coord1[0]), y: parseInt(coord1[1]) };
+                        const point2 = { x: parseInt(coord2[0]), y: parseInt(coord2[1]) };
+                        if (this.isLineMarked(point1, point2)) return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    isLineMarked(point1: Point, point2: Point): boolean {
+        if (this.pointInRect(point1) || this.pointInRect(point2)) return true;
+        if (this.linesIntersect(point1, point2, this.startPoint, { x: this.startPoint.x, y: this.currentPoint.y })) return true;
+        if (this.linesIntersect(point1, point2, this.startPoint, { x: this.currentPoint.x, y: this.startPoint.y })) return true;
+        if (this.linesIntersect(point1, point2, { x: this.currentPoint.x, y: this.startPoint.y }, this.currentPoint)) return true;
+        if (this.linesIntersect(point1, point2, { x: this.startPoint.x, y: this.currentPoint.y }, this.currentPoint)) return true;
+        return false;
+    }
+
+    linesIntersect(p1: Point, p2: Point, p3: Point, p4: Point): boolean {
+        const tCount = ((p1.x - p3.x) * (p3.y - p4.y)) - ((p1.y - p3.y) * (p3.x - p4.x));
+        const tDenom = ((p1.x - p2.x) * (p3.y - p4.y)) - ((p1.y - p2.y) * (p3.x - p4.x));
+        const t = tCount / tDenom;
+        const uCount = ((p2.x - p1.x) * (p1.y - p3.y)) - ((p2.y - p1.y) * (p1.x - p3.x));
+        const uDenom = ((p1.x - p2.x) * (p3.y - p4.y)) - ((p1.y - p2.y) * (p3.x - p4.x));
+        const u = uCount / uDenom;
+        if (t >= 0.0 && t <= 1.0 && u >= 0.0 && u <= 1.0) return true;
+        return false;
+    }
+
+    pointInRect(point: Point): boolean {
+        const boolX = this.startPoint.x <= this.currentPoint.x ?
+            this.isBetween(point.x, this.startPoint.x, this.currentPoint.x) : this.isBetween(point.x, this.currentPoint.x, this.startPoint.x);
+        const boolY = this.startPoint.y <= this.currentPoint.y ?
+            this.isBetween(point.y, this.startPoint.y, this.currentPoint.y) : this.isBetween(point.y, this.currentPoint.y, this.startPoint.y);
+        return boolX && boolY;
+    }
+
+    isNodeMarked(element: SModelElement & BoundsAware): boolean {
+        const horizontallyIn = this.startPoint.x < this.currentPoint.x ?
+            this.isElementBetweenXAxis(element, this.startPoint.x, this.currentPoint.x) :
+            this.isElementBetweenXAxis(element, this.currentPoint.x, this.startPoint.x);
+        const verticallyIn = this.startPoint.y < this.currentPoint.y ?
+            this.isElementBetweenYAxis(element, this.startPoint.y, this.currentPoint.y) :
+            this.isElementBetweenYAxis(element, this.currentPoint.y, this.startPoint.y);
         if (horizontallyIn && verticallyIn) return true;
         return false;
     }
