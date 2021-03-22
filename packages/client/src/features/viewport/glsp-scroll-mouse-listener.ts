@@ -13,13 +13,27 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, ScrollMouseListener, SModelElement } from "sprotty";
+import { Action, EnableDefaultToolsAction, EnableToolsAction, IActionHandler, ICommand, ScrollMouseListener, SModelElement } from "sprotty";
 import { injectable } from "inversify";
+import { MarqueeMouseTool } from "../tools/marquee-mouse-tool";
 
 @injectable()
-export class GLSPScrollMouseListener extends ScrollMouseListener {
+export class GLSPScrollMouseListener extends ScrollMouseListener implements IActionHandler {
+
+    preventScrolling = false;
+
+    handle(action: Action): void | Action | ICommand {
+        if (action instanceof EnableToolsAction) {
+            if (action.toolIds.includes(MarqueeMouseTool.ID)) {
+                this.preventScrolling = true;
+            }
+        } else if (action instanceof EnableDefaultToolsAction) {
+            this.preventScrolling = false;
+        }
+    }
+
     mouseDown(target: SModelElement, event: MouseEvent): Action[] {
-        if (event.shiftKey) {
+        if (this.preventScrolling) {
             return [];
         }
         return super.mouseDown(target, event);

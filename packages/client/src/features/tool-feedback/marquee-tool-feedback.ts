@@ -75,8 +75,10 @@ export class MarqueeEndMovingMouseListener extends MouseListener {
 }
 
 export function marqueeId(root: SModelRoot): string {
-    return root.id + '_marquee';
+    return root.id + '_' + MARQUEE;
 }
+
+export const MARQUEE = 'marquee';
 
 export function drawMarquee(context: CommandExecutionContext, startPoint: Point, endPoint: Point) {
     const root = context.root;
@@ -84,7 +86,7 @@ export function drawMarquee(context: CommandExecutionContext, startPoint: Point,
     removeMarquee(root);
 
     const marqueeSchema = {
-        type: 'marquee',
+        type: MARQUEE,
         id: marqueeId(root),
         startPoint: startPoint,
         endPoint: endPoint,

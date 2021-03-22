@@ -14,14 +14,11 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { inject, injectable } from "inversify";
-import { Action, BoundsAware, EnableDefaultToolsAction, isSelectable, KeyListener, KeyTool, Point, SEdge, SelectAction, SModelElement, SNode, TYPES } from "sprotty";
+import { Action, BoundsAware, EnableDefaultToolsAction, isSelectable, KeyListener, Point, SEdge, SelectAction, SModelElement, SNode, TYPES } from "sprotty";
 import { DragAwareMouseListener } from "../../base/drag-aware-mouse-listener";
-import { GLSP_TYPES } from "../../base/types";
-import { IMouseTool } from "../mouse-tool/mouse-tool";
 import { CursorCSS, cursorFeedbackAction } from "../tool-feedback/css-feedback";
-import { IFeedbackActionDispatcher } from "../tool-feedback/feedback-action-dispatcher";
-import { DrawMarqueeAction, RemoveMarqueeAction } from "../tool-feedback/selection-tool-feedback";
-import { BaseGLSPTool } from "./base-glsp-tool";
+import { DrawMarqueeAction, RemoveMarqueeAction } from "../tool-feedback/marquee-tool-feedback";
+import { BaseGLSPTool } from "../tools/base-glsp-tool";
 import { getAbsolutePosition, toAbsoluteBounds } from "../../utils/viewpoint-util";
 import { DOMHelper } from "sprotty/lib/base/views/dom-helper";
 
@@ -29,9 +26,6 @@ import { DOMHelper } from "sprotty/lib/base/views/dom-helper";
 export class MarqueeMouseTool extends BaseGLSPTool {
     static ID = "glsp.marquee-mouse-tool";
 
-    @inject(GLSP_TYPES.MouseTool) protected mouseTool: IMouseTool;
-    @inject(KeyTool) protected readonly keytool: KeyTool;
-    @inject(GLSP_TYPES.IFeedbackActionDispatcher) protected readonly feedbackDispatcher: IFeedbackActionDispatcher;
     @inject(TYPES.DOMHelper) protected domHelper: DOMHelper;
 
     protected marqueeMouseListener: MarqueeMouseListener;
@@ -45,13 +39,13 @@ export class MarqueeMouseTool extends BaseGLSPTool {
         this.marqueeMouseListener = new MarqueeMouseListener(this.domHelper);
         this.mouseTool.register(this.marqueeMouseListener);
         this.keyTool.register(this.shiftKeyListener);
-        this.feedbackDispatcher.registerFeedback(this, [cursorFeedbackAction(CursorCSS.MARQUEE)]);
+        this.dispatchFeedback([cursorFeedbackAction(CursorCSS.MARQUEE)]);
     }
 
     disable(): void {
         this.mouseTool.deregister(this.marqueeMouseListener);
         this.keyTool.deregister(this.shiftKeyListener);
-        this.feedbackDispatcher.registerFeedback(this, [cursorFeedbackAction()]);
+        this.deregisterFeedback([cursorFeedbackAction()]);
     }
 }
 
@@ -72,12 +66,9 @@ export class MarqueeMouseListener extends DragAwareMouseListener {
     }
 
     mouseDown(target: SModelElement, event: MouseEvent): Action[] {
-        if (event.shiftKey) {
-            this.isActive = true;
-            this.startPoint = { x: getAbsolutePosition(target, event).x, y: getAbsolutePosition(target, event).y };
-            return [];
-        }
-        return [new RemoveMarqueeAction(), new EnableDefaultToolsAction()];
+        this.isActive = true;
+        this.startPoint = { x: getAbsolutePosition(target, event).x, y: getAbsolutePosition(target, event).y };
+        return [];
     }
 
     mouseMove(target: SModelElement, event: MouseEvent): Action[] {
@@ -97,10 +88,7 @@ export class MarqueeMouseListener extends DragAwareMouseListener {
                     { x: getAbsolutePosition(target, event).x, y: getAbsolutePosition(target, event).y })
             ];
         }
-        if (event.shiftKey) {
-            return [];
-        }
-        return [new RemoveMarqueeAction(), new EnableDefaultToolsAction()];
+        return [];
     }
 
     mouseUp(target: SModelElement, event: MouseEvent): Action[] {

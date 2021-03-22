@@ -34,7 +34,8 @@ const glspViewportModule = new ContainerModule((bind, _unbind, isBound) => {
     configureCommand({ bind, isBound }, SetViewportCommand);
     bind(TYPES.KeyListener).to(CenterKeyboardListener);
     bind(TYPES.MouseListener).to(ZoomMouseListener);
-    bind(TYPES.MouseListener).to(GLSPScrollMouseListener);
+    bind(GLSPScrollMouseListener).toSelf().inSingletonScope();
+    bind(TYPES.MouseListener).toService(GLSPScrollMouseListener);
 });
 
 export default glspViewportModule;

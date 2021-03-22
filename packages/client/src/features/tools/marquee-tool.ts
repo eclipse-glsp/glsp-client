@@ -15,14 +15,14 @@
  ********************************************************************************/
 import { inject, injectable } from "inversify";
 import { Action, EnableToolsAction, KeyListener, KeyTool, SModelElement } from "sprotty";
-import { BaseGLSPTool } from "./base-glsp-tool";
+import { BaseGLSPTool } from "../tools/base-glsp-tool";
 import { MarqueeMouseTool } from "./marquee-mouse-tool";
 
 @injectable()
 export class MarqueeTool extends BaseGLSPTool {
     static ID = "glsp.marquee-tool";
 
-    protected selectionKeyListener: MarqueeKeyListener = new MarqueeKeyListener();
+    protected marqueeKeyListener: MarqueeKeyListener = new MarqueeKeyListener();
 
     @inject(KeyTool) protected readonly keytool: KeyTool;
 
@@ -31,11 +31,11 @@ export class MarqueeTool extends BaseGLSPTool {
     }
 
     enable(): void {
-        this.keyTool.register(this.selectionKeyListener);
+        this.keyTool.register(this.marqueeKeyListener);
     }
 
     disable(): void {
-        this.keyTool.deregister(this.selectionKeyListener);
+        this.keyTool.deregister(this.marqueeKeyListener);
     }
 }
 

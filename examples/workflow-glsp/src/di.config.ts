@@ -80,8 +80,8 @@ import {
 import { Container, ContainerModule } from "inversify";
 
 import { directTaskEditor } from "./direct-task-editing/di.config";
-import { ActivityNode, Icon, MarqueeNode, TaskNode, WeightedEdge } from "./model";
-import { ForkOrJoinNodeView, IconView, MarqueeView, TaskNodeView, WeightedEdgeView, WorkflowEdgeView } from "./workflow-views";
+import { ActivityNode, Icon, TaskNode, WeightedEdge } from "./model";
+import { ForkOrJoinNodeView, IconView, TaskNodeView, WeightedEdgeView, WorkflowEdgeView } from "./workflow-views";
 
 const workflowDiagramModule = new ContainerModule((bind, unbind, isBound, rebind) => {
     rebind(TYPES.ILogger).to(ConsoleLogger).inSingletonScope();
@@ -110,7 +110,6 @@ const workflowDiagramModule = new ContainerModule((bind, unbind, isBound, rebind
     configureModelElement(context, 'activityNode:decision', ActivityNode, DiamondNodeView);
     configureModelElement(context, 'activityNode:fork', ActivityNode, ForkOrJoinNodeView);
     configureModelElement(context, 'activityNode:join', ActivityNode, ForkOrJoinNodeView);
-    configureModelElement(context, 'marquee', MarqueeNode, MarqueeView);
 });
 
 export default function createContainer(widgetId: string): Container {

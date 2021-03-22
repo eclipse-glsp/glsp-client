@@ -31,7 +31,7 @@ import {
     SwitchRoutingModeCommand
 } from "./edge-edit-tool-feedback";
 import { FeedbackActionDispatcher } from "./feedback-action-dispatcher";
-import { DrawMarqueeCommand, RemoveMarqueeCommand } from "./selection-tool-feedback";
+import { DrawMarqueeCommand, RemoveMarqueeCommand } from "./marquee-tool-feedback";
 import { FeedbackEdgeEndView, SResizeHandleView } from "./view";
 
 const toolFeedbackModule = new ContainerModule((bind, _unbind, isBound) => {
