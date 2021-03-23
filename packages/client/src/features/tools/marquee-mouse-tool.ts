@@ -166,12 +166,20 @@ export class MarqueeMouseListener extends DragAwareMouseListener {
     }
 
     isElementBetweenXAxis(element: SModelElement & BoundsAware, marqueeLeft: number, marqueeRight: number): boolean {
+        if (this.isBetween(marqueeLeft, toAbsoluteBounds(element).x, toAbsoluteBounds(element).x + toAbsoluteBounds(element).width)
+            || this.isBetween(marqueeRight, toAbsoluteBounds(element).x, toAbsoluteBounds(element).x + toAbsoluteBounds(element).width)) {
+            return true;
+        }
         const leftEdge = this.isBetween(toAbsoluteBounds(element).x, marqueeLeft, marqueeRight);
         const rightEdge = this.isBetween(toAbsoluteBounds(element).x + toAbsoluteBounds(element).width, marqueeLeft, marqueeRight);
         return leftEdge || rightEdge;
     }
 
     isElementBetweenYAxis(element: SModelElement & BoundsAware, marqueeTop: number, marqueeBottom: number): boolean {
+        if (this.isBetween(marqueeTop, toAbsoluteBounds(element).y, toAbsoluteBounds(element).y + toAbsoluteBounds(element).height)
+            || this.isBetween(marqueeBottom, toAbsoluteBounds(element).y, toAbsoluteBounds(element).y + toAbsoluteBounds(element).height)) {
+            return true;
+        }
         const topEdge = this.isBetween(toAbsoluteBounds(element).y, marqueeTop, marqueeBottom);
         const bottomEdge = this.isBetween(toAbsoluteBounds(element).y + toAbsoluteBounds(element).height, marqueeTop, marqueeBottom);
         return topEdge || bottomEdge;
