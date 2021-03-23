@@ -31,6 +31,7 @@ import {
     SwitchRoutingModeCommand
 } from "./edge-edit-tool-feedback";
 import { FeedbackActionDispatcher } from "./feedback-action-dispatcher";
+import { DrawMarqueeCommand, RemoveMarqueeCommand } from "./marquee-tool-feedback";
 import { FeedbackEdgeEndView, SResizeHandleView } from "./view";
 
 const toolFeedbackModule = new ContainerModule((bind, _unbind, isBound) => {
@@ -41,6 +42,9 @@ const toolFeedbackModule = new ContainerModule((bind, _unbind, isBound) => {
     // create node and edge tool feedback
     configureCommand({ bind, isBound }, DrawFeedbackEdgeCommand);
     configureCommand({ bind, isBound }, RemoveFeedbackEdgeCommand);
+
+    configureCommand({ bind, isBound }, DrawMarqueeCommand);
+    configureCommand({ bind, isBound }, RemoveMarqueeCommand);
 
     configureView({ bind, isBound }, FeedbackEdgeEnd.TYPE, FeedbackEdgeEndView);
     // move tool feedback: we use sprotties MoveCommand as client-side visual feedback

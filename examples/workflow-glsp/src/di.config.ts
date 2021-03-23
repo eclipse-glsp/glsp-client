@@ -74,7 +74,7 @@ import {
     toolsModule,
     TYPES,
     validationModule,
-    viewportModule,
+    glspViewportModule,
     zorderModule
 } from "@eclipse-glsp/client";
 import { Container, ContainerModule } from "inversify";
@@ -115,7 +115,7 @@ const workflowDiagramModule = new ContainerModule((bind, unbind, isBound, rebind
 export default function createContainer(widgetId: string): Container {
     const container = new Container();
 
-    container.load(validationModule, defaultModule, glspMouseToolModule, defaultGLSPModule, glspSelectModule, boundsModule, viewportModule, toolsModule,
+    container.load(validationModule, defaultModule, glspMouseToolModule, defaultGLSPModule, glspSelectModule, boundsModule, glspViewportModule, toolsModule,
         glspHoverModule, fadeModule, exportModule, expandModule, openModule, buttonModule, modelSourceModule, labelEditUiModule, glspEditLabelModule,
         workflowDiagramModule, toolFeedbackModule, modelHintsModule, glspContextMenuModule, glspServerCopyPasteModule, modelSourceWatcherModule,
         glspCommandPaletteModule, paletteModule, routingModule, glspDecorationModule, edgeLayoutModule, zorderModule,

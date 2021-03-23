@@ -31,6 +31,7 @@ import { matchesKeystroke } from "sprotty/lib/utils/keyboard";
 import { GLSPActionDispatcher } from "../../base/action-dispatcher";
 import { isSetContextActionsAction, RequestContextActions, SetContextActions } from "../../base/actions/context-actions";
 import { EditModeListener, EditorContextService } from "../../base/editor-context";
+import { MarqueeMouseTool } from "../tools/marquee-mouse-tool";
 import { MouseDeleteTool } from "../tools/delete-tool";
 import { RequestMarkersAction } from "../validation/validate";
 import { PaletteItem } from "./palette-item";
@@ -174,6 +175,9 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
         const deleteToolButton = this.createMouseDeleteToolButton();
         headerTools.appendChild(deleteToolButton);
 
+        const marqueeToolButton = this.createMarqueeToolButton();
+        headerTools.appendChild(marqueeToolButton);
+
         const validateActionButton = this.createValidateButton();
         headerTools.appendChild(validateActionButton);
 
@@ -197,6 +201,13 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
         deleteToolButton.title = 'Enable deletion tool';
         deleteToolButton.onclick = this.onClickStaticToolButton(deleteToolButton, MouseDeleteTool.ID);
         return deleteToolButton;
+    }
+
+    protected createMarqueeToolButton() {
+        const marqueeToolButton = createIcon(["far", "fa-object-group", "fa-xs"]);
+        marqueeToolButton.title = 'Enable marquee tool';
+        marqueeToolButton.onclick = this.onClickStaticToolButton(marqueeToolButton, MarqueeMouseTool.ID);
+        return marqueeToolButton;
     }
 
     protected createValidateButton() {
