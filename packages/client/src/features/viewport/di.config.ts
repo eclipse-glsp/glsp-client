@@ -16,7 +16,10 @@
 import {
     CenterCommand,
     CenterKeyboardListener,
+    configureActionHandler,
     configureCommand,
+    EnableDefaultToolsAction,
+    EnableToolsAction,
     FitToScreenCommand,
     GetViewportCommand,
     SetViewportCommand,
@@ -36,6 +39,9 @@ const glspViewportModule = new ContainerModule((bind, _unbind, isBound) => {
     bind(TYPES.MouseListener).to(ZoomMouseListener);
     bind(GLSPScrollMouseListener).toSelf().inSingletonScope();
     bind(TYPES.MouseListener).toService(GLSPScrollMouseListener);
+
+    configureActionHandler({ bind, isBound }, EnableToolsAction.KIND, GLSPScrollMouseListener);
+    configureActionHandler({ bind, isBound }, EnableDefaultToolsAction.KIND, GLSPScrollMouseListener);
 });
 
 export default glspViewportModule;

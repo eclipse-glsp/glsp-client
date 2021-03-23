@@ -14,12 +14,11 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { ContainerModule, interfaces } from "inversify";
-import { configureActionHandler, configureModelElement, EnableDefaultToolsAction, EnableToolsAction } from "sprotty";
+import { configureActionHandler, configureModelElement } from "sprotty";
 
 import { TriggerEdgeCreationAction, TriggerNodeCreationAction } from "../../base/operations/operation";
 import { GLSP_TYPES } from "../../base/types";
 import { MARQUEE } from "../tool-feedback/marquee-tool-feedback";
-import { GLSPScrollMouseListener } from "../viewport/glsp-scroll-mouse-listener";
 import { ChangeBoundsTool } from "./change-bounds-tool";
 import { DelKeyDeleteTool, MouseDeleteTool } from "./delete-tool";
 import { EdgeCreationTool } from "./edge-creation-tool";
@@ -44,8 +43,6 @@ const toolsModule = new ContainerModule((bind, _unbind, isBound) => {
     bind(GLSP_TYPES.ITool).toService(NodeCreationTool);
 
     configureMarqueeTool({ bind, isBound });
-    configureActionHandler({ bind, isBound }, EnableToolsAction.KIND, GLSPScrollMouseListener);
-    configureActionHandler({ bind, isBound }, EnableDefaultToolsAction.KIND, GLSPScrollMouseListener);
     configureActionHandler({ bind, isBound }, TriggerNodeCreationAction.KIND, NodeCreationTool);
     configureActionHandler({ bind, isBound }, TriggerEdgeCreationAction.KIND, EdgeCreationTool);
 });
