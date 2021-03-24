@@ -18,7 +18,11 @@ import { matchesKeystroke } from "sprotty/lib/utils/keyboard";
 
 export class SaveModelAction implements Action {
     static readonly KIND = "saveModel";
-    constructor(public readonly kind: string = SaveModelAction.KIND) { }
+    constructor(public readonly fileUri?: string, public readonly kind: string = SaveModelAction.KIND) { }
+}
+
+export function isSaveModelAction(action: Action): action is SaveModelAction {
+    return action.kind === SaveModelAction.KIND;
 }
 
 export class SaveModelKeyboardListener extends KeyListener {
