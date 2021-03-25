@@ -65,9 +65,17 @@ export class DeleteElementOperation implements Operation {
     constructor(readonly elementIds: string[], public readonly kind: string = DeleteElementOperation.KIND) { }
 }
 
+export function isDeleteElementOperation(object?: any): object is DeleteElementOperation {
+    return isAction(object) && object.kind === DeleteElementOperation.KIND && object.hasOwnProperty('elementIds');
+}
+
 export class ChangeBoundsOperation implements Operation {
     static readonly KIND = "changeBounds";
     constructor(public newBounds: ElementAndBounds[], public readonly kind: string = ChangeBoundsOperation.KIND) { }
+}
+
+export function isChangeBoundsOperation(object?: any): object is ChangeBoundsOperation {
+    return isAction(object) && object.kind === ChangeBoundsOperation.KIND && object.hasOwnProperty('newBounds');
 }
 
 export class ChangeContainerOperation implements Operation {
@@ -78,6 +86,12 @@ export class ChangeContainerOperation implements Operation {
         public readonly kind: string = ChangeContainerOperation.KIND) { }
 }
 
+export function isChangeContainerOperation(object?: any): object is ChangeContainerOperation {
+    return isAction(object) && object.kind === ChangeContainerOperation.KIND
+        && 'elementId' in object && typeof object['elementId'] === 'string'
+        && 'targetContainerId' in object && typeof object['targetContainerId'] === 'string';
+}
+
 export class ReconnectEdgeOperation implements Operation {
     static readonly KIND = "reconnectEdge";
     constructor(public readonly edgeElementId: string,
@@ -86,14 +100,30 @@ export class ReconnectEdgeOperation implements Operation {
         public readonly kind: string = ReconnectEdgeOperation.KIND) { }
 }
 
+export function isReconnectEdgeOperation(object?: any): object is ReconnectEdgeOperation {
+    return isAction(object) && object.kind === ReconnectEdgeOperation.KIND
+        && 'edgeElementId' in object && typeof object['edgeElementId'] === 'string'
+        && 'sourceElementId' in object && typeof object['sourceElementId'] === 'string'
+        && 'targetElementId' in object && typeof object['targetElementId'] === 'string';
+}
+
 export class ChangeRoutingPointsOperation implements Operation {
     static readonly KIND = "changeRoutingPoints";
     constructor(public newRoutingPoints: ElementAndRoutingPoints[], public readonly kind: string = ChangeRoutingPointsOperation.KIND) { }
 }
 
+export function isChangeRoutingsPointsOperation(object?: any): object is ChangeRoutingPointsOperation {
+    return isAction(object) && object.kind === ChangeRoutingPointsOperation.KIND
+        && 'newRoutingPoints' in object && typeof object['newRoutingPoints'] === 'string';
+}
+
 export class CompoundOperation implements Operation {
     static readonly KIND = "compound";
     constructor(public operationList: Operation[], public readonly kind: string = CompoundOperation.KIND) { }
+}
+
+export function isCompoundOperation(object?: any): object is CompoundOperation {
+    return isAction(object) && object.kind === CompoundOperation.KIND && 'operationList' in object;
 }
 
 /**
