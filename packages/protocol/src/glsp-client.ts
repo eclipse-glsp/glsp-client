@@ -13,8 +13,8 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { ActionMessage } from "sprotty";
-import * as uuid from "uuid";
+import { ActionMessage } from 'sprotty';
+import * as uuid from 'uuid';
 
 export interface InitializeParameters<> {
     /**
@@ -25,7 +25,7 @@ export interface InitializeParameters<> {
     /**
      * Options that can include application-specific parameters.
      */
-    options?: any
+    options?: any;
 }
 
 export class ApplicationIdProvider {
@@ -98,12 +98,12 @@ export interface GLSPClient {
      * @param params Initialize parameter
      * @returns true if the initialization was successful
      */
-    initializeServer(params: InitializeParameters): Promise<Boolean>;
+    initializeServer(params: InitializeParameters): Promise<boolean>;
 
     /**
      * Send a `shutdown` notification to the server.
      */
-    shutdownServer(): void
+    shutdownServer(): void;
 
     /**
      * Stops the client and disposes any resources. During the stop procedure the client is in the `Stopping` state and will transition to either `Stopped` or `ServerError`.
@@ -132,7 +132,7 @@ export namespace GLSPClient {
     }
 
     export function isOptions(object: any): object is Options {
-        return object !== undefined && "id" in object && typeof object["id"] === "string"
-            && "name" in object && typeof object["name"] === "string";
+        return object !== undefined && 'id' in object && typeof object['id'] === 'string'
+            && 'name' in object && typeof object['name'] === 'string';
     }
 }

@@ -13,10 +13,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { ContainerModule } from "inversify";
-import { configureCommand, TYPES } from "sprotty";
+import { ContainerModule } from 'inversify';
+import { configureCommand, TYPES } from 'sprotty';
 
-import { GLSP_TYPES } from "../../base/types";
+import { GLSP_TYPES } from '../../base/types';
 import {
     LeftToRightTopToBottomComparator,
     MarkerNavigator,
@@ -24,8 +24,8 @@ import {
     MarkerNavigatorKeyListener,
     NavigateToMarkerCommand,
     SModelElementComparator
-} from "./marker-navigator";
-import { ApplyMarkersCommand, DeleteMarkersCommand, SetMarkersCommand, ValidationFeedbackEmitter } from "./validate";
+} from './marker-navigator';
+import { ApplyMarkersCommand, DeleteMarkersCommand, SetMarkersCommand, ValidationFeedbackEmitter } from './validate';
 
 export const validationModule = new ContainerModule((bind, _unbind, isBound) => {
     configureCommand({ bind, isBound }, SetMarkersCommand);

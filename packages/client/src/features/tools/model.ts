@@ -13,8 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-
-import { boundsFeature, Point, RectangularNode } from "sprotty";
+import { boundsFeature, Point, RectangularNode } from 'sprotty';
 
 export class MarqueeNode extends RectangularNode {
     static readonly DEFAULT_FEATURES = [boundsFeature];

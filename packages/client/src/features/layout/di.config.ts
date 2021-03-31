@@ -13,10 +13,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { ContainerModule } from "inversify";
-import { configureCommand } from "sprotty";
+import { ContainerModule } from 'inversify';
+import { configureCommand } from 'sprotty';
 
-import { AlignElementsCommand, ResizeElementsCommand } from "./layout-commands";
+import { AlignElementsCommand, ResizeElementsCommand } from './layout-commands';
 
 const layoutCommandsModule = new ContainerModule((bind, _unbind, isBound) => {
     configureCommand({ bind, isBound }, ResizeElementsCommand);

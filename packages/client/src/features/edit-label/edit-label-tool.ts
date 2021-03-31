@@ -13,14 +13,14 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { injectable } from "inversify";
-import { EditLabelKeyListener, EditLabelMouseListener, KeyListener, MouseListener } from "sprotty";
+import { injectable } from 'inversify';
+import { EditLabelKeyListener, EditLabelMouseListener, KeyListener, MouseListener } from 'sprotty';
 
-import { BaseGLSPTool } from "../tools/base-glsp-tool";
+import { BaseGLSPTool } from '../tools/base-glsp-tool';
 
 @injectable()
 export class DirectLabelEditTool extends BaseGLSPTool {
-    static readonly ID = "glsp.direct-label-edit-tool";
+    static readonly ID = 'glsp.direct-label-edit-tool';
 
     protected editLabelMouseListener: MouseListener;
     protected editLabelKeyListener: KeyListener;

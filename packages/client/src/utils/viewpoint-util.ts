@@ -25,7 +25,7 @@ import {
     SModelElement,
     translateBounds,
     Viewport
-} from "sprotty";
+} from 'sprotty';
 
 /**
  * Return the position corresponding to this mouse event (Browser coordinates)
@@ -41,7 +41,7 @@ import {
  *  A mouseEvent
  */
 export function getAbsolutePosition(target: SModelElement, mouseEvent: MouseEvent): Point {
-    let xPos = mouseEvent.pageX, yPos = mouseEvent.pageY;
+    let xPos = mouseEvent.pageX; let yPos = mouseEvent.pageY;
     const canvasBounds = target.root.canvasBounds;
     xPos -= canvasBounds.x;
     yPos -= canvasBounds.y;
@@ -56,7 +56,6 @@ export function getAbsolutePosition(target: SModelElement, mouseEvent: MouseEven
         xPos /= zoom;
         yPos /= zoom;
     }
-    xPos;
 
     return {
         x: xPos,

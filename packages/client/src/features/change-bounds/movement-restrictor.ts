@@ -13,12 +13,12 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { injectable } from "inversify";
-import { BoundsAware, Point, SModelElement, SNode, SParentElement } from "sprotty";
+import { injectable } from 'inversify';
+import { BoundsAware, Point, SModelElement, SNode, SParentElement } from 'sprotty';
 
-import { toAbsoluteBounds } from "../../utils/viewpoint-util";
-import { ModifyCSSFeedbackAction } from "../tool-feedback/css-feedback";
-import { isBoundsAwareMoveable, SResizeHandle } from "./model";
+import { toAbsoluteBounds } from '../../utils/viewpoint-util';
+import { ModifyCSSFeedbackAction } from '../tool-feedback/css-feedback';
+import { isBoundsAwareMoveable, SResizeHandle } from './model';
 
 export interface IMovementRestrictor {
     validate(newLocation: Point, element: SModelElement): boolean;
@@ -45,7 +45,7 @@ export function removeMovementRestrictionFeedback(element: SModelElement, moveme
 
 @injectable()
 export class NoOverlapMovmentRestrictor implements IMovementRestrictor {
-    cssClasses = ["movement-not-allowed"];
+    cssClasses = ['movement-not-allowed'];
 
     validate(newLocation: Point, element: SModelElement): boolean {
         if (!isBoundsAwareMoveable(element)) {
@@ -59,14 +59,14 @@ export class NoOverlapMovmentRestrictor implements IMovementRestrictor {
             width: element.bounds.width,
             height: element.bounds.height
         };
-        ghostElement.type = "Ghost";
+        ghostElement.type = 'Ghost';
         ghostElement.id = element.id;
         return !Array.from(element.root.index.all().filter(e => e.id !== ghostElement.id && e !== ghostElement.root && (e instanceof SNode))
             .map(e => e as SModelElement & BoundsAware)).some(e => areOverlapping(e, ghostElement));
     }
 }
 
-export function areOverlapping(element1: SModelElement & BoundsAware, element2: SModelElement & BoundsAware) {
+export function areOverlapping(element1: SModelElement & BoundsAware, element2: SModelElement & BoundsAware): boolean {
     const b1 = toAbsoluteBounds(element1);
     const b2 = toAbsoluteBounds(element2);
     const r1TopLeft: Point = b1;
@@ -75,12 +75,14 @@ export function areOverlapping(element1: SModelElement & BoundsAware, element2: 
     const r2BottomRight = { x: b2.x + b2.width, y: b2.y + b2.height };
 
     // If one rectangle is on left side of other
-    if (r1TopLeft.x > r2BottomRight.x || r2TopLeft.x > r1BottomRight.x)
+    if (r1TopLeft.x > r2BottomRight.x || r2TopLeft.x > r1BottomRight.x) {
         return false;
+    }
 
     // If one rectangle is above other
-    if (r1BottomRight.y < r2TopLeft.y || r2BottomRight.y < r1TopLeft.y)
+    if (r1BottomRight.y < r2TopLeft.y || r2BottomRight.y < r1TopLeft.y) {
         return false;
+    }
 
     return true;
 

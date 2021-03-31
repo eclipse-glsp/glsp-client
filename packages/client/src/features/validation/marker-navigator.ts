@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { inject, injectable } from "inversify";
+import { inject, injectable } from 'inversify';
 import {
     Action,
     BoundsAware,
@@ -29,19 +29,20 @@ import {
     KeyListener,
     MenuItem,
     Point,
+    Selectable,
     SelectAction,
     SIssueMarker,
     SIssueSeverity,
     SModelElement,
     SModelRoot,
     TYPES
-} from "sprotty";
-import { matchesKeystroke } from "sprotty/lib/utils/keyboard";
+} from 'sprotty';
+import { matchesKeystroke } from 'sprotty/lib/utils/keyboard';
 
-import { GLSP_TYPES } from "../../base/types";
-import { collectIssueMarkers, MarkerPredicates } from "../../utils/marker";
-import { isSelectableAndBoundsAware } from "../../utils/smodel-util";
-import { SelectCommand, SelectionService } from "../select/selection-service";
+import { GLSP_TYPES } from '../../base/types';
+import { collectIssueMarkers, MarkerPredicates } from '../../utils/marker';
+import { isSelectableAndBoundsAware } from '../../utils/smodel-util';
+import { SelectCommand, SelectionService } from '../select/selection-service';
 
 export class NavigateToMarkerAction implements Action {
     static readonly KIND = 'navigateToMarker';
@@ -105,12 +106,12 @@ export class MarkerNavigator {
         return markers[this.getPreviousIndex(current, markers) % markers.length];
     }
 
-    protected getMarkers(root: SModelRoot, predicate: (marker: SIssueMarker) => boolean) {
+    protected getMarkers(root: SModelRoot, predicate: (marker: SIssueMarker) => boolean): SIssueMarker[] {
         const markers = collectIssueMarkers(root);
         return markers.filter(predicate).sort(this.markerComparator.compare);
     }
 
-    protected getNextIndex(current: SModelElement & BoundsAware, markers: SIssueMarker[]) {
+    protected getNextIndex(current: SModelElement & BoundsAware, markers: SIssueMarker[]): number {
         for (let index = 0; index < markers.length; index++) {
             if (this.markerComparator.compare(markers[index], current) > 0) {
                 return index;
@@ -119,7 +120,7 @@ export class MarkerNavigator {
         return 0;
     }
 
-    protected getPreviousIndex(current: SModelElement & BoundsAware, markers: SIssueMarker[]) {
+    protected getPreviousIndex(current: SModelElement & BoundsAware, markers: SIssueMarker[]): number {
         for (let index = markers.length - 1; index >= 0; index--) {
             if (this.markerComparator.compare(markers[index], current) < 0) {
                 return index;
@@ -168,7 +169,7 @@ export class NavigateToMarkerCommand extends Command {
         return root;
     }
 
-    protected getSelectedElements(root: SModelRoot) {
+    protected getSelectedElements(root: SModelRoot): (SModelElement & Selectable)[] {
         let selectedIds = [];
         if (this.action.selectedElementIds !== undefined && this.action.selectedElementIds.length > 0) {
             selectedIds = this.action.selectedElementIds;
@@ -178,13 +179,13 @@ export class NavigateToMarkerCommand extends Command {
         return selectedIds.map(id => root.index.getById(id)).filter(isSelectable);
     }
 
-    protected getTarget(selected: SModelElement[], root: SModelRoot) {
+    protected getTarget(selected: SModelElement[], root: SModelRoot): SIssueMarker | undefined {
         const selectedBoundsAware = selected.filter(isBoundsAware).sort(this.markerComparator.compare);
         const currentTopmost = selectedBoundsAware.length > 0 ? selectedBoundsAware[0] : undefined;
         if (this.action.direction === 'previous') {
-            return this.markerNavigator.previous(root, currentTopmost, (marker) => this.matchesSeverities(marker));
+            return this.markerNavigator.previous(root, currentTopmost, marker => this.matchesSeverities(marker));
         } else {
-            return this.markerNavigator.next(root, currentTopmost, (marker) => this.matchesSeverities(marker));
+            return this.markerNavigator.next(root, currentTopmost, marker => this.matchesSeverities(marker));
         }
     }
 
@@ -217,15 +218,15 @@ export class MarkerNavigatorContextMenuItemProvider implements IContextMenuItemP
         const hasMarkers = collectIssueMarkers(root).length > 0;
         return Promise.resolve([
             {
-                id: "navigate", label: "Go to", group: "navigate", actions: [],
+                id: 'navigate', label: 'Go to', group: 'navigate', actions: [],
                 children: [
                     {
-                        id: "next-marker", label: "Next marker", group: "marker",
+                        id: 'next-marker', label: 'Next marker', group: 'marker',
                         actions: [new NavigateToMarkerAction('next', selectedElementIds)],
                         isEnabled: () => hasMarkers
                     },
                     {
-                        id: "previous-marker", label: "Previous marker", group: "marker",
+                        id: 'previous-marker', label: 'Previous marker', group: 'marker',
                         actions: [new NavigateToMarkerAction('previous', selectedElementIds)],
                         isEnabled: () => hasMarkers
                     }

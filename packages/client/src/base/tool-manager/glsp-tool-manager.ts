@@ -13,13 +13,13 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { inject, injectable, multiInject, optional, postConstruct } from "inversify";
-import { Tool, ToolManager } from "sprotty";
+import { inject, injectable, multiInject, optional, postConstruct } from 'inversify';
+import { Tool, ToolManager } from 'sprotty';
 
-import { distinctAdd } from "../../utils/array-utils";
-import { EditMode } from "../actions/edit-mode-action";
-import { EditModeListener, EditorContextService, EditorContextServiceProvider } from "../editor-context";
-import { GLSP_TYPES } from "../types";
+import { distinctAdd } from '../../utils/array-utils';
+import { EditMode } from '../actions/edit-mode-action';
+import { EditModeListener, EditorContextService, EditorContextServiceProvider } from '../editor-context';
+import { GLSP_TYPES } from '../types';
 
 export interface IGLSPToolManager extends ToolManager {
     /* Disables all actives tools and activates only default tool with non-edit function*/
@@ -45,19 +45,19 @@ export class GLSPToolManager extends ToolManager implements IGLSPToolManager, Ed
         });
     }
 
-    registerDefaultTools(...tools: Tool[]) {
+    registerDefaultTools(...tools: Tool[]): void {
         for (const tool of tools) {
             distinctAdd(this.defaultTools, tool);
         }
     }
 
-    registerTools(...tools: Tool[]) {
+    registerTools(...tools: Tool[]): void {
         for (const tool of tools) {
             distinctAdd(this.tools, tool);
         }
     }
 
-    enable(toolIds: string[]) {
+    enable(toolIds: string[]): void {
         this.disableActiveTools();
         let tools = toolIds.map(id => this.tool(id));
         if (this.editorContext && this.editorContext.isReadonly) {
@@ -71,12 +71,12 @@ export class GLSPToolManager extends ToolManager implements IGLSPToolManager, Ed
         });
     }
 
-    disableEditTools() {
+    disableEditTools(): void {
         this.disableActiveTools();
         this.enable(this.defaultTools.filter(tool => !isGLSPTool(tool) || tool.isEditTool === false).map(tool => tool.id));
     }
 
-    editModeChanged(oldValue: string, newValue: string) {
+    editModeChanged(oldValue: string, newValue: string): void {
         if (oldValue === newValue) {
             return;
         }
@@ -93,5 +93,5 @@ export interface GLSPTool extends Tool {
 }
 
 export function isGLSPTool(tool: Tool): tool is GLSPTool {
-    return "isEditTool" in tool && typeof tool["isEditTool"] === "boolean";
+    return 'isEditTool' in tool && typeof tool['isEditTool'] === 'boolean';
 }

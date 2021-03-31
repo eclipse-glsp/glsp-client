@@ -13,10 +13,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { ContainerModule } from "inversify";
-import { TYPES } from "sprotty";
+import { ContainerModule } from 'inversify';
+import { TYPES } from 'sprotty';
 
-import { SaveModelKeyboardListener } from "./save";
+import { SaveModelKeyboardListener } from './save';
 
 /**
  * This module is not required the diagram is deployed in Theia with the `GLSPDiagramWidget`

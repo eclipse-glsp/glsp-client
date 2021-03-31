@@ -13,14 +13,14 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { exportFeature, SGraph, SModelElement, SModelElementSchema, viewportFeature } from "sprotty/lib";
+import { exportFeature, SGraph, SModelElement, SModelElementSchema, viewportFeature } from 'sprotty/lib';
 
-import { Containable, containerFeature } from "../features/hints/model";
-import { Saveable, saveFeature } from "../features/save/model";
+import { Containable, containerFeature } from '../features/hints/model';
+import { Saveable, saveFeature } from '../features/save/model';
 
 export class GLSPGraph extends SGraph implements Saveable, Containable {
     static readonly DEFAULT_FEATURES = [viewportFeature, exportFeature, saveFeature, containerFeature];
-    dirty: boolean = false;
+    dirty = false;
     isContainableElement(input: string | SModelElement | SModelElementSchema): boolean {
         return true;
     }

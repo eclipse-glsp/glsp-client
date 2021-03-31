@@ -13,26 +13,26 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { ContainerModule } from "inversify";
-import { configureCommand, configureView, LocationPostprocessor, MoveCommand, TYPES } from "sprotty";
+import { ContainerModule } from 'inversify';
+import { configureCommand, configureView, LocationPostprocessor, MoveCommand, TYPES } from 'sprotty';
 
-import { GLSP_TYPES } from "../../base/types";
-import { SResizeHandle } from "../change-bounds/model";
+import { GLSP_TYPES } from '../../base/types';
+import { SResizeHandle } from '../change-bounds/model';
 import {
     HideChangeBoundsToolResizeFeedbackCommand,
     ShowChangeBoundsToolResizeFeedbackCommand
-} from "./change-bounds-tool-feedback";
-import { DrawFeedbackEdgeCommand, FeedbackEdgeEnd, RemoveFeedbackEdgeCommand } from "./creation-tool-feedback";
-import { ModifyCssFeedbackCommand } from "./css-feedback";
+} from './change-bounds-tool-feedback';
+import { DrawFeedbackEdgeCommand, FeedbackEdgeEnd, RemoveFeedbackEdgeCommand } from './creation-tool-feedback';
+import { ModifyCssFeedbackCommand } from './css-feedback';
 import {
     DrawFeedbackEdgeSourceCommand,
     HideEdgeReconnectHandlesFeedbackCommand,
     ShowEdgeReconnectHandlesFeedbackCommand,
     SwitchRoutingModeCommand
-} from "./edge-edit-tool-feedback";
-import { FeedbackActionDispatcher } from "./feedback-action-dispatcher";
-import { DrawMarqueeCommand, RemoveMarqueeCommand } from "./marquee-tool-feedback";
-import { FeedbackEdgeEndView, SResizeHandleView } from "./view";
+} from './edge-edit-tool-feedback';
+import { FeedbackActionDispatcher } from './feedback-action-dispatcher';
+import { DrawMarqueeCommand, RemoveMarqueeCommand } from './marquee-tool-feedback';
+import { FeedbackEdgeEndView, SResizeHandleView } from './view';
 
 const toolFeedbackModule = new ContainerModule((bind, _unbind, isBound) => {
     bind(GLSP_TYPES.IFeedbackActionDispatcher).to(FeedbackActionDispatcher).inSingletonScope();

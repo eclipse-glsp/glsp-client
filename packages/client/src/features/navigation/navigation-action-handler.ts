@@ -13,24 +13,28 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { inject, injectable } from "inversify";
+import { inject, injectable } from 'inversify';
 import {
+    Action,
     ActionHandlerRegistry,
     CenterAction,
     generateRequestId,
+    IActionDispatcher,
+    IActionHandler,
+    ICommand,
     ILogger,
     RequestAction,
     ResponseAction,
     SelectAction,
-    SelectAllAction
-} from "sprotty";
-import { Action, IActionDispatcher, IActionHandler, ICommand, TYPES } from "sprotty/lib";
+    SelectAllAction,
+    TYPES
+} from 'sprotty';
 
-import { Args } from "../../base/args";
-import { EditorContext, EditorContextServiceProvider } from "../../base/editor-context";
-import { GLSP_TYPES } from "../../base/types";
-import { GLSPServerStatusAction, ServerMessageAction } from "../../model-source/glsp-server-status";
-import { NavigationTarget, NavigationTargetResolver, SetResolvedNavigationTargetAction } from "./navigation-target-resolver";
+import { Args } from '../../base/args';
+import { EditorContext, EditorContextServiceProvider } from '../../base/editor-context';
+import { GLSP_TYPES } from '../../base/types';
+import { GLSPServerStatusAction, ServerMessageAction } from '../../model-source/glsp-server-status';
+import { NavigationTarget, NavigationTargetResolver, SetResolvedNavigationTargetAction } from './navigation-target-resolver';
 
 /**
  * Action for triggering a navigation of a certain target type.
@@ -51,12 +55,12 @@ export class NavigateAction implements Action {
 
 export function isNavigateAction(action: Action): action is NavigateAction {
     return action !== undefined && (action.kind === NavigateAction.KIND)
-        && (<NavigateAction>action).targetTypeId !== undefined;
+        && (action as NavigateAction).targetTypeId !== undefined;
 }
 
 /** Action that is usually sent to the server to request navigation targets for a navigation type. */
 export class RequestNavigationTargetsAction implements RequestAction<SetNavigationTargetsAction> {
-    static readonly KIND = "requestNavigationTargets";
+    static readonly KIND = 'requestNavigationTargets';
     kind = RequestNavigationTargetsAction.KIND;
     constructor(readonly targetTypeId: string, readonly editorContext: EditorContext,
         readonly requestId: string = generateRequestId()) { }
@@ -64,14 +68,14 @@ export class RequestNavigationTargetsAction implements RequestAction<SetNavigati
 
 /** Action that is usually sent from the server to the client as a repsonse to a `RequestNavigationTargetsAction`. */
 export class SetNavigationTargetsAction implements ResponseAction {
-    static readonly KIND = "setNavigationTargets";
+    static readonly KIND = 'setNavigationTargets';
     kind = SetNavigationTargetsAction.KIND;
     constructor(readonly targets: NavigationTarget[], readonly responseId: string = '', readonly args?: Args) { }
 }
 
 export function isSetNavigationTargetsAction(action: Action): action is SetNavigationTargetsAction {
     return action !== undefined && (action.kind === SetNavigationTargetsAction.KIND)
-        && (<SetNavigationTargetsAction>action).targets !== undefined;
+        && (action as SetNavigationTargetsAction).targets !== undefined;
 }
 
 /** Action that triggers the navigation to a particular navigation target, such as element IDs, queries, etc.. */
@@ -83,7 +87,7 @@ export class NavigateToTargetAction implements Action {
 
 export function isNavigateToTargetAction(action: Action): action is NavigateToTargetAction {
     return action !== undefined && (action.kind === NavigateToTargetAction.KIND)
-        && (<NavigateToTargetAction>action).target !== undefined;
+        && (action as NavigateToTargetAction).target !== undefined;
 }
 
 export class NavigateToExternalTargetAction implements Action {
@@ -94,7 +98,7 @@ export class NavigateToExternalTargetAction implements Action {
 
 export function isNavigateToExternalTargetAction(action: Action): action is NavigateToExternalTargetAction {
     return action !== undefined && (action.kind === NavigateToExternalTargetAction.KIND)
-        && (<NavigateToExternalTargetAction>action).target !== undefined;
+        && (action as NavigateToExternalTargetAction).target !== undefined;
 }
 
 /** Action to trigger the processing of additional navigation arguments.
@@ -113,7 +117,7 @@ export class ProcessNavigationArgumentsAction implements Action {
 
 export function isProcessNavigationArgumentsAction(action: Action): action is ProcessNavigationArgumentsAction {
     return action !== undefined && (action.kind === ProcessNavigationArgumentsAction.KIND)
-        && (<ProcessNavigationArgumentsAction>action).args !== undefined;
+        && (action as ProcessNavigationArgumentsAction).args !== undefined;
 }
 
 /**
@@ -161,7 +165,7 @@ export class NavigationActionHandler implements IActionHandler {
         }
     }
 
-    protected async handleNavigateAction(action: NavigateAction) {
+    protected async handleNavigateAction(action: NavigateAction): Promise<void> {
         try {
             const editorContextService = await this.editorContextService();
             const context = editorContextService.get(action.args);
@@ -179,7 +183,7 @@ export class NavigationActionHandler implements IActionHandler {
         }
     }
 
-    protected async handleNavigateToTarget(action: NavigateToTargetAction) {
+    protected async handleNavigateToTarget(action: NavigateToTargetAction): Promise<void> {
         try {
             const resolvedElements = await this.resolveElements(action);
             if (this.containsElementIdsOrArguments(resolvedElements)) {
@@ -211,7 +215,7 @@ export class NavigationActionHandler implements IActionHandler {
         return args !== undefined && args !== undefined && Object.keys(args).length > 0;
     }
 
-    protected navigateTo(target: SetResolvedNavigationTargetAction) {
+    protected navigateTo(target: SetResolvedNavigationTargetAction): void {
         const elementIds = target.elementIds;
         if (!this.containsElementIds(elementIds)) {
             return;
@@ -219,7 +223,7 @@ export class NavigationActionHandler implements IActionHandler {
         this.dispatcher.dispatchAll([new SelectAllAction(false), new SelectAction(elementIds), new CenterAction(elementIds)]);
     }
 
-    protected handleResolutionArguments(target: SetResolvedNavigationTargetAction) {
+    protected handleResolutionArguments(target: SetResolvedNavigationTargetAction): void {
         const args = target.args;
         if (!this.containsArguments(args)) {
             return;
@@ -231,7 +235,7 @@ export class NavigationActionHandler implements IActionHandler {
         return this.dispatcher.dispatch(new NavigateToExternalTargetAction(target));
     }
 
-    protected processNavigationArguments(args: Args) {
+    protected processNavigationArguments(args: Args): void {
         if (args.info && args.info.toString().length > 0) {
             this.notify('INFO', args.info.toString());
         }
@@ -243,7 +247,7 @@ export class NavigationActionHandler implements IActionHandler {
         }
     }
 
-    protected async handleNavigateToExternalTarget(action: NavigateToExternalTargetAction) {
+    protected async handleNavigateToExternalTarget(action: NavigateToExternalTargetAction): Promise<void> {
         const registry = await this.actionHandlerRegistryProvider();
         const handlers = registry.get(NavigateToExternalTargetAction.KIND);
         if (handlers.length === 1) {
@@ -252,17 +256,17 @@ export class NavigationActionHandler implements IActionHandler {
         }
     }
 
-    protected warnAboutFailedNavigation(msg: string, target?: NavigationTarget) {
+    protected warnAboutFailedNavigation(msg: string, target?: NavigationTarget): void {
         const message = `${msg}` + (target ? `: '${target.uri}' (arguments: ${JSON.stringify(target.args)})` : '');
         this.logger.warn(this, msg, target);
         this.notify('WARNING', message);
     }
 
-    private notify(severity: string, message: string) {
+    private notify(severity: string, message: string): void {
         const timeout = this.notificationTimeout;
         this.dispatcher.dispatchAll([
-            <GLSPServerStatusAction>{ kind: GLSPServerStatusAction.KIND, severity, timeout, message },
-            <ServerMessageAction>{ kind: ServerMessageAction.KIND, severity, timeout, message }
+            { kind: GLSPServerStatusAction.KIND, severity, timeout, message } as GLSPServerStatusAction,
+            { kind: ServerMessageAction.KIND, severity, timeout, message } as ServerMessageAction
         ]);
     }
 }

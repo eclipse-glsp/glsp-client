@@ -13,13 +13,14 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { injectable } from 'inversify';
+import * as snabbdom from 'snabbdom-jsx';
+import { VNode } from 'snabbdom/vnode';
+import { RectangularNodeView, RenderingContext } from 'sprotty';
 
-import { injectable } from "inversify";
-import * as snabbdom from "snabbdom-jsx";
-import { VNode } from "snabbdom/vnode";
-import { RectangularNodeView, RenderingContext } from "sprotty";
-import { MarqueeNode } from "./model";
+import { MarqueeNode } from './model';
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const JSX = { createElement: snabbdom.svg };
 
 @injectable()

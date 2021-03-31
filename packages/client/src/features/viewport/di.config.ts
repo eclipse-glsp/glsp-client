@@ -13,6 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { ContainerModule } from 'inversify';
 import {
     CenterCommand,
     CenterKeyboardListener,
@@ -24,11 +25,10 @@ import {
     GetViewportCommand,
     SetViewportCommand,
     TYPES,
-    ZoomMouseListener,
-} from "sprotty";
-import { ContainerModule } from "inversify";
+    ZoomMouseListener
+} from 'sprotty';
 
-import { GLSPScrollMouseListener } from "./glsp-scroll-mouse-listener";
+import { GLSPScrollMouseListener } from './glsp-scroll-mouse-listener';
 
 const glspViewportModule = new ContainerModule((bind, _unbind, isBound) => {
     configureCommand({ bind, isBound }, CenterCommand);

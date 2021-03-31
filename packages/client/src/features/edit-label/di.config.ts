@@ -13,12 +13,12 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { ContainerModule } from "inversify";
-import { ApplyLabelEditCommand, configureCommand, TYPES } from "sprotty";
+import { ContainerModule } from 'inversify';
+import { ApplyLabelEditCommand, configureCommand, TYPES } from 'sprotty';
 
-import { GLSP_TYPES } from "../../base/types";
-import { DirectLabelEditTool } from "./edit-label-tool";
-import { BalloonLabelValidationDecorator, ServerEditLabelValidator } from "./edit-label-validator";
+import { GLSP_TYPES } from '../../base/types';
+import { DirectLabelEditTool } from './edit-label-tool';
+import { BalloonLabelValidationDecorator, ServerEditLabelValidator } from './edit-label-validator';
 
 const glspEditLabelModule = new ContainerModule((bind, _unbind, isBound, _rebind) => {
     bind(TYPES.IEditLabelValidator).to(ServerEditLabelValidator);

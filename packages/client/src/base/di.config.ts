@@ -13,38 +13,34 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import "../../css/glsp-sprotty.css";
+import '../../css/glsp-sprotty.css';
 
-import { ContainerModule } from "inversify";
-import { configureActionHandler, configureCommand, SetModelCommand, TYPES } from "sprotty";
+import { ContainerModule } from 'inversify';
+import { configureActionHandler, configureCommand, SetModelCommand, TYPES } from 'sprotty';
 
-import { GLSPActionDispatcher } from "./action-dispatcher";
-import { SetEditModeAction } from "./actions/edit-mode-action";
-import { FocusStateChangedAction } from "./actions/focus-change-action";
-import { ConfigureServerHandlersAction, ConfigureServerHandlersActionHandler } from "./actions/protocol-actions";
-import { GLSPCommandStack } from "./command-stack";
-import { EditorContextService } from "./editor-context";
-import { FocusTracker } from "./focus-tracker";
-import { DefaultModelInitializationConstraint, ModelInitializationConstraint } from "./model-initialization-constraint";
-import { FeedbackAwareUpdateModelCommand, SetModelActionHandler } from "./model/update-model-command";
-import { SelectionClearingMouseListener } from "./selection-clearing-mouse-listener";
-import { GLSPToolManager } from "./tool-manager/glsp-tool-manager";
-import { GLSP_TYPES } from "./types";
+import { GLSPActionDispatcher } from './action-dispatcher';
+import { SetEditModeAction } from './actions/edit-mode-action';
+import { FocusStateChangedAction } from './actions/focus-change-action';
+import { ConfigureServerHandlersAction, ConfigureServerHandlersActionHandler } from './actions/protocol-actions';
+import { GLSPCommandStack } from './command-stack';
+import { EditorContextService } from './editor-context';
+import { FocusTracker } from './focus-tracker';
+import { DefaultModelInitializationConstraint, ModelInitializationConstraint } from './model-initialization-constraint';
+import { FeedbackAwareUpdateModelCommand, SetModelActionHandler } from './model/update-model-command';
+import { SelectionClearingMouseListener } from './selection-clearing-mouse-listener';
+import { GLSPToolManager } from './tool-manager/glsp-tool-manager';
+import { GLSP_TYPES } from './types';
 
 const defaultGLSPModule = new ContainerModule((bind, _unbind, isBound, rebind) => {
     const context = { bind, _unbind, isBound, rebind };
     bind(EditorContextService).toSelf().inSingletonScope();
-    bind(GLSP_TYPES.IEditorContextServiceProvider).toProvider<EditorContextService>(ctx => {
-        return () => {
-            return new Promise<EditorContextService>((resolve, reject) => {
-                if (ctx.container.isBound(EditorContextService)) {
-                    resolve(ctx.container.get<EditorContextService>(EditorContextService));
-                } else {
-                    reject();
-                }
-            });
-        };
-    });
+    bind(GLSP_TYPES.IEditorContextServiceProvider).toProvider<EditorContextService>(ctx => () => new Promise<EditorContextService>((resolve, reject) => {
+        if (ctx.container.isBound(EditorContextService)) {
+            resolve(ctx.container.get<EditorContextService>(EditorContextService));
+        } else {
+            reject();
+        }
+    }));
 
     configureActionHandler(context, SetEditModeAction.KIND, EditorContextService);
 

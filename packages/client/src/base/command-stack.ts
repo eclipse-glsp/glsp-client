@@ -13,10 +13,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { inject, injectable } from "inversify";
-import { CommandStack, IActionDispatcher, SModelRoot, TYPES } from "sprotty";
+import { inject, injectable } from 'inversify';
+import { CommandStack, IActionDispatcher, SModelRoot, TYPES } from 'sprotty';
 
-import { RedoOperation, UndoOperation } from "../features/undo-redo/model";
+import { RedoOperation, UndoOperation } from '../features/undo-redo/model';
 
 @injectable()
 export class GLSPCommandStack extends CommandStack {

@@ -13,11 +13,11 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { ActionMessage } from "sprotty";
-import { Message, MessageConnection } from "vscode-ws-jsonrpc";
+import { ActionMessage } from 'sprotty';
+import { Message, MessageConnection } from 'vscode-ws-jsonrpc';
 
-import { ActionMessageHandler, ClientState, GLSPClient, InitializeParameters } from "../glsp-client";
-import { ConnectionProvider, JsonrpcGLSPClient } from "./glsp-jsonrpc-client";
+import { ActionMessageHandler, ClientState, GLSPClient, InitializeParameters } from '../glsp-client';
+import { ConnectionProvider, JsonrpcGLSPClient } from './glsp-jsonrpc-client';
 
 export class BaseJsonrpcGLSPClient implements GLSPClient {
 
@@ -40,7 +40,7 @@ export class BaseJsonrpcGLSPClient implements GLSPClient {
         }
     }
 
-    initializeServer(params: InitializeParameters): Promise<Boolean> {
+    initializeServer(params: InitializeParameters): Promise<boolean> {
         if (this.checkConnectionState()) {
             return this.resolvedConnection!.sendRequest(JsonrpcGLSPClient.InitializeRequest, params);
         }

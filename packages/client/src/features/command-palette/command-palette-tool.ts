@@ -13,18 +13,18 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { inject, injectable, postConstruct } from "inversify";
-import { CommandPaletteKeyListener, KeyListener, KeyTool, Tool } from "sprotty";
+import { inject, injectable, postConstruct } from 'inversify';
+import { CommandPaletteKeyListener, KeyListener, KeyTool, Tool } from 'sprotty';
 
 @injectable()
 export class CommandPaletteTool implements Tool {
-    static ID = "glsp.command-palette-tool";
+    static ID = 'glsp.command-palette-tool';
 
     protected commandPaletteKeyListener: KeyListener;
     @inject(KeyTool) protected keyTool: KeyTool;
 
     @postConstruct()
-    protected postConstruct() {
+    protected postConstruct(): void {
         this.commandPaletteKeyListener = this.createCommandPaleteKeyListener();
     }
 

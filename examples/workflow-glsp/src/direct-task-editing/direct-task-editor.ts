@@ -32,12 +32,12 @@ import {
     ValidationDecorator,
     ValidationStatus,
     ViewerOptions
-} from "@eclipse-glsp/client";
-import { inject, injectable } from "inversify";
-import { TYPES } from "sprotty/lib";
-import { DOMHelper } from "sprotty/lib/base/views/dom-helper";
+} from '@eclipse-glsp/client';
+import { inject, injectable } from 'inversify';
+import { TYPES } from 'sprotty/lib';
+import { DOMHelper } from 'sprotty/lib/base/views/dom-helper';
 
-import { isTaskNode, TaskNode } from "../model";
+import { isTaskNode, TaskNode } from '../model';
 
 export class ApplyTaskEditOperation implements Action {
     static readonly KIND = 'applyTaskEdit';
@@ -74,8 +74,12 @@ export class TaskEditor extends AbstractUIExtension {
     protected task: TaskNode;
     protected autoSuggestion: AutoCompleteWidget;
 
-    id() { return TaskEditor.ID; }
-    containerClass() { return 'command-palette'; }
+    id(): string {
+        return TaskEditor.ID;
+    }
+    containerClass(): string {
+        return 'command-palette';
+    }
 
     protected initializeContents(containerElement: HTMLElement): void {
         this.autoSuggestion = new AutoCompleteWidget(
@@ -93,18 +97,18 @@ export class TaskEditor extends AbstractUIExtension {
         this.autoSuggestion.initialize(containerElement);
     }
 
-    show(root: Readonly<SModelRoot>, ...contextElementIds: string[]) {
+    show(root: Readonly<SModelRoot>, ...contextElementIds: string[]): void {
         super.show(root, ...contextElementIds);
         this.autoSuggestion.open(root);
     }
 
-    protected onBeforeShow(containerElement: HTMLElement, root: Readonly<SModelRoot>, ...contextElementIds: string[]) {
+    protected onBeforeShow(containerElement: HTMLElement, root: Readonly<SModelRoot>, ...contextElementIds: string[]): void {
         this.task = getTask(contextElementIds, root)[0];
         this.autoSuggestion.inputField.value = '';
         this.setPosition(containerElement);
     }
 
-    protected setPosition(containerElement: HTMLElement) {
+    protected setPosition(containerElement: HTMLElement): void {
         let x = 0;
         let y = 0;
 
@@ -136,16 +140,16 @@ export class TaskEditor extends AbstractUIExtension {
         return Promise.reject();
     }
 
-    protected executeFromSuggestion(input: LabeledAction | Action[] | Action) {
+    protected executeFromSuggestion(input: LabeledAction | Action[] | Action): void {
         this.actionDispatcher.dispatchAll(toActionArray(input));
     }
 
-    protected executeFromTextOnlyInput(input: string) {
+    protected executeFromTextOnlyInput(input: string): void {
         const action = new ApplyTaskEditOperation(this.task.id, input);
         this.actionDispatcher.dispatch(action);
     }
 
-    hide() {
+    hide(): void {
         this.autoSuggestion.dispose();
         super.hide();
     }

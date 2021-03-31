@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { inject, injectable, optional } from "inversify";
+import { inject, injectable, optional } from 'inversify';
 import {
     Action,
     AnchorComputerRegistry,
@@ -27,22 +27,22 @@ import {
     SModelRoot,
     SRoutableElement,
     SRoutingHandle
-} from "sprotty";
+} from 'sprotty';
 
-import { DragAwareMouseListener } from "../../base/drag-aware-mouse-listener";
-import { ChangeRoutingPointsOperation, ReconnectEdgeOperation } from "../../base/operations/operation";
-import { GLSP_TYPES } from "../../base/types";
-import { isRoutable, isRoutingHandle } from "../../utils/smodel-util";
+import { DragAwareMouseListener } from '../../base/drag-aware-mouse-listener';
+import { ChangeRoutingPointsOperation, ReconnectEdgeOperation } from '../../base/operations/operation';
+import { GLSP_TYPES } from '../../base/types';
+import { isRoutable, isRoutingHandle } from '../../utils/smodel-util';
 import {
     isReconnectable,
     isReconnectHandle,
     isSourceRoutingHandle,
     isTargetRoutingHandle,
     SReconnectHandle
-} from "../reconnect/model";
-import { SelectionListener, SelectionService } from "../select/selection-service";
-import { DrawFeedbackEdgeAction, feedbackEdgeId, RemoveFeedbackEdgeAction } from "../tool-feedback/creation-tool-feedback";
-import { CursorCSS, cursorFeedbackAction } from "../tool-feedback/css-feedback";
+} from '../reconnect/model';
+import { SelectionListener, SelectionService } from '../select/selection-service';
+import { DrawFeedbackEdgeAction, feedbackEdgeId, RemoveFeedbackEdgeAction } from '../tool-feedback/creation-tool-feedback';
+import { CursorCSS, cursorFeedbackAction } from '../tool-feedback/css-feedback';
 import {
     DrawFeedbackEdgeSourceAction,
     FeedbackEdgeRouteMovingMouseListener,
@@ -51,12 +51,12 @@ import {
     HideEdgeReconnectHandlesFeedbackAction,
     ShowEdgeReconnectHandlesFeedbackAction,
     SwitchRoutingModeAction
-} from "../tool-feedback/edge-edit-tool-feedback";
-import { BaseGLSPTool } from "./base-glsp-tool";
+} from '../tool-feedback/edge-edit-tool-feedback';
+import { BaseGLSPTool } from './base-glsp-tool';
 
 @injectable()
 export class EdgeEditTool extends BaseGLSPTool {
-    static ID = "glsp.edge-edit-tool";
+    static ID = 'glsp.edge-edit-tool';
 
     @inject(GLSP_TYPES.SelectionService) protected selectionService: SelectionService;
     @inject(AnchorComputerRegistry) protected anchorRegistry: AnchorComputerRegistry;
@@ -121,7 +121,7 @@ class EdgeEditListener extends DragAwareMouseListener implements SelectionListen
         return edge !== undefined && edge.id !== feedbackEdgeId(edge.root) && isSelected(edge);
     }
 
-    protected setEdgeSelected(edge: SRoutableElement) {
+    protected setEdgeSelected(edge: SRoutableElement): void {
         if (this.edge && this.edge.id !== edge.id) {
             // reset from a previously selected edge
             this.reset();
@@ -143,18 +143,22 @@ class EdgeEditListener extends DragAwareMouseListener implements SelectionListen
         return this.edge !== undefined && isSelected(this.edge);
     }
 
-    protected setReconnectHandleSelected(edge: SRoutableElement, reconnectHandle: SReconnectHandle) {
+    protected setReconnectHandleSelected(edge: SRoutableElement, reconnectHandle: SReconnectHandle): void {
         if (this.edge && this.edge.target && this.edge.source) {
             if (isSourceRoutingHandle(edge, reconnectHandle)) {
-                this.tool.dispatchFeedback([new HideEdgeReconnectHandlesFeedbackAction(),
-                cursorFeedbackAction(CursorCSS.EDGE_RECONNECT),
-                new DrawFeedbackEdgeSourceAction(this.edge.type, this.edge.targetId)]);
-                this.reconnectMode = "NEW_SOURCE";
+                this.tool.dispatchFeedback([
+                    new HideEdgeReconnectHandlesFeedbackAction(),
+                    cursorFeedbackAction(CursorCSS.EDGE_RECONNECT),
+                    new DrawFeedbackEdgeSourceAction(this.edge.type, this.edge.targetId)
+                ]);
+                this.reconnectMode = 'NEW_SOURCE';
             } else if (isTargetRoutingHandle(edge, reconnectHandle)) {
-                this.tool.dispatchFeedback([new HideEdgeReconnectHandlesFeedbackAction(),
-                cursorFeedbackAction(CursorCSS.EDGE_CREATION_TARGET),
-                new DrawFeedbackEdgeAction(this.edge.type, this.edge.sourceId)]);
-                this.reconnectMode = "NEW_TARGET";
+                this.tool.dispatchFeedback([
+                    new HideEdgeReconnectHandlesFeedbackAction(),
+                    cursorFeedbackAction(CursorCSS.EDGE_CREATION_TARGET),
+                    new DrawFeedbackEdgeAction(this.edge.type, this.edge.sourceId)
+                ]);
+                this.reconnectMode = 'NEW_TARGET';
             }
         }
     }
@@ -164,10 +168,10 @@ class EdgeEditListener extends DragAwareMouseListener implements SelectionListen
     }
 
     protected isReconnectingNewSource(): boolean {
-        return this.reconnectMode === "NEW_SOURCE";
+        return this.reconnectMode === 'NEW_SOURCE';
     }
 
-    protected setRoutingHandleSelected(edge: SRoutableElement, routingHandle: SRoutingHandle) {
+    protected setRoutingHandleSelected(edge: SRoutableElement, routingHandle: SRoutingHandle): void {
         if (this.edge && this.edge.target && this.edge.source) {
             this.routingHandle = routingHandle;
         }
@@ -177,15 +181,15 @@ class EdgeEditListener extends DragAwareMouseListener implements SelectionListen
         return this.edge !== undefined && (this.edge.sourceId !== sourceId || this.edge.targetId !== targetId);
     }
 
-    protected setNewConnectable(connectable?: SModelElement & Connectable) {
+    protected setNewConnectable(connectable?: SModelElement & Connectable): void {
         this.newConnectable = connectable;
     }
 
-    protected isReadyToReconnect() {
+    protected isReadyToReconnect(): boolean | undefined {
         return this.edge && this.isReconnecting() && this.newConnectable !== undefined;
     }
 
-    protected isReadyToReroute() {
+    protected isReadyToReroute(): boolean {
         return this.routingHandle !== undefined;
     }
 
@@ -251,8 +255,8 @@ class EdgeEditListener extends DragAwareMouseListener implements SelectionListen
             if (!this.newConnectable || currentTarget !== this.newConnectable) {
                 this.setNewConnectable(currentTarget);
                 if (currentTarget) {
-                    if ((this.reconnectMode === 'NEW_SOURCE' && currentTarget.canConnect(this.edge, "source")) ||
-                        (this.reconnectMode === 'NEW_TARGET' && currentTarget.canConnect(this.edge, "target"))) {
+                    if ((this.reconnectMode === 'NEW_SOURCE' && currentTarget.canConnect(this.edge, 'source')) ||
+                        (this.reconnectMode === 'NEW_TARGET' && currentTarget.canConnect(this.edge, 'target'))) {
 
                         this.tool.dispatchFeedback([cursorFeedbackAction(CursorCSS.EDGE_RECONNECT)]);
                         return [];
@@ -293,25 +297,28 @@ class EdgeEditListener extends DragAwareMouseListener implements SelectionListen
         }
     }
 
-    public reset() {
+    public reset(): void {
         this.resetFeedback();
         this.resetData();
     }
 
-    protected resetData() {
+    protected resetData(): void {
         this.edge = undefined;
         this.reconnectMode = undefined;
         this.newConnectable = undefined;
         this.routingHandle = undefined;
     }
 
-    protected resetFeedback() {
+    protected resetFeedback(): void {
         const result: Action[] = [];
         if (this.edge) {
             result.push(new SwitchRoutingModeAction([], [this.edge.id]));
         }
-        result.push(...[new HideEdgeReconnectHandlesFeedbackAction(),
-        cursorFeedbackAction(), new RemoveFeedbackEdgeAction()]);
+        result.push(...[
+            new HideEdgeReconnectHandlesFeedbackAction(),
+            cursorFeedbackAction(),
+            new RemoveFeedbackEdgeAction()
+        ]);
         this.tool.deregisterFeedback(result);
         this.tool.deregisterFeedbackListeners();
     }

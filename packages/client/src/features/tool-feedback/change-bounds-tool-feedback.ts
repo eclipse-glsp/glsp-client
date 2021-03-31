@@ -13,8 +13,8 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { inject, injectable } from "inversify";
-import { VNode } from "snabbdom/vnode";
+import { inject, injectable } from 'inversify';
+import { VNode } from 'snabbdom/vnode';
 import {
     Action,
     CommandExecutionContext,
@@ -30,13 +30,13 @@ import {
     SModelElement,
     SModelRoot,
     TYPES
-} from "sprotty";
+} from 'sprotty';
 
-import { isNotUndefined } from "../../utils/smodel-util";
-import { addResizeHandles, isResizable, removeResizeHandles, SResizeHandle } from "../change-bounds/model";
-import { createMovementRestrictionFeedback, removeMovementRestrictionFeedback } from "../change-bounds/movement-restrictor";
-import { ChangeBoundsTool } from "../tools/change-bounds-tool";
-import { FeedbackCommand } from "./model";
+import { isNotUndefined } from '../../utils/smodel-util';
+import { addResizeHandles, isResizable, removeResizeHandles, SResizeHandle } from '../change-bounds/model';
+import { createMovementRestrictionFeedback, removeMovementRestrictionFeedback } from '../change-bounds/movement-restrictor';
+import { ChangeBoundsTool } from '../tools/change-bounds-tool';
+import { FeedbackCommand } from './model';
 
 export class ShowChangeBoundsToolResizeFeedbackAction implements Action {
     constructor(readonly elementId?: string, public readonly kind: string = ShowChangeBoundsToolResizeFeedbackCommand.KIND) { }
@@ -48,7 +48,7 @@ export class HideChangeBoundsToolResizeFeedbackAction implements Action {
 
 @injectable()
 export class ShowChangeBoundsToolResizeFeedbackCommand extends FeedbackCommand {
-    static readonly KIND = "showChangeBoundsToolResizeFeedback";
+    static readonly KIND = 'showChangeBoundsToolResizeFeedback';
 
     @inject(TYPES.Action) protected action: ShowChangeBoundsToolResizeFeedbackAction;
 
@@ -71,7 +71,7 @@ export class ShowChangeBoundsToolResizeFeedbackCommand extends FeedbackCommand {
 
 @injectable()
 export class HideChangeBoundsToolResizeFeedbackCommand extends FeedbackCommand {
-    static readonly KIND = "hideChangeBoundsToolResizeFeedback";
+    static readonly KIND = 'hideChangeBoundsToolResizeFeedback';
 
     @inject(TYPES.Action) protected action: HideChangeBoundsToolResizeFeedbackAction;
 
@@ -116,19 +116,22 @@ export class FeedbackMoveMouseListener extends MouseListener {
 
     mouseMove(target: SModelElement, event: MouseEvent): Action[] {
         const result: Action[] = [];
-        if (event.buttons === 0) this.mouseUp(target, event);
-        else if (this.startDragPosition) {
+        if (event.buttons === 0) {
+            this.mouseUp(target, event);
+        } else if (this.startDragPosition) {
             if (this.elementId2startPos.size === 0) {
                 this.collectStartPositions(target.root);
             }
             this.hasDragged = true;
             const moveAction = this.getElementMoves(target, event, false);
-            if (moveAction) result.push(moveAction);
+            if (moveAction) {
+                result.push(moveAction);
+            }
         }
         return result;
     }
 
-    protected collectStartPositions(root: SModelRoot) {
+    protected collectStartPositions(root: SModelRoot): void {
         root.index
             .all()
             .filter(element => isSelectable(element) && element.selected)
@@ -140,7 +143,9 @@ export class FeedbackMoveMouseListener extends MouseListener {
     }
 
     protected getElementMoves(target: SModelElement, event: MouseEvent, isFinished: boolean): MoveAction | undefined {
-        if (!this.startDragPosition) return undefined;
+        if (!this.startDragPosition) {
+            return undefined;
+        }
         const elementMoves: ElementMove[] = [];
         const viewport = findParentByFeature(target, isViewport);
         const zoom = viewport ? viewport.zoom : 1;
@@ -173,12 +178,14 @@ export class FeedbackMoveMouseListener extends MouseListener {
                 }
             }
         });
-        if (elementMoves.length > 0)
+        if (elementMoves.length > 0) {
             return new MoveAction(elementMoves, false, isFinished);
-        else return undefined;
+        } else {
+            return undefined;
+        }
     }
 
-    protected validateMove(startPostion: Point, toPosition: Point, element: SModelElement, isFinished: boolean) {
+    protected validateMove(startPostion: Point, toPosition: Point, element: SModelElement, isFinished: boolean): Point {
         let newPosition = toPosition;
         if (this.tool.movementRestrictor) {
             const valid = this.tool.movementRestrictor.validate(toPosition, element);
@@ -199,13 +206,17 @@ export class FeedbackMoveMouseListener extends MouseListener {
     }
 
     protected snap(position: Point, element: SModelElement, isSnap: boolean): Point {
-        if (isSnap && this.tool.snapper) return this.tool.snapper.snap(position, element);
-        else return position;
+        if (isSnap && this.tool.snapper) {
+            return this.tool.snapper.snap(position, element);
+        } else {
+            return position;
+        }
     }
 
     mouseEnter(target: SModelElement, event: MouseEvent): Action[] {
-        if (target instanceof SModelRoot && event.buttons === 0)
+        if (target instanceof SModelRoot && event.buttons === 0) {
             this.mouseUp(target, event);
+        }
         return [];
     }
 

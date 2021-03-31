@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { inject, injectable } from "inversify";
+import { inject, injectable } from 'inversify';
 import {
     Action,
     IActionDispatcher,
@@ -24,29 +24,29 @@ import {
     Point,
     SModelRoot,
     TYPES
-} from "sprotty/lib";
+} from 'sprotty/lib';
 
-import { GLSPServerStatusAction, ServerMessageAction } from "../../model-source/glsp-server-status";
+import { GLSPServerStatusAction, ServerMessageAction } from '../../model-source/glsp-server-status';
 
 export class InvokeCopyAction implements Action {
-    static readonly KIND = "invoke-copy";
+    static readonly KIND = 'invoke-copy';
     constructor(public readonly kind = InvokeCopyAction.KIND) { }
 }
 
 export class InvokePasteAction implements Action {
-    static readonly KIND = "invoke-paste";
+    static readonly KIND = 'invoke-paste';
     constructor(public readonly kind = InvokePasteAction.KIND) { }
 }
 
 export class InvokeCutAction implements Action {
-    static readonly KIND = "invoke-cut";
+    static readonly KIND = 'invoke-cut';
     constructor(public readonly kind = InvokeCutAction.KIND) { }
 }
 
 @injectable()
 export class InvokeCopyPasteActionHandler implements IActionHandler {
     @inject(TYPES.IActionDispatcher) protected dispatcher: IActionDispatcher;
-    handle(action: Action) {
+    handle(action: Action): void {
         switch (action.kind) {
             case InvokeCopyAction.KIND:
                 document.execCommand('copy');
@@ -62,13 +62,13 @@ export class InvokeCopyPasteActionHandler implements IActionHandler {
         }
     }
 
-    protected notifyUserToUseShortcut() {
+    protected notifyUserToUseShortcut(): void {
         const message = 'Please use the browser\'s paste command or shortcut.';
         const timeout = 10000;
         const severity = 'WARNING';
         this.dispatcher.dispatchAll([
-            <GLSPServerStatusAction>{ kind: GLSPServerStatusAction.KIND, severity, timeout, message },
-            <ServerMessageAction>{ kind: ServerMessageAction.KIND, severity, timeout, message }
+            { kind: GLSPServerStatusAction.KIND, severity, timeout, message } as GLSPServerStatusAction,
+            { kind: ServerMessageAction.KIND, severity, timeout, message } as ServerMessageAction
         ]);
     }
 }
@@ -86,21 +86,21 @@ export class CopyPasteContextMenuItemProvider implements IContextMenuItemProvide
 
     protected createPasteMenuItem(): MenuItem {
         return {
-            id: "paste", label: "Paste", group: "copy-paste",
+            id: 'paste', label: 'Paste', group: 'copy-paste',
             actions: [new InvokePasteAction()], isEnabled: () => true
         };
     }
 
     protected createCutMenuItem(hasSelectedElements: boolean): MenuItem {
         return {
-            id: "cut", label: "Cut", group: "copy-paste",
+            id: 'cut', label: 'Cut', group: 'copy-paste',
             actions: [new InvokeCutAction()], isEnabled: () => hasSelectedElements
         };
     }
 
     protected createCopyMenuItem(hasSelectedElements: boolean): MenuItem {
         return {
-            id: "copy", label: "Copy", group: "copy-paste",
+            id: 'copy', label: 'Copy', group: 'copy-paste',
             actions: [new InvokeCopyAction()], isEnabled: () => hasSelectedElements
         };
     }

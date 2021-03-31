@@ -13,8 +13,8 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { inject, injectable } from "inversify";
-import { Action, IActionDispatcher, ILogger, TYPES } from "sprotty";
+import { inject, injectable } from 'inversify';
+import { Action, IActionDispatcher, ILogger, TYPES } from 'sprotty';
 
 export interface IFeedbackEmitter { }
 
@@ -54,7 +54,7 @@ export interface IFeedbackActionDispatcher {
     /**
     * Retrieve all `actions` sent out by currently registered `feedbackEmitter`.
     */
-    getRegisteredFeedback(): Action[]
+    getRegisteredFeedback(): Action[];
 }
 
 @injectable()
@@ -74,20 +74,20 @@ export class FeedbackActionDispatcher implements IFeedbackActionDispatcher {
         this.dispatch(actions, feedbackEmitter);
     }
 
-    private dispatch(actions: Action[], feedbackEmitter: IFeedbackEmitter) {
+    private dispatch(actions: Action[], feedbackEmitter: IFeedbackEmitter): void {
         this.actionDispatcher()
             .then(dispatcher => dispatcher.dispatchAll(actions))
             .then(() => this.logger.info(this, `Dispatched feedback actions for ${feedbackEmitter}`))
             .catch(reason => this.logger.error(this, 'Failed to dispatch feedback actions', reason));
     }
 
-    getRegisteredFeedback() {
+    getRegisteredFeedback(): Action[] {
         const result: Action[] = [];
         this.feedbackEmitters.forEach((value, key) => result.push(...value));
         return result;
     }
 
-    getRegisteredFeedbackEmitters(action: Action) {
+    getRegisteredFeedbackEmitters(action: Action): IFeedbackEmitter[] {
         const result: IFeedbackEmitter[] = [];
         this.feedbackEmitters.forEach((value, key) => {
             if (value.find(a => a === action)) {

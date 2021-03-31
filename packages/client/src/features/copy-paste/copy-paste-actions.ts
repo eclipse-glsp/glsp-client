@@ -13,13 +13,13 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { generateRequestId, RequestAction, ResponseAction } from "sprotty";
-import { Operation } from "src/base/operations/operation";
+import { generateRequestId, RequestAction, ResponseAction } from 'sprotty';
 
-import { EditorContext } from "../../base/editor-context";
+import { EditorContext } from '../../base/editor-context';
+import { Operation } from '../../base/operations/operation';
 
 export class CutOperation implements Operation {
-    static readonly KIND = "cut";
+    static readonly KIND = 'cut';
 
     constructor(
         public readonly editorContext: EditorContext,
@@ -27,7 +27,7 @@ export class CutOperation implements Operation {
 }
 
 export class PasteOperation implements Operation {
-    static readonly KIND = "paste";
+    static readonly KIND = 'paste';
 
     constructor(
         public readonly clipboardData: ClipboardData,
@@ -36,7 +36,7 @@ export class PasteOperation implements Operation {
 }
 
 export class RequestClipboardDataAction implements RequestAction<SetClipboardDataAction> {
-    static readonly KIND = "requestClipboardData";
+    static readonly KIND = 'requestClipboardData';
 
     constructor(
         public readonly editorContext: EditorContext,
@@ -48,10 +48,10 @@ export class RequestClipboardDataAction implements RequestAction<SetClipboardDat
     }
 }
 
-export type ClipboardData = { [format: string]: string };
+export interface ClipboardData { [format: string]: string }
 
 export class SetClipboardDataAction implements ResponseAction {
-    static readonly KIND = "setClipboardData";
+    static readonly KIND = 'setClipboardData';
 
     constructor(
         public readonly clipboardData: ClipboardData,

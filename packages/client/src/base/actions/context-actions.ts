@@ -13,13 +13,13 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, generateRequestId, LabeledAction, RequestAction, ResponseAction } from "sprotty";
+import { Action, generateRequestId, LabeledAction, RequestAction, ResponseAction } from 'sprotty';
 
-import { Args } from "../args";
-import { EditorContext } from "../editor-context";
+import { Args } from '../args';
+import { EditorContext } from '../editor-context';
 
 export class RequestContextActions implements RequestAction<SetContextActions> {
-    static readonly KIND = "requestContextActions";
+    static readonly KIND = 'requestContextActions';
     constructor(
         public readonly contextId: string,
         public readonly editorContext: EditorContext,
@@ -28,7 +28,7 @@ export class RequestContextActions implements RequestAction<SetContextActions> {
 }
 
 export class SetContextActions implements ResponseAction {
-    static readonly KIND = "setContextActions";
+    static readonly KIND = 'setContextActions';
     constructor(
         public readonly actions: LabeledAction[],
         public readonly responseId: string = '',
@@ -39,5 +39,5 @@ export class SetContextActions implements ResponseAction {
 
 export function isSetContextActionsAction(action: Action): action is SetContextActions {
     return action !== undefined && (action.kind === SetContextActions.KIND)
-        && (<SetContextActions>action).actions !== undefined;
+        && (action as SetContextActions).actions !== undefined;
 }

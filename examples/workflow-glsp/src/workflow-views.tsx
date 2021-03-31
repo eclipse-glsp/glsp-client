@@ -23,13 +23,14 @@ import {
     SEdge,
     SShapeElement,
     toDegrees
-} from "@eclipse-glsp/client";
-import { injectable } from "inversify";
-import * as snabbdom from "snabbdom-jsx";
-import { VNode } from "snabbdom/vnode";
+} from '@eclipse-glsp/client';
+import { injectable } from 'inversify';
+import * as snabbdom from 'snabbdom-jsx';
+import { VNode } from 'snabbdom/vnode';
 
-import { ActivityNode, Icon, TaskNode, WeightedEdge } from "./model";
+import { ActivityNode, Icon, TaskNode, WeightedEdge } from './model';
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const JSX = { createElement: snabbdom.svg };
 
 @injectable()
@@ -82,8 +83,9 @@ export class WeightedEdgeView extends WorkflowEdgeView {
     render(edge: Readonly<WeightedEdge>, context: RenderingContext): VNode {
         const router = this.edgeRouterRegistry.get(edge.routerKind);
         const route = router.route(edge);
-        if (route.length === 0)
-            return this.renderDanglingEdge("Cannot compute route", edge, context);
+        if (route.length === 0) {
+            return this.renderDanglingEdge('Cannot compute route', edge, context);
+        }
 
         return <g class-sprotty-edge={true}
             class-weighted={true}
@@ -108,7 +110,7 @@ export class IconView implements IView {
         </g>;
     }
 
-    getRadius() {
+    getRadius(): number {
         return 16;
     }
 }

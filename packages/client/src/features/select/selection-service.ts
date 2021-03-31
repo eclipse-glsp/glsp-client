@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { inject, injectable, multiInject, optional } from "inversify";
+import { inject, injectable, multiInject, optional } from 'inversify';
 import {
     Action,
     Command,
@@ -30,13 +30,13 @@ import {
     SModelRoot,
     SParentElement,
     TYPES
-} from "sprotty";
+} from 'sprotty';
 
-import { SModelRootListener } from "../../base/model/update-model-command";
-import { GLSP_TYPES } from "../../base/types";
-import { distinctAdd, remove } from "../../utils/array-utils";
-import { IFeedbackActionDispatcher } from "../tool-feedback/feedback-action-dispatcher";
-import { SelectFeedbackAction } from "./select-feedback-action";
+import { SModelRootListener } from '../../base/model/update-model-command';
+import { GLSP_TYPES } from '../../base/types';
+import { distinctAdd, remove } from '../../utils/array-utils';
+import { IFeedbackActionDispatcher } from '../tool-feedback/feedback-action-dispatcher';
+import { SelectFeedbackAction } from './select-feedback-action';
 
 export interface SelectionListener {
     selectionChanged(root: Readonly<SModelRoot>, selectedElements: string[]): void;
@@ -52,11 +52,11 @@ export class SelectionService implements SModelRootListener {
 
     constructor(@multiInject(GLSP_TYPES.SelectionListener) @optional() protected selectionListeners: SelectionListener[] = []) { }
 
-    register(selectionListener: SelectionListener) {
+    register(selectionListener: SelectionListener): void {
         distinctAdd(this.selectionListeners, selectionListener);
     }
 
-    deregister(selectionListener: SelectionListener) {
+    deregister(selectionListener: SelectionListener): void {
         remove(this.selectionListeners, selectionListener);
     }
 
@@ -64,7 +64,7 @@ export class SelectionService implements SModelRootListener {
         this.updateSelection(root, [], []);
     }
 
-    updateSelection(root: Readonly<SModelRoot>, select: string[], deselect: string[]) {
+    updateSelection(root: Readonly<SModelRoot>, select: string[], deselect: string[]): void {
         if (root === undefined && select.length === 0 && deselect.length === 0) {
             return;
         }
@@ -112,11 +112,11 @@ export class SelectionService implements SModelRootListener {
         }
     }
 
-    dispatchFeedback(actions: Action[]) {
+    dispatchFeedback(actions: Action[]): void {
         this.feedbackDispatcher.registerFeedback(this, actions);
     }
 
-    notifyListeners(root: SModelRoot, selectedElementIDs: Set<string>) {
+    notifyListeners(root: SModelRoot, selectedElementIDs: Set<string>): void {
         this.selectionListeners.forEach(listener => listener.selectionChanged(root, Array.from(selectedElementIDs)));
     }
 
@@ -148,7 +148,6 @@ export class SelectionService implements SModelRootListener {
         return this.selectedElementIDs.size > 1;
     }
 }
-
 
 @injectable()
 export class SelectCommand extends Command {

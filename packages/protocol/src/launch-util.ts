@@ -20,7 +20,7 @@
  * @param defaultPort Default port that should be returned if no (valid) port was passed via CLI
  */
 export function getPort(argsKey: string, defaultPort?: number): number {
-    argsKey = `--${argsKey.replace("--", "").replace("=", "")}=`;
+    argsKey = `--${argsKey.replace('--', '').replace('=', '')}=`;
     const args = process.argv.filter(a => a.startsWith(argsKey));
     if (args.length > 0) {
         return Number.parseInt(args[0].substring(argsKey.length), 10);

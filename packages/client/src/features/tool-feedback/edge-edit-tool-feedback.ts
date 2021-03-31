@@ -13,8 +13,8 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { inject, injectable } from "inversify";
-import { VNode } from "snabbdom/vnode";
+import { inject, injectable } from 'inversify';
+import { VNode } from 'snabbdom/vnode';
 import {
     Action,
     AnchorComputerRegistry,
@@ -41,18 +41,18 @@ import {
     SwitchEditModeAction,
     SwitchEditModeCommand,
     TYPES
-} from "sprotty";
+} from 'sprotty';
 
-import { isNotUndefined, isRoutable, isRoutingHandle } from "../../utils/smodel-util";
-import { getAbsolutePosition } from "../../utils/viewpoint-util";
-import { addReconnectHandles, removeReconnectHandles } from "../reconnect/model";
+import { isNotUndefined, isRoutable, isRoutingHandle } from '../../utils/smodel-util';
+import { getAbsolutePosition } from '../../utils/viewpoint-util';
+import { addReconnectHandles, removeReconnectHandles } from '../reconnect/model';
 import {
     FeedbackEdgeEnd,
     feedbackEdgeEndId,
     FeedbackEdgeEndMovingMouseListener,
     feedbackEdgeId
-} from "./creation-tool-feedback";
-import { FeedbackCommand } from "./model";
+} from './creation-tool-feedback';
+import { FeedbackCommand } from './model';
 
 /**
  * RECONNECT HANDLES FEEDBACK
@@ -116,8 +116,10 @@ export class SwitchRoutingModeAction extends SwitchEditModeAction {
 
 @injectable()
 export class SwitchRoutingModeCommand extends SwitchEditModeCommand {
-    static KIND = "switchRoutingMode";
-    constructor(@inject(TYPES.Action) action: SwitchRoutingModeAction) { super(action); }
+    static KIND = 'switchRoutingMode';
+    constructor(@inject(TYPES.Action) action: SwitchRoutingModeAction) {
+        super(action);
+    }
 }
 
 /**
@@ -208,9 +210,9 @@ export class FeedbackEdgeRouteMovingMouseListener extends MouseListener {
 
     mouseMove(target: SModelElement, event: MouseEvent): Action[] {
         const result: Action[] = [];
-        if (event.buttons === 0)
+        if (event.buttons === 0) {
             this.mouseUp(target, event);
-        else if (this.lastDragPosition) {
+        } else if (this.lastDragPosition) {
             const viewport = findParentByFeature(target, isViewport);
             this.hasDragged = true;
             const zoom = viewport ? viewport.zoom : 1;
@@ -235,8 +237,9 @@ export class FeedbackEdgeRouteMovingMouseListener extends MouseListener {
                     }
                 });
             this.lastDragPosition = { x: event.pageX, y: event.pageY };
-            if (handleMoves.length > 0)
+            if (handleMoves.length > 0) {
                 result.push(new MoveAction(handleMoves, false));
+            }
         }
         return result;
     }
@@ -244,8 +247,9 @@ export class FeedbackEdgeRouteMovingMouseListener extends MouseListener {
     protected getHandlePosition(handle: SRoutingHandle): Point | undefined {
         if (this.edgeRouterRegistry) {
             const parent = handle.parent;
-            if (!isRoutable(parent))
+            if (!isRoutable(parent)) {
                 return undefined;
+            }
             const router = this.edgeRouterRegistry.get(parent.routerKind);
             const route = router.route(parent);
             return router.getHandlePosition(parent, route, handle);
@@ -254,8 +258,9 @@ export class FeedbackEdgeRouteMovingMouseListener extends MouseListener {
     }
 
     mouseEnter(target: SModelElement, event: MouseEvent): Action[] {
-        if (target instanceof SModelRoot && event.buttons === 0)
+        if (target instanceof SModelRoot && event.buttons === 0) {
             this.mouseUp(target, event);
+        }
         return [];
     }
 
@@ -274,7 +279,7 @@ export class FeedbackEdgeRouteMovingMouseListener extends MouseListener {
  * UTILITY FUNCTIONS
  */
 
-function drawFeedbackEdgeSource(context: CommandExecutionContext, targetId: string, elementTypeId: string) {
+function drawFeedbackEdgeSource(context: CommandExecutionContext, targetId: string, elementTypeId: string): void {
     const root = context.root;
     const targetChild = root.index.getById(targetId);
     if (!targetChild) {

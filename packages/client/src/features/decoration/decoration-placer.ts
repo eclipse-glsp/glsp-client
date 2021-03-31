@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { injectable } from "inversify";
+import { injectable } from 'inversify';
 import {
     Decoration,
     DecorationPlacer,
@@ -23,7 +23,7 @@ import {
     SChildElement,
     SModelElement,
     SRoutableElement
-} from "sprotty";
+} from 'sprotty';
 
 @injectable()
 export class GlspDecorationPlacer extends DecorationPlacer {
@@ -34,11 +34,12 @@ export class GlspDecorationPlacer extends DecorationPlacer {
         if (element instanceof SChildElement && element.parent instanceof SRoutableElement) {
             return super.getPosition(element);
         }
-        if (isSizeable(element))
+        if (isSizeable(element)) {
             return {
                 x: GlspDecorationPlacer.DECORATION_OFFSET.x * element.bounds.width,
                 y: GlspDecorationPlacer.DECORATION_OFFSET.y * element.bounds.height
             };
+        }
         return ORIGIN_POINT;
     }
 

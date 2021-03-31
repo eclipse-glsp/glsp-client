@@ -13,23 +13,23 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import "reflect-metadata";
+import 'reflect-metadata';
 
 import {
     EnableToolPaletteAction,
     GLSPDiagramServer,
     InitializeClientSessionAction,
     RequestTypeHintsAction
-} from "@eclipse-glsp/client";
-import { ApplicationIdProvider, BaseJsonrpcGLSPClient, JsonrpcGLSPClient } from "@eclipse-glsp/protocol";
-import { join, resolve } from "path";
-import { IActionDispatcher, RequestModelAction, TYPES } from "sprotty";
+} from '@eclipse-glsp/client';
+import { ApplicationIdProvider, BaseJsonrpcGLSPClient, JsonrpcGLSPClient } from '@eclipse-glsp/protocol';
+import { join, resolve } from 'path';
+import { IActionDispatcher, RequestModelAction, TYPES } from 'sprotty';
 
-import createContainer from "./di.config";
+import createContainer from './di.config';
 
 const port = 8081;
-const id = "workflow";
-const name = "workflow";
+const id = 'workflow';
+const name = 'workflow';
 const websocket = new WebSocket(`ws://localhost:${port}/${id}`);
 const container = createContainer();
 
@@ -38,7 +38,7 @@ const currentDir = loc.substring(0, loc.lastIndexOf('/'));
 const examplePath = resolve(join(currentDir, '..', 'app', 'example1.wf'));
 
 const diagramServer = container.get<GLSPDiagramServer>(TYPES.ModelSource);
-diagramServer.clientId = ApplicationIdProvider.get() + "_" + examplePath;
+diagramServer.clientId = ApplicationIdProvider.get() + '_' + examplePath;
 
 const actionDispatcher = container.get<IActionDispatcher>(TYPES.IActionDispatcher);
 
@@ -50,12 +50,12 @@ websocket.onopen = () => {
         actionDispatcher.dispatch(new InitializeClientSessionAction(diagramServer.clientId));
         actionDispatcher.dispatch(new RequestModelAction({
             sourceUri: `file://${examplePath}`,
-            diagramType: "workflow-diagram",
+            diagramType: 'workflow-diagram'
         }));
-        actionDispatcher.dispatch(new RequestTypeHintsAction("workflow-diagram"));
+        actionDispatcher.dispatch(new RequestTypeHintsAction('workflow-diagram'));
         actionDispatcher.dispatch(new EnableToolPaletteAction());
     });
 };
 
-websocket.onerror = (ev) => alert("Connection to server errored. Please make sure that the server is running");
+websocket.onerror = ev => alert('Connection to server errored. Please make sure that the server is running');
 

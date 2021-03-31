@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { inject, injectable } from "inversify";
+import { inject, injectable } from 'inversify';
 import {
     Action,
     EditableLabel,
@@ -23,25 +23,25 @@ import {
     Severity,
     SModelElement,
     TYPES
-} from "sprotty";
+} from 'sprotty';
 
-import { GLSPActionDispatcher } from "../../base/action-dispatcher";
+import { GLSPActionDispatcher } from '../../base/action-dispatcher';
 import {
     isSetEditValidationResultAction,
     RequestEditValidationAction,
     ValidationStatus
-} from "../../base/actions/edit-validation-actions";
+} from '../../base/actions/edit-validation-actions';
 
 export namespace LabelEditValidation {
     export const CONTEXT_ID = 'label-edit';
 
     export function toEditLabelValidationResult(status: ValidationStatus): EditLabelValidationResult {
         const message = status.message;
-        let severity = <Severity>'ok';
+        let severity = 'ok' as Severity;
         if (ValidationStatus.isError(status)) {
-            severity = <Severity>'error';
+            severity = 'error' as Severity;
         } else if (ValidationStatus.isWarning(status)) {
-            severity = <Severity>'warning';
+            severity = 'warning' as Severity;
         }
         return { message, severity };
     }
@@ -67,7 +67,7 @@ export class ServerEditLabelValidator implements IEditLabelValidator {
         if (isSetEditValidationResultAction(action)) {
             return LabelEditValidation.toEditLabelValidationResult(action.status);
         }
-        return { severity: <Severity>'ok' };
+        return { severity: 'ok' as Severity };
     }
 
 }

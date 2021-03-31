@@ -13,12 +13,12 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, generateRequestId, RequestAction, ResponseAction } from "sprotty";
+import { Action, generateRequestId, RequestAction, ResponseAction } from 'sprotty';
 
-import { Args } from "../args";
+import { Args } from '../args';
 
 export class RequestEditValidationAction implements RequestAction<SetEditValidationResultAction> {
-    static readonly KIND = "requestEditValidation";
+    static readonly KIND = 'requestEditValidation';
     constructor(
         public readonly contextId: string,
         public readonly modelElementId: string,
@@ -28,7 +28,7 @@ export class RequestEditValidationAction implements RequestAction<SetEditValidat
 }
 
 export class SetEditValidationResultAction implements ResponseAction {
-    static readonly KIND = "setEditValidationResult";
+    static readonly KIND = 'setEditValidationResult';
     constructor(
         public readonly status: ValidationStatus,
         public readonly responseId: string = '',
@@ -38,7 +38,7 @@ export class SetEditValidationResultAction implements ResponseAction {
 
 export function isSetEditValidationResultAction(action: Action): action is SetEditValidationResultAction {
     return action !== undefined && (action.kind === SetEditValidationResultAction.KIND)
-        && (<SetEditValidationResultAction>action).status !== undefined;
+        && (action as SetEditValidationResultAction).status !== undefined;
 }
 
 export interface ValidationStatus {
@@ -72,12 +72,13 @@ export interface ResponseError {
     /**
      * Additional custom data, e.g., a serialized stacktrace.
      */
-    readonly data: Object;
+    readonly data: Record<string, any>;
 }
 
 export namespace ValidationStatus {
 
     export enum Severity {
+        // eslint-disable-next-line no-shadow
         FATAL, ERROR, WARNING, INFO, OK, NONE
     }
 

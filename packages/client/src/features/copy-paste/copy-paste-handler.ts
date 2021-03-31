@@ -13,14 +13,14 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { inject, injectable } from "inversify";
-import { TYPES, ViewerOptions } from "sprotty";
-import { v4 as uuid } from "uuid";
+import { inject, injectable } from 'inversify';
+import { TYPES, ViewerOptions } from 'sprotty';
+import { v4 as uuid } from 'uuid';
 
-import { GLSPActionDispatcher } from "../../base/action-dispatcher";
-import { EditorContextService } from "../../base/editor-context";
-import { GLSP_TYPES } from "../../base/types";
-import { ClipboardData, CutOperation, PasteOperation, RequestClipboardDataAction } from "./copy-paste-actions";
+import { GLSPActionDispatcher } from '../../base/action-dispatcher';
+import { EditorContextService } from '../../base/editor-context';
+import { GLSP_TYPES } from '../../base/types';
+import { ClipboardData, CutOperation, PasteOperation, RequestClipboardDataAction } from './copy-paste-actions';
 
 export interface ICopyPasteHandler {
     handleCopy(event: ClipboardEvent): void;
@@ -55,12 +55,12 @@ export class LocalClipboardService implements IAsyncClipboardService {
     protected currentId?: string;
     protected data?: ClipboardData;
 
-    clear() {
+    clear(): void {
         this.currentId = undefined;
         this.data = undefined;
     }
 
-    put(data: ClipboardData, id: string) {
+    put(data: ClipboardData, id: string): void {
         this.currentId = id;
         this.data = data;
     }
@@ -91,7 +91,7 @@ function getClipboardIdFromDataTransfer(dataTransfer: DataTransfer): string | un
     return isClipboardId(jsonObject) ? jsonObject.clipboardId : undefined;
 }
 
-const CLIPBOARD_DATA_FORMAT = "application/json";
+const CLIPBOARD_DATA_FORMAT = 'application/json';
 
 @injectable()
 export class ServerCopyPasteHandler implements ICopyPasteHandler {
@@ -101,7 +101,7 @@ export class ServerCopyPasteHandler implements ICopyPasteHandler {
     @inject(GLSP_TYPES.IAsyncClipboardService) protected clipboadService: IAsyncClipboardService;
     @inject(EditorContextService) protected editorContext: EditorContextService;
 
-    handleCopy(event: ClipboardEvent) {
+    handleCopy(event: ClipboardEvent): void {
         if (event.clipboardData && this.shouldCopy(event)) {
             const clipboardId = uuid();
             event.clipboardData.setData(CLIPBOARD_DATA_FORMAT, toClipboardId(clipboardId));
@@ -110,7 +110,9 @@ export class ServerCopyPasteHandler implements ICopyPasteHandler {
                 .then(action => this.clipboadService.put(action.clipboardData, clipboardId));
             event.preventDefault();
         } else {
-            if (event.clipboardData) { event.clipboardData.clearData(); }
+            if (event.clipboardData) {
+                event.clipboardData.clearData();
+            }
             this.clipboadService.clear();
         }
     }
@@ -134,7 +136,7 @@ export class ServerCopyPasteHandler implements ICopyPasteHandler {
         }
     }
 
-    protected shouldCopy(_event: ClipboardEvent) {
+    protected shouldCopy(_event: ClipboardEvent): boolean | null {
         return this.editorContext.get().selectedElementIds.length > 0 && document.activeElement instanceof SVGElement
             && document.activeElement.parentElement && document.activeElement.parentElement.id === this.viewerOptions.baseDiv;
     }

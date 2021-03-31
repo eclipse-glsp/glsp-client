@@ -13,24 +13,20 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { ContainerModule } from "inversify";
-import { ContextMenuProviderRegistry, IContextMenuService, TYPES } from "sprotty";
+import { ContainerModule } from 'inversify';
+import { ContextMenuProviderRegistry, IContextMenuService, TYPES } from 'sprotty';
 
-import { SelectionServiceAwareContextMenuMouseListener } from "./selection-service-aware-context-menu-mouse-listener";
-import { ServerContextMenuItemProvider } from "./server-context-menu-provider";
+import { SelectionServiceAwareContextMenuMouseListener } from './selection-service-aware-context-menu-mouse-listener';
+import { ServerContextMenuItemProvider } from './server-context-menu-provider';
 
 const glspContextMenuModule = new ContainerModule(bind => {
-    bind(TYPES.IContextMenuServiceProvider).toProvider<IContextMenuService>(ctx => {
-        return () => {
-            return new Promise<IContextMenuService>((resolve, reject) => {
-                if (ctx.container.isBound(TYPES.IContextMenuService)) {
-                    resolve(ctx.container.get<IContextMenuService>(TYPES.IContextMenuService));
-                } else {
-                    reject();
-                }
-            });
-        };
-    });
+    bind(TYPES.IContextMenuServiceProvider).toProvider<IContextMenuService>(ctx => () => new Promise<IContextMenuService>((resolve, reject) => {
+        if (ctx.container.isBound(TYPES.IContextMenuService)) {
+            resolve(ctx.container.get<IContextMenuService>(TYPES.IContextMenuService));
+        } else {
+            reject();
+        }
+    }));
     bind(TYPES.MouseListener).to(SelectionServiceAwareContextMenuMouseListener);
     bind(TYPES.IContextMenuProviderRegistry).to(ContextMenuProviderRegistry);
     bind(TYPES.IContextMenuItemProvider).to(ServerContextMenuItemProvider);

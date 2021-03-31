@@ -13,14 +13,14 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { AutocompleteResult, AutocompleteSettings } from "autocompleter";
-import { Action, ILogger, isAction, isLabeledAction, LabeledAction, SModelRoot } from "sprotty/lib";
-import { toArray } from "sprotty/lib/utils/iterable";
-import { matchesKeystroke } from "sprotty/lib/utils/keyboard";
+import { AutocompleteResult, AutocompleteSettings } from 'autocompleter';
+import { Action, ILogger, isAction, isLabeledAction, LabeledAction, SModelRoot } from 'sprotty/lib';
+import { toArray } from 'sprotty/lib/utils/iterable';
+import { matchesKeystroke } from 'sprotty/lib/utils/keyboard';
 
-import { ValidationStatus } from "../actions/edit-validation-actions";
-import { isSetAutoCompleteValueAction } from "./auto-complete-actions";
-import { IValidationDecorator } from "./validation-decorator";
+import { ValidationStatus } from '../actions/edit-validation-actions';
+import { isSetAutoCompleteValueAction } from './auto-complete-actions';
+import { IValidationDecorator } from './validation-decorator';
 
 export interface AutoCompleteSettings {
     readonly noSuggestionsMessage?: string;
@@ -49,6 +49,7 @@ export interface TextSubmitHandler {
     executeFromTextOnlyInput(input: string): void;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const configureAutocomplete: (settings: AutocompleteSettings<LabeledAction>) => AutocompleteResult = require('autocompleter');
 
 export class AutoCompleteWidget {
@@ -70,6 +71,7 @@ export class AutoCompleteWidget {
         public autoSuggestionSettings: AutoCompleteSettings,
         public suggestionProvider: SuggestionProvider,
         public suggestionSubmitHandler: SuggestionSubmitHandler,
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
         protected notifyClose: () => void = () => { },
         protected logger?: ILogger
     ) { }
@@ -103,7 +105,7 @@ export class AutoCompleteWidget {
         return inputElement;
     }
 
-    protected handleKeyDown(event: KeyboardEvent) {
+    protected handleKeyDown(event: KeyboardEvent): void {
         if (matchesKeystroke(event, 'Escape')) {
             this.notifyClose();
             return;
@@ -127,16 +129,16 @@ export class AutoCompleteWidget {
         }
     }
 
-    protected isInputElementChanged() {
+    protected isInputElementChanged(): boolean {
         return this.inputElement.value !== this.previousContent;
     }
 
-    protected invalidateValidationResultAndContextActions() {
+    protected invalidateValidationResultAndContextActions(): void {
         this.contextActions = undefined;
         this.validationDecorator.invalidate();
     }
 
-    open(root: Readonly<SModelRoot>, ...contextElementIds: string[]) {
+    open(root: Readonly<SModelRoot>, ...contextElementIds: string[]): void {
         this.contextActions = undefined;
         this.autoCompleteResult = configureAutocomplete(this.autocompleteSettings(root));
         this.previousContent = this.inputElement.value;
@@ -163,14 +165,14 @@ export class AutoCompleteWidget {
         };
     }
 
-    protected customizeInputElement(input: HTMLInputElement, inputRect: ClientRect | DOMRect, container: HTMLDivElement, maxHeight: number) {
+    protected customizeInputElement(input: HTMLInputElement, inputRect: ClientRect | DOMRect, container: HTMLDivElement, maxHeight: number): void {
         // move container into our UIExtension container as this is already positioned correctly
         if (this.containerElement) {
             this.containerElement.appendChild(container);
         }
     }
 
-    protected updateSuggestions(update: (items: LabeledAction[]) => void, text: string, root: Readonly<SModelRoot>, ...contextElementIds: string[]) {
+    protected updateSuggestions(update: (items: LabeledAction[]) => void, text: string, root: Readonly<SModelRoot>, ...contextElementIds: string[]): void {
         this.onLoading();
         this.doUpdateSuggestions(text, root)
             .then(actions => {
@@ -179,12 +181,14 @@ export class AutoCompleteWidget {
                 this.onLoaded('success');
             })
             .catch(reason => {
-                if (this.logger) { this.logger.error(this, 'Failed to obtain suggestions', reason); }
+                if (this.logger) {
+                    this.logger.error(this, 'Failed to obtain suggestions', reason);
+                }
                 this.onLoaded('error');
             });
     }
 
-    protected onLoading() {
+    protected onLoading(): void {
         if (this.loadingIndicator && this.containerElement.contains(this.loadingIndicator)) {
             return;
         }
@@ -197,7 +201,7 @@ export class AutoCompleteWidget {
         return this.suggestionProvider.provideSuggestions(text);
     }
 
-    protected onLoaded(_success: 'success' | 'error') {
+    protected onLoaded(_success: 'success' | 'error'): void {
         if (this.containerElement.contains(this.loadingIndicator)) {
             this.containerElement.removeChild(this.loadingIndicator);
         }
@@ -206,7 +210,7 @@ export class AutoCompleteWidget {
         this.previousContent = this.inputElement.value;
     }
 
-    protected renderSuggestions(item: LabeledAction, value: string) {
+    protected renderSuggestions(item: LabeledAction, value: string): HTMLDivElement {
         const itemElement = document.createElement('div');
         const wordMatcher = this.espaceForRegExp(value).split(' ').join('|');
         const regex = new RegExp(wordMatcher, 'gi');
@@ -217,11 +221,11 @@ export class AutoCompleteWidget {
         return itemElement;
     }
 
-    protected espaceForRegExp(value: string) {
+    protected espaceForRegExp(value: string): string {
         return value.replace(/([.?*+^$[\]\\(){}|-])/g, '\\$1');
     }
 
-    protected renderIcon(itemElement: HTMLDivElement, icon: string) {
+    protected renderIcon(itemElement: HTMLDivElement, icon: string): void {
         itemElement.innerHTML += `<span class="icon ${icon}"></span>`;
     }
 
@@ -233,7 +237,7 @@ export class AutoCompleteWidget {
         }));
     }
 
-    protected onSelect(item: LabeledAction) {
+    protected onSelect(item: LabeledAction): void {
         if (isSetAutoCompleteValueAction(item)) {
             this.inputElement.value = item.text;
             // trigger update of suggestions with an keyup event
@@ -244,7 +248,7 @@ export class AutoCompleteWidget {
         }
     }
 
-    protected validateInputIfNoContextActions() {
+    protected validateInputIfNoContextActions(): void {
         if (this.isNoOrExactlyOneMatchingContextAction()) {
             this.validateInput();
         } else {
@@ -252,18 +256,18 @@ export class AutoCompleteWidget {
         }
     }
 
-    private isNoOrExactlyOneMatchingContextAction() {
+    private isNoOrExactlyOneMatchingContextAction(): boolean | undefined {
         return !this.isSuggestionAvailable()
             || (this.contextActions
                 && this.contextActions.length === 1
                 && this.inputElement.value.endsWith(this.contextActions[0].label));
     }
 
-    protected isSuggestionAvailable() {
+    protected isSuggestionAvailable(): boolean | undefined {
         return this.contextActions && this.contextActions.length > 0;
     }
 
-    validateInput() {
+    validateInput(): void {
         if (this.inputValidator) {
             this.inputValidator.validate(this.inputElement.value)
                 .then(result => this.validationDecorator.decorateValidationResult(result))
@@ -271,8 +275,10 @@ export class AutoCompleteWidget {
         }
     }
 
-    protected handleErrorDuringValidation(error: Error) {
-        if (this.logger) { this.logger.error(this, 'Failed to validate input', error); }
+    protected handleErrorDuringValidation(error: Error): void {
+        if (this.logger) {
+            this.logger.error(this, 'Failed to validate input', error);
+        }
         this.validationDecorator.dispose();
     }
 
@@ -290,7 +296,7 @@ export class AutoCompleteWidget {
         return this.inputElement;
     }
 
-    dispose() {
+    dispose(): void {
         this.validationDecorator.dispose();
         if (this.autoCompleteResult) {
             this.autoCompleteResult.destroy();

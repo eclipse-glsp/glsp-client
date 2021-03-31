@@ -13,11 +13,11 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { ContainerModule } from "inversify";
-import { MouseTool } from "sprotty";
+import { ContainerModule } from 'inversify';
+import { MouseTool } from 'sprotty';
 
-import { GLSP_TYPES } from "../../base/types";
-import { RankingMouseTool } from "./mouse-tool";
+import { GLSP_TYPES } from '../../base/types';
+import { RankingMouseTool } from './mouse-tool';
 
 const glspMouseToolModule = new ContainerModule((bind, _unbind, _isBound, rebind) => {
     bind(RankingMouseTool).toSelf().inSingletonScope();

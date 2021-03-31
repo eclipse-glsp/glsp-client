@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { ContainerModule } from "inversify";
+import { ContainerModule } from 'inversify';
 import {
     CenterCommand,
     ClosePopupActionHandler,
@@ -28,11 +28,11 @@ import {
     SetPopupModelCommand,
     SetViewportCommand,
     TYPES
-} from "sprotty";
-import { PopupPositionUpdater } from "sprotty/lib/features/hover/popup-position-updater";
+} from 'sprotty';
+import { PopupPositionUpdater } from 'sprotty/lib/features/hover/popup-position-updater';
 
-import { FocusStateChangedAction } from "../../base/actions/focus-change-action";
-import { GlspHoverMouseListener } from "./hover";
+import { FocusStateChangedAction } from '../../base/actions/focus-change-action';
+import { GlspHoverMouseListener } from './hover';
 
 const glspHoverModule = new ContainerModule((bind, _unbind, isBound) => {
     bind(TYPES.PopupVNodePostprocessor).to(PopupPositionUpdater).inSingletonScope();

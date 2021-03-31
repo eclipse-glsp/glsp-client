@@ -13,14 +13,15 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { AssertionError, expect } from "chai";
-import { Container, injectable } from "inversify";
-import { Action, defaultModule, SGraphFactory, SModelElementSchema, SModelRoot, TYPES } from "sprotty";
+/* eslint-disable import/no-deprecated,no-unused-expressions */
+import { AssertionError, expect } from 'chai';
+import { Container, injectable } from 'inversify';
+import { Action, defaultModule, SGraphFactory, SModelElementSchema, SModelRoot, TYPES } from 'sprotty';
 
-import { GLSP_TYPES } from "../../base/types";
-import { IFeedbackActionDispatcher, IFeedbackEmitter } from "../tool-feedback/feedback-action-dispatcher";
-import { SelectFeedbackAction } from "./select-feedback-action";
-import { SelectionListener, SelectionService } from "./selection-service";
+import { GLSP_TYPES } from '../../base/types';
+import { IFeedbackActionDispatcher, IFeedbackEmitter } from '../tool-feedback/feedback-action-dispatcher';
+import { SelectFeedbackAction } from './select-feedback-action';
+import { SelectionListener, SelectionService } from './selection-service';
 
 @injectable()
 class MockFeedbackActionDispatcher implements IFeedbackActionDispatcher {
@@ -47,7 +48,7 @@ class MockFeedbackActionDispatcher implements IFeedbackActionDispatcher {
 }
 
 class MockSelectionListener implements SelectionListener {
-    private called: number = 0;
+    private called = 0;
     private root: SModelRoot;
     private selectedElements: string[] = [];
 
@@ -57,15 +58,15 @@ class MockSelectionListener implements SelectionListener {
         this.selectedElements = selectedElements;
     }
 
-    getRoot() {
+    getRoot(): SModelRoot {
         return this.root;
     }
 
-    getSelectedElements() {
+    getSelectedElements(): string[] {
         return this.selectedElements;
     }
 
-    getCalled() {
+    getCalled(): number {
         return this.called;
     }
 }
@@ -332,12 +333,12 @@ describe('SelectionService', () => {
         });
     }
 
-    function assertSelectionAndFeedback(expectedSelection: string[], expectedDeselection: string[]) {
+    function assertSelectionAndFeedback(expectedSelection: string[], expectedDeselection: string[]): void {
         assertSelectionService(expectedSelection);
         assertDispatchedFeedback(expectedSelection, expectedDeselection);
     }
 
-    function assertSelectionService(expectedSelection: string[]) {
+    function assertSelectionService(expectedSelection: string[]): void {
         expect(selectionService.isSingleSelection()).to.equal(expectedSelection.length === 1);
         expect(selectionService.isMultiSelection()).to.equal(expectedSelection.length > 1);
         expect(selectionService.hasSelectedElements()).to.equal(expectedSelection.length > 0);
@@ -347,7 +348,7 @@ describe('SelectionService', () => {
         }
     }
 
-    function assertDispatchedFeedback(expectedSelection: string[], expectedDeselection: string[]) {
+    function assertDispatchedFeedback(expectedSelection: string[], expectedDeselection: string[]): void {
         // a single feedback action reflects aggregated selection/deselection
         const hasFeedback = expectedSelection.length > 0 || expectedDeselection.length > 0;
         if (hasFeedback) {
@@ -362,7 +363,7 @@ describe('SelectionService', () => {
         }
     }
 
-    function assertListener(listener: MockSelectionListener, expectedRoot: SModelRoot | undefined, expectedSelection: string[], expectedCalled: number) {
+    function assertListener(listener: MockSelectionListener, expectedRoot: SModelRoot | undefined, expectedSelection: string[], expectedCalled: number): void {
         expect(listener.getRoot()).to.equal(expectedRoot);
         expect(listener.getSelectedElements()).to.have.lengthOf(expectedSelection.length);
         expect(listener.getSelectedElements()).to.have.ordered.members(expectedSelection);

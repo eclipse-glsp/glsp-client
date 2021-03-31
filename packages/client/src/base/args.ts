@@ -13,9 +13,9 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { SModelElement } from "sprotty";
+import { SModelElement } from 'sprotty';
 
-export type Args = { [key: string]: string | number | boolean };
+export interface Args { [key: string]: string | number | boolean }
 
 export interface SArgumentable {
     args: Args;

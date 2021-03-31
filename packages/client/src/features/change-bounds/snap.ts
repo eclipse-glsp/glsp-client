@@ -13,16 +13,16 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { injectable } from "inversify";
-import { ISnapper, Point, SModelElement } from "sprotty";
+import { injectable } from 'inversify';
+import { ISnapper, Point, SModelElement } from 'sprotty';
 
 @injectable()
 export class GridSnapper implements ISnapper {
-    get gridX() {
+    get gridX(): number {
         return 10;
     }
 
-    get gridY() {
+    get gridY(): number {
         return 10;
     }
 

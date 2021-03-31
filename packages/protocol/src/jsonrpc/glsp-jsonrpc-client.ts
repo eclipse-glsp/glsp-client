@@ -13,8 +13,8 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { ActionMessage } from "sprotty";
-import { MessageConnection, NotificationType, RequestType } from "vscode-jsonrpc";
+import { ActionMessage } from 'sprotty';
+import { MessageConnection, NotificationType, RequestType } from 'vscode-jsonrpc';
 import {
     createMessageConnection,
     Logger,
@@ -22,10 +22,9 @@ import {
     toSocket,
     WebSocketMessageReader,
     WebSocketMessageWriter
-} from "vscode-ws-jsonrpc";
+} from 'vscode-ws-jsonrpc';
 
-import { GLSPClient, InitializeParameters } from "../glsp-client";
-
+import { GLSPClient, InitializeParameters } from '../glsp-client';
 
 export type MaybePromise<T> = T | Promise<T> | PromiseLike<T>;
 export type ConnectionProvider = MessageConnection | (() => MaybePromise<MessageConnection>);
@@ -36,11 +35,11 @@ export namespace JsonrpcGLSPClient {
     }
 
     export function isOptions(object: any): object is Options {
-        return GLSPClient.isOptions(object) && "connectionProvider" in object;
+        return GLSPClient.isOptions(object) && 'connectionProvider' in object;
     }
 
     export const ActionMessageNotification = new NotificationType<ActionMessage, void>('process');
-    export const InitializeRequest = new RequestType<InitializeParameters, Boolean, void, void>('initialize');
+    export const InitializeRequest = new RequestType<InitializeParameters, boolean, void, void>('initialize');
     export const ShutdownNotification = new NotificationType0<void>('shutdown');
     export const ClientNotReadyMsg = 'JsonrpcGLSPClient is not ready yet';
 
@@ -51,7 +50,6 @@ export namespace JsonrpcGLSPClient {
 
         return createMessageConnection(reader, writer, logger);
     }
-
 
     export function error(message: string, ...optionalParams: any[]): void {
         console.error(`[JsonrpcGLSPClient] ${message}`, optionalParams);

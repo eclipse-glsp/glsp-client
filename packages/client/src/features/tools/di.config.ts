@@ -13,21 +13,21 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { ContainerModule, interfaces } from "inversify";
-import { configureActionHandler, configureModelElement } from "sprotty";
+import { ContainerModule, interfaces } from 'inversify';
+import { configureActionHandler, configureModelElement } from 'sprotty';
 
-import { TriggerEdgeCreationAction, TriggerNodeCreationAction } from "../../base/operations/operation";
-import { GLSP_TYPES } from "../../base/types";
-import { MARQUEE } from "../tool-feedback/marquee-tool-feedback";
-import { ChangeBoundsTool } from "./change-bounds-tool";
-import { DelKeyDeleteTool, MouseDeleteTool } from "./delete-tool";
-import { EdgeCreationTool } from "./edge-creation-tool";
-import { EdgeEditTool } from "./edge-edit-tool";
-import { MarqueeMouseTool } from "./marquee-mouse-tool";
-import { MarqueeTool } from "./marquee-tool";
-import { MarqueeNode } from "./model";
-import { NodeCreationTool } from "./node-creation-tool";
-import { MarqueeView } from "./view";
+import { TriggerEdgeCreationAction, TriggerNodeCreationAction } from '../../base/operations/operation';
+import { GLSP_TYPES } from '../../base/types';
+import { MARQUEE } from '../tool-feedback/marquee-tool-feedback';
+import { ChangeBoundsTool } from './change-bounds-tool';
+import { DelKeyDeleteTool, MouseDeleteTool } from './delete-tool';
+import { EdgeCreationTool } from './edge-creation-tool';
+import { EdgeEditTool } from './edge-edit-tool';
+import { MarqueeMouseTool } from './marquee-mouse-tool';
+import { MarqueeTool } from './marquee-tool';
+import { MarqueeNode } from './model';
+import { NodeCreationTool } from './node-creation-tool';
+import { MarqueeView } from './view';
 
 const toolsModule = new ContainerModule((bind, _unbind, isBound) => {
     // Register default tools
@@ -47,7 +47,7 @@ const toolsModule = new ContainerModule((bind, _unbind, isBound) => {
     configureActionHandler({ bind, isBound }, TriggerEdgeCreationAction.KIND, EdgeCreationTool);
 });
 
-export function configureMarqueeTool(context: { bind: interfaces.Bind, isBound: interfaces.IsBound }) {
+export function configureMarqueeTool(context: { bind: interfaces.Bind; isBound: interfaces.IsBound }): void {
     configureModelElement(context, MARQUEE, MarqueeNode, MarqueeView);
     context.bind(GLSP_TYPES.IDefaultTool).to(MarqueeTool);
     context.bind(GLSP_TYPES.ITool).to(MarqueeMouseTool);

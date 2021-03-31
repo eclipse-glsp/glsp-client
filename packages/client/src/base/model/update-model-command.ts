@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { inject, injectable, multiInject, optional, postConstruct } from "inversify";
+import { inject, injectable, multiInject, optional, postConstruct } from 'inversify';
 import {
     Action,
     ActionHandlerRegistry,
@@ -27,12 +27,12 @@ import {
     SetModelCommand,
     SModelRoot,
     TYPES
-} from "sprotty";
-import { UpdateModelAction, UpdateModelCommand } from "sprotty/lib/features/update/update-model";
+} from 'sprotty';
+import { UpdateModelAction, UpdateModelCommand } from 'sprotty/lib/features/update/update-model';
 
-import { IFeedbackActionDispatcher } from "../../features/tool-feedback/feedback-action-dispatcher";
-import { FeedbackCommand } from "../../features/tool-feedback/model";
-import { GLSP_TYPES } from "../types";
+import { IFeedbackActionDispatcher } from '../../features/tool-feedback/feedback-action-dispatcher';
+import { FeedbackCommand } from '../../features/tool-feedback/model';
+import { GLSP_TYPES } from '../types';
 
 /* ActionHandler that transforms a SetModelAction into an (feedback-aware) UpdateModelAction. This can be done because in sprotty
 *  UpdateModel behaves the same as SetModel if no model is present yet.*/
@@ -47,11 +47,11 @@ export class SetModelActionHandler implements IActionHandler {
 
 export function isSetModelAction(action: Action): action is SetModelAction {
     return action !== undefined && (action.kind === SetModelCommand.KIND)
-        && (<SetModelAction>action).newRoot !== undefined;
+        && (action as SetModelAction).newRoot !== undefined;
 }
 
 export interface SModelRootListener {
-    modelRootChanged(root: Readonly<SModelRoot>): void
+    modelRootChanged(root: Readonly<SModelRoot>): void;
 }
 
 /**

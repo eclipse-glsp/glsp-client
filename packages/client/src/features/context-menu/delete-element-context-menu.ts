@@ -13,12 +13,12 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { inject, injectable } from "inversify";
-import { IContextMenuItemProvider, MenuItem, Point, SModelRoot } from "sprotty";
+import { inject, injectable } from 'inversify';
+import { IContextMenuItemProvider, MenuItem, Point, SModelRoot } from 'sprotty';
 
-import { EditorContextService, EditorContextServiceProvider } from "../../base/editor-context";
-import { DeleteElementOperation } from "../../base/operations/operation";
-import { GLSP_TYPES } from "../../base/types";
+import { EditorContextService, EditorContextServiceProvider } from '../../base/editor-context';
+import { DeleteElementOperation } from '../../base/operations/operation';
+import { GLSP_TYPES } from '../../base/types';
 
 @injectable()
 export class DeleteElementContextMenuItemProvider implements IContextMenuItemProvider {
@@ -31,10 +31,10 @@ export class DeleteElementContextMenuItemProvider implements IContextMenuItemPro
 
     protected createDeleteMenuItem(editorContextService: EditorContextService): MenuItem {
         return {
-            id: "delete",
-            label: "Delete",
-            sortString: "d",
-            group: "edit",
+            id: 'delete',
+            label: 'Delete',
+            sortString: 'd',
+            group: 'edit',
             actions: [new DeleteElementOperation(editorContextService.selectedElements.map(e => e.id))],
             isEnabled: () => !editorContextService.isReadonly && editorContextService.selectedElements.length > 0
         };

@@ -13,9 +13,9 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { SDecoration, SIssue, SIssueMarker, SParentElement } from "sprotty";
+import { SDecoration, SIssue, SIssueMarker, SParentElement } from 'sprotty';
 
-import { Marker, MarkerKind } from "../../utils/marker";
+import { Marker, MarkerKind } from '../../utils/marker';
 
 export class GIssueMarker extends SIssueMarker {
     constructor() {
@@ -38,7 +38,7 @@ export function getOrCreateSIssueMarker(modelElement: SParentElement): SIssueMar
 
     if (issueMarker === undefined) {
         issueMarker = new GIssueMarker();
-        issueMarker.type = "marker";
+        issueMarker.type = 'marker';
         issueMarker.issues = new Array<SIssue>();
         modelElement.add(issueMarker);
     }

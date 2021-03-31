@@ -13,12 +13,13 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import "mocha";
-import "reflect-metadata";
+/* eslint-disable no-unused-expressions */
+import 'mocha';
+import 'reflect-metadata';
 
-import { expect } from "chai";
+import { expect } from 'chai';
 
-import { NavigationTarget } from "./navigation-target-resolver";
+import { NavigationTarget } from './navigation-target-resolver';
 
 describe('NavigationTarget', () => {
 

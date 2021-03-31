@@ -13,10 +13,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { ContainerModule } from "inversify";
-import { TYPES } from "sprotty";
+import { ContainerModule } from 'inversify';
+import { TYPES } from 'sprotty';
 
-import { TaskEditor } from "./direct-task-editor";
+import { TaskEditor } from './direct-task-editor';
 
 export const directTaskEditor = new ContainerModule((bind, _unbind, isBound) => {
     bind(TaskEditor).toSelf().inSingletonScope();

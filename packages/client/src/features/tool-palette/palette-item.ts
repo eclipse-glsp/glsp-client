@@ -13,9 +13,9 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { isLabeledAction, LabeledAction } from "sprotty";
+import { isLabeledAction, LabeledAction } from 'sprotty';
 
-import { isTriggerElementTypeCreationAction, TriggerElementCreationAction } from "../../base/operations/operation";
+import { isTriggerElementTypeCreationAction, TriggerElementCreationAction } from '../../base/operations/operation';
 
 export interface PaletteItem extends LabeledAction {
     readonly id: string;
@@ -24,7 +24,7 @@ export interface PaletteItem extends LabeledAction {
 }
 
 export function isPaletteItem(object?: any): object is PaletteItem {
-    return isLabeledAction(object) && "id" in object && "sortString" in object;
+    return isLabeledAction(object) && 'id' in object && 'sortString' in object;
 }
 
 export namespace PaletteItem {
