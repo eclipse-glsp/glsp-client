@@ -13,15 +13,15 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { inject, injectable, multiInject, optional } from "inversify";
-import { Action, IActionHandler, ModelSource, MousePositionTracker, Point, SModelElement, SModelRoot, TYPES } from "sprotty";
+import { inject, injectable, multiInject, optional } from 'inversify';
+import { Action, IActionHandler, ModelSource, MousePositionTracker, Point, SModelElement, SModelRoot, TYPES } from 'sprotty';
 
-import { SelectionService } from "../features/select/selection-service";
-import { distinctAdd, remove } from "../utils/array-utils";
-import { EditMode, isSetEditModeAction } from "./actions/edit-mode-action";
-import { Args } from "./args";
-import { isSourceUriAware } from "./source-uri-aware";
-import { GLSP_TYPES } from "./types";
+import { SelectionService } from '../features/select/selection-service';
+import { distinctAdd, remove } from '../utils/array-utils';
+import { EditMode, isSetEditModeAction } from './actions/edit-mode-action';
+import { Args } from './args';
+import { isSourceUriAware } from './source-uri-aware';
+import { GLSP_TYPES } from './types';
 
 /**
  * The `EditorContext` may be used to represent the current state of the editor for particular actions.
@@ -59,11 +59,11 @@ export class EditorContextService implements IActionHandler {
 
     constructor(@multiInject(GLSP_TYPES.IEditModeListener) @optional() protected editModeListeners: EditModeListener[] = []) { }
 
-    register(editModeListener: EditModeListener) {
+    register(editModeListener: EditModeListener): void {
         distinctAdd(this.editModeListeners, editModeListener);
     }
 
-    deregister(editModeListener: EditModeListener) {
+    deregister(editModeListener: EditModeListener): void {
         remove(this.editModeListeners, editModeListener);
     }
 
@@ -83,7 +83,7 @@ export class EditorContextService implements IActionHandler {
         };
     }
 
-    handle(action: Action) {
+    handle(action: Action): void {
         if (isSetEditModeAction(action)) {
             const oldValue = this._editMode;
             this._editMode = action.editMode;
@@ -91,11 +91,11 @@ export class EditorContextService implements IActionHandler {
         }
     }
 
-    protected notifiyEditModeListeners(oldValue: string) {
+    protected notifiyEditModeListeners(oldValue: string): void {
         this.editModeListeners.forEach(listener => listener.editModeChanged(oldValue, this.editMode));
     }
 
-    async getSourceUri() {
+    async getSourceUri(): Promise<string | undefined> {
         const modelSource = await this.modelSource();
         if (isSourceUriAware(modelSource)) {
             return modelSource.getSourceURI();

@@ -13,9 +13,9 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { injectable } from "inversify";
-import { Action, InitializeCanvasBoundsAction, UpdateModelAction } from "sprotty";
-import { Deferred } from "sprotty/lib/utils/async";
+import { injectable } from 'inversify';
+import { Action, InitializeCanvasBoundsAction, UpdateModelAction } from 'sprotty';
+import { Deferred } from 'sprotty/lib/utils/async';
 
 /**
  * The constraint defining when the initialization of the GLSP model is completed.
@@ -38,23 +38,27 @@ import { Deferred } from "sprotty/lib/utils/async";
 @injectable()
 export abstract class ModelInitializationConstraint {
     protected completion: Deferred<void> = new Deferred();
-    protected completed: boolean = false;
+    protected completed = false;
 
     get isCompleted(): boolean {
         return this.completed;
     }
 
-    protected setCompleted(isCompleted: boolean) {
+    protected setCompleted(isCompleted: boolean): void {
         this.completed = isCompleted;
-        if (isCompleted) { this.completion.resolve(); }
+        if (isCompleted) {
+            this.completion.resolve();
+        }
     }
 
     onInitialized(): Promise<void> {
         return this.completion.promise;
     }
 
-    notifyDispatched(action: Action) {
-        if (this.isCompleted) { return; }
+    notifyDispatched(action: Action): void {
+        if (this.isCompleted) {
+            return;
+        }
         if (this.isInitializedAfter(action)) {
             this.setCompleted(true);
         }
@@ -69,9 +73,9 @@ export abstract class ModelInitializationConstraint {
  */
 @injectable()
 export class DefaultModelInitializationConstraint extends ModelInitializationConstraint {
-    protected seenNonEmptyUpdateModel: boolean = false;
+    protected seenNonEmptyUpdateModel = false;
 
-    isInitializedAfter(action: Action) {
+    isInitializedAfter(action: Action): boolean {
         if (this.isNonEmptyUpdateModel(action)) {
             this.seenNonEmptyUpdateModel = true;
         } else if (this.seenNonEmptyUpdateModel && action.kind === InitializeCanvasBoundsAction.KIND) {

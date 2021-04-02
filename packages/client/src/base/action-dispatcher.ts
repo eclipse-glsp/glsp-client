@@ -13,10 +13,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { inject } from "inversify";
-import { Action, ActionDispatcher, isResponseAction, RequestAction, ResponseAction } from "sprotty";
+import { inject } from 'inversify';
+import { Action, ActionDispatcher, isResponseAction, RequestAction, ResponseAction } from 'sprotty';
 
-import { ModelInitializationConstraint } from "./model-initialization-constraint";
+import { ModelInitializationConstraint } from './model-initialization-constraint';
 
 export class GLSPActionDispatcher extends ActionDispatcher {
 
@@ -29,7 +29,7 @@ export class GLSPActionDispatcher extends ActionDispatcher {
         return super.initialize().then(() => this.startModelInitialization());
     }
 
-    startModelInitialization() {
+    startModelInitialization(): void {
         this.logger.log(this, 'Starting model initialization mode');
         this.onModelInitialized = this.initiailizationConstraint.onInitialized();
         this.onModelInitialized.then(() => this.logger.log(this, 'Model initialization completed'));
@@ -74,7 +74,7 @@ export class GLSPActionDispatcher extends ActionDispatcher {
      * If `rejectOnTimeout` is set to false (default) the returned promise will be resolved with
      * no value, otherwise it will be rejected.
      */
-    requestUntil<Res extends ResponseAction>(action: RequestAction<Res>, timeoutMs: number = 2000, rejectOnTimeout: boolean = false): Promise<Res> {
+    requestUntil<Res extends ResponseAction>(action: RequestAction<Res>, timeoutMs = 2000, rejectOnTimeout = false): Promise<Res> {
         if (!action.requestId) {
             return Promise.reject(new Error('Request without requestId'));
         }

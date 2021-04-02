@@ -13,8 +13,8 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { inject, injectable } from "inversify";
-import { Action, ActionHandlerRegistry, IActionHandler, ModelSource, TYPES } from "sprotty";
+import { inject, injectable } from 'inversify';
+import { Action, ActionHandlerRegistry, IActionHandler, ModelSource, TYPES } from 'sprotty';
 
 /**
  * Initializes the graphical representation (diagram) for a specific client session.
@@ -23,7 +23,7 @@ import { Action, ActionHandlerRegistry, IActionHandler, ModelSource, TYPES } fro
  */
 @injectable()
 export class InitializeClientSessionAction implements Action {
-    static readonly KIND = "initializeClientSession";
+    static readonly KIND = 'initializeClientSession';
     constructor(public readonly clientId: string, public readonly kind: string = InitializeClientSessionAction.KIND) { }
 }
 
@@ -37,7 +37,7 @@ export function initializeClientSessionAction(action: Action): action is Initial
  */
 @injectable()
 export class DisposeClientSessionAction implements Action {
-    static readonly KIND = "disposeClientSession";
+    static readonly KIND = 'disposeClientSession';
     constructor(public readonly clientId: string, public readonly kind: string = DisposeClientSessionAction.KIND) { }
 }
 
@@ -51,7 +51,7 @@ export function isDisposeClientSessionAction(action: Action): action is DisposeC
  */
 @injectable()
 export class ConfigureServerHandlersAction implements Action {
-    static readonly KIND = "configureServerHandlers";
+    static readonly KIND = 'configureServerHandlers';
     readonly kind = ConfigureServerHandlersAction.KIND;
 
     constructor(readonly actionKinds: string[]) { }

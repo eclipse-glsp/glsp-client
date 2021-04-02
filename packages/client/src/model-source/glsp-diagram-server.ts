@@ -13,8 +13,8 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { GLSPClient } from "@eclipse-glsp/protocol";
-import { injectable } from "inversify";
+import { GLSPClient } from '@eclipse-glsp/protocol';
+import { injectable } from 'inversify';
 import {
     Action,
     ActionHandlerRegistry,
@@ -25,14 +25,14 @@ import {
     RequestModelAction,
     ServerStatusAction,
     SwitchEditModeCommand
-} from "sprotty";
+} from 'sprotty';
 
-import { RequestContextActions } from "../base/actions/context-actions";
-import { isSetEditModeAction, SetEditModeAction } from "../base/actions/edit-mode-action";
-import { InitializeClientSessionAction } from "../base/actions/protocol-actions";
-import { SourceUriAware } from "../base/source-uri-aware";
-import { RequestTypeHintsAction } from "../features/hints/request-type-hints-action";
-import { isServerMessageAction, ServerMessageAction } from "./glsp-server-status";
+import { RequestContextActions } from '../base/actions/context-actions';
+import { isSetEditModeAction, SetEditModeAction } from '../base/actions/edit-mode-action';
+import { InitializeClientSessionAction } from '../base/actions/protocol-actions';
+import { SourceUriAware } from '../base/source-uri-aware';
+import { RequestTypeHintsAction } from '../features/hints/request-type-hints-action';
+import { isServerMessageAction, ServerMessageAction } from './glsp-server-status';
 
 const receivedFromServerProperty = '__receivedFromServer';
 
@@ -63,13 +63,15 @@ export class GLSPDiagramServer extends DiagramServer implements SourceUriAware {
 
     initialize(registry: ActionHandlerRegistry): void {
         registerDefaultGLSPServerActions(registry, this);
-        if (!this.clientId)
+        if (!this.clientId) {
             this.clientId = this.viewerOptions.baseDiv;
+        }
     }
 
     handle(action: Action): void | ICommand | Action {
-        if (action instanceof RequestModelAction && action.options !== undefined)
-            this._sourceUri = <string>action.options.sourceUri;
+        if (action instanceof RequestModelAction && action.options !== undefined) {
+            this._sourceUri = action.options.sourceUri as string;
+        }
         return super.handle(action);
     }
 
@@ -101,11 +103,11 @@ export class GLSPDiagramServer extends DiagramServer implements SourceUriAware {
     }
 }
 
-export function isReceivedFromServer(action: Action) {
+export function isReceivedFromServer(action: Action): boolean {
     return (action as any)[receivedFromServerProperty] === true;
 }
 
-export function registerDefaultGLSPServerActions(registry: ActionHandlerRegistry, diagramServer: DiagramServer) {
+export function registerDefaultGLSPServerActions(registry: ActionHandlerRegistry, diagramServer: DiagramServer): void {
     // Register the InitializeClientSessionAction as a server action. Then, the server will
     // notify us about all actions it handles (Via ConfigureServerHandlersAction/Handler)
     registry.register(InitializeClientSessionAction.KIND, diagramServer);

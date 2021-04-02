@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { inject, injectable } from "inversify";
+import { inject, injectable } from 'inversify';
 import {
     Action,
     AnchorComputerRegistry,
@@ -25,9 +25,9 @@ import {
     SModelElement,
     SModelRoot,
     TYPES
-} from "sprotty";
+} from 'sprotty';
 
-import { FeedbackCommand } from "./model";
+import { FeedbackCommand } from './model';
 
 export class DrawMarqueeAction implements Action {
     constructor(
@@ -80,7 +80,7 @@ export function marqueeId(root: SModelRoot): string {
 
 export const MARQUEE = 'marquee';
 
-export function drawMarquee(context: CommandExecutionContext, startPoint: Point, endPoint: Point) {
+export function drawMarquee(context: CommandExecutionContext, startPoint: Point, endPoint: Point): void {
     const root = context.root;
 
     removeMarquee(root);
@@ -89,15 +89,16 @@ export function drawMarquee(context: CommandExecutionContext, startPoint: Point,
         type: MARQUEE,
         id: marqueeId(root),
         startPoint: startPoint,
-        endPoint: endPoint,
+        endPoint: endPoint
     };
 
     const marquee = context.modelFactory.createElement(marqueeSchema);
     root.add(marquee);
 }
 
-export function removeMarquee(root: SModelRoot) {
+export function removeMarquee(root: SModelRoot): void {
     const marquee = root.index.getById(marqueeId(root));
-    if (marquee instanceof SChildElement)
+    if (marquee instanceof SChildElement) {
         root.remove(marquee);
+    }
 }

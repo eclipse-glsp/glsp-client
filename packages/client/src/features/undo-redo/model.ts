@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Operation } from "../../base/operations/operation";
+import { Operation } from '../../base/operations/operation';
 
 export class UndoOperation implements Operation {
     static readonly KIND = 'glspUndo';

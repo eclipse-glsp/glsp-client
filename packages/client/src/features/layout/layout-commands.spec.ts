@@ -13,11 +13,12 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import "mocha";
-import "reflect-metadata";
+/* eslint-disable import/no-deprecated,no-unused-expressions */
+import 'mocha';
+import 'reflect-metadata';
 
-import { expect } from "chai";
-import { Container } from "inversify";
+import { expect } from 'chai';
+import { Container } from 'inversify';
 import {
     Action,
     AnimationFrameSyncer,
@@ -39,13 +40,13 @@ import {
     SGraphFactory,
     SModelRoot,
     TYPES
-} from "sprotty";
+} from 'sprotty';
 
-import { ChangeBoundsOperation } from "../../base/operations/operation";
-import { GLSP_TYPES } from "../../base/types";
-import { resizeFeature } from "../change-bounds/model";
-import { SelectionService } from "../select/selection-service";
-import { FeedbackActionDispatcher } from "../tool-feedback/feedback-action-dispatcher";
+import { ChangeBoundsOperation } from '../../base/operations/operation';
+import { GLSP_TYPES } from '../../base/types';
+import { resizeFeature } from '../change-bounds/model';
+import { SelectionService } from '../select/selection-service';
+import { FeedbackActionDispatcher } from '../tool-feedback/feedback-action-dispatcher';
 import {
     AlignElementsAction,
     AlignElementsCommand,
@@ -54,7 +55,7 @@ import {
     ResizeDimension,
     ResizeElementsAction,
     ResizeElementsCommand
-} from "./layout-commands";
+} from './layout-commands';
 
 class MockActionDispatcher implements IActionDispatcher {
     constructor(public dispatchedActions: Action[] = []) { }
@@ -67,7 +68,7 @@ class MockActionDispatcher implements IActionDispatcher {
         return Promise.resolve();
     }
     request<Res extends ResponseAction>(action: RequestAction<Res>): Promise<Res> {
-        throw new Error("Method not implemented.");
+        throw new Error('Method not implemented.');
     }
 }
 
@@ -96,7 +97,7 @@ const node3 = {
 };
 const model = createModel();
 
-function createModel() {
+function createModel(): SModelRoot {
     const root = graphFactory.createRoot({
         id: 'model1',
         type: 'graph',
@@ -106,7 +107,7 @@ function createModel() {
     return root;
 }
 
-function applyFeature(element: SChildElement, feature: symbol) {
+function applyFeature(element: SChildElement, feature: symbol): void {
     (element.features as FeatureSet & Set<symbol>).add(feature);
 }
 
@@ -135,9 +136,9 @@ describe('AlignElementsCommand', () => {
         command.execute(newContext(newModel));
 
         assertAllBounds(new Map([
-            ["node1", { x: 111, y: 111, width: defaultSize.width, height: defaultSize.height }],
-            ["node2", { x: 111, y: 222, width: defaultSize.width, height: defaultSize.height }],
-            ["node3", { x: 111, y: 333, width: defaultSize.width, height: defaultSize.height }]
+            ['node1', { x: 111, y: 111, width: defaultSize.width, height: defaultSize.height }],
+            ['node2', { x: 111, y: 222, width: defaultSize.width, height: defaultSize.height }],
+            ['node3', { x: 111, y: 333, width: defaultSize.width, height: defaultSize.height }]
         ]));
     });
 
@@ -153,9 +154,9 @@ describe('AlignElementsCommand', () => {
         command.execute(newContext(newModel));
 
         assertAllBounds(new Map([
-            ["node1", { x: 333, y: 111, width: defaultSize.width, height: defaultSize.height }],
-            ["node2", { x: 333, y: 222, width: defaultSize.width, height: defaultSize.height }],
-            ["node3", { x: 333, y: 333, width: defaultSize.width, height: defaultSize.height }]
+            ['node1', { x: 333, y: 111, width: defaultSize.width, height: defaultSize.height }],
+            ['node2', { x: 333, y: 222, width: defaultSize.width, height: defaultSize.height }],
+            ['node3', { x: 333, y: 333, width: defaultSize.width, height: defaultSize.height }]
         ]));
     });
 
@@ -171,9 +172,9 @@ describe('AlignElementsCommand', () => {
         command.execute(newContext(newModel));
 
         assertAllBounds(new Map([
-            ["node1", { x: 222, y: 111, width: defaultSize.width, height: defaultSize.height }],
-            ["node2", { x: 222, y: 222, width: defaultSize.width, height: defaultSize.height }],
-            ["node3", { x: 222, y: 333, width: defaultSize.width, height: defaultSize.height }]
+            ['node1', { x: 222, y: 111, width: defaultSize.width, height: defaultSize.height }],
+            ['node2', { x: 222, y: 222, width: defaultSize.width, height: defaultSize.height }],
+            ['node3', { x: 222, y: 333, width: defaultSize.width, height: defaultSize.height }]
         ]));
     });
 
@@ -189,9 +190,9 @@ describe('AlignElementsCommand', () => {
         command.execute(newContext(newModel));
 
         assertAllBounds(new Map([
-            ["node1", { x: 111, y: 111, width: defaultSize.width, height: defaultSize.height }],
-            ["node2", { x: 222, y: 111, width: defaultSize.width, height: defaultSize.height }],
-            ["node3", { x: 333, y: 111, width: defaultSize.width, height: defaultSize.height }]
+            ['node1', { x: 111, y: 111, width: defaultSize.width, height: defaultSize.height }],
+            ['node2', { x: 222, y: 111, width: defaultSize.width, height: defaultSize.height }],
+            ['node3', { x: 333, y: 111, width: defaultSize.width, height: defaultSize.height }]
         ]));
     });
 
@@ -207,9 +208,9 @@ describe('AlignElementsCommand', () => {
         command.execute(newContext(newModel));
 
         assertAllBounds(new Map([
-            ["node1", { x: 111, y: 333, width: defaultSize.width, height: defaultSize.height }],
-            ["node2", { x: 222, y: 333, width: defaultSize.width, height: defaultSize.height }],
-            ["node3", { x: 333, y: 333, width: defaultSize.width, height: defaultSize.height }]
+            ['node1', { x: 111, y: 333, width: defaultSize.width, height: defaultSize.height }],
+            ['node2', { x: 222, y: 333, width: defaultSize.width, height: defaultSize.height }],
+            ['node3', { x: 333, y: 333, width: defaultSize.width, height: defaultSize.height }]
         ]));
     });
 
@@ -225,9 +226,9 @@ describe('AlignElementsCommand', () => {
         command.execute(newContext(newModel));
 
         assertAllBounds(new Map([
-            ["node1", { x: 111, y: 222, width: defaultSize.width, height: defaultSize.height }],
-            ["node2", { x: 222, y: 222, width: defaultSize.width, height: defaultSize.height }],
-            ["node3", { x: 333, y: 222, width: defaultSize.width, height: defaultSize.height }]
+            ['node1', { x: 111, y: 222, width: defaultSize.width, height: defaultSize.height }],
+            ['node2', { x: 222, y: 222, width: defaultSize.width, height: defaultSize.height }],
+            ['node3', { x: 333, y: 222, width: defaultSize.width, height: defaultSize.height }]
         ]));
     });
 
@@ -248,9 +249,9 @@ describe('ResizeElementsCommand', () => {
 
         // resize is keeping the center, so the X moves by diff / 2
         assertAllBoundsInChangeBounds(new Map([
-            ["node1", { x: 90, y: 100, height: 10, width: 30 }],
-            ["node2", { x: 95, y: 200, height: 20, width: 30 }],
-            ["node3", { x: 100, y: 300, height: 30, width: 30 }]
+            ['node1', { x: 90, y: 100, height: 10, width: 30 }],
+            ['node2', { x: 95, y: 200, height: 20, width: 30 }],
+            ['node3', { x: 100, y: 300, height: 30, width: 30 }]
         ]));
     });
 
@@ -267,9 +268,9 @@ describe('ResizeElementsCommand', () => {
 
         // resize is keeping the center, so the Y moves by diff / 2
         assertAllBoundsInChangeBounds(new Map([
-            ["node1", { x: 100, y: 90, height: 30, width: 10 }],
-            ["node2", { x: 100, y: 195, height: 30, width: 20 }],
-            ["node3", { x: 100, y: 300, height: 30, width: 30 }]
+            ['node1', { x: 100, y: 90, height: 30, width: 10 }],
+            ['node2', { x: 100, y: 195, height: 30, width: 20 }],
+            ['node3', { x: 100, y: 300, height: 30, width: 30 }]
         ]));
     });
 
@@ -286,9 +287,9 @@ describe('ResizeElementsCommand', () => {
 
         // resize is keeping the center, so the Y moves by diff / 2
         assertAllBoundsInChangeBounds(new Map([
-            ["node1", { x: 90, y: 90, height: 30, width: 30 }],
-            ["node2", { x: 95, y: 195, height: 30, width: 30 }],
-            ["node3", { x: 100, y: 300, height: 30, width: 30 }]
+            ['node1', { x: 90, y: 90, height: 30, width: 30 }],
+            ['node2', { x: 95, y: 195, height: 30, width: 30 }],
+            ['node3', { x: 100, y: 300, height: 30, width: 30 }]
         ]));
     });
 
@@ -300,7 +301,7 @@ function initModel(elementAndBounds: ElementAndBounds[]): SModelRoot {
     return setBoundsCommand.execute(context) as SModelRoot;
 }
 
-function newContext(root: SModelRoot) {
+function newContext(root: SModelRoot): CommandExecutionContext {
     return {
         root: root,
         modelFactory: graphFactory,
@@ -311,27 +312,27 @@ function newContext(root: SModelRoot) {
     };
 }
 
-function assertAllBounds(allBounds: Map<string, Bounds>) {
+function assertAllBounds(allBounds: Map<string, Bounds>): void {
     allBounds.forEach((bounds, nodeId) => assertBounds(nodeId, bounds));
 }
 
-function assertAllBoundsInChangeBounds(allBounds: Map<string, Bounds>) {
+function assertAllBoundsInChangeBounds(allBounds: Map<string, Bounds>): void {
     allBounds.forEach((bounds, nodeId) => assertBoundsInChangeBoundsActions(nodeId, bounds));
 }
 
-function assertBounds(nodeId: string, bounds: Bounds) {
+function assertBounds(nodeId: string, bounds: Bounds): void {
     assertBoundsInMoves(nodeId, bounds);
     assertBoundsInChangeBoundsActions(nodeId, bounds);
 }
 
-function assertBoundsInMoves(nodeId: string, bounds: Bounds) {
+function assertBoundsInMoves(nodeId: string, bounds: Bounds): void {
     const moves = dispatchedElementMoves();
     const move = getMoveById(nodeId, moves);
     expect(move.toPosition.x).to.be.equal(bounds.x);
     expect(move.toPosition.y).to.be.equal(bounds.y);
 }
 
-function assertBoundsInChangeBoundsActions(nodeId: string, bounds: Bounds) {
+function assertBoundsInChangeBoundsActions(nodeId: string, bounds: Bounds): void {
     const allChangeBounds = dispatchedChangeBounds();
     const changeBounds = getElementAndBoundsById(nodeId, allChangeBounds);
     expect(changeBounds.newPosition!.x).to.be.equal(bounds.x);
@@ -340,19 +341,19 @@ function assertBoundsInChangeBoundsActions(nodeId: string, bounds: Bounds) {
     expect(changeBounds.newSize!.width).to.be.equal(bounds.width);
 }
 
-function getMoveById(id: string, moves: ElementMove[]) {
+function getMoveById(id: string, moves: ElementMove[]): ElementMove {
     return moves.filter(m => m.elementId === id)[0];
 }
 
-function getElementAndBoundsById(id: string, elementAndBounds: ElementAndBounds[]) {
+function getElementAndBoundsById(id: string, elementAndBounds: ElementAndBounds[]): ElementAndBounds {
     return elementAndBounds.filter(m => m.elementId === id)[0];
 }
 
-function dispatchedElementMoves() {
+function dispatchedElementMoves(): ElementMove[] {
     return actionDispatcher.dispatchedActions.filter(isMoveAction).map(a => a.moves).reduce((acc, val) => acc.concat(val), []);
 }
 
-function dispatchedChangeBounds() {
+function dispatchedChangeBounds(): ElementAndBounds[] {
     return actionDispatcher.dispatchedActions.filter(isChangeBounds).map(a => a.newBounds).reduce((acc, val) => acc.concat(val), []);
 }
 

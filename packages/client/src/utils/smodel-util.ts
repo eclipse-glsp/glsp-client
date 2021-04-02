@@ -15,6 +15,7 @@
  ********************************************************************************/
 import {
     BoundsAware,
+    ElementAndBounds,
     isBoundsAware,
     isMoveable,
     isSelectable,
@@ -22,18 +23,19 @@ import {
     Selectable,
     SModelElement,
     SModelElementSchema,
+    SModelIndex,
     SRoutableElement,
     SRoutingHandle
-} from "sprotty";
+} from 'sprotty';
 
-import { ElementAndRoutingPoints } from "../base/operations/operation";
+import { ElementAndRoutingPoints } from '../base/operations/operation';
 
-
-export function getIndex(element: SModelElement) {
+export function getIndex(element: SModelElement): SModelIndex<SModelElement> {
     return element.root.index;
 }
 
-export function forEachElement<T>(element: SModelElement, predicate: (element: SModelElement) => element is SModelElement & T, runnable: (element: SModelElement & T) => void) {
+export function forEachElement<T>(element: SModelElement, predicate: (element: SModelElement) => element is SModelElement & T,
+    runnable: (element: SModelElement & T) => void): void {
     getIndex(element).all()
         .filter(predicate)
         .forEach(runnable);
@@ -45,7 +47,7 @@ export function getMatchingElements<T>(element: SModelElement, predicate: (eleme
     return matching;
 }
 
-export function hasSelectedElements(element: SModelElement) {
+export function hasSelectedElements(element: SModelElement): boolean {
     return getSelectedElementCount(element) > 0;
 }
 
@@ -61,7 +63,7 @@ export function isNotUndefined<T>(element: T | undefined): element is T {
     return element !== undefined;
 }
 
-export function addCssClasses(root: SModelElement, cssClasses: string[]) {
+export function addCssClasses(root: SModelElement, cssClasses: string[]): void {
     if (root.cssClasses === undefined) {
         root.cssClasses = [];
     }
@@ -72,7 +74,7 @@ export function addCssClasses(root: SModelElement, cssClasses: string[]) {
     }
 }
 
-export function removeCssClasses(root: SModelElement, cssClasses: string[]) {
+export function removeCssClasses(root: SModelElement, cssClasses: string[]): void {
     if (root.cssClasses === undefined || root.cssClasses.length === 0) {
         return;
     }
@@ -108,7 +110,7 @@ export type SelectableBoundsAware = SModelElement & BoundsAware & Selectable;
 
 export type BoundsAwareModelElement = SModelElement & BoundsAware;
 
-export function toElementAndBounds(element: SModelElement & BoundsAware) {
+export function toElementAndBounds(element: SModelElement & BoundsAware): ElementAndBounds {
     return {
         elementId: element.id,
         newPosition: {
@@ -133,15 +135,15 @@ export function toElementAndRoutingPoints(element: SRoutableElement): ElementAnd
  * Checks if the model is compatible with the passed type string.
  * (either has the same type or a subtype of this type)
  */
-export function hasCompatibleType(input: SModelElement | SModelElementSchema | string, type: string) {
+export function hasCompatibleType(input: SModelElement | SModelElementSchema | string, type: string): boolean {
     const inputType = getElementTypeId(input);
-    return inputType === type ? true : inputType.split(":").includes(type);
+    return inputType === type ? true : inputType.split(':').includes(type);
 }
 
-export function getElementTypeId(input: SModelElement | SModelElementSchema | string) {
+export function getElementTypeId(input: SModelElement | SModelElementSchema | string): string {
     if (typeof input === 'string') {
-        return <string>input;
+        return input as string;
     } else {
-        return <string>(<any>input)["type"];
+        return (input as any)['type'] as string;
     }
 }

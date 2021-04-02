@@ -13,16 +13,16 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import "../../../css/command-palette.css";
+import '../../../css/command-palette.css';
 
-import { ContainerModule } from "inversify";
-import { CommandPalette, CommandPaletteActionProviderRegistry, TYPES } from "sprotty";
+import { ContainerModule } from 'inversify';
+import { CommandPalette, CommandPaletteActionProviderRegistry, TYPES } from 'sprotty';
 
-import { GLSP_TYPES } from "../../base/types";
-import { CommandPaletteTool } from "./command-palette-tool";
-import { ServerCommandPaletteActionProvider } from "./server-command-palette-provider";
+import { GLSP_TYPES } from '../../base/types';
+import { CommandPaletteTool } from './command-palette-tool';
+import { ServerCommandPaletteActionProvider } from './server-command-palette-provider';
 
-const glspCommandPaletteModule = new ContainerModule((bind) => {
+const glspCommandPaletteModule = new ContainerModule(bind => {
     bind(CommandPalette).toSelf().inSingletonScope();
     bind(TYPES.IUIExtension).toService(CommandPalette);
     bind(CommandPaletteActionProviderRegistry).toSelf().inSingletonScope();

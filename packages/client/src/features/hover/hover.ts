@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { injectable } from "inversify";
+import { injectable } from 'inversify';
 import {
     Action,
     Bounds,
@@ -27,9 +27,9 @@ import {
     SModelElement,
     SModelElementSchema,
     SModelRootSchema
-} from "sprotty";
+} from 'sprotty';
 
-import { GIssueMarker } from "../validation/issue-marker";
+import { GIssueMarker } from '../validation/issue-marker';
 
 @injectable()
 export class GlspHoverMouseListener extends HoverMouseListener {
@@ -65,11 +65,11 @@ export class GlspHoverMouseListener extends HoverMouseListener {
 
     protected createMarkerIssuePopup(marker: GIssueMarker): SModelElementSchema {
         const message = this.createIssueMessage(marker);
-        return <PreRenderedElementSchema>{
+        return {
             type: 'pre-rendered',
             id: 'popup-title',
             code: `<div class="${getSeverity(marker)}"><div class="sprotty-popup-title">${message}</div></div>`
-        };
+        } as PreRenderedElementSchema;
     }
 
     protected createIssueMessage(marker: GIssueMarker): string {
@@ -84,10 +84,12 @@ export class GlspHoverMouseListener extends HoverMouseListener {
 export function getSeverity(marker: SIssueMarker): SIssueSeverity {
     let currentSeverity: SIssueSeverity = 'info';
     for (const severity of marker.issues.map(s => s.severity)) {
-        if (severity === 'error')
+        if (severity === 'error') {
             return severity;
-        if (severity === 'warning' && currentSeverity === 'info')
+        }
+        if (severity === 'warning' && currentSeverity === 'info') {
             currentSeverity = severity;
+        }
     }
     return currentSeverity;
 }

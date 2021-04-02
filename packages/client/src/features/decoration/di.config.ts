@@ -13,13 +13,13 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import "../../../css/decoration.css";
+import '../../../css/decoration.css';
 
-import { ContainerModule } from "inversify";
-import { configureModelElement, SIssueMarker, TYPES } from "sprotty";
+import { ContainerModule } from 'inversify';
+import { configureModelElement, SIssueMarker, TYPES } from 'sprotty';
 
-import { GlspDecorationPlacer } from "./decoration-placer";
-import { GlspIssueMarkerView } from "./view";
+import { GlspDecorationPlacer } from './decoration-placer';
+import { GlspIssueMarkerView } from './view';
 
 const glspDecorationModule = new ContainerModule((bind, _unbind, isBound) => {
     configureModelElement({ bind, isBound }, 'marker', SIssueMarker, GlspIssueMarkerView);

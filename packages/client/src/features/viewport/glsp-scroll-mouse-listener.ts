@@ -13,9 +13,18 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, EnableDefaultToolsAction, EnableToolsAction, IActionHandler, ICommand, ScrollMouseListener, SModelElement } from "sprotty";
-import { injectable } from "inversify";
-import { MarqueeMouseTool } from "../tools/marquee-mouse-tool";
+import { injectable } from 'inversify';
+import {
+    Action,
+    EnableDefaultToolsAction,
+    EnableToolsAction,
+    IActionHandler,
+    ICommand,
+    ScrollMouseListener,
+    SModelElement
+} from 'sprotty';
+
+import { MarqueeMouseTool } from '../tools/marquee-mouse-tool';
 
 @injectable()
 export class GLSPScrollMouseListener extends ScrollMouseListener implements IActionHandler {

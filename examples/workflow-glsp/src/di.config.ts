@@ -13,9 +13,9 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import "../css/diagram.css";
-import "balloon-css/balloon.min.css";
-import "sprotty/css/edit-label.css";
+import '../css/diagram.css';
+import 'balloon-css/balloon.min.css';
+import 'sprotty/css/edit-label.css';
 
 import {
     boundsModule,
@@ -42,6 +42,7 @@ import {
     glspMouseToolModule,
     glspSelectModule,
     glspServerCopyPasteModule,
+    glspViewportModule,
     GridSnapper,
     HtmlRoot,
     HtmlRootView,
@@ -74,14 +75,13 @@ import {
     toolsModule,
     TYPES,
     validationModule,
-    glspViewportModule,
     zorderModule
-} from "@eclipse-glsp/client";
-import { Container, ContainerModule } from "inversify";
+} from '@eclipse-glsp/client';
+import { Container, ContainerModule } from 'inversify';
 
-import { directTaskEditor } from "./direct-task-editing/di.config";
-import { ActivityNode, Icon, TaskNode, WeightedEdge } from "./model";
-import { ForkOrJoinNodeView, IconView, TaskNodeView, WeightedEdgeView, WorkflowEdgeView } from "./workflow-views";
+import { directTaskEditor } from './direct-task-editing/di.config';
+import { ActivityNode, Icon, TaskNode, WeightedEdge } from './model';
+import { ForkOrJoinNodeView, IconView, TaskNodeView, WeightedEdgeView, WorkflowEdgeView } from './workflow-views';
 
 const workflowDiagramModule = new ContainerModule((bind, unbind, isBound, rebind) => {
     rebind(TYPES.ILogger).to(ConsoleLogger).inSingletonScope();
@@ -123,7 +123,7 @@ export default function createContainer(widgetId: string): Container {
 
     overrideViewerOptions(container, {
         baseDiv: widgetId,
-        hiddenDiv: widgetId + "_hidden"
+        hiddenDiv: widgetId + '_hidden'
     });
 
     return container;

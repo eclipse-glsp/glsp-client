@@ -13,17 +13,17 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { inject, injectable } from "inversify";
-import { Action, ICommandPaletteActionProvider, LabeledAction, Point, SModelElement, TYPES } from "sprotty";
+import { inject, injectable } from 'inversify';
+import { Action, ICommandPaletteActionProvider, LabeledAction, Point, SModelElement, TYPES } from 'sprotty';
 
-import { GLSPActionDispatcher } from "../../base/action-dispatcher";
-import { isSetContextActionsAction, RequestContextActions } from "../../base/actions/context-actions";
-import { EditorContextService } from "../../base/editor-context";
+import { GLSPActionDispatcher } from '../../base/action-dispatcher';
+import { isSetContextActionsAction, RequestContextActions } from '../../base/actions/context-actions';
+import { EditorContextService } from '../../base/editor-context';
 
 export namespace ServerCommandPalette {
-    export const CONTEXT_ID = "command-palette";
-    export const TEXT = "text";
-    export const INDEX = "index";
+    export const CONTEXT_ID = 'command-palette';
+    export const TEXT = 'text';
+    export const INDEX = 'index';
 }
 
 @injectable()

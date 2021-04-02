@@ -25,9 +25,9 @@ import {
     Selectable,
     SModelElement,
     SParentElement
-} from "sprotty";
+} from 'sprotty';
 
-export const resizeFeature = Symbol("resizeFeature");
+export const resizeFeature = Symbol('resizeFeature');
 
 export interface Resizable extends BoundsAware, Selectable {
 }
@@ -37,10 +37,10 @@ export function isResizable(element: SModelElement): element is SParentElement &
 }
 
 export enum ResizeHandleLocation {
-    TopLeft = "top-left",
-    TopRight = "top-right",
-    BottomLeft = "bottom-left",
-    BottomRight = "bottom-right"
+    TopLeft = 'top-left',
+    TopRight = 'top-right',
+    BottomLeft = 'bottom-left',
+    BottomRight = 'bottom-right'
 }
 
 export function isBoundsAwareMoveable(element: SModelElement): element is SModelElement & Locateable & BoundsAware {
@@ -61,7 +61,7 @@ export class SResizeHandle extends SChildElement implements Hoverable {
     }
 }
 
-export function addResizeHandles(element: SParentElement) {
+export function addResizeHandles(element: SParentElement): void {
     removeResizeHandles(element);
     element.add(new SResizeHandle(ResizeHandleLocation.TopLeft));
     element.add(new SResizeHandle(ResizeHandleLocation.TopRight));
@@ -69,6 +69,6 @@ export function addResizeHandles(element: SParentElement) {
     element.add(new SResizeHandle(ResizeHandleLocation.BottomRight));
 }
 
-export function removeResizeHandles(element: SParentElement) {
+export function removeResizeHandles(element: SParentElement): void {
     element.removeAll(child => child instanceof SResizeHandle);
 }

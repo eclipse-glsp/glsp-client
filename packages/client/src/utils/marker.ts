@@ -13,21 +13,21 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { SIssueMarker, SParentElement } from "sprotty";
+import { SIssueMarker, SParentElement } from 'sprotty';
 
 export namespace MarkerKind {
-    export const INFO = "info";
-    export const WARNING = "warning";
-    export const ERROR = "error";
+    export const INFO = 'info';
+    export const WARNING = 'warning';
+    export const ERROR = 'error';
 }
 
 export namespace MarkerPredicates {
-    export const ALL = () => true;
-    export const ERRORS = (marker: SIssueMarker) => hasIssueWithSeverity(marker, MarkerKind.ERROR);
-    export const WARNINGS = (marker: SIssueMarker) => hasIssueWithSeverity(marker, MarkerKind.WARNING);
-    export const INFOS = (marker: SIssueMarker) => hasIssueWithSeverity(marker, MarkerKind.INFO);
+    export const ALL = (): boolean => true;
+    export const ERRORS = (marker: SIssueMarker): boolean => hasIssueWithSeverity(marker, MarkerKind.ERROR);
+    export const WARNINGS = (marker: SIssueMarker): boolean => hasIssueWithSeverity(marker, MarkerKind.WARNING);
+    export const INFOS = (marker: SIssueMarker): boolean => hasIssueWithSeverity(marker, MarkerKind.INFO);
 
-    export function hasIssueWithSeverity(marker: SIssueMarker, severity: 'info' | 'warning' | 'error') {
+    export function hasIssueWithSeverity(marker: SIssueMarker, severity: 'info' | 'warning' | 'error'): boolean {
         return marker.issues.find(issue => issue.severity === severity) !== undefined;
     }
 }

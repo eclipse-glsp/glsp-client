@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { inject, injectable, optional } from "inversify";
+import { inject, injectable, optional } from 'inversify';
 import {
     Action,
     Bounds,
@@ -33,38 +33,38 @@ import {
     SModelRoot,
     SParentElement,
     TYPES
-} from "sprotty";
+} from 'sprotty';
 
-import { DragAwareMouseListener } from "../../base/drag-aware-mouse-listener";
+import { DragAwareMouseListener } from '../../base/drag-aware-mouse-listener';
 import {
     ChangeBoundsOperation,
     ChangeRoutingPointsOperation,
     CompoundOperation,
     ElementAndRoutingPoints,
     Operation
-} from "../../base/operations/operation";
-import { GLSP_TYPES } from "../../base/types";
-import { isValidMove, isValidSize, WriteablePoint } from "../../utils/layout-utils";
+} from '../../base/operations/operation';
+import { GLSP_TYPES } from '../../base/types';
+import { isValidMove, isValidSize, WriteablePoint } from '../../utils/layout-utils';
 import {
     forEachElement,
     isNonRoutableSelectedMovableBoundsAware,
     toElementAndBounds,
     toElementAndRoutingPoints
-} from "../../utils/smodel-util";
-import { isBoundsAwareMoveable, isResizable, Resizable, ResizeHandleLocation, SResizeHandle } from "../change-bounds/model";
+} from '../../utils/smodel-util';
+import { isBoundsAwareMoveable, isResizable, Resizable, ResizeHandleLocation, SResizeHandle } from '../change-bounds/model';
 import {
     createMovementRestrictionFeedback,
     IMovementRestrictor,
     removeMovementRestrictionFeedback
-} from "../change-bounds/movement-restrictor";
-import { SelectionListener, SelectionService } from "../select/selection-service";
+} from '../change-bounds/movement-restrictor';
+import { SelectionListener, SelectionService } from '../select/selection-service';
 import {
     FeedbackMoveMouseListener,
     HideChangeBoundsToolResizeFeedbackAction,
     ShowChangeBoundsToolResizeFeedbackAction
-} from "../tool-feedback/change-bounds-tool-feedback";
-import { applyCssClasses, CursorCSS, cursorFeedbackAction, deleteCssClasses } from "../tool-feedback/css-feedback";
-import { BaseGLSPTool } from "./base-glsp-tool";
+} from '../tool-feedback/change-bounds-tool-feedback';
+import { applyCssClasses, CursorCSS, cursorFeedbackAction, deleteCssClasses } from '../tool-feedback/css-feedback';
+import { BaseGLSPTool } from './base-glsp-tool';
 
 /**
  * The change bounds tool has the license to move multiple elements or resize a single element by implementing the ChangeBounds operation.
@@ -81,7 +81,7 @@ import { BaseGLSPTool } from "./base-glsp-tool";
  */
 @injectable()
 export class ChangeBoundsTool extends BaseGLSPTool {
-    static ID = "glsp.change-bounds-tool";
+    static ID = 'glsp.change-bounds-tool';
 
     @inject(GLSP_TYPES.SelectionService) protected selectionService: SelectionService;
     @inject(EdgeRouterRegistry) @optional() readonly edgeRouterRegistry?: EdgeRouterRegistry;
@@ -94,7 +94,7 @@ export class ChangeBoundsTool extends BaseGLSPTool {
         return ChangeBoundsTool.ID;
     }
 
-    enable() {
+    enable(): void {
         // install feedback move mouse listener for client-side move updates
         this.feedbackMoveMouseListener = this.createMoveMouseListener();
         this.mouseTool.register(this.feedbackMoveMouseListener);
@@ -113,7 +113,7 @@ export class ChangeBoundsTool extends BaseGLSPTool {
         return new ChangeBoundsListener(this);
     }
 
-    disable() {
+    disable(): void {
         this.mouseTool.deregister(this.changeBoundsListener);
         this.selectionService.deregister(this.changeBoundsListener);
         this.mouseTool.deregister(this.feedbackMoveMouseListener);
@@ -277,7 +277,7 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements Sele
         return element !== undefined && this.activeResizeElement !== undefined && element.id === this.activeResizeElement.id;
     }
 
-    protected initPosition(event: MouseEvent) {
+    protected initPosition(event: MouseEvent): void {
         this.lastDragPosition = { x: event.pageX, y: event.pageY };
         if (this.activeResizeHandle) {
             const resizeElement = findParentByFeature(this.activeResizeHandle, isResizable);
@@ -315,7 +315,7 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements Sele
         return undefined;
     }
 
-    protected reset() {
+    protected reset(): void {
         if (this.activeResizeElement && isResizable(this.activeResizeElement)) {
             this.tool.dispatchFeedback([new HideChangeBoundsToolResizeFeedbackAction()], this);
 
@@ -324,7 +324,7 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements Sele
         this.resetPosition();
     }
 
-    protected resetPosition() {
+    protected resetPosition(): void {
         this.activeResizeHandle = undefined;
         this.lastDragPosition = undefined;
         this.positionDelta = { x: 0, y: 0 };
@@ -435,11 +435,11 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements Sele
         return this.isValidSize(element, newSize) && this.isValidMove(element, newPosition);
     }
 
-    protected isValidSize(element: SModelElement & BoundsAware, size: Dimension) {
+    protected isValidSize(element: SModelElement & BoundsAware, size: Dimension): boolean {
         return isValidSize(element, size);
     }
 
-    protected isValidMove(element: SModelElement & BoundsAware, newPosition: Point) {
+    protected isValidMove(element: SModelElement & BoundsAware, newPosition: Point): boolean {
         return isValidMove(element, newPosition, this.tool.movementRestrictor);
     }
 }

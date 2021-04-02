@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { inject, injectable } from "inversify";
+import { inject, injectable } from 'inversify';
 import {
     Action,
     AnchorComputerRegistry,
@@ -36,11 +36,11 @@ import {
     SModelRoot,
     SRoutableElement,
     TYPES
-} from "sprotty";
+} from 'sprotty';
 
-import { isRoutable } from "../../utils/smodel-util";
-import { getAbsolutePosition, toAbsolutePosition } from "../../utils/viewpoint-util";
-import { FeedbackCommand } from "./model";
+import { isRoutable } from '../../utils/smodel-util';
+import { getAbsolutePosition, toAbsolutePosition } from '../../utils/viewpoint-util';
+import { FeedbackCommand } from './model';
 
 export class DrawFeedbackEdgeAction implements Action {
     constructor(
@@ -128,12 +128,12 @@ export function feedbackEdgeEndId(root: SModelRoot): string {
     return root.id + '_feedback_anchor';
 }
 
-export const defaultFeedbackEdgeSchema: SEdgeSchema = <SEdgeSchema>{
-    cssClasses: ["feedback-edge"],
+export const defaultFeedbackEdgeSchema: SEdgeSchema = {
+    cssClasses: ['feedback-edge'],
     opacity: 0.3
-};
+} as SEdgeSchema;
 
-export function drawFeedbackEdge(context: CommandExecutionContext, sourceId: string, elementTypeId: string, feedbackEdgeSchema: SEdgeSchema) {
+export function drawFeedbackEdge(context: CommandExecutionContext, sourceId: string, elementTypeId: string, feedbackEdgeSchema: SEdgeSchema): void {
     const root = context.root;
     const sourceChild = root.index.getById(sourceId);
     if (!sourceChild) {
@@ -162,11 +162,13 @@ export function drawFeedbackEdge(context: CommandExecutionContext, sourceId: str
     }
 }
 
-export function removeFeedbackEdge(root: SModelRoot) {
+export function removeFeedbackEdge(root: SModelRoot): void {
     const feedbackEdge = root.index.getById(feedbackEdgeId(root));
     const feedbackEdgeEnd = root.index.getById(feedbackEdgeEndId(root));
-    if (feedbackEdge instanceof SChildElement)
+    if (feedbackEdge instanceof SChildElement) {
         root.remove(feedbackEdge);
-    if (feedbackEdgeEnd instanceof SChildElement)
+    }
+    if (feedbackEdgeEnd instanceof SChildElement) {
         root.remove(feedbackEdgeEnd);
+    }
 }

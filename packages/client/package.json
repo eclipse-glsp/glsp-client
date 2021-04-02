@@ -59,14 +59,13 @@
     "reflect-metadata": "^0.1.13",
     "rimraf": "^2.6.1",
     "ts-node": "^8.3.0",
-    "tslint": "^5.5.0",
     "typescript": "^3.9.2"
   },
   "scripts": {
     "prepare": "yarn run clean && yarn run build",
     "clean": "rimraf lib",
     "build": "tsc && yarn run lint",
-    "lint": "tslint -c ../../tslint.json --project ./tsconfig.json",
+    "lint": "eslint -c ./.eslintrc.js --ext .ts,.tsx ./src",
     "watch": "tsc -w",
     "test": "jenkins-mocha --opts ../../configs/mocha.opts \"./src/**/*.spec.?(ts|tsx)\""
   },

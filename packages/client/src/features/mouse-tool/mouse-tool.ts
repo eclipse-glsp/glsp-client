@@ -13,11 +13,11 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { injectable, multiInject, optional } from "inversify";
-import { VNode } from "snabbdom/vnode";
-import { Action, isAction, MouseListener, MouseTool, SModelElement, SModelRoot, TYPES } from "sprotty";
+import { injectable, multiInject, optional } from 'inversify';
+import { VNode, VNodeData } from 'snabbdom/vnode';
+import { Action, isAction, MouseListener, MouseTool, SModelElement, SModelRoot, TYPES } from 'sprotty';
 
-import { getRank } from "../rank/model";
+import { getRank } from '../rank/model';
 
 export interface IMouseTool {
     register(mouseListener: MouseListener): void;
@@ -33,17 +33,17 @@ export class RankingMouseTool extends MouseTool implements IMouseTool {
         this.rankedMouseListeners = groupBy(mouseListeners, listener => getRank(listener));
     }
 
-    register(mouseListener: MouseListener) {
+    register(mouseListener: MouseListener): void {
         super.register(mouseListener);
         this.rankedMouseListeners = groupBy(this.mouseListeners, listener => getRank(listener));
     }
 
-    deregister(mouseListener: MouseListener) {
+    deregister(mouseListener: MouseListener): void {
         super.deregister(mouseListener);
         this.rankedMouseListeners = groupBy(this.mouseListeners, listener => getRank(listener));
     }
 
-    decorate(vnode: VNode, element: SModelElement) {
+    decorate(vnode: VNode, element: SModelElement): VNode {
         // we need to overwrite the existing event handlers registered by the original mouse tool
         if (element instanceof SModelRoot) {
             overwriteOn(vnode, 'mouseover', this.mouseOver.bind(this), element);
@@ -65,7 +65,7 @@ export class RankingMouseTool extends MouseTool implements IMouseTool {
         return vnode;
     }
 
-    protected handleEvent<K extends keyof MouseListener>(methodName: K, model: SModelRoot, event: MouseEvent) {
+    protected handleEvent<K extends keyof MouseListener>(methodName: K, model: SModelRoot, event: MouseEvent): void {
         this.focusOnMouseEvent(methodName, model);
         const element = this.getTargetElement(model, event);
         if (!element) {
@@ -74,7 +74,7 @@ export class RankingMouseTool extends MouseTool implements IMouseTool {
         this.notifyListenersByRank(element, methodName, model, event);
     }
 
-    async notifyListenersByRank<K extends keyof MouseListener>(element: SModelElement, methodName: K, model: SModelRoot, event: MouseEvent) {
+    async notifyListenersByRank<K extends keyof MouseListener>(element: SModelElement, methodName: K, model: SModelRoot, event: MouseEvent): Promise<void> {
         for (const rank of this.rankedMouseListeners) {
             await this.dispatchActions(rank[1], methodName, element, event);
         }
@@ -115,21 +115,23 @@ function groupBy<K, T>(array: Array<T>, keyFunction: (x: T) => K): Map<K, T[]> {
     return new Map<K, T[]>([...unsortedMap.entries()].sort());
 }
 
-function overwriteOn(vnode: VNode, event: string, listener: (model: SModelElement, event: Event) => void, element: SModelElement) {
+function overwriteOn(vnode: VNode, event: string, listener: (model: SModelElement, event: Event) => void, element: SModelElement): void {
     const val = getOn(vnode);
     // ignore any previous val[event] registrations
     (val as any)[event] = [listener, element];
 }
 
-function getOn(vnode: VNode) {
+function getOn(vnode: VNode): any {
     const data = getData(vnode);
-    if (!data.on)
+    if (!data.on) {
         data.on = {};
+    }
     return data.on;
 }
 
-function getData(vnode: VNode) {
-    if (!vnode.data)
+function getData(vnode: VNode): VNodeData {
+    if (!vnode.data) {
         vnode.data = {};
+    }
     return vnode.data;
 }

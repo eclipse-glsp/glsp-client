@@ -13,14 +13,14 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { inject, injectable } from "inversify";
-import { Action, IActionDispatcher, KeyTool, TYPES } from "sprotty";
+import { inject, injectable } from 'inversify';
+import { Action, IActionDispatcher, KeyTool, TYPES } from 'sprotty';
 
-import { EditorContextService } from "../../base/editor-context";
-import { GLSPTool } from "../../base/tool-manager/glsp-tool-manager";
-import { GLSP_TYPES } from "../../base/types";
-import { IMouseTool } from "../mouse-tool/mouse-tool";
-import { IFeedbackActionDispatcher, IFeedbackEmitter } from "../tool-feedback/feedback-action-dispatcher";
+import { EditorContextService } from '../../base/editor-context';
+import { GLSPTool } from '../../base/tool-manager/glsp-tool-manager';
+import { GLSP_TYPES } from '../../base/types';
+import { IMouseTool } from '../mouse-tool/mouse-tool';
+import { IFeedbackActionDispatcher, IFeedbackEmitter } from '../tool-feedback/feedback-action-dispatcher';
 
 @injectable()
 export abstract class BaseGLSPTool implements GLSPTool {
@@ -39,15 +39,15 @@ export abstract class BaseGLSPTool implements GLSPTool {
         return true;
     }
 
-    dispatchFeedback(actions: Action[], feedbackeEmitter?: IFeedbackEmitter) {
+    dispatchFeedback(actions: Action[], feedbackeEmitter?: IFeedbackEmitter): void {
         this.feedbackDispatcher.registerFeedback(feedbackeEmitter ? feedbackeEmitter : this, actions);
     }
 
-    dispatchActions(actions: Action[]) {
+    dispatchActions(actions: Action[]): void {
         this.actionDispatcher.dispatchAll(actions);
     }
 
-    deregisterFeedback(actions: Action[], feedbackeEmitter?: IFeedbackEmitter) {
+    deregisterFeedback(actions: Action[], feedbackeEmitter?: IFeedbackEmitter): void {
         this.feedbackDispatcher.deregisterFeedback(feedbackeEmitter ? feedbackeEmitter : this, actions);
     }
 }

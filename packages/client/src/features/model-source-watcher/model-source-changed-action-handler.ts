@@ -13,11 +13,11 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { inject, injectable, optional } from "inversify";
-import { Action, IActionDispatcher, IActionHandler, TYPES, ViewerOptions } from "sprotty/lib";
+import { inject, injectable, optional } from 'inversify';
+import { Action, IActionDispatcher, IActionHandler, TYPES, ViewerOptions } from 'sprotty/lib';
 
-import { GLSPServerStatusAction, ServerMessageAction } from "../../model-source/glsp-server-status";
-import { isModelSourceChangedAction, ModelSourceChangedAction } from "./model-source-changed-action";
+import { GLSPServerStatusAction, ServerMessageAction } from '../../model-source/glsp-server-status';
+import { isModelSourceChangedAction, ModelSourceChangedAction } from './model-source-changed-action';
 
 /**
  * An external handler of the model source change event.
@@ -46,7 +46,7 @@ export class ModelSourceChangedActionHandler implements IActionHandler {
     @inject(ExternalModelSourceChangedHandler) @optional()
     protected externalModelSourceChangedHandler?: ExternalModelSourceChangedHandler;
 
-    handle(action: Action) {
+    handle(action: Action): void {
         if (isModelSourceChangedAction(action)) {
             if (this.externalModelSourceChangedHandler) {
                 this.externalModelSourceChangedHandler
@@ -58,13 +58,13 @@ export class ModelSourceChangedActionHandler implements IActionHandler {
         }
     }
 
-    protected showSimpleNotification(action: ModelSourceChangedAction) {
+    protected showSimpleNotification(action: ModelSourceChangedAction): void {
         const message = `The model source ${action.modelSourceName} has changed. You might want to consider reloading.`;
         const timeout = 0;
         const severity = 'WARNING';
         this.dispatcher.dispatchAll([
-            <GLSPServerStatusAction>{ kind: GLSPServerStatusAction.KIND, severity, timeout, message },
-            <ServerMessageAction>{ kind: ServerMessageAction.KIND, severity, timeout, message }
+            { kind: GLSPServerStatusAction.KIND, severity, timeout, message } as GLSPServerStatusAction,
+            { kind: ServerMessageAction.KIND, severity, timeout, message } as ServerMessageAction
         ]);
     }
 }

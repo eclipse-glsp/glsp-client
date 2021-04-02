@@ -13,12 +13,12 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { inject, injectable } from "inversify";
-import { Action, generateRequestId, IActionDispatcher, ILogger, RequestAction, ResponseAction, TYPES } from "sprotty";
+import { inject, injectable } from 'inversify';
+import { Action, generateRequestId, IActionDispatcher, ILogger, RequestAction, ResponseAction, TYPES } from 'sprotty';
 
-import { Args } from "../../base/args";
-import { EditorContextServiceProvider } from "../../base/editor-context";
-import { GLSP_TYPES } from "../../base/types";
+import { Args } from '../../base/args';
+import { EditorContextServiceProvider } from '../../base/editor-context';
+import { GLSP_TYPES } from '../../base/types';
 
 export interface NavigationTarget {
     uri: string;
@@ -37,7 +37,7 @@ export namespace NavigationTarget {
         return target.args !== undefined && Object.keys(target.args).length > 0;
     }
 
-    export function addArgument(target: NavigationTarget, key: string, value: string | number | boolean) {
+    export function addArgument(target: NavigationTarget, key: string, value: string | number | boolean): void {
         if (target.args === undefined) {
             target.args = {};
         }
@@ -52,14 +52,14 @@ export namespace NavigationTarget {
         return elementIdsValue.split(NavigationTarget.ELEMENT_IDS_SEPARATOR);
     }
 
-    export function setElementIds(target: NavigationTarget, elementIds: string[]) {
+    export function setElementIds(target: NavigationTarget, elementIds: string[]): string {
         if (target.args === undefined) {
             target.args = {};
         }
         return target.args[NavigationTarget.ELEMENT_IDS] = elementIds.join(NavigationTarget.ELEMENT_IDS_SEPARATOR);
     }
 
-    export function setTextPosition(target: NavigationTarget, position: TextPosition | undefined) {
+    export function setTextPosition(target: NavigationTarget, position: TextPosition | undefined): void {
         if (position) {
             if (target.args === undefined) {
                 target.args = {};
@@ -139,7 +139,7 @@ export class NavigationTargetResolver {
         return undefined;
     }
 
-    protected requestResolution(target: NavigationTarget) {
+    protected requestResolution(target: NavigationTarget): Promise<ResponseAction> {
         return this.dispatcher.request(new ResolveNavigationTargetAction(target));
     }
 }

@@ -22,9 +22,9 @@ import {
     SModelExtension,
     SRoutableElement,
     SRoutingHandle
-} from "sprotty";
+} from 'sprotty';
 
-export const reconnectFeature = Symbol("reconnectFeature");
+export const reconnectFeature = Symbol('reconnectFeature');
 
 export interface Reconnectable extends SModelExtension {
 }
@@ -33,28 +33,27 @@ export function isReconnectable(element: SModelElement): element is SRoutableEle
     return element instanceof SRoutableElement && element.hasFeature(reconnectFeature);
 }
 
-const ROUTING_HANDLE_SOURCE_INDEX: number = -2;
+const ROUTING_HANDLE_SOURCE_INDEX = -2;
 
 export function isReconnectHandle(element: SModelElement | undefined): element is SReconnectHandle {
     return element !== undefined && element instanceof SReconnectHandle;
 }
 
-
-export function addReconnectHandles(element: SRoutableElement) {
+export function addReconnectHandles(element: SRoutableElement): void {
     removeReconnectHandles(element);
     createReconnectHandle(element, 'source', ROUTING_HANDLE_SOURCE_INDEX);
     createReconnectHandle(element, 'target', element.routingPoints.length);
 }
 
-export function removeReconnectHandles(element: SRoutableElement) {
+export function removeReconnectHandles(element: SRoutableElement): void {
     element.removeAll(child => child instanceof SReconnectHandle);
 }
 
-export function isSourceRoutingHandle(edge: SRoutableElement, routingHandle: SReconnectHandle) {
+export function isSourceRoutingHandle(edge: SRoutableElement, routingHandle: SReconnectHandle): boolean {
     return routingHandle.pointIndex === ROUTING_HANDLE_SOURCE_INDEX;
 }
 
-export function isTargetRoutingHandle(edge: SRoutableElement, routingHandle: SReconnectHandle) {
+export function isTargetRoutingHandle(edge: SRoutableElement, routingHandle: SReconnectHandle): boolean {
     return routingHandle.pointIndex === edge.routingPoints.length;
 }
 

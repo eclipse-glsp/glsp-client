@@ -18,6 +18,7 @@ import {
     connectableFeature,
     deletableFeature,
     DiamondNode,
+    EditableLabel,
     fadeFeature,
     hoverFeedbackFeature,
     isEditableLabel,
@@ -29,24 +30,24 @@ import {
     nameFeature,
     popupFeature,
     RectangularNode,
+    SChildElement,
     SEdge,
     selectFeature,
     SModelElement,
     SShapeElement,
     WithEditableLabel,
     withEditLabelFeature
-} from "@eclipse-glsp/client";
-
+} from '@eclipse-glsp/client';
 
 export class TaskNode extends RectangularNode implements Nameable, WithEditableLabel {
     static readonly DEFAULT_FEATURES = [connectableFeature, deletableFeature, selectFeature, boundsFeature,
         moveFeature, layoutContainerFeature, fadeFeature, hoverFeedbackFeature, popupFeature, nameFeature, withEditLabelFeature];
-    name: string = "";
+    name = '';
     duration?: number;
     taskType?: string;
     reference?: string;
 
-    get editableLabel() {
+    get editableLabel(): (SChildElement & EditableLabel) | undefined {
         const headerComp = this.children.find(element => element.type === 'comp:header');
         if (headerComp) {
             const label = headerComp.children.find(element => element.type === 'label:heading');
@@ -66,7 +67,6 @@ export class WeightedEdge extends SEdge {
     probability?: string;
 }
 
-
 export class ActivityNode extends DiamondNode {
     nodeType: string = ActivityNode.Type.UNDEFINED;
     size = {
@@ -76,6 +76,7 @@ export class ActivityNode extends DiamondNode {
     strokeWidth = 1;
 }
 
+// eslint-disable-next-line no-redeclare
 export namespace ActivityNode {
     export namespace Type {
         export const INITIAL = 'initalNode';
@@ -84,7 +85,7 @@ export namespace ActivityNode {
         export const MERGE = 'mergeNode';
         export const JOIN = 'joinNode';
         export const FORK = 'forkNode';
-        export const UNDEFINED = "undefined";
+        export const UNDEFINED = 'undefined';
     }
 }
 
@@ -92,7 +93,7 @@ export class Icon extends SShapeElement implements LayoutContainer {
     static readonly DEFAULT_FEATURES = [boundsFeature, layoutContainerFeature, layoutableChildFeature, fadeFeature];
 
     layout: string;
-    layoutOptions?: { [key: string]: string | number | boolean; };
+    layoutOptions?: { [key: string]: string | number | boolean };
     size = {
         width: 32,
         height: 32

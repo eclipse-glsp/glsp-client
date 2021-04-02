@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { inject, injectable, optional } from "inversify";
+import { inject, injectable, optional } from 'inversify';
 import {
     Action,
     ContextMenuProviderRegistry,
@@ -23,10 +23,10 @@ import {
     MouseListener,
     SModelElement,
     TYPES
-} from "sprotty";
+} from 'sprotty';
 
-import { GLSP_TYPES } from "../../base/types";
-import { SelectionService } from "../select/selection-service";
+import { GLSP_TYPES } from '../../base/types';
+import { SelectionService } from '../select/selection-service';
 
 @injectable()
 export class SelectionServiceAwareContextMenuMouseListener extends MouseListener {

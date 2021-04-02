@@ -15,7 +15,7 @@
       },
       "problemMatcher": [
         "$tsc",
-        "$tslint5"
+        "$eslint-stylish"
       ]
     },
     {

@@ -47,8 +47,6 @@
     "source-map-loader": "^0.2.3",
     "style-loader": "^0.23.1",
     "ts-loader": "^4.4.2",
-    "tslint": "^5.5.0",
-    "tslint-loader": "^3.4.3",
     "typescript": "^3.9.2",
     "typings": "^2.1.0",
     "webpack": "^4.15.1",
@@ -60,7 +58,7 @@
   "scripts": {
     "prepare": "yarn run clean && yarn build",
     "clean": "rimraf lib app/bundle.js app/bundle.js.map app/css",
-    "lint": "tslint -c ../../configs/tslint.json --project ./tsconfig.json",
+    "lint": "eslint -c ./.eslintrc.js --ext .ts,.tsx ./src",
     "build": "tsc && yarn lint && webpack",
     "watch": "tsc -w -p ./tsconfig.json"
   }

@@ -13,11 +13,12 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import "mocha";
-import "reflect-metadata";
+/* eslint-disable import/no-deprecated,no-unused-expressions */
+import 'mocha';
+import 'reflect-metadata';
 
-import { expect } from "chai";
-import { Container } from "inversify";
+import { expect } from 'chai';
+import { Container } from 'inversify';
 import {
     BoundsAware,
     decorationModule,
@@ -29,12 +30,12 @@ import {
     SNodeSchema,
     SParentElement,
     TYPES
-} from "sprotty/lib";
-import defaultModule from "sprotty/lib/base/di.config";
-import { SGraphFactory } from "sprotty/lib/graph/sgraph-factory";
+} from 'sprotty/lib';
+import defaultModule from 'sprotty/lib/base/di.config';
+import { SGraphFactory } from 'sprotty/lib/graph/sgraph-factory';
 
-import { markerNavigatorModule } from "./di.config";
-import { MarkerNavigator } from "./marker-navigator";
+import { markerNavigatorModule } from './di.config';
+import { MarkerNavigator } from './marker-navigator';
 
 describe('MarkerNavigator', () => {
     const container = new Container();
@@ -45,27 +46,27 @@ describe('MarkerNavigator', () => {
 
     const rootWithoutAnyMarkers = graphFactory.createRoot({
         id: 'root', type: 'graph', children: [
-            <SNodeSchema>{
+            {
                 id: '1',
                 type: 'node'
-            }
+            } as SNodeSchema
         ]
     }) as SModelRoot;
 
     const rootWithMarkers = graphFactory.createRoot({
         id: 'root', type: 'graph', children: [
-            <SNodeSchema>{
+            {
                 id: 'bottom-right', type: 'node'
-            },
-            <SNodeSchema>{
+            } as SNodeSchema,
+            {
                 id: 'top-right', type: 'node'
-            },
-            <SNodeSchema>{
+            } as SNodeSchema,
+            {
                 id: 'top-left', type: 'node'
-            },
-            <SNodeSchema>{
+            } as SNodeSchema,
+            {
                 id: 'bottom-left', type: 'node'
-            }
+            } as SNodeSchema
         ]
     }) as SModelRoot;
 
@@ -170,11 +171,11 @@ describe('MarkerNavigator', () => {
 
 });
 
-function clearMarker(elem: SParentElement) {
+function clearMarker(elem: SParentElement): void {
     elem.children.filter(isMarker).forEach(marker => elem.remove(marker));
 }
 
-function setIssues(elem: SParentElement, issues: SIssue[]) {
+function setIssues(elem: SParentElement, issues: SIssue[]): SIssueMarker {
     const marker = getOrCreateMarker(elem);
     marker.issues = issues;
     return marker;
@@ -196,7 +197,7 @@ function isMarker(element: SModelElement): element is SIssueMarker {
     return element instanceof SIssueMarker;
 }
 
-function createMarker(elem: SParentElement) {
+function createMarker(elem: SParentElement): SIssueMarker {
     const newMarker = new SIssueMarker();
     newMarker.type = 'marker';
     newMarker.id = `${elem.id}_marker`;

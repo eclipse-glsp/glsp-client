@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { inject, injectable } from "inversify";
+import { inject, injectable } from 'inversify';
 import {
     Action,
     AnchorComputerRegistry,
@@ -25,28 +25,28 @@ import {
     isCtrlOrCmd,
     SEdge,
     SModelElement
-} from "sprotty";
+} from 'sprotty';
 
-import { DragAwareMouseListener } from "../../base/drag-aware-mouse-listener";
+import { DragAwareMouseListener } from '../../base/drag-aware-mouse-listener';
 import {
     CreateEdgeOperation,
     isTriggerElementTypeCreationAction,
     TriggerEdgeCreationAction
-} from "../../base/operations/operation";
+} from '../../base/operations/operation';
 import {
     DrawFeedbackEdgeAction,
     FeedbackEdgeEndMovingMouseListener,
     RemoveFeedbackEdgeAction
-} from "../tool-feedback/creation-tool-feedback";
-import { CursorCSS, cursorFeedbackAction } from "../tool-feedback/css-feedback";
-import { BaseGLSPTool } from "./base-glsp-tool";
+} from '../tool-feedback/creation-tool-feedback';
+import { CursorCSS, cursorFeedbackAction } from '../tool-feedback/css-feedback';
+import { BaseGLSPTool } from './base-glsp-tool';
 
 /**
  * Tool to create connections in a Diagram, by selecting a source and target node.
  */
 @injectable()
 export class EdgeCreationTool extends BaseGLSPTool implements IActionHandler {
-    static ID = "tool_create_edge";
+    static ID = 'tool_create_edge';
 
     @inject(AnchorComputerRegistry) protected anchorRegistry: AnchorComputerRegistry;
 
@@ -58,7 +58,7 @@ export class EdgeCreationTool extends BaseGLSPTool implements IActionHandler {
         return EdgeCreationTool.ID;
     }
 
-    enable() {
+    enable(): void {
         if (this.triggerAction === undefined) {
             throw new TypeError(`Could not enable tool ${this.id}.The triggerAction cannot be undefined.`);
         }
@@ -69,7 +69,7 @@ export class EdgeCreationTool extends BaseGLSPTool implements IActionHandler {
         this.dispatchFeedback([cursorFeedbackAction(CursorCSS.OPERATION_NOT_ALLOWED)]);
     }
 
-    disable() {
+    disable(): void {
         this.mouseTool.deregister(this.creationToolMouseListener);
         this.mouseTool.deregister(this.feedbackEndMovingMouseListener);
         this.deregisterFeedback([new RemoveFeedbackEdgeAction(), cursorFeedbackAction()]);
@@ -88,7 +88,7 @@ export class EdgeCreationToolMouseListener extends DragAwareMouseListener {
     protected source?: string;
     protected target?: string;
     protected currentTarget?: SModelElement;
-    protected allowedTarget: boolean = false;
+    protected allowedTarget = false;
     protected proxyEdge: SEdge;
 
     constructor(protected triggerAction: TriggerEdgeCreationAction, protected tool: EdgeCreationTool) {
@@ -97,7 +97,7 @@ export class EdgeCreationToolMouseListener extends DragAwareMouseListener {
         this.proxyEdge.type = triggerAction.elementTypeId;
     }
 
-    protected reinitialize() {
+    protected reinitialize(): void {
         this.source = undefined;
         this.target = undefined;
         this.currentTarget = undefined;
@@ -132,11 +132,11 @@ export class EdgeCreationToolMouseListener extends DragAwareMouseListener {
         return result;
     }
 
-    protected isSourceSelected() {
+    protected isSourceSelected(): boolean {
         return this.source !== undefined;
     }
 
-    protected isTargetSelected() {
+    protected isTargetSelected(): boolean {
         return this.target !== undefined;
     }
 
@@ -162,10 +162,10 @@ export class EdgeCreationToolMouseListener extends DragAwareMouseListener {
     }
 
     protected isAllowedSource(element: SModelElement | undefined): boolean {
-        return element !== undefined && isConnectable(element) && element.canConnect(this.proxyEdge, "source");
+        return element !== undefined && isConnectable(element) && element.canConnect(this.proxyEdge, 'source');
     }
 
     protected isAllowedTarget(element: SModelElement | undefined): boolean {
-        return element !== undefined && isConnectable(element) && element.canConnect(this.proxyEdge, "target");
+        return element !== undefined && isConnectable(element) && element.canConnect(this.proxyEdge, 'target');
     }
 }

@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { inject, injectable } from "inversify";
+import { inject, injectable } from 'inversify';
 import {
     Action,
     CommandExecutionContext,
@@ -32,16 +32,16 @@ import {
     SModelRoot,
     SShapeElement,
     TYPES
-} from "sprotty";
+} from 'sprotty';
 
-import { GLSP_TYPES } from "../../base/types";
-import { getElementTypeId, hasCompatibleType } from "../../utils/smodel-util";
-import { resizeFeature } from "../change-bounds/model";
-import { reconnectFeature } from "../reconnect/model";
-import { IFeedbackActionDispatcher } from "../tool-feedback/feedback-action-dispatcher";
-import { FeedbackCommand } from "../tool-feedback/model";
-import { Containable, containerFeature, reparentFeature } from "./model";
-import { isSetTypeHintsAction } from "./request-type-hints-action";
+import { GLSP_TYPES } from '../../base/types';
+import { getElementTypeId, hasCompatibleType } from '../../utils/smodel-util';
+import { resizeFeature } from '../change-bounds/model';
+import { reconnectFeature } from '../reconnect/model';
+import { IFeedbackActionDispatcher } from '../tool-feedback/feedback-action-dispatcher';
+import { FeedbackCommand } from '../tool-feedback/model';
+import { Containable, containerFeature, reparentFeature } from './model';
+import { isSetTypeHintsAction } from './request-type-hints-action';
 
 export abstract class TypeHint {
     /**
@@ -112,7 +112,7 @@ export class ApplyTypeHintsAction implements Action {
 @injectable()
 export class ApplyTypeHintsCommand extends FeedbackCommand {
 
-    public static KIND = "applyTypeHints";
+    public static KIND = 'applyTypeHints';
     public readonly priority = 10;
 
     @inject(GLSP_TYPES.ITypeHintProvider) protected typeHintProvider: ITypeHintProvider;
@@ -134,7 +134,7 @@ export class ApplyTypeHintsCommand extends FeedbackCommand {
         return context.root;
     }
 
-    protected applyEdgeTypeHint(element: SModelElement) {
+    protected applyEdgeTypeHint(element: SModelElement): void {
         const hint = this.typeHintProvider.getEdgeTypeHint(element);
         if (hint && isModifiableFetureSet(element.features)) {
             addOrRemove(element.features, deletableFeature, hint.deletable);
@@ -143,7 +143,7 @@ export class ApplyTypeHintsCommand extends FeedbackCommand {
         }
     }
 
-    protected applyShapeTypeHint(element: SModelElement) {
+    protected applyShapeTypeHint(element: SModelElement): void {
         const hint = this.typeHintProvider.getShapeTypeHint(element);
         if (hint && isModifiableFetureSet(element.features)) {
             addOrRemove(element.features, deletableFeature, hint.deletable);
@@ -156,8 +156,8 @@ export class ApplyTypeHintsCommand extends FeedbackCommand {
             Object.assign(element, containable);
 
             addOrRemove(element.features, connectableFeature, true);
-            const validSourceEdges = this.typeHintProvider.getValidEdgeElementTypes(element, "source");
-            const validTargetEdges = this.typeHintProvider.getValidEdgeElementTypes(element, "target");
+            const validSourceEdges = this.typeHintProvider.getValidEdgeElementTypes(element, 'source');
+            const validTargetEdges = this.typeHintProvider.getValidEdgeElementTypes(element, 'target');
             const connectable = createConnectable(validSourceEdges, validTargetEdges);
             Object.assign(element, connectable);
         }
@@ -167,7 +167,7 @@ export class ApplyTypeHintsCommand extends FeedbackCommand {
 function createConnectable(validSourceEdges: string[], validTargetEdges: string[]): Connectable {
     return {
         canConnect: (routable, role) =>
-            role === "source" ?
+            role === 'source' ?
                 validSourceEdges.includes(routable.type) :
                 validTargetEdges.includes(routable.type)
     };
@@ -175,14 +175,14 @@ function createConnectable(validSourceEdges: string[], validTargetEdges: string[
 
 function createContainable(hint: ShapeTypeHint): Containable {
     return {
-        isContainableElement: (element) =>
+        isContainableElement: element =>
             hint.containableElementTypeIds ?
                 hint.containableElementTypeIds.includes(getElementTypeId(element)) :
                 false
     };
 }
 
-function addOrRemove(features: Set<symbol>, feature: symbol, add: boolean) {
+function addOrRemove(features: Set<symbol>, feature: symbol, add: boolean): void {
     if (add && !features.has(feature)) {
         features.add(feature);
     } else if (!add && features.has(feature)) {
@@ -197,7 +197,7 @@ function isModifiableFetureSet(featureSet?: FeatureSet): featureSet is FeatureSe
 export interface ITypeHintProvider {
     getShapeTypeHint(input: SModelElement | SModelElement | string): ShapeTypeHint | undefined;
     getEdgeTypeHint(input: SModelElement | SModelElement | string): EdgeTypeHint | undefined;
-    getValidEdgeElementTypes(input: SModelElement | SModelElement | string, role: "source" | "target"): string[];
+    getValidEdgeElementTypes(input: SModelElement | SModelElement | string, role: 'source' | 'target'): string[];
 }
 
 @injectable()
@@ -217,9 +217,9 @@ export class TypeHintProvider implements IActionHandler, ITypeHintProvider {
         }
     }
 
-    getValidEdgeElementTypes(input: SModelElement | SModelElement | string, role: "source" | "target"): string[] {
+    getValidEdgeElementTypes(input: SModelElement | SModelElement | string, role: 'source' | 'target'): string[] {
         const elementTypeId = getElementTypeId(input);
-        if (role === "source") {
+        if (role === 'source') {
             return Array.from(
                 Array.from(this.edgeHints.values())
                     .filter(hint => hint.sourceElementTypeIds.some(sourceElementTypeId => hasCompatibleType(elementTypeId, sourceElementTypeId)))
@@ -232,11 +232,11 @@ export class TypeHintProvider implements IActionHandler, ITypeHintProvider {
         }
     }
 
-    getShapeTypeHint(input: SModelElement | SModelElement | string) {
+    getShapeTypeHint(input: SModelElement | SModelElement | string): ShapeTypeHint | undefined {
         return getTypeHint(input, this.shapeHints);
     }
 
-    getEdgeTypeHint(input: SModelElement | SModelElement | string) {
+    getEdgeTypeHint(input: SModelElement | SModelElement | string): EdgeTypeHint | undefined {
         return getTypeHint(input, this.edgeHints);
     }
 }
@@ -246,10 +246,10 @@ function getTypeHint<T extends TypeHint>(input: SModelElement | SModelElement | 
     let hint = hints.get(type);
     // Check subtypes
     if (hint === undefined) {
-        const subtypes = type.split(":");
+        const subtypes = type.split(':');
         while (hint === undefined && subtypes.length > 0) {
             subtypes.pop();
-            hint = hints.get(subtypes.join(":"));
+            hint = hints.get(subtypes.join(':'));
         }
     }
     return hint;

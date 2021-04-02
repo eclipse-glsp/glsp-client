@@ -13,17 +13,17 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action } from "sprotty";
+import { Action } from 'sprotty';
 
-import { EdgeTypeHint, ShapeTypeHint } from "./type-hints";
+import { EdgeTypeHint, ShapeTypeHint } from './type-hints';
 
 export class RequestTypeHintsAction implements Action {
-    static readonly KIND = "requestTypeHints";
+    static readonly KIND = 'requestTypeHints';
     constructor(public readonly diagramType?: string, public readonly kind: string = RequestTypeHintsAction.KIND) { }
 }
 
 export class SetTypeHintsAction implements Action {
-    static readonly KIND = "setTypeHints";
+    static readonly KIND = 'setTypeHints';
     constructor(
         public readonly shapeHints: ShapeTypeHint[],
         public readonly edgeHints: EdgeTypeHint[],
@@ -32,5 +32,5 @@ export class SetTypeHintsAction implements Action {
 
 export function isSetTypeHintsAction(action: Action): action is SetTypeHintsAction {
     return action !== undefined && (action.kind === SetTypeHintsAction.KIND)
-        && (<SetTypeHintsAction>action).shapeHints !== undefined && (<SetTypeHintsAction>action).edgeHints !== undefined;
+        && (action as SetTypeHintsAction).shapeHints !== undefined && (action as SetTypeHintsAction).edgeHints !== undefined;
 }

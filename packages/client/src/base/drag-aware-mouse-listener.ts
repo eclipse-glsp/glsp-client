@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, MouseListener, SModelElement } from "sprotty";
+import { Action, MouseListener, SModelElement } from 'sprotty';
 
 /**
  * A mouse listener that is aware of prior mouse dragging.
@@ -25,8 +25,8 @@ import { Action, MouseListener, SModelElement } from "sprotty";
  */
 export class DragAwareMouseListener extends MouseListener {
 
-    private _isMouseDown: boolean = false;
-    private _isMouseDrag: boolean = false;
+    private _isMouseDown = false;
+    private _isMouseDrag = false;
 
     mouseDown(target: SModelElement, event: MouseEvent): Action[] {
         this._isMouseDown = true;
@@ -58,11 +58,11 @@ export class DragAwareMouseListener extends MouseListener {
         return [];
     }
 
-    get isMouseDrag() {
+    get isMouseDrag(): boolean {
         return this._isMouseDrag;
     }
 
-    get isMouseDown() {
+    get isMouseDown(): boolean {
         return this._isMouseDown;
     }
 

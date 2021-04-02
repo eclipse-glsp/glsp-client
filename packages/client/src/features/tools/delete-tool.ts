@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { inject, injectable } from "inversify";
+import { inject, injectable } from 'inversify';
 import {
     Action,
     EnableDefaultToolsAction,
@@ -25,22 +25,22 @@ import {
     KeyTool,
     MouseListener,
     SModelElement
-} from "sprotty";
-import { matchesKeystroke } from "sprotty/lib/utils/keyboard";
+} from 'sprotty';
+import { matchesKeystroke } from 'sprotty/lib/utils/keyboard';
 
-import { DeleteElementOperation } from "../../base/operations/operation";
-import { GLSPTool } from "../../base/tool-manager/glsp-tool-manager";
-import { GLSP_TYPES } from "../../base/types";
-import { IMouseTool } from "../mouse-tool/mouse-tool";
-import { CursorCSS, cursorFeedbackAction } from "../tool-feedback/css-feedback";
-import { IFeedbackActionDispatcher } from "../tool-feedback/feedback-action-dispatcher";
+import { DeleteElementOperation } from '../../base/operations/operation';
+import { GLSPTool } from '../../base/tool-manager/glsp-tool-manager';
+import { GLSP_TYPES } from '../../base/types';
+import { IMouseTool } from '../mouse-tool/mouse-tool';
+import { CursorCSS, cursorFeedbackAction } from '../tool-feedback/css-feedback';
+import { IFeedbackActionDispatcher } from '../tool-feedback/feedback-action-dispatcher';
 
 /**
  * Deletes selected elements when hitting the `Del` key.
  */
 @injectable()
 export class DelKeyDeleteTool implements GLSPTool {
-    static ID = "glsp.delete-keyboard";
+    static ID = 'glsp.delete-keyboard';
 
     isEditTool = true;
     protected deleteKeyListener: DeleteKeyListener = new DeleteKeyListener();
@@ -51,11 +51,11 @@ export class DelKeyDeleteTool implements GLSPTool {
         return DelKeyDeleteTool.ID;
     }
 
-    enable() {
+    enable(): void {
         this.keytool.register(this.deleteKeyListener);
     }
 
-    disable() {
+    disable(): void {
         this.keytool.deregister(this.deleteKeyListener);
     }
 }
@@ -79,7 +79,7 @@ export class DeleteKeyListener extends KeyListener {
  */
 @injectable()
 export class MouseDeleteTool implements GLSPTool {
-    static ID = "glsp.delete-mouse";
+    static ID = 'glsp.delete-mouse';
 
     isEditTool = true;
 
@@ -92,12 +92,12 @@ export class MouseDeleteTool implements GLSPTool {
         return MouseDeleteTool.ID;
     }
 
-    enable() {
+    enable(): void {
         this.mouseTool.register(this.deleteToolMouseListener);
         this.feedbackDispatcher.registerFeedback(this, [cursorFeedbackAction(CursorCSS.ELEMENT_DELETION)]);
     }
 
-    disable() {
+    disable(): void {
         this.mouseTool.deregister(this.deleteToolMouseListener);
         this.feedbackDispatcher.registerFeedback(this, [cursorFeedbackAction()]);
     }

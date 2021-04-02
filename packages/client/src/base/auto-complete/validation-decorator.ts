@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { ValidationStatus } from "../actions/edit-validation-actions";
+import { ValidationStatus } from '../actions/edit-validation-actions';
 
 export interface IValidationDecorator {
     decorateValidationResult(status: ValidationStatus): void;
@@ -24,9 +24,14 @@ export interface IValidationDecorator {
 
 export namespace IValidationDecorator {
     export const NO_DECORATION: IValidationDecorator = {
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
         decorateValidationResult(_status: ValidationStatus) { },
-        isValidatedOk(): boolean { return false; },
+        isValidatedOk(): boolean {
+            return false;
+        },
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
         invalidate() { },
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
         dispose() { }
     };
 }
@@ -37,8 +42,8 @@ export class ValidationDecorator implements IValidationDecorator {
     errorClasses = ['error'];
     errorIconClasses = ['fa', 'fa-exclamation-circle'];
 
-    isValidated: boolean = false;
-    hasValidationError: boolean = false;
+    isValidated = false;
+    hasValidationError = false;
 
     protected decorationDiv?: HTMLDivElement;
 
@@ -74,7 +79,7 @@ export class ValidationDecorator implements IValidationDecorator {
         this.adjustPosition();
     }
 
-    protected switchCssClasses(element: HTMLElement, cssClasses: string[]) {
+    protected switchCssClasses(element: HTMLElement, cssClasses: string[]): void {
         element.classList.remove(...this.errorClasses, ...this.warningClasses);
         element.classList.add(...cssClasses);
     }

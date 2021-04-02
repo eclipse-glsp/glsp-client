@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { inject, injectable, optional } from "inversify";
+import { inject, injectable, optional } from 'inversify';
 import {
     Action,
     EnableDefaultToolsAction,
@@ -25,22 +25,22 @@ import {
     SModelElement,
     SNode,
     TYPES
-} from "sprotty";
+} from 'sprotty';
 
-import { DragAwareMouseListener } from "../../base/drag-aware-mouse-listener";
+import { DragAwareMouseListener } from '../../base/drag-aware-mouse-listener';
 import {
     CreateNodeOperation,
     isTriggerNodeCreationAction,
     TriggerNodeCreationAction
-} from "../../base/operations/operation";
-import { getAbsolutePosition } from "../../utils/viewpoint-util";
-import { Containable, isContainable } from "../hints/model";
-import { CursorCSS, cursorFeedbackAction } from "../tool-feedback/css-feedback";
-import { BaseGLSPTool } from "./base-glsp-tool";
+} from '../../base/operations/operation';
+import { getAbsolutePosition } from '../../utils/viewpoint-util';
+import { Containable, isContainable } from '../hints/model';
+import { CursorCSS, cursorFeedbackAction } from '../tool-feedback/css-feedback';
+import { BaseGLSPTool } from './base-glsp-tool';
 
 @injectable()
 export class NodeCreationTool extends BaseGLSPTool implements IActionHandler {
-    static ID = "tool_create_node";
+    static ID = 'tool_create_node';
 
     @inject(TYPES.ISnapper) @optional() readonly snapper?: ISnapper;
 
@@ -51,7 +51,7 @@ export class NodeCreationTool extends BaseGLSPTool implements IActionHandler {
         return NodeCreationTool.ID;
     }
 
-    enable() {
+    enable(): void {
         if (this.triggerAction === undefined) {
             throw new TypeError(`Could not enable tool ${this.id}.The triggerAction cannot be undefined.`);
         }
@@ -60,7 +60,7 @@ export class NodeCreationTool extends BaseGLSPTool implements IActionHandler {
         this.dispatchFeedback([cursorFeedbackAction(CursorCSS.NODE_CREATION)]);
     }
 
-    disable() {
+    disable(): void {
         this.mouseTool.deregister(this.creationToolMouseListener);
         this.deregisterFeedback([cursorFeedbackAction()]);
     }
@@ -82,11 +82,11 @@ export class NodeCreationToolMouseListener extends DragAwareMouseListener {
         super();
     }
 
-    protected creationAllowed(elementTypeId: string) {
+    protected creationAllowed(elementTypeId: string): boolean | undefined {
         return this.container && this.container.isContainableElement(elementTypeId);
     }
 
-    get elementTypeId() {
+    get elementTypeId(): string {
         return this.triggerAction.elementTypeId;
     }
 

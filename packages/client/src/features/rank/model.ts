@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-export const DEFAULT_RANK: number = 0;
+export const DEFAULT_RANK = 0;
 
 export interface Ranked {
     rank: number;

@@ -13,12 +13,12 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { inject, injectable } from "inversify";
-import { Action, CommandExecutionContext, SModelElement, SModelRoot, TYPES } from "sprotty";
+import { inject, injectable } from 'inversify';
+import { Action, CommandExecutionContext, SModelElement, SModelRoot, TYPES } from 'sprotty';
 
-import { isStringArray } from "../../utils/array-utils";
-import { addCssClasses, removeCssClasses } from "../../utils/smodel-util";
-import { FeedbackCommand } from "./model";
+import { isStringArray } from '../../utils/array-utils';
+import { addCssClasses, removeCssClasses } from '../../utils/smodel-util';
+import { FeedbackCommand } from './model';
 
 export class ModifyCSSFeedbackAction implements Action {
     readonly elementIds?: string[];
@@ -76,9 +76,9 @@ export enum CursorCSS {
     EDGE_CREATION_TARGET = 'edge-creation-select-target-mode',
     EDGE_RECONNECT = 'edge-reconnect-select-target-mode',
     OPERATION_NOT_ALLOWED = 'edge-modification-not-allowed-mode',
-    ELEMENT_DELETION = "element-deletion-mode",
-    RESIZE = "resize-mode",
-    MARQUEE = "marquee-mode"
+    ELEMENT_DELETION = 'element-deletion-mode',
+    RESIZE = 'resize-mode',
+    MARQUEE = 'marquee-mode'
 }
 
 export function cursorFeedbackAction(cursorCss?: CursorCSS): ModifyCSSFeedbackAction {
@@ -89,10 +89,10 @@ export function cursorFeedbackAction(cursorCss?: CursorCSS): ModifyCSSFeedbackAc
     return new ModifyCSSFeedbackAction(undefined, addCss, Object.values(CursorCSS));
 }
 
-export function applyCssClasses(element: SModelElement, ...classes: string[]) {
+export function applyCssClasses(element: SModelElement, ...classes: string[]): ModifyCSSFeedbackAction {
     return new ModifyCSSFeedbackAction([element], classes, []);
 }
 
-export function deleteCssClasses(element: SModelElement, ...classes: string[]) {
+export function deleteCssClasses(element: SModelElement, ...classes: string[]): ModifyCSSFeedbackAction {
     return new ModifyCSSFeedbackAction([element], [], classes);
 }
