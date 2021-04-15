@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020 EclipseSource and others.
+ * Copyright (c) 2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,16 +13,19 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import '../../../css/decoration.css';
+import { injectable } from 'inversify';
+import { IView, ViewRegistry } from 'sprotty';
 
-import { ContainerModule } from 'inversify';
-import { TYPES } from 'sprotty';
-
-import { GlspDecorationPlacer } from './decoration-placer';
-
-const glspDecorationModule = new ContainerModule((bind, _unbind, isBound) => {
-    bind(GlspDecorationPlacer).toSelf().inSingletonScope();
-    bind(TYPES.IVNodePostprocessor).toService(GlspDecorationPlacer);
-});
-
-export default glspDecorationModule;
+@injectable()
+export class GLSPViewRegistry extends ViewRegistry {
+    register(key: string, instance: IView): void {
+        if (key === undefined) {
+            throw new Error('Key is undefined');
+        }
+        if (this.hasKey(key)) {
+            // do not throw error but log overwriting
+            console.log(`View instance for type '${key}' will be overwritten.`);
+        }
+        this.elements.set(key, instance);
+    }
+}

@@ -20,15 +20,16 @@ import 'sprotty/css/edit-label.css';
 import {
     boundsModule,
     buttonModule,
+    configureDefaultModelElement,
     configureModelElement,
     ConsoleLogger,
     defaultGLSPModule,
     defaultModule,
+    DefaultTypes,
     DeleteElementContextMenuItemProvider,
     DiamondNodeView,
     edgeLayoutModule,
     editLabelFeature,
-    ExpandButtonView,
     expandModule,
     exportModule,
     fadeModule,
@@ -37,15 +38,12 @@ import {
     glspContextMenuModule,
     glspDecorationModule,
     glspEditLabelModule,
-    GLSPGraph,
     glspHoverModule,
     glspMouseToolModule,
     glspSelectModule,
     glspServerCopyPasteModule,
     glspViewportModule,
     GridSnapper,
-    HtmlRoot,
-    HtmlRootView,
     labelEditUiModule,
     layoutCommandsModule,
     LogLevel,
@@ -58,19 +56,13 @@ import {
     openModule,
     overrideViewerOptions,
     paletteModule,
-    PreRenderedElement,
-    PreRenderedView,
     RevealNamedElementActionProvider,
     routingModule,
-    SButton,
     SCompartment,
     SCompartmentView,
     SEdge,
-    SGraphView,
     SLabel,
     SLabelView,
-    SRoutingHandle,
-    SRoutingHandleView,
     toolFeedbackModule,
     toolsModule,
     TYPES,
@@ -91,19 +83,15 @@ const workflowDiagramModule = new ContainerModule((bind, unbind, isBound, rebind
     bind(TYPES.ICommandPaletteActionProvider).to(RevealNamedElementActionProvider);
     bind(TYPES.IContextMenuItemProvider).to(DeleteElementContextMenuItemProvider);
     const context = { bind, unbind, isBound, rebind };
-    configureModelElement(context, 'graph', GLSPGraph, SGraphView);
+
+    configureDefaultModelElement(context);
     configureModelElement(context, 'task:automated', TaskNode, TaskNodeView);
     configureModelElement(context, 'task:manual', TaskNode, TaskNodeView);
     configureModelElement(context, 'label:heading', SLabel, SLabelView, { enable: [editLabelFeature] });
     configureModelElement(context, 'comp:comp', SCompartment, SCompartmentView);
     configureModelElement(context, 'comp:header', SCompartment, SCompartmentView);
     configureModelElement(context, 'label:icon', SLabel, SLabelView);
-    configureModelElement(context, 'html', HtmlRoot, HtmlRootView);
-    configureModelElement(context, 'pre-rendered', PreRenderedElement, PreRenderedView);
-    configureModelElement(context, 'button:expand', SButton, ExpandButtonView);
-    configureModelElement(context, 'routing-point', SRoutingHandle, SRoutingHandleView);
-    configureModelElement(context, 'volatile-routing-point', SRoutingHandle, SRoutingHandleView);
-    configureModelElement(context, 'edge', SEdge, WorkflowEdgeView);
+    configureModelElement(context, DefaultTypes.EDGE, SEdge, WorkflowEdgeView);
     configureModelElement(context, 'edge:weighted', WeightedEdge, WeightedEdgeView);
     configureModelElement(context, 'icon', Icon, IconView);
     configureModelElement(context, 'activityNode:merge', ActivityNode, DiamondNodeView);
@@ -115,7 +103,7 @@ const workflowDiagramModule = new ContainerModule((bind, unbind, isBound, rebind
 export default function createContainer(widgetId: string): Container {
     const container = new Container();
 
-    container.load(validationModule, defaultModule, glspMouseToolModule, defaultGLSPModule, glspSelectModule, boundsModule, glspViewportModule, toolsModule,
+    container.load(defaultModule, defaultGLSPModule, glspMouseToolModule, validationModule, glspSelectModule, boundsModule, glspViewportModule, toolsModule,
         glspHoverModule, fadeModule, exportModule, expandModule, openModule, buttonModule, modelSourceModule, labelEditUiModule, glspEditLabelModule,
         workflowDiagramModule, toolFeedbackModule, modelHintsModule, glspContextMenuModule, glspServerCopyPasteModule, modelSourceWatcherModule,
         glspCommandPaletteModule, paletteModule, routingModule, glspDecorationModule, edgeLayoutModule, zorderModule,

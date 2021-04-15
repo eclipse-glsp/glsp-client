@@ -49,11 +49,13 @@ export * from './base/drag-aware-mouse-listener';
 export * from './base/editor-context';
 export * from './base/focus-tracker';
 export * from './base/model-initialization-constraint';
+export * from './base/model/model-registry';
 export * from './base/model/update-model-command';
 export * from './base/operations/operation';
 export * from './base/selection-clearing-mouse-listener';
 export * from './base/source-uri-aware';
 export * from './base/types';
+export * from './base/view/view-registry';
 export * from './features/change-bounds/model';
 export * from './features/change-bounds/movement-restrictor';
 export * from './features/change-bounds/snap';
@@ -61,7 +63,6 @@ export * from './features/command-palette/server-command-palette-provider';
 export * from './features/context-menu/delete-element-context-menu';
 export * from './features/copy-paste/copy-paste-handler';
 export * from './features/decoration/decoration-placer';
-export * from './features/decoration/view';
 export * from './features/edit-label/edit-label-tool';
 export * from './features/edit-label/edit-label-validator';
 export * from './features/hints/model';
@@ -100,10 +101,13 @@ export * from './features/viewport/glsp-scroll-mouse-listener';
 export * from './lib/model';
 export * from './model-source/glsp-server-status';
 export * from './model-source/glsp-diagram-server';
+export * from './utils/argument-utils';
 export * from './utils/array-utils';
 export * from './utils/marker';
 export * from './utils/smodel-util';
 export * from './utils/viewpoint-util';
+export * from './views';
+
 export {
     validationModule, saveModule, paletteModule, toolFeedbackModule, defaultGLSPModule, modelHintsModule, glspCommandPaletteModule,
     glspContextMenuModule, glspServerCopyPasteModule, copyPasteContextMenuModule, glspSelectModule, glspMouseToolModule, layoutCommandsModule, glspEditLabelModule,

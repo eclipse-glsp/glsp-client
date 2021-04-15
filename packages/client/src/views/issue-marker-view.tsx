@@ -23,7 +23,7 @@ import { IssueMarkerView, RenderingContext, setClass, SIssueMarker, SIssueSeveri
 const JSX = { createElement: snabbdom.svg };
 
 @injectable()
-export class GlspIssueMarkerView extends IssueMarkerView {
+export class GIssueMarkerView extends IssueMarkerView {
 
     render(marker: SIssueMarker, _context: RenderingContext): VNode {
         const maxSeverity = super.getMaxSeverity(marker);
