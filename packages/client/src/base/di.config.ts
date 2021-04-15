@@ -26,10 +26,12 @@ import { GLSPCommandStack } from './command-stack';
 import { EditorContextService } from './editor-context';
 import { FocusTracker } from './focus-tracker';
 import { DefaultModelInitializationConstraint, ModelInitializationConstraint } from './model-initialization-constraint';
+import { GLSPModelRegistry } from './model/model-registry';
 import { FeedbackAwareUpdateModelCommand, SetModelActionHandler } from './model/update-model-command';
 import { SelectionClearingMouseListener } from './selection-clearing-mouse-listener';
 import { GLSPToolManager } from './tool-manager/glsp-tool-manager';
 import { GLSP_TYPES } from './types';
+import { GLSPViewRegistry } from './view/view-registry';
 
 const defaultGLSPModule = new ContainerModule((bind, _unbind, isBound, rebind) => {
     const context = { bind, _unbind, isBound, rebind };
@@ -64,6 +66,10 @@ const defaultGLSPModule = new ContainerModule((bind, _unbind, isBound, rebind) =
     rebind(TYPES.IActionDispatcher).toService(GLSPActionDispatcher);
 
     bind(ModelInitializationConstraint).to(DefaultModelInitializationConstraint).inSingletonScope();
+
+    // support re-registration of model elements and views
+    rebind(TYPES.SModelRegistry).to(GLSPModelRegistry).inSingletonScope();
+    rebind(TYPES.ViewRegistry).to(GLSPViewRegistry).inSingletonScope();
 });
 
 export default defaultGLSPModule;
