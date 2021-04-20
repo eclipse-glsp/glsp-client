@@ -59,10 +59,10 @@ interface ContainerContext {
 
 const baseViewModule = new ContainerModule((bind, unbind, isBound, rebind) => {
     const context = { bind, unbind, isBound, rebind };
-    configureDefaultModelElement(context);
+    configureDefaultModelElements(context);
 });
 
-export function configureDefaultModelElement(context: ContainerContext): void {
+export function configureDefaultModelElements(context: ContainerContext): void {
     // HTML elements
     configureModelElement(context, DefaultTypes.HTML, HtmlRoot, HtmlRootView);
 

@@ -20,7 +20,7 @@ import 'sprotty/css/edit-label.css';
 import {
     boundsModule,
     buttonModule,
-    configureDefaultModelElement,
+    configureDefaultModelElements,
     configureModelElement,
     ConsoleLogger,
     defaultGLSPModule,
@@ -84,7 +84,7 @@ const workflowDiagramModule = new ContainerModule((bind, unbind, isBound, rebind
     bind(TYPES.IContextMenuItemProvider).to(DeleteElementContextMenuItemProvider);
     const context = { bind, unbind, isBound, rebind };
 
-    configureDefaultModelElement(context);
+    configureDefaultModelElements(context);
     configureModelElement(context, 'task:automated', TaskNode, TaskNodeView);
     configureModelElement(context, 'task:manual', TaskNode, TaskNodeView);
     configureModelElement(context, 'label:heading', SLabel, SLabelView, { enable: [editLabelFeature] });

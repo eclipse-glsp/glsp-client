@@ -43,9 +43,9 @@ export class TaskNodeView extends RoundedCornerNodeView {
         const task = node as TaskNode;
         const rcr = this.getRoundedCornerRadius(task);
         const graph = <g>
-            <rect class-sprotty-node={true}
-                x={0} y={0} rx={rcr} ry={rcr}
+            <rect class-sprotty-node={true} class-selected={node.selected} class-mouseover={node.hoverFeedback}
                 {...this.additionalClasses(task, context)}
+                x={0} y={0} rx={rcr} ry={rcr}
                 width={Math.max(0, node.bounds.width)} height={Math.max(0, node.bounds.height)} />
             {context.renderChildren(node)}
         </g>;
@@ -56,7 +56,7 @@ export class TaskNodeView extends RoundedCornerNodeView {
         return 5;
     }
 
-    protected additionalClasses(element: Readonly<SShapeElement & Hoverable & Selectable>, context: RenderingContext): Classes {
+    protected additionalClasses(element: Readonly<SShapeElement & Hoverable & Selectable>, _context: RenderingContext): Classes {
         const node = element as TaskNode;
         return {
             'class-task': true,
