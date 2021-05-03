@@ -28,11 +28,11 @@
     stroke: black;
 }
 
-.sprotty-node.forkOrJoin {
+.forkOrJoin>.sprotty-node {
     fill: black;
 }
 
-.sprotty-node.forkOrJoin.selected {
+.forkOrJoin>.sprotty-node.selected {
     stroke: rgb(87, 87, 214);
 }
 

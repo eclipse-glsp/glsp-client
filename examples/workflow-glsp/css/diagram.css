@@ -120,11 +120,11 @@
     opacity: 0.2;
 }
 
-.sprotty-node.task.automated {
+.task.automated>.sprotty-node {
     fill: gray;
 }
 
-.sprotty-node.task.manual {
+.task.manual>.sprotty-node {
     fill: lightblue;
 }
 
