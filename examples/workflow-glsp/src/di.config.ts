@@ -57,6 +57,7 @@ import {
     overrideViewerOptions,
     paletteModule,
     RevealNamedElementActionProvider,
+    RoundedCornerNodeView,
     routingModule,
     SCompartment,
     SCompartmentView,
@@ -67,13 +68,14 @@ import {
     toolsModule,
     TYPES,
     validationModule,
-    zorderModule
+    zorderModule,
+    RectangularNodeView
 } from '@eclipse-glsp/client';
 import { Container, ContainerModule } from 'inversify';
 
 import { directTaskEditor } from './direct-task-editing/di.config';
 import { ActivityNode, Icon, TaskNode, WeightedEdge } from './model';
-import { ForkOrJoinNodeView, IconView, TaskNodeView, WeightedEdgeView, WorkflowEdgeView } from './workflow-views';
+import { IconView, WorkflowEdgeView } from './workflow-views';
 
 const workflowDiagramModule = new ContainerModule((bind, unbind, isBound, rebind) => {
     rebind(TYPES.ILogger).to(ConsoleLogger).inSingletonScope();
@@ -85,19 +87,19 @@ const workflowDiagramModule = new ContainerModule((bind, unbind, isBound, rebind
     const context = { bind, unbind, isBound, rebind };
 
     configureDefaultModelElements(context);
-    configureModelElement(context, 'task:automated', TaskNode, TaskNodeView);
-    configureModelElement(context, 'task:manual', TaskNode, TaskNodeView);
+    configureModelElement(context, 'task:automated', TaskNode, RoundedCornerNodeView);
+    configureModelElement(context, 'task:manual', TaskNode, RoundedCornerNodeView);
     configureModelElement(context, 'label:heading', SLabel, SLabelView, { enable: [editLabelFeature] });
     configureModelElement(context, 'comp:comp', SCompartment, SCompartmentView);
     configureModelElement(context, 'comp:header', SCompartment, SCompartmentView);
     configureModelElement(context, 'label:icon', SLabel, SLabelView);
     configureModelElement(context, DefaultTypes.EDGE, SEdge, WorkflowEdgeView);
-    configureModelElement(context, 'edge:weighted', WeightedEdge, WeightedEdgeView);
+    configureModelElement(context, 'edge:weighted', WeightedEdge, WorkflowEdgeView);
     configureModelElement(context, 'icon', Icon, IconView);
     configureModelElement(context, 'activityNode:merge', ActivityNode, DiamondNodeView);
     configureModelElement(context, 'activityNode:decision', ActivityNode, DiamondNodeView);
-    configureModelElement(context, 'activityNode:fork', ActivityNode, ForkOrJoinNodeView);
-    configureModelElement(context, 'activityNode:join', ActivityNode, ForkOrJoinNodeView);
+    configureModelElement(context, 'activityNode:fork', ActivityNode, RectangularNodeView);
+    configureModelElement(context, 'activityNode:join', ActivityNode, RectangularNodeView);
 });
 
 export default function createContainer(widgetId: string): Container {

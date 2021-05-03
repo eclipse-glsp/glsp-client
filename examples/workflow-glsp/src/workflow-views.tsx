@@ -16,67 +16,20 @@
 import {
     angleOfPoint,
     GEdgeView,
-    Hoverable,
     IView,
     Point,
-    RectangularNodeView,
     RenderingContext,
-    RoundedCornerNodeView,
     SEdge,
-    Selectable,
-    SShapeElement,
     toDegrees
 } from '@eclipse-glsp/client';
 import { injectable } from 'inversify';
 import * as snabbdom from 'snabbdom-jsx';
-import { Classes } from 'snabbdom/modules/class';
 import { VNode } from 'snabbdom/vnode';
 
-import { ActivityNode, Icon, TaskNode, WeightedEdge } from './model';
+import { Icon } from './model';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const JSX = { createElement: snabbdom.svg };
-
-@injectable()
-export class TaskNodeView extends RoundedCornerNodeView {
-    protected renderWithoutRadius(node: Readonly<SShapeElement & Hoverable & Selectable>, context: RenderingContext): VNode {
-        const task = node as TaskNode;
-        const rcr = this.getRoundedCornerRadius(task);
-        const graph = <g>
-            <rect class-sprotty-node={true} class-selected={node.selected} class-mouseover={node.hoverFeedback}
-                {...this.additionalClasses(task, context)}
-                x={0} y={0} rx={rcr} ry={rcr}
-                width={Math.max(0, node.bounds.width)} height={Math.max(0, node.bounds.height)} />
-            {context.renderChildren(node)}
-        </g>;
-        return graph;
-    }
-
-    protected getRoundedCornerRadius(_node: TaskNode): number {
-        return 5;
-    }
-
-    protected additionalClasses(element: Readonly<SShapeElement & Hoverable & Selectable>, _context: RenderingContext): Classes {
-        const node = element as TaskNode;
-        return {
-            'class-task': true,
-            'class-automated': node.taskType === 'automated',
-            'class-manual': node.taskType === 'manual'
-        };
-    }
-}
-
-@injectable()
-export class ForkOrJoinNodeView extends RectangularNodeView {
-    render(node: ActivityNode, context: RenderingContext): VNode {
-        const graph = <g>
-            <rect class-sprotty-node={true} class-forkOrJoin={true}
-                class-mouseover={node.hoverFeedback} class-selected={node.selected}
-                width={10} height={Math.max(50, node.bounds.height)}></rect>
-        </g>;
-        return graph;
-    }
-}
 
 @injectable()
 export class WorkflowEdgeView extends GEdgeView {
@@ -88,19 +41,6 @@ export class WorkflowEdgeView extends GEdgeView {
             transform={`rotate(${toDegrees(angleOfPoint({ x: p1.x - p2.x, y: p1.y - p2.y }))} ${p2.x} ${p2.y}) translate(${p2.x} ${p2.y})`} />;
         additionals.push(arrow);
         return additionals;
-    }
-}
-
-@injectable()
-export class WeightedEdgeView extends WorkflowEdgeView {
-    protected addtionalClasses(edge: Readonly<SEdge>, _context: RenderingContext): Classes {
-        const wedge = edge as WeightedEdge;
-        return {
-            'class-no-probability': !wedge.probability,
-            'class-low': wedge.probability === 'low',
-            'class-medium': wedge.probability === 'medium',
-            'class-high': wedge.probability === 'high'
-        };
     }
 }
 
