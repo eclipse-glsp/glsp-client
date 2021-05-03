@@ -19,9 +19,11 @@ import { configureCommand, TYPES } from 'sprotty';
 import { GLSP_TYPES } from '../../base/types';
 import { SelectAllFeedbackCommand, SelectFeedbackCommand } from './select-feedback-action';
 import { RankedSelectMouseListener } from './select-mouse-listener';
+import { DefaultGlspSelectionDataService, GlspSelectionDataService } from './selection-data-service';
 import { SelectAllCommand, SelectCommand, SelectionService } from './selection-service';
 
 const glspSelectModule = new ContainerModule((bind, _unbind, isBound) => {
+    bind(GlspSelectionDataService).to(DefaultGlspSelectionDataService).inSingletonScope();
     bind(SelectionService).toSelf().inSingletonScope();
     bind(GLSP_TYPES.SelectionService).toService(SelectionService);
     configureCommand({ bind, isBound }, SelectCommand);
