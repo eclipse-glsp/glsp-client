@@ -13,7 +13,7 @@
     "publish": "yarn && yarn publish:latest",
     "publish:latest": "lerna publish",
     "publish:next": "lerna publish --exact --canary=next --npm-tag=next --yes",
-    "update:next": "yarn upgrade -p \"sprotty|@eclipse-glsp/.*\" --next ",
+    "upgrade:next": "lerna run upgrade:next",
     "download:exampleServer": "ts-node examples/workflow-glsp/scripts/download.ts"
   },
   "devDependencies": {
