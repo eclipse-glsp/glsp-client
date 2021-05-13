@@ -46,7 +46,7 @@
   "dependencies": {
     "@eclipse-glsp/protocol": "0.9.0",
     "autocompleter": "5.1.0",
-    "sprotty": "^0.10.0-next.0bb1094"
+    "sprotty": "next"
   },
   "devDependencies": {
     "@babel/runtime": "^7.11.2",
@@ -67,8 +67,7 @@
     "build": "tsc && yarn run lint",
     "lint": "eslint -c ./.eslintrc.js --ext .ts,.tsx ./src",
     "watch": "tsc -w",
-    "test": "jenkins-mocha --opts ../../configs/mocha.opts \"./src/**/*.spec.?(ts|tsx)\"",
-    "upgrade:next": "yarn upgrade sprotty@next"
+    "test": "jenkins-mocha --opts ../../configs/mocha.opts \"./src/**/*.spec.?(ts|tsx)\""
   },
   "publishConfig": {
     "access": "public"
