@@ -3,11 +3,15 @@
   "name": "workflow-standalone",
   "version": "0.9.0",
   "description": "Standalone browser-app for the Workflow example",
-  "dependencies": {
-    "@eclipse-glsp-examples/workflow-glsp": "0.9.0",
-    "@eclipse-glsp/client": "0.9.0"
+  "author": {
+    "name": "Eclipse GLSP"
   },
-  "author": "Eclipse GLSP",
+  "homepage": "https://www.eclipse.org/glsp/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/eclipse-glsp/glsp-client.git"
+  },
+  "bugs": "https://github.com/eclipse-glsp/glsp/issues",
   "contributors": [
     {
       "name": "Philip Langer",
@@ -25,6 +29,10 @@
       "url": "https://www.eclipsesource.com"
     }
   ],
+  "dependencies": {
+    "@eclipse-glsp-examples/workflow-glsp": "0.9.0",
+    "@eclipse-glsp/client": "0.9.0"
+  },
   "devDependencies": {
     "@types/chai": "^4.0.1",
     "@types/file-saver": "^0.0.1",
@@ -56,10 +64,10 @@
     "access": "public"
   },
   "scripts": {
-    "prepare": "yarn run clean && yarn build",
+    "prepare": "yarn clean && yarn build && yarn lint",
     "clean": "rimraf lib app/bundle.js app/bundle.js.map app/css",
     "lint": "eslint -c ./.eslintrc.js --ext .ts,.tsx ./src",
-    "build": "tsc && yarn lint && webpack",
+    "build": "tsc && webpack",
     "watch": "tsc -w -p ./tsconfig.json"
   }
 }
