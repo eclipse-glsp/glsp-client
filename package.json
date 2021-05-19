@@ -6,11 +6,10 @@
     "yarn": "1.0.x || >=1.2.1"
   },
   "scripts": {
-    "test": "yarn",
     "prepare": "lerna run prepare",
     "watch": "lerna run --parallel watch",
-    "rebuild:browser": "theia rebuild:browser",
-    "publish": "yarn && yarn publish:latest",
+    "lint": "lerna run lint --",
+    "test": "lerna run test",
     "publish:latest": "lerna publish",
     "publish:next": "lerna publish --exact --canary=next --npm-tag=next --yes",
     "upgrade:next": "yarn upgrade -p \"sprotty\" --next ",

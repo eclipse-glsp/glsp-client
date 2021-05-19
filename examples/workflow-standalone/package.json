@@ -3,11 +3,11 @@
   "name": "workflow-standalone",
   "version": "0.9.0",
   "description": "Standalone browser-app for the Workflow example",
-  "dependencies": {
-    "@eclipse-glsp-examples/workflow-glsp": "0.9.0",
-    "@eclipse-glsp/client": "0.9.0"
+  "homepage": "https://www.eclipse.org/glsp/",
+  "bugs": "https://github.com/eclipse-glsp/glsp/issues",
+  "author": {
+    "name": "Eclipse GLSP"
   },
-  "author": "Eclipse GLSP",
   "contributors": [
     {
       "name": "Philip Langer",
@@ -23,8 +23,21 @@
       "name": "Martin Fleck",
       "email": "mfleck@eclipsesource.com",
       "url": "https://www.eclipsesource.com"
+    },
+    {
+      "name": "Camille Letavernier",
+      "email": "cletavernier@eclipsesource.com",
+      "url": "https://www.eclipsesource.com"
     }
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/eclipse-glsp/glsp-client.git"
+  },
+  "dependencies": {
+    "@eclipse-glsp-examples/workflow-glsp": "0.9.0",
+    "@eclipse-glsp/client": "0.9.0"
+  },
   "devDependencies": {
     "@types/chai": "^4.0.1",
     "@types/file-saver": "^0.0.1",
@@ -56,10 +69,10 @@
     "access": "public"
   },
   "scripts": {
-    "prepare": "yarn run clean && yarn build",
+    "prepare": "yarn clean && yarn build",
     "clean": "rimraf lib app/bundle.js app/bundle.js.map app/css",
     "lint": "eslint -c ./.eslintrc.js --ext .ts,.tsx ./src",
-    "build": "tsc && yarn lint && webpack",
+    "build": "tsc && yarn lint",
     "watch": "tsc -w -p ./tsconfig.json"
   }
 }

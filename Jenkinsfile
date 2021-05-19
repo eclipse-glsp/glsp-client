@@ -43,24 +43,58 @@ pipeline {
     environment {
         YARN_CACHE_FOLDER = "${env.WORKSPACE}/yarn-cache"
         SPAWN_WRAP_SHIM_ROOT = "${env.WORKSPACE}"
+        ESLINT_RESULTS="${env.WORKSPACE}/eslint"
     }
     
     stages {
-        stage('Build package') {
+        stage('Build') {
             steps {
-                container('node') {
-                    timeout(30){
-                        sh "yarn install"
-                        dir('packages/client') {
-                            sh "yarn test"
+                catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                    container('node') {
+                        timeout(30){
+                            sh "yarn install --ignore-engines"
                         }
                     }
                 }
             }
         }
 
+        stage('Codechecks (ESLint)'){
+            steps {
+                container('node') {
+                    timeout(30){
+                        sh "yarn lint -o eslint.xml -f checkstyle"                      
+                        recordIssues enabledForFailure: true, publishAllIssues: true, aggregatingResults: true, 
+                        tools: [esLint(pattern: 'node_modules/**/*/eslint.xml')], 
+                        qualityGates: [[threshold: 1, type: 'TOTAL', unstable: true]]
+                    }
+                }
+            }
+        }
+
+
+        stage('Tests (Mocha)'){
+             steps { 
+                container('node') {
+                    timeout(30) {
+                        sh "yarn test"
+                    }
+                }
+            }
+        }
+
+
         stage('Deploy (master only)') {
-            when { branch 'master'}
+            when {
+                allOf {
+                    branch 'master'
+                    expression {  
+                      /* Only trigger the deployment job if the changeset contains changes in 
+                      the `packages` or `examples` directory */
+                      sh(returnStatus: true, script: 'git diff --name-only HEAD^ | grep --quiet "^packages\\|examples"') == 0
+                    }
+                }
+            }
             steps {
                 build job: 'deploy-npm-glsp-client', wait: false
             }
