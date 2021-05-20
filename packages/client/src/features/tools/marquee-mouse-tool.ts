@@ -19,6 +19,7 @@ import {
     BoundsAware,
     EnableDefaultToolsAction,
     isSelectable,
+    isSelected,
     KeyListener,
     Point,
     SEdge,
@@ -71,6 +72,8 @@ export class MarqueeMouseListener extends DragAwareMouseListener {
 
     protected domHelper: DOMHelper;
 
+    protected previouslySelected: string[];
+
     protected isActive = false;
 
     constructor(domHelper: DOMHelper) {
@@ -81,6 +84,12 @@ export class MarqueeMouseListener extends DragAwareMouseListener {
     mouseDown(target: SModelElement, event: MouseEvent): Action[] {
         this.isActive = true;
         this.startPoint = { x: getAbsolutePosition(target, event).x, y: getAbsolutePosition(target, event).y };
+        if(event.ctrlKey){
+            this.previouslySelected = Array.from(target.root.index.all()
+                .map(e => e as SModelElement & BoundsAware)
+                .filter(e => isSelected(e))
+                .map(e => e.id));
+        }
         return [];
     }
 
@@ -95,8 +104,8 @@ export class MarqueeMouseListener extends DragAwareMouseListener {
             const edgeIdsSelected = this.getMarkedEdges(target.root);
             const selected = nodeIdsSelected.concat(edgeIdsSelected);
             return [
-                new SelectAction([], Array.from(target.index.all().map(e => e.id))),
-                new SelectAction(selected, []),
+                new SelectAction([], Array.from(target.root.index.all().map(e => e.id))),
+                new SelectAction(selected.concat(this.previouslySelected), []),
                 new DrawMarqueeAction(this.startPoint,
                     { x: getAbsolutePosition(target, event).x, y: getAbsolutePosition(target, event).y })
             ];
