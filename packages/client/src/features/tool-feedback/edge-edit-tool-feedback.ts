@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019 EclipseSource and others.
+ * Copyright (c) 2019-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -17,6 +17,7 @@ import { inject, injectable } from 'inversify';
 import { VNode } from 'snabbdom/vnode';
 import {
     Action,
+    add,
     AnchorComputerRegistry,
     center,
     CommandExecutionContext,
@@ -44,7 +45,7 @@ import {
 } from 'sprotty';
 
 import { isNotUndefined, isRoutable, isRoutingHandle } from '../../utils/smodel-util';
-import { getAbsolutePosition } from '../../utils/viewpoint-util';
+import { getAbsolutePosition, toAbsoluteBounds } from '../../utils/viewpoint-util';
 import { addReconnectHandles, removeReconnectHandles } from '../reconnect/model';
 import {
     FeedbackEdgeEnd,
@@ -172,8 +173,7 @@ export class FeedbackEdgeSourceMovingMouseListener extends MouseListener {
             .find(e => isConnectable(e) && e.canConnect(edge, 'source'));
 
         if (endAtMousePosition instanceof SConnectableElement && edge.target && isBoundsAware(edge.target)) {
-            const anchorComputer = this.anchorRegistry.get(PolylineEdgeRouter.KIND, endAtMousePosition.anchorKind);
-            const anchor = anchorComputer.getAnchor(endAtMousePosition, center(edge.target.bounds));
+            const anchor = this.computeAbsoluteAnchor(endAtMousePosition, center(edge.target.bounds));
             if (euclideanDistance(anchor, edgeEnd.position) > 1) {
                 return [new MoveAction([{ elementId: edgeEnd.id, toPosition: anchor }], false)];
             }
@@ -182,6 +182,21 @@ export class FeedbackEdgeSourceMovingMouseListener extends MouseListener {
         }
 
         return [];
+    }
+
+    protected computeAbsoluteAnchor(element: SConnectableElement, referencePoint: Point, offset?: number): Point {
+        const anchorComputer = this.anchorRegistry.get(PolylineEdgeRouter.KIND, element.anchorKind);
+        let anchor = anchorComputer.getAnchor(element, referencePoint, offset);
+        // The anchor is computed in the local coordinate system of the element.
+        // If the element is a nested child element we have to add the absolute position of its parent to the anchor.
+        if (element.parent !== element.root) {
+            const parent = findParentByFeature(element.parent, isBoundsAware);
+            if (parent) {
+                const absoluteParentPosition = toAbsoluteBounds(parent);
+                anchor = add(absoluteParentPosition, anchor);
+            }
+        }
+        return anchor;
     }
 }
 
