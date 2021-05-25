@@ -12,15 +12,15 @@
     "glsp",
     "diagram editor"
   ],
-  "homepage": "https://www.eclipse.org/glsp/",
-  "bugs": "https://github.com/eclipse-glsp/glsp-client/issues",
-  "files": [
-    "lib",
-    "src"
-  ],
   "author": {
     "name": "Eclipse GLSP"
   },
+  "homepage": "https://www.eclipse.org/glsp/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/eclipse-glsp/glsp-client.git"
+  },
+  "bugs": "https://github.com/eclipse-glsp/glsp/issues",
   "contributors": [
     {
       "name": "Philip Langer",
@@ -38,10 +38,10 @@
       "url": "https://www.eclipsesource.com"
     }
   ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/eclipse-glsp/glsp-client.git"
-  },
+  "files": [
+    "lib",
+    "src"
+  ],
   "dependencies": {
     "uuid": "7.0.3",
     "vscode-ws-jsonrpc": "0.2.0"
@@ -53,9 +53,9 @@
     "typescript": "^3.9.2"
   },
   "scripts": {
-    "prepare": "yarn run clean && yarn run build",
+    "prepare": "yarn clean && yarn build && yarn lint",
     "clean": "rimraf lib",
-    "build": "tsc && yarn run lint",
+    "build": "tsc",
     "lint": "eslint -c ./.eslintrc.js --ext .ts ./src",
     "watch": "tsc -w"
   },
