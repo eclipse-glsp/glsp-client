@@ -49,21 +49,31 @@ export class InvokeCopyPasteActionHandler implements IActionHandler {
     handle(action: Action): void {
         switch (action.kind) {
             case InvokeCopyAction.KIND:
-                document.execCommand('copy');
+                if (supportsCopy()) {
+                    document.execCommand('copy');
+                } else {
+                    this.notifyUserToUseShortcut('copy');
+                }
                 break;
             case InvokePasteAction.KIND:
-                // in a browser without additional permission we can't invoke the paste command
-                // the user needs to invoke it from the browser, so notify the user about it
-                this.notifyUserToUseShortcut();
+                if (supportsPaste()) {
+                    document.execCommand('paste');
+                } else {
+                    this.notifyUserToUseShortcut('paste');
+                }
                 break;
             case InvokeCutAction.KIND:
-                document.execCommand('cut');
+                if (supportsCut()) {
+                    document.execCommand('cut');
+                } else {
+                    this.notifyUserToUseShortcut('cut');
+                }
                 break;
         }
     }
 
-    protected notifyUserToUseShortcut(): void {
-        const message = 'Please use the browser\'s paste command or shortcut.';
+    protected notifyUserToUseShortcut(operation: string): void {
+        const message = `Please use the browser's ${operation} command or shortcut.`;
         const timeout = 10000;
         const severity = 'WARNING';
         this.dispatcher.dispatchAll([
@@ -104,4 +114,25 @@ export class CopyPasteContextMenuItemProvider implements IContextMenuItemProvide
             actions: [new InvokeCopyAction()], isEnabled: () => hasSelectedElements
         };
     }
+}
+
+export function supportsCopy(): boolean {
+    return isNative() || document.queryCommandSupported('copy');
+}
+
+export function supportsCut(): boolean {
+    return isNative() || document.queryCommandSupported('cut');
+}
+
+export function supportsPaste(): boolean {
+    const isChrome = (userAgent().indexOf('Chrome') >= 0);
+    return isNative() || (!isChrome && document.queryCommandSupported('paste'));
+}
+
+export function isNative(): boolean {
+    return typeof (window as any).process !== 'undefined';
+}
+
+function userAgent(): string {
+    return typeof navigator !== 'undefined' ? navigator.userAgent : '';
 }

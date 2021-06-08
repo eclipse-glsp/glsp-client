@@ -91,7 +91,7 @@ function getClipboardIdFromDataTransfer(dataTransfer: DataTransfer): string | un
     return isClipboardId(jsonObject) ? jsonObject.clipboardId : undefined;
 }
 
-const CLIPBOARD_DATA_FORMAT = 'application/json';
+const CLIPBOARD_DATA_FORMAT = 'text/plain';
 
 @injectable()
 export class ServerCopyPasteHandler implements ICopyPasteHandler {
@@ -126,7 +126,7 @@ export class ServerCopyPasteHandler implements ICopyPasteHandler {
     }
 
     handlePaste(event: ClipboardEvent): void {
-        if (event.clipboardData) {
+        if (event.clipboardData && this.shouldPaste(event)) {
             const clipboardId = getClipboardIdFromDataTransfer(event.clipboardData);
             const clipboardData = this.clipboadService.get(clipboardId);
             if (clipboardData) {
@@ -137,8 +137,16 @@ export class ServerCopyPasteHandler implements ICopyPasteHandler {
     }
 
     protected shouldCopy(_event: ClipboardEvent): boolean | null {
-        return this.editorContext.get().selectedElementIds.length > 0 && document.activeElement instanceof SVGElement
-            && document.activeElement.parentElement && document.activeElement.parentElement.id === this.viewerOptions.baseDiv;
+        return this.editorContext.get().selectedElementIds.length > 0 && this.isDiagramActive();
     }
 
+    protected shouldPaste(_event: ClipboardEvent): boolean | null {
+        return this.isDiagramActive();
+    }
+
+    private isDiagramActive(): boolean | null {
+        return document.activeElement instanceof SVGElement
+            && document.activeElement.parentElement
+            && document.activeElement.parentElement.id === this.viewerOptions.baseDiv;
+    }
 }
