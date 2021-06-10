@@ -1,6 +1,6 @@
 {
   "lerna": "2.4.0",
-  "version": "0.8.0",
+  "version": "0.9.0-1258741.0",
   "useWorkspaces": true,
   "npmClient": "yarn",
   "command": {
@@ -10,7 +10,7 @@
     "publish": {
       "forcePublish": true,
       "skipGit": true,
-      "registry": "https://registry.npmjs.org/"
+      "registry": "http://localhost:4873/"
     }
   }
 }
