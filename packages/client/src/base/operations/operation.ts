@@ -82,7 +82,7 @@ export class ChangeContainerOperation implements Operation {
     static readonly KIND = 'changeContainer';
     constructor(public readonly elementId: string,
         public readonly targetContainerId: string,
-        public readonly location?: string,
+        public readonly location?: Point,
         public readonly kind: string = ChangeContainerOperation.KIND) { }
 }
 
