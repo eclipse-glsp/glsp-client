@@ -14,19 +14,9 @@
   "bugs": "https://github.com/eclipse-glsp/glsp/issues",
   "contributors": [
     {
-      "name": "Philip Langer",
-      "email": "planger@eclipsesource.com",
-      "url": "https://www.eclipsesource.com"
-    },
-    {
-      "name": "Tobias Ortmayr",
-      "email": "tortmayr@eclipsesource.com",
-      "url": "https://www.eclipsesource.com"
-    },
-    {
-      "name": "Martin Fleck",
-      "email": "mfleck@eclipsesource.com",
-      "url": "https://www.eclipsesource.com"
+      "name": "Eclipse GLSP Project",
+      "email": "glsp-dev@eclipse.org",
+      "url": "https://projects.eclipse.org/projects/ecd.glsp"
     }
   ],
   "dependencies": {
