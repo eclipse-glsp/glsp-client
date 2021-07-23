@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019 EclipseSource and others.
+ * Copyright (c) 2019-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -27,6 +27,7 @@ import {
     MouseListener,
     MoveAction,
     Point,
+    SChildElement,
     SModelElement,
     SModelRoot,
     TYPES
@@ -132,14 +133,27 @@ export class FeedbackMoveMouseListener extends MouseListener {
     }
 
     protected collectStartPositions(root: SModelRoot): void {
-        root.index
+        const selectedElements = root.index
             .all()
-            .filter(element => isSelectable(element) && element.selected)
+            .filter(element => isSelectable(element) && element.selected);
+        const elementsSet = new Set(selectedElements);
+        selectedElements
+            .filter(element => !this.isChildOfSelected(elementsSet, element))
             .forEach(element => {
                 if (isMoveable(element)) {
                     this.elementId2startPos.set(element.id, element.position);
                 }
             });
+    }
+
+    protected isChildOfSelected(selectedElements: Set<SModelElement>, element: SModelElement): boolean {
+        while (element instanceof SChildElement) {
+            element = element.parent;
+            if (selectedElements.has(element)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     protected getElementMoves(target: SModelElement, event: MouseEvent, isFinished: boolean): MoveAction | undefined {
