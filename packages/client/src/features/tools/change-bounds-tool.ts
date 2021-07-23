@@ -27,6 +27,7 @@ import {
     isViewport,
     MouseListener,
     Point,
+    SChildElement,
     SConnectableElement,
     SetBoundsAction,
     SModelElement,
@@ -207,13 +208,30 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements Sele
     protected handleMoveElementsOnServer(target: SModelElement): Action[] {
         const result: Operation[] = [];
         const newBounds: ElementAndBounds[] = [];
+        const selectedElements: (SModelElement & BoundsAware)[] = [];
         forEachElement(target, isNonRoutableSelectedMovableBoundsAware, element => {
-            this.createElementAndBounds(element).forEach(bounds => newBounds.push(bounds));
+            selectedElements.push(element);
         });
+
+        const selectionSet: Set<SModelElement & BoundsAware> = new Set(selectedElements);
+        selectedElements.filter(element => !this.isChildOfSelected(selectionSet, element))
+            .map(element => this.createElementAndBounds(element))
+            .forEach(bounds => newBounds.push(...bounds));
+
         if (newBounds.length > 0) {
             result.push(new ChangeBoundsOperation(newBounds));
         }
         return result;
+    }
+
+    protected isChildOfSelected(selectedElements: Set<SModelElement>, element: SModelElement): boolean {
+        while (element instanceof SChildElement) {
+            element = element.parent;
+            if (selectedElements.has(element)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     protected handleMoveRoutingPointsOnServer(target: SModelElement): Action[] {
