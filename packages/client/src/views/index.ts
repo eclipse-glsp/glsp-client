@@ -19,3 +19,4 @@ export * from './glsp-edge-view';
 export * from './issue-marker-view';
 export * from './rounded-corner';
 export * from './rounded-corner-view';
+export * from './compartments';

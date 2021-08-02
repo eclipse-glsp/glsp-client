@@ -128,6 +128,10 @@
     fill: lightblue;
 }
 
+.category>.sprotty-node {
+    fill: lightblue;
+}
+
 text {
     stroke-width: 0;
     stroke: #000;
@@ -174,6 +178,15 @@ polygon.sprotty-node {
 
 .sprotty-node.selected {
     stroke-width: 4;
+}
+
+.sprotty-comp {
+    stroke: transparent;
+    fill: transparent;
+}
+
+.sprotty-comp.debug {
+    stroke: deepskyblue;
 }
 
 svg {
