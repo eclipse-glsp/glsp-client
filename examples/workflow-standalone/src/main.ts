@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019 EclipseSource and others.
+ * Copyright (c) 2019-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -29,7 +29,6 @@ import createContainer from './di.config';
 
 const port = 8081;
 const id = 'workflow';
-const name = 'workflow';
 const websocket = new WebSocket(`ws://localhost:${port}/${id}`);
 const container = createContainer();
 
@@ -44,7 +43,7 @@ const actionDispatcher = container.get<IActionDispatcher>(TYPES.IActionDispatche
 
 websocket.onopen = () => {
     const connectionProvider = JsonrpcGLSPClient.createWebsocketConnectionProvider(websocket);
-    const glspClient = new BaseJsonrpcGLSPClient({ id, name, connectionProvider });
+    const glspClient = new BaseJsonrpcGLSPClient({ id, connectionProvider });
     diagramServer.connect(glspClient).then(client => {
         client.initializeServer({ applicationId: ApplicationIdProvider.get() });
         actionDispatcher.dispatch(new InitializeClientSessionAction(diagramServer.clientId));

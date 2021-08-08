@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020 EclipseSource and others.
+ * Copyright (c) 2020-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -78,11 +78,6 @@ export interface GLSPClient {
     readonly id: string;
 
     /**
-     * Client name.
-     */
-    readonly name: string;
-
-    /**
      * Current client state.
      */
     currentState(): ClientState;
@@ -128,11 +123,9 @@ export interface GLSPClient {
 export namespace GLSPClient {
     export interface Options {
         id: string;
-        name: string;
     }
 
     export function isOptions(object: any): object is Options {
-        return object !== undefined && 'id' in object && typeof object['id'] === 'string'
-            && 'name' in object && typeof object['name'] === 'string';
+        return object !== undefined && 'id' in object && typeof object['id'] === 'string';
     }
 }
