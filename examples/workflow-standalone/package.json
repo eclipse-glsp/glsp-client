@@ -59,5 +59,7 @@
     "lint": "eslint -c ./.eslintrc.js --ext .ts,.tsx ./src",
     "build": "tsc && webpack",
     "watch": "tsc -w -p ./tsconfig.json"
-  }
+  },
+  "types": "lib",
+  "main": "lib"
 }

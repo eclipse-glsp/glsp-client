@@ -16,7 +16,15 @@
 import { ActionMessage } from 'sprotty';
 import { Message, MessageConnection } from 'vscode-ws-jsonrpc';
 
-import { ActionMessageHandler, ClientState, GLSPClient, InitializeParameters } from '../glsp-client';
+import {
+    ActionMessageHandler,
+    ClientState,
+    DisposeClientSessionParameters,
+    GLSPClient,
+    InitializeClientSessionParameters,
+    InitializeParameters,
+    InitializeResult
+} from '../glsp-client';
 import { ConnectionProvider, JsonrpcGLSPClient } from './glsp-jsonrpc-client';
 
 export class BaseJsonrpcGLSPClient implements GLSPClient {
@@ -39,11 +47,25 @@ export class BaseJsonrpcGLSPClient implements GLSPClient {
         }
     }
 
-    initializeServer(params: InitializeParameters): Promise<boolean> {
+    initializeServer(params: InitializeParameters): Promise<InitializeResult> {
         if (this.checkConnectionState()) {
             return this.resolvedConnection!.sendRequest(JsonrpcGLSPClient.InitializeRequest, params);
         }
-        return Promise.resolve(false);
+        return Promise.reject(JsonrpcGLSPClient.ClientNotReadyMsg);
+    }
+
+    initializeClientSession(params: InitializeClientSessionParameters): Promise<void> {
+        if (this.checkConnectionState()) {
+            return this.resolvedConnection!.sendRequest(JsonrpcGLSPClient.InitializeClientSessionRequest, params);
+        }
+        return Promise.reject(JsonrpcGLSPClient.ClientNotReadyMsg);
+    }
+
+    disposeClientSession(params: DisposeClientSessionParameters): Promise<void> {
+        if (this.checkConnectionState()) {
+            return this.resolvedConnection!.sendRequest(JsonrpcGLSPClient.DisposeClientSessionRequest, params);
+        }
+        return Promise.reject(JsonrpcGLSPClient.ClientNotReadyMsg);
     }
 
     onActionMessage(handler: ActionMessageHandler): void {
@@ -138,7 +160,7 @@ export class BaseJsonrpcGLSPClient implements GLSPClient {
         return this.state === ClientState.Running && !!this.resolvedConnection;
     }
 
-    currentState(): ClientState {
+    get currentState(): ClientState {
         return this.state;
     }
 }

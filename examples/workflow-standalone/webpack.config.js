@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2017 TypeFox & others
+ * Copyright (c) 2017-2021 TypeFox & others
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -34,27 +34,26 @@ module.exports = {
             path: appRoot
         },
        mode: 'development',
-    devtool: 'source-map',
+    devtool: 'eval-source-map',
     resolve: {
         // Add `.ts` and `.tsx` as a resolvable extension.
         extensions: ['.webpack.js', '.web.js', '.ts', '.tsx', '.js']
     },
     module: {
         rules: [
-            // all files with a `.ts` or `.tsx` extension will be handled by `ts-loader`
             {
                 test: /\.tsx?$/,
-                use: [{
-                    loader: 'ts-loader',
-                    options: {
-                        configFile: path.resolve(__dirname, 'examples.tsconfig.json')
-                    }
-                }]
+                use: ['ts-loader']
+            },
+            {
+                test: /\.js$/,
+                use: ['source-map-loader'],
+                enforce: 'pre'
             },
             {
                 test: /\.css$/,
                 exclude: /\.useable\.css$/,
-                loader: 'style-loader!css-loader'
+                use: ['style-loader', 'css-loader']
             }
         ]
     },

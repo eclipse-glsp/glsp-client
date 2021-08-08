@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019 EclipseSource and others.
+ * Copyright (c) 2019-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -39,12 +39,12 @@ export * from './base/actions/context-actions';
 export * from './base/actions/edit-mode-action';
 export * from './base/actions/edit-validation-actions';
 export * from './base/actions/focus-change-action';
-export * from './base/actions/protocol-actions';
 export * from './base/args';
 export * from './base/auto-complete/auto-complete-actions';
 export * from './base/auto-complete/auto-complete-widget';
 export * from './base/auto-complete/validation-decorator';
 export * from './base/command-stack';
+export { configureServerActions } from './base/di.config';
 export * from './base/drag-aware-mouse-listener';
 export * from './base/editor-context';
 export * from './base/focus-tracker';
@@ -95,21 +95,21 @@ export * from './features/tools/edge-edit-tool';
 export * from './features/tools/node-creation-tool';
 export * from './features/undo-redo/model';
 export * from './features/validation/issue-marker';
-export * from './features/validation/validate';
 export * from './features/validation/marker-navigator';
+export * from './features/validation/validate';
 export * from './features/viewport/glsp-scroll-mouse-listener';
 export * from './lib/model';
-export * from './model-source/glsp-server-status';
 export * from './model-source/glsp-diagram-server';
+export * from './model-source/glsp-server-status';
 export * from './utils/argument-utils';
 export * from './utils/array-utils';
 export * from './utils/marker';
 export * from './utils/smodel-util';
 export * from './utils/viewpoint-util';
 export * from './views';
-
 export {
     validationModule, saveModule, paletteModule, toolFeedbackModule, defaultGLSPModule, modelHintsModule, glspCommandPaletteModule,
     glspContextMenuModule, glspServerCopyPasteModule, copyPasteContextMenuModule, glspSelectModule, glspMouseToolModule, layoutCommandsModule, glspEditLabelModule,
     glspHoverModule, toolsModule, navigationModule, markerNavigatorModule, glspDecorationModule, modelSourceWatcherModule, glspViewportModule
 };
+

@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019 EclipseSource and others.
+ * Copyright (c) 2019-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -56,6 +56,7 @@ import {
     openModule,
     overrideViewerOptions,
     paletteModule,
+    RectangularNodeView,
     RevealNamedElementActionProvider,
     RoundedCornerNodeView,
     routingModule,
@@ -68,8 +69,7 @@ import {
     toolsModule,
     TYPES,
     validationModule,
-    zorderModule,
-    RectangularNodeView
+    zorderModule
 } from '@eclipse-glsp/client';
 import { Container, ContainerModule } from 'inversify';
 

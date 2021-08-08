@@ -16,16 +16,76 @@
 import { ActionMessage } from 'sprotty';
 import * as uuid from 'uuid';
 
-export interface InitializeParameters<> {
+/**
+ * A key-value pair structure for primitive typed custom arguments.
+ */
+export interface Args { [key: string]: string | number | boolean }
+
+/**
+ * A key-value pair structure to map a diagramType to its server-handled action kinds.
+ */
+export interface ServerActions { [key: string]: string[] }
+
+export interface InitializeParameters {
     /**
      * Unique identifier for the current client application.
      */
     applicationId: string;
 
     /**
-     * Options that can include application-specific parameters.
+     * GLSP protocol version that this client is implementing.
      */
-    options?: any;
+    protocolVersion: string;
+
+    /**
+     * Additional custom arguments e.g. application specific parameters.
+     */
+    args?: Args;
+}
+
+export interface InitializeResult {
+
+    /**
+    * GLSP protocol version that the server is implementing.
+    */
+    protocolVersion: string;
+
+    /**
+     * The actions (grouped by diagramType) that the server can handle.
+     */
+    serverActions: ServerActions;
+}
+
+/**
+ * Known server actions i.e. action kinds that the server can handle for a specific diagram type.
+ */
+export interface InitializeClientSessionParameters {
+    /**
+     * Unique identifier for the new client session.
+     */
+    clientSessionId: string;
+
+    /**
+     * Unique identifier of the diagram type for which the session should be configured.
+     */
+    diagramType: string;
+
+    /**
+     * Additional custom arguments.
+     */
+    args?: Args;
+}
+
+export interface DisposeClientSessionParameters {
+    /**
+     * Unique identifier of the client session that should be disposed.
+     */
+    clientSessionId: string;
+
+    /**
+    * Additional custom arguments.
+    */
+    args?: Args;
 }
 
 export class ApplicationIdProvider {
@@ -80,20 +140,43 @@ export interface GLSPClient {
     /**
      * Current client state.
      */
-    currentState(): ClientState;
+    readonly currentState: ClientState;
 
     /**
-     * Initializes the client and the server connection. During the start procedure the client is in the `Starting` state and will transition to either `Running` or `StartFailed`.
+     * Initializes the client and the server connection. During the start procedure the client is in the
+     * `Starting` state and will transition to either `Running` or `StartFailed`.
+     *
+     * @returns A promise that resolves if the startup was successful.
      */
     start(): Promise<void>;
 
     /**
-     * Send an `initialize` request to the server. The server needs to be initialized in order to accept and process action messages.
+     * Send an `initialize` request to the server. The server needs to be initialized in order to accept and
+     * process other requests and notifications.
      *
-     * @param params Initialize parameter
-     * @returns true if the initialization was successful
+     * @param params Initialize parameters
+     * @returns A promise of the {@link InitializeResult}.
      */
-    initializeServer(params: InitializeParameters): Promise<boolean>;
+    initializeServer(params: InitializeParameters): Promise<InitializeResult>;
+
+    /**
+     * Send an `initializeClientSession` request to the server. One client application may open several session.
+     * Each individual diagram on the client side counts as one session and has to provide
+     * a unique clientId.
+     *
+     * @param params InitializeClientSession parameters
+     * @returns A promise that resolves if the initialization was successful
+     */
+    initializeClientSession(params: InitializeClientSessionParameters): Promise<void>;
+
+    /**
+     * Sends a `disposeClientSession` request to the server. This request has to be sent at the end of client session lifecycle
+     * e.g. when an editor widget is closed.
+     *
+     * @param params DisposeClientSession parameters
+     * @returns A promise that resolves if the disposal was successful
+     */
+    disposeClientSession(params: DisposeClientSessionParameters): Promise<void>;
 
     /**
      * Send a `shutdown` notification to the server.
@@ -101,7 +184,10 @@ export interface GLSPClient {
     shutdownServer(): void;
 
     /**
-     * Stops the client and disposes any resources. During the stop procedure the client is in the `Stopping` state and will transition to either `Stopped` or `ServerError`.
+     * Stops the client and disposes any resources. During the stop procedure the client is in the `Stopping` state and will
+     * transition to either `Stopped` or `ServerError`.
+     *
+     * @returns A promise that resolves after the server was stopped and disposed.
      */
     stop(): Promise<void>;
 
@@ -119,7 +205,6 @@ export interface GLSPClient {
      */
     onActionMessage(handler: ActionMessageHandler): void;
 }
-
 export namespace GLSPClient {
     export interface Options {
         id: string;
@@ -128,4 +213,6 @@ export namespace GLSPClient {
     export function isOptions(object: any): object is Options {
         return object !== undefined && 'id' in object && typeof object['id'] === 'string';
     }
+
+    export const protocolVersion = '0.9.0';
 }

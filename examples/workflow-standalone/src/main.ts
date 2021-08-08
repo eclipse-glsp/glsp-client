@@ -16,12 +16,12 @@
 import 'reflect-metadata';
 
 import {
+    configureServerActions,
     EnableToolPaletteAction,
     GLSPDiagramServer,
-    InitializeClientSessionAction,
     RequestTypeHintsAction
 } from '@eclipse-glsp/client';
-import { ApplicationIdProvider, BaseJsonrpcGLSPClient, JsonrpcGLSPClient } from '@eclipse-glsp/protocol';
+import { ApplicationIdProvider, BaseJsonrpcGLSPClient, GLSPClient, JsonrpcGLSPClient } from '@eclipse-glsp/protocol';
 import { join, resolve } from 'path';
 import { IActionDispatcher, RequestModelAction, TYPES } from 'sprotty';
 
@@ -29,32 +29,39 @@ import createContainer from './di.config';
 
 const port = 8081;
 const id = 'workflow';
+const diagramType = 'workflow-diagram';
 const websocket = new WebSocket(`ws://localhost:${port}/${id}`);
-const container = createContainer();
 
 const loc = window.location.pathname;
 const currentDir = loc.substring(0, loc.lastIndexOf('/'));
 const examplePath = resolve(join(currentDir, '..', 'app', 'example1.wf'));
+const clientId = ApplicationIdProvider.get() + '_' + examplePath;
 
+const container = createContainer();
 const diagramServer = container.get<GLSPDiagramServer>(TYPES.ModelSource);
-diagramServer.clientId = ApplicationIdProvider.get() + '_' + examplePath;
-
-const actionDispatcher = container.get<IActionDispatcher>(TYPES.IActionDispatcher);
+diagramServer.clientId = clientId;
 
 websocket.onopen = () => {
     const connectionProvider = JsonrpcGLSPClient.createWebsocketConnectionProvider(websocket);
     const glspClient = new BaseJsonrpcGLSPClient({ id, connectionProvider });
-    diagramServer.connect(glspClient).then(client => {
-        client.initializeServer({ applicationId: ApplicationIdProvider.get() });
-        actionDispatcher.dispatch(new InitializeClientSessionAction(diagramServer.clientId));
-        actionDispatcher.dispatch(new RequestModelAction({
-            sourceUri: `file://${examplePath}`,
-            diagramType: 'workflow-diagram'
-        }));
-        actionDispatcher.dispatch(new RequestTypeHintsAction('workflow-diagram'));
-        actionDispatcher.dispatch(new EnableToolPaletteAction());
-    });
+    initialize(glspClient);
 };
+
+async function initialize(client: GLSPClient): Promise<void> {
+    await diagramServer.connect(client);
+    const result = await client.initializeServer({ applicationId: ApplicationIdProvider.get(), protocolVersion: GLSPClient.protocolVersion });
+    await configureServerActions(result, diagramType, container);
+
+    const actionDispatcher = container.get<IActionDispatcher>(TYPES.IActionDispatcher);
+
+    await client.initializeClientSession({ clientSessionId: diagramServer.clientId, diagramType });
+    actionDispatcher.dispatch(new RequestModelAction({
+        sourceUri: `file://${examplePath}`,
+        diagramType
+    }));
+    actionDispatcher.dispatch(new RequestTypeHintsAction(diagramType));
+    actionDispatcher.dispatch(new EnableToolPaletteAction());
+}
 
 websocket.onerror = ev => alert('Connection to server errored. Please make sure that the server is running');
 

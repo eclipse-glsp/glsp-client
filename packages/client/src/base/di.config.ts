@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019 EclipseSource and others.
+ * Copyright (c) 2019-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -15,13 +15,20 @@
  ********************************************************************************/
 import '../../css/glsp-sprotty.css';
 
-import { ContainerModule } from 'inversify';
-import { configureActionHandler, configureCommand, SetModelCommand, TYPES } from 'sprotty';
+import { InitializeResult } from '@eclipse-glsp/protocol';
+import { Container, ContainerModule } from 'inversify';
+import {
+    ActionHandlerRegistry,
+    configureActionHandler,
+    configureCommand,
+    ModelSource,
+    SetModelCommand,
+    TYPES
+} from 'sprotty';
 
 import { GLSPActionDispatcher } from './action-dispatcher';
 import { SetEditModeAction } from './actions/edit-mode-action';
 import { FocusStateChangedAction } from './actions/focus-change-action';
-import { ConfigureServerHandlersAction, ConfigureServerHandlersActionHandler } from './actions/protocol-actions';
 import { GLSPCommandStack } from './command-stack';
 import { EditorContextService } from './editor-context';
 import { FocusTracker } from './focus-tracker';
@@ -53,9 +60,6 @@ const defaultGLSPModule = new ContainerModule((bind, _unbind, isBound, rebind) =
     configureCommand(context, FeedbackAwareUpdateModelCommand);
     configureActionHandler(context, SetModelCommand.KIND, SetModelActionHandler);
 
-    // Dynamically register all server-side action/operation handlers
-    configureActionHandler(context, ConfigureServerHandlersAction.KIND, ConfigureServerHandlersActionHandler);
-
     bind(TYPES.MouseListener).to(SelectionClearingMouseListener);
 
     rebind(TYPES.ICommandStack).to(GLSPCommandStack);
@@ -73,3 +77,20 @@ const defaultGLSPModule = new ContainerModule((bind, _unbind, isBound, rebind) =
 });
 
 export default defaultGLSPModule;
+
+/**
+ * Utility function to configure the {@link ModelSource}, i.e. the `DiagramServer`, as action handler for all server actions for the given diagramType.
+ * @param result A promise that resolves after all server actions have been registered.
+ * @param diagramType The diagram type.
+ * @param container The di container.
+ */
+export async function configureServerActions(result: InitializeResult, diagramType: string, container: Container): Promise<void> {
+    const modelSource = container.get<ModelSource>(TYPES.ModelSource);
+    const actionHandlerRegistry = container.get<ActionHandlerRegistry>(ActionHandlerRegistry);
+    const serverActions = result.serverActions[diagramType];
+    if (serverActions.length === 0) {
+        throw new Error(`No server-handled actions could be derived from the initialize result for diagramType: ${diagramType}!`);
+    }
+    serverActions.forEach(actionKind => actionHandlerRegistry.register(actionKind, modelSource));
+}
+
