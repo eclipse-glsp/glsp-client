@@ -20,7 +20,7 @@ import { configureActionHandler, EnableDefaultToolsAction, TYPES } from 'sprotty
 
 import { EnableToolPaletteAction, ToolPalette } from './tool-palette';
 
-const toolPaletteModule = new ContainerModule((bind, _unbind, isBound) => {
+const toolPaletteModule = new ContainerModule((bind, _unbind, isBound, rebind) => {
     bind(ToolPalette).toSelf().inSingletonScope();
     bind(TYPES.IUIExtension).toService(ToolPalette);
     configureActionHandler({ bind, isBound }, EnableToolPaletteAction.KIND, ToolPalette);

@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020 EclipseSource and others.
+ * Copyright (c) 2020-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -24,7 +24,13 @@ import {
     WebSocketMessageWriter
 } from 'vscode-ws-jsonrpc';
 
-import { GLSPClient, InitializeParameters } from '../glsp-client';
+import {
+    DisposeClientSessionParameters,
+    GLSPClient,
+    InitializeClientSessionParameters,
+    InitializeParameters,
+    InitializeResult
+} from '../glsp-client';
 
 export type MaybePromise<T> = T | Promise<T> | PromiseLike<T>;
 export type ConnectionProvider = MessageConnection | (() => MaybePromise<MessageConnection>);
@@ -39,7 +45,10 @@ export namespace JsonrpcGLSPClient {
     }
 
     export const ActionMessageNotification = new NotificationType<ActionMessage, void>('process');
-    export const InitializeRequest = new RequestType<InitializeParameters, boolean, void, void>('initialize');
+    export const InitializeRequest = new RequestType<InitializeParameters, InitializeResult, void, void>('initialize');
+    export const InitializeClientSessionRequest = new RequestType<InitializeClientSessionParameters, void, void, void>('initializeClientSession');
+    export const DisposeClientSessionRequest = new RequestType<DisposeClientSessionParameters, void, void, void>('disposeClientSession');
+
     export const ShutdownNotification = new NotificationType0<void>('shutdown');
     export const ClientNotReadyMsg = 'JsonrpcGLSPClient is not ready yet';
 

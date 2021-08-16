@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2020 EclipseSource and others.
+ * Copyright (c) 2019-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -27,11 +27,8 @@ import {
     SwitchEditModeCommand
 } from 'sprotty';
 
-import { RequestContextActions } from '../base/actions/context-actions';
 import { isSetEditModeAction, SetEditModeAction } from '../base/actions/edit-mode-action';
-import { InitializeClientSessionAction } from '../base/actions/protocol-actions';
 import { SourceUriAware } from '../base/source-uri-aware';
-import { RequestTypeHintsAction } from '../features/hints/request-type-hints-action';
 import { isServerMessageAction, ServerMessageAction } from './glsp-server-status';
 
 const receivedFromServerProperty = '__receivedFromServer';
@@ -108,16 +105,7 @@ export function isReceivedFromServer(action: Action): boolean {
 }
 
 export function registerDefaultGLSPServerActions(registry: ActionHandlerRegistry, diagramServer: DiagramServer): void {
-    // Register the InitializeClientSessionAction as a server action. Then, the server will
-    // notify us about all actions it handles (Via ConfigureServerHandlersAction/Handler)
-    registry.register(InitializeClientSessionAction.KIND, diagramServer);
-
-    // Register some additional early actions, that will happen before the server can tell us
-    // which actions it handles
-    registry.register(RequestTypeHintsAction.KIND, diagramServer);
-    registry.register(RequestModelAction.KIND, diagramServer);
-    registry.register(RequestContextActions.KIND, diagramServer);
-
+    registry.register(ServerMessageAction.KIND, diagramServer);
     registry.register(ServerStatusAction.KIND, diagramServer);
 
     // Register an empty handler for SwitchEditMode, to avoid runtime exceptions.

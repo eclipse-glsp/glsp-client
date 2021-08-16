@@ -22,7 +22,8 @@ import { ConsoleLogger, LogLevel, TYPES } from 'sprotty';
 
 export default function createContainer(): Container {
     const container = createWorkflowDiagramContainer('sprotty');
-    container.bind(TYPES.ModelSource).to(GLSPDiagramServer).inSingletonScope();
+    container.bind(GLSPDiagramServer).toSelf().inSingletonScope();
+    container.bind(TYPES.ModelSource).toService(GLSPDiagramServer);
     container.rebind(TYPES.ILogger).to(ConsoleLogger).inSingletonScope();
     container.rebind(TYPES.LogLevel).toConstantValue(LogLevel.warn);
     return container;
