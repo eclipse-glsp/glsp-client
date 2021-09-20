@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { injectable, multiInject, optional } from 'inversify';
-import { VNode, VNodeData } from 'snabbdom/vnode';
+import { On, VNode, VNodeData } from 'snabbdom';
 import { Action, isAction, MouseListener, MouseTool, SModelElement, SModelRoot, TYPES } from 'sprotty';
 
 import { getRank } from '../rank/model';
@@ -46,23 +46,25 @@ export class RankingMouseTool extends MouseTool implements IMouseTool {
     decorate(vnode: VNode, element: SModelElement): VNode {
         // we need to overwrite the existing event handlers registered by the original mouse tool
         if (element instanceof SModelRoot) {
-            overwriteOn(vnode, 'mouseover', this.mouseOver.bind(this), element);
-            overwriteOn(vnode, 'mouseout', this.mouseOut.bind(this), element);
-            overwriteOn(vnode, 'mouseenter', this.mouseEnter.bind(this), element);
-            overwriteOn(vnode, 'mouseleave', this.mouseLeave.bind(this), element);
-            overwriteOn(vnode, 'mousedown', this.mouseDown.bind(this), element);
-            overwriteOn(vnode, 'mouseup', this.mouseUp.bind(this), element);
-            overwriteOn(vnode, 'mousemove', this.mouseMove.bind(this), element);
-            overwriteOn(vnode, 'wheel', this.wheel.bind(this), element);
-            overwriteOn(vnode, 'contextmenu', (_target: SModelElement, event: any) => {
-                event.preventDefault();
-            }, element);
-            overwriteOn(vnode, 'dblclick', this.doubleClick.bind(this), element);
+            overwriteOn(vnode, 'mouseover', this.mouseOver.bind(this, element), element);
+            overwriteOn(vnode, 'mouseout', this.mouseOut.bind(this, element), element);
+            overwriteOn(vnode, 'mouseenter', this.mouseEnter.bind(this, element), element);
+            overwriteOn(vnode, 'mouseleave', this.mouseLeave.bind(this, element), element);
+            overwriteOn(vnode, 'mousedown', this.mouseDown.bind(this, element), element);
+            overwriteOn(vnode, 'mouseup', this.mouseUp.bind(this, element), element);
+            overwriteOn(vnode, 'mousemove', this.mouseMove.bind(this, element), element);
+            overwriteOn(vnode, 'wheel', this.wheel.bind(this, element), element);
+            overwriteOn(vnode, 'contextmenu', this.contextMenu.bind(this, element), element);
+            overwriteOn(vnode, 'dblclick', this.doubleClick.bind(this, element), element);
         }
         vnode = this.mouseListeners.reduce(
             (n: VNode, listener: MouseListener) => listener.decorate(n, element),
             vnode);
         return vnode;
+    }
+
+    contextMenu(model: SModelRoot, event: MouseEvent): void {
+        event.preventDefault();
     }
 
     protected handleEvent<K extends keyof MouseListener>(methodName: K, model: SModelRoot, event: MouseEvent): void {
@@ -121,7 +123,7 @@ function overwriteOn(vnode: VNode, event: string, listener: (model: SModelElemen
     (val as any)[event] = [listener, element];
 }
 
-function getOn(vnode: VNode): any {
+function getOn(vnode: VNode): On {
     const data = getData(vnode);
     if (!data.on) {
         data.on = {};

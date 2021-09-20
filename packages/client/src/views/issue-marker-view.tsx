@@ -15,12 +15,11 @@
  ********************************************************************************/
 /* eslint-disable max-len */
 import { injectable } from 'inversify';
-import * as snabbdom from 'snabbdom-jsx';
-import { VNode } from 'snabbdom/vnode';
-import { IssueMarkerView, RenderingContext, setClass, SIssueMarker, SIssueSeverity } from 'sprotty';
+import { VNode } from 'snabbdom';
+import { IssueMarkerView, RenderingContext, setClass, SIssueMarker, SIssueSeverity, svg } from 'sprotty';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const JSX = { createElement: snabbdom.svg };
+const JSX = { createElement: svg };
 
 @injectable()
 export class GIssueMarkerView extends IssueMarkerView {

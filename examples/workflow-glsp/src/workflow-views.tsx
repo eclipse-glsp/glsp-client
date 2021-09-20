@@ -15,24 +15,24 @@
  ********************************************************************************/
 import {
     angleOfPoint,
-    GEdgeView,
     IView,
     Point,
+    PolylineEdgeViewWithGapsOnIntersections,
     RenderingContext,
     SEdge,
     toDegrees
 } from '@eclipse-glsp/client';
 import { injectable } from 'inversify';
-import * as snabbdom from 'snabbdom-jsx';
-import { VNode } from 'snabbdom/vnode';
+import { VNode } from 'snabbdom';
+import { svg } from 'sprotty';
 
 import { Icon } from './model';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const JSX = { createElement: snabbdom.svg };
+const JSX = { createElement: svg };
 
 @injectable()
-export class WorkflowEdgeView extends GEdgeView {
+export class WorkflowEdgeView extends PolylineEdgeViewWithGapsOnIntersections {
     protected renderAdditionals(edge: SEdge, segments: Point[], context: RenderingContext): VNode[] {
         const additionals = super.renderAdditionals(edge, segments, context);
         const p1 = segments[segments.length - 2];
