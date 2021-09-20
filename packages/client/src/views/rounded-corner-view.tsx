@@ -14,16 +14,14 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { injectable } from 'inversify';
-import * as snabbdom from 'snabbdom-jsx';
-import { Classes } from 'snabbdom/modules/class';
-import { VNode } from 'snabbdom/vnode';
-import { Hoverable, RectangularNodeView, RenderingContext, Selectable, SNode, SPort, SShapeElement } from 'sprotty/lib';
+import { Classes, VNode } from 'snabbdom';
+import { Hoverable, RectangularNodeView, RenderingContext, Selectable, SNode, SPort, SShapeElement, svg } from 'sprotty';
 
 import { CornerRadius } from '../utils/argument-utils';
 import { RoundedCornerWrapper } from './rounded-corner';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const JSX = { createElement: snabbdom.svg };
+const JSX = { createElement: svg };
 
 @injectable()
 export class RoundedCornerNodeView extends RectangularNodeView {

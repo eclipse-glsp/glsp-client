@@ -14,15 +14,13 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { injectable } from 'inversify';
-import * as snabbdom from 'snabbdom-jsx';
-import { Classes } from 'snabbdom/modules/class';
-import { VNode } from 'snabbdom/vnode';
-import { Point, PolylineEdgeView, RenderingContext, SEdge } from 'sprotty';
+import { Classes, VNode } from 'snabbdom';
+import { Point, PolylineEdgeView, RenderingContext, SEdge, svg } from 'sprotty';
 
 import { EdgePadding } from '../utils/argument-utils';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const JSX = { createElement: snabbdom.svg };
+const JSX = { createElement: svg };
 
 @injectable()
 export class GEdgeView extends PolylineEdgeView {

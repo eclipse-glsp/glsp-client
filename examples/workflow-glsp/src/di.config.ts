@@ -28,6 +28,7 @@ import {
     DefaultTypes,
     DeleteElementContextMenuItemProvider,
     DiamondNodeView,
+    edgeIntersectionModule,
     edgeLayoutModule,
     editLabelFeature,
     expandModule,
@@ -108,7 +109,7 @@ export default function createContainer(widgetId: string): Container {
     container.load(defaultModule, defaultGLSPModule, glspMouseToolModule, validationModule, glspSelectModule, boundsModule, glspViewportModule, toolsModule,
         glspHoverModule, fadeModule, exportModule, expandModule, openModule, buttonModule, modelSourceModule, labelEditUiModule, glspEditLabelModule,
         workflowDiagramModule, toolFeedbackModule, modelHintsModule, glspContextMenuModule, glspServerCopyPasteModule, modelSourceWatcherModule,
-        glspCommandPaletteModule, paletteModule, routingModule, glspDecorationModule, edgeLayoutModule, zorderModule,
+        glspCommandPaletteModule, paletteModule, routingModule, glspDecorationModule, edgeLayoutModule, zorderModule, edgeIntersectionModule,
         layoutCommandsModule, directTaskEditor, navigationModule, markerNavigatorModule);
 
     overrideViewerOptions(container, {
