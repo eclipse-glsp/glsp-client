@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020 EclipseSource and others.
+ * Copyright (c) 2020-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -51,7 +51,8 @@ export class NavigateToMarkerAction implements Action {
         public readonly direction: 'next' | 'previous' = 'next',
         public readonly selectedElementIds?: string[],
         public readonly severities: SIssueSeverity[] = MarkerNavigator.ALL_SEVERITIES,
-        public kind = NavigateToMarkerAction.KIND) { }
+        public kind = NavigateToMarkerAction.KIND
+    ) {}
 }
 
 export class SModelElementComparator {
@@ -90,7 +91,11 @@ export class MarkerNavigator {
     @inject(SModelElementComparator)
     protected markerComparator: SModelElementComparator;
 
-    next(root: SModelRoot, current?: SModelElement & BoundsAware, predicate: (marker: SIssueMarker) => boolean = MarkerPredicates.ALL): SIssueMarker | undefined {
+    next(
+        root: SModelRoot,
+        current?: SModelElement & BoundsAware,
+        predicate: (marker: SIssueMarker) => boolean = MarkerPredicates.ALL
+    ): SIssueMarker | undefined {
         const markers = this.getMarkers(root, predicate);
         if (current === undefined) {
             return markers.length > 0 ? markers[0] : undefined;
@@ -98,7 +103,11 @@ export class MarkerNavigator {
         return markers[this.getNextIndex(current, markers) % markers.length];
     }
 
-    previous(root: SModelRoot, current?: SModelElement & BoundsAware, predicate: (marker: SIssueMarker) => boolean = MarkerPredicates.ALL): SIssueMarker | undefined {
+    previous(
+        root: SModelRoot,
+        current?: SModelElement & BoundsAware,
+        predicate: (marker: SIssueMarker) => boolean = MarkerPredicates.ALL
+    ): SIssueMarker | undefined {
         const markers = this.getMarkers(root, predicate);
         if (current === undefined) {
             return markers.length > 0 ? markers[0] : undefined;
@@ -206,7 +215,6 @@ export class NavigateToMarkerCommand extends Command {
         }
         return this.centerCommand ? this.centerCommand.redo(context) : context.root;
     }
-
 }
 
 @injectable()
@@ -218,15 +226,22 @@ export class MarkerNavigatorContextMenuItemProvider implements IContextMenuItemP
         const hasMarkers = collectIssueMarkers(root).length > 0;
         return Promise.resolve([
             {
-                id: 'navigate', label: 'Go to', group: 'navigate', actions: [],
+                id: 'navigate',
+                label: 'Go to',
+                group: 'navigate',
+                actions: [],
                 children: [
                     {
-                        id: 'next-marker', label: 'Next marker', group: 'marker',
+                        id: 'next-marker',
+                        label: 'Next marker',
+                        group: 'marker',
                         actions: [new NavigateToMarkerAction('next', selectedElementIds)],
                         isEnabled: () => hasMarkers
                     },
                     {
-                        id: 'previous-marker', label: 'Previous marker', group: 'marker',
+                        id: 'previous-marker',
+                        label: 'Previous marker',
+                        group: 'marker',
                         actions: [new NavigateToMarkerAction('previous', selectedElementIds)],
                         isEnabled: () => hasMarkers
                     }

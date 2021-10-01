@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019 EclipseSource and others.
+ * Copyright (c) 2019-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -18,7 +18,7 @@ import { matchesKeystroke } from 'sprotty/lib/utils/keyboard';
 
 export class SaveModelAction implements Action {
     static readonly KIND = 'saveModel';
-    constructor(public readonly fileUri?: string, public readonly kind: string = SaveModelAction.KIND) { }
+    constructor(public readonly fileUri?: string, public readonly kind: string = SaveModelAction.KIND) {}
 }
 
 export function isSaveModelAction(action: Action): action is SaveModelAction {

@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019 EclipseSource and others.
+ * Copyright (c) 2019-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -35,7 +35,7 @@ import { FeedbackCommand } from '../../features/tool-feedback/model';
 import { GLSP_TYPES } from '../types';
 
 /* ActionHandler that transforms a SetModelAction into an (feedback-aware) UpdateModelAction. This can be done because in sprotty
-*  UpdateModel behaves the same as SetModel if no model is present yet.*/
+ *  UpdateModel behaves the same as SetModel if no model is present yet.*/
 @injectable()
 export class SetModelActionHandler implements IActionHandler {
     handle(action: Action): Action | void {
@@ -46,8 +46,7 @@ export class SetModelActionHandler implements IActionHandler {
 }
 
 export function isSetModelAction(action: Action): action is SetModelAction {
-    return action !== undefined && (action.kind === SetModelCommand.KIND)
-        && (action as SetModelAction).newRoot !== undefined;
+    return action !== undefined && action.kind === SetModelCommand.KIND && (action as SetModelAction).newRoot !== undefined;
 }
 
 export interface SModelRootListener {
@@ -73,7 +72,7 @@ export class FeedbackAwareUpdateModelCommand extends UpdateModelCommand {
 
     @postConstruct()
     protected initialize(): void {
-        this.actionHandlerRegistryProvider().then(registry => this.actionHandlerRegistry = registry);
+        this.actionHandlerRegistryProvider().then(registry => (this.actionHandlerRegistry = registry));
     }
 
     protected performUpdate(oldRoot: SModelRoot, newRoot: SModelRoot, context: CommandExecutionContext): CommandReturn {

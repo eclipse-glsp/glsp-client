@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019 EclipseSource and others.
+ * Copyright (c) 2019-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -25,16 +25,21 @@ export interface IMovementRestrictor {
     cssClasses?: string[];
 }
 
-export function createMovementRestrictionFeedback(element: SModelElement, movementRestrictor: IMovementRestrictor): ModifyCSSFeedbackAction {
+export function createMovementRestrictionFeedback(
+    element: SModelElement,
+    movementRestrictor: IMovementRestrictor
+): ModifyCSSFeedbackAction {
     const elements: SModelElement[] = [element];
     if (element instanceof SParentElement) {
         element.children.filter(child => child instanceof SResizeHandle).forEach(e => elements.push(e));
     }
     return new ModifyCSSFeedbackAction(elements, movementRestrictor.cssClasses);
-
 }
 
-export function removeMovementRestrictionFeedback(element: SModelElement, movementRestrictor: IMovementRestrictor): ModifyCSSFeedbackAction {
+export function removeMovementRestrictionFeedback(
+    element: SModelElement,
+    movementRestrictor: IMovementRestrictor
+): ModifyCSSFeedbackAction {
     const elements: SModelElement[] = [element];
     if (element instanceof SParentElement) {
         element.children.filter(child => child instanceof SResizeHandle).forEach(e => elements.push(e));
@@ -61,8 +66,12 @@ export class NoOverlapMovmentRestrictor implements IMovementRestrictor {
         };
         ghostElement.type = 'Ghost';
         ghostElement.id = element.id;
-        return !Array.from(element.root.index.all().filter(e => e.id !== ghostElement.id && e !== ghostElement.root && (e instanceof SNode))
-            .map(e => e as SModelElement & BoundsAware)).some(e => areOverlapping(e, ghostElement));
+        return !Array.from(
+            element.root.index
+                .all()
+                .filter(e => e.id !== ghostElement.id && e !== ghostElement.root && e instanceof SNode)
+                .map(e => e as SModelElement & BoundsAware)
+        ).some(e => areOverlapping(e, ghostElement));
     }
 }
 
@@ -85,5 +94,4 @@ export function areOverlapping(element1: SModelElement & BoundsAware, element2: 
     }
 
     return true;
-
 }

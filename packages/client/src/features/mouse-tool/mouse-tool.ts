@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019 EclipseSource and others.
+ * Copyright (c) 2019-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -16,7 +16,6 @@
 import { injectable, multiInject, optional } from 'inversify';
 import { On, VNode, VNodeData } from 'snabbdom';
 import { Action, isAction, MouseListener, MouseTool, SModelElement, SModelRoot, TYPES } from 'sprotty';
-
 import { getRank } from '../rank/model';
 
 export interface IMouseTool {
@@ -57,9 +56,7 @@ export class RankingMouseTool extends MouseTool implements IMouseTool {
             overwriteOn(vnode, 'contextmenu', this.contextMenu.bind(this, element), element);
             overwriteOn(vnode, 'dblclick', this.doubleClick.bind(this, element), element);
         }
-        vnode = this.mouseListeners.reduce(
-            (n: VNode, listener: MouseListener) => listener.decorate(n, element),
-            vnode);
+        vnode = this.mouseListeners.reduce((n: VNode, listener: MouseListener) => listener.decorate(n, element), vnode);
         return vnode;
     }
 
@@ -76,13 +73,23 @@ export class RankingMouseTool extends MouseTool implements IMouseTool {
         this.notifyListenersByRank(element, methodName, model, event);
     }
 
-    async notifyListenersByRank<K extends keyof MouseListener>(element: SModelElement, methodName: K, model: SModelRoot, event: MouseEvent): Promise<void> {
+    async notifyListenersByRank<K extends keyof MouseListener>(
+        element: SModelElement,
+        methodName: K,
+        model: SModelRoot,
+        event: MouseEvent
+    ): Promise<void> {
         for (const rank of this.rankedMouseListeners) {
             await this.dispatchActions(rank[1], methodName, element, event);
         }
     }
 
-    async dispatchActions<K extends keyof MouseListener>(mouseListeners: MouseListener[], methodName: K, element: SModelElement, event: MouseEvent): Promise<void> {
+    async dispatchActions<K extends keyof MouseListener>(
+        mouseListeners: MouseListener[],
+        methodName: K,
+        element: SModelElement,
+        event: MouseEvent
+    ): Promise<void> {
         const actions = mouseListeners
             .map(listener => listener[methodName].apply(listener, [element, event]))
             .reduce((a, b) => a.concat(b));
@@ -117,7 +124,7 @@ function groupBy<K, T>(array: Array<T>, keyFunction: (x: T) => K): Map<K, T[]> {
     return new Map<K, T[]>([...unsortedMap.entries()].sort());
 }
 
-function overwriteOn(vnode: VNode, event: string, listener: (model: SModelElement, event: Event) => void, element: SModelElement): void {
+function overwriteOn(vnode: VNode, event: string, listener: (model: SModelElement, _event: Event) => void, element: SModelElement): void {
     const val = getOn(vnode);
     // ignore any previous val[event] registrations
     (val as any)[event] = [listener, element];

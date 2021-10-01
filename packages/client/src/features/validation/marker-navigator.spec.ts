@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020 EclipseSource and others.
+ * Copyright (c) 2020-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -45,7 +45,9 @@ describe('MarkerNavigator', () => {
     const markerNavigator = container.get<MarkerNavigator>(MarkerNavigator);
 
     const rootWithoutAnyMarkers = graphFactory.createRoot({
-        id: 'root', type: 'graph', children: [
+        id: 'root',
+        type: 'graph',
+        children: [
             {
                 id: '1',
                 type: 'node'
@@ -54,18 +56,24 @@ describe('MarkerNavigator', () => {
     }) as SModelRoot;
 
     const rootWithMarkers = graphFactory.createRoot({
-        id: 'root', type: 'graph', children: [
+        id: 'root',
+        type: 'graph',
+        children: [
             {
-                id: 'bottom-right', type: 'node'
+                id: 'bottom-right',
+                type: 'node'
             } as SNodeSchema,
             {
-                id: 'top-right', type: 'node'
+                id: 'top-right',
+                type: 'node'
             } as SNodeSchema,
             {
-                id: 'top-left', type: 'node'
+                id: 'top-left',
+                type: 'node'
             } as SNodeSchema,
             {
-                id: 'bottom-left', type: 'node'
+                id: 'bottom-left',
+                type: 'node'
             } as SNodeSchema
         ]
     }) as SModelRoot;
@@ -168,7 +176,6 @@ describe('MarkerNavigator', () => {
         expect(found4).to.eql(marker2);
         expect(found5).to.eql(marker1);
     });
-
 });
 
 function clearMarker(elem: SParentElement): void {
@@ -204,4 +211,3 @@ function createMarker(elem: SParentElement): SIssueMarker {
     elem.add(newMarker);
     return newMarker;
 }
-

@@ -17,14 +17,7 @@ import '../../css/glsp-sprotty.css';
 
 import { InitializeResult } from '@eclipse-glsp/protocol';
 import { Container, ContainerModule } from 'inversify';
-import {
-    ActionHandlerRegistry,
-    configureActionHandler,
-    configureCommand,
-    ModelSource,
-    SetModelCommand,
-    TYPES
-} from 'sprotty';
+import { ActionHandlerRegistry, configureActionHandler, configureCommand, ModelSource, SetModelCommand, TYPES } from 'sprotty';
 
 import { GLSPActionDispatcher } from './action-dispatcher';
 import { SetEditModeAction } from './actions/edit-mode-action';
@@ -43,13 +36,16 @@ import { GLSPViewRegistry } from './view/view-registry';
 const defaultGLSPModule = new ContainerModule((bind, _unbind, isBound, rebind) => {
     const context = { bind, _unbind, isBound, rebind };
     bind(EditorContextService).toSelf().inSingletonScope();
-    bind(GLSP_TYPES.IEditorContextServiceProvider).toProvider<EditorContextService>(ctx => () => new Promise<EditorContextService>((resolve, reject) => {
-        if (ctx.container.isBound(EditorContextService)) {
-            resolve(ctx.container.get<EditorContextService>(EditorContextService));
-        } else {
-            reject();
-        }
-    }));
+    bind(GLSP_TYPES.IEditorContextServiceProvider).toProvider<EditorContextService>(
+        ctx => () =>
+            new Promise<EditorContextService>((resolve, reject) => {
+                if (ctx.container.isBound(EditorContextService)) {
+                    resolve(ctx.container.get<EditorContextService>(EditorContextService));
+                } else {
+                    reject();
+                }
+            })
+    );
 
     configureActionHandler(context, SetEditModeAction.KIND, EditorContextService);
 
@@ -93,4 +89,3 @@ export async function configureServerActions(result: InitializeResult, diagramTy
     }
     serverActions.forEach(actionKind => actionHandlerRegistry.register(actionKind, modelSource));
 }
-

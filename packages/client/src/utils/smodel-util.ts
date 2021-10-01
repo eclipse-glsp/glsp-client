@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019 EclipseSource and others.
+ * Copyright (c) 2019-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -27,21 +27,24 @@ import {
     SRoutableElement,
     SRoutingHandle
 } from 'sprotty';
-
 import { ElementAndRoutingPoints } from '../base/operations/operation';
 
 export function getIndex(element: SModelElement): SModelIndex<SModelElement> {
     return element.root.index;
 }
 
-export function forEachElement<T>(element: SModelElement, predicate: (element: SModelElement) => element is SModelElement & T,
-    runnable: (element: SModelElement & T) => void): void {
-    getIndex(element).all()
-        .filter(predicate)
-        .forEach(runnable);
+export function forEachElement<T>(
+    element: SModelElement,
+    predicate: (modelElement: SModelElement) => modelElement is SModelElement & T,
+    runnable: (modelElement: SModelElement & T) => void
+): void {
+    getIndex(element).all().filter(predicate).forEach(runnable);
 }
 
-export function getMatchingElements<T>(element: SModelElement, predicate: (element: SModelElement) => element is SModelElement & T): (SModelElement & T)[] {
+export function getMatchingElements<T>(
+    element: SModelElement,
+    predicate: (modelElement: SModelElement) => modelElement is SModelElement & T
+): (SModelElement & T)[] {
     const matching: (SModelElement & T)[] = [];
     forEachElement(element, predicate, item => matching.push(item));
     return matching;
@@ -53,9 +56,10 @@ export function hasSelectedElements(element: SModelElement): boolean {
 
 export function getSelectedElementCount(element: SModelElement): number {
     let selected = 0;
-    getIndex(element).all()
+    getIndex(element)
+        .all()
         .filter(isSelected)
-        .forEach(e => selected = selected + 1);
+        .forEach(e => (selected = selected + 1));
     return selected;
 }
 

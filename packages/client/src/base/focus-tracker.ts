@@ -20,7 +20,6 @@ import { isFocusStateChangedAction } from './actions/focus-change-action';
 
 @injectable()
 export class FocusTracker implements IActionHandler {
-
     protected inActiveCssClass = 'inactive';
     protected _hasFocus = true;
 
@@ -46,5 +45,4 @@ export class FocusTracker implements IActionHandler {
             }
         }
     }
-
 }

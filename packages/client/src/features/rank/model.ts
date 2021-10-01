@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019 EclipseSource and others.
+ * Copyright (c) 2019-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -21,7 +21,7 @@ export interface Ranked {
 }
 
 export function isRanked(arg: any): arg is Ranked {
-    return arg !== undefined && arg.rank !== undefined && typeof (arg.rank) === 'number';
+    return arg !== undefined && arg.rank !== undefined && typeof arg.rank === 'number';
 }
 
 export function getRank(arg: any): number {

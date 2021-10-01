@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2020 EclipseSource and others.
+ * Copyright (c) 2019-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -50,7 +50,7 @@ export class SelectionService implements SModelRootListener {
     @inject(GLSP_TYPES.IFeedbackActionDispatcher) protected feedbackDispatcher: IFeedbackActionDispatcher;
     @inject(TYPES.ILogger) protected logger: ILogger;
 
-    constructor(@multiInject(GLSP_TYPES.SelectionListener) @optional() protected selectionListeners: SelectionListener[] = []) { }
+    constructor(@multiInject(GLSP_TYPES.SelectionListener) @optional() protected selectionListeners: SelectionListener[] = []) {}
 
     register(selectionListener: SelectionListener): void {
         distinctAdd(this.selectionListeners, selectionListener);
@@ -99,7 +99,9 @@ export class SelectionService implements SModelRootListener {
         }
 
         // only send out changes if there actually are changes, i.e., the root or the selected elements changed
-        const selectionChanged = prevSelectedElementIDs.size !== this.selectedElementIDs.size || ![...prevSelectedElementIDs].every(value => this.selectedElementIDs.has(value));
+        const selectionChanged =
+            prevSelectedElementIDs.size !== this.selectedElementIDs.size ||
+            ![...prevSelectedElementIDs].every(value => this.selectedElementIDs.has(value));
         if (selectionChanged) {
             // aggregate to feedback action handling all elements as only the last feedback is restored
             this.dispatchFeedback([new SelectFeedbackAction([...this.selectedElementIDs], [...deselectedElementIDs])]);
@@ -156,7 +158,10 @@ export class SelectCommand extends Command {
     protected selected: SModelElement[] = [];
     protected deselected: SModelElement[] = [];
 
-    constructor(@inject(TYPES.Action) public action: SelectAction, @inject(GLSP_TYPES.SelectionService) public selectionService: SelectionService) {
+    constructor(
+        @inject(TYPES.Action) public action: SelectAction,
+        @inject(GLSP_TYPES.SelectionService) public selectionService: SelectionService
+    ) {
         super();
     }
 
@@ -197,7 +202,10 @@ export class SelectAllCommand extends Command {
     static readonly KIND = SprottySelectAllCommand.KIND;
     protected previousSelection: Map<string, boolean> = new Map<string, boolean>();
 
-    constructor(@inject(TYPES.Action) public action: SelectAllAction, @inject(GLSP_TYPES.SelectionService) public selectionService: SelectionService) {
+    constructor(
+        @inject(TYPES.Action) public action: SelectAllAction,
+        @inject(GLSP_TYPES.SelectionService) public selectionService: SelectionService
+    ) {
         super();
     }
 

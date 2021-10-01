@@ -108,8 +108,25 @@ export * from './utils/smodel-util';
 export * from './utils/viewpoint-util';
 export * from './views';
 export {
-    validationModule, saveModule, paletteModule, toolFeedbackModule, defaultGLSPModule, modelHintsModule, glspCommandPaletteModule,
-    glspContextMenuModule, glspServerCopyPasteModule, copyPasteContextMenuModule, glspSelectModule, glspMouseToolModule, layoutCommandsModule, glspEditLabelModule,
-    glspHoverModule, toolsModule, navigationModule, markerNavigatorModule, glspDecorationModule, modelSourceWatcherModule, glspViewportModule
+    validationModule,
+    saveModule,
+    paletteModule,
+    toolFeedbackModule,
+    defaultGLSPModule,
+    modelHintsModule,
+    glspCommandPaletteModule,
+    glspContextMenuModule,
+    glspServerCopyPasteModule,
+    copyPasteContextMenuModule,
+    glspSelectModule,
+    glspMouseToolModule,
+    layoutCommandsModule,
+    glspEditLabelModule,
+    glspHoverModule,
+    toolsModule,
+    navigationModule,
+    markerNavigatorModule,
+    glspDecorationModule,
+    modelSourceWatcherModule,
+    glspViewportModule
 };
-

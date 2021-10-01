@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019 EclipseSource and others.
+ * Copyright (c) 2019-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -23,9 +23,9 @@ import { isResizable, ResizeHandleLocation, SResizeHandle } from '../change-boun
 const JSX = { createElement: svg };
 
 /**
-* This view is used for the invisible end of the feedback edge.
-* A feedback edge is shown as a visual feedback when creating edges.
-*/
+ * This view is used for the invisible end of the feedback edge.
+ * A feedback edge is shown as a visual feedback when creating edges.
+ */
 @injectable()
 export class FeedbackEdgeEndView implements IView {
     render(model: Readonly<SModelElement>, context: RenderingContext): VNode {
@@ -39,8 +39,15 @@ export class SResizeHandleView implements IView {
     render(handle: SResizeHandle, context: RenderingContext): VNode {
         const position = this.getPosition(handle);
         if (position !== undefined) {
-            const node = <circle class-sprotty-resize-handle={true} class-mouseover={handle.hoverFeedback}
-                cx={position.x} cy={position.y} r={this.getRadius()} />;
+            const node = (
+                <circle
+                    class-sprotty-resize-handle={true}
+                    class-mouseover={handle.hoverFeedback}
+                    cx={position.x}
+                    cy={position.y}
+                    r={this.getRadius()}
+                />
+            );
             setAttr(node, 'data-kind', handle.location);
             return node;
         }

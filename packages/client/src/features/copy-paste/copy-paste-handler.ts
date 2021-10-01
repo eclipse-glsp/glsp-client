@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019 EclipseSource and others.
+ * Copyright (c) 2019-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -95,7 +95,6 @@ const CLIPBOARD_DATA_FORMAT = 'text/plain';
 
 @injectable()
 export class ServerCopyPasteHandler implements ICopyPasteHandler {
-
     @inject(TYPES.IActionDispatcher) protected actionDispatcher: GLSPActionDispatcher;
     @inject(TYPES.ViewerOptions) protected viewerOptions: ViewerOptions;
     @inject(GLSP_TYPES.IAsyncClipboardService) protected clipboadService: IAsyncClipboardService;
@@ -145,8 +144,10 @@ export class ServerCopyPasteHandler implements ICopyPasteHandler {
     }
 
     private isDiagramActive(): boolean | null {
-        return document.activeElement instanceof SVGElement
-            && document.activeElement.parentElement
-            && document.activeElement.parentElement.id === this.viewerOptions.baseDiv;
+        return (
+            document.activeElement instanceof SVGElement &&
+            document.activeElement.parentElement &&
+            document.activeElement.parentElement.id === this.viewerOptions.baseDiv
+        );
     }
 }

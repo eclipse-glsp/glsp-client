@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020 EclipseSource and others.
+ * Copyright (c) 2020-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -28,11 +28,7 @@ import {
 } from 'sprotty';
 
 import { DragAwareMouseListener } from '../../base/drag-aware-mouse-listener';
-import {
-    CreateNodeOperation,
-    isTriggerNodeCreationAction,
-    TriggerNodeCreationAction
-} from '../../base/operations/operation';
+import { CreateNodeOperation, isTriggerNodeCreationAction, TriggerNodeCreationAction } from '../../base/operations/operation';
 import { getAbsolutePosition } from '../../utils/viewpoint-util';
 import { Containable, isContainable } from '../hints/model';
 import { CursorCSS, cursorFeedbackAction } from '../tool-feedback/css-feedback';
@@ -75,7 +71,6 @@ export class NodeCreationTool extends BaseGLSPTool implements IActionHandler {
 
 @injectable()
 export class NodeCreationToolMouseListener extends DragAwareMouseListener {
-
     protected container?: SModelElement & Containable;
 
     constructor(protected triggerAction: TriggerNodeCreationAction, protected tool: NodeCreationTool) {
@@ -114,8 +109,8 @@ export class NodeCreationToolMouseListener extends DragAwareMouseListener {
         if (!this.container || currentContainer !== this.container) {
             this.container = currentContainer;
             const feedback = this.creationAllowed(this.elementTypeId)
-                ? cursorFeedbackAction(CursorCSS.NODE_CREATION) :
-                cursorFeedbackAction(CursorCSS.OPERATION_NOT_ALLOWED);
+                ? cursorFeedbackAction(CursorCSS.NODE_CREATION)
+                : cursorFeedbackAction(CursorCSS.OPERATION_NOT_ALLOWED);
             this.tool.dispatchFeedback([feedback]);
         }
         return [];

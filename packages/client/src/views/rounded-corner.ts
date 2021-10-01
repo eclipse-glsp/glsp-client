@@ -28,8 +28,7 @@ export class RoundedCornerWrapper {
     protected _bottomRightCorner: RoundedCorner;
     protected _bottomLeftCorner: RoundedCorner;
 
-    constructor(public readonly element: SShapeElement & Hoverable & Selectable, public readonly cornerRadius: CornerRadius) {
-    }
+    constructor(public readonly element: SShapeElement & Hoverable & Selectable, public readonly cornerRadius: CornerRadius) {}
 
     get size(): Dimension {
         return this.element.size;
@@ -77,8 +76,8 @@ export class RoundedCornerWrapper {
 }
 
 /*
-* Scales the radius if necessary. (Percentual downscaling if the radius is bigger then the maximal allowed length)
-*/
+ * Scales the radius if necessary. (Percentual downscaling if the radius is bigger then the maximal allowed length)
+ */
 export function scaledRadius(radius: number, maximalLength: number): number {
     if (radius <= maximalLength) {
         return radius;

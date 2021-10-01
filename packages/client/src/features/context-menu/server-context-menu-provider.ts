@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019 EclipseSource and others.
+ * Copyright (c) 2019-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -26,12 +26,16 @@ export namespace ServerContextMenu {
 
 @injectable()
 export class ServerContextMenuItemProvider implements IContextMenuItemProvider {
-
     @inject(TYPES.IActionDispatcher) protected actionDispatcher: GLSPActionDispatcher;
     @inject(EditorContextService) protected editorContext: EditorContextService;
 
     getItems(root: Readonly<SModelElement>, lastMousePosition?: Point): Promise<LabeledAction[]> {
-        const selectedElementIds = Array.from(root.index.all().filter(isSelected).map(e => e.id));
+        const selectedElementIds = Array.from(
+            root.index
+                .all()
+                .filter(isSelected)
+                .map(e => e.id)
+        );
         const context = this.editorContext.getWithSelection(selectedElementIds);
         const requestAction = new RequestContextActions(ServerContextMenu.CONTEXT_ID, context);
         return this.actionDispatcher.requestUntil(requestAction).then(response => this.getContextActionsFromResponse(response));

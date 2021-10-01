@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020 EclipseSource and others.
+ * Copyright (c) 2020-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -25,7 +25,7 @@ import { SelectionListener, SelectionService } from './selection-service';
 
 @injectable()
 class MockFeedbackActionDispatcher implements IFeedbackActionDispatcher {
-    protected feedbackEmitters: Map<IFeedbackEmitter, Action[]> = new Map;
+    protected feedbackEmitters: Map<IFeedbackEmitter, Action[]> = new Map();
 
     registerFeedback(feedbackEmitter: IFeedbackEmitter, actions: Action[]): void {
         this.feedbackEmitters.set(feedbackEmitter, actions);
@@ -43,7 +43,7 @@ class MockFeedbackActionDispatcher implements IFeedbackActionDispatcher {
 
     getSingleFeedbackAction(): SelectFeedbackAction | undefined {
         const actions = this.getRegisteredFeedback();
-        return actions.length === 1 ? actions[0] as SelectFeedbackAction : undefined;
+        return actions.length === 1 ? (actions[0] as SelectFeedbackAction) : undefined;
     }
 }
 
@@ -363,7 +363,12 @@ describe('SelectionService', () => {
         }
     }
 
-    function assertListener(listener: MockSelectionListener, expectedRoot: SModelRoot | undefined, expectedSelection: string[], expectedCalled: number): void {
+    function assertListener(
+        listener: MockSelectionListener,
+        expectedRoot: SModelRoot | undefined,
+        expectedSelection: string[],
+        expectedCalled: number
+    ): void {
         expect(listener.getRoot()).to.equal(expectedRoot);
         expect(listener.getSelectedElements()).to.have.lengthOf(expectedSelection.length);
         expect(listener.getSelectedElements()).to.have.ordered.members(expectedSelection);

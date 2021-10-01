@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020 EclipseSource and others.
+ * Copyright (c) 2020-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -33,7 +33,6 @@ import { GIssueMarker } from '../validation/issue-marker';
 
 @injectable()
 export class GlspHoverMouseListener extends HoverMouseListener {
-
     protected startMouseOverTimer(target: SModelElement, event: MouseEvent): Promise<Action> {
         this.stopMouseOverTimer();
         return new Promise(resolve => {

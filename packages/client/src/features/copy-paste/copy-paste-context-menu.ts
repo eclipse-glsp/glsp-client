@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020 EclipseSource and others.
+ * Copyright (c) 2020-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -30,17 +30,17 @@ import { GLSPServerStatusAction, ServerMessageAction } from '../../model-source/
 
 export class InvokeCopyAction implements Action {
     static readonly KIND = 'invoke-copy';
-    constructor(public readonly kind = InvokeCopyAction.KIND) { }
+    constructor(public readonly kind = InvokeCopyAction.KIND) {}
 }
 
 export class InvokePasteAction implements Action {
     static readonly KIND = 'invoke-paste';
-    constructor(public readonly kind = InvokePasteAction.KIND) { }
+    constructor(public readonly kind = InvokePasteAction.KIND) {}
 }
 
 export class InvokeCutAction implements Action {
     static readonly KIND = 'invoke-cut';
-    constructor(public readonly kind = InvokeCutAction.KIND) { }
+    constructor(public readonly kind = InvokeCutAction.KIND) {}
 }
 
 @injectable()
@@ -96,22 +96,31 @@ export class CopyPasteContextMenuItemProvider implements IContextMenuItemProvide
 
     protected createPasteMenuItem(): MenuItem {
         return {
-            id: 'paste', label: 'Paste', group: 'copy-paste',
-            actions: [new InvokePasteAction()], isEnabled: () => true
+            id: 'paste',
+            label: 'Paste',
+            group: 'copy-paste',
+            actions: [new InvokePasteAction()],
+            isEnabled: () => true
         };
     }
 
     protected createCutMenuItem(hasSelectedElements: boolean): MenuItem {
         return {
-            id: 'cut', label: 'Cut', group: 'copy-paste',
-            actions: [new InvokeCutAction()], isEnabled: () => hasSelectedElements
+            id: 'cut',
+            label: 'Cut',
+            group: 'copy-paste',
+            actions: [new InvokeCutAction()],
+            isEnabled: () => hasSelectedElements
         };
     }
 
     protected createCopyMenuItem(hasSelectedElements: boolean): MenuItem {
         return {
-            id: 'copy', label: 'Copy', group: 'copy-paste',
-            actions: [new InvokeCopyAction()], isEnabled: () => hasSelectedElements
+            id: 'copy',
+            label: 'Copy',
+            group: 'copy-paste',
+            actions: [new InvokeCopyAction()],
+            isEnabled: () => hasSelectedElements
         };
     }
 }
@@ -125,7 +134,7 @@ export function supportsCut(): boolean {
 }
 
 export function supportsPaste(): boolean {
-    const isChrome = (userAgent().indexOf('Chrome') >= 0);
+    const isChrome = userAgent().indexOf('Chrome') >= 0;
     return isNative() || (!isChrome && document.queryCommandSupported('paste'));
 }
 

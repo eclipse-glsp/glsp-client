@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019 EclipseSource and others.
+ * Copyright (c) 2019-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -31,7 +31,9 @@ export function distinctAdd<T>(array: T[], value: T): boolean {
     return false;
 }
 
-interface Constructor<T> { new(...args: any[]): T }
+interface Constructor<T> {
+    new (...args: any[]): T;
+}
 type PrimitiveType = 'bigint' | 'boolean' | 'function' | 'number' | 'object' | 'string' | 'symbol' | 'undefined';
 
 export function isArrayOfType<T>(object: any, typeGuard: (elem: any) => elem is T, supportEmpty = false): object is T[] {

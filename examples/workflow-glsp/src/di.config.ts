@@ -106,11 +106,42 @@ const workflowDiagramModule = new ContainerModule((bind, unbind, isBound, rebind
 export default function createContainer(widgetId: string): Container {
     const container = new Container();
 
-    container.load(defaultModule, defaultGLSPModule, glspMouseToolModule, validationModule, glspSelectModule, boundsModule, glspViewportModule, toolsModule,
-        glspHoverModule, fadeModule, exportModule, expandModule, openModule, buttonModule, modelSourceModule, labelEditUiModule, glspEditLabelModule,
-        workflowDiagramModule, toolFeedbackModule, modelHintsModule, glspContextMenuModule, glspServerCopyPasteModule, modelSourceWatcherModule,
-        glspCommandPaletteModule, paletteModule, routingModule, glspDecorationModule, edgeLayoutModule, zorderModule, edgeIntersectionModule,
-        layoutCommandsModule, directTaskEditor, navigationModule, markerNavigatorModule);
+    container.load(
+        defaultModule,
+        defaultGLSPModule,
+        glspMouseToolModule,
+        validationModule,
+        glspSelectModule,
+        boundsModule,
+        glspViewportModule,
+        toolsModule,
+        glspHoverModule,
+        fadeModule,
+        exportModule,
+        expandModule,
+        openModule,
+        buttonModule,
+        modelSourceModule,
+        labelEditUiModule,
+        glspEditLabelModule,
+        workflowDiagramModule,
+        toolFeedbackModule,
+        modelHintsModule,
+        glspContextMenuModule,
+        glspServerCopyPasteModule,
+        modelSourceWatcherModule,
+        glspCommandPaletteModule,
+        paletteModule,
+        routingModule,
+        glspDecorationModule,
+        edgeLayoutModule,
+        zorderModule,
+        edgeIntersectionModule,
+        layoutCommandsModule,
+        directTaskEditor,
+        navigationModule,
+        markerNavigatorModule
+    );
 
     overrideViewerOptions(container, {
         baseDiv: widgetId,

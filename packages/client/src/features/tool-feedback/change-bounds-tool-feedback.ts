@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019 EclipseSource and others.
+ * Copyright (c) 2019-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -39,11 +39,11 @@ import { ChangeBoundsTool } from '../tools/change-bounds-tool';
 import { FeedbackCommand } from './model';
 
 export class ShowChangeBoundsToolResizeFeedbackAction implements Action {
-    constructor(readonly elementId?: string, public readonly kind: string = ShowChangeBoundsToolResizeFeedbackCommand.KIND) { }
+    constructor(readonly elementId?: string, public readonly kind: string = ShowChangeBoundsToolResizeFeedbackCommand.KIND) {}
 }
 
 export class HideChangeBoundsToolResizeFeedbackAction implements Action {
-    constructor(public readonly kind: string = HideChangeBoundsToolResizeFeedbackCommand.KIND) { }
+    constructor(public readonly kind: string = HideChangeBoundsToolResizeFeedbackCommand.KIND) {}
 }
 
 @injectable()
@@ -54,10 +54,7 @@ export class ShowChangeBoundsToolResizeFeedbackCommand extends FeedbackCommand {
 
     execute(context: CommandExecutionContext): CommandReturn {
         const index = context.root.index;
-        index
-            .all()
-            .filter(isResizable)
-            .forEach(removeResizeHandles);
+        index.all().filter(isResizable).forEach(removeResizeHandles);
 
         if (isNotUndefined(this.action.elementId)) {
             const resizeElement = index.getById(this.action.elementId);
@@ -77,10 +74,7 @@ export class HideChangeBoundsToolResizeFeedbackCommand extends FeedbackCommand {
 
     execute(context: CommandExecutionContext): CommandReturn {
         const index = context.root.index;
-        index
-            .all()
-            .filter(isResizable)
-            .forEach(removeResizeHandles);
+        index.all().filter(isResizable).forEach(removeResizeHandles);
         return context.root;
     }
 }
@@ -230,7 +224,6 @@ export class FeedbackMoveMouseListener extends MouseListener {
             if (this.tool.movementRestrictor) {
                 this.tool.deregisterFeedback([removeMovementRestrictionFeedback(target, this.tool.movementRestrictor)], this);
             }
-
         }
         this.hasDragged = false;
         this.startDragPosition = undefined;

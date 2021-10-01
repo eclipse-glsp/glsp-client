@@ -15,12 +15,7 @@
  ********************************************************************************/
 import 'reflect-metadata';
 
-import {
-    configureServerActions,
-    EnableToolPaletteAction,
-    GLSPDiagramServer,
-    RequestTypeHintsAction
-} from '@eclipse-glsp/client';
+import { configureServerActions, EnableToolPaletteAction, GLSPDiagramServer, RequestTypeHintsAction } from '@eclipse-glsp/client';
 import { ApplicationIdProvider, BaseJsonrpcGLSPClient, GLSPClient, JsonrpcGLSPClient } from '@eclipse-glsp/protocol';
 import { join, resolve } from 'path';
 import { IActionDispatcher, RequestModelAction, TYPES } from 'sprotty';
@@ -49,19 +44,23 @@ websocket.onopen = () => {
 
 async function initialize(client: GLSPClient): Promise<void> {
     await diagramServer.connect(client);
-    const result = await client.initializeServer({ applicationId: ApplicationIdProvider.get(), protocolVersion: GLSPClient.protocolVersion });
+    const result = await client.initializeServer({
+        applicationId: ApplicationIdProvider.get(),
+        protocolVersion: GLSPClient.protocolVersion
+    });
     await configureServerActions(result, diagramType, container);
 
     const actionDispatcher = container.get<IActionDispatcher>(TYPES.IActionDispatcher);
 
     await client.initializeClientSession({ clientSessionId: diagramServer.clientId, diagramType });
-    actionDispatcher.dispatch(new RequestModelAction({
-        sourceUri: `file://${examplePath}`,
-        diagramType
-    }));
+    actionDispatcher.dispatch(
+        new RequestModelAction({
+            sourceUri: `file://${examplePath}`,
+            diagramType
+        })
+    );
     actionDispatcher.dispatch(new RequestTypeHintsAction(diagramType));
     actionDispatcher.dispatch(new EnableToolPaletteAction());
 }
 
 websocket.onerror = ev => alert('Connection to server errored. Please make sure that the server is running');
-

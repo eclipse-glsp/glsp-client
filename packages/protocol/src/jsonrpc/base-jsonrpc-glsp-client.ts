@@ -28,7 +28,6 @@ import {
 import { ConnectionProvider, JsonrpcGLSPClient } from './glsp-jsonrpc-client';
 
 export class BaseJsonrpcGLSPClient implements GLSPClient {
-
     readonly id: string;
     protected readonly connectionProvider: ConnectionProvider;
     protected connectionPromise?: Promise<MessageConnection>;
@@ -109,13 +108,13 @@ export class BaseJsonrpcGLSPClient implements GLSPClient {
             return this.onStop;
         }
         this.state = ClientState.Stopping;
-        return this.onStop = this.resolveConnection().then(connection => {
+        return (this.onStop = this.resolveConnection().then(connection => {
             connection.dispose();
             this.state = ClientState.Stopped;
             this.onStop = undefined;
             this.connectionPromise = undefined;
             this.resolvedConnection = undefined;
-        });
+        }));
     }
 
     private resolveConnection(): Promise<MessageConnection> {

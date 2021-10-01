@@ -33,7 +33,8 @@ export class DrawMarqueeAction implements Action {
     constructor(
         public readonly startPoint: Point,
         public readonly endPoint: Point,
-        public readonly kind: string = DrawMarqueeCommand.KIND) { }
+        public readonly kind: string = DrawMarqueeCommand.KIND
+    ) {}
 }
 
 @injectable()
@@ -51,7 +52,7 @@ export class DrawMarqueeCommand extends FeedbackCommand {
 }
 
 export class RemoveMarqueeAction implements Action {
-    constructor(public readonly kind: string = RemoveMarqueeCommand.KIND) { }
+    constructor(public readonly kind: string = RemoveMarqueeCommand.KIND) {}
 }
 
 @injectable()

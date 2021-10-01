@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019 EclipseSource and others.
+ * Copyright (c) 2019-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -50,8 +50,8 @@ export abstract class TypeHint {
     readonly elementTypeId: string;
 
     /**
-    * Specifies whether the element can be relocated.
-    */
+     * Specifies whether the element can be relocated.
+     */
     readonly repositionable: boolean;
 
     /**
@@ -89,14 +89,13 @@ export class EdgeTypeHint extends TypeHint {
     readonly sourceElementTypeIds: string[];
 
     /**
-    * Allowed targe element types for this edge type
-    */
+     * Allowed targe element types for this edge type
+     */
     readonly targetElementTypeIds: string[];
 
     isAllowedSource(input: SModelElement | SModelElementSchema | string): boolean {
         const type = getElementTypeId(input);
         return this.sourceElementTypeIds.includes(type);
-
     }
     isAllowedTarget(input: SModelElement | SModelElementSchema | string): boolean {
         const type = getElementTypeId(input);
@@ -111,7 +110,6 @@ export class ApplyTypeHintsAction implements Action {
 
 @injectable()
 export class ApplyTypeHintsCommand extends FeedbackCommand {
-
     public static KIND = 'applyTypeHints';
     public readonly priority = 10;
 
@@ -122,15 +120,13 @@ export class ApplyTypeHintsCommand extends FeedbackCommand {
     }
 
     execute(context: CommandExecutionContext): CommandReturn {
-        context.root.index.all()
-            .forEach(element => {
-                if (element instanceof SShapeElement || element instanceof SModelRoot) {
-                    this.applyShapeTypeHint(element);
-
-                } else if (element instanceof SEdge) {
-                    return this.applyEdgeTypeHint(element);
-                }
-            });
+        context.root.index.all().forEach(element => {
+            if (element instanceof SShapeElement || element instanceof SModelRoot) {
+                this.applyShapeTypeHint(element);
+            } else if (element instanceof SEdge) {
+                return this.applyEdgeTypeHint(element);
+            }
+        });
         return context.root;
     }
 
@@ -167,18 +163,14 @@ export class ApplyTypeHintsCommand extends FeedbackCommand {
 function createConnectable(validSourceEdges: string[], validTargetEdges: string[]): Connectable {
     return {
         canConnect: (routable, role) =>
-            role === 'source' ?
-                validSourceEdges.includes(routable.type) :
-                validTargetEdges.includes(routable.type)
+            role === 'source' ? validSourceEdges.includes(routable.type) : validTargetEdges.includes(routable.type)
     };
 }
 
 function createContainable(hint: ShapeTypeHint): Containable {
     return {
         isContainableElement: element =>
-            hint.containableElementTypeIds ?
-                hint.containableElementTypeIds.includes(getElementTypeId(element)) :
-                false
+            hint.containableElementTypeIds ? hint.containableElementTypeIds.includes(getElementTypeId(element)) : false
     };
 }
 
@@ -202,12 +194,11 @@ export interface ITypeHintProvider {
 
 @injectable()
 export class TypeHintProvider implements IActionHandler, ITypeHintProvider {
-
     @inject(GLSP_TYPES.IFeedbackActionDispatcher)
     protected feedbackActionDispatcher: IFeedbackActionDispatcher;
 
-    protected shapeHints: Map<string, ShapeTypeHint> = new Map;
-    protected edgeHints: Map<string, EdgeTypeHint> = new Map;
+    protected shapeHints: Map<string, ShapeTypeHint> = new Map();
+    protected edgeHints: Map<string, EdgeTypeHint> = new Map();
 
     handle(action: Action): ICommand | Action | void {
         if (isSetTypeHintsAction(action)) {
@@ -222,13 +213,19 @@ export class TypeHintProvider implements IActionHandler, ITypeHintProvider {
         if (role === 'source') {
             return Array.from(
                 Array.from(this.edgeHints.values())
-                    .filter(hint => hint.sourceElementTypeIds.some(sourceElementTypeId => hasCompatibleType(elementTypeId, sourceElementTypeId)))
-                    .map(hint => hint.elementTypeId));
+                    .filter(hint =>
+                        hint.sourceElementTypeIds.some(sourceElementTypeId => hasCompatibleType(elementTypeId, sourceElementTypeId))
+                    )
+                    .map(hint => hint.elementTypeId)
+            );
         } else {
             return Array.from(
                 Array.from(this.edgeHints.values())
-                    .filter(hint => hint.targetElementTypeIds.some(targetElementTypeId => hasCompatibleType(elementTypeId, targetElementTypeId)))
-                    .map(hint => hint.elementTypeId));
+                    .filter(hint =>
+                        hint.targetElementTypeIds.some(targetElementTypeId => hasCompatibleType(elementTypeId, targetElementTypeId))
+                    )
+                    .map(hint => hint.elementTypeId)
+            );
         }
     }
 
@@ -254,4 +251,3 @@ function getTypeHint<T extends TypeHint>(input: SModelElement | SModelElement | 
     }
     return hint;
 }
-

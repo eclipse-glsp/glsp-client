@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020 EclipseSource and others.
+ * Copyright (c) 2020-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -23,15 +23,16 @@ const JSX = { createElement: svg };
 
 @injectable()
 export class GIssueMarkerView extends IssueMarkerView {
-
     render(marker: SIssueMarker, _context: RenderingContext): VNode {
         const maxSeverity = super.getMaxSeverity(marker);
-        const group = <g class-sprotty-issue={true} >
-            <g>
-                <circle class-sprotty-issue-background={true} r={this.radius} cx={this.radius} cy={this.radius} />
-                <path d={this.getGlspIssueMarkerPath(maxSeverity)} />
+        const group = (
+            <g class-sprotty-issue={true}>
+                <g>
+                    <circle class-sprotty-issue-background={true} r={this.radius} cx={this.radius} cy={this.radius} />
+                    <path d={this.getGlspIssueMarkerPath(maxSeverity)} />
+                </g>
             </g>
-        </g>;
+        );
         setClass(group, 'sprotty-' + maxSeverity, true);
         return group;
     }
@@ -51,5 +52,4 @@ export class GIssueMarkerView extends IssueMarkerView {
                 return 'M 8.0000004,0 C 3.5820324,0 0,3.58332 0,8 0,12.41926 3.5820324,16 8.0000004,16 12.417968,16 16,12.41926 16,8 16,3.58332 12.417968,0 8.0000004,0 Z m 0,3.54839 c 0.748258,0 1.354839,0.60658 1.354839,1.35484 0,0.74825 -0.606581,1.35483 -1.354839,1.35483 -0.748258,0 -1.354839,-0.60658 -1.354839,-1.35483 0,-0.74826 0.606581,-1.35484 1.354839,-1.35484 z m 1.806452,8.19355 c 0,0.21377 -0.173323,0.38709 -0.387097,0.38709 h -2.83871 c -0.213774,0 -0.387097,-0.17332 -0.387097,-0.38709 v -0.7742 c 0,-0.21377 0.173323,-0.38709 0.387097,-0.38709 h 0.387097 V 8.51613 h -0.387097 c -0.213774,0 -0.387097,-0.17332 -0.387097,-0.3871 V 7.35484 c 0,-0.21378 0.173323,-0.3871 0.387097,-0.3871 h 2.064516 c 0.213774,0 0.387097,0.17332 0.387097,0.3871 v 3.22581 h 0.387097 c 0.213774,0 0.387097,0.17332 0.387097,0.38709 z';
         }
     }
-
 }

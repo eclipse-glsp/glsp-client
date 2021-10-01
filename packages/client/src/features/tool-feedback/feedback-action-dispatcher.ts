@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019 EclipseSource and others.
+ * Copyright (c) 2019-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -16,7 +16,7 @@
 import { inject, injectable } from 'inversify';
 import { Action, IActionDispatcher, ILogger, TYPES } from 'sprotty';
 
-export interface IFeedbackEmitter { }
+export interface IFeedbackEmitter {}
 
 /**
  * Dispatcher for actions that are meant to show visual feedback on
@@ -52,14 +52,14 @@ export interface IFeedbackActionDispatcher {
     deregisterFeedback(feedbackEmitter: IFeedbackEmitter, actions: Action[]): void;
 
     /**
-    * Retrieve all `actions` sent out by currently registered `feedbackEmitter`.
-    */
+     * Retrieve all `actions` sent out by currently registered `feedbackEmitter`.
+     */
     getRegisteredFeedback(): Action[];
 }
 
 @injectable()
 export class FeedbackActionDispatcher implements IFeedbackActionDispatcher {
-    protected feedbackEmitters: Map<IFeedbackEmitter, Action[]> = new Map;
+    protected feedbackEmitters: Map<IFeedbackEmitter, Action[]> = new Map();
 
     @inject(TYPES.IActionDispatcherProvider) protected actionDispatcher: () => Promise<IActionDispatcher>;
     @inject(TYPES.ILogger) protected logger: ILogger;
@@ -93,9 +93,7 @@ export class FeedbackActionDispatcher implements IFeedbackActionDispatcher {
             if (value.find(a => a === action)) {
                 result.push(key);
             }
-        }
-        );
+        });
         return result;
     }
-
 }

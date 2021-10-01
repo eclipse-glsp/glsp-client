@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2020 EclipseSource and others.
+ * Copyright (c) 2019-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -27,16 +27,15 @@ export class SelectFeedbackAction {
     constructor(
         public readonly selectedElementsIDs: string[] = [],
         public readonly deselectedElementsIDs: string[] = [],
-        public readonly kind: string = SelectFeedbackCommand.KIND) {
-    }
+        public readonly kind: string = SelectFeedbackCommand.KIND
+    ) {}
 }
 
 export class SelectAllFeedbackAction {
     /**
      * If `select` is true, all elements are selected, othewise they are deselected.
      */
-    constructor(public readonly select: boolean = true, public readonly kind: string = SelectFeedbackCommand.KIND) {
-    }
+    constructor(public readonly select: boolean = true, public readonly kind: string = SelectFeedbackCommand.KIND) {}
 }
 
 @injectable()
@@ -84,4 +83,3 @@ export class SelectAllFeedbackCommand extends Command {
         return this.sprottySelectAllCommand.redo(context);
     }
 }
-

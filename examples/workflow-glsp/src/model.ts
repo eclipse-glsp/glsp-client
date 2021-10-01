@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020 EclipseSource and others.
+ * Copyright (c) 2020-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -40,8 +40,19 @@ import {
 } from '@eclipse-glsp/client';
 
 export class TaskNode extends RectangularNode implements Nameable, WithEditableLabel {
-    static readonly DEFAULT_FEATURES = [connectableFeature, deletableFeature, selectFeature, boundsFeature,
-        moveFeature, layoutContainerFeature, fadeFeature, hoverFeedbackFeature, popupFeature, nameFeature, withEditLabelFeature];
+    static readonly DEFAULT_FEATURES = [
+        connectableFeature,
+        deletableFeature,
+        selectFeature,
+        boundsFeature,
+        moveFeature,
+        layoutContainerFeature,
+        fadeFeature,
+        hoverFeedbackFeature,
+        popupFeature,
+        nameFeature,
+        withEditLabelFeature
+    ];
     name = '';
     duration?: number;
     taskType?: string;
@@ -76,7 +87,6 @@ export class ActivityNode extends DiamondNode {
     strokeWidth = 1;
 }
 
-// eslint-disable-next-line no-redeclare
 export namespace ActivityNode {
     export namespace Type {
         export const INITIAL = 'initalNode';

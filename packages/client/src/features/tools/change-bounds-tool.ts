@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019 EclipseSource and others.
+ * Copyright (c) 2019-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -118,7 +118,7 @@ export class ChangeBoundsTool extends BaseGLSPTool {
         this.selectionService.deregister(this.changeBoundsListener);
         this.mouseTool.deregister(this.feedbackMoveMouseListener);
         this.deregisterFeedback([], this.feedbackMoveMouseListener);
-        this.deregisterFeedback([new HideChangeBoundsToolResizeFeedbackAction], this.changeBoundsListener);
+        this.deregisterFeedback([new HideChangeBoundsToolResizeFeedbackAction()], this.changeBoundsListener);
     }
 }
 
@@ -162,7 +162,10 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements Sele
         if (this.isMouseDrag && this.activeResizeHandle) {
             // rely on the FeedbackMoveMouseListener to update the element bounds of selected elements
             // consider resize handles ourselves
-            const actions: Action[] = [cursorFeedbackAction(CursorCSS.RESIZE), applyCssClasses(this.activeResizeHandle, ChangeBoundsListener.CSS_CLASS_ACTIVE)];
+            const actions: Action[] = [
+                cursorFeedbackAction(CursorCSS.RESIZE),
+                applyCssClasses(this.activeResizeHandle, ChangeBoundsListener.CSS_CLASS_ACTIVE)
+            ];
             const positionUpdate = this.updatePosition(target, event);
             if (positionUpdate) {
                 const resizeActions = this.handleResizeOnClient(positionUpdate);
@@ -281,7 +284,12 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements Sele
         this.lastDragPosition = { x: event.pageX, y: event.pageY };
         if (this.activeResizeHandle) {
             const resizeElement = findParentByFeature(this.activeResizeHandle, isResizable);
-            this.initialBounds = { x: resizeElement!.bounds.x, y: resizeElement!.bounds.y, width: resizeElement!.bounds.width, height: resizeElement!.bounds.height };
+            this.initialBounds = {
+                x: resizeElement!.bounds.x,
+                y: resizeElement!.bounds.y,
+                width: resizeElement!.bounds.width,
+                height: resizeElement!.bounds.height
+            };
         }
     }
 
@@ -318,7 +326,6 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements Sele
     protected reset(): void {
         if (this.activeResizeElement && isResizable(this.activeResizeElement)) {
             this.tool.dispatchFeedback([new HideChangeBoundsToolResizeFeedbackAction()], this);
-
         }
         this.tool.dispatchActions([cursorFeedbackAction(CursorCSS.DEFAULT)]);
         this.resetPosition();
@@ -352,35 +359,43 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements Sele
     }
 
     protected handleTopLeftResize(resizeElement: SParentElement & Resizable, positionUpdate: Point): Action[] {
-        return this.createSetBoundsAction(resizeElement,
+        return this.createSetBoundsAction(
+            resizeElement,
             resizeElement.bounds.x + positionUpdate.x,
             resizeElement.bounds.y + positionUpdate.y,
             resizeElement.bounds.width - positionUpdate.x,
-            resizeElement.bounds.height - positionUpdate.y);
+            resizeElement.bounds.height - positionUpdate.y
+        );
     }
 
     protected handleTopRightResize(resizeElement: SParentElement & Resizable, positionUpdate: Point): Action[] {
-        return this.createSetBoundsAction(resizeElement,
+        return this.createSetBoundsAction(
+            resizeElement,
             resizeElement.bounds.x,
             resizeElement.bounds.y + positionUpdate.y,
             resizeElement.bounds.width + positionUpdate.x,
-            resizeElement.bounds.height - positionUpdate.y);
+            resizeElement.bounds.height - positionUpdate.y
+        );
     }
 
     protected handleBottomLeftResize(resizeElement: SParentElement & Resizable, positionUpdate: Point): Action[] {
-        return this.createSetBoundsAction(resizeElement,
+        return this.createSetBoundsAction(
+            resizeElement,
             resizeElement.bounds.x + positionUpdate.x,
             resizeElement.bounds.y,
             resizeElement.bounds.width - positionUpdate.x,
-            resizeElement.bounds.height + positionUpdate.y);
+            resizeElement.bounds.height + positionUpdate.y
+        );
     }
 
     protected handleBottomRightResize(resizeElement: SParentElement & Resizable, positionUpdate: Point): Action[] {
-        return this.createSetBoundsAction(resizeElement,
+        return this.createSetBoundsAction(
+            resizeElement,
             resizeElement.bounds.x,
             resizeElement.bounds.y,
             resizeElement.bounds.width + positionUpdate.x,
-            resizeElement.bounds.height + positionUpdate.y);
+            resizeElement.bounds.height + positionUpdate.y
+        );
     }
 
     protected createChangeBoundsAction(element: SModelElement & BoundsAware): Action[] {
@@ -414,7 +429,6 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements Sele
                 result.push(removeMovementRestrictionFeedback(element, this.tool.movementRestrictor));
             }
             result.push(new SetBoundsAction([{ elementId: element.id, newPosition, newSize }]));
-
         } else if (this.isValidSize(element, newSize)) {
             if (this.tool.movementRestrictor) {
                 result.push(createMovementRestrictionFeedback(element, this.tool.movementRestrictor));
@@ -426,9 +440,7 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements Sele
     }
 
     protected snap(position: Point, element: SModelElement, isSnap: boolean): Point {
-        return isSnap && this.tool.snapper
-            ? this.tool.snapper.snap(position, element)
-            : { x: position.x, y: position.y };
+        return isSnap && this.tool.snapper ? this.tool.snapper.snap(position, element) : { x: position.x, y: position.y };
     }
 
     protected isValidBoundChange(element: SModelElement & BoundsAware, newPosition: Point, newSize: Dimension): boolean {

@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019 EclipseSource and others.
+ * Copyright (c) 2019-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -42,8 +42,9 @@ export class SelectionServiceAwareContextMenuMouseListener extends MouseListener
                 selectableTarget.selected = true;
                 this.selectionService.updateSelection(target.root, [selectableTarget.id], []);
             }
-            Promise.all([this.contextMenuService(), this.menuProvider.getItems(target.root, mousePosition)])
-                .then(([menuService, menuItems]) => menuService.show(menuItems, mousePosition));
+            Promise.all([this.contextMenuService(), this.menuProvider.getItems(target.root, mousePosition)]).then(
+                ([menuService, menuItems]) => menuService.show(menuItems, mousePosition)
+            );
         }
         return [];
     }

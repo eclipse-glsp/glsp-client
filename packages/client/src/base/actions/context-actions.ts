@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019 EclipseSource and others.
+ * Copyright (c) 2019-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -24,7 +24,8 @@ export class RequestContextActions implements RequestAction<SetContextActions> {
         public readonly contextId: string,
         public readonly editorContext: EditorContext,
         public readonly requestId: string = generateRequestId(),
-        public readonly kind: string = RequestContextActions.KIND) { }
+        public readonly kind: string = RequestContextActions.KIND
+    ) {}
 }
 
 export class SetContextActions implements ResponseAction {
@@ -33,11 +34,10 @@ export class SetContextActions implements ResponseAction {
         public readonly actions: LabeledAction[],
         public readonly responseId: string = '',
         public readonly args?: Args,
-        public readonly kind: string = SetContextActions.KIND) {
-    }
+        public readonly kind: string = SetContextActions.KIND
+    ) {}
 }
 
 export function isSetContextActionsAction(action: Action): action is SetContextActions {
-    return action !== undefined && (action.kind === SetContextActions.KIND)
-        && (action as SetContextActions).actions !== undefined;
+    return action !== undefined && action.kind === SetContextActions.KIND && (action as SetContextActions).actions !== undefined;
 }

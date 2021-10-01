@@ -23,7 +23,6 @@ import {
     WebSocketMessageReader,
     WebSocketMessageWriter
 } from 'vscode-ws-jsonrpc';
-
 import {
     DisposeClientSessionParameters,
     GLSPClient,
@@ -40,13 +39,16 @@ export namespace JsonrpcGLSPClient {
         connectionProvider: ConnectionProvider;
     }
 
+    // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
     export function isOptions(object: any): object is Options {
         return GLSPClient.isOptions(object) && 'connectionProvider' in object;
     }
 
     export const ActionMessageNotification = new NotificationType<ActionMessage, void>('process');
     export const InitializeRequest = new RequestType<InitializeParameters, InitializeResult, void, void>('initialize');
-    export const InitializeClientSessionRequest = new RequestType<InitializeClientSessionParameters, void, void, void>('initializeClientSession');
+    export const InitializeClientSessionRequest = new RequestType<InitializeClientSessionParameters, void, void, void>(
+        'initializeClientSession'
+    );
     export const DisposeClientSessionRequest = new RequestType<DisposeClientSessionParameters, void, void, void>('disposeClientSession');
 
     export const ShutdownNotification = new NotificationType0<void>('shutdown');

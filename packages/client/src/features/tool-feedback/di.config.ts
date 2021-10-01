@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019 EclipseSource and others.
+ * Copyright (c) 2019-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -18,10 +18,7 @@ import { configureCommand, configureView, LocationPostprocessor, MoveCommand, TY
 
 import { GLSP_TYPES } from '../../base/types';
 import { SResizeHandle } from '../change-bounds/model';
-import {
-    HideChangeBoundsToolResizeFeedbackCommand,
-    ShowChangeBoundsToolResizeFeedbackCommand
-} from './change-bounds-tool-feedback';
+import { HideChangeBoundsToolResizeFeedbackCommand, ShowChangeBoundsToolResizeFeedbackCommand } from './change-bounds-tool-feedback';
 import { DrawFeedbackEdgeCommand, FeedbackEdgeEnd, RemoveFeedbackEdgeCommand } from './creation-tool-feedback';
 import { ModifyCssFeedbackCommand } from './css-feedback';
 import {

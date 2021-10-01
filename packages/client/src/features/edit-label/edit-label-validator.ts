@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019 EclipseSource and others.
+ * Copyright (c) 2019-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -26,11 +26,7 @@ import {
 } from 'sprotty';
 
 import { GLSPActionDispatcher } from '../../base/action-dispatcher';
-import {
-    isSetEditValidationResultAction,
-    RequestEditValidationAction,
-    ValidationStatus
-} from '../../base/actions/edit-validation-actions';
+import { isSetEditValidationResultAction, RequestEditValidationAction, ValidationStatus } from '../../base/actions/edit-validation-actions';
 
 export namespace LabelEditValidation {
     export const CONTEXT_ID = 'label-edit';
@@ -55,7 +51,6 @@ export class ValidateLabelEditAction extends RequestEditValidationAction {
 
 @injectable()
 export class ServerEditLabelValidator implements IEditLabelValidator {
-
     @inject(TYPES.IActionDispatcher) protected actionDispatcher: GLSPActionDispatcher;
 
     validate(value: string, label: EditableLabel & SModelElement): Promise<EditLabelValidationResult> {
@@ -69,12 +64,10 @@ export class ServerEditLabelValidator implements IEditLabelValidator {
         }
         return { severity: 'ok' as Severity };
     }
-
 }
 
 @injectable()
 export class BalloonLabelValidationDecorator implements IEditLabelValidationDecorator {
-
     decorate(input: HTMLInputElement, result: EditLabelValidationResult): void {
         const containerElement = input.parentElement;
         if (!containerElement) {
@@ -86,9 +79,15 @@ export class BalloonLabelValidationDecorator implements IEditLabelValidationDeco
             containerElement.setAttribute('data-balloon-visible', 'true');
         }
         switch (result.severity) {
-            case 'ok': containerElement.classList.add('validation-ok'); break;
-            case 'warning': containerElement.classList.add('validation-warning'); break;
-            case 'error': containerElement.classList.add('validation-error'); break;
+            case 'ok':
+                containerElement.classList.add('validation-ok');
+                break;
+            case 'warning':
+                containerElement.classList.add('validation-warning');
+                break;
+            case 'error':
+                containerElement.classList.add('validation-error');
+                break;
         }
     }
 

@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020 EclipseSource and others.
+ * Copyright (c) 2020-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -25,14 +25,14 @@ export interface IValidationDecorator {
 export namespace IValidationDecorator {
     export const NO_DECORATION: IValidationDecorator = {
         // eslint-disable-next-line @typescript-eslint/no-empty-function
-        decorateValidationResult(_status: ValidationStatus) { },
+        decorateValidationResult(_status: ValidationStatus) {},
         isValidatedOk(): boolean {
             return false;
         },
         // eslint-disable-next-line @typescript-eslint/no-empty-function
-        invalidate() { },
+        invalidate() {},
         // eslint-disable-next-line @typescript-eslint/no-empty-function
-        dispose() { }
+        dispose() {}
     };
 }
 
@@ -47,7 +47,7 @@ export class ValidationDecorator implements IValidationDecorator {
 
     protected decorationDiv?: HTMLDivElement;
 
-    constructor(protected containerElement: HTMLElement) { }
+    constructor(protected containerElement: HTMLElement) {}
 
     decorateValidationResult(status: ValidationStatus): void {
         if (ValidationStatus.isError(status)) {

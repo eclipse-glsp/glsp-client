@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019 EclipseSource and others.
+ * Copyright (c) 2019-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -28,11 +28,7 @@ import {
 } from 'sprotty';
 
 import { DragAwareMouseListener } from '../../base/drag-aware-mouse-listener';
-import {
-    CreateEdgeOperation,
-    isTriggerElementTypeCreationAction,
-    TriggerEdgeCreationAction
-} from '../../base/operations/operation';
+import { CreateEdgeOperation, isTriggerElementTypeCreationAction, TriggerEdgeCreationAction } from '../../base/operations/operation';
 import {
     DrawFeedbackEdgeAction,
     FeedbackEdgeEndMovingMouseListener,
@@ -151,8 +147,9 @@ export class EdgeCreationToolMouseListener extends DragAwareMouseListener {
                     this.allowedTarget = this.isAllowedTarget(newCurrentTarget);
                 }
                 if (this.allowedTarget) {
-                    const action = !this.isSourceSelected() ? cursorFeedbackAction(CursorCSS.EDGE_CREATION_SOURCE) :
-                        cursorFeedbackAction(CursorCSS.EDGE_CREATION_TARGET);
+                    const action = !this.isSourceSelected()
+                        ? cursorFeedbackAction(CursorCSS.EDGE_CREATION_SOURCE)
+                        : cursorFeedbackAction(CursorCSS.EDGE_CREATION_TARGET);
                     return [action];
                 }
             }

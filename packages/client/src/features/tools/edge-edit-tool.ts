@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019 EclipseSource and others.
+ * Copyright (c) 2019-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -33,13 +33,7 @@ import { DragAwareMouseListener } from '../../base/drag-aware-mouse-listener';
 import { ChangeRoutingPointsOperation, ReconnectEdgeOperation } from '../../base/operations/operation';
 import { GLSP_TYPES } from '../../base/types';
 import { isRoutable, isRoutingHandle } from '../../utils/smodel-util';
-import {
-    isReconnectable,
-    isReconnectHandle,
-    isSourceRoutingHandle,
-    isTargetRoutingHandle,
-    SReconnectHandle
-} from '../reconnect/model';
+import { isReconnectable, isReconnectHandle, isSourceRoutingHandle, isTargetRoutingHandle, SReconnectHandle } from '../reconnect/model';
 import { SelectionListener, SelectionService } from '../select/selection-service';
 import { DrawFeedbackEdgeAction, feedbackEdgeId, RemoveFeedbackEdgeAction } from '../tool-feedback/creation-tool-feedback';
 import { CursorCSS, cursorFeedbackAction } from '../tool-feedback/css-feedback';
@@ -255,9 +249,10 @@ class EdgeEditListener extends DragAwareMouseListener implements SelectionListen
             if (!this.newConnectable || currentTarget !== this.newConnectable) {
                 this.setNewConnectable(currentTarget);
                 if (currentTarget) {
-                    if ((this.reconnectMode === 'NEW_SOURCE' && currentTarget.canConnect(this.edge, 'source')) ||
-                        (this.reconnectMode === 'NEW_TARGET' && currentTarget.canConnect(this.edge, 'target'))) {
-
+                    if (
+                        (this.reconnectMode === 'NEW_SOURCE' && currentTarget.canConnect(this.edge, 'source')) ||
+                        (this.reconnectMode === 'NEW_TARGET' && currentTarget.canConnect(this.edge, 'target'))
+                    ) {
                         this.tool.dispatchFeedback([cursorFeedbackAction(CursorCSS.EDGE_RECONNECT)]);
                         return [];
                     }
@@ -314,11 +309,7 @@ class EdgeEditListener extends DragAwareMouseListener implements SelectionListen
         if (this.edge) {
             result.push(new SwitchRoutingModeAction([], [this.edge.id]));
         }
-        result.push(...[
-            new HideEdgeReconnectHandlesFeedbackAction(),
-            cursorFeedbackAction(),
-            new RemoveFeedbackEdgeAction()
-        ]);
+        result.push(...[new HideEdgeReconnectHandlesFeedbackAction(), cursorFeedbackAction(), new RemoveFeedbackEdgeAction()]);
         this.tool.deregisterFeedback(result);
         this.tool.deregisterFeedbackListeners();
     }

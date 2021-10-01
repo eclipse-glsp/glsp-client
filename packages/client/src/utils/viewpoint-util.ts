@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019 EclipseSource and others.
+ * Copyright (c) 2019-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -41,7 +41,8 @@ import {
  *  A mouseEvent
  */
 export function getAbsolutePosition(target: SModelElement, mouseEvent: MouseEvent): Point {
-    let xPos = mouseEvent.pageX; let yPos = mouseEvent.pageY;
+    let xPos = mouseEvent.pageX;
+    let yPos = mouseEvent.pageY;
     const canvasBounds = target.root.canvasBounds;
     xPos -= canvasBounds.x;
     yPos -= canvasBounds.y;

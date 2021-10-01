@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019 EclipseSource and others.
+ * Copyright (c) 2019-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -21,9 +21,7 @@ import { Operation } from '../../base/operations/operation';
 export class CutOperation implements Operation {
     static readonly KIND = 'cut';
 
-    constructor(
-        public readonly editorContext: EditorContext,
-        public readonly kind: string = CutOperation.KIND) { }
+    constructor(public readonly editorContext: EditorContext, public readonly kind: string = CutOperation.KIND) {}
 }
 
 export class PasteOperation implements Operation {
@@ -32,7 +30,8 @@ export class PasteOperation implements Operation {
     constructor(
         public readonly clipboardData: ClipboardData,
         public readonly editorContext: EditorContext,
-        public readonly kind: string = PasteOperation.KIND) { }
+        public readonly kind: string = PasteOperation.KIND
+    ) {}
 }
 
 export class RequestClipboardDataAction implements RequestAction<SetClipboardDataAction> {
@@ -41,14 +40,17 @@ export class RequestClipboardDataAction implements RequestAction<SetClipboardDat
     constructor(
         public readonly editorContext: EditorContext,
         public readonly requestId: string = generateRequestId(),
-        public readonly kind: string = RequestClipboardDataAction.KIND) { }
+        public readonly kind: string = RequestClipboardDataAction.KIND
+    ) {}
 
     static create(editorContext: EditorContext): RequestAction<SetClipboardDataAction> {
         return new RequestClipboardDataAction(editorContext);
     }
 }
 
-export interface ClipboardData { [format: string]: string }
+export interface ClipboardData {
+    [format: string]: string;
+}
 
 export class SetClipboardDataAction implements ResponseAction {
     static readonly KIND = 'setClipboardData';
@@ -56,5 +58,6 @@ export class SetClipboardDataAction implements ResponseAction {
     constructor(
         public readonly clipboardData: ClipboardData,
         public readonly responseId: string = '',
-        public readonly kind: string = SetClipboardDataAction.KIND) { }
+        public readonly kind: string = SetClipboardDataAction.KIND
+    ) {}
 }

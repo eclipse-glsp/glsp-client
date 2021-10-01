@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019 EclipseSource and others.
+ * Copyright (c) 2019-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -37,8 +37,16 @@ export class WorkflowEdgeView extends PolylineEdgeViewWithGapsOnIntersections {
         const additionals = super.renderAdditionals(edge, segments, context);
         const p1 = segments[segments.length - 2];
         const p2 = segments[segments.length - 1];
-        const arrow = <path class-sprotty-edge={true} class-arrow={true} d='M 1.5,0 L 10,-4 L 10,4 Z'
-            transform={`rotate(${toDegrees(angleOfPoint({ x: p1.x - p2.x, y: p1.y - p2.y }))} ${p2.x} ${p2.y}) translate(${p2.x} ${p2.y})`} />;
+        const arrow = (
+            <path
+                class-sprotty-edge={true}
+                class-arrow={true}
+                d='M 1.5,0 L 10,-4 L 10,4 Z'
+                transform={`rotate(${toDegrees(angleOfPoint({ x: p1.x - p2.x, y: p1.y - p2.y }))} ${p2.x} ${p2.y}) translate(${p2.x} ${
+                    p2.y
+                })`}
+            />
+        );
         additionals.push(arrow);
         return additionals;
     }
@@ -48,10 +56,12 @@ export class WorkflowEdgeView extends PolylineEdgeViewWithGapsOnIntersections {
 export class IconView implements IView {
     render(element: Icon, context: RenderingContext): VNode {
         const radius = this.getRadius();
-        return <g>
-            <circle class-sprotty-icon={true} r={radius} cx={radius} cy={radius}></circle>
-            {context.renderChildren(element)}
-        </g>;
+        return (
+            <g>
+                <circle class-sprotty-icon={true} r={radius} cx={radius} cy={radius}></circle>
+                {context.renderChildren(element)}
+            </g>
+        );
     }
 
     getRadius(): number {

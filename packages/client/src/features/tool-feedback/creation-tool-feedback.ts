@@ -49,7 +49,8 @@ export class DrawFeedbackEdgeAction implements Action {
         public readonly elementTypeId: string,
         public readonly sourceId: string,
         public readonly edgeSchema?: SEdgeSchema,
-        public readonly kind: string = DrawFeedbackEdgeCommand.KIND) { }
+        public readonly kind: string = DrawFeedbackEdgeCommand.KIND
+    ) {}
 }
 
 @injectable()
@@ -68,7 +69,7 @@ export class DrawFeedbackEdgeCommand extends FeedbackCommand {
 }
 
 export class RemoveFeedbackEdgeAction implements Action {
-    constructor(public readonly kind: string = RemoveFeedbackEdgeCommand.KIND) { }
+    constructor(public readonly kind: string = RemoveFeedbackEdgeCommand.KIND) {}
 }
 
 @injectable()
@@ -83,10 +84,12 @@ export class RemoveFeedbackEdgeCommand extends FeedbackCommand {
 
 export class FeedbackEdgeEnd extends SDanglingAnchor {
     static readonly TYPE = 'feedback-edge-end';
-    constructor(readonly sourceId: string,
+    constructor(
+        readonly sourceId: string,
         readonly elementTypeId: string,
         public feedbackEdge: SRoutableElement | undefined = undefined,
-        public readonly type: string = FeedbackEdgeEnd.TYPE) {
+        public readonly type: string = FeedbackEdgeEnd.TYPE
+    ) {
         super();
     }
 }
@@ -105,8 +108,9 @@ export class FeedbackEdgeEndMovingMouseListener extends MouseListener {
 
         const edge = edgeEnd.feedbackEdge;
         const position = getAbsolutePosition(edgeEnd, event);
-        const endAtMousePosition = findChildrenAtPosition(target.root, position)
-            .find(element => isConnectable(element) && element.canConnect(edge, 'target'));
+        const endAtMousePosition = findChildrenAtPosition(target.root, position).find(
+            element => isConnectable(element) && element.canConnect(edge, 'target')
+        );
 
         if (endAtMousePosition instanceof SConnectableElement && edge.source && isBoundsAware(edge.source)) {
             const anchor = this.computeAbsoluteAnchor(endAtMousePosition, center(edge.source.bounds));
@@ -149,7 +153,12 @@ export const defaultFeedbackEdgeSchema: SEdgeSchema = {
     opacity: 0.3
 } as SEdgeSchema;
 
-export function drawFeedbackEdge(context: CommandExecutionContext, sourceId: string, elementTypeId: string, feedbackEdgeSchema: SEdgeSchema): void {
+export function drawFeedbackEdge(
+    context: CommandExecutionContext,
+    sourceId: string,
+    elementTypeId: string,
+    feedbackEdgeSchema: SEdgeSchema
+): void {
     const root = context.root;
     const sourceChild = root.index.getById(sourceId);
     if (!sourceChild) {
