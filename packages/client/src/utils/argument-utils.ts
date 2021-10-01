@@ -18,7 +18,7 @@ import { SModelElement } from 'sprotty';
 import { hasArguments } from '../base/args';
 
 export namespace GArgument {
-    export function asNumber(argValue: (string | number | boolean)): number | undefined {
+    export function asNumber(argValue: string | number | boolean): number | undefined {
         return typeof argValue === 'number' ? argValue : undefined;
     }
 
@@ -26,7 +26,7 @@ export namespace GArgument {
         return argValues.map(asNumber);
     }
 
-    export function asString(argValue: (string | number | boolean)): string | undefined {
+    export function asString(argValue: string | number | boolean): string | undefined {
         return typeof argValue === 'string' ? argValue : undefined;
     }
 
@@ -34,7 +34,7 @@ export namespace GArgument {
         return argValues.map(asString);
     }
 
-    export function asBoolean(argValue: (string | number | boolean)): boolean | undefined {
+    export function asBoolean(argValue: string | number | boolean): boolean | undefined {
         return typeof argValue === 'boolean' ? argValue : undefined;
     }
 
@@ -112,16 +112,20 @@ export class CornerRadius {
         public readonly topLeft: number = 0,
         public readonly topRight: number = topLeft,
         public readonly bottomRight: number = topLeft,
-        public readonly bottomLeft: number = topRight) {
-    }
+        public readonly bottomLeft: number = topRight
+    ) {}
 
     static from(element: SModelElement | undefined): CornerRadius | undefined {
-        const radius = GArgument.getNumbers(element, this.KEY_RADIUS_TOP_LEFT, this.KEY_RADIUS_TOP_RIGHT, this.KEY_RADIUS_BOTTOM_RIGHT, this.KEY_RADIUS_BOTTOM_LEFT);
+        const radius = GArgument.getNumbers(
+            element,
+            this.KEY_RADIUS_TOP_LEFT,
+            this.KEY_RADIUS_TOP_RIGHT,
+            this.KEY_RADIUS_BOTTOM_RIGHT,
+            this.KEY_RADIUS_BOTTOM_LEFT
+        );
         if (radius === undefined || radius[0] === undefined) {
             return undefined;
         }
-        return GArgument.hasNValues(radius, 4)
-            ? new CornerRadius(radius[0], radius[1], radius[2], radius[3])
-            : new CornerRadius(radius[0]);
+        return GArgument.hasNValues(radius, 4) ? new CornerRadius(radius[0], radius[1], radius[2], radius[3]) : new CornerRadius(radius[0]);
     }
 }

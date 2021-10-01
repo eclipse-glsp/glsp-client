@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020 EclipseSource and others.
+ * Copyright (c) 2020-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -14,8 +14,8 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { Action, generateRequestId, RequestAction, ResponseAction } from 'sprotty';
-
 import { Args } from '../args';
+
 
 export class RequestEditValidationAction implements RequestAction<SetEditValidationResultAction> {
     static readonly KIND = 'requestEditValidation';
@@ -24,7 +24,8 @@ export class RequestEditValidationAction implements RequestAction<SetEditValidat
         public readonly modelElementId: string,
         public readonly text: string,
         public readonly requestId: string = generateRequestId(),
-        public readonly kind: string = RequestEditValidationAction.KIND) { }
+        public readonly kind: string = RequestEditValidationAction.KIND
+    ) { }
 }
 
 export class SetEditValidationResultAction implements ResponseAction {
@@ -33,12 +34,16 @@ export class SetEditValidationResultAction implements ResponseAction {
         public readonly status: ValidationStatus,
         public readonly responseId: string = '',
         public readonly args?: Args,
-        public readonly kind: string = SetEditValidationResultAction.KIND) { }
+        public readonly kind: string = SetEditValidationResultAction.KIND
+    ) { }
 }
 
 export function isSetEditValidationResultAction(action: Action): action is SetEditValidationResultAction {
-    return action !== undefined && (action.kind === SetEditValidationResultAction.KIND)
-        && (action as SetEditValidationResultAction).status !== undefined;
+    return (
+        action !== undefined &&
+        action.kind === SetEditValidationResultAction.KIND &&
+        (action as SetEditValidationResultAction).status !== undefined
+    );
 }
 
 export interface ValidationStatus {
@@ -76,20 +81,29 @@ export interface ResponseError {
 }
 
 export namespace ValidationStatus {
-
+    // eslint-disable-next-line no-shadow
     export enum Severity {
+        FATAL,
+        ERROR,
+        WARNING,
+        INFO,
+        OK,
         // eslint-disable-next-line no-shadow
-        FATAL, ERROR, WARNING, INFO, OK, NONE
+        NONE
     }
 
     export const NONE: ValidationStatus = {
-        severity: Severity.NONE, message: '', error: { code: -1, message: '', data: {} }
+        severity: Severity.NONE,
+        message: '',
+        error: { code: -1, message: '', data: {} }
     };
 
     export function isOk(validationStatus: ValidationStatus): boolean {
-        return validationStatus.severity === Severity.OK
-            || validationStatus.severity === Severity.INFO
-            || validationStatus.severity === Severity.NONE;
+        return (
+            validationStatus.severity === Severity.OK ||
+            validationStatus.severity === Severity.INFO ||
+            validationStatus.severity === Severity.NONE
+        );
     }
 
     export function isWarning(validationStatus: ValidationStatus): boolean {
@@ -97,7 +111,6 @@ export namespace ValidationStatus {
     }
 
     export function isError(validationStatus: ValidationStatus): boolean {
-        return validationStatus.severity === Severity.ERROR
-            || validationStatus.severity === Severity.FATAL;
+        return validationStatus.severity === Severity.ERROR || validationStatus.severity === Severity.FATAL;
     }
 }

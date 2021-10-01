@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019 EclipseSource and others.
+ * Copyright (c) 2019-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -64,8 +64,13 @@ export class DelKeyDeleteTool implements GLSPTool {
 export class DeleteKeyListener extends KeyListener {
     keyDown(element: SModelElement, event: KeyboardEvent): Action[] {
         if (matchesKeystroke(event, 'Delete')) {
-            const deleteElementIds = Array.from(element.root.index.all().filter(e => isDeletable(e) && isSelectable(e) && e.selected)
-                .filter(e => e.id !== e.root.id).map(e => e.id));
+            const deleteElementIds = Array.from(
+                element.root.index
+                    .all()
+                    .filter(e => isDeletable(e) && isSelectable(e) && e.selected)
+                    .filter(e => e.id !== e.root.id)
+                    .map(e => e.id)
+            );
             if (deleteElementIds.length > 0) {
                 return [new DeleteElementOperation(deleteElementIds)];
             }

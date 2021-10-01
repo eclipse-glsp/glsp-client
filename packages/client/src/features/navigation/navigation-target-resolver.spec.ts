@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020 EclipseSource and others.
+ * Copyright (c) 2020-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -22,7 +22,6 @@ import { expect } from 'chai';
 import { NavigationTarget } from './navigation-target-resolver';
 
 describe('NavigationTarget', () => {
-
     it('should be able to set and get element IDs', () => {
         const navigationTarget: NavigationTarget = { uri: 'uri' };
         NavigationTarget.setElementIds(navigationTarget, ['id1', 'id2']);
@@ -57,5 +56,4 @@ describe('NavigationTarget', () => {
         NavigationTarget.setTextPosition(navigationTarget, { line: 1, character: 2 });
         expect(NavigationTarget.hasArguments(navigationTarget)).to.be.true;
     });
-
 });

@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2020 EclipseSource and others.
+ * Copyright (c) 2019-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -43,7 +43,6 @@ import { createSIssue, getOrCreateSIssueMarker, getSIssueMarker } from './issue-
  */
 @injectable()
 export class ValidationFeedbackEmitter implements IFeedbackEmitter {
-
     @inject(GLSP_TYPES.IFeedbackActionDispatcher) protected feedbackActionDispatcher: IFeedbackActionDispatcher;
 
     @inject(TYPES.IActionDispatcherProvider) protected actionDispatcher: () => Promise<IActionDispatcher>;
@@ -51,7 +50,7 @@ export class ValidationFeedbackEmitter implements IFeedbackEmitter {
     private registeredAction: MarkersAction;
 
     // eslint-disable-next-line @typescript-eslint/no-empty-function
-    private constructor() { }
+    private constructor() {}
 
     /**
      * Register the action that should be emitted for visualizing validation feedback.
@@ -77,11 +76,11 @@ export class ValidationFeedbackEmitter implements IFeedbackEmitter {
  * Action to set markers for a model
  */
 export class SetMarkersAction implements MarkersAction {
-    constructor(public readonly markers: Marker[], public readonly kind = SetMarkersCommand.KIND) { }
+    constructor(public readonly markers: Marker[], public readonly kind = SetMarkersCommand.KIND) {}
 }
 
 export function isSetMarkersAction(action: Action): action is SetMarkersAction {
-    return SetMarkersCommand.KIND === action.kind && ('markers' in action);
+    return SetMarkersCommand.KIND === action.kind && 'markers' in action;
 }
 
 /**
@@ -92,7 +91,6 @@ export function isSetMarkersAction(action: Action): action is SetMarkersAction {
  */
 @injectable()
 export abstract class ExternalMarkerManager {
-
     languageLabel: string;
 
     protected actionDispatcher?: IActionDispatcher;
@@ -115,7 +113,6 @@ export abstract class ExternalMarkerManager {
  */
 @injectable()
 export class SetMarkersCommand extends Command {
-
     @inject(ValidationFeedbackEmitter) protected validationFeedbackEmitter: ValidationFeedbackEmitter;
     @inject(ExternalMarkerManager) @optional() protected externalMarkerManager?: ExternalMarkerManager;
     @inject(EditorContextService) protected editorContextService: EditorContextService;
@@ -147,11 +144,11 @@ export class SetMarkersCommand extends Command {
 }
 
 /**
-* Action to retrieve markers for a model
-*/
+ * Action to retrieve markers for a model
+ */
 export class RequestMarkersAction implements Action {
     static readonly KIND = 'requestMarkers';
-    constructor(public readonly elementsIDs: string[] = [], public readonly kind = RequestMarkersAction.KIND) { }
+    constructor(public readonly elementsIDs: string[] = [], public readonly kind = RequestMarkersAction.KIND) {}
 }
 
 /**
@@ -166,7 +163,7 @@ export interface MarkersAction extends Action {
  */
 @injectable()
 export class ApplyMarkersAction implements MarkersAction {
-    constructor(public readonly markers: Marker[], public readonly kind = ApplyMarkersCommand.KIND) { }
+    constructor(public readonly markers: Marker[], public readonly kind = ApplyMarkersCommand.KIND) {}
 }
 
 /**
@@ -224,7 +221,7 @@ function removeCSSClassFromIssueParent(modelElement: SParentElement, issueMarker
  */
 @injectable()
 export class DeleteMarkersAction implements MarkersAction {
-    constructor(public readonly markers: Marker[], public readonly kind = DeleteMarkersCommand.KIND) { }
+    constructor(public readonly markers: Marker[], public readonly kind = DeleteMarkersCommand.KIND) {}
 }
 
 /**
@@ -271,4 +268,3 @@ export class DeleteMarkersCommand extends Command {
         return this.execute(context);
     }
 }
-

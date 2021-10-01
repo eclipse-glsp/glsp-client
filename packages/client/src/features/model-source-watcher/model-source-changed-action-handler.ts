@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020 EclipseSource and others.
+ * Copyright (c) 2020-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -36,14 +36,14 @@ export abstract class ExternalModelSourceChangedHandler {
 
 @injectable()
 export class ModelSourceChangedActionHandler implements IActionHandler {
-
     @inject(TYPES.IActionDispatcher)
     protected dispatcher: IActionDispatcher;
 
     @inject(TYPES.ViewerOptions)
     protected options: ViewerOptions;
 
-    @inject(ExternalModelSourceChangedHandler) @optional()
+    @inject(ExternalModelSourceChangedHandler)
+    @optional()
     protected externalModelSourceChangedHandler?: ExternalModelSourceChangedHandler;
 
     handle(action: Action): void {

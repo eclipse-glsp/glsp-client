@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019 EclipseSource and others.
+ * Copyright (c) 2019-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -32,10 +32,13 @@ export class ServerCommandPaletteActionProvider implements ICommandPaletteAction
     @inject(EditorContextService) protected editorContext: EditorContextService;
 
     getActions(_root: Readonly<SModelElement>, text: string, _lastMousePosition?: Point, index?: number): Promise<LabeledAction[]> {
-        const requestAction = new RequestContextActions(ServerCommandPalette.CONTEXT_ID, this.editorContext.get({
-            [ServerCommandPalette.TEXT]: text,
-            [ServerCommandPalette.INDEX]: index ? index : 0
-        }));
+        const requestAction = new RequestContextActions(
+            ServerCommandPalette.CONTEXT_ID,
+            this.editorContext.get({
+                [ServerCommandPalette.TEXT]: text,
+                [ServerCommandPalette.INDEX]: index ? index : 0
+            })
+        );
         return this.actionDispatcher.requestUntil(requestAction).then(response => this.getPaletteActionsFromResponse(response));
     }
 

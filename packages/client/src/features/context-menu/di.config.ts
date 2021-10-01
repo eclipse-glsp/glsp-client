@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019 EclipseSource and others.
+ * Copyright (c) 2019-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -20,13 +20,16 @@ import { SelectionServiceAwareContextMenuMouseListener } from './selection-servi
 import { ServerContextMenuItemProvider } from './server-context-menu-provider';
 
 const glspContextMenuModule = new ContainerModule(bind => {
-    bind(TYPES.IContextMenuServiceProvider).toProvider<IContextMenuService>(ctx => () => new Promise<IContextMenuService>((resolve, reject) => {
-        if (ctx.container.isBound(TYPES.IContextMenuService)) {
-            resolve(ctx.container.get<IContextMenuService>(TYPES.IContextMenuService));
-        } else {
-            reject();
-        }
-    }));
+    bind(TYPES.IContextMenuServiceProvider).toProvider<IContextMenuService>(
+        ctx => () =>
+            new Promise<IContextMenuService>((resolve, reject) => {
+                if (ctx.container.isBound(TYPES.IContextMenuService)) {
+                    resolve(ctx.container.get<IContextMenuService>(TYPES.IContextMenuService));
+                } else {
+                    reject();
+                }
+            })
+    );
     bind(TYPES.MouseListener).to(SelectionServiceAwareContextMenuMouseListener);
     bind(TYPES.IContextMenuProviderRegistry).to(ContextMenuProviderRegistry);
     bind(TYPES.IContextMenuItemProvider).to(ServerContextMenuItemProvider);

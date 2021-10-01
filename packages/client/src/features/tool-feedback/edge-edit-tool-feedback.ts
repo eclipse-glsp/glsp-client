@@ -47,12 +47,7 @@ import {
 import { isNotUndefined, isRoutable, isRoutingHandle } from '../../utils/smodel-util';
 import { getAbsolutePosition, toAbsoluteBounds } from '../../utils/viewpoint-util';
 import { addReconnectHandles, removeReconnectHandles } from '../reconnect/model';
-import {
-    FeedbackEdgeEnd,
-    feedbackEdgeEndId,
-    FeedbackEdgeEndMovingMouseListener,
-    feedbackEdgeId
-} from './creation-tool-feedback';
+import { FeedbackEdgeEnd, feedbackEdgeEndId, FeedbackEdgeEndMovingMouseListener, feedbackEdgeId } from './creation-tool-feedback';
 import { FeedbackCommand } from './model';
 
 /**
@@ -60,11 +55,11 @@ import { FeedbackCommand } from './model';
  */
 
 export class ShowEdgeReconnectHandlesFeedbackAction implements Action {
-    constructor(readonly elementId?: string, public readonly kind: string = ShowEdgeReconnectHandlesFeedbackCommand.KIND) { }
+    constructor(readonly elementId?: string, public readonly kind: string = ShowEdgeReconnectHandlesFeedbackCommand.KIND) {}
 }
 
 export class HideEdgeReconnectHandlesFeedbackAction implements Action {
-    constructor(public readonly kind: string = HideEdgeReconnectHandlesFeedbackCommand.KIND) { }
+    constructor(public readonly kind: string = HideEdgeReconnectHandlesFeedbackCommand.KIND) {}
 }
 
 @injectable()
@@ -108,9 +103,11 @@ export class HideEdgeReconnectHandlesFeedbackCommand extends FeedbackCommand {
  */
 
 export class SwitchRoutingModeAction extends SwitchEditModeAction {
-    constructor(public readonly elementsToActivate: string[] = [],
+    constructor(
+        public readonly elementsToActivate: string[] = [],
         public readonly elementsToDeactivate: string[] = [],
-        public readonly kind: string = SwitchRoutingModeCommand.KIND) {
+        public readonly kind: string = SwitchRoutingModeCommand.KIND
+    ) {
         super(elementsToActivate, elementsToDeactivate);
     }
 }
@@ -128,7 +125,11 @@ export class SwitchRoutingModeCommand extends SwitchEditModeCommand {
  */
 
 export class DrawFeedbackEdgeSourceAction implements Action {
-    constructor(readonly elementTypeId: string, readonly targetId: string, public readonly kind: string = DrawFeedbackEdgeSourceCommand.KIND) { }
+    constructor(
+        readonly elementTypeId: string,
+        readonly targetId: string,
+        public readonly kind: string = DrawFeedbackEdgeSourceCommand.KIND
+    ) {}
 }
 
 @injectable()
@@ -169,8 +170,9 @@ export class FeedbackEdgeSourceMovingMouseListener extends MouseListener {
 
         const edge = edgeEnd.feedbackEdge;
         const position = getAbsolutePosition(edgeEnd, event);
-        const endAtMousePosition = findChildrenAtPosition(target.root, position)
-            .find(e => isConnectable(e) && e.canConnect(edge, 'source'));
+        const endAtMousePosition = findChildrenAtPosition(target.root, position).find(
+            e => isConnectable(e) && e.canConnect(edge, 'source')
+        );
 
         if (endAtMousePosition instanceof SConnectableElement && edge.target && isBoundsAware(edge.target)) {
             const anchor = this.computeAbsoluteAnchor(endAtMousePosition, center(edge.target.bounds));
@@ -234,7 +236,8 @@ export class FeedbackEdgeRouteMovingMouseListener extends MouseListener {
             const dx = (event.pageX - this.lastDragPosition.x) / zoom;
             const dy = (event.pageY - this.lastDragPosition.y) / zoom;
             const handleMoves: ElementMove[] = [];
-            target.root.index.all()
+            target.root.index
+                .all()
                 .filter(element => isSelected(element))
                 .forEach(element => {
                     if (isRoutingHandle(element)) {

@@ -65,7 +65,6 @@ export class MarqueeMouseTool extends BaseGLSPTool {
 
 @injectable()
 export class MarqueeMouseListener extends DragAwareMouseListener {
-
     protected startPoint: Point;
 
     protected currentPoint: Point;
@@ -84,11 +83,14 @@ export class MarqueeMouseListener extends DragAwareMouseListener {
     mouseDown(target: SModelElement, event: MouseEvent): Action[] {
         this.isActive = true;
         this.startPoint = { x: getAbsolutePosition(target, event).x, y: getAbsolutePosition(target, event).y };
-        if(event.ctrlKey){
-            this.previouslySelected = Array.from(target.root.index.all()
-                .map(e => e as SModelElement & BoundsAware)
-                .filter(e => isSelected(e))
-                .map(e => e.id));
+        if (event.ctrlKey) {
+            this.previouslySelected = Array.from(
+                target.root.index
+                    .all()
+                    .map(e => e as SModelElement & BoundsAware)
+                    .filter(e => isSelected(e))
+                    .map(e => e.id)
+            );
         }
         return [];
     }
@@ -96,18 +98,21 @@ export class MarqueeMouseListener extends DragAwareMouseListener {
     mouseMove(target: SModelElement, event: MouseEvent): Action[] {
         this.currentPoint = { x: getAbsolutePosition(target, event).x, y: getAbsolutePosition(target, event).y };
         if (this.isActive) {
-            const nodeIdsSelected = Array.from(target.root.index.all()
-                .map(e => e as SModelElement & BoundsAware)
-                .filter(e => isSelectable(e))
-                .filter(e => e instanceof SNode)
-                .filter(e => this.isNodeMarked(e)).map(e => e.id));
+            const nodeIdsSelected = Array.from(
+                target.root.index
+                    .all()
+                    .map(e => e as SModelElement & BoundsAware)
+                    .filter(e => isSelectable(e))
+                    .filter(e => e instanceof SNode)
+                    .filter(e => this.isNodeMarked(e))
+                    .map(e => e.id)
+            );
             const edgeIdsSelected = this.getMarkedEdges(target.root);
             const selected = nodeIdsSelected.concat(edgeIdsSelected);
             return [
                 new SelectAction([], Array.from(target.root.index.all().map(e => e.id))),
                 new SelectAction(selected.concat(this.previouslySelected), []),
-                new DrawMarqueeAction(this.startPoint,
-                    { x: getAbsolutePosition(target, event).x, y: getAbsolutePosition(target, event).y })
+                new DrawMarqueeAction(this.startPoint, { x: getAbsolutePosition(target, event).x, y: getAbsolutePosition(target, event).y })
             ];
         }
         return [];
@@ -123,10 +128,17 @@ export class MarqueeMouseListener extends DragAwareMouseListener {
 
     getMarkedEdges(root: SModelElement): string[] {
         const elements = Array.from(document.querySelectorAll('g'));
-        const edges = Array.from(root.index.all().filter(e => e instanceof SEdge).
-            filter(e => isSelectable(e)).map(e => e.id));
-        return elements.filter(e => edges.includes(this.domHelper.findSModelIdByDOMElement(e)))
-            .filter(e => this.isEdgeMarked(e)).map(e => this.domHelper.findSModelIdByDOMElement(e));
+        const edges = Array.from(
+            root.index
+                .all()
+                .filter(e => e instanceof SEdge)
+                .filter(e => isSelectable(e))
+                .map(e => e.id)
+        );
+        return elements
+            .filter(e => edges.includes(this.domHelper.findSModelIdByDOMElement(e)))
+            .filter(e => this.isEdgeMarked(e))
+            .map(e => this.domHelper.findSModelIdByDOMElement(e));
     }
 
     isEdgeMarked(element: SVGElement): boolean {
@@ -170,11 +182,11 @@ export class MarqueeMouseListener extends DragAwareMouseListener {
     }
 
     linesIntersect(p1: Point, p2: Point, p3: Point, p4: Point): boolean {
-        const tCount = ((p1.x - p3.x) * (p3.y - p4.y)) - ((p1.y - p3.y) * (p3.x - p4.x));
-        const tDenom = ((p1.x - p2.x) * (p3.y - p4.y)) - ((p1.y - p2.y) * (p3.x - p4.x));
+        const tCount = (p1.x - p3.x) * (p3.y - p4.y) - (p1.y - p3.y) * (p3.x - p4.x);
+        const tDenom = (p1.x - p2.x) * (p3.y - p4.y) - (p1.y - p2.y) * (p3.x - p4.x);
         const t = tCount / tDenom;
-        const uCount = ((p2.x - p1.x) * (p1.y - p3.y)) - ((p2.y - p1.y) * (p1.x - p3.x));
-        const uDenom = ((p1.x - p2.x) * (p3.y - p4.y)) - ((p1.y - p2.y) * (p3.x - p4.x));
+        const uCount = (p2.x - p1.x) * (p1.y - p3.y) - (p2.y - p1.y) * (p1.x - p3.x);
+        const uDenom = (p1.x - p2.x) * (p3.y - p4.y) - (p1.y - p2.y) * (p3.x - p4.x);
         const u = uCount / uDenom;
         if (t >= 0.0 && t <= 1.0 && u >= 0.0 && u <= 1.0) {
             return true;
@@ -183,20 +195,26 @@ export class MarqueeMouseListener extends DragAwareMouseListener {
     }
 
     pointInRect(point: Point): boolean {
-        const boolX = this.startPoint.x <= this.currentPoint.x ?
-            this.isBetween(point.x, this.startPoint.x, this.currentPoint.x) : this.isBetween(point.x, this.currentPoint.x, this.startPoint.x);
-        const boolY = this.startPoint.y <= this.currentPoint.y ?
-            this.isBetween(point.y, this.startPoint.y, this.currentPoint.y) : this.isBetween(point.y, this.currentPoint.y, this.startPoint.y);
+        const boolX =
+            this.startPoint.x <= this.currentPoint.x
+                ? this.isBetween(point.x, this.startPoint.x, this.currentPoint.x)
+                : this.isBetween(point.x, this.currentPoint.x, this.startPoint.x);
+        const boolY =
+            this.startPoint.y <= this.currentPoint.y
+                ? this.isBetween(point.y, this.startPoint.y, this.currentPoint.y)
+                : this.isBetween(point.y, this.currentPoint.y, this.startPoint.y);
         return boolX && boolY;
     }
 
     isNodeMarked(element: SModelElement & BoundsAware): boolean {
-        const horizontallyIn = this.startPoint.x < this.currentPoint.x ?
-            this.isElementBetweenXAxis(element, this.startPoint.x, this.currentPoint.x) :
-            this.isElementBetweenXAxis(element, this.currentPoint.x, this.startPoint.x);
-        const verticallyIn = this.startPoint.y < this.currentPoint.y ?
-            this.isElementBetweenYAxis(element, this.startPoint.y, this.currentPoint.y) :
-            this.isElementBetweenYAxis(element, this.currentPoint.y, this.startPoint.y);
+        const horizontallyIn =
+            this.startPoint.x < this.currentPoint.x
+                ? this.isElementBetweenXAxis(element, this.startPoint.x, this.currentPoint.x)
+                : this.isElementBetweenXAxis(element, this.currentPoint.x, this.startPoint.x);
+        const verticallyIn =
+            this.startPoint.y < this.currentPoint.y
+                ? this.isElementBetweenYAxis(element, this.startPoint.y, this.currentPoint.y)
+                : this.isElementBetweenYAxis(element, this.currentPoint.y, this.startPoint.y);
         if (horizontallyIn && verticallyIn) {
             return true;
         }
@@ -204,8 +222,10 @@ export class MarqueeMouseListener extends DragAwareMouseListener {
     }
 
     isElementBetweenXAxis(element: SModelElement & BoundsAware, marqueeLeft: number, marqueeRight: number): boolean {
-        if (this.isBetween(marqueeLeft, toAbsoluteBounds(element).x, toAbsoluteBounds(element).x + toAbsoluteBounds(element).width)
-            || this.isBetween(marqueeRight, toAbsoluteBounds(element).x, toAbsoluteBounds(element).x + toAbsoluteBounds(element).width)) {
+        if (
+            this.isBetween(marqueeLeft, toAbsoluteBounds(element).x, toAbsoluteBounds(element).x + toAbsoluteBounds(element).width) ||
+            this.isBetween(marqueeRight, toAbsoluteBounds(element).x, toAbsoluteBounds(element).x + toAbsoluteBounds(element).width)
+        ) {
             return true;
         }
         const leftEdge = this.isBetween(toAbsoluteBounds(element).x, marqueeLeft, marqueeRight);
@@ -214,8 +234,10 @@ export class MarqueeMouseListener extends DragAwareMouseListener {
     }
 
     isElementBetweenYAxis(element: SModelElement & BoundsAware, marqueeTop: number, marqueeBottom: number): boolean {
-        if (this.isBetween(marqueeTop, toAbsoluteBounds(element).y, toAbsoluteBounds(element).y + toAbsoluteBounds(element).height)
-            || this.isBetween(marqueeBottom, toAbsoluteBounds(element).y, toAbsoluteBounds(element).y + toAbsoluteBounds(element).height)) {
+        if (
+            this.isBetween(marqueeTop, toAbsoluteBounds(element).y, toAbsoluteBounds(element).y + toAbsoluteBounds(element).height) ||
+            this.isBetween(marqueeBottom, toAbsoluteBounds(element).y, toAbsoluteBounds(element).y + toAbsoluteBounds(element).height)
+        ) {
             return true;
         }
         const topEdge = this.isBetween(toAbsoluteBounds(element).y, marqueeTop, marqueeBottom);
@@ -229,12 +251,10 @@ export class MarqueeMouseListener extends DragAwareMouseListener {
         }
         return false;
     }
-
 }
 
 @injectable()
 export class ShiftKeyListener extends KeyListener {
-
     keyUp(element: SModelElement, event: KeyboardEvent): Action[] {
         if (event.shiftKey) {
             return [];

@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019 EclipseSource and others.
+ * Copyright (c) 2019-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -19,7 +19,7 @@ import { EdgeTypeHint, ShapeTypeHint } from './type-hints';
 
 export class RequestTypeHintsAction implements Action {
     static readonly KIND = 'requestTypeHints';
-    constructor(public readonly diagramType?: string, public readonly kind: string = RequestTypeHintsAction.KIND) { }
+    constructor(public readonly diagramType?: string, public readonly kind: string = RequestTypeHintsAction.KIND) {}
 }
 
 export class SetTypeHintsAction implements Action {
@@ -27,10 +27,15 @@ export class SetTypeHintsAction implements Action {
     constructor(
         public readonly shapeHints: ShapeTypeHint[],
         public readonly edgeHints: EdgeTypeHint[],
-        public readonly kind: string = SetTypeHintsAction.KIND) { }
+        public readonly kind: string = SetTypeHintsAction.KIND
+    ) {}
 }
 
 export function isSetTypeHintsAction(action: Action): action is SetTypeHintsAction {
-    return action !== undefined && (action.kind === SetTypeHintsAction.KIND)
-        && (action as SetTypeHintsAction).shapeHints !== undefined && (action as SetTypeHintsAction).edgeHints !== undefined;
+    return (
+        action !== undefined &&
+        action.kind === SetTypeHintsAction.KIND &&
+        (action as SetTypeHintsAction).shapeHints !== undefined &&
+        (action as SetTypeHintsAction).edgeHints !== undefined
+    );
 }

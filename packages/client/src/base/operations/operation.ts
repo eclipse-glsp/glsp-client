@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020 EclipseSource and others.
+ * Copyright (c) 2020-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -21,7 +21,7 @@ import { Args } from '../args';
  * Operations are actions that denote requests from the client to _modify_ the model. Model modifications are always performed by the server.
  * After a successful modification, the server sends the updated model back to the client using the `UpdateModelAction`.
  */
-export interface Operation extends Action { }
+export interface Operation extends Action {}
 
 export interface CreateOperation extends Operation {
     elementTypeId: string;
@@ -35,11 +35,13 @@ export function isCreateOperation(object?: any): object is CreateOperation {
 export class CreateNodeOperation implements CreateOperation {
     static readonly KIND = 'createNode';
 
-    constructor(public readonly elementTypeId: string,
+    constructor(
+        public readonly elementTypeId: string,
         public location?: Point,
         public containerId?: string,
         public args?: Args,
-        public readonly kind: string = CreateNodeOperation.KIND) { }
+        public readonly kind: string = CreateNodeOperation.KIND
+    ) {}
 }
 
 export function isCreateNodeOperation(object?: any): object is CreateNodeOperation {
@@ -49,11 +51,13 @@ export function isCreateNodeOperation(object?: any): object is CreateNodeOperati
 export class CreateEdgeOperation implements CreateOperation {
     static readonly KIND = 'createEdge';
 
-    constructor(public readonly elementTypeId: string,
+    constructor(
+        public readonly elementTypeId: string,
         public sourceElementId: string,
         public targetElementId: string,
         public args?: Args,
-        public readonly kind: string = CreateEdgeOperation.KIND) { }
+        public readonly kind: string = CreateEdgeOperation.KIND
+    ) {}
 }
 
 export function isCreateConnectionOperation(object?: any): object is CreateEdgeOperation {
@@ -62,7 +66,7 @@ export function isCreateConnectionOperation(object?: any): object is CreateEdgeO
 
 export class DeleteElementOperation implements Operation {
     static readonly KIND = 'deleteElement';
-    constructor(readonly elementIds: string[], public readonly kind: string = DeleteElementOperation.KIND) { }
+    constructor(readonly elementIds: string[], public readonly kind: string = DeleteElementOperation.KIND) {}
 }
 
 export function isDeleteElementOperation(object?: any): object is DeleteElementOperation {
@@ -71,7 +75,7 @@ export function isDeleteElementOperation(object?: any): object is DeleteElementO
 
 export class ChangeBoundsOperation implements Operation {
     static readonly KIND = 'changeBounds';
-    constructor(public newBounds: ElementAndBounds[], public readonly kind: string = ChangeBoundsOperation.KIND) { }
+    constructor(public newBounds: ElementAndBounds[], public readonly kind: string = ChangeBoundsOperation.KIND) {}
 }
 
 export function isChangeBoundsOperation(object?: any): object is ChangeBoundsOperation {
@@ -80,46 +84,65 @@ export function isChangeBoundsOperation(object?: any): object is ChangeBoundsOpe
 
 export class ChangeContainerOperation implements Operation {
     static readonly KIND = 'changeContainer';
-    constructor(public readonly elementId: string,
+    constructor(
+        public readonly elementId: string,
         public readonly targetContainerId: string,
         public readonly location?: Point,
-        public readonly kind: string = ChangeContainerOperation.KIND) { }
+        public readonly kind: string = ChangeContainerOperation.KIND
+    ) {}
 }
 
 export function isChangeContainerOperation(object?: any): object is ChangeContainerOperation {
-    return isAction(object) && object.kind === ChangeContainerOperation.KIND
-        && 'elementId' in object && typeof object['elementId'] === 'string'
-        && 'targetContainerId' in object && typeof object['targetContainerId'] === 'string';
+    return (
+        isAction(object) &&
+        object.kind === ChangeContainerOperation.KIND &&
+        'elementId' in object &&
+        typeof object['elementId'] === 'string' &&
+        'targetContainerId' in object &&
+        typeof object['targetContainerId'] === 'string'
+    );
 }
 
 export class ReconnectEdgeOperation implements Operation {
     static readonly KIND = 'reconnectEdge';
-    constructor(public readonly edgeElementId: string,
+    constructor(
+        public readonly edgeElementId: string,
         public readonly sourceElementId: string,
         public readonly targetElementId: string,
-        public readonly kind: string = ReconnectEdgeOperation.KIND) { }
+        public readonly kind: string = ReconnectEdgeOperation.KIND
+    ) {}
 }
 
 export function isReconnectEdgeOperation(object?: any): object is ReconnectEdgeOperation {
-    return isAction(object) && object.kind === ReconnectEdgeOperation.KIND
-        && 'edgeElementId' in object && typeof object['edgeElementId'] === 'string'
-        && 'sourceElementId' in object && typeof object['sourceElementId'] === 'string'
-        && 'targetElementId' in object && typeof object['targetElementId'] === 'string';
+    return (
+        isAction(object) &&
+        object.kind === ReconnectEdgeOperation.KIND &&
+        'edgeElementId' in object &&
+        typeof object['edgeElementId'] === 'string' &&
+        'sourceElementId' in object &&
+        typeof object['sourceElementId'] === 'string' &&
+        'targetElementId' in object &&
+        typeof object['targetElementId'] === 'string'
+    );
 }
 
 export class ChangeRoutingPointsOperation implements Operation {
     static readonly KIND = 'changeRoutingPoints';
-    constructor(public newRoutingPoints: ElementAndRoutingPoints[], public readonly kind: string = ChangeRoutingPointsOperation.KIND) { }
+    constructor(public newRoutingPoints: ElementAndRoutingPoints[], public readonly kind: string = ChangeRoutingPointsOperation.KIND) {}
 }
 
 export function isChangeRoutingsPointsOperation(object?: any): object is ChangeRoutingPointsOperation {
-    return isAction(object) && object.kind === ChangeRoutingPointsOperation.KIND
-        && 'newRoutingPoints' in object && typeof object['newRoutingPoints'] === 'string';
+    return (
+        isAction(object) &&
+        object.kind === ChangeRoutingPointsOperation.KIND &&
+        'newRoutingPoints' in object &&
+        typeof object['newRoutingPoints'] === 'string'
+    );
 }
 
 export class CompoundOperation implements Operation {
     static readonly KIND = 'compound';
-    constructor(public operationList: Operation[], public readonly kind: string = CompoundOperation.KIND) { }
+    constructor(public operationList: Operation[], public readonly kind: string = CompoundOperation.KIND) {}
 }
 
 export function isCompoundOperation(object?: any): object is CompoundOperation {
@@ -142,7 +165,7 @@ export interface ElementAndRoutingPoints {
 }
 
 export abstract class TriggerElementCreationAction implements Action {
-    constructor(public readonly elementTypeId: string, readonly args?: Args, public readonly kind: string = 'unknown') { }
+    constructor(public readonly elementTypeId: string, readonly args?: Args, public readonly kind: string = 'unknown') {}
 }
 
 export class TriggerNodeCreationAction extends TriggerElementCreationAction {
@@ -156,7 +179,11 @@ export class TriggerNodeCreationAction extends TriggerElementCreationAction {
 export class TriggerEdgeCreationAction extends TriggerElementCreationAction {
     static readonly KIND = 'triggerEdgeCreation';
 
-    constructor(public readonly elementTypeId: string, readonly args?: Args, public readonly kind: string = TriggerEdgeCreationAction.KIND) {
+    constructor(
+        public readonly elementTypeId: string,
+        readonly args?: Args,
+        public readonly kind: string = TriggerEdgeCreationAction.KIND
+    ) {
         super(elementTypeId, args, kind);
     }
 }
@@ -173,6 +200,6 @@ export function isTriggerEdgeCreationAction(object?: any): object is TriggerEdge
     return isTriggerElementTypeCreationAction(object) && object.kind === TriggerEdgeCreationAction.KIND;
 }
 
-export class LayoutOperation extends LayoutAction implements Operation { }
+export class LayoutOperation extends LayoutAction implements Operation {}
 
-export class ApplyLabelEditOperation extends ApplyLabelEditAction implements Operation { }
+export class ApplyLabelEditOperation extends ApplyLabelEditAction implements Operation {}

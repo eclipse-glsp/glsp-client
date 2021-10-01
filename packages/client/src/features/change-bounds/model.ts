@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019 EclipseSource and others.
+ * Copyright (c) 2019-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -29,13 +29,13 @@ import {
 
 export const resizeFeature = Symbol('resizeFeature');
 
-export interface Resizable extends BoundsAware, Selectable {
-}
+export interface Resizable extends BoundsAware, Selectable { }
 
 export function isResizable(element: SModelElement): element is SParentElement & Resizable {
     return isBoundsAware(element) && isSelectable(element) && element instanceof SParentElement && element.hasFeature(resizeFeature);
 }
 
+// eslint-disable-next-line no-shadow
 export enum ResizeHandleLocation {
     TopLeft = 'top-left',
     TopRight = 'top-right',
@@ -50,9 +50,11 @@ export function isBoundsAwareMoveable(element: SModelElement): element is SModel
 export class SResizeHandle extends SChildElement implements Hoverable {
     static readonly TYPE = 'resize-handle';
 
-    constructor(public readonly location?: ResizeHandleLocation,
+    constructor(
+        public readonly location?: ResizeHandleLocation,
         public readonly type: string = SResizeHandle.TYPE,
-        public readonly hoverFeedback: boolean = false) {
+        public readonly hoverFeedback: boolean = false
+    ) {
         super();
     }
 

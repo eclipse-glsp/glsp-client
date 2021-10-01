@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020 EclipseSource and others.
+ * Copyright (c) 2020-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -19,12 +19,11 @@ import { Action } from 'sprotty';
 @injectable()
 export class SetEditModeAction implements Action {
     static readonly KIND = 'setEditMode';
-    constructor(public readonly editMode: string = EditMode.EDITABLE, public readonly kind: string = SetEditModeAction.KIND) { }
+    constructor(public readonly editMode: string = EditMode.EDITABLE, public readonly kind: string = SetEditModeAction.KIND) {}
 }
 
 export function isSetEditModeAction(action: Action): action is SetEditModeAction {
-    return action !== undefined && (action.kind === SetEditModeAction.KIND)
-        && 'editMode' in action && typeof action['editMode'] === 'string';
+    return action !== undefined && action.kind === SetEditModeAction.KIND && 'editMode' in action && typeof action['editMode'] === 'string';
 }
 
 export namespace EditMode {

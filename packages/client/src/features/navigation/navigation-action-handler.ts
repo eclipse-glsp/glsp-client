@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020 EclipseSource and others.
+ * Copyright (c) 2020-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -50,55 +50,58 @@ import { NavigationTarget, NavigationTargetResolver, SetResolvedNavigationTarget
 export class NavigateAction implements Action {
     static readonly KIND = 'navigate';
     readonly kind = NavigateAction.KIND;
-    constructor(readonly targetTypeId: string, readonly args?: Args) { }
+    constructor(readonly targetTypeId: string, readonly args?: Args) {}
 }
 
 export function isNavigateAction(action: Action): action is NavigateAction {
-    return action !== undefined && (action.kind === NavigateAction.KIND)
-        && (action as NavigateAction).targetTypeId !== undefined;
+    return action !== undefined && action.kind === NavigateAction.KIND && (action as NavigateAction).targetTypeId !== undefined;
 }
 
 /** Action that is usually sent to the server to request navigation targets for a navigation type. */
 export class RequestNavigationTargetsAction implements RequestAction<SetNavigationTargetsAction> {
     static readonly KIND = 'requestNavigationTargets';
     kind = RequestNavigationTargetsAction.KIND;
-    constructor(readonly targetTypeId: string, readonly editorContext: EditorContext,
-        readonly requestId: string = generateRequestId()) { }
+    constructor(readonly targetTypeId: string, readonly editorContext: EditorContext, readonly requestId: string = generateRequestId()) {}
 }
 
 /** Action that is usually sent from the server to the client as a repsonse to a `RequestNavigationTargetsAction`. */
 export class SetNavigationTargetsAction implements ResponseAction {
     static readonly KIND = 'setNavigationTargets';
     kind = SetNavigationTargetsAction.KIND;
-    constructor(readonly targets: NavigationTarget[], readonly responseId: string = '', readonly args?: Args) { }
+    constructor(readonly targets: NavigationTarget[], readonly responseId: string = '', readonly args?: Args) {}
 }
 
 export function isSetNavigationTargetsAction(action: Action): action is SetNavigationTargetsAction {
-    return action !== undefined && (action.kind === SetNavigationTargetsAction.KIND)
-        && (action as SetNavigationTargetsAction).targets !== undefined;
+    return (
+        action !== undefined &&
+        action.kind === SetNavigationTargetsAction.KIND &&
+        (action as SetNavigationTargetsAction).targets !== undefined
+    );
 }
 
 /** Action that triggers the navigation to a particular navigation target, such as element IDs, queries, etc.. */
 export class NavigateToTargetAction implements Action {
     static readonly KIND = 'navigateToTarget';
     readonly kind = NavigateToTargetAction.KIND;
-    constructor(readonly target: NavigationTarget) { }
+    constructor(readonly target: NavigationTarget) {}
 }
 
 export function isNavigateToTargetAction(action: Action): action is NavigateToTargetAction {
-    return action !== undefined && (action.kind === NavigateToTargetAction.KIND)
-        && (action as NavigateToTargetAction).target !== undefined;
+    return action !== undefined && action.kind === NavigateToTargetAction.KIND && (action as NavigateToTargetAction).target !== undefined;
 }
 
 export class NavigateToExternalTargetAction implements Action {
     static readonly KIND = 'navigateToExternalTarget';
     readonly kind = NavigateToExternalTargetAction.KIND;
-    constructor(readonly target: NavigationTarget) { }
+    constructor(readonly target: NavigationTarget) {}
 }
 
 export function isNavigateToExternalTargetAction(action: Action): action is NavigateToExternalTargetAction {
-    return action !== undefined && (action.kind === NavigateToExternalTargetAction.KIND)
-        && (action as NavigateToExternalTargetAction).target !== undefined;
+    return (
+        action !== undefined &&
+        action.kind === NavigateToExternalTargetAction.KIND &&
+        (action as NavigateToExternalTargetAction).target !== undefined
+    );
 }
 
 /** Action to trigger the processing of additional navigation arguments.
@@ -112,12 +115,15 @@ export function isNavigateToExternalTargetAction(action: Action): action is Navi
 export class ProcessNavigationArgumentsAction implements Action {
     static readonly KIND = 'processNavigationArguments';
     readonly kind = ProcessNavigationArgumentsAction.KIND;
-    constructor(readonly args: Args) { }
+    constructor(readonly args: Args) {}
 }
 
 export function isProcessNavigationArgumentsAction(action: Action): action is ProcessNavigationArgumentsAction {
-    return action !== undefined && (action.kind === ProcessNavigationArgumentsAction.KIND)
-        && (action as ProcessNavigationArgumentsAction).args !== undefined;
+    return (
+        action !== undefined &&
+        action.kind === ProcessNavigationArgumentsAction.KIND &&
+        (action as ProcessNavigationArgumentsAction).args !== undefined
+    );
 }
 
 /**
@@ -144,7 +150,6 @@ export function isProcessNavigationArgumentsAction(action: Action): action is Pr
  */
 @injectable()
 export class NavigationActionHandler implements IActionHandler {
-
     readonly notificationTimeout = 5000;
 
     @inject(TYPES.ILogger) protected logger: ILogger;
@@ -172,8 +177,11 @@ export class NavigationActionHandler implements IActionHandler {
             const response = await this.dispatcher.request(new RequestNavigationTargetsAction(action.targetTypeId, context));
             if (isSetNavigationTargetsAction(response) && response.targets && response.targets.length === 1) {
                 if (response.targets.length > 1) {
-                    this.logger.warn(this, 'Processing of multiple targets is not supported yet. ' +
-                        'Only the first is being processed.', response.targets);
+                    this.logger.warn(
+                        this,
+                        'Processing of multiple targets is not supported yet. ' + 'Only the first is being processed.',
+                        response.targets
+                    );
                 }
                 return this.dispatcher.dispatch(new NavigateToTargetAction(response.targets[0]));
             }
@@ -203,7 +211,9 @@ export class NavigationActionHandler implements IActionHandler {
         return this.resolver.resolve(action.target);
     }
 
-    protected containsElementIdsOrArguments(target: SetResolvedNavigationTargetAction | undefined): target is SetResolvedNavigationTargetAction {
+    protected containsElementIdsOrArguments(
+        target: SetResolvedNavigationTargetAction | undefined
+    ): target is SetResolvedNavigationTargetAction {
         return target !== undefined && (this.containsElementIds(target.elementIds) || this.containsArguments(target.args));
     }
 

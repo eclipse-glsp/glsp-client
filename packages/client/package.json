@@ -57,7 +57,7 @@
     "build": "tsc",
     "lint": "eslint -c ./.eslintrc.js --ext .ts,.tsx ./src",
     "watch": "tsc -w",
-    "test": "mocha --opts ../../configs/mocha.opts \"./src/**/*.spec.?(ts|tsx)\"",
+    "test": "mocha --opts ./mocha.opts \"./src/**/*.spec.?(ts|tsx)\"",
     "test:ci": "export JUNIT_REPORT_PATH=./report.xml && yarn test --colors --reporter mocha-jenkins-reporter"
   },
   "publishConfig": {

@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019 EclipseSource and others.
+ * Copyright (c) 2019-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -19,7 +19,6 @@ import { Action, ActionDispatcher, isResponseAction, RequestAction, ResponseActi
 import { ModelInitializationConstraint } from './model-initialization-constraint';
 
 export class GLSPActionDispatcher extends ActionDispatcher {
-
     protected readonly timeouts: Map<string, NodeJS.Timeout> = new Map();
 
     @inject(ModelInitializationConstraint) protected initiailizationConstraint: ModelInitializationConstraint;

@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019 EclipseSource and others.
+ * Copyright (c) 2019-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -24,7 +24,6 @@ import { Action, MouseListener, SModelElement } from 'sprotty';
  * of mouse up events.
  */
 export class DragAwareMouseListener extends MouseListener {
-
     private _isMouseDown = false;
     private _isMouseDrag = false;
 
@@ -65,5 +64,4 @@ export class DragAwareMouseListener extends MouseListener {
     get isMouseDown(): boolean {
         return this._isMouseDown;
     }
-
 }

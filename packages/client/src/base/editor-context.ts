@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020 EclipseSource and others.
+ * Copyright (c) 2020-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -51,13 +51,12 @@ export interface EditModeListener {
 
 @injectable()
 export class EditorContextService implements IActionHandler {
-
     @inject(GLSP_TYPES.SelectionService) protected selectionService: SelectionService;
     @inject(MousePositionTracker) protected mousePositionTracker: MousePositionTracker;
     @inject(TYPES.ModelSourceProvider) protected modelSource: () => Promise<ModelSource>;
     protected _editMode: string;
 
-    constructor(@multiInject(GLSP_TYPES.IEditModeListener) @optional() protected editModeListeners: EditModeListener[] = []) { }
+    constructor(@multiInject(GLSP_TYPES.IEditModeListener) @optional() protected editModeListeners: EditModeListener[] = []) {}
 
     register(editModeListener: EditModeListener): void {
         distinctAdd(this.editModeListeners, editModeListener);
@@ -121,4 +120,3 @@ export class EditorContextService implements IActionHandler {
 }
 
 export type EditorContextServiceProvider = () => Promise<EditorContextService>;
-

@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020 EclipseSource and others.
+ * Copyright (c) 2020-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -14,20 +14,10 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { injectable } from 'inversify';
-import {
-    Decoration,
-    DecorationPlacer,
-    isSizeable,
-    ORIGIN_POINT,
-    Point,
-    SChildElement,
-    SModelElement,
-    SRoutableElement
-} from 'sprotty';
+import { Decoration, DecorationPlacer, isSizeable, ORIGIN_POINT, Point, SChildElement, SModelElement, SRoutableElement } from 'sprotty';
 
 @injectable()
 export class GlspDecorationPlacer extends DecorationPlacer {
-
     protected static readonly DECORATION_OFFSET: Point = { x: 12, y: 10 };
 
     protected getPosition(element: SModelElement & Decoration): Point {
@@ -42,5 +32,4 @@ export class GlspDecorationPlacer extends DecorationPlacer {
         }
         return ORIGIN_POINT;
     }
-
 }

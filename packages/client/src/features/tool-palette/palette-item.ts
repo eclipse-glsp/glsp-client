@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020 EclipseSource and others.
+ * Copyright (c) 2020-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -30,11 +30,11 @@ export function isPaletteItem(object?: any): object is PaletteItem {
 export namespace PaletteItem {
     export function getTriggerAction(item?: PaletteItem): TriggerElementCreationAction | undefined {
         if (item) {
-            const initiAction = item.actions.filter(a => isTriggerElementTypeCreationAction(a))
+            const initiAction = item.actions
+                .filter(a => isTriggerElementTypeCreationAction(a))
                 .map(action => action as TriggerElementCreationAction);
             return initiAction.length > 0 ? initiAction[0] : undefined;
         }
         return undefined;
     }
 }
-

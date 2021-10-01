@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019 EclipseSource and others.
+ * Copyright (c) 2019-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -135,16 +135,15 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
         const bodyDiv = document.createElement('div');
         bodyDiv.classList.add('palette-body');
         let tabIndex = 0;
-        this.paletteItems.sort(compare)
-            .forEach(item => {
-                if (item.children) {
-                    const group = createToolGroup(item);
-                    item.children.sort(compare).forEach(child => group.appendChild(this.createToolButton(child, tabIndex++)));
-                    bodyDiv.appendChild(group);
-                } else {
-                    bodyDiv.appendChild(this.createToolButton(item, tabIndex++));
-                }
-            });
+        this.paletteItems.sort(compare).forEach(item => {
+            if (item.children) {
+                const group = createToolGroup(item);
+                item.children.sort(compare).forEach(child => group.appendChild(this.createToolButton(child, tabIndex++)));
+                bodyDiv.appendChild(group);
+            } else {
+                bodyDiv.appendChild(this.createToolButton(item, tabIndex++));
+            }
+        });
         if (this.paletteItems.length === 0) {
             const noResultsDiv = document.createElement('div');
             noResultsDiv.innerText = 'No results found.';
@@ -165,7 +164,7 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
         headerCompartment.classList.add('palette-header');
         headerCompartment.append(this.createHeaderTitle());
         headerCompartment.appendChild(this.createHeaderTools());
-        headerCompartment.appendChild(this.searchField = this.createHeaderSearchField());
+        headerCompartment.appendChild((this.searchField = this.createHeaderSearchField()));
         this.containerElement.appendChild(headerCompartment);
     }
 
@@ -411,6 +410,5 @@ export function createToolGroup(item: PaletteItem): HTMLElement {
 }
 
 export function changeCSSClass(element: Element, css: string): void {
-    element.classList.contains(css) ? element.classList.remove(css) :
-        element.classList.add(css);
+    element.classList.contains(css) ? element.classList.remove(css) : element.classList.add(css);
 }

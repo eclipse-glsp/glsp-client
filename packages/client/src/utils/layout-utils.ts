@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020 EclipseSource and others.
+ * Copyright (c) 2020-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -52,16 +52,22 @@ export function isValidMove(element: SModelElement & BoundsAware, newPosition: P
     return true;
 }
 
-export function toValidElementMove(element: SModelElement & BoundsAware, move: WriteableElementMove, movementRestrictor?: IMovementRestrictor): WriteableElementMove | undefined {
+export function toValidElementMove(
+    element: SModelElement & BoundsAware,
+    move: WriteableElementMove,
+    movementRestrictor?: IMovementRestrictor
+): WriteableElementMove | undefined {
     if (!isValidMove(element, move.toPosition, movementRestrictor)) {
         return;
     }
     return move;
 }
 
-export function toValidElementAndBounds(element: SModelElement & BoundsAware, bounds: WriteableElementAndBounds,
-    movementRestrictor?: IMovementRestrictor): WriteableElementAndBounds | undefined {
-
+export function toValidElementAndBounds(
+    element: SModelElement & BoundsAware,
+    bounds: WriteableElementAndBounds,
+    movementRestrictor?: IMovementRestrictor
+): WriteableElementAndBounds | undefined {
     if (!isValidMove(element, bounds.newPosition, movementRestrictor)) {
         return;
     }

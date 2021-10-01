@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019 EclipseSource and others.
+ * Copyright (c) 2019-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -15,10 +15,10 @@
  ********************************************************************************/
 import { inject, injectable } from 'inversify';
 import { Action, CommandExecutionContext, SModelElement, SModelRoot, TYPES } from 'sprotty';
-
 import { isStringArray } from '../../utils/array-utils';
 import { addCssClasses, removeCssClasses } from '../../utils/smodel-util';
 import { FeedbackCommand } from './model';
+
 
 export class ModifyCSSFeedbackAction implements Action {
     readonly elementIds?: string[];
@@ -27,7 +27,8 @@ export class ModifyCSSFeedbackAction implements Action {
         public readonly input?: string[] | SModelElement[],
         public readonly addClasses?: string[],
         public readonly removeClasses?: string[],
-        public kind = ModifyCssFeedbackCommand.KIND) {
+        public kind = ModifyCssFeedbackCommand.KIND
+    ) {
         if (input) {
             this.elementIds = isStringArray(input) ? input : input.map(element => element.id);
         }
@@ -68,6 +69,7 @@ function exists(elt?: SModelElement): elt is SModelElement {
     return elt !== undefined;
 }
 
+// eslint-disable-next-line no-shadow
 export enum CursorCSS {
     DEFAULT = 'default-mode',
     OVERLAP_FORBIDDEN = 'overlap-forbidden-mode',

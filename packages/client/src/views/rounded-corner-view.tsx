@@ -32,15 +32,17 @@ export class RoundedCornerNodeView extends RectangularNodeView {
         }
 
         const wrapper = new RoundedCornerWrapper(node, cornerRadius);
-        return <g class-node={true} >
-            <defs>
-                <clipPath id={toClipPathId(node)}>
-                    <path d={this.renderPath(wrapper, context, this.getClipPathInsets() || 0)}></path>
-                </clipPath>
-            </defs>
-            {this.renderPathNode(wrapper, context)}
-            {context.renderChildren(node)}
-        </g>;
+        return (
+            <g class-node={true}>
+                <defs>
+                    <clipPath id={toClipPathId(node)}>
+                        <path d={this.renderPath(wrapper, context, this.getClipPathInsets() || 0)}></path>
+                    </clipPath>
+                </defs>
+                {this.renderPathNode(wrapper, context)}
+                {context.renderChildren(node)}
+            </g>
+        );
     }
 
     protected renderWithoutRadius(node: Readonly<SShapeElement & Hoverable & Selectable>, context: RenderingContext): VNode | undefined {
@@ -52,12 +54,16 @@ export class RoundedCornerNodeView extends RectangularNodeView {
     }
 
     protected renderPathNode(wrapper: Readonly<RoundedCornerWrapper>, context: RenderingContext): VNode {
-        return <path d={this.renderPath(wrapper, context, 0)}
-            class-sprotty-node={wrapper.element instanceof SNode}
-            class-sprotty-port={wrapper.element instanceof SPort}
-            class-mouseover={wrapper.element.hoverFeedback}
-            class-selected={wrapper.element.selected}
-            {...this.additionalClasses(wrapper.element, context)} />;
+        return (
+            <path
+                d={this.renderPath(wrapper, context, 0)}
+                class-sprotty-node={wrapper.element instanceof SNode}
+                class-sprotty-port={wrapper.element instanceof SPort}
+                class-mouseover={wrapper.element.hoverFeedback}
+                class-selected={wrapper.element.selected}
+                {...this.additionalClasses(wrapper.element, context)}
+            />
+        );
     }
 
     protected additionalClasses(_node: Readonly<SShapeElement & Hoverable & Selectable>, _context: RenderingContext): Classes {
@@ -70,14 +76,23 @@ export class RoundedCornerNodeView extends RectangularNodeView {
         const rightLineLength = Math.max(0, wrapper.size.height - wrapper.cornerRadius.topRight - wrapper.cornerRadius.bottomRight);
         const bottomLineLength = Math.max(0, wrapper.size.width - wrapper.cornerRadius.bottomLeft - wrapper.cornerRadius.bottomRight);
 
-        const path = `M${0 + inset},${0 + wrapper.topLeftCorner.radiusY}` +
-            `q${0},${-(wrapper.topLeftCorner.radiusY - inset)} ${wrapper.topLeftCorner.radiusX - inset},${-(wrapper.topLeftCorner.radiusY - inset)}` +
+        const path =
+            `M${0 + inset},${0 + wrapper.topLeftCorner.radiusY}` +
+            `q${0},${-(wrapper.topLeftCorner.radiusY - inset)} ${wrapper.topLeftCorner.radiusX - inset},${-(
+                wrapper.topLeftCorner.radiusY - inset
+            )}` +
             `h${topLineLength}` +
-            `q${wrapper.topRightCorner.radiusX - inset},0 ${wrapper.topRightCorner.radiusX - inset},${wrapper.topRightCorner.radiusY - inset}` +
+            `q${wrapper.topRightCorner.radiusX - inset},0 ${wrapper.topRightCorner.radiusX - inset},${
+                wrapper.topRightCorner.radiusY - inset
+            }` +
             `v${rightLineLength}` +
-            `q0,${wrapper.bottomRightCorner.radiusY - inset} ${-(wrapper.bottomRightCorner.radiusX - inset)},${wrapper.bottomRightCorner.radiusY - inset}` +
+            `q0,${wrapper.bottomRightCorner.radiusY - inset} ${-(wrapper.bottomRightCorner.radiusX - inset)},${
+                wrapper.bottomRightCorner.radiusY - inset
+            }` +
             `h${-bottomLineLength}` +
-            `q${-(wrapper.bottomLeftCorner.radiusX - inset)},0 ${-(wrapper.bottomLeftCorner.radiusX - inset)},${-(wrapper.bottomLeftCorner.radiusY - inset)}` +
+            `q${-(wrapper.bottomLeftCorner.radiusX - inset)},0 ${-(wrapper.bottomLeftCorner.radiusX - inset)},${-(
+                wrapper.bottomLeftCorner.radiusY - inset
+            )}` +
             'z ';
         return path;
     }

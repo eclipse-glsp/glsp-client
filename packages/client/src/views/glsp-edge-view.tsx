@@ -31,11 +31,13 @@ export class GEdgeView extends PolylineEdgeView {
             return this.renderDanglingEdge('Cannot compute route', edge, context);
         }
 
-        return <g class-sprotty-edge={true} class-mouseover={edge.hoverFeedback} {...this.addtionalClasses(edge, context)}>
-            {this.renderLine(edge, route, context)}
-            {this.renderAdditionals(edge, route, context)}
-            {context.renderChildren(edge, { route })}
-        </g>;
+        return (
+            <g class-sprotty-edge={true} class-mouseover={edge.hoverFeedback} {...this.addtionalClasses(edge, context)}>
+                {this.renderLine(edge, route, context)}
+                {this.renderAdditionals(edge, route, context)}
+                {context.renderChildren(edge, { route })}
+            </g>
+        );
     }
 
     protected addtionalClasses(_edge: Readonly<SEdge>, _context: RenderingContext): Classes {
@@ -53,8 +55,16 @@ export class GEdgeView extends PolylineEdgeView {
     }
 
     protected renderMouseHandle(segments: Point[], padding: number): VNode {
-        return <path class-mouse-handle d={this.createPathForSegments(segments)}
-            style-stroke-width={padding * 2} style-stroke="transparent" style-stroke-dasharray="none" style-stroke-dashoffset="0" />;
+        return (
+            <path
+                class-mouse-handle
+                d={this.createPathForSegments(segments)}
+                style-stroke-width={padding * 2}
+                style-stroke='transparent'
+                style-stroke-dasharray='none'
+                style-stroke-dashoffset='0'
+            />
+        );
     }
 
     protected createPathForSegments(segments: Point[]): string {
@@ -66,5 +76,4 @@ export class GEdgeView extends PolylineEdgeView {
         }
         return path;
     }
-
 }

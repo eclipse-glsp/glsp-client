@@ -13,18 +13,24 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+/* eslint-disable @typescript-eslint/naming-convention */
+
 import { ActionMessage } from 'sprotty';
 import * as uuid from 'uuid';
 
 /**
  * A key-value pair structure for primitive typed custom arguments.
  */
-export interface Args { [key: string]: string | number | boolean }
+export interface Args {
+    [key: string]: string | number | boolean;
+}
 
 /**
  * A key-value pair structure to map a diagramType to its server-handled action kinds.
  */
-export interface ServerActions { [key: string]: string[] }
+export interface ServerActions {
+    [key: string]: string[];
+}
 
 export interface InitializeParameters {
     /**
@@ -44,10 +50,9 @@ export interface InitializeParameters {
 }
 
 export interface InitializeResult {
-
     /**
-    * GLSP protocol version that the server is implementing.
-    */
+     * GLSP protocol version that the server is implementing.
+     */
     protocolVersion: string;
 
     /**
@@ -83,8 +88,8 @@ export interface DisposeClientSessionParameters {
     clientSessionId: string;
 
     /**
-    * Additional custom arguments.
-    */
+     * Additional custom arguments.
+     */
     args?: Args;
 }
 
@@ -100,6 +105,7 @@ export class ApplicationIdProvider {
 
 export type ActionMessageHandler = (message: ActionMessage) => void;
 
+// eslint-disable-next-line no-shadow
 export enum ClientState {
     /**
      * The client has been created.
@@ -210,8 +216,9 @@ export namespace GLSPClient {
         id: string;
     }
 
+    // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
     export function isOptions(object: any): object is Options {
-        return object !== undefined && 'id' in object && typeof object['id'] === 'string';
+        return typeof object === 'object' && 'id' in object && typeof object['id'] === 'string';
     }
 
     export const protocolVersion = '0.9.0';

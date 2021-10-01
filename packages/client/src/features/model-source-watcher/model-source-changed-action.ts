@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020 EclipseSource and others.
+ * Copyright (c) 2020-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -18,7 +18,7 @@ import { Action } from 'sprotty';
 export class ModelSourceChangedAction implements Action {
     static KIND = 'modelSourceChanged';
     readonly kind = ModelSourceChangedAction.KIND;
-    constructor(public readonly modelSourceName: string) { }
+    constructor(public readonly modelSourceName: string) {}
 }
 
 export function isModelSourceChangedAction(action: Action): action is ModelSourceChangedAction {

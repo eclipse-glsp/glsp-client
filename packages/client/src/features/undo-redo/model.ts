@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019 EclipseSource and others.
+ * Copyright (c) 2019-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -17,10 +17,10 @@ import { Operation } from '../../base/operations/operation';
 
 export class UndoOperation implements Operation {
     static readonly KIND = 'glspUndo';
-    constructor(public readonly kind = UndoOperation.KIND) { }
+    constructor(public readonly kind = UndoOperation.KIND) {}
 }
 
 export class RedoOperation implements Operation {
     static readonly KIND = 'glspRedo';
-    constructor(public readonly kind = RedoOperation.KIND) { }
+    constructor(public readonly kind = RedoOperation.KIND) {}
 }

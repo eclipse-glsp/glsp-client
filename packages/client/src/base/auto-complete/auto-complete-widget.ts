@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020 EclipseSource and others.
+ * Copyright (c) 2020-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -72,12 +72,14 @@ export class AutoCompleteWidget {
         public suggestionProvider: SuggestionProvider,
         public suggestionSubmitHandler: SuggestionSubmitHandler,
         // eslint-disable-next-line @typescript-eslint/no-empty-function
-        protected notifyClose: () => void = () => { },
+        protected notifyClose: () => void = () => {},
         protected logger?: ILogger
-    ) { }
+    ) {}
 
-    configureValidation(inputValidator: InputValidator,
-        validationDecorator: IValidationDecorator = IValidationDecorator.NO_DECORATION): void {
+    configureValidation(
+        inputValidator: InputValidator,
+        validationDecorator: IValidationDecorator = IValidationDecorator.NO_DECORATION
+    ): void {
         this.inputValidator = inputValidator;
         this.validationDecorator = validationDecorator;
     }
@@ -154,25 +156,33 @@ export class AutoCompleteWidget {
             showOnFocus: this.autoSuggestionSettings.showOnFocus,
             debounceWaitMs: this.autoSuggestionSettings.debounceWaitMs,
             minLength: -1,
-            fetch: (text: string, update: (items: LabeledAction[]) => void) =>
-                this.updateSuggestions(update, text, root),
+            fetch: (text: string, update: (items: LabeledAction[]) => void) => this.updateSuggestions(update, text, root),
             onSelect: (item: LabeledAction) => this.onSelect(item),
-            render: (item: LabeledAction, currentValue: string): HTMLDivElement | undefined =>
-                this.renderSuggestions(item, currentValue),
+            render: (item: LabeledAction, currentValue: string): HTMLDivElement | undefined => this.renderSuggestions(item, currentValue),
             customize: (input: HTMLInputElement, inputRect: ClientRect | DOMRect, container: HTMLDivElement, maxHeight: number) => {
                 this.customizeInputElement(input, inputRect, container, maxHeight);
             }
         };
     }
 
-    protected customizeInputElement(input: HTMLInputElement, inputRect: ClientRect | DOMRect, container: HTMLDivElement, maxHeight: number): void {
+    protected customizeInputElement(
+        input: HTMLInputElement,
+        inputRect: ClientRect | DOMRect,
+        container: HTMLDivElement,
+        maxHeight: number
+    ): void {
         // move container into our UIExtension container as this is already positioned correctly
         if (this.containerElement) {
             this.containerElement.appendChild(container);
         }
     }
 
-    protected updateSuggestions(update: (items: LabeledAction[]) => void, text: string, root: Readonly<SModelRoot>, ...contextElementIds: string[]): void {
+    protected updateSuggestions(
+        update: (items: LabeledAction[]) => void,
+        text: string,
+        root: Readonly<SModelRoot>,
+        ...contextElementIds: string[]
+    ): void {
         this.onLoading();
         this.doUpdateSuggestions(text, root)
             .then(actions => {
@@ -230,11 +240,13 @@ export class AutoCompleteWidget {
     }
 
     protected filterActions(filterText: string, actions: LabeledAction[]): LabeledAction[] {
-        return toArray(actions.filter(action => {
-            const label = action.label.toLowerCase();
-            const searchWords = filterText.split(' ');
-            return searchWords.every(word => label.indexOf(word.toLowerCase()) !== -1);
-        }));
+        return toArray(
+            actions.filter(action => {
+                const label = action.label.toLowerCase();
+                const searchWords = filterText.split(' ');
+                return searchWords.every(word => label.indexOf(word.toLowerCase()) !== -1);
+            })
+        );
     }
 
     protected onSelect(item: LabeledAction): void {
@@ -257,10 +269,10 @@ export class AutoCompleteWidget {
     }
 
     private isNoOrExactlyOneMatchingContextAction(): boolean | undefined {
-        return !this.isSuggestionAvailable()
-            || (this.contextActions
-                && this.contextActions.length === 1
-                && this.inputElement.value.endsWith(this.contextActions[0].label));
+        return (
+            !this.isSuggestionAvailable() ||
+            (this.contextActions && this.contextActions.length === 1 && this.inputElement.value.endsWith(this.contextActions[0].label))
+        );
     }
 
     protected isSuggestionAvailable(): boolean | undefined {
@@ -269,7 +281,8 @@ export class AutoCompleteWidget {
 
     validateInput(): void {
         if (this.inputValidator) {
-            this.inputValidator.validate(this.inputElement.value)
+            this.inputValidator
+                .validate(this.inputElement.value)
                 .then(result => this.validationDecorator.decorateValidationResult(result))
                 .catch(error => this.handleErrorDuringValidation(error));
         }

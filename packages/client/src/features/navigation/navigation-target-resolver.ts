@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020 EclipseSource and others.
+ * Copyright (c) 2020-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -27,7 +27,6 @@ export interface NavigationTarget {
 }
 
 export namespace NavigationTarget {
-
     export const ELEMENT_IDS = 'elementIds';
     export const ELEMENT_IDS_SEPARATOR = '&';
     export const TEXT_LINE = 'line';
@@ -56,7 +55,7 @@ export namespace NavigationTarget {
         if (target.args === undefined) {
             target.args = {};
         }
-        return target.args[NavigationTarget.ELEMENT_IDS] = elementIds.join(NavigationTarget.ELEMENT_IDS_SEPARATOR);
+        return (target.args[NavigationTarget.ELEMENT_IDS] = elementIds.join(NavigationTarget.ELEMENT_IDS_SEPARATOR));
     }
 
     export function setTextPosition(target: NavigationTarget, position: TextPosition | undefined): void {
@@ -70,9 +69,11 @@ export namespace NavigationTarget {
     }
 
     export function getTextPosition(target: NavigationTarget): TextPosition | undefined {
-        if (target.args === undefined
-            || target.args[NavigationTarget.TEXT_LINE] === undefined
-            || target.args[NavigationTarget.TEXT_COLUMN] === undefined) {
+        if (
+            target.args === undefined ||
+            target.args[NavigationTarget.TEXT_LINE] === undefined ||
+            target.args[NavigationTarget.TEXT_COLUMN] === undefined
+        ) {
             return undefined;
         }
         return {
@@ -90,17 +91,17 @@ export interface TextPosition {
 export class ResolveNavigationTargetAction implements RequestAction<SetResolvedNavigationTargetAction> {
     static readonly KIND = 'resolveNavigationTarget';
     kind = ResolveNavigationTargetAction.KIND;
-    constructor(readonly navigationTarget: NavigationTarget, public readonly requestId: string = generateRequestId()) { }
+    constructor(readonly navigationTarget: NavigationTarget, public readonly requestId: string = generateRequestId()) {}
 }
 
 export class SetResolvedNavigationTargetAction implements ResponseAction {
     static readonly KIND = 'setResolvedNavigationTarget';
     kind = SetResolvedNavigationTargetAction.KIND;
-    constructor(readonly elementIds: string[] = [], readonly args?: Args, readonly responseId: string = '') { }
+    constructor(readonly elementIds: string[] = [], readonly args?: Args, readonly responseId: string = '') {}
 }
 
 export function isSetResolvedNavigationTargets(action: Action): action is SetResolvedNavigationTargetAction {
-    return action !== undefined && (action.kind === SetResolvedNavigationTargetAction.KIND);
+    return action !== undefined && action.kind === SetResolvedNavigationTargetAction.KIND;
 }
 
 /**
@@ -111,7 +112,6 @@ export function isSetResolvedNavigationTargets(action: Action): action is SetRes
  */
 @injectable()
 export class NavigationTargetResolver {
-
     @inject(GLSP_TYPES.IEditorContextServiceProvider) protected editorContextService: EditorContextServiceProvider;
     @inject(TYPES.IActionDispatcher) protected dispatcher: IActionDispatcher;
     @inject(TYPES.ILogger) protected readonly logger: ILogger;
@@ -122,7 +122,10 @@ export class NavigationTargetResolver {
         return this.resolveWithSourceUri(sourceUri, navigationTarget);
     }
 
-    async resolveWithSourceUri(sourceUri: string | undefined, target: NavigationTarget): Promise<SetResolvedNavigationTargetAction | undefined> {
+    async resolveWithSourceUri(
+        sourceUri: string | undefined,
+        target: NavigationTarget
+    ): Promise<SetResolvedNavigationTargetAction | undefined> {
         const targetUri = decodeURIComponent(target.uri);
         if (sourceUri && sourceUri !== targetUri && `file://${sourceUri}` !== targetUri) {
             // different URI, so we can't resolve it locally
@@ -143,4 +146,3 @@ export class NavigationTargetResolver {
         return this.dispatcher.request(new ResolveNavigationTargetAction(target));
     }
 }
-

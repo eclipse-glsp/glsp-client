@@ -18,7 +18,7 @@ import { Action } from 'sprotty';
 export class FocusStateChangedAction implements Action {
     static KIND = 'focusStateChanged';
     readonly kind = FocusStateChangedAction.KIND;
-    constructor(public readonly hasFocus: boolean) { }
+    constructor(public readonly hasFocus: boolean) {}
 }
 
 export function isFocusStateChangedAction(action: Action): action is FocusStateChangedAction {

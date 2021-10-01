@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020 EclipseSource and others.
+ * Copyright (c) 2020-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -42,12 +42,11 @@ import { isTaskNode, TaskNode } from '../model';
 export class ApplyTaskEditOperation implements Action {
     static readonly KIND = 'applyTaskEdit';
     readonly kind = ApplyTaskEditOperation.KIND;
-    constructor(readonly taskId: string, readonly expression: string) { }
+    constructor(readonly taskId: string, readonly expression: string) {}
 }
 
 @injectable()
 export class TaskEditor extends AbstractUIExtension {
-
     static readonly ID = 'task-editor';
     readonly autoSuggestionSettings = {
         noSuggestionsMessage: 'No suggestions available',
@@ -86,14 +85,16 @@ export class TaskEditor extends AbstractUIExtension {
             this.autoSuggestionSettings,
             { provideSuggestions: input => this.retrieveSuggestions(input) },
             { executeFromSuggestion: input => this.executeFromSuggestion(input) },
-            () => this.hide(), this.logger);
+            () => this.hide(),
+            this.logger
+        );
         this.autoSuggestion.configureValidation(
             { validate: input => this.validateInput(input) },
             new ValidationDecorator(containerElement)
         );
-        this.autoSuggestion.configureTextSubmitHandler(
-            { executeFromTextOnlyInput: (input: string) => this.executeFromTextOnlyInput(input) }
-        );
+        this.autoSuggestion.configureTextSubmitHandler({
+            executeFromTextOnlyInput: (input: string) => this.executeFromTextOnlyInput(input)
+        });
         this.autoSuggestion.initialize(containerElement);
     }
 
@@ -124,8 +125,9 @@ export class TaskEditor extends AbstractUIExtension {
     }
 
     protected async retrieveSuggestions(input: string): Promise<LabeledAction[]> {
-        const response = await this.actionDispatcher.request(new RequestContextActions(TaskEditor.ID,
-            this.editorContextService.get({ ['text']: input })));
+        const response = await this.actionDispatcher.request(
+            new RequestContextActions(TaskEditor.ID, this.editorContextService.get({ ['text']: input }))
+        );
         if (isSetContextActionsAction(response)) {
             return response.actions;
         }

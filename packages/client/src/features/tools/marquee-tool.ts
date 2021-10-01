@@ -42,7 +42,6 @@ export class MarqueeTool extends BaseGLSPTool {
 
 @injectable()
 export class MarqueeKeyListener extends KeyListener {
-
     keyDown(element: SModelElement, event: KeyboardEvent): Action[] {
         if (event.shiftKey) {
             return [new EnableToolsAction([MarqueeMouseTool.ID])];
