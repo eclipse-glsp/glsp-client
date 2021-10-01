@@ -18,7 +18,6 @@ import { On, VNode, VNodeData } from 'snabbdom';
 import { Action, isAction, MouseListener, MouseTool, SModelElement, SModelRoot, TYPES } from 'sprotty';
 import { getRank } from '../rank/model';
 
-
 export interface IMouseTool {
     register(mouseListener: MouseListener): void;
     deregister(mouseListener: MouseListener): void;
