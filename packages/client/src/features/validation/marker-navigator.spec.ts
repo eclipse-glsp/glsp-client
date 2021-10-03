@@ -14,11 +14,10 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 /* eslint-disable import/no-deprecated,no-unused-expressions */
-import 'mocha';
-import 'reflect-metadata';
-
 import { expect } from 'chai';
 import { Container } from 'inversify';
+import 'mocha';
+import 'reflect-metadata';
 import {
     BoundsAware,
     decorationModule,
@@ -30,10 +29,9 @@ import {
     SNodeSchema,
     SParentElement,
     TYPES
-} from 'sprotty/lib';
+} from 'sprotty';
 import defaultModule from 'sprotty/lib/base/di.config';
 import { SGraphFactory } from 'sprotty/lib/graph/sgraph-factory';
-
 import { markerNavigatorModule } from './di.config';
 import { MarkerNavigator } from './marker-navigator';
 

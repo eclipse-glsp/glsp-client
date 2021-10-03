@@ -13,9 +13,9 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { Point } from '@eclipse-glsp/protocol';
 import { injectable } from 'inversify';
-import { BoundsAware, Point, SModelElement, SNode, SParentElement } from 'sprotty';
-
+import { BoundsAware, SModelElement, SNode, SParentElement } from 'sprotty';
 import { toAbsoluteBounds } from '../../utils/viewpoint-util';
 import { ModifyCSSFeedbackAction } from '../tool-feedback/css-feedback';
 import { isBoundsAwareMoveable, SResizeHandle } from './model';

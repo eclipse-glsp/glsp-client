@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action } from 'sprotty';
+import { Action } from '@eclipse-glsp/protocol';
 
 export class FocusStateChangedAction implements Action {
     static KIND = 'focusStateChanged';

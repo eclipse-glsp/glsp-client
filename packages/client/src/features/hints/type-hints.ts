@@ -13,9 +13,9 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { Action, EdgeTypeHint, isSetTypeHintsAction, ShapeTypeHint, TypeHint } from '@eclipse-glsp/protocol';
 import { inject, injectable } from 'inversify';
 import {
-    Action,
     CommandExecutionContext,
     CommandReturn,
     Connectable,
@@ -28,12 +28,10 @@ import {
     moveFeature,
     SEdge,
     SModelElement,
-    SModelElementSchema,
     SModelRoot,
     SShapeElement,
     TYPES
 } from 'sprotty';
-
 import { GLSP_TYPES } from '../../base/types';
 import { getElementTypeId, hasCompatibleType } from '../../utils/smodel-util';
 import { resizeFeature } from '../change-bounds/model';
@@ -41,67 +39,6 @@ import { reconnectFeature } from '../reconnect/model';
 import { IFeedbackActionDispatcher } from '../tool-feedback/feedback-action-dispatcher';
 import { FeedbackCommand } from '../tool-feedback/model';
 import { Containable, containerFeature, reparentFeature } from './model';
-import { isSetTypeHintsAction } from './request-type-hints-action';
-
-export abstract class TypeHint {
-    /**
-    The id of the element.
-    */
-    readonly elementTypeId: string;
-
-    /**
-     * Specifies whether the element can be relocated.
-     */
-    readonly repositionable: boolean;
-
-    /**
-     * Specifices wheter the element can be deleted
-     */
-    readonly deletable: boolean;
-}
-
-export class ShapeTypeHint extends TypeHint {
-    /**
-     * Specifies whether the element can be resized.
-     */
-    readonly resizable: boolean;
-
-    /**
-     * Specifies whether the element can be moved to another parent
-     */
-    readonly reparentable: boolean;
-
-    /**
-     * The types of elements that can be contained by this element (if any)
-     */
-    readonly containableElementTypeIds?: string[];
-}
-
-export class EdgeTypeHint extends TypeHint {
-    /**
-     * Specifies whether the routing of this element can be changed.
-     */
-    readonly routable: boolean;
-
-    /**
-     * Allowed source element types for this edge type
-     */
-    readonly sourceElementTypeIds: string[];
-
-    /**
-     * Allowed targe element types for this edge type
-     */
-    readonly targetElementTypeIds: string[];
-
-    isAllowedSource(input: SModelElement | SModelElementSchema | string): boolean {
-        const type = getElementTypeId(input);
-        return this.sourceElementTypeIds.includes(type);
-    }
-    isAllowedTarget(input: SModelElement | SModelElementSchema | string): boolean {
-        const type = getElementTypeId(input);
-        return this.targetElementTypeIds.includes(type);
-    }
-}
 
 @injectable()
 export class ApplyTypeHintsAction implements Action {

@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { LabeledAction } from 'sprotty/lib';
+import { LabeledAction } from '@eclipse-glsp/protocol';
 
 export interface SetAutoCompleteValueAction extends LabeledAction {
     readonly text: string;

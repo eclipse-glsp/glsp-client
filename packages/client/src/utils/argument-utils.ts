@@ -14,8 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { SModelElement } from 'sprotty';
-
-import { hasArguments } from '../base/args';
+import { hasArguments } from '../base/argumentable';
 
 export namespace GArgument {
     export function asNumber(argValue: string | number | boolean): number | undefined {

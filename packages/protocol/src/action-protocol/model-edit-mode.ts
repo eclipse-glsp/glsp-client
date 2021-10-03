@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2021 EclipseSource and others.
+ * Copyright (c) 2020-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,14 +13,21 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Operation } from '../../base/operations/operation';
+import { injectable } from 'inversify';
+import { Action } from 'sprotty';
+import { isActionKind } from './base-protocol';
 
-export class UndoOperation implements Operation {
-    static readonly KIND = 'glspUndo';
-    constructor(public readonly kind = UndoOperation.KIND) {}
+@injectable()
+export class SetEditModeAction implements Action {
+    static readonly KIND = 'setEditMode';
+    constructor(public readonly editMode: string = EditMode.EDITABLE, public readonly kind: string = SetEditModeAction.KIND) {}
 }
 
-export class RedoOperation implements Operation {
-    static readonly KIND = 'glspRedo';
-    constructor(public readonly kind = RedoOperation.KIND) {}
+export function isSetEditModeAction(action: Action): action is SetEditModeAction {
+    return isActionKind(action, SetEditModeAction.KIND) && 'editMode' in action && typeof action['editMode'] === 'string';
+}
+
+export namespace EditMode {
+    export const READONLY = 'readonly';
+    export const EDITABLE = 'editable';
 }

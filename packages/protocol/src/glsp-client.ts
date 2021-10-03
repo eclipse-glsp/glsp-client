@@ -13,17 +13,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-/* eslint-disable @typescript-eslint/naming-convention */
-
-import { ActionMessage } from 'sprotty';
 import * as uuid from 'uuid';
 
-/**
- * A key-value pair structure for primitive typed custom arguments.
- */
-export interface Args {
-    [key: string]: string | number | boolean;
-}
+import { ActionMessage } from './action-protocol';
+import { Args } from './action-protocol/types';
 
 /**
  * A key-value pair structure to map a diagramType to its server-handled action kinds.

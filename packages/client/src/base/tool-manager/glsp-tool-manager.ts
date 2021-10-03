@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020 EclipseSource and others.
+ * Copyright (c) 2020-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,12 +13,11 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { EditMode } from '@eclipse-glsp/protocol';
 import { inject, injectable, multiInject, optional, postConstruct } from 'inversify';
 import { Tool, ToolManager } from 'sprotty';
-
 import { distinctAdd } from '../../utils/array-utils';
-import { EditMode } from '../actions/edit-mode-action';
-import { EditModeListener, EditorContextService, EditorContextServiceProvider } from '../editor-context';
+import { EditModeListener, EditorContextService, EditorContextServiceProvider } from '../editor-context-service';
 import { GLSP_TYPES } from '../types';
 
 export interface IGLSPToolManager extends ToolManager {

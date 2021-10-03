@@ -13,8 +13,9 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { Action } from '@eclipse-glsp/protocol';
 import { inject, injectable } from 'inversify';
-import { Action, CommandExecutionContext, SModelElement, SModelRoot, TYPES } from 'sprotty';
+import { CommandExecutionContext, SModelElement, SModelRoot, TYPES } from 'sprotty';
 import { isStringArray } from '../../utils/array-utils';
 import { addCssClasses, removeCssClasses } from '../../utils/smodel-util';
 import { FeedbackCommand } from './model';

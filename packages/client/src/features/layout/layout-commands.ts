@@ -13,13 +13,12 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { Action, ChangeBoundsOperation, ElementAndBounds } from '@eclipse-glsp/protocol';
 import { inject, injectable, optional } from 'inversify';
 import {
-    Action,
     Command,
     CommandExecutionContext,
     CommandReturn,
-    ElementAndBounds,
     ElementMove,
     IActionDispatcher,
     MoveAction,
@@ -27,7 +26,6 @@ import {
     SModelElement,
     TYPES
 } from 'sprotty';
-import { ChangeBoundsOperation } from '../../base/operations/operation';
 import { GLSP_TYPES } from '../../base/types';
 import { toValidElementAndBounds, toValidElementMove, WriteableElementAndBounds, WriteableElementMove } from '../../utils/layout-utils';
 import { BoundsAwareModelElement } from '../../utils/smodel-util';

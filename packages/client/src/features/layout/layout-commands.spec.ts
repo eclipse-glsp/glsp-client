@@ -14,19 +14,16 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 /* eslint-disable import/no-deprecated,no-unused-expressions */
-import 'mocha';
-import 'reflect-metadata';
-
+import { Action, Bounds, ChangeBoundsOperation, ElementAndBounds } from '@eclipse-glsp/protocol';
 import { expect } from 'chai';
 import { Container } from 'inversify';
+import 'mocha';
+import 'reflect-metadata';
 import {
-    Action,
     AnimationFrameSyncer,
-    Bounds,
     CommandExecutionContext,
     ConsoleLogger,
     defaultModule,
-    ElementAndBounds,
     ElementMove,
     FeatureSet,
     IActionDispatcher,
@@ -41,8 +38,6 @@ import {
     SModelRoot,
     TYPES
 } from 'sprotty';
-
-import { ChangeBoundsOperation } from '../../base/operations/operation';
 import { GLSP_TYPES } from '../../base/types';
 import { resizeFeature } from '../change-bounds/model';
 import { SelectionService } from '../select/selection-service';

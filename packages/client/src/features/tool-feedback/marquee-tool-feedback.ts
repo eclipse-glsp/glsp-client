@@ -13,20 +13,18 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { Action, Point } from '@eclipse-glsp/protocol';
 import { inject, injectable } from 'inversify';
 import {
-    Action,
     AnchorComputerRegistry,
     CommandExecutionContext,
     CommandReturn,
     MouseListener,
-    Point,
     SChildElement,
     SModelElement,
     SModelRoot,
     TYPES
 } from 'sprotty';
-
 import { FeedbackCommand } from './model';
 
 export class DrawMarqueeAction implements Action {

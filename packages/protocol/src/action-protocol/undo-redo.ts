@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020-2021 EclipseSource and others.
+ * Copyright (c) 2021 STMicroelectronics and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,20 +13,29 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { injectable } from 'inversify';
-import { Action } from 'sprotty';
 
-@injectable()
-export class SetEditModeAction implements Action {
-    static readonly KIND = 'setEditMode';
-    constructor(public readonly editMode: string = EditMode.EDITABLE, public readonly kind: string = SetEditModeAction.KIND) {}
+import { isActionKind, Operation } from './base-protocol';
+
+/**
+ * Trigger an undo of the latest executed command.
+ */
+export class UndoOperation implements Operation {
+    static readonly KIND = 'glspUndo';
+    constructor(public readonly kind = UndoOperation.KIND) {}
 }
 
-export function isSetEditModeAction(action: Action): action is SetEditModeAction {
-    return action !== undefined && action.kind === SetEditModeAction.KIND && 'editMode' in action && typeof action['editMode'] === 'string';
+export function isUndoOperation(action: any): action is UndoOperation {
+    return isActionKind(action, UndoOperation.KIND);
 }
 
-export namespace EditMode {
-    export const READONLY = 'readonly';
-    export const EDITABLE = 'editable';
+/**
+ * Trigger a redo of the latest undone command.
+ */
+export class RedoOperation implements Operation {
+    static readonly KIND = 'glspRedo';
+    constructor(public readonly kind = RedoOperation.KIND) {}
+}
+
+export function isRedoOperation(action: any): action is RedoOperation {
+    return isActionKind(action, RedoOperation.KIND);
 }

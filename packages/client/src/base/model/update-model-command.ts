@@ -13,9 +13,9 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { Action, isSetModelAction, UpdateModelAction } from '@eclipse-glsp/protocol';
 import { inject, injectable, multiInject, optional, postConstruct } from 'inversify';
 import {
-    Action,
     ActionHandlerRegistry,
     Command,
     CommandActionHandler,
@@ -23,13 +23,10 @@ import {
     CommandReturn,
     IActionHandler,
     ILogger,
-    SetModelAction,
-    SetModelCommand,
     SModelRoot,
-    TYPES
+    TYPES,
+    UpdateModelCommand
 } from 'sprotty';
-import { UpdateModelAction, UpdateModelCommand } from 'sprotty/lib/features/update/update-model';
-
 import { IFeedbackActionDispatcher } from '../../features/tool-feedback/feedback-action-dispatcher';
 import { FeedbackCommand } from '../../features/tool-feedback/model';
 import { GLSP_TYPES } from '../types';
@@ -43,10 +40,6 @@ export class SetModelActionHandler implements IActionHandler {
             return new UpdateModelAction(action.newRoot, false);
         }
     }
-}
-
-export function isSetModelAction(action: Action): action is SetModelAction {
-    return action !== undefined && action.kind === SetModelCommand.KIND && (action as SetModelAction).newRoot !== undefined;
 }
 
 export interface SModelRootListener {

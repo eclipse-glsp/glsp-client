@@ -13,12 +13,11 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { Action, isSetContextActionsAction, LabeledAction, Point, RequestContextActions } from '@eclipse-glsp/protocol';
 import { inject, injectable } from 'inversify';
-import { Action, IContextMenuItemProvider, isSelected, LabeledAction, Point, SModelElement, TYPES } from 'sprotty';
-
+import { IContextMenuItemProvider, isSelected, SModelElement, TYPES } from 'sprotty';
 import { GLSPActionDispatcher } from '../../base/action-dispatcher';
-import { isSetContextActionsAction, RequestContextActions } from '../../base/actions/context-actions';
-import { EditorContextService } from '../../base/editor-context';
+import { EditorContextService } from '../../base/editor-context-service';
 
 export namespace ServerContextMenu {
     export const CONTEXT_ID = 'context-menu';

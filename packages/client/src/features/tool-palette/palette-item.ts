@@ -13,9 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { isLabeledAction, LabeledAction } from 'sprotty';
-
-import { isTriggerElementTypeCreationAction, TriggerElementCreationAction } from '../../base/operations/operation';
+import { isLabeledAction, isTriggerElementTypeCreationAction, LabeledAction, TriggerElementCreationAction } from '@eclipse-glsp/protocol';
 
 export interface PaletteItem extends LabeledAction {
     readonly id: string;

@@ -13,23 +13,19 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { GLSPClient } from '@eclipse-glsp/protocol';
-import { injectable } from 'inversify';
 import {
     Action,
-    ActionHandlerRegistry,
-    ActionMessage,
     ComputedBoundsAction,
-    DiagramServer,
-    ICommand,
+    GLSPClient,
+    isServerMessageAction,
+    isSetEditModeAction,
     RequestModelAction,
-    ServerStatusAction,
-    SwitchEditModeCommand
-} from 'sprotty';
-
-import { isSetEditModeAction, SetEditModeAction } from '../base/actions/edit-mode-action';
+    ServerMessageAction,
+    SetEditModeAction
+} from '@eclipse-glsp/protocol';
+import { injectable } from 'inversify';
+import { ActionHandlerRegistry, ActionMessage, DiagramServer, ICommand, ServerStatusAction, SwitchEditModeCommand } from 'sprotty';
 import { SourceUriAware } from '../base/source-uri-aware';
-import { isServerMessageAction, ServerMessageAction } from './glsp-server-status';
 
 const receivedFromServerProperty = '__receivedFromServer';
 

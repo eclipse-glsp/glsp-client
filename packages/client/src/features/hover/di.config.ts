@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020 EclipseSource and others.
+ * Copyright (c) 2020-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -30,7 +30,6 @@ import {
     TYPES
 } from 'sprotty';
 import { PopupPositionUpdater } from 'sprotty/lib/features/hover/popup-position-updater';
-
 import { FocusStateChangedAction } from '../../base/actions/focus-change-action';
 import { GlspHoverMouseListener } from './hover';
 

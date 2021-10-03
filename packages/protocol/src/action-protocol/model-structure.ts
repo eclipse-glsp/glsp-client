@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2021 EclipseSource and others.
+ * Copyright (c) 2021 STMicroelectronics and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,23 +13,24 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, KeyListener, SModelRoot } from 'sprotty';
-import { matchesKeystroke } from 'sprotty/lib/utils/keyboard';
+import { Bounds } from './types';
 
-export class SaveModelAction implements Action {
-    static readonly KIND = 'saveModel';
-    constructor(public readonly fileUri?: string, public readonly kind: string = SaveModelAction.KIND) {}
+/**
+ * The schema of an SModelElement describes its serializable form. The actual model is created from
+ * its schema with an IModelFactory.
+ * Each model element must have a unique ID and a type that is used to look up its view.
+ */
+export interface SModelElementSchema {
+    type: string;
+    id: string;
+    children?: SModelElementSchema[];
+    cssClasses?: string[];
 }
 
-export function isSaveModelAction(action: Action): action is SaveModelAction {
-    return action.kind === SaveModelAction.KIND;
-}
-
-export class SaveModelKeyboardListener extends KeyListener {
-    keyDown(_element: SModelRoot, event: KeyboardEvent): Action[] {
-        if (matchesKeystroke(event, 'KeyS', 'ctrlCmd')) {
-            return [new SaveModelAction()];
-        }
-        return [];
-    }
+/**
+ * Serializable schema for the root element of the model tree.
+ */
+export interface SModelRootSchema extends SModelElementSchema {
+    canvasBounds?: Bounds;
+    revision?: number;
 }

@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019 EclipseSource and others.
+ * Copyright (c) 2019-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,13 +13,8 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { MarkerKind } from '@eclipse-glsp/protocol';
 import { SIssueMarker, SParentElement } from 'sprotty';
-
-export namespace MarkerKind {
-    export const INFO = 'info';
-    export const WARNING = 'warning';
-    export const ERROR = 'error';
-}
 
 export namespace MarkerPredicates {
     export const ALL = (): boolean => true;
@@ -41,23 +36,4 @@ export function collectIssueMarkers(root: SParentElement): SIssueMarker[] {
         markers.push(...collectIssueMarkers(child));
     }
     return markers;
-}
-
-export interface Marker {
-    /**
-     * Short label describing this marker message, e.g., short validation message
-     */
-    readonly label: string;
-    /**
-     * Full description of this marker, e.g., full validation message
-     */
-    readonly description: string;
-    /**
-     * Id of the model element this marker refers to
-     */
-    readonly elementId: string;
-    /**
-     * Marker kind, e.g., info, warning, error or custom kind
-     */
-    readonly kind: string;
 }

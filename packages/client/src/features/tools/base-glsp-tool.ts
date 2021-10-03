@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020 EclipseSource and others.
+ * Copyright (c) 2020-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,10 +13,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { Action } from '@eclipse-glsp/protocol';
 import { inject, injectable } from 'inversify';
-import { Action, IActionDispatcher, KeyTool, TYPES } from 'sprotty';
-
-import { EditorContextService } from '../../base/editor-context';
+import { IActionDispatcher, KeyTool, TYPES } from 'sprotty';
+import { EditorContextService } from '../../base/editor-context-service';
 import { GLSPTool } from '../../base/tool-manager/glsp-tool-manager';
 import { GLSP_TYPES } from '../../base/types';
 import { IMouseTool } from '../mouse-tool/mouse-tool';

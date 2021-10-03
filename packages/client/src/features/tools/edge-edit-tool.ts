@@ -13,9 +13,9 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { Action, ChangeRoutingPointsOperation, ReconnectEdgeOperation } from '@eclipse-glsp/protocol';
 import { inject, injectable, optional } from 'inversify';
 import {
-    Action,
     AnchorComputerRegistry,
     canEditRouting,
     Connectable,
@@ -28,9 +28,7 @@ import {
     SRoutableElement,
     SRoutingHandle
 } from 'sprotty';
-
 import { DragAwareMouseListener } from '../../base/drag-aware-mouse-listener';
-import { ChangeRoutingPointsOperation, ReconnectEdgeOperation } from '../../base/operations/operation';
 import { GLSP_TYPES } from '../../base/types';
 import { isRoutable, isRoutingHandle } from '../../utils/smodel-util';
 import { isReconnectable, isReconnectHandle, isSourceRoutingHandle, isTargetRoutingHandle, SReconnectHandle } from '../reconnect/model';

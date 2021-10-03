@@ -13,10 +13,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { Action, Point } from '@eclipse-glsp/protocol';
 import { inject, injectable } from 'inversify';
 import { VNode } from 'snabbdom';
 import {
-    Action,
     CommandExecutionContext,
     CommandReturn,
     ElementMove,
@@ -26,12 +26,10 @@ import {
     isViewport,
     MouseListener,
     MoveAction,
-    Point,
     SModelElement,
     SModelRoot,
     TYPES
 } from 'sprotty';
-
 import { isNotUndefined } from '../../utils/smodel-util';
 import { addResizeHandles, isResizable, removeResizeHandles, SResizeHandle } from '../change-bounds/model';
 import { createMovementRestrictionFeedback, removeMovementRestrictionFeedback } from '../change-bounds/movement-restrictor';

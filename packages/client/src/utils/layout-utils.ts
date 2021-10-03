@@ -13,8 +13,8 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { BoundsAware, Dimension, ElementAndBounds, ElementMove, ModelLayoutOptions, Point, SModelElement } from 'sprotty';
-
+import { Point } from '@eclipse-glsp/protocol';
+import { BoundsAware, Dimension, ElementAndBounds, ElementMove, ModelLayoutOptions, SModelElement } from 'sprotty';
 import { IMovementRestrictor } from '../features/change-bounds/movement-restrictor';
 
 export function minWidth(element: SModelElement & BoundsAware): number {

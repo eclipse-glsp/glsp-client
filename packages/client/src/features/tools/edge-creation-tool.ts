@@ -13,9 +13,9 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { Action, CreateEdgeOperation, isTriggerElementTypeCreationAction, TriggerEdgeCreationAction } from '@eclipse-glsp/protocol';
 import { inject, injectable } from 'inversify';
 import {
-    Action,
     AnchorComputerRegistry,
     EnableDefaultToolsAction,
     EnableToolsAction,
@@ -26,9 +26,7 @@ import {
     SEdge,
     SModelElement
 } from 'sprotty';
-
 import { DragAwareMouseListener } from '../../base/drag-aware-mouse-listener';
-import { CreateEdgeOperation, isTriggerElementTypeCreationAction, TriggerEdgeCreationAction } from '../../base/operations/operation';
 import {
     DrawFeedbackEdgeAction,
     FeedbackEdgeEndMovingMouseListener,

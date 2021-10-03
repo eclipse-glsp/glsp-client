@@ -13,37 +13,13 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { Action, Args, EditMode, EditorContext, isSetEditModeAction } from '@eclipse-glsp/protocol';
 import { inject, injectable, multiInject, optional } from 'inversify';
-import { Action, IActionHandler, ModelSource, MousePositionTracker, Point, SModelElement, SModelRoot, TYPES } from 'sprotty';
-
+import { IActionHandler, ModelSource, MousePositionTracker, SModelElement, SModelRoot, TYPES } from 'sprotty';
 import { SelectionService } from '../features/select/selection-service';
 import { distinctAdd, remove } from '../utils/array-utils';
-import { EditMode, isSetEditModeAction } from './actions/edit-mode-action';
-import { Args } from './args';
 import { isSourceUriAware } from './source-uri-aware';
 import { GLSP_TYPES } from './types';
-
-/**
- * The `EditorContext` may be used to represent the current state of the editor for particular actions.
- * It encompasses the last recorded mouse position, the list of selected elements, and may contain
- * custom arguments to encode additional state information.
- */
-export interface EditorContext {
-    /**
-     * The list of selected element identifiers.
-     */
-    readonly selectedElementIds: string[];
-
-    /**
-     * The last recorded mouse position.
-     */
-    readonly lastMousePosition?: Point;
-
-    /**
-     * Custom arguments.
-     */
-    readonly args?: Args;
-}
 
 export interface EditModeListener {
     editModeChanged(newValue: string, oldvalue: string): void;
