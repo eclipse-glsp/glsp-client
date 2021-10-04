@@ -14,12 +14,11 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { Action, ApplyLabelEditAction, ElementAndBounds, isAction, LayoutAction, Point } from 'sprotty';
-
 import { Args } from '../args';
 
 /**
- * Operations are actions that denote requests from the client to _modify_ the model. Model modifications are always performed by the server.
- * After a successful modification, the server sends the updated model back to the client using the `UpdateModelAction`.
+ * Operations are actions that denote requests from the client to _modify_ the model. Model modifications are always performed by the
+ * server. After a successful modification, the server sends the updated model back to the client using the `UpdateModelAction`.
  */
 export interface Operation extends Action {}
 

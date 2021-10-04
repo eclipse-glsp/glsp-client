@@ -15,7 +15,6 @@
  ********************************************************************************/
 import { ContainerModule } from 'inversify';
 import { ContextMenuProviderRegistry, IContextMenuService, TYPES } from 'sprotty';
-
 import { SelectionServiceAwareContextMenuMouseListener } from './selection-service-aware-context-menu-mouse-listener';
 import { ServerContextMenuItemProvider } from './server-context-menu-provider';
 

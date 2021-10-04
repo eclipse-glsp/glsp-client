@@ -29,7 +29,6 @@ import {
     TYPES
 } from 'sprotty';
 import { UpdateModelAction, UpdateModelCommand } from 'sprotty/lib/features/update/update-model';
-
 import { IFeedbackActionDispatcher } from '../../features/tool-feedback/feedback-action-dispatcher';
 import { FeedbackCommand } from '../../features/tool-feedback/model';
 import { GLSP_TYPES } from '../types';
@@ -54,8 +53,8 @@ export interface SModelRootListener {
 }
 
 /**
- * A special`UpdateModelCommand` that retrieves all registered `actions` from the `IFeedbackActionDispatcher` (if present) and applies their feedback
- * to the `newRoot` before performing the update
+ * A special`UpdateModelCommand` that retrieves all registered `actions` from the `IFeedbackActionDispatcher` (if present) and applies their
+ * feedback to the `newRoot` before performing the update
  */
 @injectable()
 export class FeedbackAwareUpdateModelCommand extends UpdateModelCommand {
