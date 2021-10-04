@@ -24,7 +24,7 @@ export class RequestEditValidationAction implements RequestAction<SetEditValidat
         public readonly text: string,
         public readonly requestId: string = generateRequestId(),
         public readonly kind: string = RequestEditValidationAction.KIND
-    ) { }
+    ) {}
 }
 
 export class SetEditValidationResultAction implements ResponseAction {
@@ -34,7 +34,7 @@ export class SetEditValidationResultAction implements ResponseAction {
         public readonly responseId: string = '',
         public readonly args?: Args,
         public readonly kind: string = SetEditValidationResultAction.KIND
-    ) { }
+    ) {}
 }
 
 export function isSetEditValidationResultAction(action: Action): action is SetEditValidationResultAction {

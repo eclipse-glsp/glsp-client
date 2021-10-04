@@ -28,7 +28,6 @@ import {
     SRoutableElement,
     SRoutingHandle
 } from 'sprotty';
-
 import { DragAwareMouseListener } from '../../base/drag-aware-mouse-listener';
 import { ChangeRoutingPointsOperation, ReconnectEdgeOperation } from '../../base/operations/operation';
 import { GLSP_TYPES } from '../../base/types';
@@ -233,7 +232,8 @@ class EdgeEditListener extends DragAwareMouseListener implements SelectionListen
             }
             this.reset();
         } else if (this.edge && this.routingHandle) {
-            // we need to re-retrieve the edge as it might have changed due to a server udpate since we do not reset the state between reroute actions
+            // we need to re-retrieve the edge as it might have changed due to a server update since we do not reset the state between
+            // reroute actions
             const latestEdge = target.index.getById(this.edge.id);
             if (latestEdge && isRoutable(latestEdge)) {
                 result.push(new ChangeRoutingPointsOperation([{ elementId: latestEdge.id, newRoutingPoints: latestEdge.routingPoints }]));

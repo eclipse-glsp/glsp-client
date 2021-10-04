@@ -13,12 +13,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import '../../css/glsp-sprotty.css';
-
 import { InitializeResult } from '@eclipse-glsp/protocol';
 import { Container, ContainerModule } from 'inversify';
 import { ActionHandlerRegistry, configureActionHandler, configureCommand, ModelSource, SetModelCommand, TYPES } from 'sprotty';
-
+import '../../css/glsp-sprotty.css';
 import { GLSPActionDispatcher } from './action-dispatcher';
 import { SetEditModeAction } from './actions/edit-mode-action';
 import { FocusStateChangedAction } from './actions/focus-change-action';
@@ -75,7 +73,8 @@ const defaultGLSPModule = new ContainerModule((bind, _unbind, isBound, rebind) =
 export default defaultGLSPModule;
 
 /**
- * Utility function to configure the {@link ModelSource}, i.e. the `DiagramServer`, as action handler for all server actions for the given diagramType.
+ * Utility function to configure the {@link ModelSource}, i.e. the `DiagramServer`, as action handler for all server actions for the given
+ * diagramType.
  * @param result A promise that resolves after all server actions have been registered.
  * @param diagramType The diagram type.
  * @param container The di container.

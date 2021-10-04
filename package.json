@@ -3,7 +3,7 @@
   "name": "parent",
   "version": "0.9.0",
   "engines": {
-    "yarn": "1.0.x || >=1.2.1"
+    "yarn": ">=1.7.0 <2.x.x"
   },
   "scripts": {
     "prepare": "lerna run prepare",
@@ -18,7 +18,7 @@
     "download:exampleServer": "ts-node examples/workflow-glsp/scripts/download.ts"
   },
   "devDependencies": {
-    "@eclipse-glsp/config": "0.9.0-next.9648217c",
+    "@eclipse-glsp/config": "0.9.0-next.0e05932b",
     "lerna": "^2.11.0",
     "typescript": "^3.9.2"
   },

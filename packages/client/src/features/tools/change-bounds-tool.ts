@@ -34,7 +34,6 @@ import {
     SParentElement,
     TYPES
 } from 'sprotty';
-
 import { DragAwareMouseListener } from '../../base/drag-aware-mouse-listener';
 import {
     ChangeBoundsOperation,
@@ -76,8 +75,8 @@ import { BaseGLSPTool } from './base-glsp-tool';
  * | Move      | MoveAction       | ChangeBoundsOperationAction
  * | Resize    | SetBoundsAction  | ChangeBoundsOperationAction
  *
- * To provide a visual client updates during move we install the `FeedbackMoveMouseListener` and to provide visual client updates during resize
- * and send the server updates we install the `ChangeBoundsListener`.
+ * To provide a visual client updates during move we install the `FeedbackMoveMouseListener` and to provide visual client updates during
+ * resize and send the server updates we install the `ChangeBoundsListener`.
  */
 @injectable()
 export class ChangeBoundsTool extends BaseGLSPTool {
