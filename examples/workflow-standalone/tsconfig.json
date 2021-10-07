@@ -6,10 +6,5 @@
     "baseUrl": ".",
     "noImplicitAny": false
   },
-  "include": [
-    "src",
-    "lib",
-    "css",
-    "app"
-  ]
+  "include": ["src", "lib", "css", "app"]
 }

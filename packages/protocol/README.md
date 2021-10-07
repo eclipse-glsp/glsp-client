@@ -2,9 +2,7 @@
 
 The generic client-server communication protocol for the [Graphical Language Server Platform (GLSP)](https://github.com/eclipse-glsp/glsp) and a json-rpc based default implementation.
 
-
 This project is built with `yarn` and is available from npm via [@eclipse-glsp/protocol](https://www.npmjs.com/package/@eclipse-glsp/protocol).
-
 
 ## More information
 

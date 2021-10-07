@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019 EclipseSource and others.
+ * Copyright (c) 2019-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -26,7 +26,7 @@
 
 .sprotty-text {
     font-size: 12pt;
-    text-anchor: middle
+    text-anchor: middle;
 }
 
 .sprotty-node {
@@ -83,22 +83,22 @@
     stroke-width: 3px;
 }
 
-.sprotty-edge>.sprotty-routing-handle {
+.sprotty-edge > .sprotty-routing-handle {
     r: 7px;
     fill: #884;
     stroke: none;
     z-index: 1000;
 }
 
-.sprotty-edge>.sprotty-routing-handle[data-kind='line'] {
+.sprotty-edge > .sprotty-routing-handle[data-kind='line'] {
     opacity: 0.35;
 }
 
-.sprotty-edge>.sprotty-routing-handle.selected {
+.sprotty-edge > .sprotty-routing-handle.selected {
     fill: #66a;
 }
 
-.sprotty-edge>.sprotty-routing-handle.mouseover {
+.sprotty-edge > .sprotty-routing-handle.mouseover {
     stroke: #112;
     stroke-width: 1;
 }
@@ -120,11 +120,11 @@
     opacity: 0.2;
 }
 
-.task.automated>.sprotty-node {
+.task.automated > .sprotty-node {
     fill: gray;
 }
 
-.task.manual>.sprotty-node {
+.task.manual > .sprotty-node {
     fill: lightblue;
 }
 
@@ -137,24 +137,30 @@ text {
     text-anchor: middle;
 }
 
-.sprotty-edge.weighted.low, .sprotty-edge.weighted.low .arrow {
-    stroke: lightblue
+.sprotty-edge.weighted.low,
+.sprotty-edge.weighted.low .arrow {
+    stroke: lightblue;
 }
 
 .sprotty-edge.weighted.low .arrow {
     fill: lightblue;
 }
 
-.sprotty-edge.weighted, .sprotty-edge.weighted .arrow, .sprotty-edge.weighted.medium, .sprotty-edge.weighted.medium .arrow {
+.sprotty-edge.weighted,
+.sprotty-edge.weighted .arrow,
+.sprotty-edge.weighted.medium,
+.sprotty-edge.weighted.medium .arrow {
     stroke: rgb(53, 53, 226);
 }
 
-.sprotty-edge.weighted .arrow, .sprotty-edge.weighted.medium .arrow {
+.sprotty-edge.weighted .arrow,
+.sprotty-edge.weighted.medium .arrow {
     fill: rgb(53, 53, 226);
 }
 
-.sprotty-edge.weighted.high, .sprotty-edge.weighted.high .arrow {
-    stroke: darkblue
+.sprotty-edge.weighted.high,
+.sprotty-edge.weighted.high .arrow {
+    stroke: darkblue;
 }
 
 .sprotty-edge.weighted.high .arrow {
@@ -181,23 +187,23 @@ svg {
     margin-left: -5px;
 }
 
-g .movement-not-allowed>.sprotty-node {
-    stroke: var(--glsp-error-foreground)!important;
+g .movement-not-allowed > .sprotty-node {
+    stroke: var(--glsp-error-foreground) !important;
 }
 
 .sprotty-resize-handle.movement-not-allowed {
-    stroke: var(--glsp-error-foreground)!important;
-    fill: var(--glsp-error-foreground)!important;
+    stroke: var(--glsp-error-foreground) !important;
+    fill: var(--glsp-error-foreground) !important;
 }
 
-.error>.sprotty-node {
-    stroke: var(--glsp-error-foreground)!important;
+.error > .sprotty-node {
+    stroke: var(--glsp-error-foreground) !important;
 }
 
-.warning>.sprotty-node {
-    stroke: var(--glsp-warning-foreground)!important;
+.warning > .sprotty-node {
+    stroke: var(--glsp-warning-foreground) !important;
 }
 
-.info>.sprotty-node {
-    stroke: var(--glsp-info-foreground)!important;
+.info > .sprotty-node {
+    stroke: var(--glsp-info-foreground) !important;
 }

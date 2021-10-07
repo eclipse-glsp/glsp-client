@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2021 EclipseSource and others.
+ * Copyright (c) 2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,48 +13,5 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-.sprotty-graph {
-    background: rgb(179, 196, 202);
-}
-
-.sprotty-node {
-    fill: #cdc;
-    stroke: rgb(0, 0, 0);
-}
-
-.sprotty-edge {
-    stroke: black;
-}
-
-.sprotty-edge.arrow {
-    fill: black;
-}
-
-.sprotty-edge.selected {
-    stroke: #844;
-}
-
-.sprotty-edge.selected > .arrow {
-    fill: #844;
-    stroke: #844;
-}
-
-.sprotty-node:not(.selected) {
-    stroke: black;
-}
-
-.forkOrJoin > .sprotty-node {
-    fill: black;
-}
-
-.forkOrJoin > .sprotty-node.selected {
-    stroke: rgb(87, 87, 214);
-}
-
-polygon.sprotty-node {
-    stroke: black;
-}
-
-.sprotty-node.selected {
-    stroke: rgb(87, 87, 214);
-}
+import 'reflect-metadata';
+import './app';

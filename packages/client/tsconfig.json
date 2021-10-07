@@ -6,7 +6,5 @@
     "reactNamespace": "JSX",
     "baseUrl": "."
   },
-  "include": [
-    "src"
-  ]
+  "include": ["src"]
 }

@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019 EclipseSource and others.
+ * Copyright (c) 2019-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-@import url("https://use.fontawesome.com/releases/v5.6.3/css/all.css");
+@import url('https://use.fontawesome.com/releases/v5.6.3/css/all.css');
 /* Css for main container */
 
 .tool-palette {
@@ -49,27 +49,27 @@
     text-align: left;
     font-size: 1.15em;
     font-weight: bold;
-    background: #CCCCCC;
+    background: #cccccc;
     border: 1px solid rgba(60, 60, 60, 0.6);
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 
 .header-icon i {
-    margin-right: 0.2em
+    margin-right: 0.2em;
 }
 
 .header-tools i {
-    border: 1px solid #CCCCCC;
+    border: 1px solid #cccccc;
     padding: 0.2em;
     margin-right: 0.2em;
 }
 
 .header-tools i:hover {
-    background: #DFDFDF;
+    background: #dfdfdf;
 }
 
 .header-tools .clicked {
-    background: #BDDAEF;
+    background: #bddaef;
     border: 1px solid rgba(60, 60, 60, 0.6);
 }
 
@@ -83,16 +83,16 @@
 
 .tool-group {
     text-align: left;
-    background: #EDEDEE;
+    background: #ededee;
 }
 
 .group-header {
     font-weight: bold;
-    background: #CCCCCC;
+    background: #cccccc;
 }
 
 .group-header:hover {
-    background: #AAAAAA;
+    background: #aaaaaa;
 }
 
 .group-header i {
@@ -100,16 +100,16 @@
 }
 
 .tool-button {
-    background: #EDEDEE;
+    background: #ededee;
     padding: 0.4em;
 }
 
 .tool-button:hover {
-    background: #DFDFDF;
+    background: #dfdfdf;
 }
 
 .tool-button.clicked {
-    background: #BDDAEF;
+    background: #bddaef;
 }
 
 .tool-button.collapsed {
@@ -129,7 +129,7 @@
 }
 
 .search-input {
-    background: #DFDFDF;
+    background: #dfdfdf;
     color: black;
     border: v#BDDAEF;
     padding-left: 3px;

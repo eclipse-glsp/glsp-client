@@ -13,13 +13,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import 'reflect-metadata';
-
 import { configureServerActions, EnableToolPaletteAction, GLSPDiagramServer, RequestTypeHintsAction } from '@eclipse-glsp/client';
 import { ApplicationIdProvider, BaseJsonrpcGLSPClient, GLSPClient, JsonrpcGLSPClient } from '@eclipse-glsp/protocol';
 import { join, resolve } from 'path';
 import { IActionDispatcher, RequestModelAction, TYPES } from 'sprotty';
-
 import createContainer from './di.config';
 
 const port = 8081;

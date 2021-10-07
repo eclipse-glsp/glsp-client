@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019 EclipseSource and others.
+ * Copyright (c) 2019-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -37,7 +37,7 @@
     font-style: normal;
 }
 
-.command-palette-suggestions>div {
+.command-palette-suggestions > div {
     padding: 0 4px;
 }
 
@@ -45,14 +45,15 @@
     background: #eee;
 }
 
-.command-palette-suggestions>div:hover:not(.group), .command-palette-suggestions>div.selected {
+.command-palette-suggestions > div:hover:not(.group),
+.command-palette-suggestions > div.selected {
     cursor: pointer;
 }
 
-.command-palette-suggestions>div:hover:not(.group) {
+.command-palette-suggestions > div:hover:not(.group) {
     background: #e0e0e0;
 }
 
-.command-palette-suggestions>div.selected {
+.command-palette-suggestions > div.selected {
     background: #bbdefb;
 }
