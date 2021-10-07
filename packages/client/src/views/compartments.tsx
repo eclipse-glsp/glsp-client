@@ -14,12 +14,11 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { injectable } from 'inversify';
-import * as snabbdom from 'snabbdom-jsx';
-import { VNode } from 'snabbdom/vnode';
-import { BoundsAware, RenderingContext, SChildElement, SCompartment, ShapeView } from 'sprotty/lib';
+import { VNode } from 'snabbdom';
+import { BoundsAware, RenderingContext, SChildElement, SCompartment, ShapeView, svg } from 'sprotty/lib';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const JSX = { createElement: snabbdom.svg };
+const JSX = { createElement: svg };
 
 @injectable()
 export class StructureCompartmentView extends ShapeView {

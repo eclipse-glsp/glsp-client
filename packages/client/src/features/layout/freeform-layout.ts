@@ -13,6 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { injectable } from 'inversify';
 import {
     Bounds,
     BoundsData,
@@ -30,7 +31,8 @@ import { AbstractLayoutOptions } from 'sprotty/lib/features/bounds/layout-option
 /**
  * Layouts children of a container with explit X/Y positions
  */
-export class FreeFormLayouter extends AbstractLayout<AbstractLayoutOptions> {
+ @injectable()
+ export class FreeFormLayouter extends AbstractLayout<AbstractLayoutOptions> {
 
     static KIND = 'freeform';
 

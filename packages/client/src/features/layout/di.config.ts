@@ -13,11 +13,8 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { ContainerModule, injectable, multiInject, optional } from 'inversify';
-import { configureCommand, ILayout, LayoutRegistry, TYPES } from 'sprotty';
-
-import { GLSP_TYPES } from '../../base/types';
+import { ContainerModule, inject, injectable, multiInject, optional } from 'inversify';
+import { configureCommand, configureLayout, ILogger, LayoutRegistration, LayoutRegistry, TYPES } from 'sprotty';
 import { FreeFormLayouter } from './freeform-layout';
 import { AlignElementsCommand, ResizeElementsCommand } from './layout-commands';
 import { VBoxLayouterExt } from './vbox-layout';
@@ -25,52 +22,30 @@ import { VBoxLayouterExt } from './vbox-layout';
 const layoutCommandsModule = new ContainerModule((bind, _unbind, isBound, rebind) => {
     configureCommand({ bind, isBound }, ResizeElementsCommand);
     configureCommand({ bind, isBound }, AlignElementsCommand);
-    rebind(TYPES.LayoutRegistry).to(LayoutRegistryExt);
-    bind(GLSP_TYPES.LayoutRegistration).to(VBoxLayoutRegistration);
-    bind(GLSP_TYPES.LayoutRegistration).to(FreeFormLayoutRegistration);
+
+    configureLayout({ bind, isBound }, VBoxLayouterExt.KIND, VBoxLayouterExt);
+    configureLayout({ bind, isBound }, FreeFormLayouter.KIND, FreeFormLayouter);
+
+    bind(OverridableLayoutRegistry).toSelf().inSingletonScope();
+    rebind(TYPES.LayoutRegistry).toService(OverridableLayoutRegistry);
 });
 
 export default layoutCommandsModule;
 
-/**
- * An extension of Sprotty's LayoutRegistry, supporting additional
- * layouts configured with dependency-injection.
- *
- * FIXME: Remove this when updating to the next version of Sprotty,
- * as the new version of the LayoutRegistry directly supports Dependency-injection
- */
 @injectable()
-export class LayoutRegistryExt extends LayoutRegistry {
-    constructor(@multiInject(GLSP_TYPES.LayoutRegistration) @optional() layouts: (LayoutRegistration)[] = []) {
+export class OverridableLayoutRegistry extends LayoutRegistry {
+
+    // ensure logger is already used in constructor as otherwise not usable
+    constructor(@multiInject(TYPES.LayoutRegistration) @optional() layouts: (LayoutRegistration)[] = [],
+        @inject(TYPES.ILogger) logger: ILogger) {
         super();
         layouts.forEach(layout => {
             if (this.hasKey(layout.layoutKind)) {
+                logger.warn('Layout kind is already defined and will be overridden: ', layout.layoutKind);
                 this.deregister(layout.layoutKind);
             }
-            this.register(layout.layoutKind, layout.getLayout());
+            // allow overriding an existing layout kind
+            this.register(layout.layoutKind, layout.factory());
         });
-    }
-}
-
-export interface LayoutRegistration {
-    layoutKind: string;
-    getLayout: () => ILayout;
-}
-
-@injectable()
-class VBoxLayoutRegistration implements LayoutRegistration {
-    layoutKind = VBoxLayouterExt.KIND;
-
-    getLayout(): ILayout {
-        return new VBoxLayouterExt();
-    }
-}
-
-@injectable()
-class FreeFormLayoutRegistration implements LayoutRegistration {
-    layoutKind = FreeFormLayouter.KIND;
-
-    getLayout(): ILayout {
-        return new FreeFormLayouter();
     }
 }

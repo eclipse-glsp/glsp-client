@@ -13,6 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { injectable } from 'inversify';
 import {
     Bounds,
     BoundsData,
@@ -39,7 +40,8 @@ export interface VBoxLayoutOptionsExt extends VBoxLayoutOptions {
 /**
   * Extends VBoxLayouter to support additional layout options
   */
-export class VBoxLayouterExt extends VBoxLayouter {
+ @injectable()
+ export class VBoxLayouterExt extends VBoxLayouter {
 
     static KIND = VBoxLayouter.KIND;
 
@@ -61,14 +63,15 @@ export class VBoxLayouterExt extends VBoxLayouter {
                 ? Math.max(fixedSize.height - options.paddingTop - options.paddingBottom, childrenSize.height)
                 : Math.max(0, fixedSize.height - options.paddingTop - options.paddingBottom));
 
-        console.log('VBox Container: ', container);
-
         // Remaining size that can be grabbed by children with the vGrab option
         const grabHeight: number = maxHeight - childrenSize.height;
         // Number of children that request vGrab
         // FIXME: This approach works fine when only 1 child uses VGrab, but may cause rounding issues
         // when the grabHeight can't be equally shared by all children.
-        const grabbingChildren = container.children.map(child => this.getChildLayoutOptions(child, options)).filter(opt => opt.vGrab).length;
+        const grabbingChildren = container.children
+            .map(child => this.getChildLayoutOptions(child, options))
+            .filter(opt => opt.vGrab)
+            .length;
 
         if (maxWidth > 0 && maxHeight > 0) {
             const offset = this.layoutChildren(container, layouter, options, maxWidth, maxHeight, grabHeight, grabbingChildren);
@@ -149,7 +152,7 @@ export class VBoxLayouterExt extends VBoxLayouter {
                 x: boundsData.bounds!.x,
                 y: boundsData.bounds!.y,
                 width: maxWidth,
-                height: boundsData.bounds?.height!
+                height: boundsData.bounds!.height
             };
             boundsData.boundsChanged = true;
         }
