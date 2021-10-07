@@ -6,11 +6,7 @@
       "request": "launch",
       "name": "Run current test",
       "program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
-      "args": [
-        "--opts",
-        "${workspaceFolder}/configs/mocha.opts",
-        "${file}"
-      ],
+      "args": ["--opts", "${workspaceFolder}/configs/mocha.opts", "${file}"],
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen"
     },

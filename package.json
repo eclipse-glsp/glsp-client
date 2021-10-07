@@ -18,7 +18,7 @@
     "download:exampleServer": "ts-node examples/workflow-glsp/scripts/download.ts"
   },
   "devDependencies": {
-    "@eclipse-glsp/config": "0.9.0-next.0e05932b",
+    "@eclipse-glsp/config": "0.9.0-next.a3910f6a",
     "lerna": "^2.11.0",
     "typescript": "^3.9.2"
   },

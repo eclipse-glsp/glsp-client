@@ -7,7 +7,5 @@
     "reactNamespace": "JSX",
     "skipLibCheck": true
   },
-  "include": [
-    "src"
-  ],
+  "include": ["src"]
 }
