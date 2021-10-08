@@ -93,8 +93,16 @@
     cursor: crosshair;
 }
 
-.resize-mode {
-    cursor: none;
+.move-mode {
+    cursor: move;
+}
+
+.resize-nesw-mode {
+    cursor: nesw-resize;
+}
+
+.resize-nwse-mode {
+    cursor: nwse-resize;
 }
 
 .element-deletion-mode {
