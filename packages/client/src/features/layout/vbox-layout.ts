@@ -35,6 +35,8 @@ import {
 export interface VBoxLayoutOptionsExt extends VBoxLayoutOptions {
     hGrab: boolean;
     vGrab: boolean;
+    prefWidth: number | null;
+    prefHeight: number | null;
 }
 
 /**
@@ -170,22 +172,15 @@ export interface VBoxLayoutOptionsExt extends VBoxLayoutOptions {
         return offset;
     }
 
-    protected getFixedContainerBounds(
-        container: SModelElement,
-        layoutOptions: VBoxLayoutOptionsExt,
-        layouter: StatefulLayouter): Bounds {
+    protected getFixedContainerBounds(container: SModelElement, layoutOptions: VBoxLayoutOptionsExt, layouter: StatefulLayouter): Bounds {
         const currentContainer = container;
         // eslint-disable-next-line no-constant-condition
         if (isBoundsAware(currentContainer)) {
             const bounds = currentContainer.bounds;
-            if (isLayoutDataAware(currentContainer)) {
-                const prefSize = currentContainer.layoutData.prefSize;
-                if (prefSize) {
-                    return { ...bounds, width: prefSize.width, height: prefSize.height };
-                } else {
-                    return { ...bounds, width: 0, height: 0 };
-                }
-            }
+            const elementOptions = this.getElementLayoutOptions(currentContainer);
+            const width = elementOptions?.prefWidth ?? 0;
+            const height = elementOptions?.prefHeight ?? 0;
+            return { ...bounds, width, height };
         }
         return EMPTY_BOUNDS;
     }
@@ -198,21 +193,22 @@ export interface VBoxLayoutOptionsExt extends VBoxLayoutOptions {
         return super.getLayoutOptions(element) as VBoxLayoutOptionsExt;
     }
 
-    protected getFinalContainerBounds(container: SParentElement & LayoutContainer,
-        lastOffset: Point,
-        options: VBoxLayoutOptionsExt,
-        maxWidth: number,
-        maxHeight: number): Bounds {
+    protected getElementLayoutOptions(element: SModelElement): VBoxLayoutOptionsExt | undefined {
+        return (element as any).layoutOptions;
+    }
 
-        const size = isLayoutDataAware(container) && container.layoutData.prefSize
-            ? container.layoutData.prefSize
-            : { width: options.minWidth, height: options.minHeight };
+    protected getFinalContainerBounds(container: SParentElement & LayoutContainer,
+        lastOffset: Point, options: VBoxLayoutOptionsExt, maxWidth: number, maxHeight: number): Bounds {
+
+        const elementOptions = this.getElementLayoutOptions(container);
+        const width = elementOptions?.prefWidth ?? options.minWidth;
+        const height = elementOptions?.prefHeight ?? options.minHeight;
 
         const result = {
             x: container.bounds.x,
             y: container.bounds.y,
-            width: Math.max(size.width, maxWidth + options.paddingLeft + options.paddingRight),
-            height: Math.max(size.height, maxHeight + options.paddingTop + options.paddingBottom)
+            width: Math.max(width, maxWidth + options.paddingLeft + options.paddingRight),
+            height: Math.max(height, maxHeight + options.paddingTop + options.paddingBottom)
         };
 
         return result;
@@ -231,37 +227,15 @@ export interface VBoxLayoutOptionsExt extends VBoxLayoutOptions {
             minWidth: 0,
             minHeight: 0,
             hGrab: false,
-            vGrab: false
+            vGrab: false,
+            // eslint-disable-next-line no-null/no-null
+            prefHeight: null,
+            // eslint-disable-next-line no-null/no-null
+            prefWidth: null
         };
     }
 
     protected spread(a: VBoxLayoutOptionsExt, b: VBoxLayoutOptionsExt): VBoxLayoutOptionsExt {
         return { ...a, ...b };
     }
-}
-
-/**
- * Node-specific layout information. In some cases, for layouts,
- * we need to distinguish the Size value used to configure the layout
- * from the visual Size of the View. For BoundsAware elements, the
- * bounds define the visual size (Outpuf of the layout), whereas the
- * layout data defines the layout configuration size (Input of the layout).
- *
- * Values from the layoutData are optional; new attributes may be added
- * in the future.
- */
-export interface LayoutData {
-    prefSize?: Dimension;
-}
-
-/**
- * Additional data to configure the layout, for a specific node. Unlike
- * layout options, this is not inherited from parent nodes.
- */
-export interface LayoutDataAware {
-    layoutData: LayoutData;
-}
-
-export function isLayoutDataAware(element: SModelElement): element is SModelElement & LayoutDataAware {
-    return 'layoutData' in element;
 }
