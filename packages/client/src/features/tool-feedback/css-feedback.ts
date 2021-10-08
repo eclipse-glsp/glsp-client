@@ -78,7 +78,9 @@ export enum CursorCSS {
     EDGE_RECONNECT = 'edge-reconnect-select-target-mode',
     OPERATION_NOT_ALLOWED = 'edge-modification-not-allowed-mode',
     ELEMENT_DELETION = 'element-deletion-mode',
-    RESIZE = 'resize-mode',
+    RESIZE_NESW = 'resize-nesw-mode',
+    RESIZE_NWSE = 'resize-nwse-mode',
+    MOVE = 'move-mode',
     MARQUEE = 'marquee-mode'
 }
 

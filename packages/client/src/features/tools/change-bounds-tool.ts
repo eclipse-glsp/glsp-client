@@ -162,7 +162,7 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements Sele
             // rely on the FeedbackMoveMouseListener to update the element bounds of selected elements
             // consider resize handles ourselves
             const actions: Action[] = [
-                cursorFeedbackAction(CursorCSS.RESIZE),
+                cursorFeedbackAction(this.activeResizeHandle.isNwSeResize() ? CursorCSS.RESIZE_NWSE : CursorCSS.RESIZE_NESW),
                 applyCssClasses(this.activeResizeHandle, ChangeBoundsListener.CSS_CLASS_ACTIVE)
             ];
             const positionUpdate = this.updatePosition(target, event);
@@ -309,14 +309,14 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements Sele
 
             // snap our delta and only send update if the position actually changes
             // otherwise accumulate delta until we do snap to an update
-            const positionUpdate = this.snap(this.positionDelta, target, !event.shiftKey);
+            const positionUpdate = this.snap(this.positionDelta, target, !event.altKey);
             if (positionUpdate.x === 0 && positionUpdate.y === 0) {
                 return undefined;
             }
 
-            // we update our position so we need to reset our delta
-            this.positionDelta.x = 0;
-            this.positionDelta.y = 0;
+            // we update our position so we update our delta by the snapped position
+            this.positionDelta.x -= positionUpdate.x;
+            this.positionDelta.y -= positionUpdate.y;
             return positionUpdate;
         }
         return undefined;

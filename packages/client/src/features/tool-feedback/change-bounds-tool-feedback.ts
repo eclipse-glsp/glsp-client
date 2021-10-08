@@ -31,10 +31,10 @@ import {
     SModelRoot,
     TYPES
 } from 'sprotty';
-
 import { isNotUndefined } from '../../utils/smodel-util';
 import { addResizeHandles, isResizable, removeResizeHandles, SResizeHandle } from '../change-bounds/model';
 import { createMovementRestrictionFeedback, removeMovementRestrictionFeedback } from '../change-bounds/movement-restrictor';
+import { CursorCSS, cursorFeedbackAction } from '../tool-feedback/css-feedback';
 import { ChangeBoundsTool } from '../tools/change-bounds-tool';
 import { FeedbackCommand } from './model';
 
@@ -120,6 +120,7 @@ export class FeedbackMoveMouseListener extends MouseListener {
             const moveAction = this.getElementMoves(target, event, false);
             if (moveAction) {
                 result.push(moveAction);
+                result.push(cursorFeedbackAction(CursorCSS.MOVE));
             }
         }
         return result;
@@ -224,6 +225,7 @@ export class FeedbackMoveMouseListener extends MouseListener {
             if (this.tool.movementRestrictor) {
                 this.tool.deregisterFeedback([removeMovementRestrictionFeedback(target, this.tool.movementRestrictor)], this);
             }
+            result.push(cursorFeedbackAction(CursorCSS.DEFAULT));
         }
         this.hasDragged = false;
         this.startDragPosition = undefined;
