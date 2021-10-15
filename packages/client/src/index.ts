@@ -44,6 +44,7 @@ export * from './base/auto-complete/auto-complete-actions';
 export * from './base/auto-complete/auto-complete-widget';
 export * from './base/auto-complete/validation-decorator';
 export * from './base/command-stack';
+export * from './base/container-modules';
 export { configureServerActions } from './base/di.config';
 export * from './base/drag-aware-mouse-listener';
 export * from './base/editor-context';
