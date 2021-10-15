@@ -13,67 +13,34 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import '../css/diagram.css';
-import 'balloon-css/balloon.min.css';
-import 'sprotty/css/edit-label.css';
-
 import {
-    boundsModule,
-    buttonModule,
     configureDefaultModelElements,
     configureModelElement,
     ConsoleLogger,
-    defaultGLSPModule,
-    defaultModule,
+    createClientContainer,
     DefaultTypes,
     DeleteElementContextMenuItemProvider,
     DiamondNodeView,
-    edgeIntersectionModule,
-    edgeLayoutModule,
     editLabelFeature,
-    expandModule,
-    exportModule,
-    fadeModule,
     GLSP_TYPES,
-    glspCommandPaletteModule,
-    glspContextMenuModule,
-    glspDecorationModule,
-    glspEditLabelModule,
-    glspHoverModule,
-    glspMouseToolModule,
-    glspSelectModule,
-    glspServerCopyPasteModule,
-    glspViewportModule,
     GridSnapper,
-    labelEditUiModule,
-    layoutCommandsModule,
     LogLevel,
-    markerNavigatorModule,
-    modelHintsModule,
-    modelSourceModule,
-    modelSourceWatcherModule,
-    navigationModule,
     NoOverlapMovmentRestrictor,
-    openModule,
     overrideViewerOptions,
-    paletteModule,
     RectangularNodeView,
     RevealNamedElementActionProvider,
     RoundedCornerNodeView,
-    routingModule,
     SCompartment,
     SCompartmentView,
     SEdge,
     SLabel,
     SLabelView,
-    toolFeedbackModule,
-    toolsModule,
-    TYPES,
-    validationModule,
-    zorderModule
+    TYPES
 } from '@eclipse-glsp/client';
+import 'balloon-css/balloon.min.css';
 import { Container, ContainerModule } from 'inversify';
-
+import 'sprotty/css/edit-label.css';
+import '../css/diagram.css';
 import { directTaskEditor } from './direct-task-editing/di.config';
 import { ActivityNode, Icon, TaskNode, WeightedEdge } from './model';
 import { IconView, WorkflowEdgeView } from './workflow-views';
@@ -104,49 +71,10 @@ const workflowDiagramModule = new ContainerModule((bind, unbind, isBound, rebind
 });
 
 export default function createContainer(widgetId: string): Container {
-    const container = new Container();
-
-    container.load(
-        defaultModule,
-        defaultGLSPModule,
-        glspMouseToolModule,
-        validationModule,
-        glspSelectModule,
-        boundsModule,
-        glspViewportModule,
-        toolsModule,
-        glspHoverModule,
-        fadeModule,
-        exportModule,
-        expandModule,
-        openModule,
-        buttonModule,
-        modelSourceModule,
-        labelEditUiModule,
-        glspEditLabelModule,
-        workflowDiagramModule,
-        toolFeedbackModule,
-        modelHintsModule,
-        glspContextMenuModule,
-        glspServerCopyPasteModule,
-        modelSourceWatcherModule,
-        glspCommandPaletteModule,
-        paletteModule,
-        routingModule,
-        glspDecorationModule,
-        edgeLayoutModule,
-        zorderModule,
-        edgeIntersectionModule,
-        layoutCommandsModule,
-        directTaskEditor,
-        navigationModule,
-        markerNavigatorModule
-    );
-
+    const container = createClientContainer(workflowDiagramModule, directTaskEditor);
     overrideViewerOptions(container, {
         baseDiv: widgetId,
         hiddenDiv: widgetId + '_hidden'
     });
-
     return container;
 }
