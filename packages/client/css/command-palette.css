@@ -30,6 +30,8 @@
 
 .command-palette-suggestions .icon {
     padding-right: 0.3em;
+    display: flex;
+    align-self: center;
 }
 
 .command-palette-suggestions em {
@@ -39,6 +41,7 @@
 
 .command-palette-suggestions > div {
     padding: 0 4px;
+    display: flex;
 }
 
 .command-palette-suggestions .group {

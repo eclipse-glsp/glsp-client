@@ -25,7 +25,6 @@ import {
 import { injectable } from 'inversify';
 import { VNode } from 'snabbdom';
 import { svg } from 'sprotty';
-
 import { Icon } from './model';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -58,13 +57,13 @@ export class IconView implements IView {
         const radius = this.getRadius();
         return (
             <g>
-                <circle class-sprotty-icon={true} r={radius} cx={radius} cy={radius}></circle>
+                <circle class-sprotty-icon={true} r={radius} cx={radius + 2} cy={radius + 2}></circle>
                 {context.renderChildren(element)}
             </g>
         );
     }
 
     getRadius(): number {
-        return 16;
+        return 14;
     }
 }

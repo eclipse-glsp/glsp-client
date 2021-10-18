@@ -15,9 +15,9 @@
  ********************************************************************************/
 import { AutocompleteResult, AutocompleteSettings } from 'autocompleter';
 import { Action, ILogger, isAction, isLabeledAction, LabeledAction, SModelRoot } from 'sprotty/lib';
+import { codiconCSSClasses } from 'sprotty/lib/utils/codicon';
 import { toArray } from 'sprotty/lib/utils/iterable';
 import { matchesKeystroke } from 'sprotty/lib/utils/keyboard';
-
 import { ValidationStatus } from '../actions/edit-validation-actions';
 import { isSetAutoCompleteValueAction } from './auto-complete-actions';
 import { IValidationDecorator } from './validation-decorator';
@@ -53,7 +53,7 @@ export interface TextSubmitHandler {
 const configureAutocomplete: (settings: AutocompleteSettings<LabeledAction>) => AutocompleteResult = require('autocompleter');
 
 export class AutoCompleteWidget {
-    loadingIndicatorClasses = ['loading', 'fa', 'fa-spinner', 'fa-pulse', 'fa-3x', 'fa-fw'];
+    loadingIndicatorClasses = codiconCSSClasses('loading', false, true, ['loading']);
 
     protected containerElement: HTMLElement;
     protected inputElement: HTMLInputElement;

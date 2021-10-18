@@ -28,7 +28,7 @@
       "problemMatcher": ["$tsc-watch"]
     },
     {
-      "label": "[Client] Open Workflow example (Chrome)",
+      "label": "[Client] Open Workflow Standalone example (Chrome)",
       "type": "shell",
       "group": "test",
       "presentation": {

@@ -26,8 +26,8 @@ import {
     SModelRoot,
     TYPES
 } from 'sprotty';
+import { codiconCSSClasses } from 'sprotty/lib/utils/codicon';
 import { matchesKeystroke } from 'sprotty/lib/utils/keyboard';
-
 import { GLSPActionDispatcher } from '../../base/action-dispatcher';
 import { isSetContextActionsAction, RequestContextActions, SetContextActions } from '../../base/actions/context-actions';
 import { EditModeListener, EditorContextService } from '../../base/editor-context';
@@ -37,9 +37,9 @@ import { RequestMarkersAction } from '../validation/validate';
 import { PaletteItem } from './palette-item';
 
 const CLICKED_CSS_CLASS = 'clicked';
-const SEARCH_ICON = 'fa-search';
-const PALETTE_ICON = 'fa-palette';
-const CHEVRON_DOWN = 'fa-chevron-down';
+const SEARCH_ICON_ID = 'search';
+const PALETTE_ICON_ID = 'symbol-color';
+const CHEVRON_DOWN_ICON_ID = 'chevron-right';
 const PALETTE_HEIGHT = '500px';
 
 @injectable()
@@ -101,7 +101,7 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
         this.containerElement.classList.add('collapsible-palette');
         if (baseDiv) {
             const insertedDiv = baseDiv.insertBefore(minPaletteDiv, baseDiv.firstChild);
-            const minimizeIcon = createIcon(['fas', CHEVRON_DOWN]);
+            const minimizeIcon = createIcon(CHEVRON_DOWN_ICON_ID);
             this.updateMinimizePaletteButtonTooltip(minPaletteDiv);
             minimizeIcon.onclick = _event => {
                 if (this.isPaletteMaximized()) {
@@ -110,10 +110,8 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
                     this.containerElement.style.maxHeight = PALETTE_HEIGHT;
                 }
                 this.updateMinimizePaletteButtonTooltip(minPaletteDiv);
-                changeCSSClass(minimizeIcon, PALETTE_ICON);
-                changeCSSClass(minimizeIcon, 'fa');
-                changeCSSClass(minimizeIcon, 'fas');
-                changeCSSClass(minimizeIcon, CHEVRON_DOWN);
+                changeCodiconClass(minimizeIcon, PALETTE_ICON_ID);
+                changeCodiconClass(minimizeIcon, CHEVRON_DOWN_ICON_ID);
             };
             insertedDiv.appendChild(minimizeIcon);
         }
@@ -192,7 +190,7 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
     }
 
     protected createDefaultToolButton(): HTMLElement {
-        const button = createIcon(['fas', 'fa-mouse-pointer', 'fa-xs', 'clicked']);
+        const button = createIcon('inspect');
         button.id = 'btn_default_tools';
         button.title = 'Enable selection tool';
         button.onclick = this.onClickStaticToolButton(this.defaultToolsButton);
@@ -200,21 +198,21 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
     }
 
     protected createMouseDeleteToolButton(): HTMLElement {
-        const deleteToolButton = createIcon(['fas', 'fa-eraser', 'fa-xs']);
+        const deleteToolButton = createIcon('chrome-close');
         deleteToolButton.title = 'Enable deletion tool';
         deleteToolButton.onclick = this.onClickStaticToolButton(deleteToolButton, MouseDeleteTool.ID);
         return deleteToolButton;
     }
 
     protected createMarqueeToolButton(): HTMLElement {
-        const marqueeToolButton = createIcon(['far', 'fa-object-group', 'fa-xs']);
+        const marqueeToolButton = createIcon('screen-full');
         marqueeToolButton.title = 'Enable marquee tool';
         marqueeToolButton.onclick = this.onClickStaticToolButton(marqueeToolButton, MarqueeMouseTool.ID);
         return marqueeToolButton;
     }
 
     protected createValidateButton(): HTMLElement {
-        const validateActionButton = createIcon(['fas', 'fa-check-square', 'fa-xs']);
+        const validateActionButton = createIcon('pass');
         validateActionButton.title = 'Validate model';
         validateActionButton.onclick = _event => {
             const modelIds: string[] = [this.modelRootId];
@@ -224,15 +222,15 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
     }
 
     protected createSearchButton(): HTMLElement {
-        const searchIcon = createIcon(['fas', SEARCH_ICON, 'state-icon', 'fa-xs']);
+        const searchIcon = createIcon(SEARCH_ICON_ID);
         searchIcon.onclick = _ev => {
             const searchField = document.getElementById(this.containerElement.id + '_search_field');
             if (searchField) {
-                if (searchField.style.display === 'inline') {
-                    searchField.style.display = 'none';
-                } else {
-                    searchField.style.display = 'inline';
+                if (searchField.style.display === 'none') {
+                    searchField.style.display = '';
                     searchField.focus();
+                } else {
+                    searchField.style.display = 'none';
                 }
             }
         };
@@ -256,7 +254,7 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
     protected createHeaderTitle(): HTMLElement {
         const header = document.createElement('div');
         header.classList.add('header-icon');
-        header.appendChild(createIcon(['fa', 'fa-palette']));
+        header.appendChild(createIcon(PALETTE_ICON_ID));
         header.insertAdjacentText('beforeend', 'Palette');
         return header;
     }
@@ -265,7 +263,10 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
         const button = document.createElement('div');
         button.tabIndex = index;
         button.classList.add('tool-button');
-        button.innerHTML = item.label;
+        if (item.icon) {
+            button.appendChild(createIcon(item.icon));
+        }
+        button.insertAdjacentText('beforeend', item.label);
         button.onclick = this.onClickCreateToolButton(button, item);
         button.onkeydown = ev => this.clearToolOnEscape(ev);
         return button;
@@ -382,9 +383,9 @@ export function compare(a: PaletteItem, b: PaletteItem): number {
     return a.label.localeCompare(b.label);
 }
 
-export function createIcon(cssClasses: string[]): HTMLElement {
+export function createIcon(codiconId: string): HTMLElement {
     const icon = document.createElement('i');
-    icon.classList.add(...cssClasses);
+    icon.classList.add(...codiconCSSClasses(codiconId));
     return icon;
 }
 
@@ -395,7 +396,7 @@ export function createToolGroup(item: PaletteItem): HTMLElement {
     const header = document.createElement('div');
     header.classList.add('group-header');
     if (item.icon) {
-        header.appendChild(createIcon(['fas', item.icon]));
+        header.appendChild(createIcon(item.icon));
     }
     header.insertAdjacentText('beforeend', item.label);
     header.ondblclick = _ev => {
@@ -411,4 +412,10 @@ export function createToolGroup(item: PaletteItem): HTMLElement {
 
 export function changeCSSClass(element: Element, css: string): void {
     element.classList.contains(css) ? element.classList.remove(css) : element.classList.add(css);
+}
+
+export function changeCodiconClass(element: Element, codiconId: string): void {
+    element.classList.contains(codiconCSSClasses(codiconId)[1])
+        ? element.classList.remove(codiconCSSClasses(codiconId)[1])
+        : element.classList.add(codiconCSSClasses(codiconId)[1]);
 }
