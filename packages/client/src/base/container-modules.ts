@@ -85,6 +85,27 @@ export const DEFAULT_MODULES = [
     zorderModule
 ];
 
+/**
+ * Creates a GLSP Client container with the GLSP default modules and the specified custom `modules`.
+ *
+ * You can still customize the default modules in two ways.
+ *
+ * First, you can unload default modules and load them again with your custom code.
+ *
+ * ```typescript
+ * const container = createClientContainer(myModule1, myModule2);
+ * container.unload(modelSourceWatcherModule);
+ * container.load(myModelSourceWatcherModule);
+ * ```
+ *
+ * Second, you can unbind or rebind implementations that are originally bound in one of the default modules.
+ *
+ * ```typescript
+ * rebind(NavigationTargetResolver).to(MyNavigationTargetResolver);
+ * ```
+ * @param modules Custom modules to be loaded in addition to the default modules.
+ * @returns The created container.
+ */
 export function createClientContainer(...modules: ContainerModule[]): Container {
     const container = new Container();
     container.load(...DEFAULT_MODULES, ...modules);
