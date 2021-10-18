@@ -15,7 +15,6 @@
  ********************************************************************************/
 import { injectable } from 'inversify';
 import { Action, EnableDefaultToolsAction, EnableToolsAction, IActionHandler, ICommand, ScrollMouseListener, SModelElement } from 'sprotty';
-
 import { MarqueeMouseTool } from '../tools/marquee-mouse-tool';
 
 @injectable()
@@ -32,7 +31,7 @@ export class GLSPScrollMouseListener extends ScrollMouseListener implements IAct
         }
     }
 
-    mouseDown(target: SModelElement, event: MouseEvent): Action[] {
+    mouseDown(target: SModelElement, event: MouseEvent): (Action | Promise<Action>)[] {
         if (this.preventScrolling) {
             return [];
         }

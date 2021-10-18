@@ -14,6 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { InitializeResult } from '@eclipse-glsp/protocol';
+import '@vscode/codicons/dist/codicon.css';
 import { Container, ContainerModule } from 'inversify';
 import { ActionHandlerRegistry, configureActionHandler, configureCommand, ModelSource, SetModelCommand, TYPES } from 'sprotty';
 import '../../css/glsp-sprotty.css';

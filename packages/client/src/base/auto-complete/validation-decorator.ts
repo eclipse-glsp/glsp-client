@@ -13,6 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { codiconCSSString } from 'sprotty/lib/utils/codicon';
 import { ValidationStatus } from '../actions/edit-validation-actions';
 
 export interface IValidationDecorator {
@@ -38,9 +39,9 @@ export namespace IValidationDecorator {
 
 export class ValidationDecorator implements IValidationDecorator {
     warningClasses = ['warning'];
-    warningIconClasses = ['fa', 'fa-question-circle'];
+    warningIconClasses = codiconCSSString('warning');
     errorClasses = ['error'];
-    errorIconClasses = ['fa', 'fa-exclamation-circle'];
+    errorIconClasses = codiconCSSString('error');
 
     isValidated = false;
     hasValidationError = false;
@@ -67,7 +68,7 @@ export class ValidationDecorator implements IValidationDecorator {
         this.switchCssClasses(this.containerElement, this.errorClasses);
         const div = this.createDecorationDiv();
         this.switchCssClasses(div, this.errorClasses);
-        div.innerHTML = `<span class="${this.errorIconClasses.join(' ')}"></span> ${message}`;
+        div.innerHTML = `<span class="${this.errorIconClasses}"></span> ${message}`;
         this.adjustPosition();
     }
 
@@ -75,7 +76,7 @@ export class ValidationDecorator implements IValidationDecorator {
         this.switchCssClasses(this.containerElement, this.warningClasses);
         const div = this.createDecorationDiv();
         this.switchCssClasses(div, this.warningClasses);
-        div.innerHTML = `<span class="${this.warningIconClasses.join(' ')}"></span> ${message}`;
+        div.innerHTML = `<span class="${this.warningIconClasses}"></span> ${message}`;
         this.adjustPosition();
     }
 
@@ -96,7 +97,7 @@ export class ValidationDecorator implements IValidationDecorator {
     }
 
     protected decorationContainerWidth(): number {
-        return this.containerElement.clientWidth - 22;
+        return this.containerElement.clientWidth - 5;
     }
 
     protected adjustPosition(): void {

@@ -5,6 +5,7 @@ lib/
 artifacts/
 bundle.js
 bundle.js.map
+*.ttf
 
 *.log
 
