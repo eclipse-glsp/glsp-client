@@ -13,6 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { isSetEditValidationResultAction, RequestEditValidationAction, ValidationStatus } from '@eclipse-glsp/protocol';
 import { inject, injectable } from 'inversify';
 import {
     Action,
@@ -26,7 +27,6 @@ import {
 } from 'sprotty';
 
 import { GLSPActionDispatcher } from '../../base/action-dispatcher';
-import { isSetEditValidationResultAction, RequestEditValidationAction, ValidationStatus } from '../../base/actions/edit-validation-actions';
 
 export namespace LabelEditValidation {
     export const CONTEXT_ID = 'label-edit';

@@ -13,23 +13,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { Action, Point, SelectAction } from '@eclipse-glsp/protocol';
 import { inject, injectable } from 'inversify';
-import {
-    Action,
-    BoundsAware,
-    EnableDefaultToolsAction,
-    isSelectable,
-    isSelected,
-    KeyListener,
-    Point,
-    SEdge,
-    SelectAction,
-    SModelElement,
-    SNode,
-    TYPES
-} from 'sprotty';
+import { BoundsAware, EnableDefaultToolsAction, isSelectable, isSelected, KeyListener, SEdge, SModelElement, SNode, TYPES } from 'sprotty';
 import { DOMHelper } from 'sprotty/lib/base/views/dom-helper';
-
 import { DragAwareMouseListener } from '../../base/drag-aware-mouse-listener';
 import { getAbsolutePosition, toAbsoluteBounds } from '../../utils/viewpoint-util';
 import { CursorCSS, cursorFeedbackAction } from '../tool-feedback/css-feedback';

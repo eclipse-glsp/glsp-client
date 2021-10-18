@@ -13,11 +13,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { Action, CenterAction, Point } from '@eclipse-glsp/protocol';
 import { inject, injectable } from 'inversify';
 import {
-    Action,
     BoundsAware,
-    CenterAction,
     CenterCommand,
     Command,
     CommandExecutionContext,
@@ -28,7 +27,6 @@ import {
     isSelectable,
     KeyListener,
     MenuItem,
-    Point,
     Selectable,
     SelectAction,
     SIssueMarker,
@@ -38,7 +36,6 @@ import {
     TYPES
 } from 'sprotty';
 import { matchesKeystroke } from 'sprotty/lib/utils/keyboard';
-
 import { GLSP_TYPES } from '../../base/types';
 import { collectIssueMarkers, MarkerPredicates } from '../../utils/marker';
 import { isSelectableAndBoundsAware } from '../../utils/smodel-util';

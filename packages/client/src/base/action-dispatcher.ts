@@ -13,9 +13,9 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { Action, isResponseAction, RequestAction, ResponseAction } from '@eclipse-glsp/protocol';
 import { inject } from 'inversify';
-import { Action, ActionDispatcher, isResponseAction, RequestAction, ResponseAction } from 'sprotty';
-
+import { ActionDispatcher } from 'sprotty';
 import { ModelInitializationConstraint } from './model-initialization-constraint';
 
 export class GLSPActionDispatcher extends ActionDispatcher {

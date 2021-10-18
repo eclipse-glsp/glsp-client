@@ -13,9 +13,9 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { Action } from '@eclipse-glsp/protocol';
 import { inject, injectable } from 'inversify';
-import { Action, EnableToolsAction, KeyListener, KeyTool, SModelElement } from 'sprotty';
-
+import { EnableToolsAction, KeyListener, KeyTool, SModelElement } from 'sprotty';
 import { BaseGLSPTool } from '../tools/base-glsp-tool';
 import { MarqueeMouseTool } from './marquee-mouse-tool';
 

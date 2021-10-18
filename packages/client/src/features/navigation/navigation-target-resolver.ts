@@ -13,96 +13,16 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import {
+    isSetResolvedNavigationTargets,
+    NavigationTarget,
+    ResolveNavigationTargetAction,
+    SetResolvedNavigationTargetAction
+} from '@eclipse-glsp/protocol';
 import { inject, injectable } from 'inversify';
-import { Action, generateRequestId, IActionDispatcher, ILogger, RequestAction, ResponseAction, TYPES } from 'sprotty';
-
-import { Args } from '../../base/args';
-import { EditorContextServiceProvider } from '../../base/editor-context';
+import { IActionDispatcher, ILogger, ResponseAction, TYPES } from 'sprotty';
+import { EditorContextServiceProvider } from '../../base/editor-context-service';
 import { GLSP_TYPES } from '../../base/types';
-
-export interface NavigationTarget {
-    uri: string;
-    label?: string;
-    args?: Args;
-}
-
-export namespace NavigationTarget {
-    export const ELEMENT_IDS = 'elementIds';
-    export const ELEMENT_IDS_SEPARATOR = '&';
-    export const TEXT_LINE = 'line';
-    export const TEXT_COLUMN = 'column';
-
-    export function hasArguments(target: NavigationTarget): boolean {
-        return target.args !== undefined && Object.keys(target.args).length > 0;
-    }
-
-    export function addArgument(target: NavigationTarget, key: string, value: string | number | boolean): void {
-        if (target.args === undefined) {
-            target.args = {};
-        }
-        target.args[key] = value;
-    }
-
-    export function getElementIds(target: NavigationTarget): string[] {
-        if (target.args === undefined || target.args[NavigationTarget.ELEMENT_IDS] === undefined) {
-            return [];
-        }
-        const elementIdsValue = target.args[NavigationTarget.ELEMENT_IDS].toString();
-        return elementIdsValue.split(NavigationTarget.ELEMENT_IDS_SEPARATOR);
-    }
-
-    export function setElementIds(target: NavigationTarget, elementIds: string[]): string {
-        if (target.args === undefined) {
-            target.args = {};
-        }
-        return (target.args[NavigationTarget.ELEMENT_IDS] = elementIds.join(NavigationTarget.ELEMENT_IDS_SEPARATOR));
-    }
-
-    export function setTextPosition(target: NavigationTarget, position: TextPosition | undefined): void {
-        if (position) {
-            if (target.args === undefined) {
-                target.args = {};
-            }
-            target.args[NavigationTarget.TEXT_LINE] = position.line;
-            target.args[NavigationTarget.TEXT_COLUMN] = position.character;
-        }
-    }
-
-    export function getTextPosition(target: NavigationTarget): TextPosition | undefined {
-        if (
-            target.args === undefined ||
-            target.args[NavigationTarget.TEXT_LINE] === undefined ||
-            target.args[NavigationTarget.TEXT_COLUMN] === undefined
-        ) {
-            return undefined;
-        }
-        return {
-            line: Number(target.args[NavigationTarget.TEXT_LINE]),
-            character: Number(target.args[NavigationTarget.TEXT_COLUMN])
-        };
-    }
-}
-
-export interface TextPosition {
-    line: number;
-    character: number;
-}
-
-export class ResolveNavigationTargetAction implements RequestAction<SetResolvedNavigationTargetAction> {
-    static readonly KIND = 'resolveNavigationTarget';
-    kind = ResolveNavigationTargetAction.KIND;
-    constructor(readonly navigationTarget: NavigationTarget, public readonly requestId: string = generateRequestId()) {}
-}
-
-export class SetResolvedNavigationTargetAction implements ResponseAction {
-    static readonly KIND = 'setResolvedNavigationTarget';
-    kind = SetResolvedNavigationTargetAction.KIND;
-    constructor(readonly elementIds: string[] = [], readonly args?: Args, readonly responseId: string = '') {}
-}
-
-export function isSetResolvedNavigationTargets(action: Action): action is SetResolvedNavigationTargetAction {
-    return action !== undefined && action.kind === SetResolvedNavigationTargetAction.KIND;
-}
 
 /**
  * Resolves `NavigationTargets` to element ids.

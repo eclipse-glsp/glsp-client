@@ -13,28 +13,29 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { inject, injectable } from 'inversify';
 import {
     Action,
-    ActionHandlerRegistry,
+    Args,
     CenterAction,
-    generateRequestId,
-    IActionDispatcher,
-    IActionHandler,
-    ICommand,
-    ILogger,
-    RequestAction,
-    ResponseAction,
+    GLSPServerStatusAction,
+    isNavigateToExternalTargetAction,
+    isNavigateToTargetAction,
+    isSetNavigationTargetsAction,
+    NavigateToExternalTargetAction,
+    NavigateToTargetAction,
+    NavigationTarget,
+    RequestNavigationTargetsAction,
     SelectAction,
     SelectAllAction,
-    TYPES
-} from 'sprotty';
+    ServerMessageAction,
+    SetResolvedNavigationTargetAction
+} from '@eclipse-glsp/protocol';
+import { inject, injectable } from 'inversify';
+import { ActionHandlerRegistry, IActionDispatcher, IActionHandler, ICommand, ILogger, TYPES } from 'sprotty';
 
-import { Args } from '../../base/args';
-import { EditorContext, EditorContextServiceProvider } from '../../base/editor-context';
+import { EditorContextServiceProvider } from '../../base/editor-context-service';
 import { GLSP_TYPES } from '../../base/types';
-import { GLSPServerStatusAction, ServerMessageAction } from '../../model-source/glsp-server-status';
-import { NavigationTarget, NavigationTargetResolver, SetResolvedNavigationTargetAction } from './navigation-target-resolver';
+import { NavigationTargetResolver } from './navigation-target-resolver';
 
 /**
  * Action for triggering a navigation of a certain target type.
@@ -55,53 +56,6 @@ export class NavigateAction implements Action {
 
 export function isNavigateAction(action: Action): action is NavigateAction {
     return action !== undefined && action.kind === NavigateAction.KIND && (action as NavigateAction).targetTypeId !== undefined;
-}
-
-/** Action that is usually sent to the server to request navigation targets for a navigation type. */
-export class RequestNavigationTargetsAction implements RequestAction<SetNavigationTargetsAction> {
-    static readonly KIND = 'requestNavigationTargets';
-    kind = RequestNavigationTargetsAction.KIND;
-    constructor(readonly targetTypeId: string, readonly editorContext: EditorContext, readonly requestId: string = generateRequestId()) {}
-}
-
-/** Action that is usually sent from the server to the client as a repsonse to a `RequestNavigationTargetsAction`. */
-export class SetNavigationTargetsAction implements ResponseAction {
-    static readonly KIND = 'setNavigationTargets';
-    kind = SetNavigationTargetsAction.KIND;
-    constructor(readonly targets: NavigationTarget[], readonly responseId: string = '', readonly args?: Args) {}
-}
-
-export function isSetNavigationTargetsAction(action: Action): action is SetNavigationTargetsAction {
-    return (
-        action !== undefined &&
-        action.kind === SetNavigationTargetsAction.KIND &&
-        (action as SetNavigationTargetsAction).targets !== undefined
-    );
-}
-
-/** Action that triggers the navigation to a particular navigation target, such as element IDs, queries, etc.. */
-export class NavigateToTargetAction implements Action {
-    static readonly KIND = 'navigateToTarget';
-    readonly kind = NavigateToTargetAction.KIND;
-    constructor(readonly target: NavigationTarget) {}
-}
-
-export function isNavigateToTargetAction(action: Action): action is NavigateToTargetAction {
-    return action !== undefined && action.kind === NavigateToTargetAction.KIND && (action as NavigateToTargetAction).target !== undefined;
-}
-
-export class NavigateToExternalTargetAction implements Action {
-    static readonly KIND = 'navigateToExternalTarget';
-    readonly kind = NavigateToExternalTargetAction.KIND;
-    constructor(readonly target: NavigationTarget) {}
-}
-
-export function isNavigateToExternalTargetAction(action: Action): action is NavigateToExternalTargetAction {
-    return (
-        action !== undefined &&
-        action.kind === NavigateToExternalTargetAction.KIND &&
-        (action as NavigateToExternalTargetAction).target !== undefined
-    );
 }
 
 /** Action to trigger the processing of additional navigation arguments.

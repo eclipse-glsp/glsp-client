@@ -13,7 +13,8 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, MouseListener, SModelElement } from 'sprotty';
+import { Action } from '@eclipse-glsp/protocol';
+import { MouseListener, SModelElement } from 'sprotty';
 
 /**
  * A mouse listener that is aware of prior mouse dragging.

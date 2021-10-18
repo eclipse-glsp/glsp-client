@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020 EclipseSource and others.
+ * Copyright (c) 2020-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,11 +13,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { DeleteElementOperation } from '@eclipse-glsp/protocol';
 import { inject, injectable } from 'inversify';
 import { IContextMenuItemProvider, MenuItem, Point, SModelRoot } from 'sprotty';
-
-import { EditorContextService, EditorContextServiceProvider } from '../../base/editor-context';
-import { DeleteElementOperation } from '../../base/operations/operation';
+import { EditorContextService, EditorContextServiceProvider } from '../../base/editor-context-service';
 import { GLSP_TYPES } from '../../base/types';
 
 @injectable()

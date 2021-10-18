@@ -14,10 +14,10 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 /* eslint-disable import/no-deprecated,no-unused-expressions */
+import { Action } from '@eclipse-glsp/protocol';
 import { AssertionError, expect } from 'chai';
 import { Container, injectable } from 'inversify';
-import { Action, defaultModule, SGraphFactory, SModelElementSchema, SModelRoot, TYPES } from 'sprotty';
-
+import { defaultModule, SGraphFactory, SModelElementSchema, SModelRoot, TYPES } from 'sprotty';
 import { GLSP_TYPES } from '../../base/types';
 import { IFeedbackActionDispatcher, IFeedbackEmitter } from '../tool-feedback/feedback-action-dispatcher';
 import { SelectFeedbackAction } from './select-feedback-action';

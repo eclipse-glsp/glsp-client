@@ -13,17 +13,15 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { Action, distinctAdd, remove, SelectAction, SelectAllAction } from '@eclipse-glsp/protocol';
 import { inject, injectable, multiInject, optional } from 'inversify';
 import {
-    Action,
     Command,
     CommandExecutionContext,
     ILogger,
     isSelectable,
     isSelected,
     SChildElement,
-    SelectAction,
-    SelectAllAction,
     SelectAllCommand as SprottySelectAllCommand,
     SelectCommand as SprottySelectCommand,
     SModelElement,
@@ -31,10 +29,8 @@ import {
     SParentElement,
     TYPES
 } from 'sprotty';
-
 import { SModelRootListener } from '../../base/model/update-model-command';
 import { GLSP_TYPES } from '../../base/types';
-import { distinctAdd, remove } from '../../utils/array-utils';
 import { IFeedbackActionDispatcher } from '../tool-feedback/feedback-action-dispatcher';
 import { SelectFeedbackAction } from './select-feedback-action';
 

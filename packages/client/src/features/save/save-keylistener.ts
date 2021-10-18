@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020-2021 EclipseSource and others.
+ * Copyright (c) 2019-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,14 +13,15 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action } from 'sprotty';
+import { Action, SaveModelAction } from '@eclipse-glsp/protocol';
+import { KeyListener, SModelRoot } from 'sprotty';
+import { matchesKeystroke } from 'sprotty/lib/utils/keyboard';
 
-export class ModelSourceChangedAction implements Action {
-    static KIND = 'modelSourceChanged';
-    readonly kind = ModelSourceChangedAction.KIND;
-    constructor(public readonly modelSourceName: string) {}
-}
-
-export function isModelSourceChangedAction(action: Action): action is ModelSourceChangedAction {
-    return action.kind === ModelSourceChangedAction.KIND;
+export class SaveModelKeyboardListener extends KeyListener {
+    keyDown(_element: SModelRoot, event: KeyboardEvent): Action[] {
+        if (matchesKeystroke(event, 'KeyS', 'ctrlCmd')) {
+            return [new SaveModelAction()];
+        }
+        return [];
+    }
 }

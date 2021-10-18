@@ -14,12 +14,10 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 /* eslint-disable no-unused-expressions */
+import { NavigationTarget } from '@eclipse-glsp/protocol';
+import { expect } from 'chai';
 import 'mocha';
 import 'reflect-metadata';
-
-import { expect } from 'chai';
-
-import { NavigationTarget } from './navigation-target-resolver';
 
 describe('NavigationTarget', () => {
     it('should be able to set and get element IDs', () => {

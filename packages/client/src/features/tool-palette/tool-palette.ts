@@ -13,6 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { isSetContextActionsAction, RequestContextActions, RequestMarkersAction, SetContextActions } from '@eclipse-glsp/protocol';
 import { inject, injectable, postConstruct } from 'inversify';
 import {
     AbstractUIExtension,
@@ -29,11 +30,9 @@ import {
 import { codiconCSSClasses } from 'sprotty/lib/utils/codicon';
 import { matchesKeystroke } from 'sprotty/lib/utils/keyboard';
 import { GLSPActionDispatcher } from '../../base/action-dispatcher';
-import { isSetContextActionsAction, RequestContextActions, SetContextActions } from '../../base/actions/context-actions';
-import { EditModeListener, EditorContextService } from '../../base/editor-context';
+import { EditModeListener, EditorContextService } from '../../base/editor-context-service';
 import { MouseDeleteTool } from '../tools/delete-tool';
 import { MarqueeMouseTool } from '../tools/marquee-mouse-tool';
-import { RequestMarkersAction } from '../validation/validate';
 import { PaletteItem } from './palette-item';
 
 const CLICKED_CSS_CLASS = 'clicked';

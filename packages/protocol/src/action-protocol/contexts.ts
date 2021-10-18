@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2021 EclipseSource and others.
+ * Copyright (c) 2021 STMicroelectronics and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,11 +13,14 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, generateRequestId, LabeledAction, RequestAction, ResponseAction } from 'sprotty';
 
-import { Args } from '../args';
-import { EditorContext } from '../editor-context';
+import { isArray, isObject, isString } from '../utils/typeguard-util';
+import { generateRequestId, isActionKind, RequestAction, ResponseAction } from './base-protocol';
+import { Args, EditorContext, LabeledAction } from './types';
 
+/**
+ * The `RequestContextActions` is sent from the client to the server to request the available actions for the context with id contextId.
+ */
 export class RequestContextActions implements RequestAction<SetContextActions> {
     static readonly KIND = 'requestContextActions';
     constructor(
@@ -28,6 +31,18 @@ export class RequestContextActions implements RequestAction<SetContextActions> {
     ) {}
 }
 
+export function isRequestContextActions(action: any): action is RequestContextActions {
+    return (
+        isActionKind(action, RequestContextActions.KIND) &&
+        isString(action, 'contextId') &&
+        isObject(action, 'editorContext') &&
+        isString(action, 'requestId')
+    );
+}
+
+/**
+ * The `SetContextActions` is the response to a {@link RequestContextActions} containing all actions for the queried context.
+ */
 export class SetContextActions implements ResponseAction {
     static readonly KIND = 'setContextActions';
     constructor(
@@ -38,6 +53,6 @@ export class SetContextActions implements ResponseAction {
     ) {}
 }
 
-export function isSetContextActionsAction(action: Action): action is SetContextActions {
-    return action !== undefined && action.kind === SetContextActions.KIND && (action as SetContextActions).actions !== undefined;
+export function isSetContextActionsAction(action: any): action is SetContextActions {
+    return isActionKind(action, SetContextActions.KIND) && isArray(action, 'actions') && isString(action, 'responseId');
 }

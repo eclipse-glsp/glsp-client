@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020 EclipseSource and others.
+ * Copyright (c) 2020-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,8 +13,9 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { Point } from '@eclipse-glsp/protocol';
 import { injectable } from 'inversify';
-import { ISnapper, Point, SModelElement } from 'sprotty';
+import { ISnapper, SModelElement } from 'sprotty';
 
 @injectable()
 export class GridSnapper implements ISnapper {
