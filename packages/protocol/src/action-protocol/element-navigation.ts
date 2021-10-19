@@ -84,7 +84,7 @@ export namespace NavigationTarget {
     }
 }
 
-/** 
+/**
  * Action that is usually sent from the client to the server to request navigation targets for a specific navigation type such as
  * documentation or implementation in the given editor context.
  */

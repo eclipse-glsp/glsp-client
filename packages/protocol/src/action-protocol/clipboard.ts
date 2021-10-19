@@ -57,8 +57,8 @@ export function isSetClipboardDataAction(action: any): action is SetClipboardDat
 }
 
 /**
- * Requests a cut operation from the server, i.e., deleting the selected elements from the model. Before submitting a `CutOperation` a client
- * should ensure that the cut elements are put into the clipboard.
+ * Requests a cut operation from the server, i.e., deleting the selected elements from the model. Before submitting a `CutOperation`
+ * a client should ensure that the cut elements are put into the clipboard.
  */
 export class CutOperation implements Operation {
     static readonly KIND = 'cut';

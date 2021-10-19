@@ -24,7 +24,6 @@ export interface Args {
     [key: string]: JsonPrimitive;
 }
 
-// Geometry
 export interface Point {
     readonly x: number;
     readonly y: number;
@@ -40,7 +39,6 @@ export interface Dimension {
  */
 export interface Bounds extends Point, Dimension {}
 
-// Bounds Manipulation
 export interface ElementAndBounds {
     elementId: string;
     newPosition?: Point;

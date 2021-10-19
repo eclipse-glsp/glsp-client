@@ -27,9 +27,7 @@ export class RequestModelAction implements RequestAction<SetModelAction> {
 
     constructor(public readonly options?: { [key: string]: JsonPrimitive }, public readonly requestId = '') {}
 
-    /** 
-     * Factory function to dispatch a request with the `IActionDispatcher` 
-     */
+    /** Factory function to dispatch a request with the `IActionDispatcher` */
     static create(options?: { [key: string]: JsonPrimitive }): RequestAction<SetModelAction> {
         return new RequestModelAction(options, generateRequestId());
     }

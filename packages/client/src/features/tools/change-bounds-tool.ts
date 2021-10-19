@@ -34,6 +34,7 @@ import {
     isSelected,
     isViewport,
     MouseListener,
+    SChildElement,
     SConnectableElement,
     SetBoundsAction,
     SModelElement,
@@ -213,7 +214,8 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements Sele
         });
 
         const selectionSet: Set<SModelElement & BoundsAware> = new Set(selectedElements);
-        selectedElements.filter(element => !this.isChildOfSelected(selectionSet, element))
+        selectedElements
+            .filter(element => !this.isChildOfSelected(selectionSet, element))
             .map(element => this.createElementAndBounds(element))
             .forEach(bounds => newBounds.push(...bounds));
 

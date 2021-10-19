@@ -104,8 +104,8 @@ export function isRejectAction(action: any): action is RejectAction {
 }
 
 /**
- * Operations are actions that denote requests from the client to _modify_ the model. Model modifications are always performed by the server.
- * After a successful modification, the server sends the updated model back to the client using the `UpdateModelAction`.
+ * Operations are actions that denote requests from the client to _modify_ the model. Model modifications are always performed by the
+ * server. After a successful modification, the server sends the updated model back to the client using the `UpdateModelAction`.
  */
 export interface Operation extends Action {}
 

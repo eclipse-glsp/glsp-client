@@ -26,6 +26,7 @@ import {
     isViewport,
     MouseListener,
     MoveAction,
+    SChildElement,
     SModelElement,
     SModelRoot,
     TYPES
@@ -126,9 +127,7 @@ export class FeedbackMoveMouseListener extends MouseListener {
     }
 
     protected collectStartPositions(root: SModelRoot): void {
-        const selectedElements = root.index
-            .all()
-            .filter(element => isSelectable(element) && element.selected);
+        const selectedElements = root.index.all().filter(element => isSelectable(element) && element.selected);
         const elementsSet = new Set(selectedElements);
         selectedElements
             .filter(element => !this.isChildOfSelected(elementsSet, element))
