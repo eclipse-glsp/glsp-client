@@ -41,7 +41,6 @@ export interface Dimension {
 export interface Bounds extends Point, Dimension {}
 
 // Bounds Manipulation
-
 export interface ElementAndBounds {
     elementId: string;
     newPosition?: Point;
