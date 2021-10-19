@@ -33,6 +33,7 @@ import {
     SEdge,
     SLabel,
     SLabelView,
+    StructureCompartmentView,
     TYPES
 } from '@eclipse-glsp/client';
 import 'balloon-css/balloon.min.css';
