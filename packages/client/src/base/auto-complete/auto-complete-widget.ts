@@ -15,7 +15,7 @@
  ********************************************************************************/
 import { Action, isAction, isLabeledAction, LabeledAction, ValidationStatus } from '@eclipse-glsp/protocol';
 import { AutocompleteResult, AutocompleteSettings } from 'autocompleter';
-import { ILogger, SModelRoot } from 'sprotty';
+import { codiconCSSClasses, ILogger, SModelRoot } from 'sprotty';
 import { toArray } from 'sprotty/lib/utils/iterable';
 import { matchesKeystroke } from 'sprotty/lib/utils/keyboard';
 import { isSetAutoCompleteValueAction } from './auto-complete-actions';
