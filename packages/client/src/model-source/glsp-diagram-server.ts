@@ -13,23 +13,19 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { GLSPClient } from '@eclipse-glsp/protocol';
-import { injectable } from 'inversify';
 import {
     Action,
-    ActionHandlerRegistry,
-    ActionMessage,
     ComputedBoundsAction,
-    DiagramServer,
-    ICommand,
-    RequestModelAction,
-    ServerStatusAction,
-    SwitchEditModeCommand
-} from 'sprotty';
-
-import { isSetEditModeAction, SetEditModeAction } from '../base/actions/edit-mode-action';
+    GLSPClient,
+    isRequestModelAction,
+    isServerMessageAction,
+    isSetEditModeAction,
+    ServerMessageAction,
+    SetEditModeAction
+} from '@eclipse-glsp/protocol';
+import { injectable } from 'inversify';
+import { ActionHandlerRegistry, ActionMessage, DiagramServer, ICommand, ServerStatusAction, SwitchEditModeCommand } from 'sprotty';
 import { SourceUriAware } from '../base/source-uri-aware';
-import { isServerMessageAction, ServerMessageAction } from './glsp-server-status';
 
 const receivedFromServerProperty = '__receivedFromServer';
 
@@ -66,7 +62,7 @@ export class GLSPDiagramServer extends DiagramServer implements SourceUriAware {
     }
 
     handle(action: Action): void | ICommand | Action {
-        if (action instanceof RequestModelAction && action.options !== undefined) {
+        if (isRequestModelAction(action) && action.options) {
             this._sourceUri = action.options.sourceUri as string;
         }
         return super.handle(action);

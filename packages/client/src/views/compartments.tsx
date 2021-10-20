@@ -22,16 +22,16 @@ const JSX = { createElement: svg };
 
 @injectable()
 export class StructureCompartmentView extends ShapeView {
-
     render(model: Readonly<SCompartment & SChildElement & BoundsAware>, context: RenderingContext): VNode | undefined {
         if (!this.isVisible(model, context)) {
             return undefined;
         }
 
-        return <g>
-            <rect class-sprotty-comp={true} class-debug={true} x="0" y="0" width={model.size.width} height={model.size.height}></rect>
-            {context.renderChildren(model)}
-        </g>;
+        return (
+            <g>
+                <rect class-sprotty-comp={true} class-debug={true} x='0' y='0' width={model.size.width} height={model.size.height}></rect>
+                {context.renderChildren(model)}
+            </g>
+        );
     }
-
 }

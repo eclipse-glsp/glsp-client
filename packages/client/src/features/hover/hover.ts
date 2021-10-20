@@ -13,22 +13,18 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { Action, Bounds, RequestPopupModelAction, SetPopupModelAction } from '@eclipse-glsp/protocol';
 import { injectable } from 'inversify';
 import {
-    Action,
-    Bounds,
     EMPTY_ROOT,
     HoverMouseListener,
     PreRenderedElementSchema,
-    RequestPopupModelAction,
-    SetPopupModelAction,
     SIssueMarker,
     SIssueSeverity,
     SModelElement,
     SModelElementSchema,
     SModelRootSchema
 } from 'sprotty';
-
 import { GIssueMarker } from '../validation/issue-marker';
 
 @injectable()

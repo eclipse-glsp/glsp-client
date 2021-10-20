@@ -13,9 +13,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { Action, isAction } from '@eclipse-glsp/protocol';
 import { injectable, multiInject, optional } from 'inversify';
 import { On, VNode, VNodeData } from 'snabbdom';
-import { Action, isAction, MouseListener, MouseTool, SModelElement, SModelRoot, TYPES } from 'sprotty';
+import { MouseListener, MouseTool, SModelElement, SModelRoot, TYPES } from 'sprotty';
 import { getRank } from '../rank/model';
 
 export interface IMouseTool {

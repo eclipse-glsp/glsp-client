@@ -13,9 +13,9 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { Action, DeleteMarkersAction, Marker, SetMarkersAction } from '@eclipse-glsp/protocol';
 import { inject, injectable, optional } from 'inversify';
 import {
-    Action,
     Command,
     CommandExecutionContext,
     CommandReturn,
@@ -27,10 +27,8 @@ import {
     SParentElement,
     TYPES
 } from 'sprotty';
-
-import { EditorContextService } from '../../base/editor-context';
+import { EditorContextService } from '../../base/editor-context-service';
 import { GLSP_TYPES } from '../../base/types';
-import { Marker } from '../../utils/marker';
 import { removeCssClasses } from '../../utils/smodel-util';
 import { getSeverity } from '../hover/hover';
 import { IFeedbackActionDispatcher, IFeedbackEmitter } from '../tool-feedback/feedback-action-dispatcher';
@@ -73,17 +71,6 @@ export class ValidationFeedbackEmitter implements IFeedbackEmitter {
 }
 
 /**
- * Action to set markers for a model
- */
-export class SetMarkersAction implements MarkersAction {
-    constructor(public readonly markers: Marker[], public readonly kind = SetMarkersCommand.KIND) {}
-}
-
-export function isSetMarkersAction(action: Action): action is SetMarkersAction {
-    return SetMarkersCommand.KIND === action.kind && 'markers' in action;
-}
-
-/**
  * Manages current markers for the outside of the GLSP.
  *
  * Typically this is rebound by the surrounding tool, e.g. Theia, to be aware of
@@ -117,7 +104,7 @@ export class SetMarkersCommand extends Command {
     @inject(ExternalMarkerManager) @optional() protected externalMarkerManager?: ExternalMarkerManager;
     @inject(EditorContextService) protected editorContextService: EditorContextService;
 
-    static readonly KIND = 'setMarkers';
+    static readonly KIND = SetMarkersAction.KIND;
 
     constructor(@inject(TYPES.Action) public action: SetMarkersAction) {
         super();
@@ -141,14 +128,6 @@ export class SetMarkersCommand extends Command {
     redo(context: CommandExecutionContext): CommandReturn {
         return this.execute(context);
     }
-}
-
-/**
- * Action to retrieve markers for a model
- */
-export class RequestMarkersAction implements Action {
-    static readonly KIND = 'requestMarkers';
-    constructor(public readonly elementsIDs: string[] = [], public readonly kind = RequestMarkersAction.KIND) {}
 }
 
 /**
@@ -217,19 +196,11 @@ function removeCSSClassFromIssueParent(modelElement: SParentElement, issueMarker
 }
 
 /**
- * Action for clearing makers of a model
- */
-@injectable()
-export class DeleteMarkersAction implements MarkersAction {
-    constructor(public readonly markers: Marker[], public readonly kind = DeleteMarkersCommand.KIND) {}
-}
-
-/**
  * Command for handling `DeleteMarkersAction`
  */
 @injectable()
 export class DeleteMarkersCommand extends Command {
-    static KIND = 'deleteMarkers';
+    static KIND = DeleteMarkersAction.KIND;
 
     constructor(@inject(TYPES.Action) protected action: DeleteMarkersAction) {
         super();

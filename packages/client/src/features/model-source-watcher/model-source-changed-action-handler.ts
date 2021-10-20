@@ -13,11 +13,15 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import {
+    Action,
+    GLSPServerStatusAction,
+    isModelSourceChangedAction,
+    ModelSourceChangedAction,
+    ServerMessageAction
+} from '@eclipse-glsp/protocol';
 import { inject, injectable, optional } from 'inversify';
-import { Action, IActionDispatcher, IActionHandler, TYPES, ViewerOptions } from 'sprotty/lib';
-
-import { GLSPServerStatusAction, ServerMessageAction } from '../../model-source/glsp-server-status';
-import { isModelSourceChangedAction, ModelSourceChangedAction } from './model-source-changed-action';
+import { IActionDispatcher, IActionHandler, TYPES, ViewerOptions } from 'sprotty';
 
 /**
  * An external handler of the model source change event.

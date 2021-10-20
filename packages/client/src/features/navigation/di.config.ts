@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020 EclipseSource and others.
+ * Copyright (c) 2020-2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,16 +13,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { NavigateToExternalTargetAction, NavigateToTargetAction } from '@eclipse-glsp/protocol';
 import { ContainerModule } from 'inversify';
-import { configureActionHandler } from 'sprotty/lib';
-
-import {
-    NavigateAction,
-    NavigateToExternalTargetAction,
-    NavigateToTargetAction,
-    NavigationActionHandler,
-    ProcessNavigationArgumentsAction
-} from './navigation-action-handler';
+import { configureActionHandler } from 'sprotty';
+import { NavigateAction, NavigationActionHandler, ProcessNavigationArgumentsAction } from './navigation-action-handler';
 import { NavigationTargetResolver } from './navigation-target-resolver';
 
 export const navigationModule = new ContainerModule((bind, _unbind, isBound) => {

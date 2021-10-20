@@ -13,8 +13,9 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { Point } from '@eclipse-glsp/protocol';
 import { injectable } from 'inversify';
-import { Decoration, DecorationPlacer, isSizeable, ORIGIN_POINT, Point, SChildElement, SModelElement, SRoutableElement } from 'sprotty';
+import { Decoration, DecorationPlacer, isSizeable, ORIGIN_POINT, SChildElement, SModelElement, SRoutableElement } from 'sprotty';
 
 @injectable()
 export class GlspDecorationPlacer extends DecorationPlacer {

@@ -13,20 +13,9 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { Action, GLSPServerStatusAction, Point, ServerMessageAction } from '@eclipse-glsp/protocol';
 import { inject, injectable } from 'inversify';
-import {
-    Action,
-    IActionDispatcher,
-    IActionHandler,
-    IContextMenuItemProvider,
-    isSelected,
-    MenuItem,
-    Point,
-    SModelRoot,
-    TYPES
-} from 'sprotty/lib';
-
-import { GLSPServerStatusAction, ServerMessageAction } from '../../model-source/glsp-server-status';
+import { IActionDispatcher, IActionHandler, IContextMenuItemProvider, isSelected, MenuItem, SModelRoot, TYPES } from 'sprotty';
 
 export class InvokeCopyAction implements Action {
     static readonly KIND = 'invoke-copy';

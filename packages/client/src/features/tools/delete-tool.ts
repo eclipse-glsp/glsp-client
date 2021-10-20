@@ -13,9 +13,9 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { Action, DeleteElementOperation } from '@eclipse-glsp/protocol';
 import { inject, injectable } from 'inversify';
 import {
-    Action,
     EnableDefaultToolsAction,
     findParentByFeature,
     isCtrlOrCmd,
@@ -27,8 +27,6 @@ import {
     SModelElement
 } from 'sprotty';
 import { matchesKeystroke } from 'sprotty/lib/utils/keyboard';
-
-import { DeleteElementOperation } from '../../base/operations/operation';
 import { GLSPTool } from '../../base/tool-manager/glsp-tool-manager';
 import { GLSP_TYPES } from '../../base/types';
 import { IMouseTool } from '../mouse-tool/mouse-tool';

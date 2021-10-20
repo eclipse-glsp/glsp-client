@@ -13,10 +13,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { Point } from '@eclipse-glsp/protocol';
 import { injectable } from 'inversify';
 import { VNode } from 'snabbdom';
-import { IView, ORIGIN_POINT, Point, RenderingContext, setAttr, SModelElement, svg } from 'sprotty';
-
+import { IView, ORIGIN_POINT, RenderingContext, setAttr, SModelElement, svg } from 'sprotty';
 import { isResizable, ResizeHandleLocation, SResizeHandle } from '../change-bounds/model';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

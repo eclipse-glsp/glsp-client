@@ -13,16 +13,15 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { InitializeResult } from '@eclipse-glsp/protocol';
+import { InitializeResult, SetEditModeAction } from '@eclipse-glsp/protocol';
 import '@vscode/codicons/dist/codicon.css';
 import { Container, ContainerModule } from 'inversify';
 import { ActionHandlerRegistry, configureActionHandler, configureCommand, ModelSource, SetModelCommand, TYPES } from 'sprotty';
 import '../../css/glsp-sprotty.css';
 import { GLSPActionDispatcher } from './action-dispatcher';
-import { SetEditModeAction } from './actions/edit-mode-action';
 import { FocusStateChangedAction } from './actions/focus-change-action';
 import { GLSPCommandStack } from './command-stack';
-import { EditorContextService } from './editor-context';
+import { EditorContextService } from './editor-context-service';
 import { FocusTracker } from './focus-tracker';
 import { DefaultModelInitializationConstraint, ModelInitializationConstraint } from './model-initialization-constraint';
 import { GLSPModelRegistry } from './model/model-registry';

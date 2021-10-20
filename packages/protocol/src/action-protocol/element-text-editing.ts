@@ -13,9 +13,13 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, generateRequestId, RequestAction, ResponseAction } from 'sprotty';
-import { Args } from '../args';
+import { isObject, isString } from '../utils/typeguard-util';
+import { Action, generateRequestId, isActionKind, isRequestAction, Operation, RequestAction, ResponseAction } from './base-protocol';
+import { Args } from './types';
 
+/**
+ * Requests the validation of the given text in the context of the provided model element. Typically sent from the client to the server.
+ */
 export class RequestEditValidationAction implements RequestAction<SetEditValidationResultAction> {
     static readonly KIND = 'requestEditValidation';
     constructor(
@@ -27,6 +31,19 @@ export class RequestEditValidationAction implements RequestAction<SetEditValidat
     ) {}
 }
 
+export function isRequestEditValidationAction(action: any): action is RequestEditValidationAction {
+    return (
+        isRequestAction(action) &&
+        action.kind === RequestEditValidationAction.KIND &&
+        isString(action, 'contextId') &&
+        isString(action, 'modelElementId') &&
+        isString(action, 'text')
+    );
+}
+
+/**
+ * Response to a {@link RequestEditValidationAction} containing the validation result for applying a text on a certain model element.
+ */
 export class SetEditValidationResultAction implements ResponseAction {
     static readonly KIND = 'setEditValidationResult';
     constructor(
@@ -38,11 +55,17 @@ export class SetEditValidationResultAction implements ResponseAction {
 }
 
 export function isSetEditValidationResultAction(action: Action): action is SetEditValidationResultAction {
-    return (
-        action !== undefined &&
-        action.kind === SetEditValidationResultAction.KIND &&
-        (action as SetEditValidationResultAction).status !== undefined
-    );
+    return isActionKind(action, SetEditValidationResultAction.KIND) && isObject(action, 'status') && isString(action, 'response');
+}
+
+export class ApplyLabelEditOperation implements Operation {
+    static KIND = 'EditLabel';
+    kind = ApplyLabelEditOperation.KIND;
+    constructor(readonly labelId: string) {}
+}
+
+export function isApplyLabelEditOperation(action: any): action is ApplyLabelEditOperation {
+    return isActionKind(action, ApplyLabelEditOperation.KIND) && isString(action, 'labelId');
 }
 
 export interface ValidationStatus {

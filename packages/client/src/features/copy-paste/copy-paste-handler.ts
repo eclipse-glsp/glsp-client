@@ -13,14 +13,13 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { ClipboardData, CutOperation, PasteOperation, RequestClipboardDataAction, SetClipboardDataAction } from '@eclipse-glsp/protocol';
 import { inject, injectable } from 'inversify';
 import { TYPES, ViewerOptions } from 'sprotty';
 import { v4 as uuid } from 'uuid';
-
 import { GLSPActionDispatcher } from '../../base/action-dispatcher';
-import { EditorContextService } from '../../base/editor-context';
+import { EditorContextService } from '../../base/editor-context-service';
 import { GLSP_TYPES } from '../../base/types';
-import { ClipboardData, CutOperation, PasteOperation, RequestClipboardDataAction } from './copy-paste-actions';
 
 export interface ICopyPasteHandler {
     handleCopy(event: ClipboardEvent): void;
@@ -105,7 +104,7 @@ export class ServerCopyPasteHandler implements ICopyPasteHandler {
             const clipboardId = uuid();
             event.clipboardData.setData(CLIPBOARD_DATA_FORMAT, toClipboardId(clipboardId));
             this.actionDispatcher
-                .request(RequestClipboardDataAction.create(this.editorContext.get()))
+                .request<SetClipboardDataAction>(RequestClipboardDataAction.create(this.editorContext.get()))
                 .then(action => this.clipboadService.put(action.clipboardData, clipboardId));
             event.preventDefault();
         } else {

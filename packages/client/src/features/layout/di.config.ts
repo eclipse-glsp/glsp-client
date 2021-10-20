@@ -34,10 +34,11 @@ export default layoutCommandsModule;
 
 @injectable()
 export class OverridableLayoutRegistry extends LayoutRegistry {
-
     // ensure logger is already used in constructor as otherwise not usable
-    constructor(@multiInject(TYPES.LayoutRegistration) @optional() layouts: (LayoutRegistration)[] = [],
-        @inject(TYPES.ILogger) logger: ILogger) {
+    constructor(
+        @multiInject(TYPES.LayoutRegistration) @optional() layouts: LayoutRegistration[] = [],
+        @inject(TYPES.ILogger) logger: ILogger
+    ) {
         super();
         layouts.forEach(layout => {
             if (this.hasKey(layout.layoutKind)) {

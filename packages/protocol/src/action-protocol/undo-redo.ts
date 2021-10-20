@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2021 EclipseSource and others.
+ * Copyright (c) 2021 STMicroelectronics and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,14 +13,29 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Operation } from '../../base/operations/operation';
 
+import { isActionKind, Operation } from './base-protocol';
+
+/**
+ * Trigger an undo of the latest executed command.
+ */
 export class UndoOperation implements Operation {
     static readonly KIND = 'glspUndo';
     constructor(public readonly kind = UndoOperation.KIND) {}
 }
 
+export function isUndoOperation(action: any): action is UndoOperation {
+    return isActionKind(action, UndoOperation.KIND);
+}
+
+/**
+ * Trigger a redo of the latest undone command.
+ */
 export class RedoOperation implements Operation {
     static readonly KIND = 'glspRedo';
     constructor(public readonly kind = RedoOperation.KIND) {}
+}
+
+export function isRedoOperation(action: any): action is RedoOperation {
+    return isActionKind(action, RedoOperation.KIND);
 }

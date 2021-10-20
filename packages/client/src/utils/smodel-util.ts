@@ -13,6 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { ElementAndRoutingPoints } from '@eclipse-glsp/protocol';
 import {
     BoundsAware,
     ElementAndBounds,
@@ -27,7 +28,6 @@ import {
     SRoutableElement,
     SRoutingHandle
 } from 'sprotty';
-import { ElementAndRoutingPoints } from '../base/operations/operation';
 
 export function getIndex(element: SModelElement): SModelIndex<SModelElement> {
     return element.root.index;

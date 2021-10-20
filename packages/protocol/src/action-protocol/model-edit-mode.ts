@@ -15,6 +15,8 @@
  ********************************************************************************/
 import { injectable } from 'inversify';
 import { Action } from 'sprotty';
+import { isString } from '../utils/typeguard-util';
+import { isActionKind } from './base-protocol';
 
 @injectable()
 export class SetEditModeAction implements Action {
@@ -23,7 +25,7 @@ export class SetEditModeAction implements Action {
 }
 
 export function isSetEditModeAction(action: Action): action is SetEditModeAction {
-    return action !== undefined && action.kind === SetEditModeAction.KIND && 'editMode' in action && typeof action['editMode'] === 'string';
+    return isActionKind(action, SetEditModeAction.KIND) && isString(action, 'editMode');
 }
 
 export namespace EditMode {

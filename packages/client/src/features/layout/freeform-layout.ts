@@ -31,13 +31,11 @@ import { AbstractLayoutOptions } from 'sprotty/lib/features/bounds/layout-option
 /**
  * Layouts children of a container with explit X/Y positions
  */
- @injectable()
- export class FreeFormLayouter extends AbstractLayout<AbstractLayoutOptions> {
-
+@injectable()
+export class FreeFormLayouter extends AbstractLayout<AbstractLayoutOptions> {
     static KIND = 'freeform';
 
-    layout(container: SParentElement & LayoutContainer,
-        layouter: StatefulLayouter): void {
+    layout(container: SParentElement & LayoutContainer, layouter: StatefulLayouter): void {
         const boundsData = layouter.getBoundsData(container);
         const options = this.getLayoutOptions(container);
         const childrenSize = this.getChildrenSize(container, options, layouter);
@@ -57,36 +55,38 @@ import { AbstractLayoutOptions } from 'sprotty/lib/features/bounds/layout-option
         }
     }
 
-    protected getChildrenSize(container: SParentElement & LayoutContainer,
+    protected getChildrenSize(
+        container: SParentElement & LayoutContainer,
         containerOptions: AbstractLayoutOptions,
-        layouter: StatefulLayouter): Dimension {
+        layouter: StatefulLayouter
+    ): Dimension {
         let maxX = 0;
         let maxY = 0;
-        container.children.forEach(
-            child => {
-                const bounds = layouter.getBoundsData(child).bounds;
-                if (bounds !== undefined && isValidDimension(bounds)) {
-                    const childMaxX = bounds.x + bounds.width;
-                    const childMaxY = bounds.y + bounds.height;
-                    maxX = Math.max(maxX, childMaxX);
-                    maxY = Math.max(maxY, childMaxY);
-                }
+        container.children.forEach(child => {
+            const bounds = layouter.getBoundsData(child).bounds;
+            if (bounds !== undefined && isValidDimension(bounds)) {
+                const childMaxX = bounds.x + bounds.width;
+                const childMaxY = bounds.y + bounds.height;
+                maxX = Math.max(maxX, childMaxX);
+                maxY = Math.max(maxY, childMaxY);
             }
-        );
+        });
         return {
             width: maxX,
             height: maxY
         };
     }
 
-    protected layoutChild(child: SChildElement,
+    protected layoutChild(
+        child: SChildElement,
         boundsData: BoundsData,
         bounds: Bounds,
         childOptions: AbstractLayoutOptions,
         containerOptions: AbstractLayoutOptions,
         currentOffset: Point,
         maxWidth: number,
-        maxHeight: number): Point {
+        maxHeight: number
+    ): Point {
         boundsData.bounds = {
             x: (child as any).bounds.x,
             y: (child as any).bounds.y,
@@ -97,11 +97,13 @@ import { AbstractLayoutOptions } from 'sprotty/lib/features/bounds/layout-option
         return currentOffset;
     }
 
-    protected getFinalContainerBounds(container: SParentElement & LayoutContainer,
+    protected getFinalContainerBounds(
+        container: SParentElement & LayoutContainer,
         lastOffset: Point,
         options: AbstractLayoutOptions,
         maxWidth: number,
-        maxHeight: number): Bounds {
+        maxHeight: number
+    ): Bounds {
         const result = {
             x: container.bounds.x,
             y: container.bounds.y,
@@ -128,5 +130,4 @@ import { AbstractLayoutOptions } from 'sprotty/lib/features/bounds/layout-option
     protected spread(a: AbstractLayoutOptions, b: AbstractLayoutOptions): AbstractLayoutOptions {
         return { ...a, ...b };
     }
-
 }

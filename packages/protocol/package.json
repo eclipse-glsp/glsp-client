@@ -34,7 +34,8 @@
   ],
   "dependencies": {
     "uuid": "7.0.3",
-    "vscode-ws-jsonrpc": "0.2.0"
+    "vscode-ws-jsonrpc": "0.2.0",
+    "inversify": "^5.0.1"
   },
   "devDependencies": {
     "@types/uuid": "3.4.5",

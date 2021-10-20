@@ -13,9 +13,9 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { Action, CreateNodeOperation, isTriggerNodeCreationAction, TriggerNodeCreationAction } from '@eclipse-glsp/protocol';
 import { inject, injectable, optional } from 'inversify';
 import {
-    Action,
     EnableDefaultToolsAction,
     EnableToolsAction,
     findParentByFeature,
@@ -26,9 +26,7 @@ import {
     SNode,
     TYPES
 } from 'sprotty';
-
 import { DragAwareMouseListener } from '../../base/drag-aware-mouse-listener';
-import { CreateNodeOperation, isTriggerNodeCreationAction, TriggerNodeCreationAction } from '../../base/operations/operation';
 import { getAbsolutePosition } from '../../utils/viewpoint-util';
 import { Containable, isContainable } from '../hints/model';
 import { CursorCSS, cursorFeedbackAction } from '../tool-feedback/css-feedback';

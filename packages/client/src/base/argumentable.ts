@@ -13,11 +13,8 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { Args } from '@eclipse-glsp/protocol';
 import { SModelElement } from 'sprotty';
-
-export interface Args {
-    [key: string]: string | number | boolean;
-}
 
 export interface SArgumentable {
     args: Args;

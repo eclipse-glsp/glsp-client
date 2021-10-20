@@ -13,10 +13,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { Point } from '@eclipse-glsp/protocol';
 import { injectable } from 'inversify';
 import { Classes, VNode } from 'snabbdom';
-import { Point, PolylineEdgeView, RenderingContext, SEdge, svg } from 'sprotty';
-
+import { PolylineEdgeView, RenderingContext, SEdge, svg } from 'sprotty';
 import { EdgePadding } from '../utils/argument-utils';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

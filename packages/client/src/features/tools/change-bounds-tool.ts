@@ -13,10 +13,18 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { inject, injectable, optional } from 'inversify';
 import {
     Action,
     Bounds,
+    ChangeBoundsOperation,
+    ChangeRoutingPointsOperation,
+    CompoundOperation,
+    ElementAndRoutingPoints,
+    Operation,
+    Point
+} from '@eclipse-glsp/protocol';
+import { inject, injectable, optional } from 'inversify';
+import {
     BoundsAware,
     Dimension,
     EdgeRouterRegistry,
@@ -26,7 +34,6 @@ import {
     isSelected,
     isViewport,
     MouseListener,
-    Point,
     SChildElement,
     SConnectableElement,
     SetBoundsAction,
@@ -36,13 +43,6 @@ import {
     TYPES
 } from 'sprotty';
 import { DragAwareMouseListener } from '../../base/drag-aware-mouse-listener';
-import {
-    ChangeBoundsOperation,
-    ChangeRoutingPointsOperation,
-    CompoundOperation,
-    ElementAndRoutingPoints,
-    Operation
-} from '../../base/operations/operation';
 import { GLSP_TYPES } from '../../base/types';
 import { isValidMove, isValidSize, WriteablePoint } from '../../utils/layout-utils';
 import {
@@ -214,7 +214,8 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements Sele
         });
 
         const selectionSet: Set<SModelElement & BoundsAware> = new Set(selectedElements);
-        selectedElements.filter(element => !this.isChildOfSelected(selectionSet, element))
+        selectedElements
+            .filter(element => !this.isChildOfSelected(selectionSet, element))
             .map(element => this.createElementAndBounds(element))
             .forEach(bounds => newBounds.push(...bounds));
 

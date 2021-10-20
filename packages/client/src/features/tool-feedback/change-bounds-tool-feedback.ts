@@ -13,10 +13,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { Action, Point } from '@eclipse-glsp/protocol';
 import { inject, injectable } from 'inversify';
 import { VNode } from 'snabbdom';
 import {
-    Action,
     CommandExecutionContext,
     CommandReturn,
     ElementMove,
@@ -26,7 +26,6 @@ import {
     isViewport,
     MouseListener,
     MoveAction,
-    Point,
     SChildElement,
     SModelElement,
     SModelRoot,
@@ -128,9 +127,7 @@ export class FeedbackMoveMouseListener extends MouseListener {
     }
 
     protected collectStartPositions(root: SModelRoot): void {
-        const selectedElements = root.index
-            .all()
-            .filter(element => isSelectable(element) && element.selected);
+        const selectedElements = root.index.all().filter(element => isSelectable(element) && element.selected);
         const elementsSet = new Set(selectedElements);
         selectedElements
             .filter(element => !this.isChildOfSelected(elementsSet, element))

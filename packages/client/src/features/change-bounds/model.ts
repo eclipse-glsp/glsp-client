@@ -69,7 +69,6 @@ export class SResizeHandle extends SChildElement implements Hoverable {
     isNeSwResize(): boolean {
         return this.location === ResizeHandleLocation.TopRight || this.location === ResizeHandleLocation.BottomLeft;
     }
-
 }
 
 export function addResizeHandles(element: SParentElement): void {

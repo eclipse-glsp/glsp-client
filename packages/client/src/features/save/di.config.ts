@@ -16,7 +16,7 @@
 import { ContainerModule } from 'inversify';
 import { TYPES } from 'sprotty';
 
-import { SaveModelKeyboardListener } from './save';
+import { SaveModelKeyboardListener } from './save-keylistener';
 
 /**
  * This module is not required the diagram is deployed in Theia with the `GLSPDiagramWidget`
