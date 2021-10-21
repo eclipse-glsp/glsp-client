@@ -86,7 +86,7 @@ export interface ResponseAction extends Action {
 }
 
 export function isResponseAction(action?: any): action is ResponseAction {
-    return isAction(action) && isString(action, 'responseId');
+    return isAction(action) && 'responseId' in action && typeof action['responseId'] === 'string' && action['responseId'] !== '';
 }
 
 /**
