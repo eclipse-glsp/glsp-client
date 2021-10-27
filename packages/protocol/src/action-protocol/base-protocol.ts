@@ -20,7 +20,7 @@ import { JsonAny } from './types';
 /**
  * A general message serves as an envelope carrying an action to be transmitted between the client and the server via a DiagramServer.
  */
-export interface ActionMessage {
+export interface ActionMessage<A extends Action = Action> {
     /**
      * Used to identify a specific client session.
      */
@@ -28,7 +28,7 @@ export interface ActionMessage {
     /**
      * The action to execute.
      */
-    action: Action;
+    action: A;
 }
 
 export function isActionMessage(object: any): object is ActionMessage {
