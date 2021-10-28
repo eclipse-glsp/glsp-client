@@ -35,6 +35,10 @@ export function isActionMessage(object: any): object is ActionMessage {
     return object !== undefined && isString(object, 'clientId') && isAction(object['action']);
 }
 
+export function isActionMessageOfType<A extends Action>(object: any, guard: (action: any) => action is A): object is ActionMessage<A> {
+    return isActionMessage(object) && guard(object.action);
+}
+
 /**
  * An action is a declarative description of a behavior that shall be invoked by the receiver upon receipt of the action.
  * It is a plain data structure, and as such transferable between server and client. An action must never contain actual
