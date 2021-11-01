@@ -21,7 +21,7 @@ const appRoot = path.resolve(__dirname, 'app');
 var CircularDependencyPlugin = require('circular-dependency-plugin');
 
 module.exports = {
-    entry: ['core-js/es6/map', 'core-js/es6/promise', 'core-js/es6/string', 'core-js/es6/symbol', path.resolve(buildRoot, 'index')],
+    entry: [path.resolve(buildRoot, 'index')],
     output: {
         filename: 'bundle.js',
         path: appRoot
@@ -58,6 +58,9 @@ module.exports = {
         ]
     },
     node: { fs: 'empty', net: 'empty' },
+    stats: {
+        warningsFilter: [/Failed to parse source map/]
+    },
     plugins: [
         new CircularDependencyPlugin({
             exclude: /(node_modules|examples)\/./,

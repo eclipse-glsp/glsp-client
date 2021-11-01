@@ -13,11 +13,9 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import '../../../css/tool-palette.css';
-
 import { ContainerModule } from 'inversify';
 import { configureActionHandler, EnableDefaultToolsAction, TYPES } from 'sprotty';
-
+import '../../../css/tool-palette.css';
 import { EnableToolPaletteAction, ToolPalette } from './tool-palette';
 
 const toolPaletteModule = new ContainerModule((bind, _unbind, isBound, rebind) => {

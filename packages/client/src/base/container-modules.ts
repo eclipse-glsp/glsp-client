@@ -15,39 +15,38 @@
  ********************************************************************************/
 
 import { Container, ContainerModule } from 'inversify';
-import { defaultModule } from 'sprotty';
 import {
     boundsModule,
     buttonModule,
+    defaultModule,
     edgeIntersectionModule,
     edgeLayoutModule,
     expandModule,
     exportModule,
     fadeModule,
-    glspCommandPaletteModule,
-    glspContextMenuModule,
-    glspDecorationModule,
-    glspEditLabelModule,
-    glspHoverModule,
-    glspMouseToolModule,
-    glspSelectModule,
-    glspServerCopyPasteModule,
-    glspViewportModule,
     labelEditUiModule,
-    layoutCommandsModule,
-    markerNavigatorModule,
-    modelHintsModule,
     modelSourceModule,
-    modelSourceWatcherModule,
-    navigationModule,
     openModule,
-    paletteModule,
     routingModule,
-    toolFeedbackModule,
-    toolsModule,
-    validationModule,
     zorderModule
-} from '../';
+} from 'sprotty';
+import glspCommandPaletteModule from '../features/command-palette/di.config';
+import glspContextMenuModule from '../features/context-menu/di.config';
+import { glspServerCopyPasteModule } from '../features/copy-paste/di.config';
+import glspDecorationModule from '../features/decoration/di.config';
+import glspEditLabelModule from '../features/edit-label/di.config';
+import modelHintsModule from '../features/hints/di.config';
+import glspHoverModule from '../features/hover/di.config';
+import layoutCommandsModule from '../features/layout/di.config';
+import modelSourceWatcherModule from '../features/model-source-watcher/di.config';
+import glspMouseToolModule from '../features/mouse-tool/di.config';
+import { navigationModule } from '../features/navigation/di.config';
+import glspSelectModule from '../features/select/di.config';
+import toolFeedbackModule from '../features/tool-feedback/di.config';
+import toolPaletteModule from '../features/tool-palette/di.config';
+import toolsModule from '../features/tools/di.config';
+import { markerNavigatorModule, validationModule } from '../features/validation/di.config';
+import glspViewportModule from '../features/viewport/di.config';
 import defaultGLSPModule from './di.config';
 
 export const DEFAULT_MODULES = [
@@ -77,7 +76,7 @@ export const DEFAULT_MODULES = [
     modelSourceWatcherModule,
     navigationModule,
     openModule,
-    paletteModule,
+    toolPaletteModule,
     routingModule,
     toolFeedbackModule,
     toolsModule,
