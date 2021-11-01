@@ -55,7 +55,7 @@ export class SetEditValidationResultAction implements ResponseAction {
 }
 
 export function isSetEditValidationResultAction(action: Action): action is SetEditValidationResultAction {
-    return isActionKind(action, SetEditValidationResultAction.KIND) && isObject(action, 'status') && isString(action, 'response');
+    return isActionKind(action, SetEditValidationResultAction.KIND) && isObject(action, 'status') && isString(action, 'responseId');
 }
 
 export class ApplyLabelEditOperation implements Operation {
