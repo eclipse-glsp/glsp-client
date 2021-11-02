@@ -88,6 +88,7 @@ export * from './features/tools/delete-tool';
 export * from './features/tools/edge-creation-tool';
 export * from './features/tools/edge-edit-tool';
 export * from './features/tools/node-creation-tool';
+export * from './features/tools/marquee-behavior';
 export * from './features/validation/issue-marker';
 export * from './features/validation/marker-navigator';
 export * from './features/validation/validate';

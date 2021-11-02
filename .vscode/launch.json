@@ -6,9 +6,12 @@
       "request": "launch",
       "name": "Run current test",
       "program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
-      "args": ["--opts", "${workspaceFolder}/configs/mocha.opts", "${file}"],
+      "args": ["--opts", "${workspaceFolder}/packages/client/mocha.opts", "${file}"],
       "console": "integratedTerminal",
-      "internalConsoleOptions": "neverOpen"
+      "internalConsoleOptions": "neverOpen",
+      "env": {
+        "TS_NODE_PROJECT": "${workspaceFolder}/packages/client/tsconfig.json"
+      }
     },
     {
       "type": "node",
@@ -17,9 +20,12 @@
       "program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
       "args": [
         "--opts",
-        "${workspaceFolder}/configs/mocha.opts",
-        "${workspaceFolder}/src/**/*.spec.ts"
+        "${workspaceFolder}/packages/client/mocha.opts",
+        "${workspaceFolder}/packages/client/src/**/*.spec.ts"
       ],
+      "env": {
+        "TS_NODE_PROJECT": "${workspaceFolder}/packages/client/tsconfig.json"
+      },
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen"
     }
