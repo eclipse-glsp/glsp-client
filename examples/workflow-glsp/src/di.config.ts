@@ -18,7 +18,6 @@ import {
     configureModelElement,
     ConsoleLogger,
     createClientContainer,
-    DefaultTypes,
     DeleteElementContextMenuItemProvider,
     DiamondNodeView,
     editLabelFeature,
@@ -36,6 +35,7 @@ import {
     StructureCompartmentView,
     TYPES
 } from '@eclipse-glsp/client';
+import { DefaultTypes } from '@eclipse-glsp/protocol';
 import 'balloon-css/balloon.min.css';
 import { Container, ContainerModule } from 'inversify';
 import 'sprotty/css/edit-label.css';

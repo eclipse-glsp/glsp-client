@@ -14,9 +14,8 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 export * from './base-view-module';
-export * from './default-types';
+export * from './compartments';
 export * from './glsp-edge-view';
 export * from './issue-marker-view';
 export * from './rounded-corner';
 export * from './rounded-corner-view';
-export * from './compartments';

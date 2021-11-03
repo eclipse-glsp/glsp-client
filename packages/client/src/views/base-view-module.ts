@@ -13,6 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { DefaultTypes } from '@eclipse-glsp/protocol';
 import { ContainerModule, interfaces } from 'inversify';
 import {
     CircularNode,
@@ -45,9 +46,7 @@ import {
     SvgViewportView,
     ViewportRootElement
 } from 'sprotty';
-
 import { GLSPGraph } from '../lib/model';
-import { DefaultTypes } from './default-types';
 import { GEdgeView } from './glsp-edge-view';
 import { GIssueMarkerView } from './issue-marker-view';
 import { RoundedCornerNodeView } from './rounded-corner-view';

@@ -17,6 +17,7 @@ export * from './action-protocol';
 export * from './glsp-client';
 export * from './jsonrpc/base-jsonrpc-glsp-client';
 export * from './jsonrpc/glsp-jsonrpc-client';
+export * from './types/default-types';
 export * from './utils/array-util';
 export * from './utils/launch-util';
 export * from './utils/typeguard-util';
