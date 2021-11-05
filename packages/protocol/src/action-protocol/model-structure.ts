@@ -13,6 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { isString } from '../utils/typeguard-util';
 import { Bounds } from './types';
 
 /**
@@ -27,10 +28,18 @@ export interface SModelElementSchema {
     cssClasses?: string[];
 }
 
+export function isSModelElementSchema(schema: any): schema is SModelElementSchema {
+    return schema !== undefined && typeof schema === 'object' && isString(schema, 'type') && isString(schema, 'id');
+}
+
 /**
  * Serializable schema for the root element of the model tree.
  */
 export interface SModelRootSchema extends SModelElementSchema {
     canvasBounds?: Bounds;
     revision?: number;
+}
+
+export function isSModelRootSchema(schema: any): schema is SModelRootSchema {
+    return isSModelElementSchema(schema) && !('children' in schema);
 }

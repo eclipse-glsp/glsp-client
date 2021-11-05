@@ -16,6 +16,7 @@
 import { isNumber, isString } from '../utils/typeguard-util';
 import { Action, isActionKind } from './base-protocol';
 
+export type ServerSeverity = 'NONE' | 'INFO' | 'WARNING' | 'ERROR' | 'FATAL' | 'OK';
 /**
  * This action is typically sent by the server to signal a state change. This action extends the corresponding Sprotty action to include
  * a timeout. If a timeout is given the respective status should disappear after the timeout is reached.
@@ -23,25 +24,12 @@ import { Action, isActionKind } from './base-protocol';
 export class GLSPServerStatusAction implements Action {
     static KIND = 'serverStatus';
 
-    /**
-     * The kind of the action.
-     */
-    kind = GLSPServerStatusAction.KIND;
-
-    /**
-     * The message describing the status.
-     */
-    severity: string;
-
-    /**
-     * The severity of the status.
-     */
-    message: string;
-
-    /**
-     * Timeout after which a displayed status disappears.
-     */
-    timeout = 1;
+    constructor(
+        public severity: ServerSeverity,
+        public message: string,
+        public timeout = -1,
+        readonly kind = GLSPServerStatusAction.KIND
+    ) {}
 }
 
 export function isGLSPServerStatusAction(action: any): action is GLSPServerStatusAction {
@@ -58,30 +46,13 @@ export function isGLSPServerStatusAction(action: any): action is GLSPServerStatu
 export class ServerMessageAction implements Action {
     static KIND = 'serverMessage';
 
-    /**
-     * The kind of the action.
-     */
-    kind = ServerMessageAction.KIND;
-
-    /**
-     * The severity of the message.
-     */
-    severity: 'NONE' | 'INFO' | 'WARNING' | 'ERROR' | 'FATAL';
-
-    /**
-     * The message text.
-     */
-    message: string;
-
-    /**
-     * Further details on the message.
-     */
-    details = '';
-
-    /**
-     * Timeout after which a displayed message disappears.
-     */
-    timeout = -1;
+    constructor(
+        public severity: ServerSeverity,
+        public message: string,
+        public details?: string,
+        public timeout = -1,
+        readonly kind = ServerMessageAction.KIND
+    ) {}
 }
 
 export function isServerMessageAction(action?: any): action is ServerMessageAction {
@@ -89,7 +60,6 @@ export function isServerMessageAction(action?: any): action is ServerMessageActi
         isActionKind(action, ServerMessageAction.KIND) &&
         isString(action, 'severity') &&
         isString(action, 'message') &&
-        isString(action, 'details') &&
         isNumber(action, 'timeout')
     );
 }
