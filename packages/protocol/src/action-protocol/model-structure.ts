@@ -41,5 +41,5 @@ export interface SModelRootSchema extends SModelElementSchema {
 }
 
 export function isSModelRootSchema(schema: any): schema is SModelRootSchema {
-    return isSModelElementSchema(schema) && !('children' in schema);
+    return isSModelElementSchema(schema) && !('parent' in schema);
 }
