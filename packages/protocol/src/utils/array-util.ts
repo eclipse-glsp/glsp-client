@@ -13,6 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+export type MaybeArray<T> = T | T[];
 
 export function remove<T>(array: T[], value: T): boolean {
     const index = array.indexOf(value);
@@ -21,6 +22,10 @@ export function remove<T>(array: T[], value: T): boolean {
         return true;
     }
     return false;
+}
+
+export function flatPush<T>(array: T[], toPush: MaybeArray<T>[]): void {
+    toPush.forEach(value => (Array.isArray(value) ? array.push(...value) : array.push(value)));
 }
 
 export function distinctAdd<T>(array: T[], value: T): boolean {

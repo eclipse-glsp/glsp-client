@@ -29,15 +29,27 @@ export interface Point {
     readonly y: number;
 }
 
+export const ORIGIN_POINT: Point = Object.freeze({
+    x: 0,
+    y: 0
+});
+
 export interface Dimension {
     readonly width: number;
     readonly height: number;
 }
 
+export const EMPTY_DIMENSION: Dimension = Object.freeze({
+    width: -1,
+    height: -1
+});
+
 /**
  * The bounds are the position (x, y) and dimension (width, height) of an object.
  */
 export interface Bounds extends Point, Dimension {}
+
+export const EMPTY_BOUNDS: Bounds = Object.freeze({ ...EMPTY_DIMENSION, ...ORIGIN_POINT });
 
 export interface ElementAndBounds {
     elementId: string;
