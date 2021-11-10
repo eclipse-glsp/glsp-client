@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action } from 'sprotty';
+import { RequestAction, ResponseAction } from '.';
 import { isArray } from '../utils/typeguard-util';
 import { isActionKind } from './base-protocol';
 
@@ -73,9 +73,9 @@ export interface EdgeTypeHint extends TypeHint {
  * The `RequestTypeHintsAction` is optional, but should usually be among the first messages sent from the client to the server after
  * receiving the model via RequestModelAction. The response is a {@link SetTypeHintsAction}.
  */
-export class RequestTypeHintsAction implements Action {
+export class RequestTypeHintsAction implements RequestAction<SetTypeHintsAction> {
     static readonly KIND = 'requestTypeHints';
-    constructor(public readonly diagramType?: string, public readonly kind: string = RequestTypeHintsAction.KIND) {}
+    constructor(public readonly requestId = '', public readonly kind: string = RequestTypeHintsAction.KIND) {}
 }
 
 export function isRequestTypeHintsAction(action: any): action is RequestTypeHintsAction {
@@ -85,11 +85,12 @@ export function isRequestTypeHintsAction(action: any): action is RequestTypeHint
 /**
  * Sent from the server to the client in order to provide hints certain modifications are allowed for a specific element type.
  */
-export class SetTypeHintsAction implements Action {
+export class SetTypeHintsAction implements ResponseAction {
     static readonly KIND = 'setTypeHints';
     constructor(
         public readonly shapeHints: ShapeTypeHint[],
         public readonly edgeHints: EdgeTypeHint[],
+        public readonly responseId = '',
         public readonly kind: string = SetTypeHintsAction.KIND
     ) {}
 }

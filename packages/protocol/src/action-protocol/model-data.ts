@@ -13,9 +13,9 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { isObject, isString } from '../utils/typeguard-util';
-import { Action, generateRequestId, isAction, isActionKind, RequestAction, ResponseAction } from './base-protocol';
-import { SModelElementSchema, SModelRootSchema } from './model-structure';
+import { isBoolean, isObject, isString } from '../utils/typeguard-util';
+import { Action, generateRequestId, isActionKind, RequestAction, ResponseAction } from './base-protocol';
+import { SModelRootSchema } from './model-structure';
 import { JsonPrimitive } from './types';
 
 /**
@@ -58,23 +58,11 @@ export class UpdateModelAction implements Action {
     static readonly KIND = 'updateModel';
     readonly kind = UpdateModelAction.KIND;
 
-    public readonly newRoot?: SModelRootSchema;
-    public readonly matches?: Match[];
-
-    constructor(input: SModelRootSchema | Match[], public readonly animate: boolean = true, public readonly cause?: Action) {
-        if ((input as SModelRootSchema).id !== undefined) {
-            this.newRoot = input as SModelRootSchema;
-        } else {
-            this.matches = input as Match[];
-        }
-    }
+    constructor(public readonly newRoot: SModelRootSchema, public readonly animate: boolean = true) {}
 }
 
-export interface Match {
-    left?: SModelElementSchema;
-    right?: SModelElementSchema;
-    leftParentId?: string;
-    rightParentId?: string;
+export function isUpdateModelAction(action: any): action is UpdateModelAction {
+    return isActionKind(action, UpdateModelAction.KIND) && isObject(action, 'newRoot') && isBoolean(action, 'animate');
 }
 
 export class ModelSourceChangedAction implements Action {
@@ -84,5 +72,5 @@ export class ModelSourceChangedAction implements Action {
 }
 
 export function isModelSourceChangedAction(action?: any): action is ModelSourceChangedAction {
-    return isAction(action) && isString(action, 'modelSourceName');
+    return isActionKind(action, ModelSourceChangedAction.KIND) && isString(action, 'modelSourceName');
 }

@@ -14,6 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { injectable } from 'inversify';
+import { RequestAction, ResponseAction } from '.';
 import { isArray } from '../utils/typeguard-util';
 import { Action, isActionKind } from './base-protocol';
 
@@ -48,9 +49,13 @@ export namespace MarkerKind {
 /**
  * Action to retrieve markers for the specified model elements. Sent from the client to the server.
  */
-export class RequestMarkersAction implements Action {
+export class RequestMarkersAction implements RequestAction<SetMarkersAction> {
     static readonly KIND = 'requestMarkers';
-    constructor(public readonly elementsIDs: string[] = [], public readonly kind = RequestMarkersAction.KIND) {}
+    constructor(
+        public readonly elementsIDs: string[] = [],
+        public readonly requestId = '',
+        public readonly kind = RequestMarkersAction.KIND
+    ) {}
 }
 
 export function isRequestMarkersAction(action: any): action is RequestMarkersAction {
@@ -60,9 +65,9 @@ export function isRequestMarkersAction(action: any): action is RequestMarkersAct
 /**
  * Response to the {@link RequestMarkersAction} containing all validation markers. Sent from the server to the client.
  */
-export class SetMarkersAction implements Action {
+export class SetMarkersAction implements ResponseAction {
     static readonly KIND = 'setMarkers';
-    constructor(public readonly markers: Marker[], public readonly kind = SetMarkersAction.KIND) {}
+    constructor(public readonly markers: Marker[], public readonly responseId = '', public readonly kind = SetMarkersAction.KIND) {}
 }
 
 export function isSetMarkersAction(action: any): action is SetMarkersAction {
