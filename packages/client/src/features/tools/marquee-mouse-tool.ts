@@ -34,7 +34,7 @@ import { getAbsolutePosition, toAbsoluteBounds } from '../../utils/viewpoint-uti
 import { CursorCSS, cursorFeedbackAction } from '../tool-feedback/css-feedback';
 import { RemoveMarqueeAction } from '../tool-feedback/marquee-tool-feedback';
 import { BaseGLSPTool } from './base-glsp-tool';
-import { IMarqueeBehavior, MarqueeUtil, TouchMarqueeBehavior } from './marquee-behavior';
+import { IMarqueeBehavior, MarqueeUtil } from './marquee-behavior';
 
 @injectable()
 export class MarqueeMouseTool extends BaseGLSPTool {
@@ -75,7 +75,7 @@ export class MarqueeMouseListener extends DragAwareMouseListener {
     constructor(domHelper: DOMHelper, root: SModelRoot, marqueeBehavior: IMarqueeBehavior | undefined) {
         super();
         this.domHelper = domHelper;
-        this.marqueeUtil = new MarqueeUtil(marqueeBehavior ?? new TouchMarqueeBehavior());
+        this.marqueeUtil = new MarqueeUtil(marqueeBehavior);
         this.nodes = Array.from(
             root.index
                 .all()
@@ -112,7 +112,7 @@ export class MarqueeMouseListener extends DragAwareMouseListener {
         this.marqueeUtil.updateCurrentPoint(getAbsolutePosition(target, event));
         if (this.isActive) {
             const nodeIdsSelected = this.nodes.filter(e => this.marqueeUtil.isNodeMarked(toAbsoluteBounds(e))).map(e => e.id);
-            const edgeIdsSelected = this.getMarkedEdges(target.root);
+            const edgeIdsSelected = this.edges.filter(e => this.isEdgeMarked(e)).map(e => this.domHelper.findSModelIdByDOMElement(e));
             const selected = nodeIdsSelected.concat(edgeIdsSelected);
             return [
                 new SelectAction([], Array.from(target.root.index.all().map(e => e.id))),
@@ -129,10 +129,6 @@ export class MarqueeMouseListener extends DragAwareMouseListener {
             return [new RemoveMarqueeAction()];
         }
         return [new RemoveMarqueeAction(), new EnableDefaultToolsAction()];
-    }
-
-    getMarkedEdges(root: SModelElement): string[] {
-        return this.edges.filter(e => this.isEdgeMarked(e)).map(e => this.domHelper.findSModelIdByDOMElement(e));
     }
 
     isEdgeMarked(element: SVGElement): boolean {

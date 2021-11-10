@@ -15,10 +15,10 @@
  ********************************************************************************/
 
 import { expect } from 'chai';
-import { IMarqueeBehavior, MarqueeUtil, TouchMarqueeBehavior } from './marquee-behavior';
+import { IMarqueeBehavior, MarqueeUtil } from './marquee-behavior';
 
 describe('MarqueeUtil', () => {
-    function initUtil(marqueeBehavior: IMarqueeBehavior): MarqueeUtil {
+    function initUtil(marqueeBehavior?: IMarqueeBehavior): MarqueeUtil {
         const util = new MarqueeUtil(marqueeBehavior);
         util.updateStartPoint({ x: 0, y: 0 });
         util.updateCurrentPoint({ x: 0, y: 0 });
@@ -29,7 +29,7 @@ describe('MarqueeUtil', () => {
         const node = { x: 20, y: 20, width: 200, height: 50 };
 
         it('touch element', () => {
-            const util = initUtil(new TouchMarqueeBehavior());
+            const util = initUtil();
             expect(util.isNodeMarked(node)).is.equals(false);
             util.updateCurrentPoint({ x: 30, y: 50 });
             expect(util.isNodeMarked(node)).is.equals(true);
@@ -40,7 +40,7 @@ describe('MarqueeUtil', () => {
         });
 
         it('touch element (reverse)', () => {
-            const util = initUtil(new TouchMarqueeBehavior());
+            const util = initUtil();
             expect(util.isNodeMarked(node)).is.equals(false);
             util.updateStartPoint({ x: 30, y: 50 });
             expect(util.isNodeMarked(node)).is.equals(true);
@@ -75,8 +75,8 @@ describe('MarqueeUtil', () => {
 
     describe('Edge marquee', () => {
         const edge = [
-            { x: 20, y: 20 },
-            { x: 40, y: 40 }
+            { x: 20, y: 40 },
+            { x: 40, y: 20 }
         ];
         const edge2 = [
             { x: 20, y: 20 },
@@ -85,11 +85,11 @@ describe('MarqueeUtil', () => {
         ];
 
         it('touch edge', () => {
-            const util = initUtil(new TouchMarqueeBehavior());
+            const util = initUtil();
             expect(util.isEdgeMarked(edge)).is.equals(false);
             expect(util.isEdgeMarked(edge2)).is.equals(false);
             util.updateCurrentPoint({ x: 20, y: 20 });
-            expect(util.isEdgeMarked(edge)).is.equals(true);
+            expect(util.isEdgeMarked(edge)).is.equals(false);
             expect(util.isEdgeMarked(edge2)).is.equals(true);
             util.updateCurrentPoint({ x: 30, y: 30 });
             expect(util.isEdgeMarked(edge)).is.equals(true);
@@ -103,11 +103,11 @@ describe('MarqueeUtil', () => {
         });
 
         it('touch edge (reverse)', () => {
-            const util = initUtil(new TouchMarqueeBehavior());
+            const util = initUtil();
             expect(util.isEdgeMarked(edge)).is.equals(false);
             expect(util.isEdgeMarked(edge2)).is.equals(false);
             util.updateStartPoint({ x: 20, y: 20 });
-            expect(util.isEdgeMarked(edge)).is.equals(true);
+            expect(util.isEdgeMarked(edge)).is.equals(false);
             expect(util.isEdgeMarked(edge2)).is.equals(true);
             util.updateStartPoint({ x: 30, y: 30 });
             expect(util.isEdgeMarked(edge)).is.equals(true);

@@ -15,7 +15,7 @@
  ********************************************************************************/
 
 import { Bounds, Point } from '@eclipse-glsp/protocol';
-import { injectable } from 'inversify';
+import { PointToPointLine } from 'sprotty';
 import { DrawMarqueeAction } from '../tool-feedback/marquee-tool-feedback';
 
 export interface IMarqueeBehavior {
@@ -23,17 +23,18 @@ export interface IMarqueeBehavior {
     readonly entireEdge: boolean;
 }
 
-@injectable()
-export class TouchMarqueeBehavior implements IMarqueeBehavior {
-    entireEdge = false;
-    entireElement = false;
-}
-
 export class MarqueeUtil {
     protected startPoint: Point;
     protected currentPoint: Point;
+    protected marqueeBehavior: IMarqueeBehavior;
 
-    constructor(protected readonly marqueeBehavior: IMarqueeBehavior) {}
+    constructor(marqueeBehavior?: IMarqueeBehavior) {
+        if (marqueeBehavior) {
+            this.marqueeBehavior = marqueeBehavior;
+        } else {
+            this.marqueeBehavior = { entireElement: false, entireEdge: false };
+        }
+    }
 
     updateStartPoint(position: Point): void {
         this.startPoint = position;
@@ -96,27 +97,19 @@ export class MarqueeUtil {
     }
 
     private isLineMarked(point1: Point, point2: Point): boolean {
+        const line = new PointToPointLine(point1, point2);
         return (
             this.pointInRect(point1) ||
             this.pointInRect(point2) ||
-            this.linesIntersect(point1, point2, this.startPoint, { x: this.startPoint.x, y: this.currentPoint.y }) ||
-            this.linesIntersect(point1, point2, this.startPoint, { x: this.currentPoint.x, y: this.startPoint.y }) ||
-            this.linesIntersect(point1, point2, { x: this.currentPoint.x, y: this.startPoint.y }, this.currentPoint) ||
-            this.linesIntersect(point1, point2, { x: this.startPoint.x, y: this.currentPoint.y }, this.currentPoint)
+            this.lineIntersect(line, this.startPoint, { x: this.startPoint.x, y: this.currentPoint.y }) ||
+            this.lineIntersect(line, this.startPoint, { x: this.currentPoint.x, y: this.startPoint.y }) ||
+            this.lineIntersect(line, { x: this.currentPoint.x, y: this.startPoint.y }, this.currentPoint) ||
+            this.lineIntersect(line, { x: this.startPoint.x, y: this.currentPoint.y }, this.currentPoint)
         );
     }
 
-    private linesIntersect(p1: Point, p2: Point, p3: Point, p4: Point): boolean {
-        const tCount = (p1.x - p3.x) * (p3.y - p4.y) - (p1.y - p3.y) * (p3.x - p4.x);
-        const tDenom = (p1.x - p2.x) * (p3.y - p4.y) - (p1.y - p2.y) * (p3.x - p4.x);
-        const t = tCount / tDenom;
-        const uCount = (p2.x - p1.x) * (p1.y - p3.y) - (p2.y - p1.y) * (p1.x - p3.x);
-        const uDenom = (p1.x - p2.x) * (p3.y - p4.y) - (p1.y - p2.y) * (p3.x - p4.x);
-        const u = uCount / uDenom;
-        if (t >= 0.0 && t <= 1.0 && u >= 0.0 && u <= 1.0) {
-            return true;
-        }
-        return false;
+    private lineIntersect(line: PointToPointLine, p1: Point, p2: Point): boolean {
+        return line.intersection(new PointToPointLine(p1, p2)) !== undefined;
     }
 
     private pointInRect(point: Point): boolean {
