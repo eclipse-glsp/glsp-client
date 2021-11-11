@@ -34,5 +34,6 @@ export const GLSP_TYPES = {
     ITool: Symbol.for('ITool'),
     IDefaultTool: Symbol.for('IDefaultTool'),
     IEditModeListener: Symbol.for('IEditModeListener'),
-    LayoutRegistration: Symbol.for('LayoutRegistration')
+    LayoutRegistration: Symbol.for('LayoutRegistration'),
+    IMarqueeBehavior: Symbol.for('IMarqueeBehavior')
 };
