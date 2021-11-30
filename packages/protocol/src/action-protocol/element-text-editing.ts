@@ -61,7 +61,7 @@ export function isSetEditValidationResultAction(action: Action): action is SetEd
 export class ApplyLabelEditOperation implements Operation {
     static KIND = 'EditLabel';
     kind = ApplyLabelEditOperation.KIND;
-    constructor(readonly labelId: string) {}
+    constructor(readonly labelId: string, readonly text: string) {}
 }
 
 export function isApplyLabelEditOperation(action: any): action is ApplyLabelEditOperation {
