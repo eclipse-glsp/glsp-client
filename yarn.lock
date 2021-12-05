@@ -5181,11 +5181,12 @@ sprintf-js@~1.0.2:
   resolved "https://registry.yarnpkg.com/sprintf-js/-/sprintf-js-1.0.3.tgz#04e6926f662895354f3dd015203633b857297e2c"
   integrity sha1-BOaSb2YolTVPPdAVIDYzuFcpfiw=
 
-sprotty@next:
-  version "0.10.0-next.4039435"
-  resolved "https://registry.yarnpkg.com/sprotty/-/sprotty-0.10.0-next.4039435.tgz#18b3b9d4073185bdc7467dd4330cfb089b033501"
-  integrity sha512-/8ranKdWSvI85EfKFDBCuhN0BbRdQG/ePaJTPfURlV7Czf5zx6xms1/k/btFQwVhtg8EHz+B0o/4/YR4QGPnoQ==
+sprotty@0.10.0:
+  version "0.10.0"
+  resolved "https://registry.yarnpkg.com/sprotty/-/sprotty-0.10.0.tgz#1c1d4fbce76127945d3bf5fb1e0f4995731a1271"
+  integrity sha512-Aicu0PEYulIFcI+FcFIydvwZu67+R0DqL60ZDIhkbre344uIlijwtOSoEyAwaihtODZAb4M9mFcrHb8qweRRwA==
   dependencies:
+    "@vscode/codicons" "^0.0.25"
     autocompleter "5.1.0"
     file-saver "2.0.2"
     inversify "^5.0.1"
