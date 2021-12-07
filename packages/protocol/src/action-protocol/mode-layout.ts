@@ -64,12 +64,10 @@ export function isComputedBoundsAction(action: any): action is ComputedBoundsAct
  */
 export class LayoutOperation implements Operation {
     static readonly KIND = 'layout';
-    readonly kind = LayoutOperation.KIND;
 
-    layoutType: string;
-    elementIds: string[];
+    constructor(public readonly elementIds: string[], public readonly kind = LayoutOperation.KIND) {}
 }
 
 export function isLayoutOperation(action: any): action is LayoutOperation {
-    return isActionKind(action, LayoutOperation.KIND) && isString(action, 'layoutType') && isArray(action, 'elementIds');
+    return isActionKind(action, LayoutOperation.KIND) && isArray(action, 'elementIds');
 }

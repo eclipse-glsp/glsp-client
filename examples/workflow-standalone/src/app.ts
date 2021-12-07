@@ -56,7 +56,7 @@ async function initialize(client: GLSPClient): Promise<void> {
             diagramType
         })
     );
-    actionDispatcher.dispatch(new RequestTypeHintsAction(diagramType));
+    actionDispatcher.dispatch(new RequestTypeHintsAction());
     actionDispatcher.dispatch(new EnableToolPaletteAction());
 }
 
