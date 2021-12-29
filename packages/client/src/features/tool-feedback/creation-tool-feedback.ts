@@ -38,7 +38,7 @@ import {
     SRoutableElement,
     TYPES
 } from 'sprotty';
-import { isRoutable } from '../../utils/smodel-util';
+import { isRoutable, BoundsAwareModelElement } from '../../utils/smodel-util';
 import { getAbsolutePosition, toAbsoluteBounds, toAbsolutePosition } from '../../utils/viewpoint-util';
 import { FeedbackCommand } from './model';
 
@@ -106,12 +106,12 @@ export class FeedbackEdgeEndMovingMouseListener extends MouseListener {
 
         const edge = edgeEnd.feedbackEdge;
         const position = getAbsolutePosition(edgeEnd, event);
-        const endAtMousePosition = findChildrenAtPosition(target.root, position).find(
+        const endAtMousePosition = findChildrenAtPosition(target.root, position).reverse().find(
             element => isConnectable(element) && element.canConnect(edge, 'target')
         );
 
         if (endAtMousePosition instanceof SConnectableElement && edge.source && isBoundsAware(edge.source)) {
-            const anchor = this.computeAbsoluteAnchor(endAtMousePosition, center(edge.source.bounds));
+            const anchor = this.computeAbsoluteAnchor(endAtMousePosition, center(toAbsoluteBounds(edge.source)));
             if (euclideanDistance(anchor, edgeEnd.position) > 1) {
                 return [new MoveAction([{ elementId: edgeEnd.id, toPosition: anchor }], false)];
             }
@@ -122,9 +122,10 @@ export class FeedbackEdgeEndMovingMouseListener extends MouseListener {
         return [];
     }
 
-    protected computeAbsoluteAnchor(element: SConnectableElement, referencePoint: Point, offset?: number): Point {
+    protected computeAbsoluteAnchor(element: SConnectableElement, absoluteReferencePoint: Point, offset?: number): Point {
+        const referencePointInParent = absoluteToParent(element, absoluteReferencePoint);
         const anchorComputer = this.anchorRegistry.get(PolylineEdgeRouter.KIND, element.anchorKind);
-        let anchor = anchorComputer.getAnchor(element, referencePoint, offset);
+        let anchor = anchorComputer.getAnchor(element, referencePointInParent, offset);
         // The anchor is computed in the local coordinate system of the element.
         // If the element is a nested child element we have to add the absolute position of its parent to the anchor.
         if (element.parent !== element.root) {
@@ -136,6 +137,33 @@ export class FeedbackEdgeEndMovingMouseListener extends MouseListener {
         }
         return anchor;
     }
+}
+
+/**
+ * Convert a point, specified in absolute coordinates, to a point relative
+ * to the parent of the specified child element.
+ * @param element the child element
+ * @param absolutePoint a point in absolute coordinates
+ * @returns the equivalent point, relative to the element's parent coordinates
+ */
+function absoluteToParent(element: BoundsAwareModelElement & SChildElement, absolutePoint: Point): Point{
+    if (isBoundsAware(element.parent)){
+        return absoluteToLocal(element.parent, absolutePoint);
+    }
+    // If the parent is not bounds-aware, assume it's at 0; 0 and proceed
+    return absoluteToLocal(element, absolutePoint);
+}
+
+/**
+ * Convert a point, specified in absolute coordinates, to a point relative
+ * to the specified element.
+ * @param element the element
+ * @param absolutePoint a point in absolute coordinates
+ * @returns the equivalent point, relative to the element's coordinates
+ */
+function absoluteToLocal(element: BoundsAwareModelElement, absolutePoint: Point): Point {
+    const absoluteElementBounds = toAbsoluteBounds(element);
+    return {x: absolutePoint.x - absoluteElementBounds.x, y: absolutePoint.y - absoluteElementBounds.y};
 }
 
 export function feedbackEdgeId(root: SModelRoot): string {

@@ -29,7 +29,7 @@ export class StructureCompartmentView extends ShapeView {
 
         return (
             <g>
-                <rect class-sprotty-comp={true} class-debug={true} x='0' y='0' width={model.size.width} height={model.size.height}></rect>
+                <rect class-sprotty-comp={true} class-debug={false} x='0' y='0' width={model.size.width} height={model.size.height}></rect>
                 {context.renderChildren(model)}
             </g>
         );
