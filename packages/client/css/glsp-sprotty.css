@@ -38,6 +38,7 @@
     border: 1px solid;
     max-width: 400px;
     min-width: 100px;
+    z-index: 1;
 }
 
 .sprotty-popup > div {
@@ -50,23 +51,59 @@
 
 .sprotty-resize-handle {
     /* radius does not work in Firefox */
-    r: 7px;
+    r: 5px;
     fill: #884;
     stroke: none;
     z-index: 1000;
 }
 
 .sprotty-resize-handle.selected {
-    fill: #66a;
+    fill: rgb(41, 43, 46);
 }
 
 .sprotty-resize-handle.active {
-    fill: #0074e8;
+    fill: rgb(41, 43, 46);
 }
 
-.sprotty-resize-handle.mouseover {
-    stroke: #112;
-    stroke-width: 1;
+.sprotty-edge {
+    fill: none;
+    stroke-width: 1.5px;
+}
+
+.sprotty-edge.selected {
+    stroke-width: 1.5px;
+}
+
+.sprotty-edge.mouseover:not(.selected) {
+    stroke-width: 1.5px;
+}
+
+.sprotty-node:not(.selected) {
+    stroke-width: 0px;
+}
+
+.sprotty-node.mouseover:not(.selected),
+.sprotty-edge.mouseover:not(.selected) {
+    stroke: #1d1e1f;
+    stroke-width: 1.5px;
+    stroke-dashoffset: 5;
+    stroke-dasharray: 5, 5;
+    stroke-linecap: round;
+}
+
+.sprotty-node.selected,
+.sprotty-edge.selected {
+    stroke: orange;
+    stroke-width: 1.5px;
+    stroke-dashoffset: 5;
+    stroke-dasharray: 5, 5;
+    stroke-linecap: round;
+}
+
+.sprotty-edge.mouseover:not(.selected) .arrow,
+.sprotty-edge.selected .arrow {
+    stroke-dashoffset: none;
+    stroke-dasharray: none;
 }
 
 .node-creation-mode {
@@ -112,4 +149,73 @@
 
 .marquee-mode {
     cursor: crosshair;
+}
+
+.sprotty-node.marquee {
+    fill: lightgray;
+    opacity: 0.2;
+}
+
+.sprotty-edge > .sprotty-routing-handle {
+    r: 5px;
+    fill: #884;
+    stroke: none;
+    z-index: 1000;
+}
+
+.sprotty-edge > .sprotty-routing-handle[data-kind='line'] {
+    opacity: 0.35;
+}
+
+.sprotty-edge > .sprotty-routing-handle.selected {
+    fill: #66a;
+}
+
+.sprotty-edge > .sprotty-routing-handle.mouseover {
+    stroke: #66a;
+    stroke-width: 1;
+}
+
+.sprotty-missing {
+    stroke-width: 1;
+    stroke: #f00;
+    fill: #f00;
+    font-size: 14pt;
+    text-anchor: middle;
+}
+
+g .movement-not-allowed > .sprotty-node {
+    stroke: var(--glsp-error-foreground) !important;
+}
+
+.sprotty-resize-handle.movement-not-allowed {
+    stroke: var(--glsp-error-foreground) !important;
+    fill: var(--glsp-error-foreground) !important;
+}
+
+.error > .sprotty-node {
+    filter: drop-shadow(0px 0px 2px var(--glsp-error-foreground)) !important;
+}
+
+.warning > .sprotty-node {
+    filter: drop-shadow(0px 0px 2px var(--glsp-warning-foreground)) !important;
+}
+
+.info > .sprotty-node {
+    filter: drop-shadow(0px 0px 2px var(--glsp-info-foreground)) !important;
+}
+
+svg {
+    border-style: solid;
+    border-width: 1px;
+    border-color: #bbb;
+}
+
+text {
+    stroke-width: 0;
+    stroke: #000;
+    fill: #000;
+    font-family: sans-serif;
+    font-size: 8pt;
+    text-anchor: middle;
 }
