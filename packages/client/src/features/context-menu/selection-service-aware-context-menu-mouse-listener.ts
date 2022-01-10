@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2021 EclipseSource and others.
+ * Copyright (c) 2019-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -24,7 +24,7 @@ import {
     SModelElement,
     TYPES
 } from 'sprotty';
-
+import { FocusStateChangedAction } from '../../base/actions/focus-change-action';
 import { GLSP_TYPES } from '../../base/types';
 import { SelectionService } from '../select/selection-service';
 
@@ -34,18 +34,46 @@ export class SelectionServiceAwareContextMenuMouseListener extends MouseListener
     @inject(TYPES.IContextMenuProviderRegistry) @optional() protected readonly menuProvider: ContextMenuProviderRegistry;
     @inject(GLSP_TYPES.SelectionService) protected selectionService: SelectionService;
 
+    /**
+     * Opens the context menu on right-click.
+     */
     mouseDown(target: SModelElement, event: MouseEvent): (Action | Promise<Action>)[] {
         if (event.button === 2 && this.contextMenuService && this.menuProvider) {
-            const mousePosition = { x: event.x, y: event.y };
-            const selectableTarget = findParentByFeature(target, isSelectable);
-            if (selectableTarget) {
-                selectableTarget.selected = true;
-                this.selectionService.updateSelection(target.root, [selectableTarget.id], []);
-            }
-            Promise.all([this.contextMenuService(), this.menuProvider.getItems(target.root, mousePosition)]).then(
-                ([menuService, menuItems]) => menuService.show(menuItems, mousePosition)
-            );
+            return this.openContextMenu(event, target);
         }
         return [];
+    }
+
+    /**
+     * Opens the context menu.
+     *
+     *   - query the element on the click-target
+     *   - select the element
+     *   - query the context menu service and the context menu elements
+     *   - show the context menu
+     *   - send a focus state change to indicate that the diagram becomes inactive, once the context menu is shown
+     *
+     * When the context menu is closed, we focus the diagram element again.
+     */
+    protected openContextMenu(event: MouseEvent, target: SModelElement): Promise<Action>[] {
+        const mousePosition = { x: event.x, y: event.y };
+        const selectableTarget = findParentByFeature(target, isSelectable);
+        if (selectableTarget) {
+            selectableTarget.selected = true;
+            this.selectionService.updateSelection(target.root, [selectableTarget.id], []);
+        }
+
+        const result = Promise.all([this.contextMenuService(), this.menuProvider.getItems(target.root, mousePosition)])
+            .then(([menuService, menuItems]) => menuService.show(menuItems, mousePosition, () => this.focusEventTarget(event)))
+            .then((): Action => new FocusStateChangedAction(false));
+
+        return [result];
+    }
+
+    protected focusEventTarget(event: MouseEvent): void {
+        const svgElement = event.target instanceof SVGElement ? event.target : undefined;
+        if (svgElement) {
+            svgElement.focus();
+        }
     }
 }

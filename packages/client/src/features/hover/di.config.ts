@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020-2021 EclipseSource and others.
+ * Copyright (c) 2020-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -35,7 +35,8 @@ import { GlspHoverMouseListener } from './hover';
 
 const glspHoverModule = new ContainerModule((bind, _unbind, isBound) => {
     bind(TYPES.PopupVNodePostprocessor).to(PopupPositionUpdater).inSingletonScope();
-    bind(TYPES.MouseListener).to(GlspHoverMouseListener);
+    bind(GlspHoverMouseListener).toSelf().inSingletonScope();
+    bind(TYPES.MouseListener).toService(GlspHoverMouseListener);
     bind(TYPES.PopupMouseListener).to(PopupHoverMouseListener);
     bind(TYPES.KeyListener).to(HoverKeyListener);
     bind<HoverState>(TYPES.HoverState).toConstantValue({
@@ -55,6 +56,7 @@ const glspHoverModule = new ContainerModule((bind, _unbind, isBound) => {
     configureActionHandler(context, SetViewportCommand.KIND, ClosePopupActionHandler);
     configureActionHandler(context, MoveCommand.KIND, ClosePopupActionHandler);
     configureActionHandler(context, FocusStateChangedAction.KIND, ClosePopupActionHandler);
+    configureActionHandler(context, FocusStateChangedAction.KIND, GlspHoverMouseListener);
 });
 
 export default glspHoverModule;
