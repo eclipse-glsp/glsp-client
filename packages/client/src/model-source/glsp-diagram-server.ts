@@ -16,6 +16,7 @@
 import {
     Action,
     ComputedBoundsAction,
+    ExportSvgAction,
     GLSPClient,
     isRequestModelAction,
     isServerMessageAction,
@@ -103,6 +104,7 @@ export function isReceivedFromServer(action: Action): boolean {
 export function registerDefaultGLSPServerActions(registry: ActionHandlerRegistry, diagramServer: DiagramServer): void {
     registry.register(ServerMessageAction.KIND, diagramServer);
     registry.register(ServerStatusAction.KIND, diagramServer);
+    registry.register(ExportSvgAction.KIND, diagramServer);
 
     // Register an empty handler for SwitchEditMode, to avoid runtime exceptions.
     // We don't support SwitchEditMode, but Sprotty still sends those actions, so ignore them.
