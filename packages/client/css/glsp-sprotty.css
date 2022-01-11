@@ -74,7 +74,7 @@
     stroke-width: 1.5px;
 }
 
-.sprotty-edge.mouseover:not(.selected) {
+.sprotty-edge.mouseover:not(.selected) path {
     stroke-width: 1.5px;
 }
 
@@ -84,11 +84,7 @@
 
 .sprotty-node.mouseover:not(.selected),
 .sprotty-edge.mouseover:not(.selected) {
-    stroke: #1d1e1f;
-    stroke-width: 1.5px;
-    stroke-dashoffset: 5;
-    stroke-dasharray: 5, 5;
-    stroke-linecap: round;
+    opacity: 60%;
 }
 
 .sprotty-node.selected,
