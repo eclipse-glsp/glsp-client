@@ -22,7 +22,8 @@ import {
     isSelectable,
     MouseListener,
     SModelElement,
-    TYPES
+    TYPES,
+    ViewerOptions
 } from 'sprotty';
 import { FocusStateChangedAction } from '../../base/actions/focus-change-action';
 import { GLSP_TYPES } from '../../base/types';
@@ -33,6 +34,7 @@ export class SelectionServiceAwareContextMenuMouseListener extends MouseListener
     @inject(TYPES.IContextMenuServiceProvider) @optional() protected readonly contextMenuService: IContextMenuServiceProvider;
     @inject(TYPES.IContextMenuProviderRegistry) @optional() protected readonly menuProvider: ContextMenuProviderRegistry;
     @inject(GLSP_TYPES.SelectionService) protected selectionService: SelectionService;
+    @inject(TYPES.ViewerOptions) protected options: ViewerOptions;
 
     /**
      * Opens the context menu on right-click.
@@ -71,9 +73,10 @@ export class SelectionServiceAwareContextMenuMouseListener extends MouseListener
     }
 
     protected focusEventTarget(event: MouseEvent): void {
-        const svgElement = event.target instanceof SVGElement ? event.target : undefined;
-        if (svgElement) {
-            svgElement.focus();
+        const targetElement = event.target instanceof SVGElement ? event.target : undefined;
+        const svgParentElement = targetElement?.closest('svg');
+        if (svgParentElement) {
+            svgParentElement.focus();
         }
     }
 }
