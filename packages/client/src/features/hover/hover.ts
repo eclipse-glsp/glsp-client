@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020-2021 EclipseSource and others.
+ * Copyright (c) 2020-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -17,7 +17,10 @@ import { Action, Bounds, RequestPopupModelAction, SetPopupModelAction } from '@e
 import { injectable } from 'inversify';
 import {
     EMPTY_ROOT,
+    HoverFeedbackAction,
     HoverMouseListener,
+    IActionHandler,
+    ICommand,
     PreRenderedElementSchema,
     SIssueMarker,
     SIssueSeverity,
@@ -25,10 +28,31 @@ import {
     SModelElementSchema,
     SModelRootSchema
 } from 'sprotty';
+import { isFocusStateChangedAction } from '../../base/actions/focus-change-action';
 import { GIssueMarker } from '../validation/issue-marker';
 
 @injectable()
-export class GlspHoverMouseListener extends HoverMouseListener {
+export class GlspHoverMouseListener extends HoverMouseListener implements IActionHandler {
+    /**
+     * Stops mouse over timer and remove hover feedback, if focus is lost.
+     *
+     * This fixes strange effects that appear if the mouse left the element via e.g. a context menu,
+     * which explicitly removes the focus of the diagram.
+     * @see SelectionServiceAwareContextMenuMouseListener
+     * @param action should be a `FocusStateChangedAction`
+     * @returns a `HoverFeedbackAction` resetting the state, if the specified action indicates lost focus
+     */
+    handle(action: Action): void | Action | ICommand {
+        if (isFocusStateChangedAction(action) && !action.hasFocus) {
+            this.stopMouseOverTimer();
+            if (this.lastHoverFeedbackElementId) {
+                const previousTargetId = this.lastHoverFeedbackElementId;
+                this.lastHoverFeedbackElementId = undefined;
+                return new HoverFeedbackAction(previousTargetId, false);
+            }
+        }
+    }
+
     protected startMouseOverTimer(target: SModelElement, event: MouseEvent): Promise<Action> {
         this.stopMouseOverTimer();
         return new Promise(resolve => {
