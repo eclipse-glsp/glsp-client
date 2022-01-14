@@ -52,17 +52,17 @@
 .sprotty-resize-handle {
     /* radius does not work in Firefox */
     r: 5px;
-    fill: #884;
+    fill: #1d80d1;
     stroke: none;
     z-index: 1000;
 }
 
 .sprotty-resize-handle.selected {
-    fill: rgb(41, 43, 46);
+    fill: #1d80d1;
 }
 
 .sprotty-resize-handle.active {
-    fill: rgb(41, 43, 46);
+    fill: #1d80d1;
 }
 
 .sprotty-edge {
@@ -89,7 +89,7 @@
 
 .sprotty-node.selected,
 .sprotty-edge.selected {
-    stroke: orange;
+    stroke: #1d80d1;
     stroke-width: 1.5px;
     stroke-dashoffset: 5;
     stroke-dasharray: 5, 5;
@@ -154,7 +154,7 @@
 
 .sprotty-edge > .sprotty-routing-handle {
     r: 5px;
-    fill: #884;
+    fill: #1d80d1;
     stroke: none;
     z-index: 1000;
 }
@@ -164,11 +164,11 @@
 }
 
 .sprotty-edge > .sprotty-routing-handle.selected {
-    fill: #66a;
+    fill: #1d80d1;
 }
 
 .sprotty-edge > .sprotty-routing-handle.mouseover {
-    stroke: #66a;
+    stroke: #1d80d1a1;
     stroke-width: 1;
 }
 
