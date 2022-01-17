@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020-2021 EclipseSource and others.
+ * Copyright (c) 2020-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -53,20 +53,21 @@ export class TaskNode extends RectangularNode implements Nameable, WithEditableL
         nameFeature,
         withEditLabelFeature
     ];
-    name = '';
     duration?: number;
     taskType?: string;
     reference?: string;
 
     get editableLabel(): (SChildElement & EditableLabel) | undefined {
-        const headerComp = this.children.find(element => element.type === 'comp:header');
-        if (headerComp) {
-            const label = headerComp.children.find(element => element.type === 'label:heading');
-            if (label && isEditableLabel(label)) {
-                return label;
-            }
+        const label = this.children.find(element => element.type === 'label:heading');
+        if (label && isEditableLabel(label)) {
+            return label;
         }
         return undefined;
+    }
+
+    get name(): string {
+        const labelText = this.editableLabel?.text;
+        return labelText ? labelText : '<unknown>';
     }
 }
 
