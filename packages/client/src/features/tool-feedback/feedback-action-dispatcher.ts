@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2021 EclipseSource and others.
+ * Copyright (c) 2019-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -30,7 +30,7 @@ export interface IFeedbackEmitter {}
  * extending the `SModelRoot`. Therefore, tools can register themselves
  * as feedback emitters with actions they want to place for showing
  * feedback. This dispatcher will then re-establish all feedback actions
- * of the registered tools, whenever the `SModelRoot` has been set or updated.
+ * of the registered emitters, whenever the `SModelRoot` has been set or updated.
  */
 export interface IFeedbackActionDispatcher {
     /**
