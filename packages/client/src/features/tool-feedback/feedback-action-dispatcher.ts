@@ -30,7 +30,7 @@ export interface IFeedbackEmitter {}
  * extending the `SModelRoot`. Therefore, tools can register themselves
  * as feedback emitters with actions they want to place for showing
  * feedback. This dispatcher will then re-establish all feedback actions
- * of the registered tools, whenever the `SModelRoot` has been set or updated.
+ * of the registered emitters, whenever the `SModelRoot` has been set or updated.
  */
 export interface IFeedbackActionDispatcher {
     /**

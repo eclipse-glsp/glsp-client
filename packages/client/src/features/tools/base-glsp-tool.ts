@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020-2021 EclipseSource and others.
+ * Copyright (c) 2020-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -39,15 +39,15 @@ export abstract class BaseGLSPTool implements GLSPTool {
         return true;
     }
 
-    dispatchFeedback(actions: Action[], feedbackeEmitter?: IFeedbackEmitter): void {
-        this.feedbackDispatcher.registerFeedback(feedbackeEmitter ? feedbackeEmitter : this, actions);
-    }
-
     dispatchActions(actions: Action[]): void {
         this.actionDispatcher.dispatchAll(actions);
     }
 
-    deregisterFeedback(actions: Action[], feedbackeEmitter?: IFeedbackEmitter): void {
-        this.feedbackDispatcher.deregisterFeedback(feedbackeEmitter ? feedbackeEmitter : this, actions);
+    dispatchFeedback(actions: Action[], feedbackEmitter?: IFeedbackEmitter): void {
+        this.feedbackDispatcher.registerFeedback(feedbackEmitter ? feedbackEmitter : this, actions);
+    }
+
+    deregisterFeedback(actions: Action[], feedbackEmitter?: IFeedbackEmitter): void {
+        this.feedbackDispatcher.deregisterFeedback(feedbackEmitter ? feedbackEmitter : this, actions);
     }
 }
