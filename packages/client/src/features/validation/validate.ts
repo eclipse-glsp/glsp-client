@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2021 EclipseSource and others.
+ * Copyright (c) 2019-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -151,7 +151,7 @@ export class ApplyMarkersAction implements MarkersAction {
 @injectable()
 export class ApplyMarkersCommand extends FeedbackCommand {
     static KIND = 'applyMarkers';
-    readonly priority = 0;
+    override readonly priority = 0;
 
     constructor(@inject(TYPES.Action) protected action: ApplyMarkersAction) {
         super();
@@ -171,11 +171,11 @@ export class ApplyMarkersCommand extends FeedbackCommand {
         return context.root;
     }
 
-    undo(context: CommandExecutionContext): CommandReturn {
+    override undo(context: CommandExecutionContext): CommandReturn {
         return context.root;
     }
 
-    redo(context: CommandExecutionContext): CommandReturn {
+    override redo(context: CommandExecutionContext): CommandReturn {
         return this.execute(context);
     }
 }

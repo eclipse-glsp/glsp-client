@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2021 EclipseSource and others.
+ * Copyright (c) 2019-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -15,7 +15,6 @@
  ********************************************************************************/
 import { Action, isAction } from '@eclipse-glsp/protocol';
 import { injectable, multiInject, optional } from 'inversify';
-import { On, VNode, VNodeData } from 'snabbdom';
 import { MouseListener, MouseTool, SModelElement, SModelRoot, TYPES } from 'sprotty';
 import { getRank } from '../rank/model';
 
@@ -24,48 +23,35 @@ export interface IMouseTool {
     deregister(mouseListener: MouseListener): void;
 }
 
+/**  Custom helper type to declare the explicit mouse listener methods
+ * of {@link MouseListener} i.e. omitting the `decorate` method.
+ */
+type MouseListenerMethods = keyof Omit<MouseListener, 'decorate'>;
+
 @injectable()
 export class RankingMouseTool extends MouseTool implements IMouseTool {
     protected rankedMouseListeners: Map<number, MouseListener[]>;
 
-    constructor(@multiInject(TYPES.MouseListener) @optional() protected mouseListeners: MouseListener[] = []) {
+    constructor(@multiInject(TYPES.MouseListener) @optional() protected override mouseListeners: MouseListener[] = []) {
         super(mouseListeners);
         this.rankedMouseListeners = groupBy(mouseListeners, listener => getRank(listener));
     }
 
-    register(mouseListener: MouseListener): void {
+    override register(mouseListener: MouseListener): void {
         super.register(mouseListener);
         this.rankedMouseListeners = groupBy(this.mouseListeners, listener => getRank(listener));
     }
 
-    deregister(mouseListener: MouseListener): void {
+    override deregister(mouseListener: MouseListener): void {
         super.deregister(mouseListener);
         this.rankedMouseListeners = groupBy(this.mouseListeners, listener => getRank(listener));
-    }
-
-    decorate(vnode: VNode, element: SModelElement): VNode {
-        // we need to overwrite the existing event handlers registered by the original mouse tool
-        if (element instanceof SModelRoot) {
-            overwriteOn(vnode, 'mouseover', this.mouseOver.bind(this, element), element);
-            overwriteOn(vnode, 'mouseout', this.mouseOut.bind(this, element), element);
-            overwriteOn(vnode, 'mouseenter', this.mouseEnter.bind(this, element), element);
-            overwriteOn(vnode, 'mouseleave', this.mouseLeave.bind(this, element), element);
-            overwriteOn(vnode, 'mousedown', this.mouseDown.bind(this, element), element);
-            overwriteOn(vnode, 'mouseup', this.mouseUp.bind(this, element), element);
-            overwriteOn(vnode, 'mousemove', this.mouseMove.bind(this, element), element);
-            overwriteOn(vnode, 'wheel', this.wheel.bind(this, element), element);
-            overwriteOn(vnode, 'contextmenu', this.contextMenu.bind(this, element), element);
-            overwriteOn(vnode, 'dblclick', this.doubleClick.bind(this, element), element);
-        }
-        vnode = this.mouseListeners.reduce((n: VNode, listener: MouseListener) => listener.decorate(n, element), vnode);
-        return vnode;
     }
 
     contextMenu(model: SModelRoot, event: MouseEvent): void {
         event.preventDefault();
     }
 
-    protected handleEvent<K extends keyof MouseListener>(methodName: K, model: SModelRoot, event: MouseEvent): void {
+    protected override handleEvent<K extends MouseListenerMethods>(methodName: K, model: SModelRoot, event: MouseEvent): void {
         this.focusOnMouseEvent(methodName, model);
         const element = this.getTargetElement(model, event);
         if (!element) {
@@ -74,7 +60,7 @@ export class RankingMouseTool extends MouseTool implements IMouseTool {
         this.notifyListenersByRank(element, methodName, model, event);
     }
 
-    async notifyListenersByRank<K extends keyof MouseListener>(
+    async notifyListenersByRank<K extends MouseListenerMethods>(
         element: SModelElement,
         methodName: K,
         model: SModelRoot,
@@ -85,15 +71,13 @@ export class RankingMouseTool extends MouseTool implements IMouseTool {
         }
     }
 
-    async dispatchActions<K extends keyof MouseListener>(
+    async dispatchActions<K extends MouseListenerMethods>(
         mouseListeners: MouseListener[],
         methodName: K,
         element: SModelElement,
         event: MouseEvent
     ): Promise<void> {
-        const actions = mouseListeners
-            .map(listener => listener[methodName].apply(listener, [element, event]))
-            .reduce((a, b) => a.concat(b));
+        const actions = mouseListeners.map(listener => listener[methodName](element, event as WheelEvent)).reduce((a, b) => a.concat(b));
         if (actions.length > 0) {
             event.preventDefault();
             for (const actionOrPromise of actions) {
@@ -123,25 +107,4 @@ function groupBy<K, T>(array: Array<T>, keyFunction: (x: T) => K): Map<K, T[]> {
         return result;
     }, new Map<K, T[]>());
     return new Map<K, T[]>([...unsortedMap.entries()].sort());
-}
-
-function overwriteOn(vnode: VNode, event: string, listener: (model: SModelElement, _event: Event) => void, element: SModelElement): void {
-    const val = getOn(vnode);
-    // ignore any previous val[event] registrations
-    (val as any)[event] = [listener, element];
-}
-
-function getOn(vnode: VNode): On {
-    const data = getData(vnode);
-    if (!data.on) {
-        data.on = {};
-    }
-    return data.on;
-}
-
-function getData(vnode: VNode): VNodeData {
-    if (!vnode.data) {
-        vnode.data = {};
-    }
-    return vnode.data;
 }

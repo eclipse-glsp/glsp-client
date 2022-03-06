@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2021 EclipseSource and others.
+ * Copyright (c) 2019-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -99,7 +99,7 @@ export class EdgeCreationToolMouseListener extends DragAwareMouseListener {
         this.tool.dispatchFeedback([new RemoveFeedbackEdgeAction()]);
     }
 
-    nonDraggingMouseUp(_element: SModelElement, event: MouseEvent): Action[] {
+    override nonDraggingMouseUp(_element: SModelElement, event: MouseEvent): Action[] {
         const result: Action[] = [];
         if (event.button === 0) {
             if (!this.isSourceSelected()) {
@@ -134,7 +134,7 @@ export class EdgeCreationToolMouseListener extends DragAwareMouseListener {
         return this.target !== undefined;
     }
 
-    mouseOver(target: SModelElement, event: MouseEvent): Action[] {
+    override mouseOver(target: SModelElement, event: MouseEvent): Action[] {
         const newCurrentTarget = findParentByFeature(target, isConnectable);
         if (newCurrentTarget !== this.currentTarget) {
             this.currentTarget = newCurrentTarget;

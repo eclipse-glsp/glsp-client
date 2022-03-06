@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2021 EclipseSource and others.
+ * Copyright (c) 2021-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -28,8 +28,8 @@ import {
     TYPES
 } from 'sprotty';
 import { DOMHelper } from 'sprotty/lib/base/views/dom-helper';
-import { GLSP_TYPES } from '../../base/types';
 import { DragAwareMouseListener } from '../../base/drag-aware-mouse-listener';
+import { GLSP_TYPES } from '../../base/types';
 import { getAbsolutePosition, toAbsoluteBounds } from '../../utils/viewpoint-util';
 import { CursorCSS, cursorFeedbackAction } from '../tool-feedback/css-feedback';
 import { RemoveMarqueeAction } from '../tool-feedback/marquee-tool-feedback';
@@ -93,7 +93,7 @@ export class MarqueeMouseListener extends DragAwareMouseListener {
         this.edges = Array.from(document.querySelectorAll('g')).filter(e => sEdges.includes(this.domHelper.findSModelIdByDOMElement(e)));
     }
 
-    mouseDown(target: SModelElement, event: MouseEvent): Action[] {
+    override mouseDown(target: SModelElement, event: MouseEvent): Action[] {
         this.isActive = true;
         this.marqueeUtil.updateStartPoint(getAbsolutePosition(target, event));
         if (event.ctrlKey) {
@@ -108,7 +108,7 @@ export class MarqueeMouseListener extends DragAwareMouseListener {
         return [];
     }
 
-    mouseMove(target: SModelElement, event: MouseEvent): Action[] {
+    override mouseMove(target: SModelElement, event: MouseEvent): Action[] {
         this.marqueeUtil.updateCurrentPoint(getAbsolutePosition(target, event));
         if (this.isActive) {
             const nodeIdsSelected = this.nodes.filter(e => this.marqueeUtil.isNodeMarked(toAbsoluteBounds(e))).map(e => e.id);
@@ -123,7 +123,7 @@ export class MarqueeMouseListener extends DragAwareMouseListener {
         return [];
     }
 
-    mouseUp(target: SModelElement, event: MouseEvent): Action[] {
+    override mouseUp(target: SModelElement, event: MouseEvent): Action[] {
         this.isActive = false;
         if (event.shiftKey) {
             return [new RemoveMarqueeAction()];
@@ -144,7 +144,7 @@ export class MarqueeMouseListener extends DragAwareMouseListener {
 
 @injectable()
 export class ShiftKeyListener extends KeyListener {
-    keyUp(element: SModelElement, event: KeyboardEvent): Action[] {
+    override keyUp(element: SModelElement, event: KeyboardEvent): Action[] {
         if (event.shiftKey) {
             return [];
         }

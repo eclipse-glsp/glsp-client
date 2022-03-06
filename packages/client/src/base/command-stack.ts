@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2021 EclipseSource and others.
+ * Copyright (c) 2019-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -21,12 +21,12 @@ import { CommandStack, IActionDispatcher, SModelRoot, TYPES } from 'sprotty';
 export class GLSPCommandStack extends CommandStack {
     @inject(TYPES.IActionDispatcherProvider) protected actionDispatcher: () => Promise<IActionDispatcher>;
 
-    undo(): Promise<SModelRoot> {
+    override undo(): Promise<SModelRoot> {
         this.actionDispatcher().then(dispatcher => dispatcher.dispatch(new UndoOperation()));
         return this.thenUpdate();
     }
 
-    redo(): Promise<SModelRoot> {
+    override redo(): Promise<SModelRoot> {
         this.actionDispatcher().then(dispatcher => dispatcher.dispatch(new RedoOperation()));
         return this.thenUpdate();
     }

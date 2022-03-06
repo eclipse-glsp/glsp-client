@@ -38,14 +38,11 @@
     "vscode-ws-jsonrpc": "0.2.0"
   },
   "devDependencies": {
-    "@babel/runtime": "^7.11.2",
-    "@types/uuid": "3.4.5",
-    "rimraf": "^2.6.1",
-    "typescript": "^3.9.2"
+    "@types/uuid": "3.4.5"
   },
   "scripts": {
     "prepare": "yarn clean && yarn build && yarn lint",
-    "clean": "rimraf lib",
+    "clean": "rimraf lib tsconfig.tsbuildinfo ",
     "build": "tsc",
     "lint": "eslint -c ./.eslintrc.js --ext .ts ./src",
     "watch": "tsc -w"

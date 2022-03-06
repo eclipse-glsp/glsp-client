@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020-2021 EclipseSource and others.
+ * Copyright (c) 2020-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -28,8 +28,8 @@ export interface IGLSPToolManager extends ToolManager {
 export class GLSPToolManager extends ToolManager implements IGLSPToolManager, EditModeListener {
     protected editorContext?: EditorContextService;
 
-    @multiInject(GLSP_TYPES.ITool) @optional() tools: Tool[];
-    @multiInject(GLSP_TYPES.IDefaultTool) @optional() defaultTools: Tool[];
+    @multiInject(GLSP_TYPES.ITool) @optional() override tools: Tool[];
+    @multiInject(GLSP_TYPES.IDefaultTool) @optional() override defaultTools: Tool[];
     @inject(GLSP_TYPES.IEditorContextServiceProvider) contextServiceProvider: EditorContextServiceProvider;
 
     @postConstruct()
@@ -43,19 +43,19 @@ export class GLSPToolManager extends ToolManager implements IGLSPToolManager, Ed
         });
     }
 
-    registerDefaultTools(...tools: Tool[]): void {
+    override registerDefaultTools(...tools: Tool[]): void {
         for (const tool of tools) {
             distinctAdd(this.defaultTools, tool);
         }
     }
 
-    registerTools(...tools: Tool[]): void {
+    override registerTools(...tools: Tool[]): void {
         for (const tool of tools) {
             distinctAdd(this.tools, tool);
         }
     }
 
-    enable(toolIds: string[]): void {
+    override enable(toolIds: string[]): void {
         this.disableActiveTools();
         let tools = toolIds.map(id => this.tool(id));
         if (this.editorContext && this.editorContext.isReadonly) {
@@ -90,6 +90,6 @@ export interface GLSPTool extends Tool {
     isEditTool: boolean;
 }
 
-export function isGLSPTool(tool: Tool): tool is GLSPTool {
+export function isGLSPTool(tool: any): tool is GLSPTool {
     return 'isEditTool' in tool && typeof tool['isEditTool'] === 'boolean';
 }

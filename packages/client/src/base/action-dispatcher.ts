@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2021 EclipseSource and others.
+ * Copyright (c) 2019-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -23,7 +23,7 @@ export class GLSPActionDispatcher extends ActionDispatcher {
     protected initializedConstraint = false;
     @inject(ModelInitializationConstraint) protected initializationConstraint: ModelInitializationConstraint;
 
-    initialize(): Promise<void> {
+    override initialize(): Promise<void> {
         return super.initialize().then(() => this.startModelInitialization());
     }
 
@@ -39,13 +39,13 @@ export class GLSPActionDispatcher extends ActionDispatcher {
         return this.initializationConstraint.onInitialized();
     }
 
-    dispatch(action: Action): Promise<void> {
+    override dispatch(action: Action): Promise<void> {
         const result = super.dispatch(action);
         this.initializationConstraint.notifyDispatched(action);
         return result;
     }
 
-    protected handleAction(action: Action): Promise<void> {
+    protected override handleAction(action: Action): Promise<void> {
         if (isResponseAction(action)) {
             // clear timeout
             const timeout = this.timeouts.get(action.responseId);

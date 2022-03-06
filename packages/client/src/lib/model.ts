@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019 EclipseSource and others.
+ * Copyright (c) 2019-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -14,12 +14,11 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { exportFeature, SGraph, SModelElement, SModelElementSchema, viewportFeature } from 'sprotty/lib';
-
 import { Containable, containerFeature } from '../features/hints/model';
 import { Saveable, saveFeature } from '../features/save/model';
 
 export class GLSPGraph extends SGraph implements Saveable, Containable {
-    static readonly DEFAULT_FEATURES = [viewportFeature, exportFeature, saveFeature, containerFeature];
+    static override readonly DEFAULT_FEATURES = [viewportFeature, exportFeature, saveFeature, containerFeature];
     dirty = false;
     isContainableElement(input: string | SModelElement | SModelElementSchema): boolean {
         return true;

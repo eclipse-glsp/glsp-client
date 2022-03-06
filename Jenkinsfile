@@ -52,6 +52,7 @@ pipeline {
                 catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
                     container('node') {
                         timeout(30){
+                            sh "yarn install:only"
                             sh "yarn build"
                         }
                     }

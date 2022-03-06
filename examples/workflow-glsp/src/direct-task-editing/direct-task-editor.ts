@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020-2021 EclipseSource and others.
+ * Copyright (c) 2020-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -34,9 +34,8 @@ import {
     ViewerOptions
 } from '@eclipse-glsp/client';
 import { inject, injectable } from 'inversify';
-import { TYPES } from 'sprotty/lib';
+import { SModelIndex, TYPES } from 'sprotty/lib';
 import { DOMHelper } from 'sprotty/lib/base/views/dom-helper';
-
 import { isTaskNode, TaskNode } from '../model';
 
 export class ApplyTaskEditOperation implements Action {
@@ -68,7 +67,7 @@ export class TaskEditor extends AbstractUIExtension {
     protected domHelper: DOMHelper;
 
     @inject(TYPES.ILogger)
-    protected logger: ILogger;
+    protected override logger: ILogger;
 
     protected task: TaskNode;
     protected autoSuggestion: AutoCompleteWidget;
@@ -98,13 +97,13 @@ export class TaskEditor extends AbstractUIExtension {
         this.autoSuggestion.initialize(containerElement);
     }
 
-    show(root: Readonly<SModelRoot>, ...contextElementIds: string[]): void {
+    override show(root: Readonly<SModelRoot>, ...contextElementIds: string[]): void {
         super.show(root, ...contextElementIds);
         this.autoSuggestion.open(root);
     }
 
-    protected onBeforeShow(containerElement: HTMLElement, root: Readonly<SModelRoot>, ...contextElementIds: string[]): void {
-        this.task = getTask(contextElementIds, root)[0];
+    protected override onBeforeShow(containerElement: HTMLElement, root: Readonly<SModelRoot>, ...contextElementIds: string[]): void {
+        this.task = getTask(contextElementIds, root.index)[0];
         this.autoSuggestion.inputField.value = '';
         this.setPosition(containerElement);
     }
@@ -151,12 +150,12 @@ export class TaskEditor extends AbstractUIExtension {
         this.actionDispatcher.dispatch(action);
     }
 
-    hide(): void {
+    override hide(): void {
         this.autoSuggestion.dispose();
         super.hide();
     }
 }
 
-function getTask(ids: string[], element: SModelElement): TaskNode[] {
-    return ids.map(id => element.index.getById(id)).filter(isTaskNode);
+function getTask(ids: string[], index: SModelIndex<SModelElement>): TaskNode[] {
+    return ids.map(id => index.getById(id)).filter(element => element && isTaskNode(element)) as TaskNode[];
 }

@@ -30,7 +30,7 @@ import { MouseListener, SModelElement } from 'sprotty';
  */
 @injectable()
 export class SelectionClearingMouseListener extends MouseListener {
-    mouseDown(_target: SModelElement, event: MouseEvent): never[] {
+    override mouseDown(_target: SModelElement, event: MouseEvent): never[] {
         const selection = document.getSelection();
         // eslint-disable-next-line no-null/no-null
         if (selection === null) {

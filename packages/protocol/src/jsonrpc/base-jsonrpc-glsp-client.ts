@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2021 EclipseSource and others.
+ * Copyright (c) 2019-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -15,7 +15,6 @@
  ********************************************************************************/
 import { ActionMessage } from 'sprotty';
 import { Message, MessageConnection } from 'vscode-ws-jsonrpc';
-
 import {
     ActionMessageHandler,
     ClientState,
@@ -126,12 +125,12 @@ export class BaseJsonrpcGLSPClient implements GLSPClient {
 
     protected async doCreateConnection(): Promise<MessageConnection> {
         const connection = typeof this.connectionProvider === 'function' ? await this.connectionProvider() : this.connectionProvider;
-        connection.onError((data: [Error, Message, number]) => this.handleConnectionError(data[0], data[1], data[2]));
+        connection.onError(data => this.handleConnectionError(data[0], data[1], data[2]));
         connection.onClose(() => this.handleConnectionClosed());
         return connection;
     }
 
-    protected handleConnectionError(error: Error, message: Message, count: number): void {
+    protected handleConnectionError(error: Error, message: Message | undefined, count: number | undefined): void {
         JsonrpcGLSPClient.error('Connection to server is erroring. Shutting down server.', error);
         this.stop();
         this.state = ClientState.ServerError;

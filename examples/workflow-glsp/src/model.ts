@@ -40,7 +40,7 @@ import {
 } from '@eclipse-glsp/client';
 
 export class TaskNode extends RectangularNode implements Nameable, WithEditableLabel {
-    static readonly DEFAULT_FEATURES = [
+    static override readonly DEFAULT_FEATURES = [
         connectableFeature,
         deletableFeature,
         selectFeature,
@@ -81,11 +81,11 @@ export class WeightedEdge extends SEdge {
 
 export class ActivityNode extends DiamondNode {
     nodeType: string = ActivityNode.Type.UNDEFINED;
-    size = {
+    override size = {
         width: 32,
         height: 32
     };
-    strokeWidth = 1;
+    override strokeWidth = 1;
 }
 
 export namespace ActivityNode {
@@ -104,15 +104,15 @@ export class Icon extends SShapeElement implements LayoutContainer {
     static readonly DEFAULT_FEATURES = [boundsFeature, layoutContainerFeature, layoutableChildFeature, fadeFeature];
 
     layout: string;
-    layoutOptions?: { [key: string]: string | number | boolean };
-    size = {
+    override layoutOptions?: { [key: string]: string | number | boolean };
+    override size = {
         width: 32,
         height: 32
     };
 }
 
 export class CategoryNode extends RectangularNode implements Nameable, WithEditableLabel {
-    static readonly DEFAULT_FEATURES = [
+    static override readonly DEFAULT_FEATURES = [
         deletableFeature,
         selectFeature,
         boundsFeature,

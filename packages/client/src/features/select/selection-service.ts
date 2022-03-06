@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2021 EclipseSource and others.
+ * Copyright (c) 2019-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -20,8 +20,8 @@ import {
     CommandExecutionContext,
     ILogger,
     isSelectable,
-    isSelected,
     SChildElement,
+    Selectable,
     SelectAllCommand as SprottySelectAllCommand,
     SelectCommand as SprottySelectCommand,
     SModelElement,
@@ -31,6 +31,7 @@ import {
 } from 'sprotty';
 import { SModelRootListener } from '../../base/model/update-model-command';
 import { GLSP_TYPES } from '../../base/types';
+import { getMatchingElements } from '../../utils/smodel-util';
 import { IFeedbackActionDispatcher } from '../tool-feedback/feedback-action-dispatcher';
 import { SelectFeedbackAction } from './select-feedback-action';
 
@@ -122,8 +123,8 @@ export class SelectionService implements SModelRootListener {
         return this.root;
     }
 
-    getSelectedElements(): Readonly<SModelElement>[] {
-        return Array.from(this.root.index.all().filter(isSelected));
+    getSelectedElements(): Readonly<SModelElement & Selectable>[] {
+        return getMatchingElements(this.root.index, isSelectable);
     }
 
     /**

@@ -37,7 +37,7 @@ export class SelectionServiceAwareContextMenuMouseListener extends MouseListener
     /**
      * Opens the context menu on right-click.
      */
-    mouseDown(target: SModelElement, event: MouseEvent): (Action | Promise<Action>)[] {
+    override mouseDown(target: SModelElement, event: MouseEvent): (Action | Promise<Action>)[] {
         if (event.button === 2 && this.contextMenuService && this.menuProvider) {
             return this.openContextMenu(event, target);
         }

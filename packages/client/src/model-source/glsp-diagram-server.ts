@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2021 EclipseSource and others.
+ * Copyright (c) 2019-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -55,21 +55,21 @@ export class GLSPDiagramServer extends DiagramServer implements SourceUriAware {
         }
     }
 
-    initialize(registry: ActionHandlerRegistry): void {
+    override initialize(registry: ActionHandlerRegistry): void {
         registerDefaultGLSPServerActions(registry, this);
         if (!this.clientId) {
             this.clientId = this.viewerOptions.baseDiv;
         }
     }
 
-    handle(action: Action): void | ICommand | Action {
+    override handle(action: Action): void | ICommand | Action {
         if (isRequestModelAction(action) && action.options) {
             this._sourceUri = action.options.sourceUri as string;
         }
         return super.handle(action);
     }
 
-    handleLocally(action: Action): boolean {
+    override handleLocally(action: Action): boolean {
         if (isServerMessageAction(action)) {
             return this.handleServerMessageAction(action);
         }
@@ -84,7 +84,7 @@ export class GLSPDiagramServer extends DiagramServer implements SourceUriAware {
         return false;
     }
 
-    protected handleComputedBounds(_action: ComputedBoundsAction): boolean {
+    protected override handleComputedBounds(_action: ComputedBoundsAction): boolean {
         return true;
     }
 

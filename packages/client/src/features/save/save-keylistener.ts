@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2021 EclipseSource and others.
+ * Copyright (c) 2019-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -18,7 +18,7 @@ import { KeyListener, SModelRoot } from 'sprotty';
 import { matchesKeystroke } from 'sprotty/lib/utils/keyboard';
 
 export class SaveModelKeyboardListener extends KeyListener {
-    keyDown(_element: SModelRoot, event: KeyboardEvent): Action[] {
+    override keyDown(_element: SModelRoot, event: KeyboardEvent): Action[] {
         if (matchesKeystroke(event, 'KeyS', 'ctrlCmd')) {
             return [new SaveModelAction()];
         }

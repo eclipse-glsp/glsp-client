@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2021 EclipseSource and others.
+ * Copyright (c) 2019-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -138,7 +138,7 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements Sele
         super();
     }
 
-    mouseDown(target: SModelElement, event: MouseEvent): Action[] {
+    override mouseDown(target: SModelElement, event: MouseEvent): Action[] {
         super.mouseDown(target, event);
         if (event.button !== 0) {
             return [];
@@ -157,7 +157,7 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements Sele
         return [];
     }
 
-    mouseMove(target: SModelElement, event: MouseEvent): Action[] {
+    override mouseMove(target: SModelElement, event: MouseEvent): Action[] {
         super.mouseMove(target, event);
         if (this.isMouseDrag && this.activeResizeHandle) {
             // rely on the FeedbackMoveMouseListener to update the element bounds of selected elements
@@ -176,7 +176,7 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements Sele
         return [];
     }
 
-    draggingMouseUp(target: SModelElement, event: MouseEvent): Action[] {
+    override draggingMouseUp(target: SModelElement, event: MouseEvent): Action[] {
         if (this.lastDragPosition === undefined) {
             this.resetPosition();
             return [];
@@ -209,7 +209,7 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements Sele
         const result: Operation[] = [];
         const newBounds: ElementAndBounds[] = [];
         const selectedElements: (SModelElement & BoundsAware)[] = [];
-        forEachElement(target, isNonRoutableSelectedMovableBoundsAware, element => {
+        forEachElement(target.index, isNonRoutableSelectedMovableBoundsAware, element => {
             selectedElements.push(element);
         });
 
@@ -238,7 +238,7 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements Sele
     protected handleMoveRoutingPointsOnServer(target: SModelElement): Action[] {
         const result: Operation[] = [];
         const newRoutingPoints: ElementAndRoutingPoints[] = [];
-        forEachElement(target, isNonRoutableSelectedMovableBoundsAware, element => {
+        forEachElement(target.index, isNonRoutableSelectedMovableBoundsAware, element => {
             //  If client routing is enabled -> delegate routingpoints of connected edges to server
             if (this.tool.edgeRouterRegistry && element instanceof SConnectableElement) {
                 element.incomingEdges.map(toElementAndRoutingPoints).forEach(ear => newRoutingPoints.push(ear));

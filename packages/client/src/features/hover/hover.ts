@@ -53,7 +53,7 @@ export class GlspHoverMouseListener extends HoverMouseListener implements IActio
         }
     }
 
-    protected startMouseOverTimer(target: SModelElement, event: MouseEvent): Promise<Action> {
+    protected override startMouseOverTimer(target: SModelElement, event: MouseEvent): Promise<Action> {
         this.stopMouseOverTimer();
         return new Promise(resolve => {
             this.state.mouseOverTimer = window.setTimeout(() => {
