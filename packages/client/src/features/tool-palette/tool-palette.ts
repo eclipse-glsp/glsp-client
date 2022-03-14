@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2021 EclipseSource and others.
+ * Copyright (c) 2019-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -75,7 +75,7 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
         this.editorContext.register(this);
     }
 
-    initialize(): boolean {
+    override initialize(): boolean {
         if (!this.paletteItems) {
             return false;
         }
@@ -88,7 +88,7 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
         this.lastActivebutton = this.defaultToolsButton;
     }
 
-    protected onBeforeShow(_containerElement: HTMLElement, root: Readonly<SModelRoot>): void {
+    protected override onBeforeShow(_containerElement: HTMLElement, root: Readonly<SModelRoot>): void {
         this.modelRootId = root.id;
         this.containerElement.style.maxHeight = PALETTE_HEIGHT;
     }
@@ -410,10 +410,12 @@ export function createToolGroup(item: PaletteItem): HTMLElement {
 }
 
 export function changeCSSClass(element: Element, css: string): void {
+    // eslint-disable-next-line chai-friendly/no-unused-expressions
     element.classList.contains(css) ? element.classList.remove(css) : element.classList.add(css);
 }
 
 export function changeCodiconClass(element: Element, codiconId: string): void {
+    // eslint-disable-next-line chai-friendly/no-unused-expressions
     element.classList.contains(codiconCSSClasses(codiconId)[1])
         ? element.classList.remove(codiconCSSClasses(codiconId)[1])
         : element.classList.add(codiconCSSClasses(codiconId)[1]);

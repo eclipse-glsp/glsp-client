@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020-2021 EclipseSource and others.
+ * Copyright (c) 2020-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -180,9 +180,11 @@ export class NavigateToMarkerCommand extends Command {
         if (this.action.selectedElementIds !== undefined && this.action.selectedElementIds.length > 0) {
             selectedIds = this.action.selectedElementIds;
         } else {
-            selectedIds = Array.from(this.selectionService.getSelectedElementIDs());
+            return this.selectionService.getSelectedElements();
         }
-        return selectedIds.map(id => root.index.getById(id)).filter(isSelectable);
+        return selectedIds.map(id => root.index.getById(id)).filter(element => element !== undefined && isSelectable(element)) as Array<
+            SModelElement & Selectable
+        >;
     }
 
     protected getTarget(selected: SModelElement[], root: SModelRoot): SIssueMarker | undefined {
@@ -250,7 +252,7 @@ export class MarkerNavigatorContextMenuItemProvider implements IContextMenuItemP
 
 @injectable()
 export class MarkerNavigatorKeyListener extends KeyListener {
-    keyDown(_element: SModelElement, event: KeyboardEvent): Action[] {
+    override keyDown(_element: SModelElement, event: KeyboardEvent): Action[] {
         if (matchesKeystroke(event, 'Period', 'ctrl')) {
             return [new NavigateToMarkerAction('next')];
         } else if (matchesKeystroke(event, 'Comma', 'ctrl')) {

@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2021 EclipseSource and others.
+ * Copyright (c) 2019-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -185,7 +185,7 @@ class EdgeEditListener extends DragAwareMouseListener implements SelectionListen
         return this.routingHandle !== undefined;
     }
 
-    mouseDown(target: SModelElement, event: MouseEvent): Action[] {
+    override mouseDown(target: SModelElement, event: MouseEvent): Action[] {
         const result: Action[] = super.mouseDown(target, event);
         if (event.button === 0) {
             const reconnectHandle = findParentByFeature(target, isReconnectHandle);
@@ -208,7 +208,7 @@ class EdgeEditListener extends DragAwareMouseListener implements SelectionListen
         return result;
     }
 
-    mouseMove(target: SModelElement, event: MouseEvent): Action[] {
+    override mouseMove(target: SModelElement, event: MouseEvent): Action[] {
         const result = super.mouseMove(target, event);
         if (this.isMouseDrag) {
             // reset any selected connectables when we are dragging, maybe the user is just panning
@@ -217,7 +217,7 @@ class EdgeEditListener extends DragAwareMouseListener implements SelectionListen
         return result;
     }
 
-    mouseUp(target: SModelElement, event: MouseEvent): Action[] {
+    override mouseUp(target: SModelElement, event: MouseEvent): Action[] {
         const result = super.mouseUp(target, event);
         if (!this.isReadyToReconnect() && !this.isReadyToReroute()) {
             return result;
@@ -242,7 +242,7 @@ class EdgeEditListener extends DragAwareMouseListener implements SelectionListen
         return result;
     }
 
-    mouseOver(target: SModelElement, event: MouseEvent): Action[] {
+    override mouseOver(target: SModelElement, event: MouseEvent): Action[] {
         if (this.edge && this.isReconnecting()) {
             const currentTarget = findParentByFeature(target, isConnectable);
             if (!this.newConnectable || currentTarget !== this.newConnectable) {

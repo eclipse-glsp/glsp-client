@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2021 EclipseSource and others.
+ * Copyright (c) 2019-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -68,7 +68,7 @@ export class FeedbackAwareUpdateModelCommand extends UpdateModelCommand {
         this.actionHandlerRegistryProvider().then(registry => (this.actionHandlerRegistry = registry));
     }
 
-    protected performUpdate(oldRoot: SModelRoot, newRoot: SModelRoot, context: CommandExecutionContext): CommandReturn {
+    protected override performUpdate(oldRoot: SModelRoot, newRoot: SModelRoot, context: CommandExecutionContext): CommandReturn {
         if (this.feedbackActionDispatcher && this.actionHandlerRegistry) {
             // Create a temporary context wich defines the `newRoot` as `root`
             // This way we do not corrupt the redo/undo behavior of the super class

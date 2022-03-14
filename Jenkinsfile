@@ -4,7 +4,7 @@ kind: Pod
 spec:
   containers:
   - name: node
-    image: node:12.14.1
+    image: node:12.22.10
     tty: true
     resources:
       limits:
@@ -52,6 +52,7 @@ pipeline {
                 catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
                     container('node') {
                         timeout(30){
+                            sh "yarn install:only"
                             sh "yarn build"
                         }
                     }

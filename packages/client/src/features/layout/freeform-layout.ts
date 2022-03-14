@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2021 EclipseSource and others.
+ * Copyright (c) 2021-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -35,7 +35,7 @@ import { AbstractLayoutOptions } from 'sprotty/lib/features/bounds/layout-option
 export class FreeFormLayouter extends AbstractLayout<AbstractLayoutOptions> {
     static KIND = 'freeform';
 
-    layout(container: SParentElement & LayoutContainer, layouter: StatefulLayouter): void {
+    override layout(container: SParentElement & LayoutContainer, layouter: StatefulLayouter): void {
         const boundsData = layouter.getBoundsData(container);
         const options = this.getLayoutOptions(container);
         const childrenSize = this.getChildrenSize(container, options, layouter);
@@ -97,7 +97,7 @@ export class FreeFormLayouter extends AbstractLayout<AbstractLayoutOptions> {
         return currentOffset;
     }
 
-    protected getFinalContainerBounds(
+    protected override getFinalContainerBounds(
         container: SParentElement & LayoutContainer,
         lastOffset: Point,
         options: AbstractLayoutOptions,

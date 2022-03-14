@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2021 EclipseSource and others.
+ * Copyright (c) 2021-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -16,7 +16,6 @@
 import { injectable } from 'inversify';
 import { Classes, VNode } from 'snabbdom';
 import { Hoverable, RectangularNodeView, RenderingContext, Selectable, SNode, SPort, SShapeElement, svg } from 'sprotty';
-
 import { CornerRadius } from '../utils/argument-utils';
 import { RoundedCornerWrapper } from './rounded-corner';
 
@@ -25,7 +24,7 @@ const JSX = { createElement: svg };
 
 @injectable()
 export class RoundedCornerNodeView extends RectangularNodeView {
-    render(node: Readonly<SShapeElement & Hoverable & Selectable>, context: RenderingContext): VNode | undefined {
+    override render(node: Readonly<SShapeElement & Hoverable & Selectable>, context: RenderingContext): VNode | undefined {
         const cornerRadius = CornerRadius.from(node);
         if (!cornerRadius) {
             return this.renderWithoutRadius(node, context);

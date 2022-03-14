@@ -11,3 +11,4 @@ bundle.js.map
 
 *.jar
 !packages/client/src/lib
+tsconfig.tsbuildinfo

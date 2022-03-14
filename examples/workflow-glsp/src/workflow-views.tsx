@@ -33,7 +33,7 @@ const JSX = { createElement: svg };
 
 @injectable()
 export class WorkflowEdgeView extends PolylineEdgeViewWithGapsOnIntersections {
-    protected renderAdditionals(edge: SEdge, segments: Point[], context: RenderingContext): VNode[] {
+    protected override renderAdditionals(edge: SEdge, segments: Point[], context: RenderingContext): VNode[] {
         const additionals = super.renderAdditionals(edge, segments, context);
         const p1 = segments[segments.length - 2];
         const p2 = segments[segments.length - 1];

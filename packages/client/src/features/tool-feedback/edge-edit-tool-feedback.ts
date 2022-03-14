@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2021 EclipseSource and others.
+ * Copyright (c) 2019-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -42,7 +42,7 @@ import {
     SwitchEditModeCommand,
     TYPES
 } from 'sprotty';
-import { isNotUndefined, isRoutable, isRoutingHandle } from '../../utils/smodel-util';
+import { forEachElement, isNotUndefined, isRoutable, isRoutingHandle } from '../../utils/smodel-util';
 import { getAbsolutePosition, toAbsoluteBounds } from '../../utils/viewpoint-util';
 import { addReconnectHandles, removeReconnectHandles } from '../reconnect/model';
 import { FeedbackEdgeEnd, feedbackEdgeEndId, FeedbackEdgeEndMovingMouseListener, feedbackEdgeId } from './creation-tool-feedback';
@@ -70,7 +70,7 @@ export class ShowEdgeReconnectHandlesFeedbackCommand extends FeedbackCommand {
 
     execute(context: CommandExecutionContext): CommandReturn {
         const index = context.root.index;
-        index.all().filter(isRoutable).forEach(removeReconnectHandles);
+        forEachElement(index, isRoutable, removeReconnectHandles);
 
         if (isNotUndefined(this.action.elementId)) {
             const routableElement = index.getById(this.action.elementId);
@@ -92,7 +92,7 @@ export class HideEdgeReconnectHandlesFeedbackCommand extends FeedbackCommand {
 
     execute(context: CommandExecutionContext): CommandReturn {
         const index = context.root.index;
-        index.all().filter(isRoutable).forEach(removeReconnectHandles);
+        forEachElement(index, isRoutable, removeReconnectHandles);
         return context.root;
     }
 }
@@ -102,9 +102,9 @@ export class HideEdgeReconnectHandlesFeedbackCommand extends FeedbackCommand {
 
 export class SwitchRoutingModeAction extends SwitchEditModeAction {
     constructor(
-        public readonly elementsToActivate: string[] = [],
-        public readonly elementsToDeactivate: string[] = [],
-        public readonly kind: string = SwitchRoutingModeCommand.KIND
+        override readonly elementsToActivate: string[] = [],
+        override readonly elementsToDeactivate: string[] = [],
+        override readonly kind: string = SwitchRoutingModeCommand.KIND
     ) {
         super(elementsToActivate, elementsToDeactivate);
     }
@@ -112,7 +112,7 @@ export class SwitchRoutingModeAction extends SwitchEditModeAction {
 
 @injectable()
 export class SwitchRoutingModeCommand extends SwitchEditModeCommand {
-    static KIND = 'switchRoutingMode';
+    static override KIND = 'switchRoutingMode';
     constructor(@inject(TYPES.Action) action: SwitchRoutingModeAction) {
         super(action);
     }
@@ -149,7 +149,7 @@ export class DrawFeedbackEdgeSourceCommand extends FeedbackCommand {
  */
 
 export class FeedbackEdgeTargetMovingMouseListener extends FeedbackEdgeEndMovingMouseListener {
-    constructor(protected anchorRegistry: AnchorComputerRegistry) {
+    constructor(protected override anchorRegistry: AnchorComputerRegistry) {
         super(anchorRegistry);
     }
 }
@@ -159,7 +159,7 @@ export class FeedbackEdgeSourceMovingMouseListener extends MouseListener {
         super();
     }
 
-    mouseMove(target: SModelElement, event: MouseEvent): Action[] {
+    override mouseMove(target: SModelElement, event: MouseEvent): Action[] {
         const root = target.root;
         const edgeEnd = root.index.getById(feedbackEdgeEndId(root));
         if (!(edgeEnd instanceof FeedbackEdgeEnd) || !edgeEnd.feedbackEdge) {
@@ -208,7 +208,7 @@ export class FeedbackEdgeRouteMovingMouseListener extends MouseListener {
         super();
     }
 
-    mouseDown(target: SModelElement, event: MouseEvent): Action[] {
+    override mouseDown(target: SModelElement, event: MouseEvent): Action[] {
         const result: Action[] = [];
         if (event.button === 0) {
             const routingHandle = findParentByFeature(target, isRoutingHandle);
@@ -223,7 +223,7 @@ export class FeedbackEdgeRouteMovingMouseListener extends MouseListener {
         return result;
     }
 
-    mouseMove(target: SModelElement, event: MouseEvent): Action[] {
+    override mouseMove(target: SModelElement, event: MouseEvent): Action[] {
         const result: Action[] = [];
         if (event.buttons === 0) {
             this.mouseUp(target, event);
@@ -273,20 +273,20 @@ export class FeedbackEdgeRouteMovingMouseListener extends MouseListener {
         return undefined;
     }
 
-    mouseEnter(target: SModelElement, event: MouseEvent): Action[] {
+    override mouseEnter(target: SModelElement, event: MouseEvent): Action[] {
         if (target instanceof SModelRoot && event.buttons === 0) {
             this.mouseUp(target, event);
         }
         return [];
     }
 
-    mouseUp(_target: SModelElement, event: MouseEvent): Action[] {
+    override mouseUp(_target: SModelElement, event: MouseEvent): Action[] {
         this.hasDragged = false;
         this.lastDragPosition = undefined;
         return [];
     }
 
-    decorate(vnode: VNode, _element: SModelElement): VNode {
+    override decorate(vnode: VNode, _element: SModelElement): VNode {
         return vnode;
     }
 }
