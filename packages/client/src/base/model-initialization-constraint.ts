@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, UpdateModelAction } from '@eclipse-glsp/protocol';
+import { Action, SetModelAction } from '@eclipse-glsp/protocol';
 import { injectable } from 'inversify';
 import { InitializeCanvasBoundsAction } from 'sprotty';
 import { Deferred } from 'sprotty/lib/utils/async';
@@ -74,21 +74,21 @@ export abstract class ModelInitializationConstraint {
  */
 @injectable()
 export class DefaultModelInitializationConstraint extends ModelInitializationConstraint {
-    protected seenNonEmptyUpdateModel = false;
+    protected seenNonEmptySetModel = false;
 
     isInitializedAfter(action: Action): boolean {
-        if (this.isNonEmptyUpdateModel(action)) {
-            this.seenNonEmptyUpdateModel = true;
-        } else if (this.seenNonEmptyUpdateModel && action.kind === InitializeCanvasBoundsAction.KIND) {
+        if (this.isNonEmptySetModel(action)) {
+            this.seenNonEmptySetModel = true;
+        } else if (this.seenNonEmptySetModel && action.kind === InitializeCanvasBoundsAction.KIND) {
             return true;
         }
         return false;
     }
 
-    protected isNonEmptyUpdateModel(action: Action): boolean {
-        if (action && action.kind === UpdateModelAction.KIND) {
-            const updateModelAction = action as UpdateModelAction;
-            return updateModelAction.newRoot !== undefined && updateModelAction.newRoot.type !== 'NONE';
+    protected isNonEmptySetModel(action: Action): boolean {
+        if (action && action.kind === SetModelAction.KIND) {
+            const setModelAction = action as SetModelAction;
+            return setModelAction.newRoot !== undefined && setModelAction.newRoot.type !== 'NONE';
         }
         return false;
     }
