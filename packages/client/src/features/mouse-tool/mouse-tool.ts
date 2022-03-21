@@ -23,7 +23,8 @@ export interface IMouseTool {
     deregister(mouseListener: MouseListener): void;
 }
 
-/**  Custom helper type to declare the explicit mouse listener methods
+/**
+ * Custom helper type to declare the explicit mouse listener methods
  * of {@link MouseListener} i.e. omitting the `decorate` method.
  */
 type MouseListenerMethods = keyof Omit<MouseListener, 'decorate'>;

@@ -6,7 +6,7 @@
       "request": "launch",
       "name": "Run current test",
       "program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
-      "args": ["--opts", "${workspaceFolder}/packages/client/mocha.opts", "${file}"],
+      "args": ["--config", "${workspaceRoot}/.mocharc.json", "${file}"],
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
       "env": {
@@ -19,8 +19,8 @@
       "name": "Run all tests",
       "program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
       "args": [
-        "--opts",
-        "${workspaceFolder}/packages/client/mocha.opts",
+        "--config",
+        "${workspaceRoot}/.mocharc.json",
         "${workspaceFolder}/packages/client/src/**/*.spec.ts"
       ],
       "env": {
