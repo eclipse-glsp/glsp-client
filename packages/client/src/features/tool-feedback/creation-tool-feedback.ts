@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2021 EclipseSource and others.
+ * Copyright (c) 2019-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -38,7 +38,7 @@ import {
     SRoutableElement,
     TYPES
 } from 'sprotty';
-import { isRoutable, BoundsAwareModelElement } from '../../utils/smodel-util';
+import { BoundsAwareModelElement, isRoutable } from '../../utils/smodel-util';
 import { getAbsolutePosition, toAbsoluteBounds, toAbsolutePosition } from '../../utils/viewpoint-util';
 import { FeedbackCommand } from './model';
 
@@ -86,7 +86,7 @@ export class FeedbackEdgeEnd extends SDanglingAnchor {
         readonly sourceId: string,
         readonly elementTypeId: string,
         public feedbackEdge: SRoutableElement | undefined = undefined,
-        public readonly type: string = FeedbackEdgeEnd.TYPE
+        override readonly type: string = FeedbackEdgeEnd.TYPE
     ) {
         super();
     }
@@ -97,7 +97,7 @@ export class FeedbackEdgeEndMovingMouseListener extends MouseListener {
         super();
     }
 
-    mouseMove(target: SModelElement, event: MouseEvent): Action[] {
+    override mouseMove(target: SModelElement, event: MouseEvent): Action[] {
         const root = target.root;
         const edgeEnd = root.index.getById(feedbackEdgeEndId(root));
         if (!(edgeEnd instanceof FeedbackEdgeEnd) || !edgeEnd.feedbackEdge) {
@@ -106,9 +106,9 @@ export class FeedbackEdgeEndMovingMouseListener extends MouseListener {
 
         const edge = edgeEnd.feedbackEdge;
         const position = getAbsolutePosition(edgeEnd, event);
-        const endAtMousePosition = findChildrenAtPosition(target.root, position).reverse().find(
-            element => isConnectable(element) && element.canConnect(edge, 'target')
-        );
+        const endAtMousePosition = findChildrenAtPosition(target.root, position)
+            .reverse()
+            .find(element => isConnectable(element) && element.canConnect(edge, 'target'));
 
         if (endAtMousePosition instanceof SConnectableElement && edge.source && isBoundsAware(edge.source)) {
             const anchor = this.computeAbsoluteAnchor(endAtMousePosition, center(toAbsoluteBounds(edge.source)));
@@ -146,8 +146,8 @@ export class FeedbackEdgeEndMovingMouseListener extends MouseListener {
  * @param absolutePoint a point in absolute coordinates
  * @returns the equivalent point, relative to the element's parent coordinates
  */
-function absoluteToParent(element: BoundsAwareModelElement & SChildElement, absolutePoint: Point): Point{
-    if (isBoundsAware(element.parent)){
+function absoluteToParent(element: BoundsAwareModelElement & SChildElement, absolutePoint: Point): Point {
+    if (isBoundsAware(element.parent)) {
         return absoluteToLocal(element.parent, absolutePoint);
     }
     // If the parent is not bounds-aware, assume it's at 0; 0 and proceed
@@ -163,7 +163,7 @@ function absoluteToParent(element: BoundsAwareModelElement & SChildElement, abso
  */
 function absoluteToLocal(element: BoundsAwareModelElement, absolutePoint: Point): Point {
     const absoluteElementBounds = toAbsoluteBounds(element);
-    return {x: absolutePoint.x - absoluteElementBounds.x, y: absolutePoint.y - absoluteElementBounds.y};
+    return { x: absolutePoint.x - absoluteElementBounds.x, y: absolutePoint.y - absoluteElementBounds.y };
 }
 
 export function feedbackEdgeId(root: SModelRoot): string {

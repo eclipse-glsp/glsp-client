@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2021 EclipseSource and others.
+ * Copyright (c) 2021-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -24,7 +24,7 @@ const JSX = { createElement: svg };
 
 @injectable()
 export class GEdgeView extends PolylineEdgeView {
-    render(edge: Readonly<SEdge>, context: RenderingContext): VNode {
+    override render(edge: Readonly<SEdge>, context: RenderingContext): VNode {
         const router = this.edgeRouterRegistry.get(edge.routerKind);
         const route = router.route(edge);
         if (route.length === 0) {
@@ -44,11 +44,11 @@ export class GEdgeView extends PolylineEdgeView {
         return {};
     }
 
-    protected renderLine(_edge: SEdge, segments: Point[], _context: RenderingContext): VNode {
+    protected override renderLine(_edge: SEdge, segments: Point[], _context: RenderingContext): VNode {
         return <path d={this.createPathForSegments(segments)} />;
     }
 
-    protected renderAdditionals(edge: SEdge, segments: Point[], _context: RenderingContext): VNode[] {
+    protected override renderAdditionals(edge: SEdge, segments: Point[], _context: RenderingContext): VNode[] {
         // for additional padding we draw another transparent path with larger stroke width
         const edgePadding = EdgePadding.from(edge);
         return edgePadding ? [this.renderMouseHandle(segments, edgePadding)] : [];

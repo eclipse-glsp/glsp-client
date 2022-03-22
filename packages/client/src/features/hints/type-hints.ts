@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2021 EclipseSource and others.
+ * Copyright (c) 2019-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -48,7 +48,7 @@ export class ApplyTypeHintsAction implements Action {
 @injectable()
 export class ApplyTypeHintsCommand extends FeedbackCommand {
     public static KIND = 'applyTypeHints';
-    public readonly priority = 10;
+    public override readonly priority = 10;
 
     @inject(GLSP_TYPES.ITypeHintProvider) protected typeHintProvider: ITypeHintProvider;
 

@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2021 EclipseSource and others.
+ * Copyright (c) 2019-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -51,14 +51,14 @@ export class SResizeHandle extends SChildElement implements Hoverable {
     static readonly TYPE = 'resize-handle';
 
     constructor(
-        public readonly location?: ResizeHandleLocation,
-        public readonly type: string = SResizeHandle.TYPE,
-        public readonly hoverFeedback: boolean = false
+        readonly location?: ResizeHandleLocation,
+        override readonly type: string = SResizeHandle.TYPE,
+        readonly hoverFeedback: boolean = false
     ) {
         super();
     }
 
-    hasFeature(feature: symbol): boolean {
+    override hasFeature(feature: symbol): boolean {
         return feature === hoverFeedbackFeature;
     }
 

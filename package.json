@@ -8,20 +8,24 @@
   "scripts": {
     "prepare": "lerna run prepare",
     "watch": "lerna run --parallel watch",
-    "build": "yarn install --ignore-scripts && lerna run build",
+    "install:only": "yarn install --ignore-scripts",
+    "build": "lerna run build",
     "lint": "lerna run lint --",
     "test": "lerna run test",
     "test:ci": "lerna run test:ci",
     "publish:prepare": "lerna version minor --exact --ignore-scripts --yes --no-push",
     "publish:latest": "lerna publish from-git --no-git-reset --no-verify-access --no-push",
     "publish:next": "SHA=$(git rev-parse --short HEAD) && lerna publish preminor --exact --canary --preid next.${SHA} --dist-tag next --no-git-reset --no-git-tag-version --no-push --ignore-scripts --yes --no-verify-access",
-    "upgrade:next": "yarn upgrade -p \"sprotty\" --next ",
+    "upgrade:next": "yarn upgrade -p \"@eclipse-glsp.|sprotty\" --next ",
     "download:exampleServer": "ts-node examples/workflow-glsp/scripts/download.ts"
   },
   "devDependencies": {
-    "@eclipse-glsp/config": "0.9.0",
+    "@eclipse-glsp/config": "^0.10.0-next.ad1cb08.100",
+    "@types/node": "12.x",
     "lerna": "^4.0.0",
-    "typescript": "^3.9.2"
+    "reflect-metadata": "^0.1.13",
+    "rimraf": "^3.0.2",
+    "typescript": "~4.5.5"
   },
   "workspaces": [
     "packages/*",

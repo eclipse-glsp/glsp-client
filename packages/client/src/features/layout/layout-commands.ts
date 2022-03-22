@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2021 EclipseSource and others.
+ * Copyright (c) 2019-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -166,10 +166,10 @@ export class ResizeElementsCommand extends LayoutElementsCommand {
     static readonly KIND = 'layout:resize';
 
     constructor(
-        @inject(TYPES.Action) protected action: ResizeElementsAction,
-        @inject(TYPES.IActionDispatcher) protected actionDispatcher: IActionDispatcher,
-        @inject(GLSP_TYPES.SelectionService) protected selectionService: SelectionService,
-        @inject(GLSP_TYPES.IMovementRestrictor) @optional() readonly movementRestrictor?: IMovementRestrictor
+        @inject(TYPES.Action) protected override action: ResizeElementsAction,
+        @inject(TYPES.IActionDispatcher) protected override actionDispatcher: IActionDispatcher,
+        @inject(GLSP_TYPES.SelectionService) protected override selectionService: SelectionService,
+        @inject(GLSP_TYPES.IMovementRestrictor) @optional() override readonly movementRestrictor?: IMovementRestrictor
     ) {
         super(action, actionDispatcher, selectionService, movementRestrictor);
     }
@@ -280,10 +280,10 @@ export class AlignElementsCommand extends LayoutElementsCommand {
     static readonly KIND = 'layout:align';
 
     constructor(
-        @inject(TYPES.Action) protected action: AlignElementsAction,
-        @inject(TYPES.IActionDispatcher) protected actionDispatcher: IActionDispatcher,
-        @inject(GLSP_TYPES.SelectionService) protected selectionService: SelectionService,
-        @inject(GLSP_TYPES.IMovementRestrictor) @optional() readonly movementRestrictor?: IMovementRestrictor
+        @inject(TYPES.Action) protected override action: AlignElementsAction,
+        @inject(TYPES.IActionDispatcher) protected override actionDispatcher: IActionDispatcher,
+        @inject(GLSP_TYPES.SelectionService) protected override selectionService: SelectionService,
+        @inject(GLSP_TYPES.IMovementRestrictor) @optional() override readonly movementRestrictor?: IMovementRestrictor
     ) {
         super(action, actionDispatcher, selectionService, movementRestrictor);
     }

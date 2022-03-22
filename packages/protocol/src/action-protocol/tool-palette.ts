@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2021 STMicroelectronics and others.
+ * Copyright (c) 2021-2022 STMicroelectronics and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -33,7 +33,11 @@ export function isTriggerElementTypeCreationAction(action: any): action is Trigg
 export class TriggerNodeCreationAction extends TriggerElementCreationAction {
     static readonly KIND = 'triggerNodeCreation';
 
-    constructor(public readonly elementTypeId: string, readonly args?: Args, public readonly kind = TriggerNodeCreationAction.KIND) {
+    constructor(
+        override readonly elementTypeId: string,
+        override readonly args?: Args,
+        override readonly kind = TriggerNodeCreationAction.KIND
+    ) {
         super(elementTypeId, args, kind);
     }
 }
@@ -50,9 +54,9 @@ export class TriggerEdgeCreationAction extends TriggerElementCreationAction {
     static readonly KIND = 'triggerEdgeCreation';
 
     constructor(
-        public readonly elementTypeId: string,
-        readonly args?: Args,
-        public readonly kind: string = TriggerEdgeCreationAction.KIND
+        override readonly elementTypeId: string,
+        override readonly args?: Args,
+        override readonly kind: string = TriggerEdgeCreationAction.KIND
     ) {
         super(elementTypeId, args, kind);
     }

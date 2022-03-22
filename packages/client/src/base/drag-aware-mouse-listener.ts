@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2021 EclipseSource and others.
+ * Copyright (c) 2019-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -28,19 +28,19 @@ export class DragAwareMouseListener extends MouseListener {
     private _isMouseDown = false;
     private _isMouseDrag = false;
 
-    mouseDown(target: SModelElement, event: MouseEvent): Action[] {
+    override mouseDown(target: SModelElement, event: MouseEvent): Action[] {
         this._isMouseDown = true;
         return [];
     }
 
-    mouseMove(target: SModelElement, event: MouseEvent): Action[] {
+    override mouseMove(target: SModelElement, event: MouseEvent): Action[] {
         if (this._isMouseDown) {
             this._isMouseDrag = true;
         }
         return [];
     }
 
-    mouseUp(element: SModelElement, event: MouseEvent): Action[] {
+    override mouseUp(element: SModelElement, event: MouseEvent): Action[] {
         this._isMouseDown = false;
         if (this._isMouseDrag) {
             this._isMouseDrag = false;

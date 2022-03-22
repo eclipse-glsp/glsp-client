@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2021 EclipseSource and others.
+ * Copyright (c) 2021-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -44,9 +44,9 @@ export interface VBoxLayoutOptionsExt extends VBoxLayoutOptions {
  */
 @injectable()
 export class VBoxLayouterExt extends VBoxLayouter {
-    static KIND = VBoxLayouter.KIND;
+    static override KIND = VBoxLayouter.KIND;
 
-    layout(container: SParentElement & LayoutContainer, layouter: StatefulLayouter): void {
+    override layout(container: SParentElement & LayoutContainer, layouter: StatefulLayouter): void {
         const boundsData = layouter.getBoundsData(container);
         const options = this.getLayoutOptions(container);
         const childrenSize = this.getChildrenSize(container, options, layouter);
@@ -80,7 +80,7 @@ export class VBoxLayouterExt extends VBoxLayouter {
         }
     }
 
-    protected getChildrenSize(
+    protected override getChildrenSize(
         container: SParentElement & LayoutContainer,
         containerOptions: VBoxLayoutOptionsExt,
         layouter: StatefulLayouter
@@ -109,7 +109,7 @@ export class VBoxLayouterExt extends VBoxLayouter {
         return result;
     }
 
-    protected layoutChildren(
+    protected override layoutChildren(
         container: SParentElement & LayoutContainer,
         layouter: StatefulLayouter,
         containerOptions: VBoxLayoutOptionsExt,
@@ -147,7 +147,7 @@ export class VBoxLayouterExt extends VBoxLayouter {
         return currentOffset;
     }
 
-    protected layoutChild(
+    protected override layoutChild(
         child: SChildElement,
         boundsData: BoundsData,
         bounds: Bounds,
@@ -183,7 +183,11 @@ export class VBoxLayouterExt extends VBoxLayouter {
         return offset;
     }
 
-    protected getFixedContainerBounds(container: SModelElement, layoutOptions: VBoxLayoutOptionsExt, layouter: StatefulLayouter): Bounds {
+    protected override getFixedContainerBounds(
+        container: SModelElement,
+        layoutOptions: VBoxLayoutOptionsExt,
+        layouter: StatefulLayouter
+    ): Bounds {
         const currentContainer = container;
         // eslint-disable-next-line no-constant-condition
         if (isBoundsAware(currentContainer)) {
@@ -196,11 +200,11 @@ export class VBoxLayouterExt extends VBoxLayouter {
         return EMPTY_BOUNDS;
     }
 
-    protected getChildLayoutOptions(child: SChildElement, containerOptions: VBoxLayoutOptionsExt): VBoxLayoutOptionsExt {
+    protected override getChildLayoutOptions(child: SChildElement, containerOptions: VBoxLayoutOptionsExt): VBoxLayoutOptionsExt {
         return super.getChildLayoutOptions(child, containerOptions) as VBoxLayoutOptionsExt;
     }
 
-    protected getLayoutOptions(element: SModelElement): VBoxLayoutOptionsExt {
+    protected override getLayoutOptions(element: SModelElement): VBoxLayoutOptionsExt {
         return super.getLayoutOptions(element) as VBoxLayoutOptionsExt;
     }
 
@@ -208,7 +212,7 @@ export class VBoxLayouterExt extends VBoxLayouter {
         return (element as any).layoutOptions;
     }
 
-    protected getFinalContainerBounds(
+    protected override getFinalContainerBounds(
         container: SParentElement & LayoutContainer,
         lastOffset: Point,
         options: VBoxLayoutOptionsExt,
@@ -229,7 +233,7 @@ export class VBoxLayouterExt extends VBoxLayouter {
         return result;
     }
 
-    protected getDefaultLayoutOptions(): VBoxLayoutOptionsExt {
+    protected override getDefaultLayoutOptions(): VBoxLayoutOptionsExt {
         return {
             resizeContainer: true,
             paddingTop: 5,
@@ -250,7 +254,7 @@ export class VBoxLayouterExt extends VBoxLayouter {
         };
     }
 
-    protected spread(a: VBoxLayoutOptionsExt, b: VBoxLayoutOptionsExt): VBoxLayoutOptionsExt {
+    protected override spread(a: VBoxLayoutOptionsExt, b: VBoxLayoutOptionsExt): VBoxLayoutOptionsExt {
         return { ...a, ...b };
     }
 }

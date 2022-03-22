@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020-2021 EclipseSource and others.
+ * Copyright (c) 2020-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -83,7 +83,7 @@ export class NodeCreationToolMouseListener extends DragAwareMouseListener {
         return this.triggerAction.elementTypeId;
     }
 
-    nonDraggingMouseUp(target: SModelElement, event: MouseEvent): Action[] {
+    override nonDraggingMouseUp(target: SModelElement, event: MouseEvent): Action[] {
         const result: Action[] = [];
         if (this.creationAllowed(this.elementTypeId)) {
             const containerId = this.container ? this.container.id : undefined;
@@ -102,7 +102,7 @@ export class NodeCreationToolMouseListener extends DragAwareMouseListener {
         return result;
     }
 
-    mouseOver(target: SModelElement, event: MouseEvent): Action[] {
+    override mouseOver(target: SModelElement, event: MouseEvent): Action[] {
         const currentContainer = findParentByFeature(target, isContainable);
         if (!this.container || currentContainer !== this.container) {
             this.container = currentContainer;

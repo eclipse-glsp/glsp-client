@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2021 EclipseSource and others.
+ * Copyright (c) 2019-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -31,7 +31,7 @@ import {
     SModelRoot,
     TYPES
 } from 'sprotty';
-import { isNotUndefined } from '../../utils/smodel-util';
+import { forEachElement, isNotUndefined } from '../../utils/smodel-util';
 import { addResizeHandles, isResizable, removeResizeHandles, SResizeHandle } from '../change-bounds/model';
 import { createMovementRestrictionFeedback, removeMovementRestrictionFeedback } from '../change-bounds/movement-restrictor';
 import { CursorCSS, cursorFeedbackAction } from '../tool-feedback/css-feedback';
@@ -54,7 +54,8 @@ export class ShowChangeBoundsToolResizeFeedbackCommand extends FeedbackCommand {
 
     execute(context: CommandExecutionContext): CommandReturn {
         const index = context.root.index;
-        index.all().filter(isResizable).forEach(removeResizeHandles);
+
+        forEachElement(index, isResizable, removeResizeHandles);
 
         if (isNotUndefined(this.action.elementId)) {
             const resizeElement = index.getById(this.action.elementId);
@@ -74,7 +75,7 @@ export class HideChangeBoundsToolResizeFeedbackCommand extends FeedbackCommand {
 
     execute(context: CommandExecutionContext): CommandReturn {
         const index = context.root.index;
-        index.all().filter(isResizable).forEach(removeResizeHandles);
+        forEachElement(index, isResizable, removeResizeHandles);
         return context.root;
     }
 }
@@ -95,7 +96,7 @@ export class FeedbackMoveMouseListener extends MouseListener {
         super();
     }
 
-    mouseDown(target: SModelElement, event: MouseEvent): Action[] {
+    override mouseDown(target: SModelElement, event: MouseEvent): Action[] {
         if (event.button === 0 && !(target instanceof SResizeHandle)) {
             const moveable = findParentByFeature(target, isMoveable);
             if (moveable !== undefined) {
@@ -108,7 +109,7 @@ export class FeedbackMoveMouseListener extends MouseListener {
         return [];
     }
 
-    mouseMove(target: SModelElement, event: MouseEvent): Action[] {
+    override mouseMove(target: SModelElement, event: MouseEvent): Action[] {
         const result: Action[] = [];
         if (event.buttons === 0) {
             this.mouseUp(target, event);
@@ -219,14 +220,14 @@ export class FeedbackMoveMouseListener extends MouseListener {
         }
     }
 
-    mouseEnter(target: SModelElement, event: MouseEvent): Action[] {
+    override mouseEnter(target: SModelElement, event: MouseEvent): Action[] {
         if (target instanceof SModelRoot && event.buttons === 0 && !this.startDragPosition) {
             this.mouseUp(target, event);
         }
         return [];
     }
 
-    mouseUp(target: SModelElement, event: MouseEvent): Action[] {
+    override mouseUp(target: SModelElement, event: MouseEvent): Action[] {
         const result: Action[] = [];
         if (this.startDragPosition) {
             const moveAction = this.getElementMoves(target, event, true);
@@ -244,7 +245,7 @@ export class FeedbackMoveMouseListener extends MouseListener {
         return result;
     }
 
-    decorate(vnode: VNode, _element: SModelElement): VNode {
+    override decorate(vnode: VNode, _element: SModelElement): VNode {
         return vnode;
     }
 }

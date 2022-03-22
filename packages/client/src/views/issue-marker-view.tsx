@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020-2021 EclipseSource and others.
+ * Copyright (c) 2020-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -23,7 +23,7 @@ const JSX = { createElement: svg };
 
 @injectable()
 export class GIssueMarkerView extends IssueMarkerView {
-    render(marker: SIssueMarker, _context: RenderingContext): VNode {
+    override render(marker: SIssueMarker, _context: RenderingContext): VNode {
         const maxSeverity = super.getMaxSeverity(marker);
         const group = (
             <g class-sprotty-issue={true}>

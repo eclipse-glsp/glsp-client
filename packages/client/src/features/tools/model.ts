@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2021 EclipseSource and others.
+ * Copyright (c) 2021-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -16,7 +16,7 @@
 import { boundsFeature, Point, RectangularNode } from 'sprotty';
 
 export class MarqueeNode extends RectangularNode {
-    static readonly DEFAULT_FEATURES = [boundsFeature];
+    static override readonly DEFAULT_FEATURES = [boundsFeature];
     startPoint: Point;
     endPoint: Point;
 }
