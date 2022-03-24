@@ -31,7 +31,6 @@ import {
     isConnectable,
     ISnapper,
     isSelected,
-    isViewport,
     MouseListener,
     MoveAction,
     PolylineEdgeRouter,
@@ -43,9 +42,9 @@ import {
     SwitchEditModeCommand,
     TYPES
 } from 'sprotty';
-import { WriteablePoint } from '../../utils/layout-utils';
 import { forEachElement, isNotUndefined, isRoutable, isRoutingHandle } from '../../utils/smodel-util';
 import { getAbsolutePosition, toAbsoluteBounds } from '../../utils/viewpoint-util';
+import { PointPositionUpdater } from '../change-bounds/snap';
 import { addReconnectHandles, removeReconnectHandles } from '../reconnect/model';
 import { FeedbackEdgeEnd, feedbackEdgeEndId, FeedbackEdgeEndMovingMouseListener, feedbackEdgeId } from './creation-tool-feedback';
 import { FeedbackCommand } from './model';
@@ -203,11 +202,11 @@ export class FeedbackEdgeSourceMovingMouseListener extends MouseListener {
 }
 
 export class FeedbackEdgeRouteMovingMouseListener extends MouseListener {
-    protected lastDragPosition: Point | undefined;
-    protected positionDelta: WriteablePoint = { x: 0, y: 0 };
+    protected pointPositionUpdater: PointPositionUpdater;
 
     constructor(protected edgeRouterRegistry?: EdgeRouterRegistry, protected snapper?: ISnapper) {
         super();
+        this.pointPositionUpdater = new PointPositionUpdater(snapper);
     }
 
     override mouseDown(target: SModelElement, event: MouseEvent): Action[] {
@@ -216,9 +215,9 @@ export class FeedbackEdgeRouteMovingMouseListener extends MouseListener {
             const routingHandle = findParentByFeature(target, isRoutingHandle);
             if (routingHandle !== undefined) {
                 result.push(new SwitchRoutingModeAction([target.id], []));
-                this.lastDragPosition = { x: event.pageX, y: event.pageY };
+                this.pointPositionUpdater.updateLastDragPosition({ x: event.pageX, y: event.pageY });
             } else {
-                this.lastDragPosition = undefined;
+                this.pointPositionUpdater.resetPosition();
             }
         }
         return result;
@@ -229,46 +228,12 @@ export class FeedbackEdgeRouteMovingMouseListener extends MouseListener {
         if (event.buttons === 0) {
             return this.mouseUp(target, event);
         }
-        const positionUpdate = this.updatePosition(target, event);
+        const positionUpdate = this.pointPositionUpdater.updatePosition(target, { x: event.pageX, y: event.pageY }, !event.altKey);
         if (positionUpdate) {
             const moveActions = this.handleMoveOnClient(target, positionUpdate);
             result.push(...moveActions);
         }
         return result;
-    }
-
-    protected updatePosition(target: SModelElement, event: MouseEvent): Point | undefined {
-        if (this.lastDragPosition) {
-            const newDragPosition = { x: event.pageX, y: event.pageY };
-
-            const viewport = findParentByFeature(target, isViewport);
-            const zoom = viewport ? viewport.zoom : 1;
-            const dx = (event.pageX - this.lastDragPosition.x) / zoom;
-            const dy = (event.pageY - this.lastDragPosition.y) / zoom;
-            const deltaToLastPosition = { x: dx, y: dy };
-            this.lastDragPosition = newDragPosition;
-
-            // update position delta with latest delta
-            this.positionDelta.x += deltaToLastPosition.x;
-            this.positionDelta.y += deltaToLastPosition.y;
-
-            // snap our delta and only send update if the position actually changes
-            // otherwise accumulate delta until we do snap to an update
-            const positionUpdate = this.snap(this.positionDelta, target, !event.altKey);
-            if (positionUpdate.x === 0 && positionUpdate.y === 0) {
-                return undefined;
-            }
-
-            // we update our position so we update our delta by the snapped position
-            this.positionDelta.x -= positionUpdate.x;
-            this.positionDelta.y -= positionUpdate.y;
-            return positionUpdate;
-        }
-        return undefined;
-    }
-
-    protected snap(position: Point, element: SModelElement, isSnap: boolean): Point {
-        return isSnap && this.snapper ? this.snapper.snap(position, element) : { x: position.x, y: position.y };
     }
 
     protected handleMoveOnClient(target: SModelElement, positionUpdate: Point): Action[] {
@@ -326,8 +291,7 @@ export class FeedbackEdgeRouteMovingMouseListener extends MouseListener {
     }
 
     override mouseUp(_target: SModelElement, event: MouseEvent): Action[] {
-        this.lastDragPosition = undefined;
-        this.positionDelta = { x: 0, y: 0 };
+        this.pointPositionUpdater.resetPosition();
         return [];
     }
 

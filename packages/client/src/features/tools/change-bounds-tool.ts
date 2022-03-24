@@ -32,7 +32,6 @@ import {
     findParentByFeature,
     ISnapper,
     isSelected,
-    isViewport,
     MouseListener,
     SChildElement,
     SConnectableElement,
@@ -44,7 +43,7 @@ import {
 } from 'sprotty';
 import { DragAwareMouseListener } from '../../base/drag-aware-mouse-listener';
 import { GLSP_TYPES } from '../../base/types';
-import { isValidMove, isValidSize, WriteablePoint } from '../../utils/layout-utils';
+import { isValidMove, isValidSize } from '../../utils/layout-utils';
 import {
     forEachElement,
     isNonRoutableSelectedMovableBoundsAware,
@@ -57,6 +56,7 @@ import {
     IMovementRestrictor,
     removeMovementRestrictionFeedback
 } from '../change-bounds/movement-restrictor';
+import { PointPositionUpdater } from '../change-bounds/snap';
 import { SelectionListener, SelectionService } from '../select/selection-service';
 import {
     FeedbackMoveMouseListener,
@@ -127,8 +127,7 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements Sele
 
     // members for calculating the correct position change
     protected initialBounds: Bounds | undefined;
-    protected lastDragPosition?: Point;
-    protected positionDelta: WriteablePoint = { x: 0, y: 0 };
+    protected pointPositionUpdater: PointPositionUpdater;
 
     // members for resize mode
     protected activeResizeElement?: SModelElement;
@@ -136,6 +135,7 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements Sele
 
     constructor(protected tool: ChangeBoundsTool) {
         super();
+        this.pointPositionUpdater = new PointPositionUpdater(tool.snapper);
     }
 
     override mouseDown(target: SModelElement, event: MouseEvent): Action[] {
@@ -166,7 +166,7 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements Sele
                 cursorFeedbackAction(this.activeResizeHandle.isNwSeResize() ? CursorCSS.RESIZE_NWSE : CursorCSS.RESIZE_NESW),
                 applyCssClasses(this.activeResizeHandle, ChangeBoundsListener.CSS_CLASS_ACTIVE)
             ];
-            const positionUpdate = this.updatePosition(target, event);
+            const positionUpdate = this.pointPositionUpdater.updatePosition(target, { x: event.pageX, y: event.pageY }, !event.altKey);
             if (positionUpdate) {
                 const resizeActions = this.handleResizeOnClient(positionUpdate);
                 actions.push(...resizeActions);
@@ -177,7 +177,7 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements Sele
     }
 
     override draggingMouseUp(target: SModelElement, event: MouseEvent): Action[] {
-        if (this.lastDragPosition === undefined) {
+        if (this.pointPositionUpdater.isLastDragPositionUndefined()) {
             this.resetPosition();
             return [];
         }
@@ -299,7 +299,7 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements Sele
     }
 
     protected initPosition(event: MouseEvent): void {
-        this.lastDragPosition = { x: event.pageX, y: event.pageY };
+        this.pointPositionUpdater.updateLastDragPosition({ x: event.pageX, y: event.pageY });
         if (this.activeResizeHandle) {
             const resizeElement = findParentByFeature(this.activeResizeHandle, isResizable);
             this.initialBounds = {
@@ -309,36 +309,6 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements Sele
                 height: resizeElement!.bounds.height
             };
         }
-    }
-
-    protected updatePosition(target: SModelElement, event: MouseEvent): Point | undefined {
-        if (this.lastDragPosition) {
-            const newDragPosition = { x: event.pageX, y: event.pageY };
-
-            const viewport = findParentByFeature(target, isViewport);
-            const zoom = viewport ? viewport.zoom : 1;
-            const dx = (event.pageX - this.lastDragPosition.x) / zoom;
-            const dy = (event.pageY - this.lastDragPosition.y) / zoom;
-            const deltaToLastPosition = { x: dx, y: dy };
-            this.lastDragPosition = newDragPosition;
-
-            // update position delta with latest delta
-            this.positionDelta.x += deltaToLastPosition.x;
-            this.positionDelta.y += deltaToLastPosition.y;
-
-            // snap our delta and only send update if the position actually changes
-            // otherwise accumulate delta until we do snap to an update
-            const positionUpdate = this.snap(this.positionDelta, target, !event.altKey);
-            if (positionUpdate.x === 0 && positionUpdate.y === 0) {
-                return undefined;
-            }
-
-            // we update our position so we update our delta by the snapped position
-            this.positionDelta.x -= positionUpdate.x;
-            this.positionDelta.y -= positionUpdate.y;
-            return positionUpdate;
-        }
-        return undefined;
     }
 
     protected reset(): void {
@@ -351,8 +321,7 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements Sele
 
     protected resetPosition(): void {
         this.activeResizeHandle = undefined;
-        this.lastDragPosition = undefined;
-        this.positionDelta = { x: 0, y: 0 };
+        this.pointPositionUpdater.resetPosition();
     }
 
     protected handleResizeOnClient(positionUpdate: Point): Action[] {
