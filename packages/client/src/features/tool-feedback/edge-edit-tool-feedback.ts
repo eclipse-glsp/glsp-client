@@ -29,6 +29,7 @@ import {
     findParentByFeature,
     isBoundsAware,
     isConnectable,
+    ISnapper,
     isSelected,
     isViewport,
     MouseListener,
@@ -42,6 +43,7 @@ import {
     SwitchEditModeCommand,
     TYPES
 } from 'sprotty';
+import { WriteablePoint } from '../../utils/layout-utils';
 import { forEachElement, isNotUndefined, isRoutable, isRoutingHandle } from '../../utils/smodel-util';
 import { getAbsolutePosition, toAbsoluteBounds } from '../../utils/viewpoint-util';
 import { addReconnectHandles, removeReconnectHandles } from '../reconnect/model';
@@ -201,10 +203,10 @@ export class FeedbackEdgeSourceMovingMouseListener extends MouseListener {
 }
 
 export class FeedbackEdgeRouteMovingMouseListener extends MouseListener {
-    protected hasDragged = false;
     protected lastDragPosition: Point | undefined;
+    protected positionDelta: WriteablePoint = { x: 0, y: 0 };
 
-    constructor(protected edgeRouterRegistry?: EdgeRouterRegistry) {
+    constructor(protected edgeRouterRegistry?: EdgeRouterRegistry, protected snapper?: ISnapper) {
         super();
     }
 
@@ -218,7 +220,6 @@ export class FeedbackEdgeRouteMovingMouseListener extends MouseListener {
             } else {
                 this.lastDragPosition = undefined;
             }
-            this.hasDragged = false;
         }
         return result;
     }
@@ -226,38 +227,82 @@ export class FeedbackEdgeRouteMovingMouseListener extends MouseListener {
     override mouseMove(target: SModelElement, event: MouseEvent): Action[] {
         const result: Action[] = [];
         if (event.buttons === 0) {
-            this.mouseUp(target, event);
-        } else if (this.lastDragPosition) {
+            return this.mouseUp(target, event);
+        }
+        const positionUpdate = this.updatePosition(target, event);
+        if (positionUpdate) {
+            const moveActions = this.handleMoveOnClient(target, positionUpdate);
+            result.push(...moveActions);
+        }
+        return result;
+    }
+
+    protected updatePosition(target: SModelElement, event: MouseEvent): Point | undefined {
+        if (this.lastDragPosition) {
+            const newDragPosition = { x: event.pageX, y: event.pageY };
+
             const viewport = findParentByFeature(target, isViewport);
-            this.hasDragged = true;
             const zoom = viewport ? viewport.zoom : 1;
             const dx = (event.pageX - this.lastDragPosition.x) / zoom;
             const dy = (event.pageY - this.lastDragPosition.y) / zoom;
-            const handleMoves: ElementMove[] = [];
-            target.root.index
-                .all()
-                .filter(element => isSelected(element))
-                .forEach(element => {
-                    if (isRoutingHandle(element)) {
-                        const point = this.getHandlePosition(element);
-                        if (point !== undefined) {
-                            handleMoves.push({
-                                elementId: element.id,
-                                fromPosition: point,
-                                toPosition: {
-                                    x: point.x + dx,
-                                    y: point.y + dy
-                                }
-                            });
-                        }
-                    }
-                });
-            this.lastDragPosition = { x: event.pageX, y: event.pageY };
-            if (handleMoves.length > 0) {
-                result.push(new MoveAction(handleMoves, false));
+            const deltaToLastPosition = { x: dx, y: dy };
+            this.lastDragPosition = newDragPosition;
+
+            // update position delta with latest delta
+            this.positionDelta.x += deltaToLastPosition.x;
+            this.positionDelta.y += deltaToLastPosition.y;
+
+            // snap our delta and only send update if the position actually changes
+            // otherwise accumulate delta until we do snap to an update
+            const positionUpdate = this.snap(this.positionDelta, target, !event.altKey);
+            if (positionUpdate.x === 0 && positionUpdate.y === 0) {
+                return undefined;
             }
+
+            // we update our position so we update our delta by the snapped position
+            this.positionDelta.x -= positionUpdate.x;
+            this.positionDelta.y -= positionUpdate.y;
+            return positionUpdate;
         }
-        return result;
+        return undefined;
+    }
+
+    protected snap(position: Point, element: SModelElement, isSnap: boolean): Point {
+        return isSnap && this.snapper ? this.snapper.snap(position, element) : { x: position.x, y: position.y };
+    }
+
+    protected handleMoveOnClient(target: SModelElement, positionUpdate: Point): Action[] {
+        const handleMoves: ElementMove[] = [];
+        target.root.index
+            .all()
+            .filter(element => isSelected(element))
+            .forEach(element => {
+                if (isRoutingHandle(element)) {
+                    const elementMove = this.toElementMove(element, positionUpdate);
+                    if (elementMove) {
+                        handleMoves.push(elementMove);
+                    }
+                }
+            });
+        if (handleMoves.length > 0) {
+            return [new MoveAction(handleMoves, false)];
+        }
+        return [];
+    }
+
+    private toElementMove(element: SRoutingHandle, positionDelta: Point): ElementMove | undefined {
+        const point = this.getHandlePosition(element);
+        if (point !== undefined) {
+            return {
+                elementId: element.id,
+                fromPosition: point,
+                toPosition: {
+                    x: point.x + positionDelta.x,
+                    y: point.y + positionDelta.y
+                }
+            };
+        }
+        return undefined;
     }
 
     protected getHandlePosition(handle: SRoutingHandle): Point | undefined {
@@ -281,8 +326,8 @@ export class FeedbackEdgeRouteMovingMouseListener extends MouseListener {
     }
 
     override mouseUp(_target: SModelElement, event: MouseEvent): Action[] {
-        this.hasDragged = false;
         this.lastDragPosition = undefined;
+        this.positionDelta = { x: 0, y: 0 };
         return [];
     }
 
