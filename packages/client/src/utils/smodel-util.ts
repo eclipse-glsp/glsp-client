@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { distinctAdd, ElementAndRoutingPoints, remove } from '@eclipse-glsp/protocol';
+import { distinctAdd, ElementAndRoutingPoints, remove, TypeGuard } from '@eclipse-glsp/protocol';
 import {
     BoundsAware,
     ElementAndBounds,
@@ -74,6 +74,24 @@ export function getMatchingElements<T>(index: SModelIndex<SModelElement>, predic
     return Array.from(filter(index, predicate));
 }
 
+/**
+ * Invokes the given model index to retrieve the corresponding model elements for the given set of ids. Ids that
+ * have no corresponding element in the index will be ignored.
+ * @param index THe model index.
+ * @param elementsIDs The element ids.
+ * @param guard Optional typeguard. If defined only elements that match the guard will be returned.
+ * @returns An array of the model elements that correspond to the given ids and filter predicate.
+ */
+export function getElements<S extends SModelElement>(index: SModelIndex<SModelElement>, elementsIDs: string[], guard?: TypeGuard<S>): S[] {
+    // Internal filter function that filters out undefined model elements and runs an optional typeguard check.
+    const filterFn = (element?: SModelElement): element is S => {
+        if (element !== undefined) {
+            return guard ? guard(element) : true;
+        }
+        return false;
+    };
+    return elementsIDs.map(id => index.getById(id)).filter(filterFn);
+}
 /**
  * Retrieves the amount of currently selected elements in the given {@link SModelIndex}.
  * @param index The {@link SModelIndex}.

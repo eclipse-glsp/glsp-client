@@ -31,7 +31,7 @@ import {
 } from 'sprotty';
 import { SModelRootListener } from '../../base/model/update-model-command';
 import { GLSP_TYPES } from '../../base/types';
-import { getMatchingElements } from '../../utils/smodel-util';
+import { getElements } from '../../utils/smodel-util';
 import { IFeedbackActionDispatcher } from '../tool-feedback/feedback-action-dispatcher';
 import { SelectFeedbackAction } from './select-feedback-action';
 
@@ -124,7 +124,7 @@ export class SelectionService implements SModelRootListener {
     }
 
     getSelectedElements(): Readonly<SModelElement & Selectable>[] {
-        return getMatchingElements(this.root.index, isSelectable);
+        return getElements(this.root.index, Array.from(this.selectedElementIDs), isSelectable);
     }
 
     /**
