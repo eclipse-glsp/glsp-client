@@ -255,7 +255,7 @@ export class FeedbackEdgeRouteMovingMouseListener extends MouseListener {
         return [];
     }
 
-    private toElementMove(element: SRoutingHandle, positionDelta: Point): ElementMove | undefined {
+    protected toElementMove(element: SRoutingHandle, positionDelta: Point): ElementMove | undefined {
         const point = this.getHandlePosition(element);
         if (point !== undefined) {
             return {
