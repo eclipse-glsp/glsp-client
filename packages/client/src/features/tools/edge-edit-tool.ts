@@ -22,11 +22,13 @@ import {
     EdgeRouterRegistry,
     findParentByFeature,
     isConnectable,
+    ISnapper,
     isSelected,
     SModelElement,
     SModelRoot,
     SRoutableElement,
-    SRoutingHandle
+    SRoutingHandle,
+    TYPES
 } from 'sprotty';
 import { DragAwareMouseListener } from '../../base/drag-aware-mouse-listener';
 import { GLSP_TYPES } from '../../base/types';
@@ -53,6 +55,7 @@ export class EdgeEditTool extends BaseGLSPTool {
     @inject(GLSP_TYPES.SelectionService) protected selectionService: SelectionService;
     @inject(AnchorComputerRegistry) protected anchorRegistry: AnchorComputerRegistry;
     @inject(EdgeRouterRegistry) @optional() protected edgeRouterRegistry?: EdgeRouterRegistry;
+    @inject(TYPES.ISnapper) @optional() readonly snapper?: ISnapper;
 
     protected feedbackEdgeSourceMovingListener: FeedbackEdgeSourceMovingMouseListener;
     protected feedbackEdgeTargetMovingListener: FeedbackEdgeTargetMovingMouseListener;
@@ -71,7 +74,7 @@ export class EdgeEditTool extends BaseGLSPTool {
         // install feedback move mouse listener for client-side move updates
         this.feedbackEdgeSourceMovingListener = new FeedbackEdgeSourceMovingMouseListener(this.anchorRegistry);
         this.feedbackEdgeTargetMovingListener = new FeedbackEdgeTargetMovingMouseListener(this.anchorRegistry);
-        this.feedbackMovingListener = new FeedbackEdgeRouteMovingMouseListener(this.edgeRouterRegistry);
+        this.feedbackMovingListener = new FeedbackEdgeRouteMovingMouseListener(this.edgeRouterRegistry, this.snapper);
     }
 
     registerFeedbackListeners(): void {

@@ -29,8 +29,8 @@ import {
     findParentByFeature,
     isBoundsAware,
     isConnectable,
+    ISnapper,
     isSelected,
-    isViewport,
     MouseListener,
     MoveAction,
     PolylineEdgeRouter,
@@ -44,6 +44,7 @@ import {
 } from 'sprotty';
 import { forEachElement, isNotUndefined, isRoutable, isRoutingHandle } from '../../utils/smodel-util';
 import { getAbsolutePosition, toAbsoluteBounds } from '../../utils/viewpoint-util';
+import { PointPositionUpdater } from '../change-bounds/snap';
 import { addReconnectHandles, removeReconnectHandles } from '../reconnect/model';
 import { FeedbackEdgeEnd, feedbackEdgeEndId, FeedbackEdgeEndMovingMouseListener, feedbackEdgeId } from './creation-tool-feedback';
 import { FeedbackCommand } from './model';
@@ -201,11 +202,11 @@ export class FeedbackEdgeSourceMovingMouseListener extends MouseListener {
 }
 
 export class FeedbackEdgeRouteMovingMouseListener extends MouseListener {
-    protected hasDragged = false;
-    protected lastDragPosition: Point | undefined;
+    protected pointPositionUpdater: PointPositionUpdater;
 
-    constructor(protected edgeRouterRegistry?: EdgeRouterRegistry) {
+    constructor(protected edgeRouterRegistry?: EdgeRouterRegistry, protected snapper?: ISnapper) {
         super();
+        this.pointPositionUpdater = new PointPositionUpdater(snapper);
     }
 
     override mouseDown(target: SModelElement, event: MouseEvent): Action[] {
@@ -214,11 +215,10 @@ export class FeedbackEdgeRouteMovingMouseListener extends MouseListener {
             const routingHandle = findParentByFeature(target, isRoutingHandle);
             if (routingHandle !== undefined) {
                 result.push(new SwitchRoutingModeAction([target.id], []));
-                this.lastDragPosition = { x: event.pageX, y: event.pageY };
+                this.pointPositionUpdater.updateLastDragPosition({ x: event.pageX, y: event.pageY });
             } else {
-                this.lastDragPosition = undefined;
+                this.pointPositionUpdater.resetPosition();
             }
-            this.hasDragged = false;
         }
         return result;
     }
@@ -226,38 +226,48 @@ export class FeedbackEdgeRouteMovingMouseListener extends MouseListener {
     override mouseMove(target: SModelElement, event: MouseEvent): Action[] {
         const result: Action[] = [];
         if (event.buttons === 0) {
-            this.mouseUp(target, event);
-        } else if (this.lastDragPosition) {
-            const viewport = findParentByFeature(target, isViewport);
-            this.hasDragged = true;
-            const zoom = viewport ? viewport.zoom : 1;
-            const dx = (event.pageX - this.lastDragPosition.x) / zoom;
-            const dy = (event.pageY - this.lastDragPosition.y) / zoom;
-            const handleMoves: ElementMove[] = [];
-            target.root.index
-                .all()
-                .filter(element => isSelected(element))
-                .forEach(element => {
-                    if (isRoutingHandle(element)) {
-                        const point = this.getHandlePosition(element);
-                        if (point !== undefined) {
-                            handleMoves.push({
-                                elementId: element.id,
-                                fromPosition: point,
-                                toPosition: {
-                                    x: point.x + dx,
-                                    y: point.y + dy
-                                }
-                            });
-                        }
-                    }
-                });
-            this.lastDragPosition = { x: event.pageX, y: event.pageY };
-            if (handleMoves.length > 0) {
-                result.push(new MoveAction(handleMoves, false));
-            }
+            return this.mouseUp(target, event);
+        }
+        const positionUpdate = this.pointPositionUpdater.updatePosition(target, { x: event.pageX, y: event.pageY }, !event.altKey);
+        if (positionUpdate) {
+            const moveActions = this.handleMoveOnClient(target, positionUpdate);
+            result.push(...moveActions);
         }
         return result;
+    }
+
+    protected handleMoveOnClient(target: SModelElement, positionUpdate: Point): Action[] {
+        const handleMoves: ElementMove[] = [];
+        target.root.index
+            .all()
+            .filter(element => isSelected(element))
+            .forEach(element => {
+                if (isRoutingHandle(element)) {
+                    const elementMove = this.toElementMove(element, positionUpdate);
+                    if (elementMove) {
+                        handleMoves.push(elementMove);
+                    }
+                }
+            });
+        if (handleMoves.length > 0) {
+            return [new MoveAction(handleMoves, false)];
+        }
+        return [];
+    }
+
+    protected toElementMove(element: SRoutingHandle, positionDelta: Point): ElementMove | undefined {
+        const point = this.getHandlePosition(element);
+        if (point !== undefined) {
+            return {
+                elementId: element.id,
+                fromPosition: point,
+                toPosition: {
+                    x: point.x + positionDelta.x,
+                    y: point.y + positionDelta.y
+                }
+            };
+        }
+        return undefined;
     }
 
     protected getHandlePosition(handle: SRoutingHandle): Point | undefined {
@@ -281,8 +291,7 @@ export class FeedbackEdgeRouteMovingMouseListener extends MouseListener {
     }
 
     override mouseUp(_target: SModelElement, event: MouseEvent): Action[] {
-        this.hasDragged = false;
-        this.lastDragPosition = undefined;
+        this.pointPositionUpdater.resetPosition();
         return [];
     }
 
