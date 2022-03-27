@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020-2021 EclipseSource and others.
+ * Copyright (c) 2020-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -22,7 +22,7 @@ import 'reflect-metadata';
 describe('NavigationTarget', () => {
     it('should be able to set and get element IDs', () => {
         const navigationTarget: NavigationTarget = { uri: 'uri' };
-        NavigationTarget.setElementIds(navigationTarget, ['id1', 'id2']);
+        NavigationTarget.setElementIds(navigationTarget, 'id1', 'id2');
         expect(NavigationTarget.getElementIds(navigationTarget)).to.be.eql(['id1', 'id2']);
     });
 
@@ -46,7 +46,7 @@ describe('NavigationTarget', () => {
 
         navigationTarget = { uri: 'uri' };
         expect(NavigationTarget.hasArguments(navigationTarget)).to.be.false;
-        NavigationTarget.setElementIds(navigationTarget, ['id1', 'id2']);
+        NavigationTarget.setElementIds(navigationTarget, 'id1', 'id2');
         expect(NavigationTarget.hasArguments(navigationTarget)).to.be.true;
 
         navigationTarget = { uri: 'uri' };

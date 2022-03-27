@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020-2021 EclipseSource and others.
+ * Copyright (c) 2022 STMicroelectronics and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -9,21 +9,18 @@
  * Licenses when the conditions for such availability set forth in the Eclipse
  * Public License v. 2.0 are satisfied: GNU General Public License, version 2
  * with the GNU Classpath Exception which is available at
- * https://www.gnu.npmorg/software/classpath/license.html.
+ * https://www.gnu.org/software/classpath/license.html.
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-
-/**
- * Utility function to parse a serverport that is defined via command line arg.
- * @param argsKey Name/Key of the commandline arg
- * @param defaultPort Default port that should be returned if no (valid) port was passed via CLI
- */
-export function getPort(argsKey: string, defaultPort?: number): number {
-    argsKey = `--${argsKey.replace('--', '').replace('=', '')}=`;
-    const args = process.argv.filter(a => a.startsWith(argsKey));
-    if (args.length > 0) {
-        return Number.parseInt(args[0].substring(argsKey.length), 10);
+import { Action, hasArrayProp } from '@eclipse-glsp/protocol';
+import { SetBoundsAction } from 'sprotty-protocol/lib/actions';
+declare module 'sprotty-protocol/lib/actions' {
+    // eslint-disable-next-line no-shadow
+    namespace SetBoundsAction {
+        export function is(object: any): object is SetBoundsAction;
     }
-    return defaultPort ? defaultPort : NaN;
 }
+
+SetBoundsAction.is = (object: any): object is SetBoundsAction =>
+    Action.hasKind(object, SetBoundsAction.KIND) && hasArrayProp(object, 'bounds');

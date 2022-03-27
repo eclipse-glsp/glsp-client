@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, DeleteMarkersAction, Marker, SetMarkersAction } from '@eclipse-glsp/protocol';
+import { Action, DeleteMarkersAction, hasArrayProp, Marker, SetMarkersAction } from '@eclipse-glsp/protocol';
 import { inject, injectable, optional } from 'inversify';
 import {
     Command,
@@ -45,7 +45,7 @@ export class ValidationFeedbackEmitter implements IFeedbackEmitter {
 
     @inject(TYPES.IActionDispatcherProvider) protected actionDispatcher: () => Promise<IActionDispatcher>;
 
-    private registeredAction: MarkersAction;
+    private registeredAction: ApplyMarkersAction;
 
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     private constructor() {}
@@ -54,13 +54,13 @@ export class ValidationFeedbackEmitter implements IFeedbackEmitter {
      * Register the action that should be emitted for visualizing validation feedback.
      * @param action the action that should be emitted when the model is updated and that will visualize the model validation feedback.
      */
-    registerValidationFeedbackAction(action: MarkersAction): void {
+    registerValidationFeedbackAction(action: ApplyMarkersAction): void {
         // De-register old action responsible for applying markers and re-applying them when the model is updated
         this.feedbackActionDispatcher.deregisterFeedback(this, []);
 
         // Clear existing markers
         if (this.registeredAction !== undefined) {
-            const deleteMarkersAction = new DeleteMarkersAction(this.registeredAction.markers);
+            const deleteMarkersAction = DeleteMarkersAction.create(this.registeredAction.markers);
             this.actionDispatcher().then(dispatcher => dispatcher.dispatch(deleteMarkersAction));
         }
 
@@ -88,7 +88,7 @@ export abstract class ExternalMarkerManager {
 
     removeMarkers(markers: Marker[]): void {
         if (this.actionDispatcher) {
-            this.actionDispatcher.dispatch(new DeleteMarkersAction(markers));
+            this.actionDispatcher.dispatch(DeleteMarkersAction.create(markers));
         }
     }
 
@@ -116,7 +116,7 @@ export class SetMarkersCommand extends Command {
         if (this.externalMarkerManager) {
             this.externalMarkerManager.setMarkers(markers, uri);
         }
-        const applyMarkersAction: ApplyMarkersAction = new ApplyMarkersAction(markers);
+        const applyMarkersAction = ApplyMarkersAction.create(markers);
         this.validationFeedbackEmitter.registerValidationFeedbackAction(applyMarkersAction);
         return context.root;
     }
@@ -131,18 +131,26 @@ export class SetMarkersCommand extends Command {
 }
 
 /**
- * Interface for actions processing markers
- */
-export interface MarkersAction extends Action {
-    readonly markers: Marker[];
-}
-
-/**
  * Action for applying makers to a model
  */
-@injectable()
-export class ApplyMarkersAction implements MarkersAction {
-    constructor(public readonly markers: Marker[], public readonly kind = ApplyMarkersCommand.KIND) {}
+export interface ApplyMarkersAction extends Action {
+    kind: typeof ApplyMarkersAction.KIND;
+    markers: Marker[];
+}
+
+export namespace ApplyMarkersAction {
+    export const KIND = 'applyMarkers';
+
+    export function is(object: any): object is ApplyMarkersAction {
+        return Action.hasKind(object, KIND) && hasArrayProp(object, 'markers');
+    }
+
+    export function create(markers: Marker[]): ApplyMarkersAction {
+        return {
+            kind: KIND,
+            markers
+        };
+    }
 }
 
 /**
@@ -150,7 +158,7 @@ export class ApplyMarkersAction implements MarkersAction {
  */
 @injectable()
 export class ApplyMarkersCommand extends FeedbackCommand {
-    static KIND = 'applyMarkers';
+    static KIND = '';
     override readonly priority = 0;
 
     constructor(@inject(TYPES.Action) protected action: ApplyMarkersAction) {

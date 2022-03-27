@@ -23,11 +23,11 @@ export class GLSPScrollMouseListener extends ScrollMouseListener implements IAct
     preventScrolling = false;
 
     handle(action: Action): void | Action | ICommand {
-        if (action instanceof EnableToolsAction) {
-            if (action.toolIds.includes(MarqueeMouseTool.ID)) {
+        if (action.kind === EnableToolsAction.KIND) {
+            if ((action as EnableToolsAction).toolIds.includes(MarqueeMouseTool.ID)) {
                 this.preventScrolling = true;
             }
-        } else if (action instanceof EnableDefaultToolsAction) {
+        } else if (action.kind === EnableDefaultToolsAction.KIND) {
             this.preventScrolling = false;
         }
     }

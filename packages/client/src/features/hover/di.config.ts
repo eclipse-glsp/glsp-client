@@ -19,6 +19,8 @@ import {
     ClosePopupActionHandler,
     configureActionHandler,
     configureCommand,
+    EnableDefaultToolsAction,
+    EnableToolsAction,
     FitToScreenCommand,
     HoverFeedbackCommand,
     HoverKeyListener,
@@ -56,6 +58,8 @@ const glspHoverModule = new ContainerModule((bind, _unbind, isBound) => {
     configureActionHandler(context, SetViewportCommand.KIND, ClosePopupActionHandler);
     configureActionHandler(context, MoveCommand.KIND, ClosePopupActionHandler);
     configureActionHandler(context, FocusStateChangedAction.KIND, ClosePopupActionHandler);
+    configureActionHandler(context, EnableToolsAction.KIND, GlspHoverMouseListener);
+    configureActionHandler(context, EnableDefaultToolsAction.KIND, GlspHoverMouseListener);
     configureActionHandler(context, FocusStateChangedAction.KIND, GlspHoverMouseListener);
 });
 

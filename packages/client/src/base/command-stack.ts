@@ -22,12 +22,12 @@ export class GLSPCommandStack extends CommandStack {
     @inject(TYPES.IActionDispatcherProvider) protected actionDispatcher: () => Promise<IActionDispatcher>;
 
     override undo(): Promise<SModelRoot> {
-        this.actionDispatcher().then(dispatcher => dispatcher.dispatch(new UndoOperation()));
+        this.actionDispatcher().then(dispatcher => dispatcher.dispatch(UndoOperation.create()));
         return this.thenUpdate();
     }
 
     override redo(): Promise<SModelRoot> {
-        this.actionDispatcher().then(dispatcher => dispatcher.dispatch(new RedoOperation()));
+        this.actionDispatcher().then(dispatcher => dispatcher.dispatch(RedoOperation.create()));
         return this.thenUpdate();
     }
 }

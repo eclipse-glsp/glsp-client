@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, Point } from '@eclipse-glsp/protocol';
+import { Action, hasStringProp, Point } from '@eclipse-glsp/protocol';
 import { inject, injectable } from 'inversify';
 import { VNode } from 'snabbdom';
 import {
@@ -31,24 +31,53 @@ import {
     SModelRoot,
     TYPES
 } from 'sprotty';
-import { forEachElement, isNotUndefined } from '../../utils/smodel-util';
+import { forEachElement } from '../../utils/smodel-util';
 import { addResizeHandles, isResizable, removeResizeHandles, SResizeHandle } from '../change-bounds/model';
 import { createMovementRestrictionFeedback, removeMovementRestrictionFeedback } from '../change-bounds/movement-restrictor';
 import { CursorCSS, cursorFeedbackAction } from '../tool-feedback/css-feedback';
 import { ChangeBoundsTool } from '../tools/change-bounds-tool';
 import { FeedbackCommand } from './model';
 
-export class ShowChangeBoundsToolResizeFeedbackAction implements Action {
-    constructor(readonly elementId?: string, public readonly kind: string = ShowChangeBoundsToolResizeFeedbackCommand.KIND) {}
+export interface ShowChangeBoundsToolResizeFeedbackAction extends Action {
+    kind: typeof ShowChangeBoundsToolResizeFeedbackAction.KIND;
+
+    elementId: string;
 }
 
-export class HideChangeBoundsToolResizeFeedbackAction implements Action {
-    constructor(public readonly kind: string = HideChangeBoundsToolResizeFeedbackCommand.KIND) {}
+export namespace ShowChangeBoundsToolResizeFeedbackAction {
+    export const KIND = 'showChangeBoundsToolResizeFeedback';
+
+    export function is(object: any): object is ShowChangeBoundsToolResizeFeedbackAction {
+        return Action.hasKind(object, KIND) && hasStringProp(object, 'elementId');
+    }
+
+    export function create(elementId: string): ShowChangeBoundsToolResizeFeedbackAction {
+        return {
+            kind: KIND,
+            elementId
+        };
+    }
+}
+
+export interface HideChangeBoundsToolResizeFeedbackAction extends Action {
+    kind: typeof HideChangeBoundsToolResizeFeedbackAction.KIND;
+}
+
+export namespace HideChangeBoundsToolResizeFeedbackAction {
+    export const KIND = 'hideChangeBoundsToolResizeFeedback';
+
+    export function is(object: any): object is HideChangeBoundsToolResizeFeedbackAction {
+        return Action.hasKind(object, KIND);
+    }
+
+    export function create(): HideChangeBoundsToolResizeFeedbackAction {
+        return { kind: KIND };
+    }
 }
 
 @injectable()
 export class ShowChangeBoundsToolResizeFeedbackCommand extends FeedbackCommand {
-    static readonly KIND = 'showChangeBoundsToolResizeFeedback';
+    static readonly KIND = ShowChangeBoundsToolResizeFeedbackAction.KIND;
 
     @inject(TYPES.Action) protected action: ShowChangeBoundsToolResizeFeedbackAction;
 
@@ -57,9 +86,9 @@ export class ShowChangeBoundsToolResizeFeedbackCommand extends FeedbackCommand {
 
         forEachElement(index, isResizable, removeResizeHandles);
 
-        if (isNotUndefined(this.action.elementId)) {
+        if (this.action.elementId) {
             const resizeElement = index.getById(this.action.elementId);
-            if (isNotUndefined(resizeElement) && isResizable(resizeElement)) {
+            if (resizeElement && isResizable(resizeElement)) {
                 addResizeHandles(resizeElement);
             }
         }
@@ -69,7 +98,7 @@ export class ShowChangeBoundsToolResizeFeedbackCommand extends FeedbackCommand {
 
 @injectable()
 export class HideChangeBoundsToolResizeFeedbackCommand extends FeedbackCommand {
-    static readonly KIND = 'hideChangeBoundsToolResizeFeedback';
+    static readonly KIND = HideChangeBoundsToolResizeFeedbackAction.KIND;
 
     @inject(TYPES.Action) protected action: HideChangeBoundsToolResizeFeedbackAction;
 
@@ -149,7 +178,7 @@ export class FeedbackMoveMouseListener extends MouseListener {
         return false;
     }
 
-    protected getElementMoves(target: SModelElement, event: MouseEvent, isFinished: boolean): MoveAction | undefined {
+    protected getElementMoves(target: SModelElement, event: MouseEvent, finished: boolean): MoveAction | undefined {
         if (!this.startDragPosition) {
             return undefined;
         }
@@ -173,7 +202,7 @@ export class FeedbackMoveMouseListener extends MouseListener {
                 );
 
                 if (isMoveable(element)) {
-                    toPosition = this.validateMove(startPosition, toPosition, element, isFinished);
+                    toPosition = this.validateMove(startPosition, toPosition, element, finished);
                     elementMoves.push({
                         elementId: element.id,
                         fromPosition: {
@@ -186,7 +215,7 @@ export class FeedbackMoveMouseListener extends MouseListener {
             }
         });
         if (elementMoves.length > 0) {
-            return new MoveAction(elementMoves, false, isFinished);
+            return MoveAction.create(elementMoves, { animate: false, finished });
         } else {
             return undefined;
         }

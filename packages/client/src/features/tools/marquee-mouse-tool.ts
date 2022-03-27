@@ -115,8 +115,8 @@ export class MarqueeMouseListener extends DragAwareMouseListener {
             const edgeIdsSelected = this.edges.filter(e => this.isEdgeMarked(e)).map(e => this.domHelper.findSModelIdByDOMElement(e));
             const selected = nodeIdsSelected.concat(edgeIdsSelected);
             return [
-                new SelectAction([], Array.from(target.root.index.all().map(e => e.id))),
-                new SelectAction(selected.concat(this.previouslySelected), []),
+                SelectAction.create({ deselectedElementsIDs: Array.from(target.root.index.all().map(e => e.id)) }),
+                SelectAction.create({ selectedElementsIDs: selected.concat(this.previouslySelected) }),
                 this.marqueeUtil.drawMarqueeAction()
             ];
         }
@@ -126,9 +126,9 @@ export class MarqueeMouseListener extends DragAwareMouseListener {
     override mouseUp(target: SModelElement, event: MouseEvent): Action[] {
         this.isActive = false;
         if (event.shiftKey) {
-            return [new RemoveMarqueeAction()];
+            return [RemoveMarqueeAction.create()];
         }
-        return [new RemoveMarqueeAction(), new EnableDefaultToolsAction()];
+        return [RemoveMarqueeAction.create(), EnableDefaultToolsAction.create()];
     }
 
     isEdgeMarked(element: SVGElement): boolean {
@@ -148,6 +148,6 @@ export class ShiftKeyListener extends KeyListener {
         if (event.shiftKey) {
             return [];
         }
-        return [new RemoveMarqueeAction(), new EnableDefaultToolsAction()];
+        return [RemoveMarqueeAction.create(), EnableDefaultToolsAction.create()];
     }
 }

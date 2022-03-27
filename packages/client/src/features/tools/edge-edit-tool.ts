@@ -126,10 +126,10 @@ class EdgeEditListener extends DragAwareMouseListener implements SelectionListen
         // note: order is important here as we want the reconnect handles to cover the routing handles
         const feedbackActions = [];
         if (canEditRouting(edge)) {
-            feedbackActions.push(new SwitchRoutingModeAction([this.edge.id], []));
+            feedbackActions.push(SwitchRoutingModeAction.create({ elementsToActivate: [this.edge.id] }));
         }
         if (isReconnectable(edge)) {
-            feedbackActions.push(new ShowEdgeReconnectHandlesFeedbackAction(this.edge.id));
+            feedbackActions.push(ShowEdgeReconnectHandlesFeedbackAction.create(this.edge.id));
         }
         this.tool.dispatchFeedback(feedbackActions);
     }
@@ -142,16 +142,16 @@ class EdgeEditListener extends DragAwareMouseListener implements SelectionListen
         if (this.edge && this.edge.target && this.edge.source) {
             if (isSourceRoutingHandle(edge, reconnectHandle)) {
                 this.tool.dispatchFeedback([
-                    new HideEdgeReconnectHandlesFeedbackAction(),
+                    HideEdgeReconnectHandlesFeedbackAction.create(),
                     cursorFeedbackAction(CursorCSS.EDGE_RECONNECT),
-                    new DrawFeedbackEdgeSourceAction(this.edge.type, this.edge.targetId)
+                    DrawFeedbackEdgeSourceAction.create({ elementTypeId: this.edge.type, targetId: this.edge.targetId })
                 ]);
                 this.reconnectMode = 'NEW_SOURCE';
             } else if (isTargetRoutingHandle(edge, reconnectHandle)) {
                 this.tool.dispatchFeedback([
-                    new HideEdgeReconnectHandlesFeedbackAction(),
+                    HideEdgeReconnectHandlesFeedbackAction.create(),
                     cursorFeedbackAction(CursorCSS.EDGE_CREATION_TARGET),
-                    new DrawFeedbackEdgeAction(this.edge.type, this.edge.sourceId)
+                    DrawFeedbackEdgeAction.create({ elementTypeId: this.edge.type, sourceId: this.edge.sourceId })
                 ]);
                 this.reconnectMode = 'NEW_TARGET';
             }
@@ -227,10 +227,10 @@ class EdgeEditListener extends DragAwareMouseListener implements SelectionListen
         }
 
         if (this.edge && this.newConnectable) {
-            const sourceId = this.isReconnectingNewSource() ? this.newConnectable.id : this.edge.sourceId;
-            const targetId = this.isReconnectingNewSource() ? this.edge.targetId : this.newConnectable.id;
-            if (this.requiresReconnect(sourceId, targetId)) {
-                result.push(new ReconnectEdgeOperation(this.edge.id, sourceId, targetId));
+            const sourceElementId = this.isReconnectingNewSource() ? this.newConnectable.id : this.edge.sourceId;
+            const targetElementId = this.isReconnectingNewSource() ? this.edge.targetId : this.newConnectable.id;
+            if (this.requiresReconnect(sourceElementId, targetElementId)) {
+                result.push(ReconnectEdgeOperation.create({ edgeElementId: this.edge.id, sourceElementId, targetElementId }));
             }
             this.reset();
         } else if (this.edge && this.routingHandle) {
@@ -238,7 +238,9 @@ class EdgeEditListener extends DragAwareMouseListener implements SelectionListen
             // reroute actions
             const latestEdge = target.index.getById(this.edge.id);
             if (latestEdge && isRoutable(latestEdge)) {
-                result.push(new ChangeRoutingPointsOperation([{ elementId: latestEdge.id, newRoutingPoints: latestEdge.routingPoints }]));
+                result.push(
+                    ChangeRoutingPointsOperation.create([{ elementId: latestEdge.id, newRoutingPoints: latestEdge.routingPoints }])
+                );
                 this.routingHandle = undefined;
             }
         }
@@ -309,9 +311,9 @@ class EdgeEditListener extends DragAwareMouseListener implements SelectionListen
     protected resetFeedback(): void {
         const result: Action[] = [];
         if (this.edge) {
-            result.push(new SwitchRoutingModeAction([], [this.edge.id]));
+            result.push(SwitchRoutingModeAction.create({ elementsToDeactivate: [this.edge.id] }));
         }
-        result.push(...[new HideEdgeReconnectHandlesFeedbackAction(), cursorFeedbackAction(), new RemoveFeedbackEdgeAction()]);
+        result.push(...[HideEdgeReconnectHandlesFeedbackAction.create(), cursorFeedbackAction(), RemoveFeedbackEdgeAction.create()]);
         this.tool.deregisterFeedback(result);
         this.tool.deregisterFeedbackListeners();
     }

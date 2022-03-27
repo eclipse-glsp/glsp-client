@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2021 STMicroelectronics and others.
+ * Copyright (c) 2021-2022 STMicroelectronics and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,55 +13,49 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import * as sprotty from 'sprotty-protocol';
+import { Dimension, Point } from 'sprotty-protocol';
+import { hasArrayProp, hasStringProp } from '../utils/type-util';
 import { Action } from './base-protocol';
-
-export type JsonPrimitive = string | number | boolean;
+// A collection of convenience and utility types that are used in the GLSP action protocol.
 
 /**
  * A key-value pair structure for primitive typed custom arguments.
  */
 export interface Args {
-    [key: string]: JsonPrimitive;
+    [key: string]: sprotty.JsonPrimitive;
 }
-
-export interface Point {
-    readonly x: number;
-    readonly y: number;
-}
-
-export const ORIGIN_POINT: Point = Object.freeze({
-    x: 0,
-    y: 0
-});
-
-export interface Dimension {
-    readonly width: number;
-    readonly height: number;
-}
-
-export const EMPTY_DIMENSION: Dimension = Object.freeze({
-    width: -1,
-    height: -1
-});
 
 /**
- * The bounds are the position (x, y) and dimension (width, height) of an object.
+ * The ElementAndBounds type is used to associate new bounds with a model element, which is referenced via its id.
  */
-export interface Bounds extends Point, Dimension {}
-
-export const EMPTY_BOUNDS: Bounds = Object.freeze({ ...EMPTY_DIMENSION, ...ORIGIN_POINT });
-
-export interface ElementAndBounds {
+export interface ElementAndBounds extends sprotty.ElementAndBounds {
+    /**
+     * The identifier of the element.
+     */
     elementId: string;
-    newPosition?: Point;
+    /**
+     * The new size of the element.
+     */
     newSize: Dimension;
+    /**
+     * The new position of the element.
+     */
+    newPosition?: Point;
 }
 
 /**
- * Associates a new alignment with a model element, which is referenced via its id.
+ * The `ElementAndAlignment` type is used to associate a new alignment with a model element, which is referenced via its id.
+ * Typically used to align label relative to their parent element.
  */
-export interface ElementAndAlignment {
+export interface ElementAndAlignment extends sprotty.ElementAndAlignment {
+    /**
+     * The identifier of the element.
+     */
     elementId: string;
+    /**
+     * The new alignment of the element.
+     */
     newAlignment: Point;
 }
 
@@ -102,18 +96,43 @@ export interface EditorContext {
     readonly args?: Args;
 }
 
+export namespace EditorContext {
+    export function is(object: any): object is EditorContext {
+        return object !== undefined && hasArrayProp(object, 'selectedElementIds');
+    }
+}
 /**
- *Labeled actions are used to denote a group of actions in a user-interface context, e.g., to define an entry in the command palette or
- *in the context menu.
+ * Labeled actions are used to denote a group of actions in a user-interface context, e.g., to define an entry in the command palette or
+ * in the context menu.
+ * The corresponding namespace offers a helper function for type guard checks.
  */
-export class LabeledAction {
-    constructor(readonly label: string, readonly actions: Action[], readonly icon?: string) {}
+export interface LabeledAction {
+    /**
+     * Group label.
+     */
+    label: string;
+
+    /**
+     * Actions in the group.
+     */
+    actions: Action[];
+    /**
+     * Optional group icon.
+     */
+    icon?: string;
 }
 
-export function isLabeledAction(element: any): element is LabeledAction {
-    return element !== undefined && typeof element === 'object' && 'label' in element && 'actions' in element;
+export namespace LabeledAction {
+    export function is(object: any): object is LabeledAction {
+        return Action.is(object) && hasStringProp(object, 'label') && hasArrayProp(object, 'array');
+    }
+
+    export function toActionArray(input: LabeledAction | Action[] | Action): Action[] {
+        if (Array.isArray(input)) {
+            return input;
+        } else if (LabeledAction.is(input)) {
+            return input.actions;
+        }
+        return [input];
+    }
 }
-
-export type JsonAny = JsonPrimitive | Args | JsonArray | null;
-
-export interface JsonArray extends Array<JsonAny> {}

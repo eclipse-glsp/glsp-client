@@ -23,6 +23,10 @@
       "name": "Eclipse GLSP Project",
       "email": "glsp-dev@eclipse.org",
       "url": "https://projects.eclipse.org/projects/ecd.glsp"
+    },
+    {
+      "name": "STMicroelectronics",
+      "url": "https://www.st.com/"
     }
   ],
   "dependencies": {

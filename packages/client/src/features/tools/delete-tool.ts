@@ -70,7 +70,7 @@ export class DeleteKeyListener extends KeyListener {
                     .map(e => e.id)
             );
             if (deleteElementIds.length > 0) {
-                return [new DeleteElementOperation(deleteElementIds)];
+                return [DeleteElementOperation.create(deleteElementIds)];
             }
         }
         return [];
@@ -114,9 +114,9 @@ export class DeleteToolMouseListener extends MouseListener {
             return [];
         }
         const result: Action[] = [];
-        result.push(new DeleteElementOperation([deletableParent.id]));
+        result.push(DeleteElementOperation.create([deletableParent.id]));
         if (!isCtrlOrCmd(event)) {
-            result.push(new EnableDefaultToolsAction());
+            result.push(EnableDefaultToolsAction.create());
         }
         return result;
     }

@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2021 EclipseSource and others.
+ * Copyright (c) 2019-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,18 +13,9 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Bounds, Point } from '@eclipse-glsp/protocol';
-import {
-    BoundsAware,
-    Dimension,
-    findParentByFeature,
-    isAlignable,
-    isViewport,
-    ORIGIN_POINT,
-    SModelElement,
-    translateBounds,
-    Viewport
-} from 'sprotty';
+
+import { Bounds, Dimension, Point, Viewport } from '@eclipse-glsp/protocol';
+import { BoundsAware, findParentByFeature, isAlignable, isViewport, SModelElement, translateBounds } from 'sprotty';
 
 /**
  * Return the position corresponding to this mouse event (Browser coordinates)
@@ -70,7 +61,7 @@ export function getAbsolutePosition(target: SModelElement, mouseEvent: MouseEven
  * @param target  A bounds-aware element from the diagram
  */
 export function toAbsoluteBounds(element: SModelElement & BoundsAware): Bounds {
-    const location = isAlignable(element) ? element.alignment : ORIGIN_POINT;
+    const location = isAlignable(element) ? element.alignment : Point.ORIGIN;
     const x = location.x;
     const y = location.y;
     const width = element.bounds.width;

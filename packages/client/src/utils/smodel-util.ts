@@ -13,18 +13,16 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { distinctAdd, ElementAndRoutingPoints, remove, TypeGuard } from '@eclipse-glsp/protocol';
+import { distinctAdd, ElementAndBounds, ElementAndRoutingPoints, remove, SModelElementSchema, TypeGuard } from '@eclipse-glsp/protocol';
 import {
     BoundsAware,
-    ElementAndBounds,
     isBoundsAware,
     isMoveable,
     isSelectable,
     isSelected,
+    ModelIndexImpl,
     Selectable,
     SModelElement,
-    SModelElementSchema,
-    SModelIndex,
     SRoutableElement,
     SRoutingHandle
 } from 'sprotty';
@@ -32,31 +30,31 @@ import { FluentIterable } from 'sprotty/lib/utils/iterable';
 
 /**
  * Helper type to represent a filter predicate for {@link SModelElement}s. This is used to retrieve
- * elements from the {@link SModelIndex} that also conform to a second type `T`. Its mainly used for
+ * elements from the {@link ModelIndexImpl} that also conform to a second type `T`. Its mainly used for
  * retrieving elements that also implement a certain model features (e.g. selectable)
  */
 export type ModelFilterPredicate<T> = (modelElement: SModelElement) => modelElement is SModelElement & T;
 
 /**
- * Retrieves all elements from the given {@link SModelIndex} that match the given {@link ModelFilterPredicate}
- * @param index The {@link SModelIndex}.
+ * Retrieves all elements from the given {@link ModelIndexImpl} that match the given {@link ModelFilterPredicate}
+ * @param index The {@link ModelIndexImpl}.
  * @param predicate The {@link ModelFilterPredicate} that should be used.
  * @returns A {@link FluentIterable} of all indexed element that match the predicate
  * (correctly casted to also include the additional type of the predicate).
  */
-export function filter<T>(index: SModelIndex<SModelElement>, predicate: ModelFilterPredicate<T>): FluentIterable<SModelElement & T> {
+export function filter<T>(index: ModelIndexImpl, predicate: ModelFilterPredicate<T>): FluentIterable<SModelElement & T> {
     return index.all().filter(predicate) as FluentIterable<SModelElement & T>;
 }
 
 /**
- * Retrieves all elements from the given {@link SModelIndex} that match the given {@link ModelFilterPredicate} and executes
+ * Retrieves all elements from the given {@link ModelIndexImpl} that match the given {@link ModelFilterPredicate} and executes
  * the given runnable for each element of the result set.
- * @param index The {@link SModelIndex}.
+ * @param index The {@link ModelIndexImpl}.
  * @param predicate The {@link ModelFilterPredicate} that should be used.
  * @param runnable The runnable that should be executed for each matching element.
  */
 export function forEachElement<T>(
-    index: SModelIndex<SModelElement>,
+    index: ModelIndexImpl,
     predicate: ModelFilterPredicate<T>,
     runnable: (modelElement: SModelElement & T) => void
 ): void {
@@ -64,13 +62,13 @@ export function forEachElement<T>(
 }
 
 /**
- * Retrieves an array of all elements that match the given {@link ModelFilterPredicate} from the given {@link SModelIndex}.
- * @param index The {@link SModelIndex}.
+ * Retrieves an array of all elements that match the given {@link ModelFilterPredicate} from the given {@link ModelIndexImpl}.
+ * @param index The {@link ModelIndexImpl}.
  * @param predicate The {@link ModelFilterPredicate} that should be used.
  * @returns An array of all indexed element that match the predicate
  * (correctly casted to also include the additional type of the predicate).
  */
-export function getMatchingElements<T>(index: SModelIndex<SModelElement>, predicate: ModelFilterPredicate<T>): (SModelElement & T)[] {
+export function getMatchingElements<T>(index: ModelIndexImpl, predicate: ModelFilterPredicate<T>): (SModelElement & T)[] {
     return Array.from(filter(index, predicate));
 }
 
@@ -82,7 +80,7 @@ export function getMatchingElements<T>(index: SModelIndex<SModelElement>, predic
  * @param guard Optional typeguard. If defined only elements that match the guard will be returned.
  * @returns An array of the model elements that correspond to the given ids and filter predicate.
  */
-export function getElements<S extends SModelElement>(index: SModelIndex<SModelElement>, elementsIDs: string[], guard?: TypeGuard<S>): S[] {
+export function getElements<S extends SModelElement>(index: ModelIndexImpl, elementsIDs: string[], guard?: TypeGuard<S>): S[] {
     // Internal filter function that filters out undefined model elements and runs an optional typeguard check.
     const filterFn = (element?: SModelElement): element is S => {
         if (element !== undefined) {
@@ -93,22 +91,22 @@ export function getElements<S extends SModelElement>(index: SModelIndex<SModelEl
     return elementsIDs.map(id => index.getById(id)).filter(filterFn);
 }
 /**
- * Retrieves the amount of currently selected elements in the given {@link SModelIndex}.
- * @param index The {@link SModelIndex}.
+ * Retrieves the amount of currently selected elements in the given {@link ModelIndexImpl}.
+ * @param index The {@link ModelIndexImpl}.
  * @returns The amount of selected elements.
  */
-export function getSelectedElementCount(index: SModelIndex<SModelElement>): number {
+export function getSelectedElementCount(index: ModelIndexImpl): number {
     let selected = 0;
     forEachElement(index, isSelected, element => selected++);
     return selected;
 }
 
 /**
- * Helper function to check wether an any element is selected in the given {@link SModelIndex}.
- * @param index The {@link SModelIndex}.
+ * Helper function to check wether an any element is selected in the given {@link ModelIndexImpl}.
+ * @param index The {@link ModelIndexImpl}.
  * @returns `true` if at least one element is selected, `false` otherwise.
  */
-export function hasSelectedElements(index: SModelIndex<SModelElement>): boolean {
+export function hasSelectedElements(index: ModelIndexImpl): boolean {
     return getSelectedElementCount(index) > 0;
 }
 

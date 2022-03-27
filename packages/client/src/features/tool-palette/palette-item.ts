@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020-2021 EclipseSource and others.
+ * Copyright (c) 2020-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { isLabeledAction, isTriggerElementTypeCreationAction, LabeledAction, TriggerElementCreationAction } from '@eclipse-glsp/protocol';
+import { LabeledAction, TriggerEdgeCreationAction, TriggerNodeCreationAction } from '@eclipse-glsp/protocol';
 
 export interface PaletteItem extends LabeledAction {
     readonly id: string;
@@ -22,17 +22,23 @@ export interface PaletteItem extends LabeledAction {
 }
 
 export function isPaletteItem(object?: any): object is PaletteItem {
-    return isLabeledAction(object) && 'id' in object && 'sortString' in object;
+    return LabeledAction.is(object) && 'id' in object && 'sortString' in object;
 }
 
 export namespace PaletteItem {
     export function getTriggerAction(item?: PaletteItem): TriggerElementCreationAction | undefined {
         if (item) {
-            const initiAction = item.actions
-                .filter(a => isTriggerElementTypeCreationAction(a))
+            const initialActions = item.actions
+                .filter(a => isTriggerElementCreationAction(a))
                 .map(action => action as TriggerElementCreationAction);
-            return initiAction.length > 0 ? initiAction[0] : undefined;
+            return initialActions.length > 0 ? initialActions[0] : undefined;
         }
         return undefined;
+    }
+
+    type TriggerElementCreationAction = TriggerEdgeCreationAction | TriggerEdgeCreationAction;
+
+    function isTriggerElementCreationAction(object: any): object is TriggerElementCreationAction {
+        return TriggerNodeCreationAction.is(object) || TriggerEdgeCreationAction.is(object);
     }
 }

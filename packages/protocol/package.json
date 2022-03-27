@@ -26,6 +26,10 @@
       "name": "Eclipse GLSP Project",
       "email": "glsp-dev@eclipse.org",
       "url": "https://projects.eclipse.org/projects/ecd.glsp"
+    },
+    {
+      "name": "STMicroelectronics",
+      "url": "https://www.st.com/"
     }
   ],
   "files": [
@@ -33,9 +37,9 @@
     "src"
   ],
   "dependencies": {
-    "inversify": "^5.1.1",
     "uuid": "7.0.3",
-    "vscode-ws-jsonrpc": "0.2.0"
+    "vscode-ws-jsonrpc": "0.2.0",
+    "sprotty-protocol": "next"
   },
   "devDependencies": {
     "@types/uuid": "3.4.5"
@@ -45,6 +49,8 @@
     "clean": "rimraf lib tsconfig.tsbuildinfo ",
     "build": "tsc",
     "lint": "eslint -c ./.eslintrc.js --ext .ts ./src",
+    "test": "mocha --config ../../.mocharc.json \"./src/**/*.spec.?(ts|tsx)\"",
+    "test:ci": "export JUNIT_REPORT_PATH=./report.xml && yarn test --reporter mocha-jenkins-reporter",
     "watch": "tsc -w"
   },
   "publishConfig": {

@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020-2021 EclipseSource and others.
+ * Copyright (c) 2020-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,61 +13,149 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { isObject, isString } from '../utils/typeguard-util';
-import { Action, generateRequestId, isActionKind, isRequestAction, Operation, RequestAction, ResponseAction } from './base-protocol';
+import { hasObjectProp, hasStringProp } from '../utils/type-util';
+import { Action, Operation, RequestAction, ResponseAction } from './base-protocol';
 import { Args } from './types';
 
 /**
  * Requests the validation of the given text in the context of the provided model element. Typically sent from the client to the server.
+ * The corresponding namespace declares the action kind as constant and offers helper functions for type guard checks
+ * and creating new `NewActions`.
  */
-export class RequestEditValidationAction implements RequestAction<SetEditValidationResultAction> {
-    static readonly KIND = 'requestEditValidation';
-    constructor(
-        public readonly contextId: string,
-        public readonly modelElementId: string,
-        public readonly text: string,
-        public readonly requestId: string = generateRequestId(),
-        public readonly kind: string = RequestEditValidationAction.KIND
-    ) {}
+export interface RequestEditValidationAction extends RequestAction<SetEditValidationResultAction> {
+    /**
+     * The unique action kind.
+     */
+    kind: typeof RequestEditValidationAction.KIND;
+    /**
+     * Context in which the text is validated, e.g., 'label-edit'.
+     */
+    contextId: string;
+
+    /**
+     * Model element that is being edited.
+     */
+    modelElementId: string;
+
+    /**
+     * Text that should be considered for the model element.
+     */
+    text: string;
 }
 
-export function isRequestEditValidationAction(action: any): action is RequestEditValidationAction {
-    return (
-        isRequestAction(action) &&
-        action.kind === RequestEditValidationAction.KIND &&
-        isString(action, 'contextId') &&
-        isString(action, 'modelElementId') &&
-        isString(action, 'text')
-    );
+export namespace RequestEditValidationAction {
+    export const KIND = 'requestEditValidation';
+
+    export function is(object: any): object is RequestEditValidationAction {
+        return (
+            RequestAction.hasKind(object, KIND) &&
+            hasStringProp(object, 'contextId') &&
+            hasStringProp(object, 'modelElementId') &&
+            hasStringProp(object, 'text')
+        );
+    }
+
+    export function create(options: {
+        contextId: string;
+        modelElementId: string;
+        text: string;
+        requestId?: string;
+    }): RequestEditValidationAction {
+        return {
+            kind: KIND,
+            requestId: '',
+            ...options
+        };
+    }
 }
 
 /**
  * Response to a {@link RequestEditValidationAction} containing the validation result for applying a text on a certain model element.
+ * The corresponding namespace declares the action kind as constant and offers helper functions for type guard checks
+ * and creating new `SetEditValidationResultActions`.
  */
-export class SetEditValidationResultAction implements ResponseAction {
-    static readonly KIND = 'setEditValidationResult';
-    constructor(
-        public readonly status: ValidationStatus,
-        public readonly responseId: string = '',
-        public readonly args?: Args,
-        public readonly kind: string = SetEditValidationResultAction.KIND
-    ) {}
+export interface SetEditValidationResultAction extends ResponseAction {
+    /**
+     * The unique action kind.
+     */
+    kind: typeof SetEditValidationResultAction.KIND;
+
+    /**
+     * Validation status.
+     */
+    status: ValidationStatus;
+
+    /*
+     * Additional arguments for custom behavior.
+     */
+    args?: Args;
 }
 
-export function isSetEditValidationResultAction(action: Action): action is SetEditValidationResultAction {
-    return isActionKind(action, SetEditValidationResultAction.KIND) && isObject(action, 'status') && isString(action, 'responseId');
+export namespace SetEditValidationResultAction {
+    export const KIND = 'setEditValidationResult';
+
+    export function is(object: any): object is SetEditValidationResultAction {
+        return Action.hasKind(object, KIND) && hasObjectProp(object, 'status');
+    }
+
+    export function create(status: ValidationStatus, options: { args?: Args; responseId?: string } = {}): SetEditValidationResultAction {
+        return {
+            kind: KIND,
+            responseId: '',
+            status,
+            ...options
+        };
+    }
 }
 
-export class ApplyLabelEditOperation implements Operation {
-    static KIND = 'applyLabelEdit';
-    kind = ApplyLabelEditOperation.KIND;
-    constructor(readonly labelId: string, readonly text: string) {}
+/**
+ * A very common use case in domain models is the support of labels that display textual information to the user.
+ * To apply new text to such a label element the client may send an ApplyLabelEditOperation to the server. Typically this is
+ * done by the client after it has received a error free validation result via {@link SetEditValidationResultAction} from the server.
+ */
+/**
+ * <Insert documentation>
+ * The corresponding namespace declares the action kind as constant and offers helper functions for type guard checks
+ * and creating new `ApplyLabelEditOperations`.
+ */
+export interface ApplyLabelEditOperation extends Operation {
+    /**
+     * The unique action kind.
+     */
+    kind: typeof ApplyLabelEditOperation.KIND;
+
+    /**
+     * Identifier of the label model element.
+     */
+    labelId: string;
+
+    /**
+     * Text that should be applied on the label.
+     */
+    text: string;
 }
 
-export function isApplyLabelEditOperation(action: any): action is ApplyLabelEditOperation {
-    return isActionKind(action, ApplyLabelEditOperation.KIND) && isString(action, 'labelId') && isString(action, 'text');
+export namespace ApplyLabelEditOperation {
+    export const KIND = 'applyLabelEdit';
+
+    export function is(object: any): object is ApplyLabelEditOperation {
+        return Operation.hasKind(object, KIND) && hasStringProp(object, 'labelId') && hasStringProp(object, 'text');
+    }
+
+    export function create(options: { labelId: string; text: string }): ApplyLabelEditOperation {
+        return {
+            kind: KIND,
+            isOperation: true,
+            ...options
+        };
+    }
 }
 
+/**
+ * The serializable result of an an validation request.
+ * Tje corresponding namespace offers the default severity values
+ * and other utility functions.
+ */
 export interface ValidationStatus {
     /**
      * The severity of the validation returned by the server.
@@ -85,6 +173,68 @@ export interface ValidationStatus {
     readonly error?: ResponseError;
 }
 
+export namespace ValidationStatus {
+    /**
+     * The default {@link ValidationStatus} severity levels used in GLSP.
+     */
+    // eslint-disable-next-line no-shadow
+    export enum Severity {
+        FATAL,
+        ERROR,
+        WARNING,
+        INFO,
+        OK,
+        // eslint-disable-next-line no-shadow
+        NONE
+    }
+
+    /**
+     * An empty {@link ValidationStatus}.
+     */
+    export const NONE: ValidationStatus = {
+        severity: Severity.NONE,
+        message: '',
+        error: { code: -1, message: '', data: {} }
+    };
+
+    /**
+     * Utility function to check wether the given {@link ValidationStatus} has
+     * a severity that is considered to be OK.
+     * @param validationStatus The validation status to check.
+     * @returns `true` if the given status has a non critical severity, `false` otherwise.
+     */
+    export function isOk(validationStatus: ValidationStatus): boolean {
+        return (
+            validationStatus.severity === Severity.OK ||
+            validationStatus.severity === Severity.INFO ||
+            validationStatus.severity === Severity.NONE
+        );
+    }
+
+    /**
+     * Utility function to check wether the given {@link ValidationStatus} has
+     * a `warning` severity.
+     * @param validationStatus The validation status to check.
+     * @returns `true` if the given status has a `warning` severity, `false` otherwise.
+     */
+    export function isWarning(validationStatus: ValidationStatus): boolean {
+        return validationStatus.severity === Severity.WARNING;
+    }
+
+    /**
+     * Utility function to check wether the given {@link ValidationStatus} has
+     * an `error` or `fatal` severity.
+     * @param validationStatus The validation status to check.
+     * @returns `true` if the given status has a `error` or `fatal` severity, `false` otherwise.
+     */
+    export function isError(validationStatus: ValidationStatus): boolean {
+        return validationStatus.severity === Severity.ERROR || validationStatus.severity === Severity.FATAL;
+    }
+}
+
+/**
+ * The serializable format of an error that occurred during validation.
+ */
 export interface ResponseError {
     /**
      * Code identifying the error kind.
@@ -100,39 +250,4 @@ export interface ResponseError {
      * Additional custom data, e.g., a serialized stacktrace.
      */
     readonly data: Record<string, any>;
-}
-
-export namespace ValidationStatus {
-    // eslint-disable-next-line no-shadow
-    export enum Severity {
-        FATAL,
-        ERROR,
-        WARNING,
-        INFO,
-        OK,
-        // eslint-disable-next-line no-shadow
-        NONE
-    }
-
-    export const NONE: ValidationStatus = {
-        severity: Severity.NONE,
-        message: '',
-        error: { code: -1, message: '', data: {} }
-    };
-
-    export function isOk(validationStatus: ValidationStatus): boolean {
-        return (
-            validationStatus.severity === Severity.OK ||
-            validationStatus.severity === Severity.INFO ||
-            validationStatus.severity === Severity.NONE
-        );
-    }
-
-    export function isWarning(validationStatus: ValidationStatus): boolean {
-        return validationStatus.severity === Severity.WARNING;
-    }
-
-    export function isError(validationStatus: ValidationStatus): boolean {
-        return validationStatus.severity === Severity.ERROR || validationStatus.severity === Severity.FATAL;
-    }
 }

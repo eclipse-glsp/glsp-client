@@ -13,7 +13,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, isAction } from '@eclipse-glsp/protocol';
 import { injectable, multiInject, optional } from 'inversify';
 import { MouseListener, MouseTool, SModelElement, SModelRoot, TYPES } from 'sprotty';
 import { getRank } from '../rank/model';
@@ -82,13 +81,8 @@ export class RankingMouseTool extends MouseTool implements IMouseTool {
         if (actions.length > 0) {
             event.preventDefault();
             for (const actionOrPromise of actions) {
-                if (isAction(actionOrPromise)) {
-                    await this.actionDispatcher.dispatch(actionOrPromise);
-                } else {
-                    actionOrPromise.then((action: Action) => {
-                        this.actionDispatcher.dispatch(action);
-                    });
-                }
+                const action = await actionOrPromise;
+                await this.actionDispatcher.dispatch(action);
             }
         }
     }

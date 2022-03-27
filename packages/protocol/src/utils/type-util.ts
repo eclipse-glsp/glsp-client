@@ -15,6 +15,25 @@
  ********************************************************************************/
 
 /**
+ * The built-in 'object' & 'Object' types are currently hard to use
+ * an should be avoided. It's recommended to use Record instead to describe the
+ * type meaning of "any object";
+ */
+export type AnyObject = Record<PropertyKey, unknown>;
+
+export namespace AnyObject {
+    /**
+     * Type guard to check wether a given object is of type {@link AnyObject}.
+     * @param object The object to check.
+     * @returns The given object as {@link AnyObject} or `false`.
+     */
+    export function is(object: unknown): object is AnyObject {
+        // eslint-disable-next-line no-null/no-null
+        return object !== null && typeof object === 'object';
+    }
+}
+
+/**
  * Utility type to describe typeguard functions.
  */
 export type TypeGuard<T> = (element: any, ...args: any[]) => element is T;
@@ -25,7 +44,7 @@ export type TypeGuard<T> = (element: any, ...args: any[]) => element is T;
  * @param propertyKey The key of the property
  * @returns `true` if the object has property with matching key of type `string`.
  */
-export function isString(object: any, propertyKey: string): boolean {
+export function hasStringProp(object: AnyObject, propertyKey: string): boolean {
     return propertyKey in object && typeof object[propertyKey] === 'string';
 }
 
@@ -35,7 +54,7 @@ export function isString(object: any, propertyKey: string): boolean {
  * @param propertyKey The key of the property
  * @returns `true` if the object has property with matching key of type `boolean`.
  */
-export function isBoolean(object: any, propertyKey: string): boolean {
+export function hasBooleanProp(object: AnyObject, propertyKey: string): boolean {
     return propertyKey in object && typeof object[propertyKey] === 'boolean';
 }
 
@@ -45,7 +64,7 @@ export function isBoolean(object: any, propertyKey: string): boolean {
  * @param propertyKey The key of the property
  * @returns `true` if the object has property with matching key of type `number`.
  */
-export function isNumber(object: any, propertyKey: string): boolean {
+export function hasNumberProp(object: AnyObject, propertyKey: string): boolean {
     return propertyKey in object && typeof object[propertyKey] === 'number';
 }
 
@@ -55,8 +74,8 @@ export function isNumber(object: any, propertyKey: string): boolean {
  * @param propertyKey The key of the property
  * @returns `true` if the object has property with matching key of type `object`.
  */
-export function isObject(object: any, propertyKey: string): boolean {
-    return propertyKey in object && typeof object[propertyKey] === 'object';
+export function hasObjectProp(object: AnyObject, propertyKey: string): boolean {
+    return propertyKey in object && AnyObject.is(object[propertyKey]);
 }
 
 /**
@@ -65,6 +84,6 @@ export function isObject(object: any, propertyKey: string): boolean {
  * @param propertyKey The key of the property
  * @returns `true` if the object has property with matching key of type `Array`.
  */
-export function isArray(object: any, propertyKey: string): boolean {
+export function hasArrayProp(object: AnyObject, propertyKey: string): boolean {
     return propertyKey in object && Array.isArray(object[propertyKey]);
 }

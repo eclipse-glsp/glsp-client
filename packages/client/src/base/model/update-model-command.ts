@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, isSetModelAction, UpdateModelAction } from '@eclipse-glsp/protocol';
+import { Action, SetModelAction, UpdateModelAction } from '@eclipse-glsp/protocol';
 import { inject, injectable, multiInject, optional, postConstruct } from 'inversify';
 import {
     ActionHandlerRegistry,
@@ -36,8 +36,8 @@ import { GLSP_TYPES } from '../types';
 @injectable()
 export class SetModelActionHandler implements IActionHandler {
     handle(action: Action): Action | void {
-        if (isSetModelAction(action)) {
-            return new UpdateModelAction(action.newRoot, false);
+        if (SetModelAction.is(action)) {
+            return UpdateModelAction.create(action.newRoot, { animate: false });
         }
     }
 }
@@ -60,7 +60,7 @@ export class FeedbackAwareUpdateModelCommand extends UpdateModelCommand {
     protected actionHandlerRegistry?: ActionHandlerRegistry;
 
     constructor(@inject(TYPES.Action) action: UpdateModelAction) {
-        super(action);
+        super({ animate: true, ...action });
     }
 
     @postConstruct()

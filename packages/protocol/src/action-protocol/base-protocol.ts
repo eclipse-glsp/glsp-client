@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2021 STMicroelectronics and others.
+ * Copyright (c) 2021-2022 STMicroelectronics and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,114 +13,224 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import * as uuid from 'uuid';
-import { isArray, isString } from '../utils/typeguard-util';
-import { JsonAny } from './types';
+import { JsonPrimitive } from 'sprotty-protocol';
+import * as sprotty from 'sprotty-protocol/lib/actions';
+import { AnyObject, hasArrayProp, hasStringProp, TypeGuard } from '../utils/type-util';
+
+/**
+ * An action is a declarative description of a behavior that shall be invoked by the receiver upon receipt of the action.
+ * It is a plain data structure, and as such transferable between server and client. An action must never contain actual
+ * SModelElement instances, but either refer to them via their ids or contain serializable schema for model elements.
+ * Additional typeguard functions are provided via the corresponding namespace.
+ */
+export interface Action extends sprotty.Action {
+    /**
+     * Unique identifier specifying the kind of action to process.
+     */
+    kind: string;
+}
+
+export namespace Action {
+    export function is(object: any): object is Action {
+        return AnyObject.is(object) && hasStringProp(object, 'kind');
+    }
+    /**
+     * Typeguard function to check wether the given object is an {@link Action} with the given `kind`.
+     * @param object The object to check.
+     * @param kind  The expected action kind.
+     * @returns A type literal indicating wether the given object is an action with the given kind.
+     */
+    export function hasKind(object: any, kind: string): object is Action {
+        return Action.is(object) && object.kind === kind;
+    }
+}
 
 /**
  * A general message serves as an envelope carrying an action to be transmitted between the client and the server via a DiagramServer.
+ * @typeParam A the {@link Action} type that is contained by this message.
+ * A typeguard function is provided via the corresponding namespace.
  */
-export interface ActionMessage<A extends Action = Action> {
+export interface ActionMessage<A extends Action = Action> extends sprotty.ActionMessage {
     /**
-     * Used to identify a specific client session.
-     */
+     * The unique client id
+     *  */
     clientId: string;
+
     /**
      * The action to execute.
      */
     action: A;
 }
 
-export function isActionMessage(object: any): object is ActionMessage {
-    return object !== undefined && isString(object, 'clientId') && isAction(object['action']);
-}
-
-export function isActionMessageOfType<A extends Action>(object: any, guard: (action: any) => action is A): object is ActionMessage<A> {
-    return isActionMessage(object) && guard(object.action);
-}
-
-/**
- * An action is a declarative description of a behavior that shall be invoked by the receiver upon receipt of the action.
- * It is a plain data structure, and as such transferable between server and client. An action must never contain actual
- * SModelElement instances, but either refer to them via their ids or contain serializable schema for model elements.
- */
-export interface Action {
-    /**
-     * Unique identifier specifying the kind of action to process.
-     */
-    readonly kind: string;
-}
-
-export function isAction(action: any): action is Action {
-    return action !== undefined && isString(action, 'kind');
-}
-
-export function isActionKind(action: any, kind: string): action is Action {
-    return isAction(action) && action.kind === kind;
+export namespace ActionMessage {
+    export function is<A extends Action>(object: any, typeguard?: TypeGuard<A>): object is ActionMessage<A> {
+        const actionGuard = typeguard ?? Action.is;
+        return AnyObject.is(object) && hasStringProp(object, 'clientId') && actionGuard(object.action);
+    }
 }
 
 /**
  * A request action is tied to the expectation of receiving a corresponding response action. The requestId property is used to match the
- * received response with the original request.
+ * received response with the original request. Typically its not necessary to create an explicit requestId. The requestId can be set
+ * to an empty string. The action dispatcher than auto generates an request id if needed (i.e. the action was dispatched as request).
+ *
+
+ * A typeguard function, and a generic helper function to generate a request id are provided via the corresponding namespace.
  */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export interface RequestAction<Res extends ResponseAction> extends Action {
+export interface RequestAction<Res extends ResponseAction> extends Action, sprotty.RequestAction<Res> {
     /**
      * Unique id for this request. In order to match a response to this request, the response needs to have the same id.
      */
-    readonly requestId: string;
+    requestId: string;
 }
 
-export function isRequestAction(action?: any): action is RequestAction<ResponseAction> {
-    return isAction(action) && isString(action, 'requestId');
+export namespace RequestAction {
+    export function is(object: any): object is RequestAction<ResponseAction> {
+        return Action.is(object) && hasStringProp(object, 'requestId');
+    }
+
+    /**
+     * Typeguard function to check wether the given object is an {@link RequestAction} with the given `kind`.
+     * @param object The object to check.
+     * @param kind  The expected action kind.
+     * @returns A type literal indicating wether the given object is a request action with the given kind.
+     */
+    export function hasKind(object: any, kind: string): object is Action {
+        return RequestAction.is(object) && object.kind === kind;
+    }
+
+    export function generateRequestId(): string {
+        return sprotty.generateRequestId();
+    }
 }
 
-export function generateRequestId(): string {
-    return uuid.v4();
-}
 /**
  * A response action is sent to respond to a request action. The responseId must match the requestId of the preceding request.
- * In case the responseId is empty or undefined, the action is handled as standalone, i.e. it was fired without a preceding request.
+ * In case the responseId is empty, the action is handled as standalone, i.e. it was fired without a preceding request.
+ * The action dispatcher of the GLSP server has a special handling for {@link RequestAction} handlers
+ * and automatically sets the `responseId` of the corresponding responseAction. So on the server side its typically enough
+ * to set the `responseId` to an empty string and rely on the `ActionDispatcher` for assigning the correct `responseId.
+ * Additional typeguard functions are provided via the corresponding namespace.
  */
-export interface ResponseAction extends Action {
+export interface ResponseAction extends Action, sprotty.ResponseAction {
     /**
      * Id corresponding to the request this action responds to.
      */
-    readonly responseId: string;
+    responseId: string;
 }
 
-export function isResponseAction(action?: any): action is ResponseAction {
-    return isAction(action) && 'responseId' in action && typeof action['responseId'] === 'string' && action['responseId'] !== '';
+export namespace ResponseAction {
+    export function is(object: any): object is ResponseAction {
+        return Action.is(object) && hasStringProp(object, 'responseId');
+    }
+
+    /**
+     * Typeguard function to check wether the given object is an {@link ResponseAction} with a non-empty response id.
+     * @param object The object to check.
+     * @returns A type literal indicating wether the given object is a response action with a non-empty response id.
+     */
+    export function hasValidResponseId(object: any): object is ResponseAction {
+        return ResponseAction.is(object) && object.responseId !== '';
+    }
 }
 
 /**
- * A reject action is a response fired to indicate that a request must be rejected.
+ * A reject action is a {@link ResponseAction} fired to indicate that a certain a certain {@link ResponseAction}
+ * has been rejected.
+ * The corresponding namespace declares the action kind as constant and offers helper functions for type guard checks
+ * and creating new `RejectActions`.
  */
-export class RejectAction implements ResponseAction {
-    static readonly KIND = 'rejectRequest';
-    readonly kind = RejectAction.KIND;
-
-    constructor(public readonly message: string, public readonly responseId: string, public readonly detail?: JsonAny) {}
+export interface RejectAction extends ResponseAction, sprotty.RejectAction {
+    /**
+     * The unique action kind.
+     */
+    kind: typeof RejectAction.KIND;
+    /**
+     * A human-readable description of the reject reason. Typically this is an error message
+     * that has been thrown when handling the corresponding {@link RequestAction}.
+     */
+    message: string;
+    /**
+     * Optional additional details.
+     */
+    detail?: JsonPrimitive;
 }
 
-export function isRejectAction(action: any): action is RejectAction {
-    return isResponseAction(action) && action.kind === RejectAction.KIND && isString(action, 'message');
+export namespace RejectAction {
+    export const KIND = 'rejectRequest';
+
+    export function is(object: any): object is RejectAction {
+        return Action.hasKind(object, RejectAction.KIND) && hasStringProp(object, 'message');
+    }
+
+    export function create(message: string, options: { detail?: JsonPrimitive; responseId?: string } = {}): RejectAction {
+        return {
+            kind: KIND,
+            responseId: '',
+            message,
+            ...options
+        };
+    }
 }
 
 /**
  * Operations are actions that denote requests from the client to _modify_ the model. Model modifications are always performed by the
  * server. After a successful modification, the server sends the updated model back to the client using the `UpdateModelAction`.
+ * An operation contains a dedicated `isOperation` property that is used as a discriminator. This is necessary so that the server
+ * can distinguish between plain actions and operations.
+ * The corresponding namespace offers a helper function for type guard checks.
  */
-export interface Operation extends Action {}
+export interface Operation extends Action {
+    /**
+     * Discriminator property to make operations distinguishable from plain {@link Action}s.
+     */
+    isOperation: true;
+}
+
+export namespace Operation {
+    export function is(object: any): object is Operation {
+        return Action.is(object) && (object as any).isOperation === true;
+    }
+
+    /**
+     * Typeguard function to check wether the given object is an {@link Operation} with the given `kind`.
+     * @param object The object to check.
+     * @param kind  The expected operation kind.
+     * @returns A type literal indicating wether the given object is an operation with the given kind.
+     */
+    export function hasKind(object: any, kind: string): object is Operation {
+        return Operation.is(object) && object.kind === kind;
+    }
+}
 
 /**
  * An operation that executes a list of sub-operations.
+ * The corresponding namespace declares the action kind as constant and offers helper functions for type guard checks
+ * and creating new `CompoundOperations`.
  */
-export class CompoundOperation implements Operation {
-    static readonly KIND = 'compound';
-    constructor(public operationList: Operation[], public readonly kind: string = CompoundOperation.KIND) {}
+export interface CompoundOperation extends Operation {
+    /**
+     * The unique action kind.
+     */
+    kind: typeof CompoundOperation.KIND;
+    /**
+     * List of operations that should be executed.
+     */
+    operationList: Operation[];
 }
 
-export function isCompoundOperation(operation?: any): operation is CompoundOperation {
-    return isActionKind(operation, CompoundOperation.KIND) && isArray(operation, 'operationList');
+export namespace CompoundOperation {
+    export const KIND = 'compound';
+
+    export function is(object: any): object is CompoundOperation {
+        return Operation.hasKind(object, KIND) && hasArrayProp(object, 'operationList');
+    }
+
+    export function create(operationList: Operation[]): CompoundOperation {
+        return {
+            kind: KIND,
+            isOperation: true,
+            operationList
+        };
+    }
 }

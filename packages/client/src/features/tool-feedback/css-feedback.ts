@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2021 EclipseSource and others.
+ * Copyright (c) 2019-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,59 +13,61 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, isStringArray } from '@eclipse-glsp/protocol';
+import { Action, hasArrayProp } from '@eclipse-glsp/protocol';
 import { inject, injectable } from 'inversify';
 import { CommandExecutionContext, SModelElement, SModelRoot, TYPES } from 'sprotty';
-import { addCssClasses, removeCssClasses } from '../../utils/smodel-util';
+import { addCssClasses, getElements, removeCssClasses } from '../../utils/smodel-util';
 import { FeedbackCommand } from './model';
 
-export class ModifyCSSFeedbackAction implements Action {
-    readonly elementIds?: string[];
+export interface ModifyCSSFeedbackAction extends Action {
+    kind: typeof ModifyCSSFeedbackAction.KIND;
 
-    constructor(
-        public readonly input?: string[] | SModelElement[],
-        public readonly addClasses?: string[],
-        public readonly removeClasses?: string[],
-        public kind = ModifyCssFeedbackCommand.KIND
-    ) {
-        if (input) {
-            this.elementIds = isStringArray(input) ? input : input.map(element => element.id);
-        }
+    elementIds?: string[];
+    add?: string[];
+    remove?: string[];
+}
+
+export namespace ModifyCSSFeedbackAction {
+    export const KIND = 'modifyCSSFeedback';
+
+    export function is(object: any): object is ModifyCSSFeedbackAction {
+        return Action.hasKind(object, KIND) && hasArrayProp(object, 'elementIds');
+    }
+
+    export function create(options: { elements?: (string | SModelElement)[]; add?: string[]; remove?: string[] }): ModifyCSSFeedbackAction {
+        const { elements, ...rest } = options;
+        const elementIds = elements ? elements.map(element => (typeof element === 'string' ? element : element.id)) : undefined;
+        return {
+            kind: KIND,
+            elementIds,
+            ...rest
+        };
     }
 }
 
 @injectable()
 export class ModifyCssFeedbackCommand extends FeedbackCommand {
-    static readonly KIND = 'modifyCSSFeedback';
+    static readonly KIND = ModifyCSSFeedbackAction.KIND;
 
     constructor(@inject(TYPES.Action) readonly action: ModifyCSSFeedbackAction) {
         super();
     }
 
     execute(context: CommandExecutionContext): SModelRoot {
-        const elements: SModelElement[] = [];
-        if (this.action.elementIds) {
-            elements.push(...this.action.elementIds.map(elementId => context.root.index.getById(elementId)).filter(exists));
-        } else {
-            elements.push(context.root);
-        }
+        const elements = this.action.elementIds ? getElements(context.root.index, this.action.elementIds) : [context.root];
 
         elements.forEach(e => {
-            if (this.action.removeClasses) {
-                removeCssClasses(e, this.action.removeClasses);
+            if (this.action.remove) {
+                removeCssClasses(e, this.action.remove);
             }
 
-            if (this.action.addClasses) {
-                addCssClasses(e, this.action.addClasses);
+            if (this.action.add) {
+                addCssClasses(e, this.action.add);
             }
         });
 
         return context.root;
     }
-}
-
-function exists(elt?: SModelElement): elt is SModelElement {
-    return elt !== undefined;
 }
 
 // eslint-disable-next-line no-shadow
@@ -85,17 +87,17 @@ export enum CursorCSS {
 }
 
 export function cursorFeedbackAction(cursorCss?: CursorCSS): ModifyCSSFeedbackAction {
-    const addCss = [];
+    const add = [];
     if (cursorCss) {
-        addCss.push(cursorCss);
+        add.push(cursorCss);
     }
-    return new ModifyCSSFeedbackAction(undefined, addCss, Object.values(CursorCSS));
+    return ModifyCSSFeedbackAction.create({ add, remove: Object.values(CursorCSS) });
 }
 
-export function applyCssClasses(element: SModelElement, ...classes: string[]): ModifyCSSFeedbackAction {
-    return new ModifyCSSFeedbackAction([element], classes, []);
+export function applyCssClasses(element: SModelElement, ...add: string[]): ModifyCSSFeedbackAction {
+    return ModifyCSSFeedbackAction.create({ elements: [element], add });
 }
 
-export function deleteCssClasses(element: SModelElement, ...classes: string[]): ModifyCSSFeedbackAction {
-    return new ModifyCSSFeedbackAction([element], [], classes);
+export function deleteCssClasses(element: SModelElement, ...remove: string[]): ModifyCSSFeedbackAction {
+    return ModifyCSSFeedbackAction.create({ elements: [element], remove });
 }

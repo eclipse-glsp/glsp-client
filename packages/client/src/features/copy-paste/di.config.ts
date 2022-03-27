@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2021 EclipseSource and others.
+ * Copyright (c) 2019-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -16,13 +16,7 @@
 import { ContainerModule } from 'inversify';
 import { configureActionHandler } from 'sprotty';
 import { GLSP_TYPES } from '../../base/types';
-import {
-    CopyPasteContextMenuItemProvider,
-    InvokeCopyAction,
-    InvokeCopyPasteActionHandler,
-    InvokeCutAction,
-    InvokePasteAction
-} from './copy-paste-context-menu';
+import { CopyPasteContextMenuItemProvider, InvokeCopyPasteAction, InvokeCopyPasteActionHandler } from './copy-paste-context-menu';
 import { LocalClipboardService, ServerCopyPasteHandler } from './copy-paste-handler';
 
 export const glspServerCopyPasteModule = new ContainerModule((bind, _unbind, isBound) => {
@@ -38,7 +32,5 @@ export const glspServerCopyPasteModule = new ContainerModule((bind, _unbind, isB
 export const copyPasteContextMenuModule = new ContainerModule((bind, _unbind, isBound) => {
     bind(GLSP_TYPES.IContextMenuProvider).to(CopyPasteContextMenuItemProvider).inSingletonScope();
     bind(InvokeCopyPasteActionHandler).toSelf().inSingletonScope();
-    configureActionHandler({ bind, isBound }, InvokeCopyAction.KIND, InvokeCopyPasteActionHandler);
-    configureActionHandler({ bind, isBound }, InvokeCutAction.KIND, InvokeCopyPasteActionHandler);
-    configureActionHandler({ bind, isBound }, InvokePasteAction.KIND, InvokeCopyPasteActionHandler);
+    configureActionHandler({ bind, isBound }, InvokeCopyPasteAction.KIND, InvokeCopyPasteActionHandler);
 });

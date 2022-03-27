@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2021 EclipseSource and others.
+ * Copyright (c) 2021-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -27,7 +27,6 @@ import {
     TYPES,
     ZoomMouseListener
 } from 'sprotty';
-
 import { GLSPScrollMouseListener } from './glsp-scroll-mouse-listener';
 
 const glspViewportModule = new ContainerModule((bind, _unbind, isBound) => {

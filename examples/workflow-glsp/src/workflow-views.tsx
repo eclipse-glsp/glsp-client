@@ -15,17 +15,19 @@
  ********************************************************************************/
 import {
     angleOfPoint,
+    findParentByFeature,
     getSubType,
     Point,
     PolylineEdgeViewWithGapsOnIntersections,
     RenderingContext,
     SEdge,
     setAttr,
+    ShapeView,
+    svg,
     toDegrees
 } from '@eclipse-glsp/client';
 import { injectable } from 'inversify';
 import { VNode } from 'snabbdom';
-import { findParentByFeature, ShapeView, svg } from 'sprotty';
 import { Icon, isTaskNode } from './model';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -90,6 +92,7 @@ export class IconView extends ShapeView {
         if (subType) {
             setAttr(vnode, 'class', subType);
         }
+
         return vnode;
     }
 }

@@ -13,11 +13,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { isSetContextActionsAction, RequestContextActions, RequestMarkersAction, SetContextActions } from '@eclipse-glsp/protocol';
+import { Action, RequestContextActions, RequestMarkersAction, SetContextActions } from '@eclipse-glsp/protocol';
 import { inject, injectable, postConstruct } from 'inversify';
 import {
     AbstractUIExtension,
-    Action,
     EnableDefaultToolsAction,
     EnableToolsAction,
     IActionHandler,
@@ -41,12 +40,21 @@ const PALETTE_ICON_ID = 'symbol-color';
 const CHEVRON_DOWN_ICON_ID = 'chevron-right';
 const PALETTE_HEIGHT = '500px';
 
-@injectable()
-export class EnableToolPaletteAction implements Action {
-    static readonly KIND = 'enableToolPalette';
-    readonly kind = EnableToolPaletteAction.KIND;
+export interface EnableToolPaletteAction extends Action {
+    kind: typeof EnableToolPaletteAction.KIND;
 }
 
+export namespace EnableToolPaletteAction {
+    export const KIND = 'enableToolPalette';
+
+    export function is(object: any): object is EnableToolPaletteAction {
+        return Action.hasKind(object, KIND);
+    }
+
+    export function create(): EnableToolPaletteAction {
+        return { kind: KIND };
+    }
+}
 @injectable()
 export class ToolPalette extends AbstractUIExtension implements IActionHandler, EditModeListener {
     static readonly ID = 'tool-palette';
@@ -215,7 +223,7 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
         validateActionButton.title = 'Validate model';
         validateActionButton.onclick = _event => {
             const modelIds: string[] = [this.modelRootId];
-            this.actionDispatcher.dispatch(new RequestMarkersAction(modelIds));
+            this.actionDispatcher.dispatch(RequestMarkersAction.create(modelIds));
         };
         return validateActionButton;
     }
@@ -284,7 +292,7 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
     protected onClickStaticToolButton(button: HTMLElement, toolId?: string) {
         return (_ev: MouseEvent) => {
             if (!this.editorContext.isReadonly) {
-                const action = toolId ? new EnableToolsAction([toolId]) : new EnableDefaultToolsAction();
+                const action = toolId ? EnableToolsAction.create([toolId]) : EnableDefaultToolsAction.create();
                 this.actionDispatcher.dispatch(action);
                 this.changeActiveButton(button);
                 button.focus();
@@ -307,23 +315,30 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
 
     handle(action: Action): ICommand | Action | void {
         if (action.kind === EnableToolPaletteAction.KIND) {
-            const requestAction = new RequestContextActions(ToolPalette.ID, {
-                selectedElementIds: []
-            });
-            this.actionDispatcher.requestUntil(requestAction).then(response => {
-                if (isSetContextActionsAction(response)) {
-                    this.paletteItems = response.actions.map(e => e as PaletteItem);
-                    this.actionDispatcher.dispatch(new SetUIExtensionVisibilityAction(ToolPalette.ID, !this.editorContext.isReadonly));
+            const requestAction = RequestContextActions.create({
+                contextId: ToolPalette.ID,
+                editorContext: {
+                    selectedElementIds: []
                 }
             });
-        } else if (action instanceof EnableDefaultToolsAction) {
+            this.actionDispatcher.requestUntil(requestAction).then(response => {
+                if (SetContextActions.is(response)) {
+                    this.paletteItems = response.actions.map(e => e as PaletteItem);
+                    this.actionDispatcher.dispatch(
+                        SetUIExtensionVisibilityAction.create({ extensionId: ToolPalette.ID, visible: !this.editorContext.isReadonly })
+                    );
+                }
+            });
+        } else if (action.kind === EnableDefaultToolsAction.KIND) {
             this.changeActiveButton();
             this.restoreFocus();
         }
     }
 
     editModeChanged(_oldValue: string, _newValue: string): void {
-        this.actionDispatcher.dispatch(new SetUIExtensionVisibilityAction(ToolPalette.ID, !this.editorContext.isReadonly));
+        this.actionDispatcher.dispatch(
+            SetUIExtensionVisibilityAction.create({ extensionId: ToolPalette.ID, visible: !this.editorContext.isReadonly })
+        );
     }
 
     protected clearOnEscape(event: KeyboardEvent): void {
@@ -335,7 +350,7 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
 
     protected clearToolOnEscape(event: KeyboardEvent): void {
         if (matchesKeystroke(event, 'Escape')) {
-            this.actionDispatcher.dispatch(new EnableDefaultToolsAction());
+            this.actionDispatcher.dispatch(EnableDefaultToolsAction.create());
         }
     }
 

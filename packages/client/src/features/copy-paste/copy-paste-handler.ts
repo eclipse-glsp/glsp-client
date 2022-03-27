@@ -118,7 +118,7 @@ export class ServerCopyPasteHandler implements ICopyPasteHandler {
     handleCut(event: ClipboardEvent): void {
         if (event.clipboardData && this.shouldCopy(event)) {
             this.handleCopy(event);
-            this.actionDispatcher.dispatch(new CutOperation(this.editorContext.get()));
+            this.actionDispatcher.dispatch(CutOperation.create(this.editorContext.get()));
             event.preventDefault();
         }
     }
@@ -128,7 +128,7 @@ export class ServerCopyPasteHandler implements ICopyPasteHandler {
             const clipboardId = getClipboardIdFromDataTransfer(event.clipboardData);
             const clipboardData = this.clipboadService.get(clipboardId);
             if (clipboardData) {
-                this.actionDispatcher.dispatch(new PasteOperation(clipboardData, this.editorContext.get()));
+                this.actionDispatcher.dispatch(PasteOperation.create({ clipboardData, editorContext: this.editorContext.get() }));
             }
             event.preventDefault();
         }

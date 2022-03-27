@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2021 EclipseSource and others.
+ * Copyright (c) 2019-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,10 +13,9 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { isSetEditValidationResultAction, RequestEditValidationAction, ValidationStatus } from '@eclipse-glsp/protocol';
+import { Action, RequestEditValidationAction, SetEditValidationResultAction, ValidationStatus } from '@eclipse-glsp/protocol';
 import { inject, injectable } from 'inversify';
 import {
-    Action,
     EditableLabel,
     EditLabelValidationResult,
     IEditLabelValidationDecorator,
@@ -25,7 +24,6 @@ import {
     SModelElement,
     TYPES
 } from 'sprotty';
-
 import { GLSPActionDispatcher } from '../../base/action-dispatcher';
 
 export namespace LabelEditValidation {
@@ -41,11 +39,9 @@ export namespace LabelEditValidation {
         }
         return { message, severity };
     }
-}
 
-export class ValidateLabelEditAction extends RequestEditValidationAction {
-    constructor(value: string, labelId: string) {
-        super(LabelEditValidation.CONTEXT_ID, labelId, value);
+    export function createValidationRequestAction(value: string, labelId: string): RequestEditValidationAction {
+        return RequestEditValidationAction.create({ contextId: CONTEXT_ID, modelElementId: labelId, text: value });
     }
 }
 
@@ -54,12 +50,12 @@ export class ServerEditLabelValidator implements IEditLabelValidator {
     @inject(TYPES.IActionDispatcher) protected actionDispatcher: GLSPActionDispatcher;
 
     validate(value: string, label: EditableLabel & SModelElement): Promise<EditLabelValidationResult> {
-        const action = new ValidateLabelEditAction(value, label.id);
+        const action = LabelEditValidation.createValidationRequestAction(value, label.id);
         return this.actionDispatcher.requestUntil(action).then(response => this.getValidationResultFromResponse(response));
     }
 
     getValidationResultFromResponse(action: Action): EditLabelValidationResult {
-        if (isSetEditValidationResultAction(action)) {
+        if (SetEditValidationResultAction.is(action)) {
             return LabelEditValidation.toEditLabelValidationResult(action.status);
         }
         return { severity: 'ok' as Severity };

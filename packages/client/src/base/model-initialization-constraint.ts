@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020-2021 EclipseSource and others.
+ * Copyright (c) 2020-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,10 +13,9 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, isSetModelAction, isUpdateModelAction } from '@eclipse-glsp/protocol';
+import { Action, Deferred, SetModelAction, UpdateModelAction } from '@eclipse-glsp/protocol';
 import { injectable } from 'inversify';
 import { InitializeCanvasBoundsAction } from 'sprotty';
-import { Deferred } from 'sprotty/lib/utils/async';
 
 /**
  * The constraint defining when the initialization of the GLSP model is completed.
@@ -86,7 +85,7 @@ export class DefaultModelInitializationConstraint extends ModelInitializationCon
     }
 
     protected isNonEmptyModelAction(action: Action): boolean {
-        if (isSetModelAction(action) || isUpdateModelAction(action)) {
+        if (SetModelAction.is(action) || UpdateModelAction.is(action)) {
             return action.newRoot.type !== 'NONE';
         }
         return false;

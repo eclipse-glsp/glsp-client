@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2021 EclipseSource and others.
+ * Copyright (c) 2019-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,39 +13,33 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { Action, hasArrayProp, SelectAction } from '@eclipse-glsp/protocol';
 import { inject, injectable } from 'inversify';
-import {
-    Command,
-    CommandExecutionContext,
-    SelectAllCommand as SprottySelectAllCommand,
-    SelectCommand as SprottySelectCommand,
-    SModelRoot,
-    TYPES
-} from 'sprotty';
+import { Command, CommandExecutionContext, SelectCommand as SprottySelectCommand, SModelRoot, TYPES } from 'sprotty';
 
-export class SelectFeedbackAction {
-    constructor(
-        public readonly selectedElementsIDs: string[] = [],
-        public readonly deselectedElementsIDs: string[] = [],
-        public readonly kind: string = SelectFeedbackCommand.KIND
-    ) {}
+export interface SelectFeedbackAction extends Omit<SelectAction, 'kind'>, Action {
+    kind: typeof SelectFeedbackAction.KIND;
 }
 
-export class SelectAllFeedbackAction {
-    /**
-     * If `select` is true, all elements are selected, othewise they are deselected.
-     */
-    constructor(public readonly select: boolean = true, public readonly kind: string = SelectFeedbackCommand.KIND) {}
-}
+export namespace SelectFeedbackAction {
+    export const KIND = 'selectFeedback';
 
+    export function is(object: any): object is SelectFeedbackAction {
+        return Action.hasKind(object, KIND) && hasArrayProp(object, 'selectedElementsIDs') && hasArrayProp(object, 'deselectedElementsIDs');
+    }
+
+    export function create(options?: { selectedElementsIDs?: string[]; deselectedElementsIDs?: string[] }): SelectFeedbackAction {
+        return { ...SelectAction.create(options), kind: KIND };
+    }
+}
 @injectable()
 export class SelectFeedbackCommand extends Command {
-    static readonly KIND = 'elementSelectedFeedback';
+    static readonly KIND = SelectFeedbackAction.KIND;
     private sprottySelectCommand: SprottySelectCommand;
 
     constructor(@inject(TYPES.Action) public action: SelectFeedbackAction) {
         super();
-        this.sprottySelectCommand = new SprottySelectCommand(action);
+        this.sprottySelectCommand = new SprottySelectCommand({ ...action, kind: SelectAction.KIND });
     }
 
     execute(context: CommandExecutionContext): SModelRoot {
@@ -58,28 +52,5 @@ export class SelectFeedbackCommand extends Command {
 
     redo(context: CommandExecutionContext): SModelRoot {
         return this.sprottySelectCommand.redo(context);
-    }
-}
-
-@injectable()
-export class SelectAllFeedbackCommand extends Command {
-    static readonly KIND = 'allSelectedFeedback';
-    private sprottySelectAllCommand: SprottySelectAllCommand;
-
-    constructor(@inject(TYPES.Action) public action: SelectAllFeedbackAction) {
-        super();
-        this.sprottySelectAllCommand = new SprottySelectAllCommand(action);
-    }
-
-    execute(context: CommandExecutionContext): SModelRoot {
-        return this.sprottySelectAllCommand.execute(context);
-    }
-
-    undo(context: CommandExecutionContext): SModelRoot {
-        return this.sprottySelectAllCommand.undo(context);
-    }
-
-    redo(context: CommandExecutionContext): SModelRoot {
-        return this.sprottySelectAllCommand.redo(context);
     }
 }

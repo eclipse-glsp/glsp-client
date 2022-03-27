@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2021 EclipseSource and others.
+ * Copyright (c) 2021-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -14,37 +14,86 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { isArray, isString } from '../utils/typeguard-util';
-import { isActionKind, Operation } from './base-protocol';
-import { ElementAndBounds, Point } from './types';
+import { Point } from 'sprotty-protocol';
+import { hasArrayProp, hasStringProp } from '../utils/type-util';
+import { Operation } from './base-protocol';
+import { ElementAndBounds } from './types';
 
 /**
  * Triggers the position or size change of elements. This action concerns only the element's graphical size and position.
  * Whether an element can be resized or repositioned may be specified by the server with a `TypeHint` to allow for immediate user feedback
  * before resizing or repositioning.
+ * The corresponding namespace declares the action kind as constant and offers helper functions for type guard checks
+ * and creating new `ChangeBoundsOperations`.
  */
-export class ChangeBoundsOperation implements Operation {
-    static readonly KIND = 'changeBounds';
-    constructor(public newBounds: ElementAndBounds[], public readonly kind: string = ChangeBoundsOperation.KIND) {}
+export interface ChangeBoundsOperation extends Operation {
+    /**
+     * The unique action kind.
+     */
+    kind: typeof ChangeBoundsOperation.KIND;
+
+    /**
+     * The new bounds of the respective elements.
+     */
+    newBounds: ElementAndBounds[];
 }
 
-export function isChangeBoundsOperation(action: any): action is ChangeBoundsOperation {
-    return isActionKind(action, ChangeBoundsOperation.KIND) && isArray(action, 'newBounds');
+export namespace ChangeBoundsOperation {
+    export const KIND = 'changeBounds';
+
+    export function is(object: any): object is ChangeBoundsOperation {
+        return Operation.hasKind(object, KIND) && hasArrayProp(object, 'newBounds');
+    }
+
+    export function create(newBounds: ElementAndBounds[]): ChangeBoundsOperation {
+        return {
+            kind: KIND,
+            isOperation: true,
+            newBounds
+        };
+    }
 }
 
 /**
- * The client sends a `ChangeContainerOperation` to the server to request the execution of a changeContainer operation.
+ * The client sends a `ChangeContainerOperation` to the server to request the a semantic move i.e. the corresponding element
+ * should be moved form its current container to the target container.
+ * The corresponding namespace declares the action kind as constant and offers helper functions for type guard checks
+ * and creating new `ChangeContainerOperations`.
  */
-export class ChangeContainerOperation implements Operation {
-    static readonly KIND = 'changeContainer';
-    constructor(
-        public readonly elementId: string,
-        public readonly targetContainerId: string,
-        public readonly location?: Point,
-        public readonly kind: string = ChangeContainerOperation.KIND
-    ) {}
+export interface ChangeContainerOperation extends Operation {
+    /**
+     * The unique action kind.
+     */
+    kind: typeof ChangeContainerOperation.KIND;
+
+    /**
+     * The element to be changed.
+     */
+    elementId: string;
+
+    /**
+     * The element container of the changeContainer operation.
+     */
+    targetContainerId: string;
+
+    /**
+     * The graphical location.
+     */
+    location?: Point;
 }
 
-export function isChangeContainerOperation(action: any): action is ChangeContainerOperation {
-    return isActionKind(action, ChangeContainerOperation.KIND) && isString(action, 'elementId') && isString(action, 'targetContainerId');
+export namespace ChangeContainerOperation {
+    export const KIND = 'changeContainer';
+
+    export function is(object: any): object is ChangeContainerOperation {
+        return Operation.hasKind(object, KIND) && hasStringProp(object, 'elementId') && hasStringProp(object, 'targetContainerId');
+    }
+
+    export function create(options: { elementId: string; targetContainerId: string; location?: Point }): ChangeContainerOperation {
+        return {
+            kind: KIND,
+            isOperation: true,
+            ...options
+        };
+    }
 }

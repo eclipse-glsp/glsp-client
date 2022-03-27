@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, isSetContextActionsAction, LabeledAction, Point, RequestContextActions } from '@eclipse-glsp/protocol';
+import { Action, LabeledAction, Point, RequestContextActions, SetContextActions } from '@eclipse-glsp/protocol';
 import { inject, injectable } from 'inversify';
 import { IContextMenuItemProvider, isSelected, SModelElement, TYPES } from 'sprotty';
 import { GLSPActionDispatcher } from '../../base/action-dispatcher';
@@ -35,13 +35,13 @@ export class ServerContextMenuItemProvider implements IContextMenuItemProvider {
                 .filter(isSelected)
                 .map(e => e.id)
         );
-        const context = this.editorContext.getWithSelection(selectedElementIds);
-        const requestAction = new RequestContextActions(ServerContextMenu.CONTEXT_ID, context);
+        const editorContext = this.editorContext.getWithSelection(selectedElementIds);
+        const requestAction = RequestContextActions.create({ contextId: ServerContextMenu.CONTEXT_ID, editorContext });
         return this.actionDispatcher.requestUntil(requestAction).then(response => this.getContextActionsFromResponse(response));
     }
 
     getContextActionsFromResponse(action: Action): LabeledAction[] {
-        if (isSetContextActionsAction(action)) {
+        if (SetContextActions.is(action)) {
             return action.actions;
         }
         return [];

@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020-2021 EclipseSource and others.
+ * Copyright (c) 2020-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -17,10 +17,8 @@ import {
     Action,
     Args,
     CenterAction,
-    GLSPServerStatusAction,
-    isNavigateToExternalTargetAction,
-    isNavigateToTargetAction,
-    isSetNavigationTargetsAction,
+    hasObjectProp,
+    hasStringProp,
     NavigateToExternalTargetAction,
     NavigateToTargetAction,
     NavigationTarget,
@@ -28,11 +26,13 @@ import {
     SelectAction,
     SelectAllAction,
     ServerMessageAction,
+    ServerSeverity,
+    ServerStatusAction,
+    SetNavigationTargetsAction,
     SetResolvedNavigationTargetAction
 } from '@eclipse-glsp/protocol';
 import { inject, injectable } from 'inversify';
 import { ActionHandlerRegistry, IActionDispatcher, IActionHandler, ICommand, ILogger, TYPES } from 'sprotty';
-
 import { EditorContextServiceProvider } from '../../base/editor-context-service';
 import { GLSP_TYPES } from '../../base/types';
 import { NavigationTargetResolver } from './navigation-target-resolver';
@@ -48,14 +48,36 @@ import { NavigationTargetResolver } from './navigation-target-resolver';
  *
  * This action is typically triggered by a user action.
  */
-export class NavigateAction implements Action {
-    static readonly KIND = 'navigate';
-    readonly kind = NavigateAction.KIND;
-    constructor(readonly targetTypeId: string, readonly args?: Args) {}
+
+export interface NavigateAction extends Action {
+    /**
+     * Unique action kind
+     */
+    kind: typeof NavigateAction.KIND;
+    /**
+     * Id of the navigation target
+     */
+    targetTypeId: string;
+    /**
+     * Additional arguments for customization.
+     */
+    args?: Args;
 }
 
-export function isNavigateAction(action: Action): action is NavigateAction {
-    return action !== undefined && action.kind === NavigateAction.KIND && (action as NavigateAction).targetTypeId !== undefined;
+export namespace NavigateAction {
+    export const KIND = 'navigate';
+
+    export function is(object: any): object is NavigateAction {
+        return Action.hasKind(object, KIND) && hasStringProp(object, 'targetTypeId');
+    }
+
+    export function create(targetTypeId: string, options: { args?: Args } = {}): NavigateAction {
+        return {
+            kind: KIND,
+            targetTypeId,
+            ...options
+        };
+    }
 }
 
 /** Action to trigger the processing of additional navigation arguments.
@@ -66,20 +88,32 @@ export function isNavigateAction(action: Action): action is NavigateAction {
  * Customizations, however, may add domain-specific arguments and register custom handler to also process
  * other arguments and trigger some additional behavior (e.g. update other views, etc.).
  */
-export class ProcessNavigationArgumentsAction implements Action {
-    static readonly KIND = 'processNavigationArguments';
-    readonly kind = ProcessNavigationArgumentsAction.KIND;
-    constructor(readonly args: Args) {}
+
+export interface ProcessNavigationArgumentsAction extends Action {
+    /**
+     * Unique action kind.
+     */
+    kind: typeof ProcessNavigationArgumentsAction.KIND;
+    /**
+     * The navigation arguments.
+     */
+    args: Args;
 }
 
-export function isProcessNavigationArgumentsAction(action: Action): action is ProcessNavigationArgumentsAction {
-    return (
-        action !== undefined &&
-        action.kind === ProcessNavigationArgumentsAction.KIND &&
-        (action as ProcessNavigationArgumentsAction).args !== undefined
-    );
-}
+export namespace ProcessNavigationArgumentsAction {
+    export const KIND = 'processNavigationArguments';
 
+    export function is(object: any): object is ProcessNavigationArgumentsAction {
+        return Action.hasKind(object, KIND) && hasObjectProp(object, 'args');
+    }
+
+    export function create(args: Args): ProcessNavigationArgumentsAction {
+        return {
+            kind: KIND,
+            args
+        };
+    }
+}
 /**
  * Default handler for all actions that are related to the navigation.
  *
@@ -113,13 +147,13 @@ export class NavigationActionHandler implements IActionHandler {
     @inject(NavigationTargetResolver) protected resolver: NavigationTargetResolver;
 
     handle(action: Action): ICommand | Action | void {
-        if (isNavigateAction(action)) {
+        if (NavigateAction.is(action)) {
             this.handleNavigateAction(action);
-        } else if (isNavigateToTargetAction(action)) {
+        } else if (NavigateToTargetAction.is(action)) {
             this.handleNavigateToTarget(action);
-        } else if (isProcessNavigationArgumentsAction(action)) {
+        } else if (ProcessNavigationArgumentsAction.is(action)) {
             this.processNavigationArguments(action.args);
-        } else if (isNavigateToExternalTargetAction(action)) {
+        } else if (NavigateToExternalTargetAction.is(action)) {
             this.handleNavigateToExternalTarget(action);
         }
     }
@@ -127,9 +161,11 @@ export class NavigationActionHandler implements IActionHandler {
     protected async handleNavigateAction(action: NavigateAction): Promise<void> {
         try {
             const editorContextService = await this.editorContextService();
-            const context = editorContextService.get(action.args);
-            const response = await this.dispatcher.request(new RequestNavigationTargetsAction(action.targetTypeId, context));
-            if (isSetNavigationTargetsAction(response) && response.targets && response.targets.length === 1) {
+            const editorContext = editorContextService.get(action.args);
+            const response = await this.dispatcher.request(
+                RequestNavigationTargetsAction.create({ targetTypeId: action.targetTypeId, editorContext })
+            );
+            if (SetNavigationTargetsAction.is(response) && response.targets && response.targets.length === 1) {
                 if (response.targets.length > 1) {
                     this.logger.warn(
                         this,
@@ -137,7 +173,7 @@ export class NavigationActionHandler implements IActionHandler {
                         response.targets
                     );
                 }
-                return this.dispatcher.dispatch(new NavigateToTargetAction(response.targets[0]));
+                return this.dispatcher.dispatch(NavigateToTargetAction.create(response.targets[0]));
             }
             this.warnAboutFailedNavigation('No valid navigation target found');
         } catch (reason) {
@@ -184,7 +220,11 @@ export class NavigationActionHandler implements IActionHandler {
         if (!this.containsElementIds(elementIds)) {
             return;
         }
-        this.dispatcher.dispatchAll([new SelectAllAction(false), new SelectAction(elementIds), new CenterAction(elementIds)]);
+        this.dispatcher.dispatchAll([
+            SelectAllAction.create(false),
+            SelectAction.create({ selectedElementsIDs: elementIds }),
+            CenterAction.create(elementIds)
+        ]);
     }
 
     protected handleResolutionArguments(target: SetResolvedNavigationTargetAction): void {
@@ -192,11 +232,11 @@ export class NavigationActionHandler implements IActionHandler {
         if (!this.containsArguments(args)) {
             return;
         }
-        this.dispatcher.dispatch(new ProcessNavigationArgumentsAction(args));
+        this.dispatcher.dispatch(ProcessNavigationArgumentsAction.create(args));
     }
 
     protected navigateToExternal(target: NavigationTarget): Promise<void> {
-        return this.dispatcher.dispatch(new NavigateToExternalTargetAction(target));
+        return this.dispatcher.dispatch(NavigateToExternalTargetAction.create(target));
     }
 
     protected processNavigationArguments(args: Args): void {
@@ -226,11 +266,11 @@ export class NavigationActionHandler implements IActionHandler {
         this.notify('WARNING', message);
     }
 
-    private notify(severity: string, message: string): void {
+    private notify(severity: ServerSeverity, message: string): void {
         const timeout = this.notificationTimeout;
         this.dispatcher.dispatchAll([
-            { kind: GLSPServerStatusAction.KIND, severity, timeout, message } as GLSPServerStatusAction,
-            { kind: ServerMessageAction.KIND, severity, timeout, message } as ServerMessageAction
+            ServerStatusAction.create(message, { severity, timeout }),
+            ServerMessageAction.create(message, { severity, timeout })
         ]);
     }
 }

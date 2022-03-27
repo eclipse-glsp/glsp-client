@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2021 STMicroelectronics and others.
+ * Copyright (c) 2021-2022 STMicroelectronics and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -25,9 +25,9 @@ export * from './element-selection';
 export * from './element-text-editing';
 export * from './element-type-hints';
 export * from './element-validation';
-export * from './mode-layout';
 export * from './model-data';
 export * from './model-edit-mode';
+export * from './model-layout';
 export * from './model-saving';
 export * from './model-structure';
 export * from './node-modification';

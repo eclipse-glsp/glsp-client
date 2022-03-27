@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2021 EclipseSource and others.
+ * Copyright (c) 2019-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,8 +13,16 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-/* eslint-disable import/no-deprecated,no-unused-expressions */
-import { Action, Bounds, ChangeBoundsOperation, ElementAndBounds } from '@eclipse-glsp/protocol';
+/* eslint-disable deprecation/deprecation */
+import {
+    Action,
+    Bounds,
+    ChangeBoundsOperation,
+    ElementAndBounds,
+    RequestAction,
+    ResponseAction,
+    SetBoundsAction
+} from '@eclipse-glsp/protocol';
 import { expect } from 'chai';
 import { Container } from 'inversify';
 import 'mocha';
@@ -29,10 +37,7 @@ import {
     IActionDispatcher,
     MoveAction,
     MoveCommand,
-    RequestAction,
-    ResponseAction,
     SChildElement,
-    SetBoundsAction,
     SetBoundsCommand,
     SGraphFactory,
     SModelRoot,
@@ -128,7 +133,7 @@ describe('AlignElementsCommand', () => {
             { elementId: 'node2', newPosition: { x: 222, y: 222 }, newSize: defaultSize },
             { elementId: 'node3', newPosition: { x: 333, y: 333 }, newSize: defaultSize }
         ]);
-        const action = new AlignElementsAction(['node1', 'node2', 'node3'], Alignment.Left);
+        const action = AlignElementsAction.create({ elementIds: ['node1', 'node2', 'node3'], alignment: Alignment.Left });
         const command = new AlignElementsCommand(action, actionDispatcher, selectionService);
         command.execute(newContext(newModel));
 
@@ -148,7 +153,7 @@ describe('AlignElementsCommand', () => {
             { elementId: 'node2', newPosition: { x: 222, y: 222 }, newSize: defaultSize },
             { elementId: 'node3', newPosition: { x: 333, y: 333 }, newSize: defaultSize }
         ]);
-        const action = new AlignElementsAction(['node1', 'node2', 'node3'], Alignment.Right);
+        const action = AlignElementsAction.create({ elementIds: ['node1', 'node2', 'node3'], alignment: Alignment.Right });
         const command = new AlignElementsCommand(action, actionDispatcher, selectionService);
         command.execute(newContext(newModel));
 
@@ -168,7 +173,7 @@ describe('AlignElementsCommand', () => {
             { elementId: 'node2', newPosition: { x: 222, y: 222 }, newSize: defaultSize },
             { elementId: 'node3', newPosition: { x: 333, y: 333 }, newSize: defaultSize }
         ]);
-        const action = new AlignElementsAction(['node1', 'node2', 'node3'], Alignment.Center);
+        const action = AlignElementsAction.create({ elementIds: ['node1', 'node2', 'node3'], alignment: Alignment.Center });
         const command = new AlignElementsCommand(action, actionDispatcher, selectionService);
         command.execute(newContext(newModel));
 
@@ -188,7 +193,7 @@ describe('AlignElementsCommand', () => {
             { elementId: 'node2', newPosition: { x: 222, y: 222 }, newSize: defaultSize },
             { elementId: 'node3', newPosition: { x: 333, y: 333 }, newSize: defaultSize }
         ]);
-        const action = new AlignElementsAction(['node1', 'node2', 'node3'], Alignment.Top);
+        const action = AlignElementsAction.create({ elementIds: ['node1', 'node2', 'node3'], alignment: Alignment.Top });
         const command = new AlignElementsCommand(action, actionDispatcher, selectionService);
         command.execute(newContext(newModel));
 
@@ -208,7 +213,7 @@ describe('AlignElementsCommand', () => {
             { elementId: 'node2', newPosition: { x: 222, y: 222 }, newSize: defaultSize },
             { elementId: 'node3', newPosition: { x: 333, y: 333 }, newSize: defaultSize }
         ]);
-        const action = new AlignElementsAction(['node1', 'node2', 'node3'], Alignment.Bottom);
+        const action = AlignElementsAction.create({ elementIds: ['node1', 'node2', 'node3'], alignment: Alignment.Bottom });
         const command = new AlignElementsCommand(action, actionDispatcher, selectionService);
         command.execute(newContext(newModel));
 
@@ -228,7 +233,7 @@ describe('AlignElementsCommand', () => {
             { elementId: 'node2', newPosition: { x: 222, y: 222 }, newSize: defaultSize },
             { elementId: 'node3', newPosition: { x: 333, y: 333 }, newSize: defaultSize }
         ]);
-        const action = new AlignElementsAction(['node1', 'node2', 'node3'], Alignment.Middle);
+        const action = AlignElementsAction.create({ elementIds: ['node1', 'node2', 'node3'], alignment: Alignment.Middle });
         const command = new AlignElementsCommand(action, actionDispatcher, selectionService);
         command.execute(newContext(newModel));
 
@@ -250,7 +255,11 @@ describe('ResizeElementsCommand', () => {
             { elementId: 'node2', newPosition: { x: 100, y: 200 }, newSize: { height: 20, width: 20 } },
             { elementId: 'node3', newPosition: { x: 100, y: 300 }, newSize: { height: 30, width: 30 } }
         ]);
-        const action = new ResizeElementsAction(['node1', 'node2', 'node3'], ResizeDimension.Width, Reduce.last);
+        const action = ResizeElementsAction.create({
+            elementIds: ['node1', 'node2', 'node3'],
+            dimension: ResizeDimension.Width,
+            reductionFunction: Reduce.last
+        });
         const command = new ResizeElementsCommand(action, actionDispatcher, selectionService);
         command.execute(newContext(newModel));
 
@@ -271,7 +280,11 @@ describe('ResizeElementsCommand', () => {
             { elementId: 'node2', newPosition: { x: 100, y: 200 }, newSize: { height: 20, width: 20 } },
             { elementId: 'node3', newPosition: { x: 100, y: 300 }, newSize: { height: 30, width: 30 } }
         ]);
-        const action = new ResizeElementsAction(['node1', 'node2', 'node3'], ResizeDimension.Height, Reduce.last);
+        const action = ResizeElementsAction.create({
+            elementIds: ['node1', 'node2', 'node3'],
+            dimension: ResizeDimension.Height,
+            reductionFunction: Reduce.last
+        });
         const command = new ResizeElementsCommand(action, actionDispatcher, selectionService);
         command.execute(newContext(newModel));
 
@@ -292,7 +305,11 @@ describe('ResizeElementsCommand', () => {
             { elementId: 'node2', newPosition: { x: 100, y: 200 }, newSize: { height: 20, width: 20 } },
             { elementId: 'node3', newPosition: { x: 100, y: 300 }, newSize: { height: 30, width: 30 } }
         ]);
-        const action = new ResizeElementsAction(['node1', 'node2', 'node3'], ResizeDimension.Width_And_Height, Reduce.last);
+        const action = ResizeElementsAction.create({
+            elementIds: ['node1', 'node2', 'node3'],
+            dimension: ResizeDimension.Width_And_Height,
+            reductionFunction: Reduce.last
+        });
         const command = new ResizeElementsCommand(action, actionDispatcher, selectionService);
         command.execute(newContext(newModel));
 
@@ -308,7 +325,7 @@ describe('ResizeElementsCommand', () => {
 });
 
 function initModel(elementAndBounds: ElementAndBounds[]): SModelRoot {
-    const mySetBoundsAction = new SetBoundsAction(elementAndBounds);
+    const mySetBoundsAction = SetBoundsAction.create(elementAndBounds);
     const setBoundsCommand = new SetBoundsCommand(mySetBoundsAction);
     return setBoundsCommand.execute(context) as SModelRoot;
 }

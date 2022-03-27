@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019 EclipseSource and others.
+ * Copyright (c) 2019-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -15,7 +15,6 @@
  ********************************************************************************/
 import { ContainerModule } from 'inversify';
 import { ApplyLabelEditCommand, configureCommand, TYPES } from 'sprotty';
-
 import { GLSP_TYPES } from '../../base/types';
 import { DirectLabelEditTool } from './edit-label-tool';
 import { BalloonLabelValidationDecorator, ServerEditLabelValidator } from './edit-label-validator';

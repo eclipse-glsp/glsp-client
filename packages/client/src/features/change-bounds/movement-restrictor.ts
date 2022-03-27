@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2021 EclipseSource and others.
+ * Copyright (c) 2019-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -33,7 +33,7 @@ export function createMovementRestrictionFeedback(
     if (element instanceof SParentElement) {
         element.children.filter(child => child instanceof SResizeHandle).forEach(e => elements.push(e));
     }
-    return new ModifyCSSFeedbackAction(elements, movementRestrictor.cssClasses);
+    return ModifyCSSFeedbackAction.create({ elements, add: movementRestrictor.cssClasses });
 }
 
 export function removeMovementRestrictionFeedback(
@@ -45,7 +45,7 @@ export function removeMovementRestrictionFeedback(
         element.children.filter(child => child instanceof SResizeHandle).forEach(e => elements.push(e));
     }
 
-    return new ModifyCSSFeedbackAction(elements, undefined, movementRestrictor.cssClasses);
+    return ModifyCSSFeedbackAction.create({ elements, remove: movementRestrictor.cssClasses });
 }
 
 @injectable()

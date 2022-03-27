@@ -13,9 +13,9 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { Action } from '@eclipse-glsp/protocol';
 import { inject, injectable, optional } from 'inversify';
 import {
-    Action,
     ContextMenuProviderRegistry,
     findParentByFeature,
     IContextMenuServiceProvider,
@@ -65,7 +65,7 @@ export class SelectionServiceAwareContextMenuMouseListener extends MouseListener
 
         const result = Promise.all([this.contextMenuService(), this.menuProvider.getItems(target.root, mousePosition)])
             .then(([menuService, menuItems]) => menuService.show(menuItems, mousePosition, () => this.focusEventTarget(event)))
-            .then((): Action => new FocusStateChangedAction(false));
+            .then((): Action => FocusStateChangedAction.create(false));
 
         return [result];
     }

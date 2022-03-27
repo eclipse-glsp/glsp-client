@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2021 STMicroelectronics and others.
+ * Copyright (c) 2021-2022 STMicroelectronics and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,47 +13,79 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { isObject, isString } from '../utils/typeguard-util';
-import { generateRequestId, isActionKind, RequestAction, ResponseAction } from './base-protocol';
+import { Bounds } from 'sprotty-protocol';
+import * as sprotty from 'sprotty-protocol/lib/actions';
+import { hasObjectProp, hasStringProp } from '../utils/type-util';
+import { Action, RequestAction, ResponseAction } from './base-protocol';
 import { SModelRootSchema } from './model-structure';
-import { Bounds } from './types';
 
 /**
  * Triggered when the user hovers the mouse pointer over an element to get a popup with details on that element.
  * This action is sent from the client to the server. The response is a `SetPopupModelAction`.
+ * The corresponding namespace declares the action kind as constant and offers helper functions for type guard checks
+ * and creating new `RequestPopupModelActions`.
  */
-export class RequestPopupModelAction implements RequestAction<SetPopupModelAction> {
-    static readonly KIND = 'requestPopupModel';
-    readonly kind = RequestPopupModelAction.KIND;
+export interface RequestPopupModelAction extends RequestAction<SetPopupModelAction>, sprotty.RequestPopupModelAction {
+    /**
+     * The unique action kind.
+     */
+    kind: typeof RequestPopupModelAction.KIND;
 
-    constructor(public readonly elementId: string, public readonly bounds: Bounds, public readonly requestId = '') {}
+    /**
+     * The identifier of the elements for which a popup is requested.
+     */
+    elementId: string;
 
-    /** Factory function to dispatch a request with the `IActionDispatcher` */
-    static create(elementId: string, bounds: Bounds): RequestAction<SetPopupModelAction> {
-        return new RequestPopupModelAction(elementId, bounds, generateRequestId());
-    }
+    /**
+     * The bounds.
+     */
+    bounds: Bounds;
 }
 
-export function isRequestPopupModelAction(action: any): action is RequestPopupModelAction {
-    return (
-        isActionKind(action, RequestPopupModelAction.KIND) &&
-        isString(action, 'elementId') &&
-        isObject(action, 'bounds') &&
-        isString(action, 'requestId')
-    );
+export namespace RequestPopupModelAction {
+    export const KIND = 'requestPopupModel';
+
+    export function is(object: any): object is RequestPopupModelAction {
+        return RequestAction.hasKind(object, KIND) && hasStringProp(object, 'elementId') && hasObjectProp(object, 'bounds');
+    }
+
+    export function create(options: { elementId: string; bounds: Bounds; requestId?: string }): RequestPopupModelAction {
+        return {
+            kind: KIND,
+            requestId: '',
+            ...options
+        };
+    }
 }
 
 /**
  * Sent from the server to the client to display a popup in response to a RequestPopupModelAction. This action can also be used to remove
  * any existing popup by choosing EMPTY_ROOT as root element.
+ * The corresponding namespace declares the action kind as constant and offers helper functions for type guard checks
+ * and creating new `SetPopupModelActions`.
  */
-export class SetPopupModelAction implements ResponseAction {
-    static readonly KIND = 'setPopupModel';
-    readonly kind = SetPopupModelAction.KIND;
+export interface SetPopupModelAction extends ResponseAction, sprotty.SetPopupModelAction {
+    /**
+     * The unique action kind.
+     */
+    kind: typeof SetPopupModelAction.KIND;
 
-    constructor(public readonly newRoot: SModelRootSchema, public readonly responseId = '') {}
+    newRoot: SModelRootSchema;
 }
 
-export function isSetPopupModelAction(action: any): action is SetPopupModelAction {
-    return isActionKind(action, SetPopupModelAction.KIND) && isObject(action, 'newRoot') && isString(action, 'responseId');
+export namespace SetPopupModelAction {
+    export const KIND = 'setPopupModel';
+
+    export function is(object: any): object is SetPopupModelAction {
+        return Action.hasKind(object, KIND) && hasObjectProp(object, 'newRoot');
+    }
+
+    export function create(newRoot: SModelRootSchema, options: { responseId?: string } = {}): SetPopupModelAction {
+        return {
+            kind: KIND,
+            responseId: '',
+            newRoot,
+            ...options
+        };
+    }
 }

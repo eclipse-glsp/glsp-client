@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020-2021 EclipseSource and others.
+ * Copyright (c) 2020-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, Args, distinctAdd, EditMode, EditorContext, isSetEditModeAction, remove } from '@eclipse-glsp/protocol';
+import { Action, Args, distinctAdd, EditMode, EditorContext, remove, SetEditModeAction } from '@eclipse-glsp/protocol';
 import { inject, injectable, multiInject, optional } from 'inversify';
 import { IActionHandler, ModelSource, MousePositionTracker, SModelElement, SModelRoot, TYPES } from 'sprotty';
 import { SelectionService } from '../features/select/selection-service';
@@ -58,7 +58,7 @@ export class EditorContextService implements IActionHandler {
     }
 
     handle(action: Action): void {
-        if (isSetEditModeAction(action)) {
+        if (SetEditModeAction.is(action)) {
             const oldValue = this._editMode;
             this._editMode = action.editMode;
             this.notifiyEditModeListeners(oldValue);

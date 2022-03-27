@@ -13,18 +13,15 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, Point } from '@eclipse-glsp/protocol';
+import { Action, Bounds, hasStringProp, Point } from '@eclipse-glsp/protocol';
 import { inject, injectable } from 'inversify';
 import { VNode } from 'snabbdom';
 import {
-    add,
     AnchorComputerRegistry,
-    center,
     CommandExecutionContext,
     CommandReturn,
     EdgeRouterRegistry,
     ElementMove,
-    euclideanDistance,
     findChildrenAtPosition,
     findParentByFeature,
     isBoundsAware,
@@ -42,7 +39,7 @@ import {
     SwitchEditModeCommand,
     TYPES
 } from 'sprotty';
-import { forEachElement, isNotUndefined, isRoutable, isRoutingHandle } from '../../utils/smodel-util';
+import { forEachElement, isRoutable, isRoutingHandle } from '../../utils/smodel-util';
 import { getAbsolutePosition, toAbsoluteBounds } from '../../utils/viewpoint-util';
 import { PointPositionUpdater } from '../change-bounds/snap';
 import { addReconnectHandles, removeReconnectHandles } from '../reconnect/model';
@@ -52,18 +49,41 @@ import { FeedbackCommand } from './model';
 /**
  * RECONNECT HANDLES FEEDBACK
  */
-
-export class ShowEdgeReconnectHandlesFeedbackAction implements Action {
-    constructor(readonly elementId?: string, public readonly kind: string = ShowEdgeReconnectHandlesFeedbackCommand.KIND) {}
+export interface ShowEdgeReconnectHandlesFeedbackAction extends Action {
+    kind: typeof ShowEdgeReconnectHandlesFeedbackAction.KIND;
+    readonly elementId: string;
 }
 
-export class HideEdgeReconnectHandlesFeedbackAction implements Action {
-    constructor(public readonly kind: string = HideEdgeReconnectHandlesFeedbackCommand.KIND) {}
+export namespace ShowEdgeReconnectHandlesFeedbackAction {
+    export const KIND = 'showReconnectHandlesFeedback';
+
+    export function is(object: any): object is ShowEdgeReconnectHandlesFeedbackAction {
+        return Action.hasKind(object, KIND);
+    }
+
+    export function create(elementId: string): ShowEdgeReconnectHandlesFeedbackAction {
+        return { kind: KIND, elementId };
+    }
+}
+export interface HideEdgeReconnectHandlesFeedbackAction extends Action {
+    kind: typeof HideEdgeReconnectHandlesFeedbackAction.KIND;
+}
+
+export namespace HideEdgeReconnectHandlesFeedbackAction {
+    export const KIND = 'hideReconnectHandlesFeedback';
+
+    export function is(object: any): object is HideEdgeReconnectHandlesFeedbackAction {
+        return Action.hasKind(object, KIND);
+    }
+
+    export function create(): HideEdgeReconnectHandlesFeedbackAction {
+        return { kind: KIND };
+    }
 }
 
 @injectable()
 export class ShowEdgeReconnectHandlesFeedbackCommand extends FeedbackCommand {
-    static readonly KIND = 'showReconnectHandlesFeedback';
+    static readonly KIND = ShowEdgeReconnectHandlesFeedbackAction.KIND;
 
     constructor(@inject(TYPES.Action) protected action: ShowEdgeReconnectHandlesFeedbackAction) {
         super();
@@ -73,19 +93,18 @@ export class ShowEdgeReconnectHandlesFeedbackCommand extends FeedbackCommand {
         const index = context.root.index;
         forEachElement(index, isRoutable, removeReconnectHandles);
 
-        if (isNotUndefined(this.action.elementId)) {
-            const routableElement = index.getById(this.action.elementId);
-            if (isNotUndefined(routableElement) && isRoutable(routableElement)) {
-                addReconnectHandles(routableElement);
-            }
+        const routableElement = index.getById(this.action.elementId);
+        if (routableElement && isRoutable(routableElement)) {
+            addReconnectHandles(routableElement);
         }
+
         return context.root;
     }
 }
 
 @injectable()
 export class HideEdgeReconnectHandlesFeedbackCommand extends FeedbackCommand {
-    static readonly KIND = 'hideReconnectHandlesFeedback';
+    static readonly KIND = HideEdgeReconnectHandlesFeedbackAction.KIND;
 
     constructor(@inject(TYPES.Action) protected action: HideEdgeReconnectHandlesFeedbackAction) {
         super();
@@ -101,21 +120,24 @@ export class HideEdgeReconnectHandlesFeedbackCommand extends FeedbackCommand {
  * ROUTING FEEDBACK
  */
 
-export class SwitchRoutingModeAction extends SwitchEditModeAction {
-    constructor(
-        override readonly elementsToActivate: string[] = [],
-        override readonly elementsToDeactivate: string[] = [],
-        override readonly kind: string = SwitchRoutingModeCommand.KIND
-    ) {
-        super(elementsToActivate, elementsToDeactivate);
-    }
+export interface SwitchRoutingModeAction extends Omit<SwitchEditModeAction, 'kind'> {
+    kind: typeof SwitchRoutingModeAction.KIND;
 }
 
+export namespace SwitchRoutingModeAction {
+    export const KIND = 'switchRoutingMode';
+    export function create(options: { elementsToActivate?: string[]; elementsToDeactivate?: string[] }): SwitchRoutingModeAction {
+        return {
+            ...SwitchEditModeAction.create(options),
+            kind: KIND
+        };
+    }
+}
 @injectable()
 export class SwitchRoutingModeCommand extends SwitchEditModeCommand {
-    static override KIND = 'switchRoutingMode';
+    static override KIND = SwitchRoutingModeAction.KIND;
     constructor(@inject(TYPES.Action) action: SwitchRoutingModeAction) {
-        super(action);
+        super({ ...action, kind: SwitchEditModeAction.KIND });
     }
 }
 
@@ -123,17 +145,30 @@ export class SwitchRoutingModeCommand extends SwitchEditModeCommand {
  * SOURCE AND TARGET EDGE FEEDBACK
  */
 
-export class DrawFeedbackEdgeSourceAction implements Action {
-    constructor(
-        readonly elementTypeId: string,
-        readonly targetId: string,
-        public readonly kind: string = DrawFeedbackEdgeSourceCommand.KIND
-    ) {}
+export interface DrawFeedbackEdgeSourceAction extends Action {
+    kind: typeof DrawFeedbackEdgeSourceAction.KIND;
+    elementTypeId: string;
+    targetId: string;
+}
+
+export namespace DrawFeedbackEdgeSourceAction {
+    export const KIND = 'drawFeedbackEdgeSource';
+
+    export function is(object: any): object is DrawFeedbackEdgeSourceAction {
+        return Action.hasKind(object, KIND) && hasStringProp(object, 'elementTypeId') && hasStringProp(object, 'targetId');
+    }
+
+    export function create(options: { elementTypeId: string; targetId: string }): DrawFeedbackEdgeSourceAction {
+        return {
+            kind: KIND,
+            ...options
+        };
+    }
 }
 
 @injectable()
 export class DrawFeedbackEdgeSourceCommand extends FeedbackCommand {
-    static readonly KIND = 'drawFeedbackEdgeSource';
+    static readonly KIND = DrawFeedbackEdgeSourceAction.KIND;
 
     constructor(@inject(TYPES.Action) protected action: DrawFeedbackEdgeSourceAction) {
         super();
@@ -174,12 +209,12 @@ export class FeedbackEdgeSourceMovingMouseListener extends MouseListener {
         );
 
         if (endAtMousePosition instanceof SConnectableElement && edge.target && isBoundsAware(edge.target)) {
-            const anchor = this.computeAbsoluteAnchor(endAtMousePosition, center(edge.target.bounds));
-            if (euclideanDistance(anchor, edgeEnd.position) > 1) {
-                return [new MoveAction([{ elementId: edgeEnd.id, toPosition: anchor }], false)];
+            const anchor = this.computeAbsoluteAnchor(endAtMousePosition, Bounds.center(edge.target.bounds));
+            if (Point.euclideanDistance(anchor, edgeEnd.position) > 1) {
+                return [MoveAction.create([{ elementId: edgeEnd.id, toPosition: anchor }], { animate: false })];
             }
         } else {
-            return [new MoveAction([{ elementId: edgeEnd.id, toPosition: position }], false)];
+            return [MoveAction.create([{ elementId: edgeEnd.id, toPosition: position }], { animate: false })];
         }
 
         return [];
@@ -194,7 +229,7 @@ export class FeedbackEdgeSourceMovingMouseListener extends MouseListener {
             const parent = findParentByFeature(element.parent, isBoundsAware);
             if (parent) {
                 const absoluteParentPosition = toAbsoluteBounds(parent);
-                anchor = add(absoluteParentPosition, anchor);
+                anchor = Point.add(absoluteParentPosition, anchor);
             }
         }
         return anchor;
@@ -214,7 +249,7 @@ export class FeedbackEdgeRouteMovingMouseListener extends MouseListener {
         if (event.button === 0) {
             const routingHandle = findParentByFeature(target, isRoutingHandle);
             if (routingHandle !== undefined) {
-                result.push(new SwitchRoutingModeAction([target.id], []));
+                result.push(SwitchRoutingModeAction.create({ elementsToActivate: [target.id] }));
                 this.pointPositionUpdater.updateLastDragPosition({ x: event.pageX, y: event.pageY });
             } else {
                 this.pointPositionUpdater.resetPosition();
@@ -250,7 +285,7 @@ export class FeedbackEdgeRouteMovingMouseListener extends MouseListener {
                 }
             });
         if (handleMoves.length > 0) {
-            return [new MoveAction(handleMoves, false)];
+            return [MoveAction.create(handleMoves, { animate: false })];
         }
         return [];
     }

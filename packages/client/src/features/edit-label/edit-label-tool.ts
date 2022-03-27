@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020 EclipseSource and others.
+ * Copyright (c) 2020-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -15,7 +15,6 @@
  ********************************************************************************/
 import { injectable } from 'inversify';
 import { EditLabelKeyListener, EditLabelMouseListener, KeyListener, MouseListener } from 'sprotty';
-
 import { BaseGLSPTool } from '../tools/base-glsp-tool';
 
 @injectable()

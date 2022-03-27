@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020-2021 EclipseSource and others.
+ * Copyright (c) 2020-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,56 +13,123 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { isArray, isObject, isString } from '../utils/typeguard-util';
-import { Action, generateRequestId, isActionKind, RequestAction, ResponseAction } from './base-protocol';
+import { JsonPrimitive } from 'sprotty-protocol';
+import { hasArrayProp, hasObjectProp, hasStringProp } from '../utils/type-util';
+import { Action, RequestAction, ResponseAction } from './base-protocol';
 import { Args, EditorContext } from './types';
 
 /**
- *  A NavigationTarget identifies the object we want to navigate to via its uri and may further provide a label to display for the client.
+ * A `NavigationTarget` identifies the object we want to navigate to via its uri and may further provide a label to display for the client.
+ * The corresponding namespace offers a set of utility function to interact with `NavigationTargets`.
  */
 export interface NavigationTarget {
+    /**
+     * URI to identify the object we want to navigate to.
+     */
     uri: string;
+
+    /**
+     * Optional label to display to the user.
+     */
     label?: string;
+
+    /**
+     * Domain-specific arguments that may be interpreted directly or resolved further.
+     */
     args?: Args;
 }
 
 export namespace NavigationTarget {
+    export function is(object: any): object is NavigationTarget {
+        return object !== undefined && hasStringProp(object, 'uri');
+    }
+    /**
+     *  Generic key to store element ids as additional argument
+     */
     export const ELEMENT_IDS = 'elementIds';
+    /**
+     * The separator that is used to store he values for the {@link ELEMENT_IDS} as a single string.
+     */
     export const ELEMENT_IDS_SEPARATOR = '&';
+    /**
+     *  Generic key ot store the line property of a {@link TextPosition} as additional argument.
+     */
     export const TEXT_LINE = 'line';
+    /**
+     *  Generic key ot store the character property of a {@link TextPosition} as additional argument.
+     */
     export const TEXT_COLUMN = 'column';
 
+    /**
+     * Denotes the position of the cursor in a text element.
+     */
     export interface TextPosition {
+        /**
+         * The current line number.
+         */
         line: number;
+        /**
+         * The character number where the cursor is currently located.
+         */
         character: number;
     }
 
+    /**
+     * Utility function to check wether the given {@link NavigationTarget} has additional arguments defined.
+     * @param target The navigation target to check.
+     * @returns `true` if the navigation target has a non-empty `args` property, `false`
+     */
     export function hasArguments(target: NavigationTarget): boolean {
         return target.args !== undefined && Object.keys(target.args).length > 0;
     }
 
-    export function addArgument(target: NavigationTarget, key: string, value: string | number | boolean): void {
-        if (target.args === undefined) {
+    /**
+     * Adds a new key-value pair to the additional arguments of the given {@link NavigationTarget}.
+     * @param target The navigation target.
+     * @param key The key of the new argument.
+     * @param value The (primitive) value of the new argument.
+     */
+    export function addArgument(target: NavigationTarget, key: string, value: JsonPrimitive): void {
+        if (!target.args) {
             target.args = {};
         }
         target.args[key] = value;
     }
 
+    /**
+     * Retrieves the element ids that have been stored with the generic {@link ELEMENT_IDS} key from the args of the
+     * given target.
+     * @param target The navigation target.
+     * @returns An array with the parsed element ids. The array is empty if no {@link ELEMENT_IDS} key is present in the args
+     * of the navigation target.
+     */
     export function getElementIds(target: NavigationTarget): string[] {
-        if (target.args === undefined || target.args[ELEMENT_IDS] === undefined) {
+        if (!target?.args?.[ELEMENT_IDS]) {
             return [];
         }
         const elementIdsValue = target.args[ELEMENT_IDS].toString();
         return elementIdsValue.split(ELEMENT_IDS_SEPARATOR);
     }
 
-    export function setElementIds(target: NavigationTarget, elementIds: string[]): string {
+    /**
+     * Stores the given element ids in the given {@link NavigationTarget} as additional arguments using the generic {@link ELEMENT_IDS} key.
+     * @param target The navigation target.
+     * @param elementIds The element ids that should be stored.
+     * @returns the value of the {@link ELEMENT_IDS} key after storing the given element ids.
+     */
+    export function setElementIds(target: NavigationTarget, ...elementIds: string[]): string {
         if (target.args === undefined) {
             target.args = {};
         }
         return (target.args[ELEMENT_IDS] = elementIds.join(ELEMENT_IDS_SEPARATOR));
     }
 
+    /**
+     * Stores the given {@link TextPosition} in the given {@link NavigationTarget} as additional arguments using
+     * the generic {@link TEXT_LINE} & {@link TEXT_COLUMN} keys.
+     * @param target The navigation target.
+     * @param position The text position that should be stored.
+     */
     export function setTextPosition(target: NavigationTarget, position: TextPosition | undefined): void {
         if (position) {
             if (target.args === undefined) {
@@ -73,8 +140,15 @@ export namespace NavigationTarget {
         }
     }
 
+    /**
+     * Retrieves the {@link TextPosition} that have been stored with the generic {@link TEXT_LINE} & {@link TEXT_COLUMN} keys
+     * from the args of the given target.
+     * @param target The navigation target.
+     * @returns The parsed text position or `undefined` if one of the generic text keys is not present in the args
+     * of the navigation target.
+     */
     export function getTextPosition(target: NavigationTarget): TextPosition | undefined {
-        if (target.args === undefined || target.args[TEXT_LINE] === undefined || target.args[TEXT_COLUMN] === undefined) {
+        if (!target.args || !target.args[TEXT_LINE] || !target.args[TEXT_COLUMN]) {
             return undefined;
         }
         return {
@@ -86,91 +160,226 @@ export namespace NavigationTarget {
 
 /**
  * Action that is usually sent from the client to the server to request navigation targets for a specific navigation type such as
- * documentation or implementation in the given editor context.
+ * `documentation` or `implementation` in the given editor context.
+ * The corresponding namespace declares the action kind as constant and offers helper functions for type guard checks
+ * and creating new `RequestNavigationTargetsActions`.
  */
-export class RequestNavigationTargetsAction implements RequestAction<SetNavigationTargetsAction> {
-    static readonly KIND = 'requestNavigationTargets';
-    kind = RequestNavigationTargetsAction.KIND;
-    constructor(readonly targetTypeId: string, readonly editorContext: EditorContext, readonly requestId: string = generateRequestId()) {}
+export interface RequestNavigationTargetsAction extends RequestAction<SetNavigationTargetsAction> {
+    /**
+     * The unique action kind.
+     */
+    kind: typeof RequestNavigationTargetsAction.KIND;
+
+    /**
+     * Identifier of the type of navigation targets we want to retrieve, e.g., 'documentation', 'implementation', etc.
+     */
+    targetTypeId: string;
+
+    /**
+     * The current editor context.
+     */
+    editorContext: EditorContext;
 }
 
-export function isRequestNavigationTargetsAction(action: any): action is RequestNavigationTargetsAction {
-    return (
-        isActionKind(action, RequestNavigationTargetsAction.KIND) &&
-        isString(action, 'targetTypeId') &&
-        isObject(action, 'editorContext') &&
-        isString(action, 'requestId')
-    );
+export namespace RequestNavigationTargetsAction {
+    export const KIND = 'requestNavigationTargets';
+
+    export function is(object: any): object is RequestNavigationTargetsAction {
+        return RequestAction.hasKind(object, KIND) && hasStringProp(object, 'targetTypeId') && hasObjectProp(object, 'editorContext');
+    }
+
+    export function create(options: {
+        targetTypeId: string;
+        editorContext: EditorContext;
+        requestId?: string;
+    }): RequestNavigationTargetsAction {
+        return {
+            kind: KIND,
+            requestId: '',
+            ...options
+        };
+    }
 }
 
 /**
  * Response action from the server following a {@link RequestNavigationTargetsAction}. It contains all available navigation targets for the
  * queried target type in the provided editor context. The server may also provide additional information using the arguments, e.g.,
- *  warnings, that can be interpreted by the client.
+ * warnings, that can be interpreted by the client.
+ * The corresponding namespace declares the action kind as constant and offers helper functions for type guard checks
+ * and creating new `SetNavigationTargetsActions`.
  */
-export class SetNavigationTargetsAction implements ResponseAction {
-    static readonly KIND = 'setNavigationTargets';
-    kind = SetNavigationTargetsAction.KIND;
-    constructor(readonly targets: NavigationTarget[], readonly responseId: string = '', readonly args?: Args) {}
+export interface SetNavigationTargetsAction extends ResponseAction {
+    /**
+     * The unique action kind.
+     */
+    kind: typeof SetNavigationTargetsAction.KIND;
+
+    /**
+     * A list of navigation targets.
+     */
+    targets: NavigationTarget[];
+
+    /**
+     * Custom arguments that may be interpreted by the client.
+     */
+    args?: Args;
 }
 
-export function isSetNavigationTargetsAction(action: any): action is SetNavigationTargetsAction {
-    return isActionKind(action, SetNavigationTargetsAction.KIND) && isArray(action, 'targets') && isString(action, 'responseId');
+export namespace SetNavigationTargetsAction {
+    export const KIND = 'setNavigationTargets';
+
+    export function is(object: any): object is SetNavigationTargetsAction {
+        return Action.hasKind(object, KIND) && hasArrayProp(object, 'targets');
+    }
+
+    export function create(targets: NavigationTarget[], options: { args?: Args; responseId?: string } = {}): SetNavigationTargetsAction {
+        return {
+            kind: KIND,
+            responseId: '',
+            targets,
+            ...options
+        };
+    }
 }
 
-/** Action that triggers the navigation to a particular navigation target, such as element IDs, queries, etc.. */
-export class NavigateToTargetAction implements Action {
-    static readonly KIND = 'navigateToTarget';
-    readonly kind = NavigateToTargetAction.KIND;
-    constructor(readonly target: NavigationTarget) {}
+/**
+ * Action that triggers the navigation to a particular navigation target, such as element IDs, queries, etc..
+ * The corresponding namespace declares the action kind as constant and offers helper functions for type guard checks
+ * and creating new `NavigateToTargetActions`.
+ */
+export interface NavigateToTargetAction extends Action {
+    /**
+     * The unique action kind.
+     */
+    kind: typeof NavigateToTargetAction.KIND;
+
+    /**
+     * The target to which we navigate.
+     */
+    target: NavigationTarget;
 }
 
-export function isNavigateToTargetAction(action: any): action is NavigateToTargetAction {
-    return isActionKind(action, NavigateToTargetAction.KIND) && isObject(action, 'target');
+export namespace NavigateToTargetAction {
+    export const KIND = 'navigateToTarget';
+
+    export function is(object: any): object is NavigateToTargetAction {
+        return Action.hasKind(object, KIND) && hasObjectProp(object, 'target');
+    }
+
+    export function create(target: NavigationTarget): NavigateToTargetAction {
+        return {
+            kind: KIND,
+            target
+        };
+    }
 }
 
 /**
  * If a client cannot navigate to a target directly, a {@link ResolveNavigationTargetAction} may be sent to the server to resolve the
  * navigation target to one or more model elements. This may be useful in cases where the resolution of each target is expensive or the
  * client architecture requires an indirection.
+ * The corresponding namespace declares the action kind as constant and offers helper functions for type guard checks
+ * and creating new `ResolveNavigationTargetActions`.
  */
-export class ResolveNavigationTargetAction implements RequestAction<SetResolvedNavigationTargetAction> {
-    static readonly KIND = 'resolveNavigationTarget';
-    kind = ResolveNavigationTargetAction.KIND;
-    constructor(readonly navigationTarget: NavigationTarget, public readonly requestId: string = generateRequestId()) {}
+export interface ResolveNavigationTargetAction extends RequestAction<SetResolvedNavigationTargetAction> {
+    /**
+     * The unique action kind.
+     */
+    kind: typeof ResolveNavigationTargetAction.KIND;
+
+    /**
+     * The navigation target to resolve.
+     */
+    navigationTarget: NavigationTarget;
 }
 
-export function isResolveNavigationTargetAction(action: any): action is ResolveNavigationTargetAction {
-    return (
-        isActionKind(action, ResolveNavigationTargetAction.KIND) && isObject(action, 'navigationTarget') && isString(action, 'requestId')
-    );
+export namespace ResolveNavigationTargetAction {
+    export const KIND = 'resolveNavigationTarget';
+
+    export function is(object: any): object is ResolveNavigationTargetAction {
+        return RequestAction.hasKind(object, KIND) && hasObjectProp(object, 'navigationTarget');
+    }
+
+    export function create(navigationTarget: NavigationTarget, options: { requestId?: string } = {}): ResolveNavigationTargetAction {
+        return {
+            kind: KIND,
+            requestId: '',
+            navigationTarget,
+            ...options
+        };
+    }
 }
 
 /**
  * An action sent from the server in response to a {@link ResolveNavigationTargetAction}. The response contains the resolved element ids
  * for the given target and may contain additional information in the args property.
+ * The corresponding namespace declares the action kind as constant and offers helper functions for type guard checks
+ * and creating new `SetResolvedNavigationTargetActions`.
  */
-export class SetResolvedNavigationTargetAction implements ResponseAction {
-    static readonly KIND = 'setResolvedNavigationTarget';
-    kind = SetResolvedNavigationTargetAction.KIND;
-    constructor(readonly elementIds: string[] = [], readonly args?: Args, readonly responseId: string = '') {}
+export interface SetResolvedNavigationTargetAction extends ResponseAction {
+    /**
+     * The unique action kind.
+     */
+    kind: typeof SetResolvedNavigationTargetAction.KIND;
+
+    /**
+     * The element ids of the resolved navigation target.
+     */
+    elementIds: string[];
+
+    /**
+     * Custom arguments that may be interpreted by the client.
+     */
+    args?: Args;
 }
 
-export function isSetResolvedNavigationTargets(action: any): action is SetResolvedNavigationTargetAction {
-    return isActionKind(action, SetResolvedNavigationTargetAction.KIND) && isArray(action, 'elementIds') && isString(action, 'responseId');
+export namespace SetResolvedNavigationTargetAction {
+    export const KIND = 'setResolvedNavigationTarget';
+
+    export function is(object: any): object is SetResolvedNavigationTargetAction {
+        return Action.hasKind(object, KIND) && hasArrayProp(object, 'elementIds');
+    }
+
+    export function create(elementIds: string[], options: { args?: Args; responseId?: string } = {}): SetResolvedNavigationTargetAction {
+        return {
+            kind: KIND,
+            responseId: '',
+            elementIds,
+            ...options
+        };
+    }
 }
 
 /**
  * If a {@link NavigationTarget} cannot be resolved or the resolved target is something that is not part of our model source, e.g.,
  * a separate documentation file, a {@link NavigateToExternalTargetAction} may be sent. Since the target it outside of the model scope such
  * an action would be typically handled by an integration layer (such as the surrounding IDE).
+ * The corresponding namespace declares the action kind as constant and offers helper functions for type guard checks
+ * and creating new `NavigateToExternalTargetActions`.
  */
-export class NavigateToExternalTargetAction implements Action {
-    static readonly KIND = 'navigateToExternalTarget';
-    readonly kind = NavigateToExternalTargetAction.KIND;
-    constructor(readonly target: NavigationTarget) {}
+export interface NavigateToExternalTargetAction extends Action {
+    /**
+     * The unique action kind.
+     */
+    kind: typeof NavigateToExternalTargetAction.KIND;
+
+    /**
+     * The target to which we navigate.
+     */
+    target: NavigationTarget;
 }
 
-export function isNavigateToExternalTargetAction(action: any): action is NavigateToExternalTargetAction {
-    return isActionKind(action, NavigateToExternalTargetAction.KIND) && isObject(action, 'target');
+export namespace NavigateToExternalTargetAction {
+    export const KIND = 'navigateToExternalTarget';
+
+    export function is(object: any): object is NavigateToExternalTargetAction {
+        return Action.hasKind(object, KIND) && hasObjectProp(object, 'target');
+    }
+
+    export function create(target: NavigationTarget): NavigateToExternalTargetAction {
+        return {
+            kind: KIND,
+            target
+        };
+    }
 }

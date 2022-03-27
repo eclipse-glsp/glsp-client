@@ -101,7 +101,12 @@ export class SelectionService implements SModelRootListener {
             ![...prevSelectedElementIDs].every(value => this.selectedElementIDs.has(value));
         if (selectionChanged) {
             // aggregate to feedback action handling all elements as only the last feedback is restored
-            this.dispatchFeedback([new SelectFeedbackAction([...this.selectedElementIDs], [...deselectedElementIDs])]);
+            this.dispatchFeedback([
+                SelectFeedbackAction.create({
+                    selectedElementsIDs: [...this.selectedElementIDs],
+                    deselectedElementsIDs: [...deselectedElementIDs]
+                })
+            ]);
         }
 
         const rootChanged = prevRoot !== root;

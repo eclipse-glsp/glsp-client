@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, EdgeTypeHint, isSetTypeHintsAction, ShapeTypeHint, TypeHint } from '@eclipse-glsp/protocol';
+import { Action, EdgeTypeHint, SetTypeHintsAction, ShapeTypeHint, TypeHint } from '@eclipse-glsp/protocol';
 import { inject, injectable } from 'inversify';
 import {
     CommandExecutionContext,
@@ -40,19 +40,35 @@ import { IFeedbackActionDispatcher } from '../tool-feedback/feedback-action-disp
 import { FeedbackCommand } from '../tool-feedback/model';
 import { Containable, containerFeature, reparentFeature } from './model';
 
-@injectable()
-export class ApplyTypeHintsAction implements Action {
-    readonly kind = ApplyTypeHintsCommand.KIND;
+/**
+ * Is dispatched by the {@link TypeHintProvider } to apply the type hints received from the server
+ * onto the graphical model. The action is dispatched as persistent feedback to ensure the applied type hints
+ * don't get lost after a server-side model update.
+ */
+export interface ApplyTypeHintsAction extends Action {
+    kind: typeof ApplyTypeHintsAction.KIND;
+}
+
+export namespace ApplyTypeHintsAction {
+    export const KIND = 'applyTypeHints';
+
+    export function is(object: any): object is ApplyTypeHintsAction {
+        return Action.hasKind(object, KIND);
+    }
+
+    export function create(): ApplyTypeHintsAction {
+        return { kind: KIND };
+    }
 }
 
 @injectable()
 export class ApplyTypeHintsCommand extends FeedbackCommand {
-    public static KIND = 'applyTypeHints';
+    public static KIND = ApplyTypeHintsAction.KIND;
     public override readonly priority = 10;
 
     @inject(GLSP_TYPES.ITypeHintProvider) protected typeHintProvider: ITypeHintProvider;
 
-    constructor(@inject(TYPES.Action) protected action: ApplyTypeHintsAction) {
+    constructor(@inject(TYPES.Action) protected action: Action) {
         super();
     }
 
@@ -69,7 +85,7 @@ export class ApplyTypeHintsCommand extends FeedbackCommand {
 
     protected applyEdgeTypeHint(element: SModelElement): void {
         const hint = this.typeHintProvider.getEdgeTypeHint(element);
-        if (hint && isModifiableFetureSet(element.features)) {
+        if (hint && isModifiableFeatureSet(element.features)) {
             addOrRemove(element.features, deletableFeature, hint.deletable);
             addOrRemove(element.features, editFeature, hint.routable);
             addOrRemove(element.features, reconnectFeature, hint.repositionable);
@@ -78,7 +94,7 @@ export class ApplyTypeHintsCommand extends FeedbackCommand {
 
     protected applyShapeTypeHint(element: SModelElement): void {
         const hint = this.typeHintProvider.getShapeTypeHint(element);
-        if (hint && isModifiableFetureSet(element.features)) {
+        if (hint && isModifiableFeatureSet(element.features)) {
             addOrRemove(element.features, deletableFeature, hint.deletable);
             addOrRemove(element.features, moveFeature, hint.repositionable);
             addOrRemove(element.features, resizeFeature, hint.resizable);
@@ -119,7 +135,7 @@ function addOrRemove(features: Set<symbol>, feature: symbol, add: boolean): void
     }
 }
 
-function isModifiableFetureSet(featureSet?: FeatureSet): featureSet is FeatureSet & Set<symbol> {
+function isModifiableFeatureSet(featureSet?: FeatureSet): featureSet is FeatureSet & Set<symbol> {
     return featureSet !== undefined && featureSet instanceof Set;
 }
 
@@ -138,10 +154,10 @@ export class TypeHintProvider implements IActionHandler, ITypeHintProvider {
     protected edgeHints: Map<string, EdgeTypeHint> = new Map();
 
     handle(action: Action): ICommand | Action | void {
-        if (isSetTypeHintsAction(action)) {
+        if (SetTypeHintsAction.is(action)) {
             action.shapeHints.forEach(hint => this.shapeHints.set(hint.elementTypeId, hint));
             action.edgeHints.forEach(hint => this.edgeHints.set(hint.elementTypeId, hint));
-            this.feedbackActionDispatcher.registerFeedback(this, [new ApplyTypeHintsAction()]);
+            this.feedbackActionDispatcher.registerFeedback(this, [ApplyTypeHintsAction.create()]);
         }
     }
 

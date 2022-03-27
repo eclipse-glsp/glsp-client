@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, Point } from '@eclipse-glsp/protocol';
+import { Action, hasObjectProp, Point } from '@eclipse-glsp/protocol';
 import { inject, injectable } from 'inversify';
 import {
     AnchorComputerRegistry,
@@ -27,17 +27,30 @@ import {
 } from 'sprotty';
 import { FeedbackCommand } from './model';
 
-export class DrawMarqueeAction implements Action {
-    constructor(
-        public readonly startPoint: Point,
-        public readonly endPoint: Point,
-        public readonly kind: string = DrawMarqueeCommand.KIND
-    ) {}
+export interface DrawMarqueeAction extends Action {
+    kind: typeof DrawMarqueeAction.KIND;
+    startPoint: Point;
+    endPoint: Point;
+}
+
+export namespace DrawMarqueeAction {
+    export const KIND = 'drawMarquee';
+
+    export function is(object: any): object is DrawMarqueeAction {
+        return Action.hasKind(object, KIND) && hasObjectProp(object, 'startPoint') && hasObjectProp(object, 'endPoint');
+    }
+
+    export function create(options: { startPoint: Point; endPoint: Point }): DrawMarqueeAction {
+        return {
+            kind: KIND,
+            ...options
+        };
+    }
 }
 
 @injectable()
 export class DrawMarqueeCommand extends FeedbackCommand {
-    static readonly KIND = 'drawMarquee';
+    static readonly KIND = DrawMarqueeAction.KIND;
 
     constructor(@inject(TYPES.Action) protected action: DrawMarqueeAction) {
         super();
@@ -49,13 +62,25 @@ export class DrawMarqueeCommand extends FeedbackCommand {
     }
 }
 
-export class RemoveMarqueeAction implements Action {
-    constructor(public readonly kind: string = RemoveMarqueeCommand.KIND) {}
+export interface RemoveMarqueeAction extends Action {
+    kind: typeof RemoveMarqueeAction.KIND;
+}
+
+export namespace RemoveMarqueeAction {
+    export const KIND = 'removeMarquee';
+
+    export function is(object: any): object is RemoveMarqueeAction {
+        return Action.hasKind(object, KIND);
+    }
+
+    export function create(): RemoveMarqueeAction {
+        return { kind: KIND };
+    }
 }
 
 @injectable()
 export class RemoveMarqueeCommand extends FeedbackCommand {
-    static readonly KIND = 'removeMarqueeCommand';
+    static readonly KIND = RemoveMarqueeAction.KIND;
 
     execute(context: CommandExecutionContext): CommandReturn {
         removeMarquee(context.root);

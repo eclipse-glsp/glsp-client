@@ -1,5 +1,21 @@
 # Eclipse GLSP Client Changelog
 
+## [v0.10.0- Upcoming](https://github.com/eclipse-glsp/glsp-client/releases/tag/v0.10.0)
+
+### Changes
+
+-   [diagram] Fixed a bug where the edge creation tool would select the wrong child when used inside of a nested node [#224](https://github.com/eclipse-glsp/glsp-client/pull/158/)
+-   [example] Improved and modernized styling of the GLSP workflow example [#492](https://github.com/eclipse-glsp/glsp-client/pull/160)
+-   [contextMenu] Ensured that closing the context menu correctly restores the diagram focus. [#469](https://github.com/eclipse-glsp/glsp-client/pull/161)
+-   [build] Updated Typescript to version 4.5.5 and enforced `noImplicitOverride` [#559](https://github.com/eclipse-glsp/glsp-client/pull/167)
+-   [diagram] Added support for snapping edges (routing points) similar to how its done for moving/resizing elements. [#604](https://github.com/eclipse-glsp/glsp-client/pull/170)
+
+### Breaking Changes
+
+-   [protocol] Updated to sprotty >=0.11.0. With the new sprotty version the action declaration approach has been reworked from ES6 classes to plain interfaces + namespaces. To keep action declaration and creation consistent all action definitions of the protocol and client package have been updated as well. The old class based definitions are no longer available. This mainly affects construction calls
+    which have to be changed from `new SomeAction()` to using the create function of the corresponding namespace `SomeAction.create()`. In addition, typeguard functions have been included in the action namespaces as well and can now be used with `SomeAction.is()` instead of using a dedicated `isSomeAction()` function.
+    <br>[#472](https://github.com/eclipse-glsp/glsp-client/pull/171) - Contributed on behalf of STMicroelectronics
+
 ## [v0.9.0- 09/12/2021](https://github.com/eclipse-glsp/glsp-client/releases/tag/v0.9.0)
 
 ### Changes

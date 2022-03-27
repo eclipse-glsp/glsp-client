@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020 EclipseSource and others.
+ * Copyright (c) 2020-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,12 +13,14 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { LabeledAction } from '@eclipse-glsp/protocol';
+import { hasStringProp, LabeledAction } from '@eclipse-glsp/protocol';
 
-export interface SetAutoCompleteValueAction extends LabeledAction {
+export interface AutoCompleteValue extends LabeledAction {
     readonly text: string;
 }
 
-export function isSetAutoCompleteValueAction(action: LabeledAction): action is SetAutoCompleteValueAction {
-    return action !== undefined && (action as SetAutoCompleteValueAction).text !== undefined;
+export namespace AutoCompleteValue {
+    export function is(object: any): object is AutoCompleteValue {
+        return LabeledAction.is(object) && hasStringProp(object, 'text');
+    }
 }

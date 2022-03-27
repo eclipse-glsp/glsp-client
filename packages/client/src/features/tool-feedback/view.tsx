@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2021 EclipseSource and others.
+ * Copyright (c) 2019-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -16,7 +16,7 @@
 import { Point } from '@eclipse-glsp/protocol';
 import { injectable } from 'inversify';
 import { VNode } from 'snabbdom';
-import { IView, ORIGIN_POINT, RenderingContext, setAttr, SModelElement, svg } from 'sprotty';
+import { IView, RenderingContext, setAttr, SModelElement, svg } from 'sprotty';
 import { isResizable, ResizeHandleLocation, SResizeHandle } from '../change-bounds/model';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -29,7 +29,7 @@ const JSX = { createElement: svg };
 @injectable()
 export class FeedbackEdgeEndView implements IView {
     render(model: Readonly<SModelElement>, context: RenderingContext): VNode {
-        const position: Point = (model as any).position || ORIGIN_POINT;
+        const position: Point = (model as any).position ?? Point.ORIGIN;
         return <g x={position.x} y={position.y} />;
     }
 }

@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019 EclipseSource and others.
+ * Copyright (c) 2019-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -15,9 +15,8 @@
  ********************************************************************************/
 import { ContainerModule } from 'inversify';
 import { configureCommand, TYPES } from 'sprotty';
-
 import { GLSP_TYPES } from '../../base/types';
-import { SelectAllFeedbackCommand, SelectFeedbackCommand } from './select-feedback-action';
+import { SelectFeedbackCommand } from './select-feedback-action';
 import { RankedSelectMouseListener } from './select-mouse-listener';
 import { SelectAllCommand, SelectCommand, SelectionService } from './selection-service';
 
@@ -27,7 +26,6 @@ const glspSelectModule = new ContainerModule((bind, _unbind, isBound) => {
     configureCommand({ bind, isBound }, SelectCommand);
     configureCommand({ bind, isBound }, SelectAllCommand);
     configureCommand({ bind, isBound }, SelectFeedbackCommand);
-    configureCommand({ bind, isBound }, SelectAllFeedbackCommand);
     bind(TYPES.MouseListener).to(RankedSelectMouseListener);
     bind(GLSP_TYPES.SModelRootListener).toService(SelectionService);
 });
