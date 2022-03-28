@@ -29,10 +29,9 @@ import {
     SEdge,
     SModelElement,
     SModelRoot,
-    SShapeElement,
-    TYPES
+    SShapeElement
 } from 'sprotty';
-import { GLSP_TYPES } from '../../base/types';
+import { TYPES } from '../../base/types';
 import { getElementTypeId, hasCompatibleType } from '../../utils/smodel-util';
 import { resizeFeature } from '../change-bounds/model';
 import { reconnectFeature } from '../reconnect/model';
@@ -66,7 +65,7 @@ export class ApplyTypeHintsCommand extends FeedbackCommand {
     public static KIND = ApplyTypeHintsAction.KIND;
     public override readonly priority = 10;
 
-    @inject(GLSP_TYPES.ITypeHintProvider) protected typeHintProvider: ITypeHintProvider;
+    @inject(TYPES.ITypeHintProvider) protected typeHintProvider: ITypeHintProvider;
 
     constructor(@inject(TYPES.Action) protected action: Action) {
         super();
@@ -147,7 +146,7 @@ export interface ITypeHintProvider {
 
 @injectable()
 export class TypeHintProvider implements IActionHandler, ITypeHintProvider {
-    @inject(GLSP_TYPES.IFeedbackActionDispatcher)
+    @inject(TYPES.IFeedbackActionDispatcher)
     protected feedbackActionDispatcher: IFeedbackActionDispatcher;
 
     protected shapeHints: Map<string, ShapeTypeHint> = new Map();

@@ -27,14 +27,8 @@ import { ElementAndBounds } from './types';
  * and creating new `ChangeBoundsOperations`.
  */
 export interface ChangeBoundsOperation extends Operation {
-    /**
-     * The unique action kind.
-     */
     kind: typeof ChangeBoundsOperation.KIND;
 
-    /**
-     * The new bounds of the respective elements.
-     */
     newBounds: ElementAndBounds[];
 }
 
@@ -61,9 +55,6 @@ export namespace ChangeBoundsOperation {
  * and creating new `ChangeContainerOperations`.
  */
 export interface ChangeContainerOperation extends Operation {
-    /**
-     * The unique action kind.
-     */
     kind: typeof ChangeContainerOperation.KIND;
 
     /**

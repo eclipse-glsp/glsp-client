@@ -17,8 +17,8 @@
 import { Action, SModelElementSchema } from '@eclipse-glsp/protocol';
 import { AssertionError, expect } from 'chai';
 import { Container, injectable } from 'inversify';
-import { defaultModule, SGraphFactory, SModelRoot, TYPES } from 'sprotty';
-import { GLSP_TYPES } from '../../base/types';
+import { defaultModule, SGraphFactory, SModelRoot } from 'sprotty';
+import { TYPES } from '../../base/types';
 import { IFeedbackActionDispatcher, IFeedbackEmitter } from '../tool-feedback/feedback-action-dispatcher';
 import { SelectFeedbackAction } from './select-feedback-action';
 import { SelectionListener, SelectionService } from './selection-service';
@@ -76,9 +76,9 @@ function createContainer(): Container {
     container.load(defaultModule);
     // eslint-disable-next-line deprecation/deprecation
     container.rebind(TYPES.IModelFactory).to(SGraphFactory).inSingletonScope();
-    container.bind(GLSP_TYPES.IFeedbackActionDispatcher).to(MockFeedbackActionDispatcher).inSingletonScope();
+    container.bind(TYPES.IFeedbackActionDispatcher).to(MockFeedbackActionDispatcher).inSingletonScope();
     container.bind(SelectionService).toSelf().inSingletonScope();
-    container.bind(GLSP_TYPES.SelectionService).toService(SelectionService);
+    container.bind(TYPES.SelectionService).toService(SelectionService);
     return container;
 }
 
@@ -94,8 +94,8 @@ describe('SelectionService', () => {
         // eslint-disable-next-line deprecation/deprecation
         graphFactory = container.get<SGraphFactory>(TYPES.IModelFactory);
         root = createRoot('node1', 'node2', 'node3', 'node4', 'node5');
-        selectionService = container.get<SelectionService>(GLSP_TYPES.SelectionService);
-        feedbackDispatcher = container.get<MockFeedbackActionDispatcher>(GLSP_TYPES.IFeedbackActionDispatcher);
+        selectionService = container.get<SelectionService>(TYPES.SelectionService);
+        feedbackDispatcher = container.get<MockFeedbackActionDispatcher>(TYPES.IFeedbackActionDispatcher);
     });
 
     describe('Initial State', () => {

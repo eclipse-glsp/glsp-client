@@ -22,9 +22,6 @@ import { Operation } from './base-protocol';
  * and creating new `UndoOperations`.
  */
 export interface UndoOperation extends Operation {
-    /**
-     * The unique action kind.
-     */
     kind: typeof UndoOperation.KIND;
 }
 
@@ -49,9 +46,6 @@ export namespace UndoOperation {
  * and creating new `RedoOperations`.
  */
 export interface RedoOperation extends Operation {
-    /**
-     * The unique action kind.
-     */
     kind: typeof RedoOperation.KIND;
 }
 

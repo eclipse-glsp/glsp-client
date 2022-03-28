@@ -60,7 +60,6 @@ export {
 } from 'sprotty/lib/base/model/smodel-utils';
 export * from 'sprotty/lib/base/tool-manager/tool';
 export * from 'sprotty/lib/base/tool-manager/tool-manager';
-export * from 'sprotty/lib/base/types';
 export * from 'sprotty/lib/base/ui-extensions/ui-extension';
 export * from 'sprotty/lib/base/ui-extensions/ui-extension-registry';
 export * from 'sprotty/lib/base/views/key-tool';

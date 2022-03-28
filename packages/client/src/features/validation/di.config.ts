@@ -14,8 +14,8 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { ContainerModule } from 'inversify';
-import { configureCommand, TYPES } from 'sprotty';
-import { GLSP_TYPES } from '../../base/types';
+import { configureCommand } from 'sprotty';
+import { TYPES } from '../../base/types';
 import {
     LeftToRightTopToBottomComparator,
     MarkerNavigator,
@@ -45,6 +45,6 @@ export const markerNavigatorModule = new ContainerModule((bind, _unbind, isBound
  * `registerMarkerNavigationCommands()` in `glsp-theia-integration` instead.
  */
 export const markerNavigatorContextMenuModule = new ContainerModule((bind, _unbind, isBound) => {
-    bind(GLSP_TYPES.IContextMenuProvider).to(MarkerNavigatorContextMenuItemProvider).inSingletonScope();
+    bind(TYPES.IContextMenuProvider).to(MarkerNavigatorContextMenuItemProvider).inSingletonScope();
     bind(TYPES.KeyListener).to(MarkerNavigatorKeyListener).inSingletonScope();
 });

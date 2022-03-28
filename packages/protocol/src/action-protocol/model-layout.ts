@@ -19,20 +19,18 @@ import { Action, Operation, RequestAction, ResponseAction } from './base-protoco
 import { SModelRootSchema } from './model-structure';
 import { ElementAndAlignment, ElementAndBounds } from './types';
 
-/** Sent from the server to the client to request bounds for the given model. The model is rendered invisibly so the bounds can
+/**
+ * Sent from the server to the client to request bounds for the given model. The model is rendered invisibly so the bounds can
  * derived from the DOM. The response is a ComputedBoundsAction. This hidden rendering round-trip is necessary if the client is responsible
  * for parts of the layout.
  * The corresponding namespace declares the action kind as constant and offers helper functions for type guard checks
  * and creating new `RequestBoundsActions`.
  */
 export interface RequestBoundsAction extends RequestAction<ComputedBoundsAction>, sprotty.RequestBoundsAction {
-    /**
-     * The unique action kind.
-     */
     kind: typeof RequestBoundsAction.KIND;
 
     /**
-     * The model elements to consider to compute the new bounds.
+     * The model root element for which to compute the new bounds.
      */
     newRoot: SModelRootSchema;
 }
@@ -61,9 +59,6 @@ export namespace RequestBoundsAction {
  * and creating new `ComputedBoundsActions`.
  */
 export interface ComputedBoundsAction extends ResponseAction, sprotty.ComputedBoundsAction {
-    /**
-     * The unique action kind.
-     */
     kind: typeof ComputedBoundsAction.KIND;
     /**
      * The new bounds of the model elements.
@@ -111,9 +106,6 @@ export namespace ComputedBoundsAction {
  * and creating new `LayoutOperations`.
  */
 export interface LayoutOperation extends Operation, Omit<sprotty.LayoutAction, 'layoutType'> {
-    /**
-     * The unique action kind.
-     */
     kind: typeof LayoutOperation.KIND;
 
     /**

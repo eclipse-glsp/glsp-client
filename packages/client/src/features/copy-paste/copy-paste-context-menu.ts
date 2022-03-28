@@ -16,7 +16,8 @@
 /* eslint-disable deprecation/deprecation */
 import { Action, hasStringProp, Point, ServerMessageAction, ServerStatusAction } from '@eclipse-glsp/protocol';
 import { inject, injectable } from 'inversify';
-import { IActionDispatcher, IActionHandler, IContextMenuItemProvider, isSelected, MenuItem, SModelRoot, TYPES } from 'sprotty';
+import { IActionDispatcher, IActionHandler, IContextMenuItemProvider, isSelected, MenuItem, SModelRoot } from 'sprotty';
+import { TYPES } from '../../base/types';
 
 /**
  * An `InvokeCopyPasteAction` is dispatched by the client to initiate a cut, copy or paste operation.

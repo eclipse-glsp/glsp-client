@@ -15,13 +15,13 @@
  ********************************************************************************/
 import { ContainerModule } from 'inversify';
 import { configureActionHandler } from 'sprotty';
-import { GLSP_TYPES } from '../../base/types';
+import { TYPES } from '../../base/types';
 import { CopyPasteContextMenuItemProvider, InvokeCopyPasteAction, InvokeCopyPasteActionHandler } from './copy-paste-context-menu';
 import { LocalClipboardService, ServerCopyPasteHandler } from './copy-paste-handler';
 
 export const glspServerCopyPasteModule = new ContainerModule((bind, _unbind, isBound) => {
-    bind(GLSP_TYPES.ICopyPasteHandler).to(ServerCopyPasteHandler);
-    bind(GLSP_TYPES.IAsyncClipboardService).to(LocalClipboardService).inSingletonScope();
+    bind(TYPES.ICopyPasteHandler).to(ServerCopyPasteHandler);
+    bind(TYPES.IAsyncClipboardService).to(LocalClipboardService).inSingletonScope();
 });
 
 /**
@@ -30,7 +30,7 @@ export const glspServerCopyPasteModule = new ContainerModule((bind, _unbind, isB
  * `CopyPasteMenuContribution` in `glsp-theia-integration` instead.
  */
 export const copyPasteContextMenuModule = new ContainerModule((bind, _unbind, isBound) => {
-    bind(GLSP_TYPES.IContextMenuProvider).to(CopyPasteContextMenuItemProvider).inSingletonScope();
+    bind(TYPES.IContextMenuProvider).to(CopyPasteContextMenuItemProvider).inSingletonScope();
     bind(InvokeCopyPasteActionHandler).toSelf().inSingletonScope();
     configureActionHandler({ bind, isBound }, InvokeCopyPasteAction.KIND, InvokeCopyPasteActionHandler);
 });

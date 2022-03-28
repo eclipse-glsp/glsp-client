@@ -14,8 +14,8 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { ContainerModule } from 'inversify';
-import { configureCommand, configureView, LocationPostprocessor, MoveCommand, TYPES } from 'sprotty';
-import { GLSP_TYPES } from '../../base/types';
+import { configureCommand, configureView, LocationPostprocessor, MoveCommand } from 'sprotty';
+import { TYPES } from '../../base/types';
 import { SResizeHandle } from '../change-bounds/model';
 import { HideChangeBoundsToolResizeFeedbackCommand, ShowChangeBoundsToolResizeFeedbackCommand } from './change-bounds-tool-feedback';
 import { DrawFeedbackEdgeCommand, FeedbackEdgeEnd, RemoveFeedbackEdgeCommand } from './creation-tool-feedback';
@@ -31,7 +31,7 @@ import { DrawMarqueeCommand, RemoveMarqueeCommand } from './marquee-tool-feedbac
 import { FeedbackEdgeEndView, SResizeHandleView } from './view';
 
 const toolFeedbackModule = new ContainerModule((bind, _unbind, isBound) => {
-    bind(GLSP_TYPES.IFeedbackActionDispatcher).to(FeedbackActionDispatcher).inSingletonScope();
+    bind(TYPES.IFeedbackActionDispatcher).to(FeedbackActionDispatcher).inSingletonScope();
 
     configureCommand({ bind, isBound }, ModifyCssFeedbackCommand);
 

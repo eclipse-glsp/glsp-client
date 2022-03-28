@@ -15,7 +15,7 @@
  ********************************************************************************/
 import * as sprotty from 'sprotty-protocol';
 import { Dimension, Point } from 'sprotty-protocol';
-import { hasArrayProp, hasStringProp } from '../utils/type-util';
+import { AnyObject, hasArrayProp, hasStringProp } from '../utils/type-util';
 import { Action } from './base-protocol';
 import { TriggerEdgeCreationAction, TriggerNodeCreationAction } from './tool-palette';
 // A collection of convenience and utility types that are used in the GLSP action protocol.
@@ -125,7 +125,7 @@ export interface LabeledAction {
 
 export namespace LabeledAction {
     export function is(object: any): object is LabeledAction {
-        return Action.is(object) && hasStringProp(object, 'label') && hasArrayProp(object, 'array');
+        return AnyObject.is(object) && hasStringProp(object, 'label') && hasArrayProp(object, 'actions');
     }
 
     export function toActionArray(input: LabeledAction | Action[] | Action): Action[] {

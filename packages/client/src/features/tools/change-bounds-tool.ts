@@ -38,11 +38,10 @@ import {
     SConnectableElement,
     SModelElement,
     SModelRoot,
-    SParentElement,
-    TYPES
+    SParentElement
 } from 'sprotty';
 import { DragAwareMouseListener } from '../../base/drag-aware-mouse-listener';
-import { GLSP_TYPES } from '../../base/types';
+import { TYPES } from '../../base/types';
 import { isValidMove, isValidSize } from '../../utils/layout-utils';
 import {
     forEachElement,
@@ -83,10 +82,10 @@ import { BaseGLSPTool } from './base-glsp-tool';
 export class ChangeBoundsTool extends BaseGLSPTool {
     static ID = 'glsp.change-bounds-tool';
 
-    @inject(GLSP_TYPES.SelectionService) protected selectionService: SelectionService;
+    @inject(TYPES.SelectionService) protected selectionService: SelectionService;
     @inject(EdgeRouterRegistry) @optional() readonly edgeRouterRegistry?: EdgeRouterRegistry;
     @inject(TYPES.ISnapper) @optional() readonly snapper?: ISnapper;
-    @inject(GLSP_TYPES.IMovementRestrictor) @optional() readonly movementRestrictor?: IMovementRestrictor;
+    @inject(TYPES.IMovementRestrictor) @optional() readonly movementRestrictor?: IMovementRestrictor;
     protected feedbackMoveMouseListener: MouseListener;
     protected changeBoundsListener: MouseListener & SelectionListener;
 

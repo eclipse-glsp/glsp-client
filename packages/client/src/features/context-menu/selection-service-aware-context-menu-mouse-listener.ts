@@ -21,18 +21,17 @@ import {
     IContextMenuServiceProvider,
     isSelectable,
     MouseListener,
-    SModelElement,
-    TYPES
+    SModelElement
 } from 'sprotty';
 import { FocusStateChangedAction } from '../../base/actions/focus-change-action';
-import { GLSP_TYPES } from '../../base/types';
+import { TYPES } from '../../base/types';
 import { SelectionService } from '../select/selection-service';
 
 @injectable()
 export class SelectionServiceAwareContextMenuMouseListener extends MouseListener {
     @inject(TYPES.IContextMenuServiceProvider) @optional() protected readonly contextMenuService: IContextMenuServiceProvider;
     @inject(TYPES.IContextMenuProviderRegistry) @optional() protected readonly menuProvider: ContextMenuProviderRegistry;
-    @inject(GLSP_TYPES.SelectionService) protected selectionService: SelectionService;
+    @inject(TYPES.SelectionService) protected selectionService: SelectionService;
 
     /**
      * Opens the context menu on right-click.

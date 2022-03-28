@@ -63,7 +63,7 @@
       }
     },
     {
-      "name": "Push2",
+      "name": "ChkWt",
       "taskType": "automated",
       "id": "task0_automated",
       "cssClasses": [
@@ -242,7 +242,7 @@
       "targetId": "bd94e44e-19f9-446e-89d4-97ca1a63c17b"
     },
     {
-      "name": "AutomatedTask8",
+      "name": "WtOK",
       "taskType": "automated",
       "id": "e47d5eba-612d-4c43-9aba-2c5502ff4f04",
       "cssClasses": [
@@ -330,7 +330,7 @@
       }
     },
     {
-      "name": "Push",
+      "name": "RflWt",
       "taskType": "manual",
       "id": "a63cfd87-da7c-4846-912b-29040b776bfb",
       "cssClasses": [
@@ -418,7 +418,7 @@
       }
     },
     {
-      "name": "AutomatedTask7",
+      "name": "Brew",
       "taskType": "automated",
       "id": "7afd430b-5031-4082-8190-7e755c57cde9",
       "cssClasses": [
@@ -488,7 +488,7 @@
       }
     },
     {
-      "name": "AutomatedTask8",
+      "name": "ChkTp",
       "taskType": "automated",
       "id": "6c26f0a4-4354-45fa-9d9f-bc2b48adee17",
       "cssClasses": [
@@ -567,7 +567,7 @@
       }
     },
     {
-      "name": "AutomatedTask8",
+      "name": "KeepTp",
       "taskType": "automated",
       "id": "4b06ed95-c9be-47df-9941-98099259be4a",
       "cssClasses": [
@@ -628,7 +628,7 @@
       }
     },
     {
-      "name": "AutomatedTask9",
+      "name": "PreHeat",
       "taskType": "automated",
       "id": "80d1792f-9c7e-41c0-8eca-eeb0509397b6",
       "cssClasses": [

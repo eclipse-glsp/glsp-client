@@ -23,9 +23,6 @@ import { Action } from './base-protocol';
  * and creating new `SetEditModeActions`.
  */
 export interface SetEditModeAction extends Action {
-    /**
-     * The unique action kind.
-     */
     kind: typeof SetEditModeAction.KIND;
 
     /**

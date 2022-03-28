@@ -24,9 +24,6 @@ import { Args, EditorContext, LabeledAction } from './types';
  * and creating new `RequestContextActions`.
  */
 export interface RequestContextActions extends RequestAction<SetContextActions> {
-    /**
-     * The unique action kind.
-     */
     kind: typeof RequestContextActions.KIND;
 
     /**
@@ -34,9 +31,6 @@ export interface RequestContextActions extends RequestAction<SetContextActions> 
      */
     contextId: string;
 
-    /**
-     * The current editor context.
-     */
     editorContext: EditorContext;
 }
 
@@ -62,9 +56,6 @@ export namespace RequestContextActions {
  * and creating new `SetContextsActions`.
  */
 export interface SetContextActions extends ResponseAction {
-    /**
-     * The unique action kind.
-     */
     kind: typeof SetContextActions.KIND;
 
     /**

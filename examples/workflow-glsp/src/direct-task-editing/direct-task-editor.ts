@@ -23,6 +23,7 @@ import {
     hasStringProp,
     ILogger,
     LabeledAction,
+    ModelIndexImpl,
     Operation,
     RequestContextActions,
     RequestEditValidationAction,
@@ -30,12 +31,12 @@ import {
     SetEditValidationResultAction,
     SModelRoot,
     toActionArray,
+    TYPES,
     ValidationDecorator,
     ValidationStatus,
     ViewerOptions
 } from '@eclipse-glsp/client';
 import { inject, injectable } from 'inversify';
-import { ModelIndexImpl, TYPES } from 'sprotty/lib';
 import { DOMHelper } from 'sprotty/lib/base/views/dom-helper';
 import { isTaskNode, TaskNode } from '../model';
 
@@ -44,9 +45,6 @@ import { isTaskNode, TaskNode } from '../model';
  * to execute a task edit operation.
  */
 export interface ApplyTaskEditOperation extends Operation {
-    /**
-     * The unique action kind
-     */
     kind: typeof ApplyTaskEditOperation.KIND;
 
     /**

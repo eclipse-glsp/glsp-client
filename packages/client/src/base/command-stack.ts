@@ -15,7 +15,8 @@
  ********************************************************************************/
 import { RedoOperation, UndoOperation } from '@eclipse-glsp/protocol';
 import { inject, injectable } from 'inversify';
-import { CommandStack, IActionDispatcher, SModelRoot, TYPES } from 'sprotty';
+import { CommandStack, IActionDispatcher, SModelRoot } from 'sprotty';
+import { TYPES } from './types';
 
 @injectable()
 export class GLSPCommandStack extends CommandStack {

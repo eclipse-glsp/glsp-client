@@ -64,12 +64,9 @@ export namespace NavigationTarget {
      * Denotes the position of the cursor in a text element.
      */
     export interface TextPosition {
-        /**
-         * The current line number.
-         */
         line: number;
         /**
-         * The character number where the cursor is currently located.
+         * The character number within the line. Also refereed to as column.
          */
         character: number;
     }
@@ -165,9 +162,6 @@ export namespace NavigationTarget {
  * and creating new `RequestNavigationTargetsActions`.
  */
 export interface RequestNavigationTargetsAction extends RequestAction<SetNavigationTargetsAction> {
-    /**
-     * The unique action kind.
-     */
     kind: typeof RequestNavigationTargetsAction.KIND;
 
     /**
@@ -175,9 +169,6 @@ export interface RequestNavigationTargetsAction extends RequestAction<SetNavigat
      */
     targetTypeId: string;
 
-    /**
-     * The current editor context.
-     */
     editorContext: EditorContext;
 }
 
@@ -209,14 +200,8 @@ export namespace RequestNavigationTargetsAction {
  * and creating new `SetNavigationTargetsActions`.
  */
 export interface SetNavigationTargetsAction extends ResponseAction {
-    /**
-     * The unique action kind.
-     */
     kind: typeof SetNavigationTargetsAction.KIND;
 
-    /**
-     * A list of navigation targets.
-     */
     targets: NavigationTarget[];
 
     /**
@@ -248,13 +233,10 @@ export namespace SetNavigationTargetsAction {
  * and creating new `NavigateToTargetActions`.
  */
 export interface NavigateToTargetAction extends Action {
-    /**
-     * The unique action kind.
-     */
     kind: typeof NavigateToTargetAction.KIND;
 
     /**
-     * The target to which we navigate.
+     * The target to which the client shall navigate.
      */
     target: NavigationTarget;
 }
@@ -282,9 +264,6 @@ export namespace NavigateToTargetAction {
  * and creating new `ResolveNavigationTargetActions`.
  */
 export interface ResolveNavigationTargetAction extends RequestAction<SetResolvedNavigationTargetAction> {
-    /**
-     * The unique action kind.
-     */
     kind: typeof ResolveNavigationTargetAction.KIND;
 
     /**
@@ -317,9 +296,6 @@ export namespace ResolveNavigationTargetAction {
  * and creating new `SetResolvedNavigationTargetActions`.
  */
 export interface SetResolvedNavigationTargetAction extends ResponseAction {
-    /**
-     * The unique action kind.
-     */
     kind: typeof SetResolvedNavigationTargetAction.KIND;
 
     /**
@@ -358,13 +334,10 @@ export namespace SetResolvedNavigationTargetAction {
  * and creating new `NavigateToExternalTargetActions`.
  */
 export interface NavigateToExternalTargetAction extends Action {
-    /**
-     * The unique action kind.
-     */
     kind: typeof NavigateToExternalTargetAction.KIND;
 
     /**
-     * The target to which we navigate.
+     * The diagram-external targe to which the client shall navigate.
      */
     target: NavigationTarget;
 }

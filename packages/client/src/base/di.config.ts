@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2021 EclipseSource and others.
+ * Copyright (c) 2019-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -16,7 +16,7 @@
 import { InitializeResult, SetEditModeAction } from '@eclipse-glsp/protocol';
 import '@vscode/codicons/dist/codicon.css';
 import { Container, ContainerModule } from 'inversify';
-import { ActionHandlerRegistry, configureActionHandler, configureCommand, ModelSource, SetModelCommand, TYPES } from 'sprotty';
+import { ActionHandlerRegistry, configureActionHandler, configureCommand, ModelSource, SetModelCommand } from 'sprotty';
 import '../../css/glsp-sprotty.css';
 import { GLSPActionDispatcher } from './action-dispatcher';
 import { FocusStateChangedAction } from './actions/focus-change-action';
@@ -28,13 +28,13 @@ import { GLSPModelRegistry } from './model/model-registry';
 import { FeedbackAwareUpdateModelCommand, SetModelActionHandler } from './model/update-model-command';
 import { SelectionClearingMouseListener } from './selection-clearing-mouse-listener';
 import { GLSPToolManager } from './tool-manager/glsp-tool-manager';
-import { GLSP_TYPES } from './types';
+import { TYPES } from './types';
 import { GLSPViewRegistry } from './view/view-registry';
 
 const defaultGLSPModule = new ContainerModule((bind, _unbind, isBound, rebind) => {
     const context = { bind, _unbind, isBound, rebind };
     bind(EditorContextService).toSelf().inSingletonScope();
-    bind(GLSP_TYPES.IEditorContextServiceProvider).toProvider<EditorContextService>(
+    bind(TYPES.IEditorContextServiceProvider).toProvider<EditorContextService>(
         ctx => () =>
             new Promise<EditorContextService>((resolve, reject) => {
                 if (ctx.container.isBound(EditorContextService)) {
@@ -58,7 +58,6 @@ const defaultGLSPModule = new ContainerModule((bind, _unbind, isBound, rebind) =
 
     rebind(TYPES.ICommandStack).to(GLSPCommandStack);
     bind(GLSPToolManager).toSelf().inSingletonScope();
-    bind(GLSP_TYPES.IGLSPToolManager).toService(GLSPToolManager);
     rebind(TYPES.IToolManager).toService(GLSPToolManager);
     bind(GLSPActionDispatcher).toSelf().inSingletonScope();
     rebind(TYPES.IActionDispatcher).toService(GLSPActionDispatcher);

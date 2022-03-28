@@ -24,9 +24,6 @@ import { Args, ElementAndRoutingPoints } from './types';
  * and creating new `ReconnectEdgeOperations`.
  */
 export interface ReconnectEdgeOperation extends Operation {
-    /**
-     * The unique action kind.
-     */
     kind: typeof ReconnectEdgeOperation.KIND;
 
     /**
@@ -83,9 +80,6 @@ export namespace ReconnectEdgeOperation {
  * and creating new `ChangeRoutingPointsOperations`.
  */
 export interface ChangeRoutingPointsOperation extends Operation {
-    /**
-     * The unique action kind.
-     */
     kind: typeof ChangeRoutingPointsOperation.KIND;
 
     /**

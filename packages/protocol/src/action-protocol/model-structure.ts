@@ -23,17 +23,12 @@ import { hasStringProp } from '../utils/type-util';
  * Each model element must have a unique ID and a type that is used on the client to  look up its view.
  */
 export interface SModelElementSchema extends sprotty.SModelElement {
-    /**
-     * Unique identifier for this element.
-     */
     id: string;
     /**
      * Type to look up the graphical representation of this element.
      */
     type: string;
-    /**
-     * Children of this element.
-     */
+
     children?: SModelElementSchema[];
 
     /**
@@ -63,7 +58,7 @@ export interface SModelRootSchema extends SModelElementSchema {
     canvasBounds?: Bounds;
 
     /**
-     * Version of this root element.
+     * The revision number identifies single versions of the models sent by the server.
      */
     revision?: number;
 }

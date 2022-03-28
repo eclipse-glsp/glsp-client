@@ -25,9 +25,6 @@ import { Action } from './base-protocol';
  * and creating new `SelectActions`.
  */
 export interface SelectAction extends Action, sprotty.SelectAction {
-    /**
-     * The unique action kind.
-     */
     kind: typeof SelectAction.KIND;
 
     /**
@@ -64,9 +61,6 @@ export namespace SelectAction {
  * and creating new `SelectAllActions`.
  */
 export interface SelectAllAction extends Action, sprotty.SelectAllAction {
-    /**
-     * The unique action kind.
-     */
     kind: typeof SelectAllAction.KIND;
 
     /**

@@ -32,9 +32,9 @@ import {
     SetResolvedNavigationTargetAction
 } from '@eclipse-glsp/protocol';
 import { inject, injectable } from 'inversify';
-import { ActionHandlerRegistry, IActionDispatcher, IActionHandler, ICommand, ILogger, TYPES } from 'sprotty';
+import { ActionHandlerRegistry, IActionDispatcher, IActionHandler, ICommand, ILogger } from 'sprotty';
 import { EditorContextServiceProvider } from '../../base/editor-context-service';
-import { GLSP_TYPES } from '../../base/types';
+import { TYPES } from '../../base/types';
 import { NavigationTargetResolver } from './navigation-target-resolver';
 
 /**
@@ -143,7 +143,7 @@ export class NavigationActionHandler implements IActionHandler {
     @inject(TYPES.ILogger) protected logger: ILogger;
     @inject(TYPES.IActionDispatcher) protected dispatcher: IActionDispatcher;
     @inject(TYPES.ActionHandlerRegistryProvider) protected actionHandlerRegistryProvider: () => Promise<ActionHandlerRegistry>;
-    @inject(GLSP_TYPES.IEditorContextServiceProvider) protected editorContextService: EditorContextServiceProvider;
+    @inject(TYPES.IEditorContextServiceProvider) protected editorContextService: EditorContextServiceProvider;
     @inject(NavigationTargetResolver) protected resolver: NavigationTargetResolver;
 
     handle(action: Action): ICommand | Action | void {

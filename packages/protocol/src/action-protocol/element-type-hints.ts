@@ -86,9 +86,6 @@ export interface EdgeTypeHint extends TypeHint {
  * and creating new `RequestTypeHintsActions`.
  */
 export interface RequestTypeHintsAction extends RequestAction<SetTypeHintsAction> {
-    /**
-     * The unique action kind.
-     */
     kind: typeof RequestTypeHintsAction.KIND;
 }
 
@@ -110,27 +107,14 @@ export namespace RequestTypeHintsAction {
 
 /**
  * Sent from the server to the client in order to provide hints certain modifications are allowed for a specific element type.
- */
-
-/**
- * <Insert documentation>
  * The corresponding namespace declares the action kind as constant and offers helper functions for type guard checks
  * and creating new `SetTypeHintsActions`.
  */
 export interface SetTypeHintsAction extends ResponseAction {
-    /**
-     * The unique action kind.
-     */
     kind: typeof SetTypeHintsAction.KIND;
 
-    /**
-     * The hints for shape types.
-     */
     shapeHints: ShapeTypeHint[];
 
-    /**
-     * The hints for edge types.
-     */
     edgeHints: EdgeTypeHint[];
 }
 

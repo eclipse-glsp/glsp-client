@@ -25,9 +25,6 @@ import { Args } from './types';
  * and creating new `TriggerNodeCreationActions`.
  */
 export interface TriggerNodeCreationAction extends Action {
-    /**
-     * The unique action kind.
-     */
     kind: typeof TriggerNodeCreationAction.KIND;
 
     /**
@@ -65,9 +62,6 @@ export namespace TriggerNodeCreationAction {
  * and creating new `TriggerEdgeCreationActions`.
  */
 export interface TriggerEdgeCreationAction extends Action {
-    /**
-     * The unique action kind.
-     */
     kind: typeof TriggerEdgeCreationAction.KIND;
 
     /**

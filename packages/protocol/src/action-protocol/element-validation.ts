@@ -53,9 +53,6 @@ export namespace MarkerKind {
  * and creating new `RequestMarkersActions`.
  */
 export interface RequestMarkersAction extends RequestAction<SetMarkersAction> {
-    /**
-     * The unique action kind.
-     */
     kind: typeof RequestMarkersAction.KIND;
 
     /**
@@ -82,18 +79,17 @@ export namespace RequestMarkersAction {
 }
 
 /**
- * Response to the {@link RequestMarkersAction} containing all validation markers. Typically sent from the server to the client.
+ * Instructs the client to add markers to the diagram.
+ * Typically, this is a response to the {@link RequestMarkersAction} containing all validation markers, but can be sent by the server at
+ * any time.
  * The corresponding namespace declares the action kind as constant and offers helper functions for type guard checks
  * and creating new `SetMarkersActions`.
  */
 export interface SetMarkersAction extends ResponseAction {
-    /**
-     * The unique action kind.
-     */
     kind: typeof SetMarkersAction.KIND;
 
     /**
-     * The list of markers that has been requested by the `RequestMarkersAction`.
+     * The list of markers to be added to the diagram.
      */
     readonly markers: Marker[];
 }
@@ -121,9 +117,6 @@ export namespace SetMarkersAction {
  * and creating new `DeleteMarkersActions`. Can be sent by either the client or the server.
  */
 export interface DeleteMarkersAction extends Action {
-    /**
-     * The unique action kind.
-     */
     kind: typeof DeleteMarkersAction.KIND;
 
     /**

@@ -15,7 +15,8 @@
  ********************************************************************************/
 import { Action } from '@eclipse-glsp/protocol';
 import { inject, injectable } from 'inversify';
-import { IActionDispatcher, ILogger, TYPES } from 'sprotty';
+import { IActionDispatcher, ILogger } from 'sprotty';
+import { TYPES } from '../../base/types';
 
 export interface IFeedbackEmitter {}
 

@@ -24,9 +24,6 @@ import { Action } from './base-protocol';
  * and creating new `CenterActions`.
  */
 export interface CenterAction extends Action, sprotty.CenterAction {
-    /**
-     * The unique action kind.
-     */
     kind: typeof CenterAction.KIND;
 
     /**
@@ -70,9 +67,6 @@ export namespace CenterAction {
  * and creating new `CenterActions`.
  */
 export interface FitToScreenAction extends Action, sprotty.FitToScreenAction {
-    /**
-     * The unique action kind.
-     */
     kind: typeof FitToScreenAction.KIND;
 
     /**

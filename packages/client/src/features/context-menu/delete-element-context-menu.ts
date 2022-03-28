@@ -17,11 +17,11 @@ import { DeleteElementOperation, Point } from '@eclipse-glsp/protocol';
 import { inject, injectable } from 'inversify';
 import { IContextMenuItemProvider, MenuItem, SModelRoot } from 'sprotty';
 import { EditorContextService, EditorContextServiceProvider } from '../../base/editor-context-service';
-import { GLSP_TYPES } from '../../base/types';
+import { TYPES } from '../../base/types';
 
 @injectable()
 export class DeleteElementContextMenuItemProvider implements IContextMenuItemProvider {
-    @inject(GLSP_TYPES.IEditorContextServiceProvider) editorContextServiceProvider: EditorContextServiceProvider;
+    @inject(TYPES.IEditorContextServiceProvider) editorContextServiceProvider: EditorContextServiceProvider;
 
     async getItems(_root: Readonly<SModelRoot>, _lastMousePosition?: Point): Promise<MenuItem[]> {
         const editorContextService = await this.editorContextServiceProvider();

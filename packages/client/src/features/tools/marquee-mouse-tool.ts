@@ -24,12 +24,11 @@ import {
     SEdge,
     SModelElement,
     SModelRoot,
-    SNode,
-    TYPES
+    SNode
 } from 'sprotty';
 import { DOMHelper } from 'sprotty/lib/base/views/dom-helper';
 import { DragAwareMouseListener } from '../../base/drag-aware-mouse-listener';
-import { GLSP_TYPES } from '../../base/types';
+import { TYPES } from '../../base/types';
 import { getAbsolutePosition, toAbsoluteBounds } from '../../utils/viewpoint-util';
 import { CursorCSS, cursorFeedbackAction } from '../tool-feedback/css-feedback';
 import { RemoveMarqueeAction } from '../tool-feedback/marquee-tool-feedback';
@@ -41,7 +40,7 @@ export class MarqueeMouseTool extends BaseGLSPTool {
     static ID = 'glsp.marquee-mouse-tool';
 
     @inject(TYPES.DOMHelper) protected domHelper: DOMHelper;
-    @inject(GLSP_TYPES.IMarqueeBehavior) @optional() protected marqueeBehavior: IMarqueeBehavior;
+    @inject(TYPES.IMarqueeBehavior) @optional() protected marqueeBehavior: IMarqueeBehavior;
 
     protected marqueeMouseListener: MarqueeMouseListener;
     protected shiftKeyListener: ShiftKeyListener = new ShiftKeyListener();

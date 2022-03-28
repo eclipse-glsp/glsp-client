@@ -15,7 +15,8 @@
  ********************************************************************************/
 import { Action, ModelSourceChangedAction, ServerMessageAction, ServerStatusAction } from '@eclipse-glsp/protocol';
 import { inject, injectable, optional } from 'inversify';
-import { IActionDispatcher, IActionHandler, TYPES, ViewerOptions } from 'sprotty';
+import { IActionDispatcher, IActionHandler, ViewerOptions } from 'sprotty';
+import { TYPES } from '../../base/types';
 
 /**
  * An external handler of the model source change event.

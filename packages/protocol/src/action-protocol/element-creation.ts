@@ -29,7 +29,7 @@ export interface CreateOperation extends Operation {
      */
     elementTypeId: string;
     /**
-     * Optional additional arguments that might be needed by the server to execute the create operation.
+     * Optional additional arguments for the server to execute the create operation.
      */
     args?: Args;
 }
@@ -57,9 +57,6 @@ export namespace CreateOperation {
  * and creating new `CreateNodeOperations`.
  */
 export interface CreateNodeOperation extends CreateOperation {
-    /**
-     * The unique action kind.
-     */
     kind: typeof CreateNodeOperation.KIND;
 
     /*
@@ -100,19 +97,10 @@ export namespace CreateNodeOperation {
  * and creating new `CreateEdgeOperations`.
  */
 export interface CreateEdgeOperation extends CreateOperation {
-    /**
-     * The unique action kind.
-     */
     kind: typeof CreateEdgeOperation.KIND;
 
-    /*
-     * The source element.
-     */
     sourceElementId: string;
 
-    /*
-     * The target element.
-     */
     targetElementId: string;
 }
 
@@ -144,13 +132,10 @@ export namespace CreateEdgeOperation {
  * and creating new `DeleteElementOperations`.
  */
 export interface DeleteElementOperation extends Operation {
-    /**
-     * The unique action kind.
-     */
     kind: typeof DeleteElementOperation.KIND;
 
     /**
-     * The elements to be deleted.
+     * The ids of the elements to be deleted.
      */
     elementIds: string[];
 }

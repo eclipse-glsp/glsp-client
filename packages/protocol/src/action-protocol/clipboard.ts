@@ -24,14 +24,8 @@ import { EditorContext } from './types';
  * and creating new `RequestClipboardDataActions`.
  */
 export interface RequestClipboardDataAction extends RequestAction<SetClipboardDataAction> {
-    /**
-     * The unique action kind.
-     */
     kind: typeof RequestClipboardDataAction.KIND;
 
-    /**
-     * The current editor context.
-     */
     editorContext: EditorContext;
 }
 
@@ -58,13 +52,10 @@ export namespace RequestClipboardDataAction {
  * and creating new `SetClipboardDataActions`.
  */
 export interface SetClipboardDataAction extends ResponseAction {
-    /**
-     * The unique action kind.
-     */
     kind: typeof SetClipboardDataAction.KIND;
 
     /**
-     * The selected elements from the editor context as clipboard data.
+     * The data to be added into the clipboard. This data will be sent back to the server on paste.
      */
     clipboardData: ClipboardData;
 }
@@ -93,14 +84,8 @@ export namespace SetClipboardDataAction {
  * and creating new `CutOperations`.
  */
 export interface CutOperation extends Operation {
-    /**
-     * The unique action kind.
-     */
     kind: typeof CutOperation.KIND;
 
-    /**
-     * The current editor context.
-     */
     editorContext: EditorContext;
 }
 
@@ -127,14 +112,8 @@ export namespace CutOperation {
  * and creating new `PasteOperations`.
  */
 export interface PasteOperation extends Operation {
-    /**
-     * The unique action kind.
-     */
     kind: typeof PasteOperation.KIND;
 
-    /**
-     * The current editor context.
-     */
     editorContext: EditorContext;
 
     /**

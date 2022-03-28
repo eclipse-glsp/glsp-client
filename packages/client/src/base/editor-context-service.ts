@@ -15,10 +15,10 @@
  ********************************************************************************/
 import { Action, Args, distinctAdd, EditMode, EditorContext, remove, SetEditModeAction } from '@eclipse-glsp/protocol';
 import { inject, injectable, multiInject, optional } from 'inversify';
-import { IActionHandler, ModelSource, MousePositionTracker, SModelElement, SModelRoot, TYPES } from 'sprotty';
+import { IActionHandler, ModelSource, MousePositionTracker, SModelElement, SModelRoot } from 'sprotty';
 import { SelectionService } from '../features/select/selection-service';
 import { isSourceUriAware } from './source-uri-aware';
-import { GLSP_TYPES } from './types';
+import { TYPES } from './types';
 
 export interface EditModeListener {
     editModeChanged(newValue: string, oldvalue: string): void;
@@ -26,12 +26,12 @@ export interface EditModeListener {
 
 @injectable()
 export class EditorContextService implements IActionHandler {
-    @inject(GLSP_TYPES.SelectionService) protected selectionService: SelectionService;
+    @inject(TYPES.SelectionService) protected selectionService: SelectionService;
     @inject(MousePositionTracker) protected mousePositionTracker: MousePositionTracker;
     @inject(TYPES.ModelSourceProvider) protected modelSource: () => Promise<ModelSource>;
     protected _editMode: string;
 
-    constructor(@multiInject(GLSP_TYPES.IEditModeListener) @optional() protected editModeListeners: EditModeListener[] = []) {}
+    constructor(@multiInject(TYPES.IEditModeListener) @optional() protected editModeListeners: EditModeListener[] = []) {}
 
     register(editModeListener: EditModeListener): void {
         distinctAdd(this.editModeListeners, editModeListener);

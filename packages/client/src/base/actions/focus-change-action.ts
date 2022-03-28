@@ -20,9 +20,6 @@ import { Action, hasBooleanProp } from '@eclipse-glsp/protocol';
  * diagram focus changes (i.e. focus loss or focus gain).
  */
 export interface FocusStateChangedAction extends Action {
-    /**
-     * The unique action kind
-     */
     kind: typeof FocusStateChangedAction.KIND;
     /**
      * The new focus state of the diagram.

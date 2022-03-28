@@ -31,11 +31,10 @@ import {
     SIssueMarker,
     SIssueSeverity,
     SModelElement,
-    SModelRoot,
-    TYPES
+    SModelRoot
 } from 'sprotty';
 import { matchesKeystroke } from 'sprotty/lib/utils/keyboard';
-import { GLSP_TYPES } from '../../base/types';
+import { TYPES } from '../../base/types';
 import { collectIssueMarkers, MarkerPredicates } from '../../utils/marker';
 import { isSelectableAndBoundsAware } from '../../utils/smodel-util';
 import { SelectCommand, SelectionService } from '../select/selection-service';
@@ -164,7 +163,7 @@ export class NavigateToMarkerCommand extends Command {
     @inject(MarkerNavigator)
     protected markerNavigator: MarkerNavigator;
 
-    @inject(GLSP_TYPES.SelectionService)
+    @inject(TYPES.SelectionService)
     protected selectionService: SelectionService;
 
     protected selectCommand: SelectCommand;
@@ -239,7 +238,7 @@ export class NavigateToMarkerCommand extends Command {
 
 @injectable()
 export class MarkerNavigatorContextMenuItemProvider implements IContextMenuItemProvider {
-    @inject(GLSP_TYPES.SelectionService) protected selectionService: SelectionService;
+    @inject(TYPES.SelectionService) protected selectionService: SelectionService;
 
     getItems(root: Readonly<SModelRoot>, lastMousePosition?: Point): Promise<MenuItem[]> {
         const selectedElementIds = Array.from(this.selectionService.getSelectedElementIDs());

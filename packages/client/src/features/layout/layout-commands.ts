@@ -15,8 +15,8 @@
  ********************************************************************************/
 import { Action, ChangeBoundsOperation, ElementAndBounds, hasArrayProp, hasNumberProp, SetBoundsAction } from '@eclipse-glsp/protocol';
 import { inject, injectable, optional } from 'inversify';
-import { Command, CommandExecutionContext, CommandReturn, ElementMove, IActionDispatcher, MoveAction, SModelElement, TYPES } from 'sprotty';
-import { GLSP_TYPES } from '../../base/types';
+import { Command, CommandExecutionContext, CommandReturn, ElementMove, IActionDispatcher, MoveAction, SModelElement } from 'sprotty';
+import { TYPES } from '../../base/types';
 import { toValidElementAndBounds, toValidElementMove, WriteableElementAndBounds, WriteableElementMove } from '../../utils/layout-utils';
 import { BoundsAwareModelElement } from '../../utils/smodel-util';
 import { isBoundsAwareMoveable, isResizable } from '../change-bounds/model';
@@ -203,8 +203,8 @@ abstract class LayoutElementsCommand extends Command {
     constructor(
         @inject(TYPES.Action) protected action: ResizeElementsAction | AlignElementsAction,
         @inject(TYPES.IActionDispatcher) protected actionDispatcher: IActionDispatcher,
-        @inject(GLSP_TYPES.SelectionService) protected selectionService: SelectionService,
-        @inject(GLSP_TYPES.IMovementRestrictor) @optional() readonly movementRestrictor?: IMovementRestrictor
+        @inject(TYPES.SelectionService) protected selectionService: SelectionService,
+        @inject(TYPES.IMovementRestrictor) @optional() readonly movementRestrictor?: IMovementRestrictor
     ) {
         super();
     }
@@ -244,8 +244,8 @@ export class ResizeElementsCommand extends LayoutElementsCommand {
     constructor(
         @inject(TYPES.Action) protected override action: ResizeElementsAction,
         @inject(TYPES.IActionDispatcher) protected override actionDispatcher: IActionDispatcher,
-        @inject(GLSP_TYPES.SelectionService) protected override selectionService: SelectionService,
-        @inject(GLSP_TYPES.IMovementRestrictor) @optional() override readonly movementRestrictor?: IMovementRestrictor
+        @inject(TYPES.SelectionService) protected override selectionService: SelectionService,
+        @inject(TYPES.IMovementRestrictor) @optional() override readonly movementRestrictor?: IMovementRestrictor
     ) {
         super(action, actionDispatcher, selectionService, movementRestrictor);
     }
@@ -358,8 +358,8 @@ export class AlignElementsCommand extends LayoutElementsCommand {
     constructor(
         @inject(TYPES.Action) protected override action: AlignElementsAction,
         @inject(TYPES.IActionDispatcher) protected override actionDispatcher: IActionDispatcher,
-        @inject(GLSP_TYPES.SelectionService) protected override selectionService: SelectionService,
-        @inject(GLSP_TYPES.IMovementRestrictor) @optional() override readonly movementRestrictor?: IMovementRestrictor
+        @inject(TYPES.SelectionService) protected override selectionService: SelectionService,
+        @inject(TYPES.IMovementRestrictor) @optional() override readonly movementRestrictor?: IMovementRestrictor
     ) {
         super(action, actionDispatcher, selectionService, movementRestrictor);
     }

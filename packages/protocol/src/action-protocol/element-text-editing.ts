@@ -23,10 +23,8 @@ import { Args } from './types';
  * and creating new `NewActions`.
  */
 export interface RequestEditValidationAction extends RequestAction<SetEditValidationResultAction> {
-    /**
-     * The unique action kind.
-     */
     kind: typeof RequestEditValidationAction.KIND;
+
     /**
      * Context in which the text is validated, e.g., 'label-edit'.
      */
@@ -38,7 +36,7 @@ export interface RequestEditValidationAction extends RequestAction<SetEditValida
     modelElementId: string;
 
     /**
-     * Text that should be considered for the model element.
+     * Text that should be validated for the given context and the model element.
      */
     text: string;
 }
@@ -75,14 +73,8 @@ export namespace RequestEditValidationAction {
  * and creating new `SetEditValidationResultActions`.
  */
 export interface SetEditValidationResultAction extends ResponseAction {
-    /**
-     * The unique action kind.
-     */
     kind: typeof SetEditValidationResultAction.KIND;
 
-    /**
-     * Validation status.
-     */
     status: ValidationStatus;
 
     /*
@@ -112,16 +104,10 @@ export namespace SetEditValidationResultAction {
  * A very common use case in domain models is the support of labels that display textual information to the user.
  * To apply new text to such a label element the client may send an ApplyLabelEditOperation to the server. Typically this is
  * done by the client after it has received a error free validation result via {@link SetEditValidationResultAction} from the server.
- */
-/**
- * <Insert documentation>
  * The corresponding namespace declares the action kind as constant and offers helper functions for type guard checks
  * and creating new `ApplyLabelEditOperations`.
  */
 export interface ApplyLabelEditOperation extends Operation {
-    /**
-     * The unique action kind.
-     */
     kind: typeof ApplyLabelEditOperation.KIND;
 
     /**

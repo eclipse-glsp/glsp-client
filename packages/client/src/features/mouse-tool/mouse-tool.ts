@@ -14,7 +14,8 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { injectable, multiInject, optional } from 'inversify';
-import { MouseListener, MouseTool, SModelElement, SModelRoot, TYPES } from 'sprotty';
+import { MouseListener, MouseTool, SModelElement, SModelRoot } from 'sprotty';
+import { TYPES } from '../../base/types';
 import { getRank } from '../rank/model';
 
 export interface IMouseTool {

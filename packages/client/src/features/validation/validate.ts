@@ -24,11 +24,10 @@ import {
     SIssueMarker,
     SModelElement,
     SModelRoot,
-    SParentElement,
-    TYPES
+    SParentElement
 } from 'sprotty';
 import { EditorContextService } from '../../base/editor-context-service';
-import { GLSP_TYPES } from '../../base/types';
+import { TYPES } from '../../base/types';
 import { removeCssClasses } from '../../utils/smodel-util';
 import { getSeverity } from '../hover/hover';
 import { IFeedbackActionDispatcher, IFeedbackEmitter } from '../tool-feedback/feedback-action-dispatcher';
@@ -41,7 +40,7 @@ import { createSIssue, getOrCreateSIssueMarker, getSIssueMarker } from './issue-
  */
 @injectable()
 export class ValidationFeedbackEmitter implements IFeedbackEmitter {
-    @inject(GLSP_TYPES.IFeedbackActionDispatcher) protected feedbackActionDispatcher: IFeedbackActionDispatcher;
+    @inject(TYPES.IFeedbackActionDispatcher) protected feedbackActionDispatcher: IFeedbackActionDispatcher;
 
     @inject(TYPES.IActionDispatcherProvider) protected actionDispatcher: () => Promise<IActionDispatcher>;
 
@@ -158,7 +157,7 @@ export namespace ApplyMarkersAction {
  */
 @injectable()
 export class ApplyMarkersCommand extends FeedbackCommand {
-    static KIND = '';
+    static KIND = ApplyMarkersAction.KIND;
     override readonly priority = 0;
 
     constructor(@inject(TYPES.Action) protected action: ApplyMarkersAction) {

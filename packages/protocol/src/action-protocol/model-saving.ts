@@ -46,15 +46,12 @@ export namespace SaveModelAction {
 }
 
 /**
- * The server sends a SetDirtyStateAction to indicate to the client that the current model state on the server does not correspond
- *to the persisted model state of the model source. A client may ignore such an action or use it to indicate to the user the dirty state.
+ * The server sends this action to indicate to the client that the current model state on the server does not correspond
+ * to the persisted model state of the model source. A client may ignore such an action or use it to indicate to the user the dirty state.
  * The corresponding namespace declares the action kind as constant and offers helper functions for type guard checks
  * and creating new `SetDirtyStateActions`.
  */
 export interface SetDirtyStateAction extends Action {
-    /**
-     * The unique action kind.
-     */
     kind: typeof SetDirtyStateAction.KIND;
     /**
      * True if the current model state is dirty
@@ -62,7 +59,7 @@ export interface SetDirtyStateAction extends Action {
     isDirty: boolean;
 
     /**
-     * A string indicating the reason for the dirty state change e.g 'operation', 'undo' ...
+     * A string indicating the reason for the dirty state change e.g 'operation', 'undo',...
      */
     reason?: DirtyStateChangeReason;
 }

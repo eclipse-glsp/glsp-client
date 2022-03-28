@@ -23,9 +23,6 @@ import { Action } from './base-protocol';
  * and creating new `ServerStatusActions`.
  */
 export interface ServerStatusAction extends Action {
-    /**
-     * The unique action kind.
-     */
     kind: typeof ServerStatusAction.KIND;
     /**
      * The severity of the status.
@@ -74,19 +71,10 @@ export type ServerSeverity = 'NONE' | 'INFO' | 'WARNING' | 'ERROR' | 'FATAL' | '
  * and creating new `ServerMessageActions`.
  */
 export interface ServerMessageAction extends Action {
-    /**
-     * The unique action kind.
-     */
     kind: typeof ServerMessageAction.KIND;
 
-    /**
-     * The severity of the message.
-     */
     severity: ServerSeverity;
 
-    /**
-     * The message text.
-     */
     message: string;
 
     /**

@@ -28,7 +28,7 @@ import {
 } from 'sprotty';
 import { matchesKeystroke } from 'sprotty/lib/utils/keyboard';
 import { GLSPTool } from '../../base/tool-manager/glsp-tool-manager';
-import { GLSP_TYPES } from '../../base/types';
+import { TYPES } from '../../base/types';
 import { IMouseTool } from '../mouse-tool/mouse-tool';
 import { CursorCSS, cursorFeedbackAction } from '../tool-feedback/css-feedback';
 import { IFeedbackActionDispatcher } from '../tool-feedback/feedback-action-dispatcher';
@@ -88,8 +88,8 @@ export class MouseDeleteTool implements GLSPTool {
 
     protected deleteToolMouseListener: DeleteToolMouseListener = new DeleteToolMouseListener();
 
-    @inject(GLSP_TYPES.MouseTool) protected mouseTool: IMouseTool;
-    @inject(GLSP_TYPES.IFeedbackActionDispatcher) protected readonly feedbackDispatcher: IFeedbackActionDispatcher;
+    @inject(TYPES.MouseTool) protected mouseTool: IMouseTool;
+    @inject(TYPES.IFeedbackActionDispatcher) protected readonly feedbackDispatcher: IFeedbackActionDispatcher;
 
     get id(): string {
         return MouseDeleteTool.ID;

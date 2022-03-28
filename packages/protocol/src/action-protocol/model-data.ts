@@ -25,9 +25,6 @@ import { Args } from './types';
  * and creating new `RequestModelActions`.
  */
 export interface RequestModelAction extends RequestAction<SetModelAction>, sprotty.RequestModelAction {
-    /**
-     * The unique action kind.
-     */
     kind: typeof RequestModelAction.KIND;
 
     /**
@@ -58,9 +55,6 @@ export namespace RequestModelAction {
  * and creating new `SetModelActions`.
  */
 export interface SetModelAction extends ResponseAction, sprotty.SetModelAction {
-    /**
-     * The unique action kind.
-     */
     kind: typeof SetModelAction.KIND;
     /**
      * The new graphical model root.
@@ -92,13 +86,8 @@ export namespace SetModelAction {
  * and creating new `UpdateModelActions`.
  */
 export interface UpdateModelAction extends Action, Omit<sprotty.UpdateModelAction, 'matches' | 'cause'> {
-    /**
-     * The unique action kind.
-     */
     kind: typeof UpdateModelAction.KIND;
-    /**
-     * The new updates model root
-     */
+
     newRoot: SModelRootSchema;
     /**
      * Boolean flag to indicate wether updated/changed elements should be animated in the diagram.
@@ -130,9 +119,6 @@ export namespace UpdateModelAction {
  * and creating new `ModelSourceChangedActions`.
  */
 export interface ModelSourceChangedAction extends Action {
-    /**
-     * The unique action kind.
-     */
     kind: typeof ModelSourceChangedAction.KIND;
 
     /**

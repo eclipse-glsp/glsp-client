@@ -15,7 +15,8 @@
  ********************************************************************************/
 import { Action, hasArrayProp } from '@eclipse-glsp/protocol';
 import { inject, injectable } from 'inversify';
-import { CommandExecutionContext, SModelElement, SModelRoot, TYPES } from 'sprotty';
+import { CommandExecutionContext, SModelElement, SModelRoot } from 'sprotty';
+import { TYPES } from '../../base/types';
 import { addCssClasses, getElements, removeCssClasses } from '../../utils/smodel-util';
 import { FeedbackCommand } from './model';
 

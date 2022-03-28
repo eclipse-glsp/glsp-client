@@ -26,9 +26,6 @@ import { SModelRootSchema } from './model-structure';
  * and creating new `RequestPopupModelActions`.
  */
 export interface RequestPopupModelAction extends RequestAction<SetPopupModelAction>, sprotty.RequestPopupModelAction {
-    /**
-     * The unique action kind.
-     */
     kind: typeof RequestPopupModelAction.KIND;
 
     /**
@@ -37,7 +34,9 @@ export interface RequestPopupModelAction extends RequestAction<SetPopupModelActi
     elementId: string;
 
     /**
-     * The bounds.
+     * The popup bounds declaring where the position where the popup should be rendered. Optionally the desired dimension
+     * can be set. If width & height are set to "-1" the client will auto compute the dimension when receiving the popup model
+     * from the server
      */
     bounds: Bounds;
 }
@@ -65,9 +64,6 @@ export namespace RequestPopupModelAction {
  * and creating new `SetPopupModelActions`.
  */
 export interface SetPopupModelAction extends ResponseAction, sprotty.SetPopupModelAction {
-    /**
-     * The unique action kind.
-     */
     kind: typeof SetPopupModelAction.KIND;
 
     newRoot: SModelRootSchema;

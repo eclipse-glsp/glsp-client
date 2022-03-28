@@ -141,9 +141,6 @@ export namespace ResponseAction {
  * and creating new `RejectActions`.
  */
 export interface RejectAction extends ResponseAction, sprotty.RejectAction {
-    /**
-     * The unique action kind.
-     */
     kind: typeof RejectAction.KIND;
     /**
      * A human-readable description of the reject reason. Typically this is an error message
@@ -209,9 +206,6 @@ export namespace Operation {
  * and creating new `CompoundOperations`.
  */
 export interface CompoundOperation extends Operation {
-    /**
-     * The unique action kind.
-     */
     kind: typeof CompoundOperation.KIND;
     /**
      * List of operations that should be executed.

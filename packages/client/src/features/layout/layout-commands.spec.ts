@@ -40,10 +40,9 @@ import {
     SChildElement,
     SetBoundsCommand,
     SGraphFactory,
-    SModelRoot,
-    TYPES
+    SModelRoot
 } from 'sprotty';
-import { GLSP_TYPES } from '../../base/types';
+import { TYPES } from '../../base/types';
 import { resizeFeature } from '../change-bounds/model';
 import { SelectionService } from '../select/selection-service';
 import { FeedbackActionDispatcher } from '../tool-feedback/feedback-action-dispatcher';
@@ -74,12 +73,12 @@ class MockActionDispatcher implements IActionDispatcher {
 
 const container = new Container();
 container.load(defaultModule);
-container.bind(GLSP_TYPES.IFeedbackActionDispatcher).to(FeedbackActionDispatcher).inSingletonScope();
+container.bind(TYPES.IFeedbackActionDispatcher).to(FeedbackActionDispatcher).inSingletonScope();
 container.bind(SelectionService).toSelf().inSingletonScope();
-container.bind(GLSP_TYPES.SelectionService).toService(SelectionService);
+container.bind(TYPES.SelectionService).toService(SelectionService);
 container.rebind(TYPES.IModelFactory).to(SGraphFactory).inSingletonScope();
 const graphFactory = container.get<SGraphFactory>(TYPES.IModelFactory);
-const selectionService = container.get<SelectionService>(GLSP_TYPES.SelectionService);
+const selectionService = container.get<SelectionService>(TYPES.SelectionService);
 
 const actionDispatcher = new MockActionDispatcher();
 

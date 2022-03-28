@@ -15,7 +15,8 @@
  ********************************************************************************/
 import { Action, hasArrayProp, SelectAction } from '@eclipse-glsp/protocol';
 import { inject, injectable } from 'inversify';
-import { Command, CommandExecutionContext, SelectCommand as SprottySelectCommand, SModelRoot, TYPES } from 'sprotty';
+import { Command, CommandExecutionContext, SelectCommand as SprottySelectCommand, SModelRoot } from 'sprotty';
+import { TYPES } from '../../base/types';
 
 export interface SelectFeedbackAction extends Omit<SelectAction, 'kind'>, Action {
     kind: typeof SelectFeedbackAction.KIND;

@@ -26,11 +26,10 @@ import {
     SelectCommand as SprottySelectCommand,
     SModelElement,
     SModelRoot,
-    SParentElement,
-    TYPES
+    SParentElement
 } from 'sprotty';
 import { SModelRootListener } from '../../base/model/update-model-command';
-import { GLSP_TYPES } from '../../base/types';
+import { TYPES } from '../../base/types';
 import { getElements } from '../../utils/smodel-util';
 import { IFeedbackActionDispatcher } from '../tool-feedback/feedback-action-dispatcher';
 import { SelectFeedbackAction } from './select-feedback-action';
@@ -44,10 +43,10 @@ export class SelectionService implements SModelRootListener {
     private root: Readonly<SModelRoot>;
     private selectedElementIDs: Set<string> = new Set();
 
-    @inject(GLSP_TYPES.IFeedbackActionDispatcher) protected feedbackDispatcher: IFeedbackActionDispatcher;
+    @inject(TYPES.IFeedbackActionDispatcher) protected feedbackDispatcher: IFeedbackActionDispatcher;
     @inject(TYPES.ILogger) protected logger: ILogger;
 
-    constructor(@multiInject(GLSP_TYPES.SelectionListener) @optional() protected selectionListeners: SelectionListener[] = []) {}
+    constructor(@multiInject(TYPES.SelectionListener) @optional() protected selectionListeners: SelectionListener[] = []) {}
 
     register(selectionListener: SelectionListener): void {
         distinctAdd(this.selectionListeners, selectionListener);
@@ -162,7 +161,7 @@ export class SelectCommand extends Command {
 
     constructor(
         @inject(TYPES.Action) public action: SelectAction,
-        @inject(GLSP_TYPES.SelectionService) public selectionService: SelectionService
+        @inject(TYPES.SelectionService) public selectionService: SelectionService
     ) {
         super();
     }
@@ -206,7 +205,7 @@ export class SelectAllCommand extends Command {
 
     constructor(
         @inject(TYPES.Action) public action: SelectAllAction,
-        @inject(GLSP_TYPES.SelectionService) public selectionService: SelectionService
+        @inject(TYPES.SelectionService) public selectionService: SelectionService
     ) {
         super();
     }

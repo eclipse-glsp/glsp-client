@@ -15,8 +15,9 @@
  ********************************************************************************/
 import { Action } from '@eclipse-glsp/protocol';
 import { inject, injectable } from 'inversify';
-import { IActionHandler, ICommand, TYPES, ViewerOptions } from 'sprotty';
+import { IActionHandler, ICommand, ViewerOptions } from 'sprotty';
 import { FocusStateChangedAction } from './actions/focus-change-action';
+import { TYPES } from './types';
 
 @injectable()
 export class FocusTracker implements IActionHandler {

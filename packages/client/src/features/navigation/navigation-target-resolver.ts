@@ -15,9 +15,9 @@
  ********************************************************************************/
 import { NavigationTarget, ResolveNavigationTargetAction, ResponseAction, SetResolvedNavigationTargetAction } from '@eclipse-glsp/protocol';
 import { inject, injectable } from 'inversify';
-import { IActionDispatcher, ILogger, TYPES } from 'sprotty';
+import { IActionDispatcher, ILogger } from 'sprotty';
 import { EditorContextServiceProvider } from '../../base/editor-context-service';
-import { GLSP_TYPES } from '../../base/types';
+import { TYPES } from '../../base/types';
 
 /**
  * Resolves `NavigationTargets` to element ids.
@@ -27,7 +27,7 @@ import { GLSP_TYPES } from '../../base/types';
  */
 @injectable()
 export class NavigationTargetResolver {
-    @inject(GLSP_TYPES.IEditorContextServiceProvider) protected editorContextService: EditorContextServiceProvider;
+    @inject(TYPES.IEditorContextServiceProvider) protected editorContextService: EditorContextServiceProvider;
     @inject(TYPES.IActionDispatcher) protected dispatcher: IActionDispatcher;
     @inject(TYPES.ILogger) protected readonly logger: ILogger;
 

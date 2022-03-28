@@ -24,12 +24,11 @@ import {
     IActionHandler,
     ILogger,
     SModelRoot,
-    TYPES,
     UpdateModelCommand
 } from 'sprotty';
 import { IFeedbackActionDispatcher } from '../../features/tool-feedback/feedback-action-dispatcher';
 import { FeedbackCommand } from '../../features/tool-feedback/model';
-import { GLSP_TYPES } from '../types';
+import { TYPES } from '../types';
 
 /* ActionHandler that transforms a SetModelAction into an (feedback-aware) UpdateModelAction. This can be done because in sprotty
  *  UpdateModel behaves the same as SetModel if no model is present yet.*/
@@ -53,9 +52,9 @@ export interface SModelRootListener {
 @injectable()
 export class FeedbackAwareUpdateModelCommand extends UpdateModelCommand {
     @inject(TYPES.ILogger) protected logger: ILogger;
-    @inject(GLSP_TYPES.IFeedbackActionDispatcher) @optional() protected readonly feedbackActionDispatcher: IFeedbackActionDispatcher;
+    @inject(TYPES.IFeedbackActionDispatcher) @optional() protected readonly feedbackActionDispatcher: IFeedbackActionDispatcher;
     @inject(TYPES.ActionHandlerRegistryProvider) protected actionHandlerRegistryProvider: () => Promise<ActionHandlerRegistry>;
-    @multiInject(GLSP_TYPES.SModelRootListener) @optional() protected modelRootListeners: SModelRootListener[] = [];
+    @multiInject(TYPES.SModelRootListener) @optional() protected modelRootListeners: SModelRootListener[] = [];
 
     protected actionHandlerRegistry?: ActionHandlerRegistry;
 
