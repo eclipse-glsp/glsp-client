@@ -109,7 +109,7 @@ export * from 'sprotty/lib/features/button/button-handler';
 export * from 'sprotty/lib/features/button/model';
 export * from 'sprotty/lib/features/command-palette/action-providers';
 export * from 'sprotty/lib/features/command-palette/command-palette';
-export * from 'sprotty/lib/features/context-menu/context-menu-service';
+export { Anchor, IContextMenuService, IContextMenuServiceProvider } from 'sprotty/lib/features/context-menu/context-menu-service';
 export * from 'sprotty/lib/features/context-menu/menu-providers';
 export * from 'sprotty/lib/features/context-menu/mouse-listener';
 export * from 'sprotty/lib/features/decoration/decoration-placer';

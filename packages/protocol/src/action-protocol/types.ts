@@ -17,6 +17,7 @@ import * as sprotty from 'sprotty-protocol';
 import { Dimension, Point } from 'sprotty-protocol';
 import { hasArrayProp, hasStringProp } from '../utils/type-util';
 import { Action } from './base-protocol';
+import { TriggerEdgeCreationAction, TriggerNodeCreationAction } from './tool-palette';
 // A collection of convenience and utility types that are used in the GLSP action protocol.
 
 /**
@@ -135,4 +136,62 @@ export namespace LabeledAction {
         }
         return [input];
     }
+}
+
+/**
+ * A special {@link LabeledAction} that is used to denote actions that should be triggered when the user
+ * click a tool palette item (e.g. a button to create a new node).,
+ */
+export interface PaletteItem extends LabeledAction {
+    /** Technical id of the palette item. */
+    readonly id: string;
+    /** String indicating the order. */
+    readonly sortString: string;
+    /** Children of this item. If this item has children, the client will know to render them as sub group. */
+    readonly children?: PaletteItem[];
+}
+
+export namespace PaletteItem {
+    export function getTriggerAction(item?: PaletteItem): TriggerElementCreationAction | undefined {
+        if (item) {
+            const initialActions = item.actions
+                .filter(a => isTriggerElementCreationAction(a))
+                .map(action => action as TriggerElementCreationAction);
+            return initialActions.length > 0 ? initialActions[0] : undefined;
+        }
+        return undefined;
+    }
+
+    export type TriggerElementCreationAction = TriggerEdgeCreationAction | TriggerNodeCreationAction;
+
+    export function isTriggerElementCreationAction(object: any): object is TriggerElementCreationAction {
+        return TriggerNodeCreationAction.is(object) || TriggerEdgeCreationAction.is(object);
+    }
+}
+
+/**
+ * A special {@link LabeledAction} that is used to denote menu actions that should be triggered when the user
+ * click a menu entry.
+ */
+export interface MenuItem extends LabeledAction {
+    /** Technical id of the menu item. */
+    readonly id: string;
+    /** String indicating the order. */
+    readonly sortString?: string;
+    /** String indicating the grouping (separators). Items with equal group will be in the same group. */
+    readonly group?: string;
+    /**
+     * The optional parent id can be used to add this element as a child of another element provided by another menu provider.
+     * The `parentId` must be fully qualified in the form of `a.b.c`, whereas `a`, `b` and `c` are referring to the IDs of other elements.
+     * Note that this attribute will only be considered for root items of a provider and not for children of provided items.
+     */
+    readonly parentId?: string;
+    /** Function determining whether the element is enabled. */
+    readonly isEnabled?: () => boolean;
+    /** Function determining whether the element is visible. */
+    readonly isVisible?: () => boolean;
+    /** Function determining whether the element is toggled on or off. */
+    readonly isToggled?: () => boolean;
+    /** Children of this item. If this item has children, they will be added into a submenu of this item. */
+    children?: MenuItem[];
 }

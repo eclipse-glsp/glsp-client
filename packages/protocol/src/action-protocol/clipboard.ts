@@ -163,5 +163,5 @@ export namespace PasteOperation {
  * clipboard-compatible format is handled by the server. By default, GLSP use application/json as exchange format.
  */
 export interface ClipboardData {
-    format: string;
+    [format: string]: string;
 }

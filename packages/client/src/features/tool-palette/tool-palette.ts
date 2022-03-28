@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, RequestContextActions, RequestMarkersAction, SetContextActions } from '@eclipse-glsp/protocol';
+import { Action, PaletteItem, RequestContextActions, RequestMarkersAction, SetContextActions } from '@eclipse-glsp/protocol';
 import { inject, injectable, postConstruct } from 'inversify';
 import {
     AbstractUIExtension,
@@ -32,7 +32,6 @@ import { GLSPActionDispatcher } from '../../base/action-dispatcher';
 import { EditModeListener, EditorContextService } from '../../base/editor-context-service';
 import { MouseDeleteTool } from '../tools/delete-tool';
 import { MarqueeMouseTool } from '../tools/marquee-mouse-tool';
-import { PaletteItem } from './palette-item';
 
 const CLICKED_CSS_CLASS = 'clicked';
 const SEARCH_ICON_ID = 'search';
