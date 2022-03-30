@@ -51,6 +51,13 @@ export interface TextSubmitHandler {
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const configureAutocomplete: (settings: AutocompleteSettings<LabeledAction>) => AutocompleteResult = require('autocompleter');
 
+/**
+ * The `AutoCompleteWidget` is a reusable UI element that provides a text input supporting auto-completion,
+ * validation, validation messages, etc.
+ *
+ * An example for using it is available in the workflow diagram:
+ * https://github.com/eclipse-glsp/glsp-client/blob/master/examples/workflow-glsp/src/direct-task-editing/direct-task-editor.ts
+ */
 export class AutoCompleteWidget {
     loadingIndicatorClasses = codiconCSSClasses('loading', false, true, ['loading']);
 

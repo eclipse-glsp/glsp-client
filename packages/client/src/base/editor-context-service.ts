@@ -24,6 +24,18 @@ export interface EditModeListener {
     editModeChanged(newValue: string, oldvalue: string): void;
 }
 
+/**
+ * The `EditorContextService` is a central injectable component that gives read-only access to
+ * certain aspects of the diagram, such as the currently selected elements, the model root,
+ * the edit mode, the latest position of the mouse in the diagram.
+ *
+ * It has been introduced for two main reasons:
+ * 1. to simplify accessing the model root and the current selection from components that are
+ *    not commands,
+ * 2. to conveniently create an EditorContext, which is a context object sent as part of several
+ *    actions to the server to describe the current state of the editor (selection, last mouse
+ *    position, etc.).
+ */
 @injectable()
 export class EditorContextService implements IActionHandler {
     @inject(TYPES.SelectionService) protected selectionService: SelectionService;
