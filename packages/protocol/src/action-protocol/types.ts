@@ -152,6 +152,10 @@ export interface PaletteItem extends LabeledAction {
 }
 
 export namespace PaletteItem {
+    export function is(object: any): object is PaletteItem {
+        return LabeledAction.is(object) && hasStringProp(object, 'id') && hasStringProp(object, 'sortString');
+    }
+
     export function getTriggerAction(item?: PaletteItem): TriggerElementCreationAction | undefined {
         if (item) {
             const initialActions = item.actions
@@ -193,4 +197,10 @@ export interface MenuItem extends LabeledAction {
     readonly isToggled?: () => boolean;
     /** Children of this item. If this item has children, they will be added into a submenu of this item. */
     children?: MenuItem[];
+}
+
+export namespace MenuItem {
+    export function is(object: any): object is MenuItem {
+        return LabeledAction.is(object) && hasStringProp(object, 'id');
+    }
 }
