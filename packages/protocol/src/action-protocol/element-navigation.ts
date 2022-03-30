@@ -19,7 +19,7 @@ import { Action, RequestAction, ResponseAction } from './base-protocol';
 import { Args, EditorContext } from './types';
 
 /**
- * A `NavigationTarget` identifies the object we want to navigate to via its uri and may further provide a label to display for the client.
+ * A `NavigationTarget` identifies the object we want to navigate to via its uri and may further provide a label to display to the user.
  * The corresponding namespace offers a set of utility function to interact with `NavigationTargets`.
  */
 export interface NavigationTarget {
@@ -235,9 +235,6 @@ export namespace SetNavigationTargetsAction {
 export interface NavigateToTargetAction extends Action {
     kind: typeof NavigateToTargetAction.KIND;
 
-    /**
-     * The target to which the client shall navigate.
-     */
     target: NavigationTarget;
 }
 
@@ -337,7 +334,7 @@ export interface NavigateToExternalTargetAction extends Action {
     kind: typeof NavigateToExternalTargetAction.KIND;
 
     /**
-     * The diagram-external targe to which the client shall navigate.
+     * The diagram-external target to which the client shall navigate.
      */
     target: NavigationTarget;
 }

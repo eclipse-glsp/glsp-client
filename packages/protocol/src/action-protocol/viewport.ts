@@ -19,7 +19,8 @@ import { Action } from './base-protocol';
 
 /**
  * Centers the viewport on the elements with the given identifiers. It changes the scroll setting of the viewport accordingly and resets
- * the zoom to its default. This action can also be created on the client but it can also be sent by the server in order to perform such
+ * the zoom to its default. This action is usually be created on the client but it can also be sent by the server in order to perform such
+ * a viewport change remotely.
  * The corresponding namespace declares the action kind as constant and offers helper functions for type guard checks
  * and creating new `CenterActions`.
  */

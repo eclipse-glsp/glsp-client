@@ -40,7 +40,7 @@ import { FeedbackCommand } from '../tool-feedback/model';
 import { Containable, containerFeature, reparentFeature } from './model';
 
 /**
- * Is dispatched by the {@link TypeHintProvider } to apply the type hints received from the server
+ * Is dispatched by the {@link TypeHintProvider} to apply the type hints received from the server
  * onto the graphical model. The action is dispatched as persistent feedback to ensure the applied type hints
  * don't get lost after a server-side model update.
  */

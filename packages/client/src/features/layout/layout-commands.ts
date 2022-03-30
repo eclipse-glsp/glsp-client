@@ -24,7 +24,7 @@ import { IMovementRestrictor } from '../change-bounds/movement-restrictor';
 import { SelectionService } from '../select/selection-service';
 
 /**
- * Used to specific the desired resize dimension for a {@link ResizeElementsCommand}.
+ * Used to specify the desired resize dimension for a {@link ResizeElementsCommand}.
  */
 // eslint-disable-next-line no-shadow
 export enum ResizeDimension {
@@ -37,8 +37,7 @@ export namespace Reduce {
     /**
      * Returns the minimal value of the given numbers.
      * @param values Numbers to be evaluated.
-         *  @returns The reduced number.
-
+     * @returns The reduced number.
      */
     export function min(...values: number[]): number {
         return Math.min(...values);
@@ -47,8 +46,7 @@ export namespace Reduce {
     /**
      * Returns the maximal value of the given numbers.
      * @param values Numbers to be evaluated.
-          *  @returns The reduced number.
-
+     * @returns The reduced number.
      */
     export function max(...values: number[]): number {
         return Math.max(...values);

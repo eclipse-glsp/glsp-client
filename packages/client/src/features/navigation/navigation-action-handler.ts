@@ -50,12 +50,9 @@ import { NavigationTargetResolver } from './navigation-target-resolver';
  */
 
 export interface NavigateAction extends Action {
-    /**
-     * Unique action kind
-     */
     kind: typeof NavigateAction.KIND;
     /**
-     * Id of the navigation target
+     * Navigation target type, such as `documentation`, `implementation`, etc.
      */
     targetTypeId: string;
     /**
@@ -80,8 +77,8 @@ export namespace NavigateAction {
     }
 }
 
-/** Action to trigger the processing of additional navigation arguments.
- *
+/**
+ * Action to trigger the processing of additional navigation arguments.
  * The resolution of a `NavigationTarget` may entail additional arguments. In this case, this action is
  * triggered allowing the client to react to those arguments. The default `NavigationActionHandler` will
  * only process the arguments' keys `info`, `warning`, and `error` to present them to the user.
@@ -90,9 +87,6 @@ export namespace NavigateAction {
  */
 
 export interface ProcessNavigationArgumentsAction extends Action {
-    /**
-     * Unique action kind.
-     */
     kind: typeof ProcessNavigationArgumentsAction.KIND;
     /**
      * The navigation arguments.

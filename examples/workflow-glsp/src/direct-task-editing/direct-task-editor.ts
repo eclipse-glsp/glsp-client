@@ -48,7 +48,7 @@ export interface ApplyTaskEditOperation extends Operation {
     kind: typeof ApplyTaskEditOperation.KIND;
 
     /**
-     * Id of the task who should be edited
+     * Id of the task that should be edited
      */
     taskId: string;
 

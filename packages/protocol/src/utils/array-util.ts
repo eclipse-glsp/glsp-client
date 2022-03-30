@@ -19,6 +19,26 @@
 export type MaybeArray<T> = T | T[];
 
 /**
+ * Returns the first element of the given array.
+ * @param array the array.
+ * @returns the element at index 0.
+ */
+export function first<T>(array: T[]): number;
+/**
+ * Returns the first n elements of the given array.
+ * @param array the array.
+ * @param n the number of elements that should be returned
+ * @returns the first n elements of the array
+ */
+export function first<T>(array: T[], n: number): T[];
+export function first<T>(array: T[], n?: number): T[] | T {
+    if (n) {
+        return array.filter((_, index) => index < n);
+    }
+    return array[0];
+}
+
+/**
  * Removes the given values from the given array (if present).
  * @param array The array to execute the remove operation on.
  * @param values The values that should be removed from the array.

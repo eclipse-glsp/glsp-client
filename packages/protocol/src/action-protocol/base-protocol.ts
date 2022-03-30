@@ -135,7 +135,7 @@ export namespace ResponseAction {
 }
 
 /**
- * A reject action is a {@link ResponseAction} fired to indicate that a certain a certain {@link ResponseAction}
+ * A reject action is a {@link ResponseAction} fired to indicate that a certain {@link ResponseAction}
  * has been rejected.
  * The corresponding namespace declares the action kind as constant and offers helper functions for type guard checks
  * and creating new `RejectActions`.

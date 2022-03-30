@@ -170,8 +170,7 @@ export namespace PaletteItem {
 }
 
 /**
- * A special {@link LabeledAction} that is used to denote menu actions that should be triggered when the user
- * click a menu entry.
+ * A special {@link LabeledAction} that is used to denote items in a menu.
  */
 export interface MenuItem extends LabeledAction {
     /** Technical id of the menu item. */

@@ -28,12 +28,12 @@ export interface SelectAction extends Action, sprotty.SelectAction {
     kind: typeof SelectAction.KIND;
 
     /**
-     * The identifier of the elements to mark as selected.
+     * The identifiers of the elements to mark as selected.
      */
     selectedElementsIDs: string[];
 
     /**
-     * The identifier of the elements to mark as not selected.
+     * The identifiers of the elements to mark as not selected.
      */
     deselectedElementsIDs: string[];
 }

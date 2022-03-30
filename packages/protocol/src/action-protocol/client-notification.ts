@@ -17,7 +17,7 @@ import { hasStringProp } from '../utils/type-util';
 import { Action } from './base-protocol';
 
 /**
- * This action is typically sent by the server to signal a state change.
+ * Sent by the server to signal a state change.
  * If a timeout is given the respective status should disappear after the timeout is reached.
  * The corresponding namespace declares the action kind as constant and offers helper functions for type guard checks
  * and creating new `ServerStatusActions`.
@@ -30,12 +30,12 @@ export interface ServerStatusAction extends Action {
     severity: ServerSeverity;
 
     /**
-     * The message describing the status.
+     * The user-facing message describing the status.
      */
     message: string;
 
     /**
-     * Timeout after which a displayed status disappears..
+     * Timeout after which a displayed status should disappear.
      */
     timeout?: number;
 }
@@ -64,8 +64,8 @@ export namespace ServerStatusAction {
 export type ServerSeverity = 'NONE' | 'INFO' | 'WARNING' | 'ERROR' | 'FATAL' | 'OK';
 
 /**
- * This action is sent by the server to notify the user about something of interest. Typically this message is handled by
- * the client by prompting a message with the application's message service.
+ * Sent by the server to notify the user about something of interest. Typically this message is handled by
+ * the client by showing a message to the user with the application's message service.
  * If a timeout is given the respective message should disappear after the timeout is reached.
  * The corresponding namespace declares the action kind as constant and offers helper functions for type guard checks
  * and creating new `ServerMessageActions`.
@@ -75,6 +75,9 @@ export interface ServerMessageAction extends Action {
 
     severity: ServerSeverity;
 
+    /**
+     * The message that shall be shown to the user.
+     */
     message: string;
 
     /**

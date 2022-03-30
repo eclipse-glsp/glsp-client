@@ -30,7 +30,7 @@ export interface RequestBoundsAction extends RequestAction<ComputedBoundsAction>
     kind: typeof RequestBoundsAction.KIND;
 
     /**
-     * The model root element for which to compute the new bounds.
+     * The model root element for which to compute the bounds.
      */
     newRoot: SModelRootSchema;
 }

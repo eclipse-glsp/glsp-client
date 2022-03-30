@@ -14,9 +14,8 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 /* eslint-disable max-len */
-
 import { expect } from 'chai';
-import { Action, ActionMessage, CompoundOperation, Operation, RejectAction, RequestAction, ResponseAction } from '../base-protocol';
+import { Action, ActionMessage, CompoundOperation, Operation, RejectAction, RequestAction, ResponseAction } from './base-protocol';
 
 /**
  * Tests for the utility functions declared in the namespaces of the protocol
