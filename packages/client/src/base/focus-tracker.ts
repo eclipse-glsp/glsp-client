@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2021 EclipseSource and others.
+ * Copyright (c) 2021-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -15,8 +15,9 @@
  ********************************************************************************/
 import { Action } from '@eclipse-glsp/protocol';
 import { inject, injectable } from 'inversify';
-import { IActionHandler, ICommand, TYPES, ViewerOptions } from 'sprotty';
-import { isFocusStateChangedAction } from './actions/focus-change-action';
+import { IActionHandler, ICommand, ViewerOptions } from 'sprotty';
+import { FocusStateChangedAction } from './actions/focus-change-action';
+import { TYPES } from './types';
 
 @injectable()
 export class FocusTracker implements IActionHandler {
@@ -30,7 +31,7 @@ export class FocusTracker implements IActionHandler {
     }
 
     handle(action: Action): void | Action | ICommand {
-        if (isFocusStateChangedAction(action)) {
+        if (FocusStateChangedAction.is(action)) {
             this._hasFocus = action.hasFocus;
             const placeholder = document.getElementById(this.options.baseDiv);
             if (!placeholder) {

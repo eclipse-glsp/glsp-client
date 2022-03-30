@@ -14,54 +14,79 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { isString } from '../utils/typeguard-util';
-import { Action, isAction } from './base-protocol';
+import { hasStringProp } from '../utils/type-util';
+import { Action } from './base-protocol';
 import { Args } from './types';
-
-export abstract class TriggerElementCreationAction implements Action {
-    constructor(public readonly elementTypeId: string, readonly args?: Args, public readonly kind: string = 'unknown') {}
-}
-
-export function isTriggerElementTypeCreationAction(action: any): action is TriggerElementCreationAction {
-    return isAction(action) && isString(action, 'elementTypeId');
-}
 
 /**
  * Triggers the enablement of the tool that is responsible for creating nodes and initializes it with the creation of nodes of the given
  * `elementTypeId`.
+ * The corresponding namespace declares the action kind as constant and offers helper functions for type guard checks
+ * and creating new `TriggerNodeCreationActions`.
  */
-export class TriggerNodeCreationAction extends TriggerElementCreationAction {
-    static readonly KIND = 'triggerNodeCreation';
+export interface TriggerNodeCreationAction extends Action {
+    kind: typeof TriggerNodeCreationAction.KIND;
 
-    constructor(
-        override readonly elementTypeId: string,
-        override readonly args?: Args,
-        override readonly kind = TriggerNodeCreationAction.KIND
-    ) {
-        super(elementTypeId, args, kind);
-    }
+    /**
+     * The type of edge that should be created by the nodes creation tool.
+     */
+    elementTypeId: string;
+
+    /**
+     * Custom arguments.
+     */
+    args?: Args;
 }
 
-export function isTriggerNodeCreationAction(action: any): action is TriggerNodeCreationAction {
-    return isTriggerElementTypeCreationAction(action) && action.kind === TriggerNodeCreationAction.KIND;
+export namespace TriggerNodeCreationAction {
+    export const KIND = 'triggerNodeCreation';
+
+    export function is(object: any): object is TriggerNodeCreationAction {
+        return Action.hasKind(object, KIND) && hasStringProp(object, 'elementTypeId');
+    }
+
+    export function create(elementTypeId: string, options: { args?: Args } = {}): TriggerNodeCreationAction {
+        return {
+            kind: KIND,
+            elementTypeId,
+            ...options
+        };
+    }
 }
 
 /**
  * Triggers the enablement of the tool that is responsible for creating edges and initializes it with the creation of edges of the given
  * `elementTypeId`.
+ * <Insert documentation>
+ * The corresponding namespace declares the action kind as constant and offers helper functions for type guard checks
+ * and creating new `TriggerEdgeCreationActions`.
  */
-export class TriggerEdgeCreationAction extends TriggerElementCreationAction {
-    static readonly KIND = 'triggerEdgeCreation';
+export interface TriggerEdgeCreationAction extends Action {
+    kind: typeof TriggerEdgeCreationAction.KIND;
 
-    constructor(
-        override readonly elementTypeId: string,
-        override readonly args?: Args,
-        override readonly kind: string = TriggerEdgeCreationAction.KIND
-    ) {
-        super(elementTypeId, args, kind);
-    }
+    /**
+     * The type of edge that should be created by the edge creation tool.
+     */
+    elementTypeId: string;
+
+    /**
+     * Custom arguments.
+     */
+    args?: Args;
 }
 
-export function isTriggerEdgeCreationAction(action: any): action is TriggerEdgeCreationAction {
-    return isTriggerElementTypeCreationAction(action) && action.kind === TriggerEdgeCreationAction.KIND;
+export namespace TriggerEdgeCreationAction {
+    export const KIND = 'triggerEdgeCreation';
+
+    export function is(object: any): object is TriggerEdgeCreationAction {
+        return Action.hasKind(object, KIND) && hasStringProp(object, 'elementTypeId');
+    }
+
+    export function create(elementTypeId: string, options: { args?: Args } = {}): TriggerEdgeCreationAction {
+        return {
+            kind: KIND,
+            elementTypeId,
+            ...options
+        };
+    }
 }

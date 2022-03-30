@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2021 STMicroelectronics and others.
+ * Copyright (c) 2021-2022 STMicroelectronics and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -14,80 +14,133 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { isObject, isString } from '../utils/typeguard-util';
-import { generateRequestId, isActionKind, Operation, RequestAction, ResponseAction } from './base-protocol';
+import { hasObjectProp } from '../utils/type-util';
+import { Action, Operation, RequestAction, ResponseAction } from './base-protocol';
 import { EditorContext } from './types';
 
 /**
  * Requests the clipboard data for the current editor context, i.e., the selected elements, in a clipboard-compatible format.
+ * The corresponding namespace declares the action kind as constant and offers helper functions for type guard checks
+ * and creating new `RequestClipboardDataActions`.
  */
-export class RequestClipboardDataAction implements RequestAction<SetClipboardDataAction> {
-    static readonly KIND = 'requestClipboardData';
+export interface RequestClipboardDataAction extends RequestAction<SetClipboardDataAction> {
+    kind: typeof RequestClipboardDataAction.KIND;
 
-    constructor(
-        public readonly editorContext: EditorContext,
-        public readonly requestId: string = generateRequestId(),
-        public readonly kind: string = RequestClipboardDataAction.KIND
-    ) {}
-
-    static create(editorContext: EditorContext): RequestAction<SetClipboardDataAction> {
-        return new RequestClipboardDataAction(editorContext);
-    }
+    editorContext: EditorContext;
 }
 
-export function isRequestClipboardDataAction(action: any): action is RequestClipboardDataAction {
-    return isActionKind(action, RequestClipboardDataAction.KIND) && isObject(action, 'editorContext') && isString(action, 'requestId');
+export namespace RequestClipboardDataAction {
+    export const KIND = 'requestClipboardData';
+
+    export function is(object: any): object is RequestClipboardDataAction {
+        return RequestAction.hasKind(object, KIND) && hasObjectProp(object, 'editorContext');
+    }
+
+    export function create(editorContext: EditorContext, options: { requestId?: string } = {}): RequestClipboardDataAction {
+        return {
+            kind: KIND,
+            requestId: '',
+            editorContext,
+            ...options
+        };
+    }
 }
 
 /**
  * Server response to a {@link RequestClipboardDataAction} containing the selected elements as clipboard-compatible format.
+ * The corresponding namespace declares the action kind as constant and offers helper functions for type guard checks
+ * and creating new `SetClipboardDataActions`.
  */
-export class SetClipboardDataAction implements ResponseAction {
-    static readonly KIND = 'setClipboardData';
+export interface SetClipboardDataAction extends ResponseAction {
+    kind: typeof SetClipboardDataAction.KIND;
 
-    constructor(
-        public readonly clipboardData: ClipboardData,
-        public readonly responseId: string = '',
-        public readonly kind: string = SetClipboardDataAction.KIND
-    ) {}
+    /**
+     * The data to be added into the clipboard. This data will be sent back to the server on paste.
+     */
+    clipboardData: ClipboardData;
 }
 
-export function isSetClipboardDataAction(action: any): action is SetClipboardDataAction {
-    return isActionKind(action, SetClipboardDataAction.KIND) && isObject(action, 'clipboardData') && isString(action, 'responseId');
+export namespace SetClipboardDataAction {
+    export const KIND = 'setClipboardData';
+
+    export function is(object: any): object is SetClipboardDataAction {
+        return Action.hasKind(object, KIND) && hasObjectProp(object, 'clipboardData');
+    }
+
+    export function create(clipboardData: ClipboardData, options: { responseId?: string } = {}): SetClipboardDataAction {
+        return {
+            kind: KIND,
+            responseId: '',
+            clipboardData,
+            ...options
+        };
+    }
 }
 
 /**
  * Requests a cut operation from the server, i.e., deleting the selected elements from the model. Before submitting a `CutOperation`
  * a client should ensure that the cut elements are put into the clipboard.
+ * The corresponding namespace declares the action kind as constant and offers helper functions for type guard checks
+ * and creating new `CutOperations`.
  */
-export class CutOperation implements Operation {
-    static readonly KIND = 'cut';
+export interface CutOperation extends Operation {
+    kind: typeof CutOperation.KIND;
 
-    constructor(public readonly editorContext: EditorContext, public readonly kind: string = CutOperation.KIND) {}
+    editorContext: EditorContext;
 }
 
-export function isCutOperation(action: any): action is CutOperation {
-    return isActionKind(action, CutOperation.KIND) && isObject(action, 'editorContext');
+export namespace CutOperation {
+    export const KIND = 'cut';
+
+    export function is(object: any): object is CutOperation {
+        return Operation.hasKind(object, KIND) && hasObjectProp(object, 'editorContext');
+    }
+
+    export function create(editorContext: EditorContext): CutOperation {
+        return {
+            kind: KIND,
+            isOperation: true,
+            editorContext
+        };
+    }
 }
 
 /**
  * Requests a paste operation from the server by providing the current clipboard data. Typically this means that elements should be created
  *  based on the data in the clipboard.
+ * The corresponding namespace declares the action kind as constant and offers helper functions for type guard checks
+ * and creating new `PasteOperations`.
  */
-export class PasteOperation implements Operation {
-    static readonly KIND = 'paste';
+export interface PasteOperation extends Operation {
+    kind: typeof PasteOperation.KIND;
 
-    constructor(
-        public readonly clipboardData: ClipboardData,
-        public readonly editorContext: EditorContext,
-        public readonly kind: string = PasteOperation.KIND
-    ) {}
+    editorContext: EditorContext;
+
+    /**
+     * The clipboard data that should be pasted to the editor's last recorded mouse position (see `editorContext`).
+     */
+    clipboardData: ClipboardData;
 }
 
-export function isPasteOperation(action: any): action is PasteOperation {
-    return isActionKind(action, PasteOperation.KIND) && isObject(action, 'clipboardData') && isObject(action, 'editorContext');
-}
+export namespace PasteOperation {
+    export const KIND = 'paste';
 
+    export function is(object: any): object is PasteOperation {
+        return Operation.hasKind(object, KIND) && hasObjectProp(object, 'clipboardData') && hasObjectProp(object, 'editorContext');
+    }
+
+    export function create(options: { editorContext: EditorContext; clipboardData: ClipboardData }): PasteOperation {
+        return {
+            kind: KIND,
+            isOperation: true,
+            ...options
+        };
+    }
+}
+/**
+ * In GLSP the clipboard needs to be managed by the client but the conversion from the selection to be copied into a
+ * clipboard-compatible format is handled by the server. By default, GLSP use application/json as exchange format.
+ */
 export interface ClipboardData {
     [format: string]: string;
 }

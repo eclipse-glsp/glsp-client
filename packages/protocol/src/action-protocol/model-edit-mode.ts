@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020-2021 EclipseSource and others.
+ * Copyright (c) 2020-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,21 +13,42 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { injectable } from 'inversify';
-import { Action } from 'sprotty';
-import { isString } from '../utils/typeguard-util';
-import { isActionKind } from './base-protocol';
+import { hasStringProp } from '../utils/type-util';
+import { Action } from './base-protocol';
 
-@injectable()
-export class SetEditModeAction implements Action {
-    static readonly KIND = 'setEditMode';
-    constructor(public readonly editMode: string = EditMode.EDITABLE, public readonly kind: string = SetEditModeAction.KIND) {}
+/**
+ * Sent from the client to the server to set the model into a specific editor mode, allowing the server to react to certain
+ * requests differently depending on the mode. A client may also listen to this action to prevent certain user interactions preemptively.
+ * The corresponding namespace declares the action kind as constant and offers helper functions for type guard checks
+ * and creating new `SetEditModeActions`.
+ */
+export interface SetEditModeAction extends Action {
+    kind: typeof SetEditModeAction.KIND;
+
+    /**
+     * The new edit mode of the diagram.
+     */
+    editMode: string;
 }
 
-export function isSetEditModeAction(action: Action): action is SetEditModeAction {
-    return isActionKind(action, SetEditModeAction.KIND) && isString(action, 'editMode');
+export namespace SetEditModeAction {
+    export const KIND = 'setEditMode';
+
+    export function is(object: any): object is SetEditModeAction {
+        return Action.hasKind(object, KIND) && hasStringProp(object, 'editMode');
+    }
+
+    export function create(editMode: string): SetEditModeAction {
+        return {
+            kind: KIND,
+            editMode
+        };
+    }
 }
 
+/**
+ * The potential default values for the `editMode` property of  a {@link SetEditModeAction}.
+ */
 export namespace EditMode {
     export const READONLY = 'readonly';
     export const EDITABLE = 'editable';

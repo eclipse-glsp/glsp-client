@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2021 EclipseSource and others.
+ * Copyright (c) 2019-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,10 +13,20 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { configureServerActions, EnableToolPaletteAction, GLSPDiagramServer, RequestTypeHintsAction } from '@eclipse-glsp/client';
-import { ApplicationIdProvider, BaseJsonrpcGLSPClient, GLSPClient, JsonrpcGLSPClient } from '@eclipse-glsp/protocol';
+import {
+    ApplicationIdProvider,
+    BaseJsonrpcGLSPClient,
+    configureServerActions,
+    EnableToolPaletteAction,
+    GLSPClient,
+    GLSPDiagramServer,
+    IActionDispatcher,
+    JsonrpcGLSPClient,
+    RequestModelAction,
+    RequestTypeHintsAction,
+    TYPES
+} from '@eclipse-glsp/client';
 import { join, resolve } from 'path';
-import { IActionDispatcher, RequestModelAction, TYPES } from 'sprotty';
 import createContainer from './di.config';
 
 const port = 8081;
@@ -51,13 +61,15 @@ async function initialize(client: GLSPClient): Promise<void> {
 
     await client.initializeClientSession({ clientSessionId: diagramServer.clientId, diagramType });
     actionDispatcher.dispatch(
-        new RequestModelAction({
-            sourceUri: `file://${examplePath}`,
-            diagramType
+        RequestModelAction.create({
+            options: {
+                sourceUri: `file://${examplePath}`,
+                diagramType
+            }
         })
     );
-    actionDispatcher.dispatch(new RequestTypeHintsAction());
-    actionDispatcher.dispatch(new EnableToolPaletteAction());
+    actionDispatcher.dispatch(RequestTypeHintsAction.create());
+    actionDispatcher.dispatch(EnableToolPaletteAction.create());
 }
 
 websocket.onerror = ev => alert('Connection to server errored. Please make sure that the server is running');

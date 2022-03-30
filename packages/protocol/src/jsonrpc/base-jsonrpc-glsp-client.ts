@@ -13,8 +13,8 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { ActionMessage } from 'sprotty';
 import { Message, MessageConnection } from 'vscode-ws-jsonrpc';
+import { ActionMessage } from '../action-protocol';
 import {
     ActionMessageHandler,
     ClientState,

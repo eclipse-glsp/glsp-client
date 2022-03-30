@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2021 EclipseSource and others.
+ * Copyright (c) 2021-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,14 +13,31 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action } from '@eclipse-glsp/protocol';
+import { Action, hasBooleanProp } from '@eclipse-glsp/protocol';
 
-export class FocusStateChangedAction implements Action {
-    static KIND = 'focusStateChanged';
-    readonly kind = FocusStateChangedAction.KIND;
-    constructor(public readonly hasFocus: boolean) {}
+/**
+ * A `FocusStateChangedAction` is dispatched by the client whenever the
+ * diagram focus changes (i.e. focus loss or focus gain).
+ */
+export interface FocusStateChangedAction extends Action {
+    kind: typeof FocusStateChangedAction.KIND;
+    /**
+     * The new focus state of the diagram.
+     */
+    hasFocus: boolean;
 }
 
-export function isFocusStateChangedAction(action: Action): action is FocusStateChangedAction {
-    return action.kind === FocusStateChangedAction.KIND;
+export namespace FocusStateChangedAction {
+    export const KIND = 'focusStateChanged';
+
+    export function is(object: any): object is FocusStateChangedAction {
+        return Action.hasKind(object, KIND) && hasBooleanProp(object, 'hasFocus');
+    }
+
+    export function create(hasFocus = true): FocusStateChangedAction {
+        return {
+            kind: KIND,
+            hasFocus
+        };
+    }
 }

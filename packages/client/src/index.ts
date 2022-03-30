@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2021 EclipseSource and others.
+ * Copyright (c) 2019-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -33,7 +33,6 @@ import toolsModule from './features/tools/di.config';
 import { markerNavigatorModule, validationModule } from './features/validation/di.config';
 import glspViewportModule from './features/viewport/di.config';
 
-export * from 'sprotty';
 export * from './base/action-dispatcher';
 export * from './base/actions/focus-change-action';
 export * from './base/argumentable';
@@ -51,6 +50,7 @@ export * from './base/model/model-registry';
 export * from './base/model/update-model-command';
 export * from './base/selection-clearing-mouse-listener';
 export * from './base/source-uri-aware';
+export * from './base/tool-manager/tool-actions';
 export * from './base/types';
 export * from './base/view/view-registry';
 export * from './features/change-bounds/model';
@@ -80,22 +80,21 @@ export * from './features/tool-feedback/css-feedback';
 export * from './features/tool-feedback/edge-edit-tool-feedback';
 export * from './features/tool-feedback/feedback-action-dispatcher';
 export * from './features/tool-feedback/model';
-export * from './features/tool-palette/palette-item';
 export * from './features/tool-palette/tool-palette';
 export * from './features/tools/base-glsp-tool';
 export * from './features/tools/change-bounds-tool';
 export * from './features/tools/delete-tool';
 export * from './features/tools/edge-creation-tool';
 export * from './features/tools/edge-edit-tool';
-export * from './features/tools/node-creation-tool';
 export * from './features/tools/marquee-behavior';
+export * from './features/tools/node-creation-tool';
 export * from './features/validation/issue-marker';
 export * from './features/validation/marker-navigator';
 export * from './features/validation/validate';
 export * from './features/viewport/glsp-scroll-mouse-listener';
 export * from './lib/model';
 export * from './model-source/glsp-diagram-server';
-export * from './protocol-reexport';
+export * from './sprotty-reexport';
 export * from './utils/argument-utils';
 export * from './utils/marker';
 export * from './utils/smodel-util';

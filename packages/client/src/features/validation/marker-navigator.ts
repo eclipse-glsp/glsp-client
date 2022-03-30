@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, CenterAction, Point } from '@eclipse-glsp/protocol';
+import { Action, CenterAction, hasArrayProp, hasStringProp, Point, SelectAction } from '@eclipse-glsp/protocol';
 import { inject, injectable } from 'inversify';
 import {
     BoundsAware,
@@ -28,30 +28,47 @@ import {
     KeyListener,
     MenuItem,
     Selectable,
-    SelectAction,
     SIssueMarker,
     SIssueSeverity,
     SModelElement,
-    SModelRoot,
-    TYPES
+    SModelRoot
 } from 'sprotty';
 import { matchesKeystroke } from 'sprotty/lib/utils/keyboard';
-import { GLSP_TYPES } from '../../base/types';
+import { TYPES } from '../../base/types';
 import { collectIssueMarkers, MarkerPredicates } from '../../utils/marker';
 import { isSelectableAndBoundsAware } from '../../utils/smodel-util';
 import { SelectCommand, SelectionService } from '../select/selection-service';
 
-export class NavigateToMarkerAction implements Action {
-    static readonly KIND = 'navigateToMarker';
+export interface NavigateToMarkerAction extends Action {
+    kind: typeof NavigateToMarkerAction.KIND;
 
-    constructor(
-        public readonly direction: 'next' | 'previous' = 'next',
-        public readonly selectedElementIds?: string[],
-        public readonly severities: SIssueSeverity[] = MarkerNavigator.ALL_SEVERITIES,
-        public kind = NavigateToMarkerAction.KIND
-    ) {}
+    direction: MarkerNavigationDirection;
+    selectedElementIds?: string[];
+    severities: SIssueSeverity[];
 }
 
+export type MarkerNavigationDirection = 'next' | 'previous';
+
+export namespace NavigateToMarkerAction {
+    export const KIND = 'navigateToMarker';
+
+    export function is(object: any): object is NavigateToMarkerAction {
+        return Action.hasKind(object, KIND) && hasStringProp(object, 'direction') && hasArrayProp(object, 'severities');
+    }
+
+    export function create(options: {
+        direction?: MarkerNavigationDirection;
+        selectedElementIds?: string[];
+        severities?: SIssueSeverity[];
+    }): NavigateToMarkerAction {
+        return {
+            kind: KIND,
+            direction: 'next',
+            severities: MarkerNavigator.ALL_SEVERITIES,
+            ...options
+        };
+    }
+}
 export class SModelElementComparator {
     compare(_one: SModelElement, _other: SModelElement): number {
         return 0;
@@ -146,7 +163,7 @@ export class NavigateToMarkerCommand extends Command {
     @inject(MarkerNavigator)
     protected markerNavigator: MarkerNavigator;
 
-    @inject(GLSP_TYPES.SelectionService)
+    @inject(TYPES.SelectionService)
     protected selectionService: SelectionService;
 
     protected selectCommand: SelectCommand;
@@ -167,8 +184,11 @@ export class NavigateToMarkerCommand extends Command {
         const selectableTarget = findParentByFeature(target, isSelectable);
         if (selectableTarget) {
             const deselect = selected.map(e => e.id).filter(id => id !== selectableTarget.id);
-            this.selectCommand = new SelectCommand(new SelectAction([selectableTarget.id], deselect), this.selectionService);
-            this.centerCommand = new CenterCommand(new CenterAction([selectableTarget.id]));
+            this.selectCommand = new SelectCommand(
+                SelectAction.create({ selectedElementsIDs: [selectableTarget.id], deselectedElementsIDs: deselect }),
+                this.selectionService
+            );
+            this.centerCommand = new CenterCommand(CenterAction.create([selectableTarget.id]));
             this.centerCommand.execute(context);
             return this.selectCommand.execute(context);
         }
@@ -218,7 +238,7 @@ export class NavigateToMarkerCommand extends Command {
 
 @injectable()
 export class MarkerNavigatorContextMenuItemProvider implements IContextMenuItemProvider {
-    @inject(GLSP_TYPES.SelectionService) protected selectionService: SelectionService;
+    @inject(TYPES.SelectionService) protected selectionService: SelectionService;
 
     getItems(root: Readonly<SModelRoot>, lastMousePosition?: Point): Promise<MenuItem[]> {
         const selectedElementIds = Array.from(this.selectionService.getSelectedElementIDs());
@@ -234,14 +254,14 @@ export class MarkerNavigatorContextMenuItemProvider implements IContextMenuItemP
                         id: 'next-marker',
                         label: 'Next marker',
                         group: 'marker',
-                        actions: [new NavigateToMarkerAction('next', selectedElementIds)],
+                        actions: [NavigateToMarkerAction.create({ direction: 'next', selectedElementIds })],
                         isEnabled: () => hasMarkers
                     },
                     {
                         id: 'previous-marker',
                         label: 'Previous marker',
                         group: 'marker',
-                        actions: [new NavigateToMarkerAction('previous', selectedElementIds)],
+                        actions: [NavigateToMarkerAction.create({ direction: 'previous', selectedElementIds })],
                         isEnabled: () => hasMarkers
                     }
                 ]
@@ -254,9 +274,9 @@ export class MarkerNavigatorContextMenuItemProvider implements IContextMenuItemP
 export class MarkerNavigatorKeyListener extends KeyListener {
     override keyDown(_element: SModelElement, event: KeyboardEvent): Action[] {
         if (matchesKeystroke(event, 'Period', 'ctrl')) {
-            return [new NavigateToMarkerAction('next')];
+            return [NavigateToMarkerAction.create({ direction: 'next' })];
         } else if (matchesKeystroke(event, 'Comma', 'ctrl')) {
-            return [new NavigateToMarkerAction('previous')];
+            return [NavigateToMarkerAction.create({ direction: 'previous' })];
         }
         return [];
     }

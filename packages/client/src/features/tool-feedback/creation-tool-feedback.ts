@@ -13,15 +13,12 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, Point } from '@eclipse-glsp/protocol';
+import { Action, Bounds, Point } from '@eclipse-glsp/protocol';
 import { inject, injectable } from 'inversify';
 import {
-    add,
     AnchorComputerRegistry,
-    center,
     CommandExecutionContext,
     CommandReturn,
-    euclideanDistance,
     findChildrenAtPosition,
     findParentByFeature,
     isBoundsAware,
@@ -32,7 +29,7 @@ import {
     SChildElement,
     SConnectableElement,
     SDanglingAnchor,
-    SEdgeSchema,
+    SEdge as SEdgeSchema,
     SModelElement,
     SModelRoot,
     SRoutableElement,
@@ -41,19 +38,31 @@ import {
 import { BoundsAwareModelElement, isRoutable } from '../../utils/smodel-util';
 import { getAbsolutePosition, toAbsoluteBounds, toAbsolutePosition } from '../../utils/viewpoint-util';
 import { FeedbackCommand } from './model';
+export interface DrawFeedbackEdgeAction extends Action {
+    kind: typeof DrawFeedbackEdgeAction.KIND;
+    elementTypeId: string;
+    sourceId: string;
+    edgeSchema?: SEdgeSchema;
+}
 
-export class DrawFeedbackEdgeAction implements Action {
-    constructor(
-        public readonly elementTypeId: string,
-        public readonly sourceId: string,
-        public readonly edgeSchema?: SEdgeSchema,
-        public readonly kind: string = DrawFeedbackEdgeCommand.KIND
-    ) {}
+export namespace DrawFeedbackEdgeAction {
+    export const KIND = 'drawFeedbackEdge';
+
+    export function is(object: any): object is DrawFeedbackEdgeAction {
+        return Action.hasKind(object, KIND);
+    }
+
+    export function create(options: { elementTypeId: string; sourceId: string; edgeSchema?: SEdgeSchema }): DrawFeedbackEdgeAction {
+        return {
+            kind: KIND,
+            ...options
+        };
+    }
 }
 
 @injectable()
 export class DrawFeedbackEdgeCommand extends FeedbackCommand {
-    static readonly KIND = 'drawFeedbackEdge';
+    static readonly KIND = DrawFeedbackEdgeAction.KIND;
 
     constructor(@inject(TYPES.Action) protected action: DrawFeedbackEdgeAction) {
         super();
@@ -66,13 +75,25 @@ export class DrawFeedbackEdgeCommand extends FeedbackCommand {
     }
 }
 
-export class RemoveFeedbackEdgeAction implements Action {
-    constructor(public readonly kind: string = RemoveFeedbackEdgeCommand.KIND) {}
+export interface RemoveFeedbackEdgeAction extends Action {
+    kind: typeof RemoveFeedbackEdgeAction.KIND;
+}
+
+export namespace RemoveFeedbackEdgeAction {
+    export const KIND = 'removeFeedbackEdgeCommand';
+
+    export function is(object: any): object is RemoveFeedbackEdgeAction {
+        return Action.hasKind(object, KIND);
+    }
+
+    export function create(): RemoveFeedbackEdgeAction {
+        return { kind: KIND };
+    }
 }
 
 @injectable()
 export class RemoveFeedbackEdgeCommand extends FeedbackCommand {
-    static readonly KIND = 'removeFeedbackEdgeCommand';
+    static readonly KIND = RemoveFeedbackEdgeAction.KIND;
 
     execute(context: CommandExecutionContext): CommandReturn {
         removeFeedbackEdge(context.root);
@@ -111,12 +132,12 @@ export class FeedbackEdgeEndMovingMouseListener extends MouseListener {
             .find(element => isConnectable(element) && element.canConnect(edge, 'target'));
 
         if (endAtMousePosition instanceof SConnectableElement && edge.source && isBoundsAware(edge.source)) {
-            const anchor = this.computeAbsoluteAnchor(endAtMousePosition, center(toAbsoluteBounds(edge.source)));
-            if (euclideanDistance(anchor, edgeEnd.position) > 1) {
-                return [new MoveAction([{ elementId: edgeEnd.id, toPosition: anchor }], false)];
+            const anchor = this.computeAbsoluteAnchor(endAtMousePosition, Bounds.center(toAbsoluteBounds(edge.source)));
+            if (Point.euclideanDistance(anchor, edgeEnd.position) > 1) {
+                return [MoveAction.create([{ elementId: edgeEnd.id, toPosition: anchor }], { animate: false })];
             }
         } else {
-            return [new MoveAction([{ elementId: edgeEnd.id, toPosition: position }], false)];
+            return [MoveAction.create([{ elementId: edgeEnd.id, toPosition: position }], { animate: false })];
         }
 
         return [];
@@ -132,7 +153,7 @@ export class FeedbackEdgeEndMovingMouseListener extends MouseListener {
             const parent = findParentByFeature(element.parent, isBoundsAware);
             if (parent) {
                 const absoluteParentPosition = toAbsoluteBounds(parent);
-                anchor = add(absoluteParentPosition, anchor);
+                anchor = Point.add(absoluteParentPosition, anchor);
             }
         }
         return anchor;

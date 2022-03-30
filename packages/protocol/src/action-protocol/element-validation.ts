@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2021 STMicroelectronics and others.
+ * Copyright (c) 2021-2022 STMicroelectronics and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,10 +13,8 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { injectable } from 'inversify';
-import { RequestAction, ResponseAction } from '.';
-import { isArray } from '../utils/typeguard-util';
-import { Action, isActionKind } from './base-protocol';
+import { hasArrayProp } from '../utils/type-util';
+import { Action, RequestAction, ResponseAction } from './base-protocol';
 
 /**
  * Validation in GLSP is performed by using validation markers. A marker represents the validation result for a single model element
@@ -40,6 +38,9 @@ export interface Marker {
     readonly kind: string;
 }
 
+/**
+ * The default marker kinds used in GLSP
+ */
 export namespace MarkerKind {
     export const INFO = 'info';
     export const WARNING = 'warning';
@@ -48,41 +49,93 @@ export namespace MarkerKind {
 
 /**
  * Action to retrieve markers for the specified model elements. Sent from the client to the server.
+ * The corresponding namespace declares the action kind as constant and offers helper functions for type guard checks
+ * and creating new `RequestMarkersActions`.
  */
-export class RequestMarkersAction implements RequestAction<SetMarkersAction> {
-    static readonly KIND = 'requestMarkers';
-    constructor(
-        public readonly elementsIDs: string[] = [],
-        public readonly requestId = '',
-        public readonly kind = RequestMarkersAction.KIND
-    ) {}
+export interface RequestMarkersAction extends RequestAction<SetMarkersAction> {
+    kind: typeof RequestMarkersAction.KIND;
+
+    /**
+     * The elements for which markers are requested, may be just the root element.
+     */
+    elementsIDs: string[];
 }
 
-export function isRequestMarkersAction(action: any): action is RequestMarkersAction {
-    return isActionKind(action, RequestMarkersAction.KIND) && isArray(action, 'elementsIDs');
+export namespace RequestMarkersAction {
+    export const KIND = 'requestMarkers';
+
+    export function is(object: any): object is RequestMarkersAction {
+        return RequestAction.hasKind(object, KIND) && hasArrayProp(object, 'elementsIDs');
+    }
+
+    export function create(elementsIDs: string[], options: { requestId?: string } = {}): RequestMarkersAction {
+        return {
+            kind: KIND,
+            requestId: '',
+            elementsIDs,
+            ...options
+        };
+    }
 }
 
 /**
- * Response to the {@link RequestMarkersAction} containing all validation markers. Sent from the server to the client.
+ * Instructs the client to add markers to the diagram.
+ * Typically, this is a response to the {@link RequestMarkersAction} containing all validation markers, but can be sent by the server at
+ * any time.
+ * The corresponding namespace declares the action kind as constant and offers helper functions for type guard checks
+ * and creating new `SetMarkersActions`.
  */
-export class SetMarkersAction implements ResponseAction {
-    static readonly KIND = 'setMarkers';
-    constructor(public readonly markers: Marker[], public readonly responseId = '', public readonly kind = SetMarkersAction.KIND) {}
+export interface SetMarkersAction extends ResponseAction {
+    kind: typeof SetMarkersAction.KIND;
+
+    /**
+     * The list of markers to be added to the diagram.
+     */
+    readonly markers: Marker[];
 }
 
-export function isSetMarkersAction(action: any): action is SetMarkersAction {
-    return isActionKind(action, SetMarkersAction.KIND) && isArray(action, 'markers');
+export namespace SetMarkersAction {
+    export const KIND = 'setMarkers';
+
+    export function is(object: any): object is SetMarkersAction {
+        return Action.hasKind(object, KIND) && hasArrayProp(object, 'markers');
+    }
+
+    export function create(markers: Marker[], options: { responseId?: string } = {}): SetMarkersAction {
+        return {
+            kind: KIND,
+            responseId: '',
+            markers,
+            ...options
+        };
+    }
 }
 
 /**
  * Action for clearing makers of a model
+ * The corresponding namespace declares the action kind as constant and offers helper functions for type guard checks
+ * and creating new `DeleteMarkersActions`. Can be sent by either the client or the server.
  */
-@injectable()
-export class DeleteMarkersAction implements Action {
-    static readonly KIND = 'deleteMarkers';
-    constructor(public readonly markers: Marker[], public readonly kind = DeleteMarkersAction.KIND) {}
+export interface DeleteMarkersAction extends Action {
+    kind: typeof DeleteMarkersAction.KIND;
+
+    /**
+     * The list of markers that has been requested by the `RequestMarkersAction`.
+     */
+    markers: Marker[];
 }
 
-export function isDeleteMarkersAction(action: any): action is DeleteMarkersAction {
-    return isActionKind(action, DeleteMarkersAction.KIND) && isArray(action, 'markers');
+export namespace DeleteMarkersAction {
+    export const KIND = 'deleteMarkers';
+
+    export function is(object: any): object is DeleteMarkersAction {
+        return Action.hasKind(object, KIND) && hasArrayProp(object, 'markers');
+    }
+
+    export function create(markers: Marker[]): DeleteMarkersAction {
+        return {
+            kind: KIND,
+            markers
+        };
+    }
 }

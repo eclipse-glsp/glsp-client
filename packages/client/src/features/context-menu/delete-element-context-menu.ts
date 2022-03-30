@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020-2021 EclipseSource and others.
+ * Copyright (c) 2020-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,15 +13,15 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { DeleteElementOperation } from '@eclipse-glsp/protocol';
+import { DeleteElementOperation, Point } from '@eclipse-glsp/protocol';
 import { inject, injectable } from 'inversify';
-import { IContextMenuItemProvider, MenuItem, Point, SModelRoot } from 'sprotty';
+import { IContextMenuItemProvider, MenuItem, SModelRoot } from 'sprotty';
 import { EditorContextService, EditorContextServiceProvider } from '../../base/editor-context-service';
-import { GLSP_TYPES } from '../../base/types';
+import { TYPES } from '../../base/types';
 
 @injectable()
 export class DeleteElementContextMenuItemProvider implements IContextMenuItemProvider {
-    @inject(GLSP_TYPES.IEditorContextServiceProvider) editorContextServiceProvider: EditorContextServiceProvider;
+    @inject(TYPES.IEditorContextServiceProvider) editorContextServiceProvider: EditorContextServiceProvider;
 
     async getItems(_root: Readonly<SModelRoot>, _lastMousePosition?: Point): Promise<MenuItem[]> {
         const editorContextService = await this.editorContextServiceProvider();
@@ -34,7 +34,7 @@ export class DeleteElementContextMenuItemProvider implements IContextMenuItemPro
             label: 'Delete',
             sortString: 'd',
             group: 'edit',
-            actions: [new DeleteElementOperation(editorContextService.selectedElements.map(e => e.id))],
+            actions: [DeleteElementOperation.create(editorContextService.selectedElements.map(e => e.id))],
             isEnabled: () => !editorContextService.isReadonly && editorContextService.selectedElements.length > 0
         };
     }

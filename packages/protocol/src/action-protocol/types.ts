@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2021 STMicroelectronics and others.
+ * Copyright (c) 2021-2022 STMicroelectronics and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,55 +13,50 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import * as sprotty from 'sprotty-protocol';
+import { Dimension, Point } from 'sprotty-protocol';
+import { AnyObject, hasArrayProp, hasStringProp } from '../utils/type-util';
 import { Action } from './base-protocol';
-
-export type JsonPrimitive = string | number | boolean;
+import { TriggerEdgeCreationAction, TriggerNodeCreationAction } from './tool-palette';
+// A collection of convenience and utility types that are used in the GLSP action protocol.
 
 /**
  * A key-value pair structure for primitive typed custom arguments.
  */
 export interface Args {
-    [key: string]: JsonPrimitive;
+    [key: string]: sprotty.JsonPrimitive;
 }
-
-export interface Point {
-    readonly x: number;
-    readonly y: number;
-}
-
-export const ORIGIN_POINT: Point = Object.freeze({
-    x: 0,
-    y: 0
-});
-
-export interface Dimension {
-    readonly width: number;
-    readonly height: number;
-}
-
-export const EMPTY_DIMENSION: Dimension = Object.freeze({
-    width: -1,
-    height: -1
-});
 
 /**
- * The bounds are the position (x, y) and dimension (width, height) of an object.
+ * The ElementAndBounds type is used to associate new bounds with a model element, which is referenced via its id.
  */
-export interface Bounds extends Point, Dimension {}
-
-export const EMPTY_BOUNDS: Bounds = Object.freeze({ ...EMPTY_DIMENSION, ...ORIGIN_POINT });
-
-export interface ElementAndBounds {
+export interface ElementAndBounds extends sprotty.ElementAndBounds {
+    /**
+     * The identifier of the element.
+     */
     elementId: string;
-    newPosition?: Point;
+    /**
+     * The new size of the element.
+     */
     newSize: Dimension;
+    /**
+     * The new position of the element.
+     */
+    newPosition?: Point;
 }
 
 /**
- * Associates a new alignment with a model element, which is referenced via its id.
+ * The `ElementAndAlignment` type is used to associate a new alignment with a model element, which is referenced via its id.
+ * Typically used to align label relative to their parent element.
  */
-export interface ElementAndAlignment {
+export interface ElementAndAlignment extends sprotty.ElementAndAlignment {
+    /**
+     * The identifier of the element.
+     */
     elementId: string;
+    /**
+     * The new alignment of the element.
+     */
     newAlignment: Point;
 }
 
@@ -102,18 +97,100 @@ export interface EditorContext {
     readonly args?: Args;
 }
 
+export namespace EditorContext {
+    export function is(object: any): object is EditorContext {
+        return object !== undefined && hasArrayProp(object, 'selectedElementIds');
+    }
+}
 /**
- *Labeled actions are used to denote a group of actions in a user-interface context, e.g., to define an entry in the command palette or
- *in the context menu.
+ * Labeled actions are used to denote a group of actions in a user-interface context, e.g., to define an entry in the command palette or
+ * in the context menu.
+ * The corresponding namespace offers a helper function for type guard checks.
  */
-export class LabeledAction {
-    constructor(readonly label: string, readonly actions: Action[], readonly icon?: string) {}
+export interface LabeledAction {
+    /**
+     * Group label.
+     */
+    label: string;
+
+    /**
+     * Actions in the group.
+     */
+    actions: Action[];
+    /**
+     * Optional group icon.
+     */
+    icon?: string;
 }
 
-export function isLabeledAction(element: any): element is LabeledAction {
-    return element !== undefined && typeof element === 'object' && 'label' in element && 'actions' in element;
+export namespace LabeledAction {
+    export function is(object: any): object is LabeledAction {
+        return AnyObject.is(object) && hasStringProp(object, 'label') && hasArrayProp(object, 'actions');
+    }
+
+    export function toActionArray(input: LabeledAction | Action[] | Action): Action[] {
+        if (Array.isArray(input)) {
+            return input;
+        } else if (LabeledAction.is(input)) {
+            return input.actions;
+        }
+        return [input];
+    }
 }
 
-export type JsonAny = JsonPrimitive | Args | JsonArray | null;
+/**
+ * A special {@link LabeledAction} that is used to denote actions that should be triggered when the user
+ * click a tool palette item (e.g. a button to create a new node).,
+ */
+export interface PaletteItem extends LabeledAction {
+    /** Technical id of the palette item. */
+    readonly id: string;
+    /** String indicating the order. */
+    readonly sortString: string;
+    /** Children of this item. If this item has children, the client will know to render them as sub group. */
+    readonly children?: PaletteItem[];
+}
 
-export interface JsonArray extends Array<JsonAny> {}
+export namespace PaletteItem {
+    export function getTriggerAction(item?: PaletteItem): TriggerElementCreationAction | undefined {
+        if (item) {
+            const initialActions = item.actions
+                .filter(a => isTriggerElementCreationAction(a))
+                .map(action => action as TriggerElementCreationAction);
+            return initialActions.length > 0 ? initialActions[0] : undefined;
+        }
+        return undefined;
+    }
+
+    export type TriggerElementCreationAction = TriggerEdgeCreationAction | TriggerNodeCreationAction;
+
+    export function isTriggerElementCreationAction(object: any): object is TriggerElementCreationAction {
+        return TriggerNodeCreationAction.is(object) || TriggerEdgeCreationAction.is(object);
+    }
+}
+
+/**
+ * A special {@link LabeledAction} that is used to denote items in a menu.
+ */
+export interface MenuItem extends LabeledAction {
+    /** Technical id of the menu item. */
+    readonly id: string;
+    /** String indicating the order. */
+    readonly sortString?: string;
+    /** String indicating the grouping (separators). Items with equal group will be in the same group. */
+    readonly group?: string;
+    /**
+     * The optional parent id can be used to add this element as a child of another element provided by another menu provider.
+     * The `parentId` must be fully qualified in the form of `a.b.c`, whereas `a`, `b` and `c` are referring to the IDs of other elements.
+     * Note that this attribute will only be considered for root items of a provider and not for children of provided items.
+     */
+    readonly parentId?: string;
+    /** Function determining whether the element is enabled. */
+    readonly isEnabled?: () => boolean;
+    /** Function determining whether the element is visible. */
+    readonly isVisible?: () => boolean;
+    /** Function determining whether the element is toggled on or off. */
+    readonly isToggled?: () => boolean;
+    /** Children of this item. If this item has children, they will be added into a submenu of this item. */
+    children?: MenuItem[];
+}

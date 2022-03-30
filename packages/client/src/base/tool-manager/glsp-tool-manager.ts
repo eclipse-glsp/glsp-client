@@ -17,7 +17,7 @@ import { distinctAdd, EditMode } from '@eclipse-glsp/protocol';
 import { inject, injectable, multiInject, optional, postConstruct } from 'inversify';
 import { Tool, ToolManager } from 'sprotty';
 import { EditModeListener, EditorContextService, EditorContextServiceProvider } from '../editor-context-service';
-import { GLSP_TYPES } from '../types';
+import { TYPES } from '../types';
 
 export interface IGLSPToolManager extends ToolManager {
     /* Disables all actives tools and activates only default tool with non-edit function*/
@@ -28,9 +28,9 @@ export interface IGLSPToolManager extends ToolManager {
 export class GLSPToolManager extends ToolManager implements IGLSPToolManager, EditModeListener {
     protected editorContext?: EditorContextService;
 
-    @multiInject(GLSP_TYPES.ITool) @optional() override tools: Tool[];
-    @multiInject(GLSP_TYPES.IDefaultTool) @optional() override defaultTools: Tool[];
-    @inject(GLSP_TYPES.IEditorContextServiceProvider) contextServiceProvider: EditorContextServiceProvider;
+    @multiInject(TYPES.ITool) @optional() override tools: Tool[];
+    @multiInject(TYPES.IDefaultTool) @optional() override defaultTools: Tool[];
+    @inject(TYPES.IEditorContextServiceProvider) contextServiceProvider: EditorContextServiceProvider;
 
     @postConstruct()
     protected initialize(): void {

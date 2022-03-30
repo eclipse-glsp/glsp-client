@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020-2021 EclipseSource and others.
+ * Copyright (c) 2020-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,45 +13,52 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, GLSPServerStatusAction, Point, ServerMessageAction } from '@eclipse-glsp/protocol';
+/* eslint-disable deprecation/deprecation */
+import { Action, hasStringProp, Point, ServerMessageAction, ServerStatusAction } from '@eclipse-glsp/protocol';
 import { inject, injectable } from 'inversify';
-import { IActionDispatcher, IActionHandler, IContextMenuItemProvider, isSelected, MenuItem, SModelRoot, TYPES } from 'sprotty';
+import { IActionDispatcher, IActionHandler, IContextMenuItemProvider, isSelected, MenuItem, SModelRoot } from 'sprotty';
+import { TYPES } from '../../base/types';
 
-export class InvokeCopyAction implements Action {
-    static readonly KIND = 'invoke-copy';
-    constructor(public readonly kind = InvokeCopyAction.KIND) {}
+/**
+ * An `InvokeCopyPasteAction` is dispatched by the client to initiate a cut, copy or paste operation.
+ */
+export interface InvokeCopyPasteAction extends Action {
+    kind: typeof InvokeCopyPasteAction.KIND;
+    command: 'copy' | 'cut' | 'paste';
 }
 
-export class InvokePasteAction implements Action {
-    static readonly KIND = 'invoke-paste';
-    constructor(public readonly kind = InvokePasteAction.KIND) {}
-}
+export namespace InvokeCopyPasteAction {
+    export const KIND = 'invokeCopyPaste';
 
-export class InvokeCutAction implements Action {
-    static readonly KIND = 'invoke-cut';
-    constructor(public readonly kind = InvokeCutAction.KIND) {}
+    export function is(object: any): object is InvokeCopyPasteAction {
+        return Action.hasKind(object, KIND) && hasStringProp(object, 'command');
+    }
+
+    export function create(command: 'copy' | 'cut' | 'paste'): InvokeCopyPasteAction {
+        return { kind: KIND, command };
+    }
 }
 
 @injectable()
 export class InvokeCopyPasteActionHandler implements IActionHandler {
     @inject(TYPES.IActionDispatcher) protected dispatcher: IActionDispatcher;
-    handle(action: Action): void {
-        switch (action.kind) {
-            case InvokeCopyAction.KIND:
+    handle(action: InvokeCopyPasteAction): void {
+        switch (action.command) {
+            case 'copy':
                 if (supportsCopy()) {
                     document.execCommand('copy');
                 } else {
                     this.notifyUserToUseShortcut('copy');
                 }
                 break;
-            case InvokePasteAction.KIND:
+            case 'paste':
                 if (supportsPaste()) {
                     document.execCommand('paste');
                 } else {
                     this.notifyUserToUseShortcut('paste');
                 }
                 break;
-            case InvokeCutAction.KIND:
+            case 'cut':
                 if (supportsCut()) {
                     document.execCommand('cut');
                 } else {
@@ -66,8 +73,8 @@ export class InvokeCopyPasteActionHandler implements IActionHandler {
         const timeout = 10000;
         const severity = 'WARNING';
         this.dispatcher.dispatchAll([
-            { kind: GLSPServerStatusAction.KIND, severity, timeout, message } as GLSPServerStatusAction,
-            { kind: ServerMessageAction.KIND, severity, timeout, message } as ServerMessageAction
+            ServerStatusAction.create(message, { severity, timeout }),
+            ServerMessageAction.create(message, { severity, timeout })
         ]);
     }
 }
@@ -88,7 +95,7 @@ export class CopyPasteContextMenuItemProvider implements IContextMenuItemProvide
             id: 'paste',
             label: 'Paste',
             group: 'copy-paste',
-            actions: [new InvokePasteAction()],
+            actions: [InvokeCopyPasteAction.create('paste')],
             isEnabled: () => true
         };
     }
@@ -98,7 +105,7 @@ export class CopyPasteContextMenuItemProvider implements IContextMenuItemProvide
             id: 'cut',
             label: 'Cut',
             group: 'copy-paste',
-            actions: [new InvokeCutAction()],
+            actions: [InvokeCopyPasteAction.create('cut')],
             isEnabled: () => hasSelectedElements
         };
     }
@@ -108,7 +115,7 @@ export class CopyPasteContextMenuItemProvider implements IContextMenuItemProvide
             id: 'copy',
             label: 'Copy',
             group: 'copy-paste',
-            actions: [new InvokeCopyAction()],
+            actions: [InvokeCopyPasteAction.create('copy')],
             isEnabled: () => hasSelectedElements
         };
     }

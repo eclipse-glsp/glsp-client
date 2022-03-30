@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019 EclipseSource and others.
+ * Copyright (c) 2019-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -14,9 +14,8 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { ContainerModule } from 'inversify';
-import { configureCommand, TYPES } from 'sprotty';
-
-import { GLSP_TYPES } from '../../base/types';
+import { configureCommand } from 'sprotty';
+import { TYPES } from '../../base/types';
 import {
     LeftToRightTopToBottomComparator,
     MarkerNavigator,
@@ -46,6 +45,6 @@ export const markerNavigatorModule = new ContainerModule((bind, _unbind, isBound
  * `registerMarkerNavigationCommands()` in `glsp-theia-integration` instead.
  */
 export const markerNavigatorContextMenuModule = new ContainerModule((bind, _unbind, isBound) => {
-    bind(GLSP_TYPES.IContextMenuProvider).to(MarkerNavigatorContextMenuItemProvider).inSingletonScope();
+    bind(TYPES.IContextMenuProvider).to(MarkerNavigatorContextMenuItemProvider).inSingletonScope();
     bind(TYPES.KeyListener).to(MarkerNavigatorKeyListener).inSingletonScope();
 });

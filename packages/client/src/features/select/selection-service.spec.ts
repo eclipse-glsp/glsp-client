@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020-2021 EclipseSource and others.
+ * Copyright (c) 2020-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -14,11 +14,11 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 /* eslint-disable import/no-deprecated,no-unused-expressions */
-import { Action } from '@eclipse-glsp/protocol';
+import { Action, SModelElementSchema } from '@eclipse-glsp/protocol';
 import { AssertionError, expect } from 'chai';
 import { Container, injectable } from 'inversify';
-import { defaultModule, SGraphFactory, SModelElementSchema, SModelRoot, TYPES } from 'sprotty';
-import { GLSP_TYPES } from '../../base/types';
+import { defaultModule, SGraphFactory, SModelRoot } from 'sprotty';
+import { TYPES } from '../../base/types';
 import { IFeedbackActionDispatcher, IFeedbackEmitter } from '../tool-feedback/feedback-action-dispatcher';
 import { SelectFeedbackAction } from './select-feedback-action';
 import { SelectionListener, SelectionService } from './selection-service';
@@ -74,14 +74,16 @@ class MockSelectionListener implements SelectionListener {
 function createContainer(): Container {
     const container = new Container();
     container.load(defaultModule);
+    // eslint-disable-next-line deprecation/deprecation
     container.rebind(TYPES.IModelFactory).to(SGraphFactory).inSingletonScope();
-    container.bind(GLSP_TYPES.IFeedbackActionDispatcher).to(MockFeedbackActionDispatcher).inSingletonScope();
+    container.bind(TYPES.IFeedbackActionDispatcher).to(MockFeedbackActionDispatcher).inSingletonScope();
     container.bind(SelectionService).toSelf().inSingletonScope();
-    container.bind(GLSP_TYPES.SelectionService).toService(SelectionService);
+    container.bind(TYPES.SelectionService).toService(SelectionService);
     return container;
 }
 
 describe('SelectionService', () => {
+    // eslint-disable-next-line deprecation/deprecation
     let graphFactory: SGraphFactory;
     let root: SModelRoot;
     let selectionService: SelectionService;
@@ -89,10 +91,11 @@ describe('SelectionService', () => {
 
     beforeEach(() => {
         const container = createContainer();
+        // eslint-disable-next-line deprecation/deprecation
         graphFactory = container.get<SGraphFactory>(TYPES.IModelFactory);
         root = createRoot('node1', 'node2', 'node3', 'node4', 'node5');
-        selectionService = container.get<SelectionService>(GLSP_TYPES.SelectionService);
-        feedbackDispatcher = container.get<MockFeedbackActionDispatcher>(GLSP_TYPES.IFeedbackActionDispatcher);
+        selectionService = container.get<SelectionService>(TYPES.SelectionService);
+        feedbackDispatcher = container.get<MockFeedbackActionDispatcher>(TYPES.IFeedbackActionDispatcher);
     });
 
     describe('Initial State', () => {

@@ -15,23 +15,21 @@
  ********************************************************************************/
 import {
     Action,
+    ActionMessage,
     ComputedBoundsAction,
-    ExportSvgAction,
     GLSPClient,
-    isRequestModelAction,
-    isServerMessageAction,
-    isSetEditModeAction,
+    RequestModelAction,
     ServerMessageAction,
     SetEditModeAction
 } from '@eclipse-glsp/protocol';
 import { injectable } from 'inversify';
-import { ActionHandlerRegistry, ActionMessage, DiagramServer, ICommand, ServerStatusAction, SwitchEditModeCommand } from 'sprotty';
+import { ActionHandlerRegistry, DiagramServerProxy, ExportSvgAction, ICommand, ServerStatusAction, SwitchEditModeCommand } from 'sprotty';
 import { SourceUriAware } from '../base/source-uri-aware';
 
 const receivedFromServerProperty = '__receivedFromServer';
 
 @injectable()
-export class GLSPDiagramServer extends DiagramServer implements SourceUriAware {
+export class GLSPDiagramServer extends DiagramServerProxy implements SourceUriAware {
     protected _sourceUri: string;
     protected _glspClient?: GLSPClient;
     protected ready = false;
@@ -63,17 +61,17 @@ export class GLSPDiagramServer extends DiagramServer implements SourceUriAware {
     }
 
     override handle(action: Action): void | ICommand | Action {
-        if (isRequestModelAction(action) && action.options) {
+        if (RequestModelAction.is(action) && action.options) {
             this._sourceUri = action.options.sourceUri as string;
         }
         return super.handle(action);
     }
 
     override handleLocally(action: Action): boolean {
-        if (isServerMessageAction(action)) {
+        if (ServerMessageAction.is(action)) {
             return this.handleServerMessageAction(action);
         }
-        if (isSetEditModeAction(action)) {
+        if (SetEditModeAction.is(action)) {
             return this.handleSetEditModeAction(action);
         }
         return super.handleLocally(action);
@@ -101,7 +99,7 @@ export function isReceivedFromServer(action: Action): boolean {
     return (action as any)[receivedFromServerProperty] === true;
 }
 
-export function registerDefaultGLSPServerActions(registry: ActionHandlerRegistry, diagramServer: DiagramServer): void {
+export function registerDefaultGLSPServerActions(registry: ActionHandlerRegistry, diagramServer: DiagramServerProxy): void {
     registry.register(ServerMessageAction.KIND, diagramServer);
     registry.register(ServerStatusAction.KIND, diagramServer);
     registry.register(ExportSvgAction.KIND, diagramServer);

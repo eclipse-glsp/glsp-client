@@ -13,26 +13,19 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, ChangeBoundsOperation, ElementAndBounds } from '@eclipse-glsp/protocol';
+import { Action, ChangeBoundsOperation, ElementAndBounds, hasArrayProp, hasNumberProp, SetBoundsAction } from '@eclipse-glsp/protocol';
 import { inject, injectable, optional } from 'inversify';
-import {
-    Command,
-    CommandExecutionContext,
-    CommandReturn,
-    ElementMove,
-    IActionDispatcher,
-    MoveAction,
-    SetBoundsAction,
-    SModelElement,
-    TYPES
-} from 'sprotty';
-import { GLSP_TYPES } from '../../base/types';
+import { Command, CommandExecutionContext, CommandReturn, ElementMove, IActionDispatcher, MoveAction, SModelElement } from 'sprotty';
+import { TYPES } from '../../base/types';
 import { toValidElementAndBounds, toValidElementMove, WriteableElementAndBounds, WriteableElementMove } from '../../utils/layout-utils';
 import { BoundsAwareModelElement } from '../../utils/smodel-util';
 import { isBoundsAwareMoveable, isResizable } from '../change-bounds/model';
 import { IMovementRestrictor } from '../change-bounds/movement-restrictor';
 import { SelectionService } from '../select/selection-service';
 
+/**
+ * Used to specify the desired resize dimension for a {@link ResizeElementsCommand}.
+ */
 // eslint-disable-next-line no-shadow
 export enum ResizeDimension {
     Width,
@@ -41,43 +34,99 @@ export enum ResizeDimension {
 }
 
 export namespace Reduce {
+    /**
+     * Returns the minimal value of the given numbers.
+     * @param values Numbers to be evaluated.
+     * @returns The reduced number.
+     */
     export function min(...values: number[]): number {
         return Math.min(...values);
     }
 
+    /**
+     * Returns the maximal value of the given numbers.
+     * @param values Numbers to be evaluated.
+     * @returns The reduced number.
+     */
     export function max(...values: number[]): number {
         return Math.max(...values);
     }
 
+    /**
+     * Computes the  average of the given numbers.
+     * @param values Numbers to be evaluated.
+     */
     export function avg(...values: number[]): number {
         return values.reduce((a, b) => a + b, 0) / values.length;
     }
 
+    /**
+     *  Returns the last value of the given numbers.
+     *  @param values Numbers to be evaluated.
+     *  @returns The reduced number.
+     */
     export function first(...values: number[]): number {
         return values[0];
     }
 
+    /**
+     *  Returns the minimal value of the given numbers.
+     *  @param values Numbers  to be evaluated.
+     *  @returns The reduced number.
+     */
     export function last(...values: number[]): number {
         return values[values.length - 1];
     }
+
+    /**
+     * Returns the reduce function that corresponds to the given {@link ReduceFunctionKind}.
+     * @param type The reduce function kind.
+     * @returns The corresponding reduce function.
+     */
 }
 
-export class ResizeElementsAction implements Action {
-    constructor(
-        /**
-         * IDs of the elements that should be resized. If no IDs are given, the selected elements will be resized.
-         */
-        public readonly elementIds: string[] = [],
-        /**
-         * Resize dimension.
-         */
-        public readonly dimension: ResizeDimension = ResizeDimension.Width,
-        /**
-         * Function to reduce the dimension to a target dimension value, see Reduce.* for potential functions.
-         */
-        public readonly reductionFunction: (...values: number[]) => number,
-        public readonly kind: string = ResizeElementsCommand.KIND
-    ) {}
+type ReduceFn = (...values: number[]) => number;
+export interface ResizeElementsAction extends Action {
+    kind: typeof ResizeElementsAction.KIND;
+
+    /**
+     * IDs of the elements that should be resized. If no IDs are given, the selected elements will be resized.
+     */
+    elementIds: string[];
+    /**
+     * Resize dimension. The default is {@link ResizeDimension.Width}.
+     */
+    dimension: ResizeDimension;
+    /**
+     * Function to reduce the dimension to a target dimension value, see Reduce.* for potential functions.
+     */
+    reductionFunction: ReduceFn;
+}
+
+export namespace ResizeElementsAction {
+    export const KIND = 'resizeElementAction';
+
+    export function is(object: any): object is ResizeElementsAction {
+        return (
+            Action.hasKind(object, KIND) &&
+            hasArrayProp(object, 'elementIds') &&
+            hasNumberProp(object, 'dimension') &&
+            'reductionFunction' in object
+        );
+    }
+
+    export function create(options: {
+        elementIds?: string[];
+        dimension?: ResizeDimension;
+        reductionFunction: ReduceFn;
+    }): ResizeElementsAction {
+        return {
+            kind: KIND,
+            dimension: ResizeDimension.Width,
+            elementIds: [],
+            ...options
+        };
+    }
 }
 
 // eslint-disable-next-line no-shadow
@@ -104,31 +153,56 @@ export namespace Select {
     }
 }
 
-export class AlignElementsAction implements Action {
-    constructor(
-        /**
-         * IDs of the elements that should be aligned. If no IDs are given, the selected elements will be aligned.
-         */
-        public readonly elementIds: string[] = [],
-        /**
-         * Alignment direction.
-         */
-        public readonly alignment: Alignment = Alignment.Left,
-        /**
-         * Function to selected elements that are considered during alignment calculation, see Select.* for potential functions.
-         */
-        public readonly selectionFunction: (elements: BoundsAwareModelElement[]) => BoundsAwareModelElement[] = Select.all,
-        public readonly kind = AlignElementsCommand.KIND
-    ) {}
+type SelectFn = (elements: BoundsAwareModelElement[]) => BoundsAwareModelElement[];
+export interface AlignElementsAction extends Action {
+    kind: typeof AlignElementsAction.KIND;
+
+    /**
+     * IDs of the elements that should be aligned. If no IDs are given, the selected elements will be aligned.
+     */
+    elementIds: string[];
+    /**
+     * Alignment direction. The default is {@link Alignment.Left}
+     */
+    alignment: Alignment;
+    /**
+     * Function to selected elements that are considered during alignment calculation, see Select.* for potential functions.
+     * The default value is {@link Select.all}.
+     */
+    selectionFunction: SelectFn;
 }
 
+export namespace AlignElementsAction {
+    export const KIND = 'alignElements';
+
+    export function is(object: any): object is AlignElementsAction {
+        return (
+            Action.hasKind(object, KIND) &&
+            hasArrayProp(object, 'elementIds') &&
+            hasNumberProp(object, 'alignment') &&
+            'selectionFunction' in object
+        );
+    }
+
+    export function create(
+        options: { elementIds?: string[]; alignment?: Alignment; selectionFunction?: SelectFn } = {}
+    ): AlignElementsAction {
+        return {
+            kind: KIND,
+            elementIds: [],
+            alignment: Alignment.Left,
+            selectionFunction: Select.all,
+            ...options
+        };
+    }
+}
 @injectable()
 abstract class LayoutElementsCommand extends Command {
     constructor(
         @inject(TYPES.Action) protected action: ResizeElementsAction | AlignElementsAction,
         @inject(TYPES.IActionDispatcher) protected actionDispatcher: IActionDispatcher,
-        @inject(GLSP_TYPES.SelectionService) protected selectionService: SelectionService,
-        @inject(GLSP_TYPES.IMovementRestrictor) @optional() readonly movementRestrictor?: IMovementRestrictor
+        @inject(TYPES.SelectionService) protected selectionService: SelectionService,
+        @inject(TYPES.IMovementRestrictor) @optional() readonly movementRestrictor?: IMovementRestrictor
     ) {
         super();
     }
@@ -163,13 +237,13 @@ abstract class LayoutElementsCommand extends Command {
 
 @injectable()
 export class ResizeElementsCommand extends LayoutElementsCommand {
-    static readonly KIND = 'layout:resize';
+    static readonly KIND = ResizeElementsAction.KIND;
 
     constructor(
         @inject(TYPES.Action) protected override action: ResizeElementsAction,
         @inject(TYPES.IActionDispatcher) protected override actionDispatcher: IActionDispatcher,
-        @inject(GLSP_TYPES.SelectionService) protected override selectionService: SelectionService,
-        @inject(GLSP_TYPES.IMovementRestrictor) @optional() override readonly movementRestrictor?: IMovementRestrictor
+        @inject(TYPES.SelectionService) protected override selectionService: SelectionService,
+        @inject(TYPES.IMovementRestrictor) @optional() override readonly movementRestrictor?: IMovementRestrictor
     ) {
         super(action, actionDispatcher, selectionService, movementRestrictor);
     }
@@ -242,7 +316,7 @@ export class ResizeElementsCommand extends LayoutElementsCommand {
                 elementAndBounds.push(elementChange);
             }
         });
-        this.dispatchActions([new SetBoundsAction(elementAndBounds), new ChangeBoundsOperation(elementAndBounds)]);
+        this.dispatchActions([SetBoundsAction.create(elementAndBounds), ChangeBoundsOperation.create(elementAndBounds)]);
     }
 
     createElementAndBounds(
@@ -277,13 +351,13 @@ export class ResizeElementsCommand extends LayoutElementsCommand {
 
 @injectable()
 export class AlignElementsCommand extends LayoutElementsCommand {
-    static readonly KIND = 'layout:align';
+    static readonly KIND = AlignElementsAction.KIND;
 
     constructor(
         @inject(TYPES.Action) protected override action: AlignElementsAction,
         @inject(TYPES.IActionDispatcher) protected override actionDispatcher: IActionDispatcher,
-        @inject(GLSP_TYPES.SelectionService) protected override selectionService: SelectionService,
-        @inject(GLSP_TYPES.IMovementRestrictor) @optional() override readonly movementRestrictor?: IMovementRestrictor
+        @inject(TYPES.SelectionService) protected override selectionService: SelectionService,
+        @inject(TYPES.IMovementRestrictor) @optional() override readonly movementRestrictor?: IMovementRestrictor
     ) {
         super(action, actionDispatcher, selectionService, movementRestrictor);
     }
@@ -376,7 +450,7 @@ export class AlignElementsCommand extends LayoutElementsCommand {
                 elementAndBounds.push(elementAndBound);
             }
         });
-        this.dispatchActions([new MoveAction(moves), new ChangeBoundsOperation(elementAndBounds)]);
+        this.dispatchActions([MoveAction.create(moves), ChangeBoundsOperation.create(elementAndBounds)]);
     }
 
     createElementMove(

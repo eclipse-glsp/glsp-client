@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2021 STMicroelectronics and others.
+ * Copyright (c) 2021-2022 STMicroelectronics and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,42 +13,124 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { isBoolean, isString } from '../utils/typeguard-util';
-import { Action, isActionKind, ResponseAction } from './base-protocol';
+import { hasBooleanProp, hasStringProp } from '../utils/type-util';
+import { Action, RequestAction, ResponseAction } from './base-protocol';
 
-export class SaveModelAction implements Action {
-    static readonly KIND = 'saveModel';
-    constructor(public readonly fileUri?: string, public readonly kind: string = SaveModelAction.KIND) {}
+/**
+ * Sent from the client to the server in order to persist the current model state back to the model source.
+ * A new fileUri can be defined to save the model to a new destination different from its original model source.
+ * The corresponding namespace declares the action kind as constant and offers helper functions for type guard checks
+ * and creating new `SaveModelActions`.
+ */
+export interface SaveModelAction extends Action {
+    kind: typeof SaveModelAction.KIND;
+    /**
+     *  The optional destination file uri.
+     */
+    fileUri?: string;
 }
 
-export function isSaveModelAction(action?: any): action is SaveModelAction {
-    return isActionKind(action, SaveModelAction.KIND);
+export namespace SaveModelAction {
+    export const KIND = 'saveModel';
+
+    export function is(object: any): object is SaveModelAction {
+        return Action.hasKind(object, KIND);
+    }
+
+    export function create(options: { fileUri?: string } = {}): SaveModelAction {
+        return {
+            kind: KIND,
+            ...options
+        };
+    }
 }
 
-export class SetDirtyStateAction implements Action {
-    static readonly KIND = 'setDirtyState';
-    constructor(public readonly isDirty: boolean, public readonly reason?: string, public readonly kind = SetDirtyStateAction.KIND) {}
+/**
+ * The server sends this action to indicate to the client that the current model state on the server does not correspond
+ * to the persisted model state of the model source. A client may ignore such an action or use it to indicate to the user the dirty state.
+ * The corresponding namespace declares the action kind as constant and offers helper functions for type guard checks
+ * and creating new `SetDirtyStateActions`.
+ */
+export interface SetDirtyStateAction extends Action {
+    kind: typeof SetDirtyStateAction.KIND;
+    /**
+     * True if the current model state is dirty
+     */
+    isDirty: boolean;
+
+    /**
+     * A string indicating the reason for the dirty state change e.g 'operation', 'undo',...
+     */
+    reason?: DirtyStateChangeReason;
 }
 
-export namespace DirtyStateChangeReason {
-    export const OPERATION = 'operation';
-    export const UNDO = 'undo';
-    export const REDO = 'redo';
-    export const SAVE = 'save';
-    export const EXTERNAL = 'external';
+export type DirtyStateChangeReason = 'operation' | 'undo' | 'redo' | 'save' | 'external';
+
+export namespace SetDirtyStateAction {
+    export const KIND = 'setDirtyState';
+
+    export function is(object: any): object is SetDirtyStateAction {
+        return Action.hasKind(object, KIND) && hasBooleanProp(object, 'isDirty');
+    }
+
+    export function create(isDirty: boolean, options: { reason?: DirtyStateChangeReason } = {}): SetDirtyStateAction {
+        return {
+            kind: KIND,
+            isDirty,
+            ...options
+        };
+    }
 }
 
-export function isSetDirtyStateAction(action?: any): action is SetDirtyStateAction {
-    return isActionKind(action, SetDirtyStateAction.KIND) && isBoolean(action, 'isDirty');
+/**
+ * A `RequestExportSvgAction` is sent by the client (or the server) to initiate the SVG export of the current diagram.
+ * The handler of this action is expected to retrieve the diagram SVG and should send a {@link ExportSvgAction} as response.
+ * Typically the {@link ExportSvgAction} is handled directly on client side.
+ */
+export interface RequestExportSvgAction extends RequestAction<ExportSvgAction> {
+    kind: typeof RequestExportSvgAction.KIND;
+}
+export namespace RequestExportSvgAction {
+    export const KIND = 'requestExportSvg';
+
+    export function is(object: any): object is RequestExportSvgAction {
+        return RequestAction.hasKind(object, KIND);
+    }
+
+    export function create(options: { requestId?: string } = {}): RequestExportSvgAction {
+        return {
+            kind: KIND,
+            requestId: '',
+            ...options
+        };
+    }
 }
 
-export class ExportSvgAction implements ResponseAction {
-    static KIND = 'exportSvg';
-    kind = ExportSvgAction.KIND;
-
-    constructor(public readonly svg: string, public readonly responseId: string = '') {}
+/**
+ * The client sends an `ExportSvgAction` to indicate that the diagram, which represents the current model state,
+ * should be exported in SVG format. The action only provides the diagram SVG as plain string. The expected result of executing
+ * an `ExportSvgAction` is a new file in SVG-format on the underlying filesystem. However, other details like the target destination,
+ * concrete file name, file extension etc. are not specified in the protocol. So it is the responsibility of the action handler to
+ * process this information accordingly and export the result to the underlying filesystem.
+ */
+export interface ExportSvgAction extends ResponseAction {
+    kind: typeof ExportSvgAction.KIND;
+    svg: string;
+    responseId: string;
 }
+export namespace ExportSvgAction {
+    export const KIND = 'exportSvg';
 
-export function isExportSvgAction(action?: any): action is ExportSvgAction {
-    return isActionKind(action, ExportSvgAction.KIND) && isString(action, 'svg');
+    export function is(object: any): object is RequestExportSvgAction {
+        return Action.hasKind(object, KIND) && hasStringProp(object, 'svg');
+    }
+
+    export function create(svg: string, options: { responseId?: string } = {}): ExportSvgAction {
+        return {
+            kind: KIND,
+            svg,
+            responseId: '',
+            ...options
+        };
+    }
 }

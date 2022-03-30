@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020-2021 EclipseSource and others.
+ * Copyright (c) 2020-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,16 +13,11 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import {
-    isSetResolvedNavigationTargets,
-    NavigationTarget,
-    ResolveNavigationTargetAction,
-    SetResolvedNavigationTargetAction
-} from '@eclipse-glsp/protocol';
+import { NavigationTarget, ResolveNavigationTargetAction, ResponseAction, SetResolvedNavigationTargetAction } from '@eclipse-glsp/protocol';
 import { inject, injectable } from 'inversify';
-import { IActionDispatcher, ILogger, ResponseAction, TYPES } from 'sprotty';
+import { IActionDispatcher, ILogger } from 'sprotty';
 import { EditorContextServiceProvider } from '../../base/editor-context-service';
-import { GLSP_TYPES } from '../../base/types';
+import { TYPES } from '../../base/types';
 
 /**
  * Resolves `NavigationTargets` to element ids.
@@ -32,7 +27,7 @@ import { GLSP_TYPES } from '../../base/types';
  */
 @injectable()
 export class NavigationTargetResolver {
-    @inject(GLSP_TYPES.IEditorContextServiceProvider) protected editorContextService: EditorContextServiceProvider;
+    @inject(TYPES.IEditorContextServiceProvider) protected editorContextService: EditorContextServiceProvider;
     @inject(TYPES.IActionDispatcher) protected dispatcher: IActionDispatcher;
     @inject(TYPES.ILogger) protected readonly logger: ILogger;
 
@@ -53,16 +48,16 @@ export class NavigationTargetResolver {
             return undefined;
         }
         if (NavigationTarget.getElementIds(target).length > 0) {
-            return new SetResolvedNavigationTargetAction(NavigationTarget.getElementIds(target));
+            return SetResolvedNavigationTargetAction.create(NavigationTarget.getElementIds(target));
         }
         const response = await this.requestResolution(target);
-        if (isSetResolvedNavigationTargets(response)) {
+        if (SetResolvedNavigationTargetAction.is(response)) {
             return response;
         }
         return undefined;
     }
 
     protected requestResolution(target: NavigationTarget): Promise<ResponseAction> {
-        return this.dispatcher.request(new ResolveNavigationTargetAction(target));
+        return this.dispatcher.request(ResolveNavigationTargetAction.create(target));
     }
 }

@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020-2021 EclipseSource and others.
+ * Copyright (c) 2020-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,12 +13,12 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, isAction, isLabeledAction, LabeledAction, ValidationStatus } from '@eclipse-glsp/protocol';
+import { Action, LabeledAction, ValidationStatus } from '@eclipse-glsp/protocol';
 import { AutocompleteResult, AutocompleteSettings } from 'autocompleter';
 import { codiconCSSClasses, ILogger, SModelRoot } from 'sprotty';
 import { toArray } from 'sprotty/lib/utils/iterable';
 import { matchesKeystroke } from 'sprotty/lib/utils/keyboard';
-import { isSetAutoCompleteValueAction } from './auto-complete-actions';
+import { AutoCompleteValue } from './auto-complete-actions';
 import { IValidationDecorator } from './validation-decorator';
 
 export interface AutoCompleteSettings {
@@ -158,18 +158,13 @@ export class AutoCompleteWidget {
             fetch: (text: string, update: (items: LabeledAction[]) => void) => this.updateSuggestions(update, text, root),
             onSelect: (item: LabeledAction) => this.onSelect(item),
             render: (item: LabeledAction, currentValue: string): HTMLDivElement | undefined => this.renderSuggestions(item, currentValue),
-            customize: (input: HTMLInputElement, inputRect: ClientRect | DOMRect, container: HTMLDivElement, maxHeight: number) => {
+            customize: (input: HTMLInputElement, inputRect: DOMRect, container: HTMLDivElement, maxHeight: number) => {
                 this.customizeInputElement(input, inputRect, container, maxHeight);
             }
         };
     }
 
-    protected customizeInputElement(
-        input: HTMLInputElement,
-        inputRect: ClientRect | DOMRect,
-        container: HTMLDivElement,
-        maxHeight: number
-    ): void {
+    protected customizeInputElement(input: HTMLInputElement, inputRect: DOMRect, container: HTMLDivElement, maxHeight: number): void {
         // move container into our UIExtension container as this is already positioned correctly
         if (this.containerElement) {
             this.containerElement.appendChild(container);
@@ -249,7 +244,7 @@ export class AutoCompleteWidget {
     }
 
     protected onSelect(item: LabeledAction): void {
-        if (isSetAutoCompleteValueAction(item)) {
+        if (AutoCompleteValue.is(item)) {
             this.inputElement.value = item.text;
             // trigger update of suggestions with an keyup event
             window.setTimeout(() => this.inputElement.dispatchEvent(new Event('keyup')));
@@ -317,9 +312,9 @@ export class AutoCompleteWidget {
 }
 
 export function toActionArray(input: LabeledAction | Action[] | Action): Action[] {
-    if (isLabeledAction(input)) {
+    if (LabeledAction.is(input)) {
         return input.actions;
-    } else if (isAction(input)) {
+    } else if (Action.is(input)) {
         return [input];
     }
     return [];

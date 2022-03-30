@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2021 EclipseSource and others.
+ * Copyright (c) 2021-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -14,41 +14,92 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { isArray, isString } from '../utils/typeguard-util';
-import { isActionKind, Operation } from './base-protocol';
-import { ElementAndRoutingPoints } from './types';
+import { hasArrayProp, hasStringProp } from '../utils/type-util';
+import { Operation } from './base-protocol';
+import { Args, ElementAndRoutingPoints } from './types';
 
 /**
  * If the source and/or target element of an edge should be adapted, the client can send a `ReconnectEdgeOperation` to the server.
+ * The corresponding namespace declares the action kind as constant and offers helper functions for type guard checks
+ * and creating new `ReconnectEdgeOperations`.
  */
-export class ReconnectEdgeOperation implements Operation {
-    static readonly KIND = 'reconnectEdge';
-    constructor(
-        public readonly edgeElementId: string,
-        public readonly sourceElementId: string,
-        public readonly targetElementId: string,
-        public readonly kind: string = ReconnectEdgeOperation.KIND
-    ) {}
+export interface ReconnectEdgeOperation extends Operation {
+    kind: typeof ReconnectEdgeOperation.KIND;
+
+    /**
+     * The edge element that should be reconnected.
+     */
+    edgeElementId: string;
+
+    /**
+     * The (new) source element of the edge.
+     */
+    sourceElementId: string;
+
+    /**
+     * The (new) target element of the edge.
+     */
+    targetElementId: string;
+
+    /*
+     * Additional arguments for custom behavior.
+     */
+    args?: Args;
 }
 
-export function isReconnectEdgeOperation(action: any): action is ReconnectEdgeOperation {
-    return (
-        isActionKind(action, ReconnectEdgeOperation.KIND) &&
-        isString(action, 'edgeElementId') &&
-        isString(action, 'sourceElementId') &&
-        isString(action, 'targetElementId')
-    );
+export namespace ReconnectEdgeOperation {
+    export const KIND = 'reconnectEdge';
+
+    export function is(object: any): object is ReconnectEdgeOperation {
+        return (
+            Operation.hasKind(object, KIND) &&
+            hasStringProp(object, 'edgeElementId') &&
+            hasStringProp(object, 'sourceElementId') &&
+            hasStringProp(object, 'targetElementId')
+        );
+    }
+
+    export function create(options: {
+        edgeElementId: string;
+        sourceElementId: string;
+        targetElementId: string;
+        args?: Args;
+    }): ReconnectEdgeOperation {
+        return {
+            kind: KIND,
+            isOperation: true,
+            ...options
+        };
+    }
 }
 
 /**
  * An edge may have zero or more routing points that "re-direct" the edge between the source and the target element. In order to set these
  * routing points the client may send a `ChangeRoutingPointsOperation`.
+ * The corresponding namespace declares the action kind as constant and offers helper functions for type guard checks
+ * and creating new `ChangeRoutingPointsOperations`.
  */
-export class ChangeRoutingPointsOperation implements Operation {
-    static readonly KIND = 'changeRoutingPoints';
-    constructor(public newRoutingPoints: ElementAndRoutingPoints[], public readonly kind: string = ChangeRoutingPointsOperation.KIND) {}
+export interface ChangeRoutingPointsOperation extends Operation {
+    kind: typeof ChangeRoutingPointsOperation.KIND;
+
+    /**
+     * The routing points of the edge (may be empty).
+     */
+    newRoutingPoints: ElementAndRoutingPoints[];
 }
 
-export function isChangeRoutingsPointsOperation(action: any): action is ChangeRoutingPointsOperation {
-    return isActionKind(action, ChangeRoutingPointsOperation.KIND) && isArray(action, 'newRoutingPoints');
+export namespace ChangeRoutingPointsOperation {
+    export const KIND = 'changeRoutingPoints';
+
+    export function is(object: any): object is ChangeRoutingPointsOperation {
+        return Operation.hasKind(object, KIND) && hasArrayProp(object, 'newRoutingPoints');
+    }
+
+    export function create(newRoutingPoints: ElementAndRoutingPoints[]): ChangeRoutingPointsOperation {
+        return {
+            kind: KIND,
+            isOperation: true,
+            newRoutingPoints
+        };
+    }
 }

@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, CreateNodeOperation, isTriggerNodeCreationAction, TriggerNodeCreationAction } from '@eclipse-glsp/protocol';
+import { Action, CreateNodeOperation, TriggerNodeCreationAction } from '@eclipse-glsp/protocol';
 import { inject, injectable, optional } from 'inversify';
 import {
     EnableDefaultToolsAction,
@@ -60,9 +60,9 @@ export class NodeCreationTool extends BaseGLSPTool implements IActionHandler {
     }
 
     handle(action: Action): Action | void {
-        if (isTriggerNodeCreationAction(action)) {
+        if (TriggerNodeCreationAction.is(action)) {
             this.triggerAction = action;
-            return new EnableToolsAction([this.id]);
+            return EnableToolsAction.create([this.id]);
         }
     }
 }
@@ -94,9 +94,9 @@ export class NodeCreationToolMouseListener extends DragAwareMouseListener {
                 elementProxy.size = { width: 0, height: 0 };
                 location = this.tool.snapper.snap(location, elementProxy);
             }
-            result.push(new CreateNodeOperation(this.elementTypeId, location, containerId, this.triggerAction.args));
+            result.push(CreateNodeOperation.create(this.elementTypeId, { location, containerId, args: this.triggerAction.args }));
             if (!isCtrlOrCmd(event)) {
-                result.push(new EnableDefaultToolsAction());
+                result.push(EnableDefaultToolsAction.create());
             }
         }
         return result;

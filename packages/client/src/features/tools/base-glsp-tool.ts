@@ -15,18 +15,18 @@
  ********************************************************************************/
 import { Action } from '@eclipse-glsp/protocol';
 import { inject, injectable } from 'inversify';
-import { IActionDispatcher, KeyTool, TYPES } from 'sprotty';
+import { IActionDispatcher, KeyTool } from 'sprotty';
 import { EditorContextService } from '../../base/editor-context-service';
 import { GLSPTool } from '../../base/tool-manager/glsp-tool-manager';
-import { GLSP_TYPES } from '../../base/types';
+import { TYPES } from '../../base/types';
 import { IMouseTool } from '../mouse-tool/mouse-tool';
 import { IFeedbackActionDispatcher, IFeedbackEmitter } from '../tool-feedback/feedback-action-dispatcher';
 
 @injectable()
 export abstract class BaseGLSPTool implements GLSPTool {
-    @inject(GLSP_TYPES.IFeedbackActionDispatcher) protected feedbackDispatcher: IFeedbackActionDispatcher;
+    @inject(TYPES.IFeedbackActionDispatcher) protected feedbackDispatcher: IFeedbackActionDispatcher;
     @inject(TYPES.IActionDispatcher) protected actionDispatcher: IActionDispatcher;
-    @inject(GLSP_TYPES.MouseTool) protected mouseTool: IMouseTool;
+    @inject(TYPES.MouseTool) protected mouseTool: IMouseTool;
     @inject(KeyTool) protected keyTool: KeyTool;
     @inject(EditorContextService) protected readonly editorContext: EditorContextService;
 

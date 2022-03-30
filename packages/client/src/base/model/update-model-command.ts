@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, isSetModelAction, UpdateModelAction } from '@eclipse-glsp/protocol';
+import { Action, SetModelAction, UpdateModelAction } from '@eclipse-glsp/protocol';
 import { inject, injectable, multiInject, optional, postConstruct } from 'inversify';
 import {
     ActionHandlerRegistry,
@@ -24,20 +24,19 @@ import {
     IActionHandler,
     ILogger,
     SModelRoot,
-    TYPES,
     UpdateModelCommand
 } from 'sprotty';
 import { IFeedbackActionDispatcher } from '../../features/tool-feedback/feedback-action-dispatcher';
 import { FeedbackCommand } from '../../features/tool-feedback/model';
-import { GLSP_TYPES } from '../types';
+import { TYPES } from '../types';
 
 /* ActionHandler that transforms a SetModelAction into an (feedback-aware) UpdateModelAction. This can be done because in sprotty
  *  UpdateModel behaves the same as SetModel if no model is present yet.*/
 @injectable()
 export class SetModelActionHandler implements IActionHandler {
     handle(action: Action): Action | void {
-        if (isSetModelAction(action)) {
-            return new UpdateModelAction(action.newRoot, false);
+        if (SetModelAction.is(action)) {
+            return UpdateModelAction.create(action.newRoot, { animate: false });
         }
     }
 }
@@ -53,14 +52,14 @@ export interface SModelRootListener {
 @injectable()
 export class FeedbackAwareUpdateModelCommand extends UpdateModelCommand {
     @inject(TYPES.ILogger) protected logger: ILogger;
-    @inject(GLSP_TYPES.IFeedbackActionDispatcher) @optional() protected readonly feedbackActionDispatcher: IFeedbackActionDispatcher;
+    @inject(TYPES.IFeedbackActionDispatcher) @optional() protected readonly feedbackActionDispatcher: IFeedbackActionDispatcher;
     @inject(TYPES.ActionHandlerRegistryProvider) protected actionHandlerRegistryProvider: () => Promise<ActionHandlerRegistry>;
-    @multiInject(GLSP_TYPES.SModelRootListener) @optional() protected modelRootListeners: SModelRootListener[] = [];
+    @multiInject(TYPES.SModelRootListener) @optional() protected modelRootListeners: SModelRootListener[] = [];
 
     protected actionHandlerRegistry?: ActionHandlerRegistry;
 
     constructor(@inject(TYPES.Action) action: UpdateModelAction) {
-        super(action);
+        super({ animate: true, ...action });
     }
 
     @postConstruct()

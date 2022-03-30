@@ -44,7 +44,7 @@ export class MarqueeTool extends BaseGLSPTool {
 export class MarqueeKeyListener extends KeyListener {
     override keyDown(element: SModelElement, event: KeyboardEvent): Action[] {
         if (event.shiftKey) {
-            return [new EnableToolsAction([MarqueeMouseTool.ID])];
+            return [EnableToolsAction.create([MarqueeMouseTool.ID])];
         }
         return [];
     }

@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2021 STMicroelectronics and others.
+ * Copyright (c) 2021-2022 STMicroelectronics and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -14,69 +14,144 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { isArray, isString } from '../utils/typeguard-util';
-import { isAction, isActionKind, Operation } from './base-protocol';
-import { Args, Point } from './types';
+import { Point } from 'sprotty-protocol';
+import { hasArrayProp, hasStringProp } from '../utils/type-util';
+import { Operation } from './base-protocol';
+import { Args } from './types';
 
+/**
+ * Common interface for all create {@link Operation}s in GLSP.
+ * The corresponding namespace offers a helper function for type guard checks.
+ */
 export interface CreateOperation extends Operation {
+    /**
+     * The type of the element that should be created.
+     */
     elementTypeId: string;
+    /**
+     * Optional additional arguments for the server to execute the create operation.
+     */
     args?: Args;
 }
 
-export function isCreateOperation(action: any): action is CreateOperation {
-    return isAction(action) && isString(action, 'elementTypeId');
-}
-/**
- * In order to create a node in the model the client can send a CreateNodeOperation with the necessary information to create that node.
- */
-export class CreateNodeOperation implements CreateOperation {
-    static readonly KIND = 'createNode';
+export namespace CreateOperation {
+    export function is(object: any): object is CreateOperation {
+        return Operation.is(object) && hasStringProp(object, 'elementTypeId');
+    }
 
-    constructor(
-        public readonly elementTypeId: string,
-        public location?: Point,
-        public containerId?: string,
-        public args?: Args,
-        public readonly kind: string = CreateNodeOperation.KIND
-    ) {}
-}
-
-export function isCreateNodeOperation(action: any): action is CreateNodeOperation {
-    return isActionKind(action, CreateNodeOperation.KIND) && isString(action, 'elementTypeId');
+    /**
+     * Typeguard function to check wether the given object is a {@link CreateOperation} with the given `kind`.
+     * @param object The object to check.
+     * @param kind  The expected operation kind.
+     * @returns A type literal indicating wether the given object is a create operation with the given kind.
+     */
+    export function hasKind(object: any, kind: string): object is CreateOperation {
+        return CreateOperation.is(object) && object.kind === kind;
+    }
 }
 
 /**
- * In order to create an edge in the model the client can send a `CreateEdgeOperation` with the necessary information to create that edge.
+ * In order to create a node in the model the client can send a CreateNodeOperation with the necessary information to create
+ * the element that corresponds to that node in the source model.
+ * The corresponding namespace declares the action kind as constant and offers helper functions for type guard checks
+ * and creating new `CreateNodeOperations`.
  */
-export class CreateEdgeOperation implements CreateOperation {
-    static readonly KIND = 'createEdge';
+export interface CreateNodeOperation extends CreateOperation {
+    kind: typeof CreateNodeOperation.KIND;
 
-    constructor(
-        public readonly elementTypeId: string,
-        public sourceElementId: string,
-        public targetElementId: string,
-        public args?: Args,
-        public readonly kind: string = CreateEdgeOperation.KIND
-    ) {}
+    /*
+     * The location at which the operation shall be executed.
+     */
+    location?: Point;
+
+    /*
+     * The id of container element in which the node should be created. If not defined
+     * the root element will be used.
+     */
+    containerId?: string;
 }
 
-export function isCreateEdgeOperation(action: any): action is CreateEdgeOperation {
-    return (
-        isActionKind(action, CreateEdgeOperation.KIND) &&
-        isString(action, 'elementTypeId') &&
-        isString(action, 'sourceElementId') &&
-        isString(action, 'targetElementId')
-    );
-}
+export namespace CreateNodeOperation {
+    export const KIND = 'createNode';
 
+    export function is(object: any): object is CreateNodeOperation {
+        return CreateOperation.hasKind(object, KIND);
+    }
+
+    export function create(
+        elementTypeId: string,
+        options: { location?: Point; containerId?: string; args?: Args } = {}
+    ): CreateNodeOperation {
+        return {
+            kind: KIND,
+            isOperation: true,
+            elementTypeId,
+            ...options
+        };
+    }
+}
 /**
- * The client sends a `DeleteElementOperation` to the server to request the deletion of an element from the model.
+ * In order to create an edge in the model the client can send a `CreateEdgeOperation` with the necessary information to create
+ * the element that corresponds to that edge in the source model.
+ * The corresponding namespace declares the action kind as constant and offers helper functions for type guard checks
+ * and creating new `CreateEdgeOperations`.
  */
-export class DeleteElementOperation implements Operation {
-    static readonly KIND = 'deleteElement';
-    constructor(readonly elementIds: string[], public readonly kind: string = DeleteElementOperation.KIND) {}
+export interface CreateEdgeOperation extends CreateOperation {
+    kind: typeof CreateEdgeOperation.KIND;
+
+    sourceElementId: string;
+
+    targetElementId: string;
 }
 
-export function isDeleteElementOperation(action: any): action is DeleteElementOperation {
-    return isActionKind(action, DeleteElementOperation.KIND) && isArray(action, 'elementIds');
+export namespace CreateEdgeOperation {
+    export const KIND = 'createEdge';
+
+    export function is(object: any): object is CreateEdgeOperation {
+        return (
+            CreateOperation.hasKind(object, KIND) && hasStringProp(object, 'sourceElementId') && hasStringProp(object, 'targetElementId')
+        );
+    }
+
+    export function create(options: {
+        elementTypeId: string;
+        sourceElementId: string;
+        targetElementId: string;
+        args?: Args;
+    }): CreateEdgeOperation {
+        return {
+            kind: KIND,
+            isOperation: true,
+            ...options
+        };
+    }
+}
+/**
+ * The client sends a `DeleteElementOperation` to the server to request the deletion of an element from the source model.
+ * The corresponding namespace declares the action kind as constant and offers helper functions for type guard checks
+ * and creating new `DeleteElementOperations`.
+ */
+export interface DeleteElementOperation extends Operation {
+    kind: typeof DeleteElementOperation.KIND;
+
+    /**
+     * The ids of the elements to be deleted.
+     */
+    elementIds: string[];
+}
+
+export namespace DeleteElementOperation {
+    export const KIND = 'deleteElement';
+
+    export function is(object: any): object is DeleteElementOperation {
+        return Operation.hasKind(object, KIND) && hasArrayProp(object, 'elementIds');
+    }
+
+    export function create(elementIds: string[]): DeleteElementOperation {
+        return {
+            kind: KIND,
+            isOperation: true,
+            elementIds
+        };
+    }
 }

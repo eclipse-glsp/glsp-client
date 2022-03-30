@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2021 EclipseSource and others.
+ * Copyright (c) 2019-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,11 +13,12 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, isSetContextActionsAction, LabeledAction, Point, RequestContextActions } from '@eclipse-glsp/protocol';
+import { Action, LabeledAction, Point, RequestContextActions, SetContextActions } from '@eclipse-glsp/protocol';
 import { inject, injectable } from 'inversify';
-import { IContextMenuItemProvider, isSelected, SModelElement, TYPES } from 'sprotty';
+import { IContextMenuItemProvider, isSelected, SModelElement } from 'sprotty';
 import { GLSPActionDispatcher } from '../../base/action-dispatcher';
 import { EditorContextService } from '../../base/editor-context-service';
+import { TYPES } from '../../base/types';
 
 export namespace ServerContextMenu {
     export const CONTEXT_ID = 'context-menu';
@@ -35,13 +36,13 @@ export class ServerContextMenuItemProvider implements IContextMenuItemProvider {
                 .filter(isSelected)
                 .map(e => e.id)
         );
-        const context = this.editorContext.getWithSelection(selectedElementIds);
-        const requestAction = new RequestContextActions(ServerContextMenu.CONTEXT_ID, context);
+        const editorContext = this.editorContext.getWithSelection(selectedElementIds);
+        const requestAction = RequestContextActions.create({ contextId: ServerContextMenu.CONTEXT_ID, editorContext });
         return this.actionDispatcher.requestUntil(requestAction).then(response => this.getContextActionsFromResponse(response));
     }
 
     getContextActionsFromResponse(action: Action): LabeledAction[] {
-        if (isSetContextActionsAction(action)) {
+        if (SetContextActions.is(action)) {
             return action.actions;
         }
         return [];

@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2021 EclipseSource and others.
+ * Copyright (c) 2019-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -16,12 +16,12 @@
 import { SetTypeHintsAction } from '@eclipse-glsp/protocol';
 import { ContainerModule } from 'inversify';
 import { configureActionHandler, configureCommand } from 'sprotty';
-import { GLSP_TYPES } from '../../base/types';
+import { TYPES } from '../../base/types';
 import { ApplyTypeHintsCommand, TypeHintProvider } from './type-hints';
 
 const modelHintsModule = new ContainerModule((bind, _unbind, isBound) => {
     bind(TypeHintProvider).toSelf().inSingletonScope();
-    bind(GLSP_TYPES.ITypeHintProvider).toService(TypeHintProvider);
+    bind(TYPES.ITypeHintProvider).toService(TypeHintProvider);
     configureActionHandler({ bind, isBound }, SetTypeHintsAction.KIND, TypeHintProvider);
     configureCommand({ bind, isBound }, ApplyTypeHintsCommand);
 });

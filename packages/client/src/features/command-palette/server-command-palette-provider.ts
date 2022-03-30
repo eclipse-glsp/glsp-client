@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2021 EclipseSource and others.
+ * Copyright (c) 2019-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,11 +13,12 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, isSetContextActionsAction, LabeledAction, Point, RequestContextActions } from '@eclipse-glsp/protocol';
+import { Action, LabeledAction, Point, RequestContextActions, SetContextActions } from '@eclipse-glsp/protocol';
 import { inject, injectable } from 'inversify';
-import { ICommandPaletteActionProvider, SModelElement, TYPES } from 'sprotty';
+import { ICommandPaletteActionProvider, SModelElement } from 'sprotty';
 import { GLSPActionDispatcher } from '../../base/action-dispatcher';
 import { EditorContextService } from '../../base/editor-context-service';
+import { TYPES } from '../../base/types';
 
 export namespace ServerCommandPalette {
     export const CONTEXT_ID = 'command-palette';
@@ -31,18 +32,18 @@ export class ServerCommandPaletteActionProvider implements ICommandPaletteAction
     @inject(EditorContextService) protected editorContext: EditorContextService;
 
     getActions(_root: Readonly<SModelElement>, text: string, _lastMousePosition?: Point, index?: number): Promise<LabeledAction[]> {
-        const requestAction = new RequestContextActions(
-            ServerCommandPalette.CONTEXT_ID,
-            this.editorContext.get({
+        const requestAction = RequestContextActions.create({
+            contextId: ServerCommandPalette.CONTEXT_ID,
+            editorContext: this.editorContext.get({
                 [ServerCommandPalette.TEXT]: text,
                 [ServerCommandPalette.INDEX]: index ? index : 0
             })
-        );
+        });
         return this.actionDispatcher.requestUntil(requestAction).then(response => this.getPaletteActionsFromResponse(response));
     }
 
     getPaletteActionsFromResponse(action: Action): LabeledAction[] {
-        if (isSetContextActionsAction(action)) {
+        if (SetContextActions.is(action)) {
             return action.actions;
         }
         return [];

@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2021 EclipseSource and others.
+ * Copyright (c) 2019-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -15,11 +15,11 @@
  ********************************************************************************/
 import { ClipboardData, CutOperation, PasteOperation, RequestClipboardDataAction, SetClipboardDataAction } from '@eclipse-glsp/protocol';
 import { inject, injectable } from 'inversify';
-import { TYPES, ViewerOptions } from 'sprotty';
+import { ViewerOptions } from 'sprotty';
 import { v4 as uuid } from 'uuid';
 import { GLSPActionDispatcher } from '../../base/action-dispatcher';
 import { EditorContextService } from '../../base/editor-context-service';
-import { GLSP_TYPES } from '../../base/types';
+import { TYPES } from '../../base/types';
 
 export interface ICopyPasteHandler {
     handleCopy(event: ClipboardEvent): void;
@@ -96,7 +96,7 @@ const CLIPBOARD_DATA_FORMAT = 'text/plain';
 export class ServerCopyPasteHandler implements ICopyPasteHandler {
     @inject(TYPES.IActionDispatcher) protected actionDispatcher: GLSPActionDispatcher;
     @inject(TYPES.ViewerOptions) protected viewerOptions: ViewerOptions;
-    @inject(GLSP_TYPES.IAsyncClipboardService) protected clipboadService: IAsyncClipboardService;
+    @inject(TYPES.IAsyncClipboardService) protected clipboadService: IAsyncClipboardService;
     @inject(EditorContextService) protected editorContext: EditorContextService;
 
     handleCopy(event: ClipboardEvent): void {
@@ -118,7 +118,7 @@ export class ServerCopyPasteHandler implements ICopyPasteHandler {
     handleCut(event: ClipboardEvent): void {
         if (event.clipboardData && this.shouldCopy(event)) {
             this.handleCopy(event);
-            this.actionDispatcher.dispatch(new CutOperation(this.editorContext.get()));
+            this.actionDispatcher.dispatch(CutOperation.create(this.editorContext.get()));
             event.preventDefault();
         }
     }
@@ -128,7 +128,7 @@ export class ServerCopyPasteHandler implements ICopyPasteHandler {
             const clipboardId = getClipboardIdFromDataTransfer(event.clipboardData);
             const clipboardData = this.clipboadService.get(clipboardId);
             if (clipboardData) {
-                this.actionDispatcher.dispatch(new PasteOperation(clipboardData, this.editorContext.get()));
+                this.actionDispatcher.dispatch(PasteOperation.create({ clipboardData, editorContext: this.editorContext.get() }));
             }
             event.preventDefault();
         }

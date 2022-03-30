@@ -13,17 +13,13 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { Bounds, Dimension, Point } from '@eclipse-glsp/protocol';
 import { injectable } from 'inversify';
 import {
-    Bounds,
     BoundsData,
-    Dimension,
-    EMPTY_BOUNDS,
     isBoundsAware,
     isLayoutableChild,
-    isValidDimension,
     LayoutContainer,
-    Point,
     SChildElement,
     SModelElement,
     SParentElement,
@@ -91,7 +87,7 @@ export class VBoxLayouterExt extends VBoxLayouter {
         container.children.forEach(child => {
             if (isLayoutableChild(child)) {
                 const bounds = layouter.getBoundsData(child).bounds;
-                if (bounds !== undefined && isValidDimension(bounds)) {
+                if (bounds !== undefined && Dimension.isValid(bounds)) {
                     maxHeight += bounds.height;
                     if (isFirst) {
                         isFirst = false;
@@ -128,7 +124,7 @@ export class VBoxLayouterExt extends VBoxLayouter {
                 const boundsData = layouter.getBoundsData(child);
                 const bounds = boundsData.bounds;
                 const childOptions = this.getChildLayoutOptions(child, containerOptions);
-                if (bounds !== undefined && isValidDimension(bounds)) {
+                if (bounds !== undefined && Dimension.isValid(bounds)) {
                     currentOffset = this.layoutChild(
                         child,
                         boundsData,
@@ -197,7 +193,7 @@ export class VBoxLayouterExt extends VBoxLayouter {
             const height = elementOptions?.prefHeight ?? 0;
             return { ...bounds, width, height };
         }
-        return EMPTY_BOUNDS;
+        return Bounds.EMPTY;
     }
 
     protected override getChildLayoutOptions(child: SChildElement, containerOptions: VBoxLayoutOptionsExt): VBoxLayoutOptionsExt {

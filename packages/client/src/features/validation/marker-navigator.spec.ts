@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020-2021 EclipseSource and others.
+ * Copyright (c) 2020-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -14,6 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 /* eslint-disable import/no-deprecated,no-unused-expressions */
+import { SNodeSchema } from '@eclipse-glsp/protocol';
 import { expect } from 'chai';
 import { Container } from 'inversify';
 import 'mocha';
@@ -26,7 +27,6 @@ import {
     SIssueMarker,
     SModelElement,
     SModelRoot,
-    SNodeSchema,
     SParentElement,
     TYPES
 } from 'sprotty';
@@ -38,7 +38,9 @@ import { MarkerNavigator } from './marker-navigator';
 describe('MarkerNavigator', () => {
     const container = new Container();
     container.load(defaultModule, decorationModule, markerNavigatorModule);
+    // eslint-disable-next-line deprecation/deprecation
     container.rebind(TYPES.IModelFactory).to(SGraphFactory).inSingletonScope();
+    // eslint-disable-next-line deprecation/deprecation
     const graphFactory = container.get<SGraphFactory>(TYPES.IModelFactory);
     const markerNavigator = container.get<MarkerNavigator>(MarkerNavigator);
 

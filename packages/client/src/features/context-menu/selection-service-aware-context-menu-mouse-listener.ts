@@ -13,26 +13,25 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { Action } from '@eclipse-glsp/protocol';
 import { inject, injectable, optional } from 'inversify';
 import {
-    Action,
     ContextMenuProviderRegistry,
     findParentByFeature,
     IContextMenuServiceProvider,
     isSelectable,
     MouseListener,
-    SModelElement,
-    TYPES
+    SModelElement
 } from 'sprotty';
 import { FocusStateChangedAction } from '../../base/actions/focus-change-action';
-import { GLSP_TYPES } from '../../base/types';
+import { TYPES } from '../../base/types';
 import { SelectionService } from '../select/selection-service';
 
 @injectable()
 export class SelectionServiceAwareContextMenuMouseListener extends MouseListener {
     @inject(TYPES.IContextMenuServiceProvider) @optional() protected readonly contextMenuService: IContextMenuServiceProvider;
     @inject(TYPES.IContextMenuProviderRegistry) @optional() protected readonly menuProvider: ContextMenuProviderRegistry;
-    @inject(GLSP_TYPES.SelectionService) protected selectionService: SelectionService;
+    @inject(TYPES.SelectionService) protected selectionService: SelectionService;
 
     /**
      * Opens the context menu on right-click.
@@ -65,7 +64,7 @@ export class SelectionServiceAwareContextMenuMouseListener extends MouseListener
 
         const result = Promise.all([this.contextMenuService(), this.menuProvider.getItems(target.root, mousePosition)])
             .then(([menuService, menuItems]) => menuService.show(menuItems, mousePosition, () => this.focusEventTarget(event)))
-            .then((): Action => new FocusStateChangedAction(false));
+            .then((): Action => FocusStateChangedAction.create(false));
 
         return [result];
     }

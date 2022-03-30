@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019 EclipseSource and others.
+ * Copyright (c) 2019-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -15,13 +15,12 @@
  ********************************************************************************/
 import { ContainerModule } from 'inversify';
 import { MouseTool } from 'sprotty';
-
-import { GLSP_TYPES } from '../../base/types';
+import { TYPES } from '../../base/types';
 import { RankingMouseTool } from './mouse-tool';
 
 const glspMouseToolModule = new ContainerModule((bind, _unbind, _isBound, rebind) => {
     bind(RankingMouseTool).toSelf().inSingletonScope();
-    bind(GLSP_TYPES.MouseTool).toService(RankingMouseTool);
+    bind(TYPES.MouseTool).toService(RankingMouseTool);
     rebind(MouseTool).toService(RankingMouseTool);
 });
 

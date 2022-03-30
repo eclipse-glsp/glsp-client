@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020-2021 EclipseSource and others.
+ * Copyright (c) 2020-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,15 +13,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import {
-    Action,
-    GLSPServerStatusAction,
-    isModelSourceChangedAction,
-    ModelSourceChangedAction,
-    ServerMessageAction
-} from '@eclipse-glsp/protocol';
+import { Action, ModelSourceChangedAction, ServerMessageAction, ServerStatusAction } from '@eclipse-glsp/protocol';
 import { inject, injectable, optional } from 'inversify';
-import { IActionDispatcher, IActionHandler, TYPES, ViewerOptions } from 'sprotty';
+import { IActionDispatcher, IActionHandler, ViewerOptions } from 'sprotty';
+import { TYPES } from '../../base/types';
 
 /**
  * An external handler of the model source change event.
@@ -51,7 +46,7 @@ export class ModelSourceChangedActionHandler implements IActionHandler {
     protected externalModelSourceChangedHandler?: ExternalModelSourceChangedHandler;
 
     handle(action: Action): void {
-        if (isModelSourceChangedAction(action)) {
+        if (ModelSourceChangedAction.is(action)) {
             if (this.externalModelSourceChangedHandler) {
                 this.externalModelSourceChangedHandler
                     .notifyModelSourceChange(action.modelSourceName, this.options)
@@ -67,8 +62,8 @@ export class ModelSourceChangedActionHandler implements IActionHandler {
         const timeout = 0;
         const severity = 'WARNING';
         this.dispatcher.dispatchAll([
-            { kind: GLSPServerStatusAction.KIND, severity, timeout, message } as GLSPServerStatusAction,
-            { kind: ServerMessageAction.KIND, severity, timeout, message } as ServerMessageAction
+            ServerStatusAction.create(message, { severity, timeout }),
+            ServerMessageAction.create(message, { severity, timeout })
         ]);
     }
 }

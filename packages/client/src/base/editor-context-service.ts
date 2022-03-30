@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020-2021 EclipseSource and others.
+ * Copyright (c) 2020-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,12 +13,12 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, Args, distinctAdd, EditMode, EditorContext, isSetEditModeAction, remove } from '@eclipse-glsp/protocol';
+import { Action, Args, distinctAdd, EditMode, EditorContext, remove, SetEditModeAction } from '@eclipse-glsp/protocol';
 import { inject, injectable, multiInject, optional } from 'inversify';
-import { IActionHandler, ModelSource, MousePositionTracker, SModelElement, SModelRoot, TYPES } from 'sprotty';
+import { IActionHandler, ModelSource, MousePositionTracker, SModelElement, SModelRoot } from 'sprotty';
 import { SelectionService } from '../features/select/selection-service';
 import { isSourceUriAware } from './source-uri-aware';
-import { GLSP_TYPES } from './types';
+import { TYPES } from './types';
 
 export interface EditModeListener {
     editModeChanged(newValue: string, oldvalue: string): void;
@@ -26,12 +26,12 @@ export interface EditModeListener {
 
 @injectable()
 export class EditorContextService implements IActionHandler {
-    @inject(GLSP_TYPES.SelectionService) protected selectionService: SelectionService;
+    @inject(TYPES.SelectionService) protected selectionService: SelectionService;
     @inject(MousePositionTracker) protected mousePositionTracker: MousePositionTracker;
     @inject(TYPES.ModelSourceProvider) protected modelSource: () => Promise<ModelSource>;
     protected _editMode: string;
 
-    constructor(@multiInject(GLSP_TYPES.IEditModeListener) @optional() protected editModeListeners: EditModeListener[] = []) {}
+    constructor(@multiInject(TYPES.IEditModeListener) @optional() protected editModeListeners: EditModeListener[] = []) {}
 
     register(editModeListener: EditModeListener): void {
         distinctAdd(this.editModeListeners, editModeListener);
@@ -58,7 +58,7 @@ export class EditorContextService implements IActionHandler {
     }
 
     handle(action: Action): void {
-        if (isSetEditModeAction(action)) {
+        if (SetEditModeAction.is(action)) {
             const oldValue = this._editMode;
             this._editMode = action.editMode;
             this.notifiyEditModeListeners(oldValue);

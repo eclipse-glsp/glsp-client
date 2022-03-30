@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019 EclipseSource and others.
+ * Copyright (c) 2019-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,12 +13,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import '../../../css/command-palette.css';
-
 import { ContainerModule } from 'inversify';
-import { CommandPalette, CommandPaletteActionProviderRegistry, TYPES } from 'sprotty';
-
-import { GLSP_TYPES } from '../../base/types';
+import { CommandPalette, CommandPaletteActionProviderRegistry } from 'sprotty';
+import '../../../css/command-palette.css';
+import { TYPES } from '../../base/types';
 import { CommandPaletteTool } from './command-palette-tool';
 import { ServerCommandPaletteActionProvider } from './server-command-palette-provider';
 
@@ -28,7 +26,7 @@ const glspCommandPaletteModule = new ContainerModule(bind => {
     bind(CommandPaletteActionProviderRegistry).toSelf().inSingletonScope();
     bind(TYPES.ICommandPaletteActionProviderRegistry).toService(CommandPaletteActionProviderRegistry);
     bind(TYPES.ICommandPaletteActionProvider).to(ServerCommandPaletteActionProvider);
-    bind(GLSP_TYPES.IDefaultTool).to(CommandPaletteTool);
+    bind(TYPES.IDefaultTool).to(CommandPaletteTool);
 });
 
 export default glspCommandPaletteModule;

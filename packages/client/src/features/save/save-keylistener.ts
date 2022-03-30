@@ -20,7 +20,7 @@ import { matchesKeystroke } from 'sprotty/lib/utils/keyboard';
 export class SaveModelKeyboardListener extends KeyListener {
     override keyDown(_element: SModelRoot, event: KeyboardEvent): Action[] {
         if (matchesKeystroke(event, 'KeyS', 'ctrlCmd')) {
-            return [new SaveModelAction()];
+            return [SaveModelAction.create()];
         }
         return [];
     }

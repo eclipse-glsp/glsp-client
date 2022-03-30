@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2021 STMicroelectronics and others.
+ * Copyright (c) 2021-2022 STMicroelectronics and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,64 +13,131 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { isBoolean, isObject, isString } from '../utils/typeguard-util';
-import { Action, generateRequestId, isActionKind, RequestAction, ResponseAction } from './base-protocol';
+import * as sprotty from 'sprotty-protocol/lib/actions';
+import { hasObjectProp, hasStringProp } from '../utils/type-util';
+import { Action, RequestAction, ResponseAction } from './base-protocol';
 import { SModelRootSchema } from './model-structure';
-import { JsonPrimitive } from './types';
+import { Args } from './types';
 
 /**
  * Sent from the server to the client in order to set the model. If a model is already present, it is replaced.
+ * The corresponding namespace declares the action kind as constant and offers helper functions for type guard checks
+ * and creating new `RequestModelActions`.
  */
-export class RequestModelAction implements RequestAction<SetModelAction> {
-    static readonly KIND = 'requestModel';
-    readonly kind = RequestModelAction.KIND;
+export interface RequestModelAction extends RequestAction<SetModelAction>, sprotty.RequestModelAction {
+    kind: typeof RequestModelAction.KIND;
 
-    constructor(public readonly options?: { [key: string]: JsonPrimitive }, public readonly requestId = '') {}
+    /**
+     * Additional options used to compute the graphical model.
+     */
+    options?: Args;
+}
 
-    /** Factory function to dispatch a request with the `IActionDispatcher` */
-    static create(options?: { [key: string]: JsonPrimitive }): RequestAction<SetModelAction> {
-        return new RequestModelAction(options, generateRequestId());
+export namespace RequestModelAction {
+    export const KIND = 'requestModel';
+
+    export function is(object: any): object is RequestModelAction {
+        return RequestAction.hasKind(object, KIND);
+    }
+
+    export function create(options: { options?: Args; requestId?: string } = {}): RequestModelAction {
+        return {
+            kind: KIND,
+            requestId: '',
+            ...options
+        };
     }
 }
 
-export function isRequestModelAction(action: any): action is RequestModelAction {
-    return isActionKind(action, RequestModelAction.KIND);
-}
 /**
  * Sent from the model source to the client in order to set the model. If a model is already present, it is replaced.
+ * The corresponding namespace declares the action kind as constant and offers helper functions for type guard checks
+ * and creating new `SetModelActions`.
  */
-export class SetModelAction implements ResponseAction {
-    static readonly KIND = 'setModel';
-    readonly kind = SetModelAction.KIND;
-
-    constructor(public readonly newRoot: SModelRootSchema, public readonly responseId = '') {}
+export interface SetModelAction extends ResponseAction, sprotty.SetModelAction {
+    kind: typeof SetModelAction.KIND;
+    /**
+     * The new graphical model root.
+     */
+    newRoot: SModelRootSchema;
 }
 
-export function isSetModelAction(action: any): action is SetModelAction {
-    return isActionKind(action, SetModelAction.KIND) && isObject(action, 'newRoot');
+export namespace SetModelAction {
+    export const KIND = 'setModel';
+
+    export function is(object: any): object is SetModelAction {
+        return Action.hasKind(object, KIND) && hasObjectProp(object, 'newRoot');
+    }
+
+    export function create(newRoot: SModelRootSchema, options: { responseId?: string } = {}): SetModelAction {
+        return {
+            kind: KIND,
+            responseId: '',
+            newRoot,
+            ...options
+        };
+    }
 }
 
 /**
- * Sent from the server to the client in order to update the model. If no model is present yet, this behaves the same as a SetModelAction.
- * The transition from the old model to the new one can be animated.
+ * Sent from the server to the client in order to update the model. If no model is present yet, this behaves the same as
+ * a {@link SetModelAction}. The transition from the old model to the new one can be animated.
+ * The corresponding namespace declares the action kind as constant and offers helper functions for type guard checks
+ * and creating new `UpdateModelActions`.
  */
-export class UpdateModelAction implements Action {
-    static readonly KIND = 'updateModel';
-    readonly kind = UpdateModelAction.KIND;
+export interface UpdateModelAction extends Action, Omit<sprotty.UpdateModelAction, 'matches' | 'cause'> {
+    kind: typeof UpdateModelAction.KIND;
 
-    constructor(public readonly newRoot: SModelRootSchema, public readonly animate: boolean = true) {}
+    newRoot: SModelRootSchema;
+    /**
+     * Boolean flag to indicate wether updated/changed elements should be animated in the diagram.
+     */
+    animate?: boolean;
 }
 
-export function isUpdateModelAction(action: any): action is UpdateModelAction {
-    return isActionKind(action, UpdateModelAction.KIND) && isObject(action, 'newRoot') && isBoolean(action, 'animate');
+export namespace UpdateModelAction {
+    export const KIND = 'updateModel';
+
+    export function is(action: any): action is UpdateModelAction {
+        return Action.hasKind(action, KIND) && hasObjectProp(action, 'newRoot');
+    }
+
+    export function create(newRoot: SModelRootSchema, options: { animate?: boolean } = {}): UpdateModelAction {
+        return {
+            kind: KIND,
+            newRoot,
+            animate: true,
+            ...options
+        };
+    }
 }
 
-export class ModelSourceChangedAction implements Action {
-    static KIND = 'modelSourceChanged';
-    readonly kind = ModelSourceChangedAction.KIND;
-    constructor(public readonly modelSourceName: string) {}
+/**
+ * Sent from the server to the client in order to indicate that the model source has changed.
+ * The model source denotes the data source from which the diagram has been originally derived (such as a file, a database, etc.).
+ * The corresponding namespace declares the action kind as constant and offers helper functions for type guard checks
+ * and creating new `ModelSourceChangedActions`.
+ */
+export interface ModelSourceChangedAction extends Action {
+    kind: typeof ModelSourceChangedAction.KIND;
+
+    /**
+     * A human readable name of the model source (e.g. the file name).
+     */
+    modelSourceName: string;
 }
 
-export function isModelSourceChangedAction(action?: any): action is ModelSourceChangedAction {
-    return isActionKind(action, ModelSourceChangedAction.KIND) && isString(action, 'modelSourceName');
+export namespace ModelSourceChangedAction {
+    export const KIND = 'modelSourceChanged';
+
+    export function is(object: any): object is ModelSourceChangedAction {
+        return Action.hasKind(object, KIND) && hasStringProp(object, 'modelSourceName');
+    }
+
+    export function create(modelSourceName: string): ModelSourceChangedAction {
+        return {
+            kind: KIND,
+            modelSourceName
+        };
+    }
 }

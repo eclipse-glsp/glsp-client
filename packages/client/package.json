@@ -36,10 +36,11 @@
   "dependencies": {
     "@eclipse-glsp/protocol": "0.9.0",
     "autocompleter": "5.1.0",
-    "sprotty": "0.10.0"
+    "sprotty": "next"
   },
   "devDependencies": {
     "@vscode/codicons": "^0.0.25",
+    "eslint-import-resolver-typescript": "2.7.0",
     "typescript": "^4.5.5"
   },
   "scripts": {

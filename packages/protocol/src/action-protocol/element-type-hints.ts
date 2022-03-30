@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2021 EclipseSource and others.
+ * Copyright (c) 2019-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,10 +13,14 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { RequestAction, ResponseAction } from '.';
-import { isArray } from '../utils/typeguard-util';
-import { isActionKind } from './base-protocol';
 
+import { hasArrayProp } from '../utils/type-util';
+import { Action, RequestAction, ResponseAction } from './base-protocol';
+
+/**
+ * Type hints are used to define what modifications are supported on the different element types.
+ * The rationale is to avoid a client-server round-trip for user feedback of each synchronous user interaction.
+ */
 export interface TypeHint {
     /**
      * The id of the element.
@@ -34,6 +38,9 @@ export interface TypeHint {
     readonly deletable: boolean;
 }
 
+/**
+ * A {@link TypeHint} with additional modification properties for shape elements.
+ */
 export interface ShapeTypeHint extends TypeHint {
     /**
      * Specifies whether the element can be resized.
@@ -51,6 +58,9 @@ export interface ShapeTypeHint extends TypeHint {
     readonly containableElementTypeIds?: string[];
 }
 
+/**
+ * A {@link TypeHint} with additional modification properties for edge elements.
+ */
 export interface EdgeTypeHint extends TypeHint {
     /**
      * Specifies whether the routing of this element can be changed.
@@ -72,29 +82,54 @@ export interface EdgeTypeHint extends TypeHint {
  * Sent from the client to the server in order to request hints on whether certain modifications are allowed for a specific element type.
  * The `RequestTypeHintsAction` is optional, but should usually be among the first messages sent from the client to the server after
  * receiving the model via RequestModelAction. The response is a {@link SetTypeHintsAction}.
+ * The corresponding namespace declares the action kind as constant and offers helper functions for type guard checks
+ * and creating new `RequestTypeHintsActions`.
  */
-export class RequestTypeHintsAction implements RequestAction<SetTypeHintsAction> {
-    static readonly KIND = 'requestTypeHints';
-    constructor(public readonly requestId = '', public readonly kind: string = RequestTypeHintsAction.KIND) {}
+export interface RequestTypeHintsAction extends RequestAction<SetTypeHintsAction> {
+    kind: typeof RequestTypeHintsAction.KIND;
 }
 
-export function isRequestTypeHintsAction(action: any): action is RequestTypeHintsAction {
-    return isActionKind(action, RequestTypeHintsAction.KIND);
+export namespace RequestTypeHintsAction {
+    export const KIND = 'requestTypeHints';
+
+    export function is(object: any): object is RequestTypeHintsAction {
+        return RequestAction.hasKind(object, KIND);
+    }
+
+    export function create(options: { requestId?: string } = {}): RequestTypeHintsAction {
+        return {
+            kind: KIND,
+            requestId: '',
+            ...options
+        };
+    }
 }
 
 /**
  * Sent from the server to the client in order to provide hints certain modifications are allowed for a specific element type.
+ * The corresponding namespace declares the action kind as constant and offers helper functions for type guard checks
+ * and creating new `SetTypeHintsActions`.
  */
-export class SetTypeHintsAction implements ResponseAction {
-    static readonly KIND = 'setTypeHints';
-    constructor(
-        public readonly shapeHints: ShapeTypeHint[],
-        public readonly edgeHints: EdgeTypeHint[],
-        public readonly responseId = '',
-        public readonly kind: string = SetTypeHintsAction.KIND
-    ) {}
+export interface SetTypeHintsAction extends ResponseAction {
+    kind: typeof SetTypeHintsAction.KIND;
+
+    shapeHints: ShapeTypeHint[];
+
+    edgeHints: EdgeTypeHint[];
 }
 
-export function isSetTypeHintsAction(action: any): action is SetTypeHintsAction {
-    return isActionKind(action, SetTypeHintsAction.KIND) && isArray(action, 'shapeHints') && isArray(action, 'edgeHints');
+export namespace SetTypeHintsAction {
+    export const KIND = 'setTypeHints';
+
+    export function is(object: any): object is SetTypeHintsAction {
+        return Action.hasKind(object, KIND) && hasArrayProp(object, 'shapeHints') && hasArrayProp(object, 'edgeHints');
+    }
+
+    export function create(options: { shapeHints: ShapeTypeHint[]; edgeHints: EdgeTypeHint[]; responseId?: string }): SetTypeHintsAction {
+        return {
+            kind: KIND,
+            responseId: '',
+            ...options
+        };
+    }
 }

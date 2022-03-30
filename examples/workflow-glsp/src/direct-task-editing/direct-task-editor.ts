@@ -20,28 +20,58 @@ import {
     EditorContextService,
     getAbsoluteClientBounds,
     GLSPActionDispatcher,
+    hasStringProp,
     ILogger,
-    isSetContextActionsAction,
-    isSetEditValidationResultAction,
     LabeledAction,
+    ModelIndexImpl,
+    Operation,
     RequestContextActions,
     RequestEditValidationAction,
-    SModelElement,
+    SetContextActions,
+    SetEditValidationResultAction,
     SModelRoot,
     toActionArray,
+    TYPES,
     ValidationDecorator,
     ValidationStatus,
     ViewerOptions
 } from '@eclipse-glsp/client';
 import { inject, injectable } from 'inversify';
-import { SModelIndex, TYPES } from 'sprotty/lib';
 import { DOMHelper } from 'sprotty/lib/base/views/dom-helper';
 import { isTaskNode, TaskNode } from '../model';
 
-export class ApplyTaskEditOperation implements Action {
-    static readonly KIND = 'applyTaskEdit';
-    readonly kind = ApplyTaskEditOperation.KIND;
-    constructor(readonly taskId: string, readonly expression: string) {}
+/**
+ * Is send from the {@link TaskEditor} to the GLSP server
+ * to execute a task edit operation.
+ */
+export interface ApplyTaskEditOperation extends Operation {
+    kind: typeof ApplyTaskEditOperation.KIND;
+
+    /**
+     * Id of the task that should be edited
+     */
+    taskId: string;
+
+    /**
+     * The edit expression
+     */
+    expression: string;
+}
+
+export namespace ApplyTaskEditOperation {
+    export const KIND = 'applyTaskEdit';
+
+    export function is(object: any): object is ApplyTaskEditOperation {
+        return Operation.hasKind(object, KIND) && hasStringProp(object, 'taskId') && hasStringProp(object, 'expression');
+    }
+
+    export function create(options: { taskId: string; expression: string }): ApplyTaskEditOperation {
+        return {
+            kind: KIND,
+            isOperation: true,
+            ...options
+        };
+    }
 }
 
 @injectable()
@@ -125,17 +155,19 @@ export class TaskEditor extends AbstractUIExtension {
 
     protected async retrieveSuggestions(input: string): Promise<LabeledAction[]> {
         const response = await this.actionDispatcher.request(
-            new RequestContextActions(TaskEditor.ID, this.editorContextService.get({ ['text']: input }))
+            RequestContextActions.create({ contextId: TaskEditor.ID, editorContext: this.editorContextService.get({ ['text']: input }) })
         );
-        if (isSetContextActionsAction(response)) {
+        if (SetContextActions.is(response)) {
             return response.actions;
         }
         return Promise.reject();
     }
 
     protected async validateInput(input: string): Promise<ValidationStatus> {
-        const response = await this.actionDispatcher.request(new RequestEditValidationAction(TaskEditor.ID, this.task.id, input));
-        if (isSetEditValidationResultAction(response)) {
+        const response = await this.actionDispatcher.request(
+            RequestEditValidationAction.create({ contextId: TaskEditor.ID, modelElementId: this.task.id, text: input })
+        );
+        if (SetEditValidationResultAction.is(response)) {
             return response.status;
         }
         return Promise.reject();
@@ -146,7 +178,7 @@ export class TaskEditor extends AbstractUIExtension {
     }
 
     protected executeFromTextOnlyInput(input: string): void {
-        const action = new ApplyTaskEditOperation(this.task.id, input);
+        const action = ApplyTaskEditOperation.create({ taskId: this.task.id, expression: input });
         this.actionDispatcher.dispatch(action);
     }
 
@@ -156,6 +188,6 @@ export class TaskEditor extends AbstractUIExtension {
     }
 }
 
-function getTask(ids: string[], index: SModelIndex<SModelElement>): TaskNode[] {
+function getTask(ids: string[], index: ModelIndexImpl): TaskNode[] {
     return ids.map(id => index.getById(id)).filter(element => element && isTaskNode(element)) as TaskNode[];
 }
