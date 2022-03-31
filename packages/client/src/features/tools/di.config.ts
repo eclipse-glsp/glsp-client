@@ -16,19 +16,25 @@
 import { TriggerEdgeCreationAction, TriggerNodeCreationAction } from '@eclipse-glsp/protocol';
 import { ContainerModule, interfaces } from 'inversify';
 import { configureActionHandler, configureModelElement } from 'sprotty';
+import { FocusStateChangedAction } from '../../base/actions/focus-change-action';
 import { TYPES } from '../../base/types';
 import { MARQUEE } from '../tool-feedback/marquee-tool-feedback';
 import { ChangeBoundsTool } from './change-bounds-tool';
 import { DelKeyDeleteTool, MouseDeleteTool } from './delete-tool';
 import { EdgeCreationTool } from './edge-creation-tool';
 import { EdgeEditTool } from './edge-edit-tool';
+import { EnableDefaultToolsOnFocusLossHandler } from './enable-default-tools-on-focus-loss';
 import { MarqueeMouseTool } from './marquee-mouse-tool';
 import { MarqueeTool } from './marquee-tool';
 import { MarqueeNode } from './model';
 import { NodeCreationTool } from './node-creation-tool';
 import { MarqueeView } from './view';
 
-const toolsModule = new ContainerModule((bind, _unbind, isBound) => {
+/**
+ * Registers the default tools of GLSP (node and edge creation, changing bounds, edge editing, deletion)
+ * and adds the marquee selection tool.
+ */
+export const toolsModule = new ContainerModule((bind, _unbind, isBound) => {
     // Register default tools
     bind(TYPES.IDefaultTool).to(ChangeBoundsTool);
     bind(TYPES.IDefaultTool).to(EdgeEditTool);
@@ -52,4 +58,9 @@ export function configureMarqueeTool(context: { bind: interfaces.Bind; isBound: 
     context.bind(TYPES.ITool).to(MarqueeMouseTool);
 }
 
-export default toolsModule;
+/**
+ * Enables the default tools in the tool manager if the diagram looses focus.
+ */
+export const enableDefaultToolsOnFocusLossModule = new ContainerModule((bind, _unbind, isBound) => {
+    configureActionHandler({ bind, isBound }, FocusStateChangedAction.KIND, EnableDefaultToolsOnFocusLossHandler);
+});

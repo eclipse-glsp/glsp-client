@@ -44,7 +44,7 @@ import { navigationModule } from '../features/navigation/di.config';
 import glspSelectModule from '../features/select/di.config';
 import toolFeedbackModule from '../features/tool-feedback/di.config';
 import toolPaletteModule from '../features/tool-palette/di.config';
-import toolsModule from '../features/tools/di.config';
+import { enableDefaultToolsOnFocusLossModule, toolsModule } from '../features/tools/di.config';
 import { markerNavigatorModule, validationModule } from '../features/validation/di.config';
 import glspViewportModule from '../features/viewport/di.config';
 import defaultGLSPModule from './di.config';
@@ -80,6 +80,7 @@ export const DEFAULT_MODULES = [
     routingModule,
     toolFeedbackModule,
     toolsModule,
+    enableDefaultToolsOnFocusLossModule,
     validationModule,
     zorderModule
 ];
