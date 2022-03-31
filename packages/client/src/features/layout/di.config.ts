@@ -14,8 +14,9 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { ContainerModule } from 'inversify';
-import { configureCommand, configureLayout, VBoxLayouter } from 'sprotty';
+import { configureCommand, configureLayout, HBoxLayouter, VBoxLayouter } from 'sprotty';
 import { FreeFormLayouter } from './freeform-layout';
+import { HBoxLayouterExt } from './hbox-layout';
 import { AlignElementsCommand, ResizeElementsCommand } from './layout-commands';
 import { VBoxLayouterExt } from './vbox-layout';
 
@@ -24,6 +25,7 @@ const layoutCommandsModule = new ContainerModule((bind, _unbind, isBound, rebind
     configureCommand({ bind, isBound }, AlignElementsCommand);
 
     rebind(VBoxLayouter).to(VBoxLayouterExt);
+    rebind(HBoxLayouter).to(HBoxLayouterExt);
     configureLayout({ bind, isBound }, FreeFormLayouter.KIND, FreeFormLayouter);
 });
 
