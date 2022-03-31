@@ -29,7 +29,7 @@ import saveModule from './features/save/di.config';
 import glspSelectModule from './features/select/di.config';
 import toolFeedbackModule from './features/tool-feedback/di.config';
 import paletteModule from './features/tool-palette/di.config';
-import toolsModule from './features/tools/di.config';
+import { enableDefaultToolsOnFocusLossModule, toolsModule } from './features/tools/di.config';
 import { markerNavigatorModule, validationModule } from './features/validation/di.config';
 import glspViewportModule from './features/viewport/di.config';
 
@@ -117,6 +117,7 @@ export {
     glspEditLabelModule,
     glspHoverModule,
     toolsModule,
+    enableDefaultToolsOnFocusLossModule,
     navigationModule,
     markerNavigatorModule,
     glspDecorationModule,
