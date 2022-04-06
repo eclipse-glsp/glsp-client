@@ -33,7 +33,7 @@ export class NavigationTargetResolver {
 
     async resolve(navigationTarget: NavigationTarget): Promise<SetResolvedNavigationTargetAction | undefined> {
         const contextService = await this.editorContextService();
-        const sourceUri = await contextService.getSourceUri();
+        const sourceUri = contextService.sourceUri;
         return this.resolveWithSourceUri(sourceUri, navigationTarget);
     }
 

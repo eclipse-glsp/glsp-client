@@ -34,9 +34,39 @@ export namespace AnyObject {
 }
 
 /**
+ * Utility type to capture all primitive types.
+ */
+export type Primitive = string | number | boolean | bigint | symbol | undefined | null;
+
+/**
+ * Utility type to describe objects that have a constructor function i.e. classes.
+ */
+export interface Constructor<T> {
+    new (...args: any[]): T;
+}
+
+/**
+ * Utility type to declare a given type `T` as writable. Essentially this removes
+ * all readonly modifiers of the type`s properties. Please use with care and only in instances
+ * where you no that overwriting a readonly property is safe and doesn't cause any unintended side effects.
+ */
+// eslint-disable-next-line @typescript-eslint/ban-types
+export type Writable<T> = { -readonly [P in keyof T]: Writable<T[P]> };
+
+/**
  * Utility type to describe typeguard functions.
  */
 export type TypeGuard<T> = (element: any, ...args: any[]) => element is T;
+
+/**
+ * Utility function that create a typeguard function for a given class constructor.
+ * Essentially this wraps an instance of check as typeguard function.
+ * @param constructor The constructor fo the class for which the typeguard should be created.
+ * @returns The typeguard for this class.
+ */
+export function toTypeGuard<G>(constructor: Constructor<G>): TypeGuard<G> {
+    return (element: any): element is G => element instanceof constructor;
+}
 
 /**
  * Validates whether the given object as a property of type `string` with the given key.

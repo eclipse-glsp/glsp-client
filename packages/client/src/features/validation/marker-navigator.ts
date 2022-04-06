@@ -16,12 +16,10 @@
 import { Action, CenterAction, hasArrayProp, hasStringProp, Point, SelectAction } from '@eclipse-glsp/protocol';
 import { inject, injectable } from 'inversify';
 import {
+    ActionDispatcher,
     BoundsAware,
-    CenterCommand,
-    Command,
-    CommandExecutionContext,
-    CommandReturn,
     findParentByFeature,
+    IActionHandler,
     IContextMenuItemProvider,
     isBoundsAware,
     isSelectable,
@@ -36,8 +34,8 @@ import {
 import { matchesKeystroke } from 'sprotty/lib/utils/keyboard';
 import { TYPES } from '../../base/types';
 import { collectIssueMarkers, MarkerPredicates } from '../../utils/marker';
-import { isSelectableAndBoundsAware } from '../../utils/smodel-util';
-import { SelectCommand, SelectionService } from '../select/selection-service';
+import { getElements, isSelectableAndBoundsAware } from '../../utils/smodel-util';
+import { SelectionService } from '../select/selection-service';
 
 export interface NavigateToMarkerAction extends Action {
     kind: typeof NavigateToMarkerAction.KIND;
@@ -106,7 +104,7 @@ export class MarkerNavigator {
     protected markerComparator: SModelElementComparator;
 
     next(
-        root: SModelRoot,
+        root: Readonly<SModelRoot>,
         current?: SModelElement & BoundsAware,
         predicate: (marker: SIssueMarker) => boolean = MarkerPredicates.ALL
     ): SIssueMarker | undefined {
@@ -118,7 +116,7 @@ export class MarkerNavigator {
     }
 
     previous(
-        root: SModelRoot,
+        root: Readonly<SModelRoot>,
         current?: SModelElement & BoundsAware,
         predicate: (marker: SIssueMarker) => boolean = MarkerPredicates.ALL
     ): SIssueMarker | undefined {
@@ -129,7 +127,7 @@ export class MarkerNavigator {
         return markers[this.getPreviousIndex(current, markers) % markers.length];
     }
 
-    protected getMarkers(root: SModelRoot, predicate: (marker: SIssueMarker) => boolean): SIssueMarker[] {
+    protected getMarkers(root: Readonly<SModelRoot>, predicate: (marker: SIssueMarker) => boolean): SIssueMarker[] {
         const markers = collectIssueMarkers(root);
         return markers.filter(predicate).sort(this.markerComparator.compare);
     }
@@ -154,9 +152,7 @@ export class MarkerNavigator {
 }
 
 @injectable()
-export class NavigateToMarkerCommand extends Command {
-    static KIND = NavigateToMarkerAction.KIND;
-
+export class NavigateToMarkerActionHandler implements IActionHandler {
     @inject(SModelElementComparator)
     protected markerComparator: SModelElementComparator;
 
@@ -166,73 +162,40 @@ export class NavigateToMarkerCommand extends Command {
     @inject(TYPES.SelectionService)
     protected selectionService: SelectionService;
 
-    protected selectCommand: SelectCommand;
-    protected centerCommand: CenterCommand;
+    @inject(TYPES.IActionDispatcher)
+    protected actionDispatcher: ActionDispatcher;
 
-    constructor(@inject(TYPES.Action) protected action: NavigateToMarkerAction) {
-        super();
-    }
+    handle(action: NavigateToMarkerAction): void {
+        const selected = this.getSelectedElements(action);
+        const target = this.getTarget(action, selected);
 
-    execute(context: CommandExecutionContext): CommandReturn {
-        const root = context.root;
-        const selected = this.getSelectedElements(root);
-        const target = this.getTarget(selected, root);
-        if (target === undefined) {
-            return root;
-        }
-
-        const selectableTarget = findParentByFeature(target, isSelectable);
+        const selectableTarget = target ? findParentByFeature(target, isSelectable) : undefined;
         if (selectableTarget) {
-            const deselect = selected.map(e => e.id).filter(id => id !== selectableTarget.id);
-            this.selectCommand = new SelectCommand(
-                SelectAction.create({ selectedElementsIDs: [selectableTarget.id], deselectedElementsIDs: deselect }),
-                this.selectionService
-            );
-            this.centerCommand = new CenterCommand(CenterAction.create([selectableTarget.id]));
-            this.centerCommand.execute(context);
-            return this.selectCommand.execute(context);
+            const deselectedElementsIDs = selected.map(e => e.id).filter(id => id !== selectableTarget.id);
+            this.actionDispatcher.dispatch(SelectAction.create({ selectedElementsIDs: [selectableTarget.id], deselectedElementsIDs }));
+            this.actionDispatcher.dispatch(CenterAction.create([selectableTarget.id]));
         }
-        return root;
     }
 
-    protected getSelectedElements(root: SModelRoot): (SModelElement & Selectable)[] {
-        let selectedIds = [];
-        if (this.action.selectedElementIds !== undefined && this.action.selectedElementIds.length > 0) {
-            selectedIds = this.action.selectedElementIds;
+    protected getSelectedElements(action: NavigateToMarkerAction): (SModelElement & Selectable)[] {
+        if (action.selectedElementIds && action.selectedElementIds.length > 0) {
+            return getElements(this.selectionService.getModelRoot().index, action.selectedElementIds, isSelectable);
+        }
+        return this.selectionService.getSelectedElements();
+    }
+
+    protected getTarget(action: NavigateToMarkerAction, selected: SModelElement[]): SIssueMarker | undefined {
+        const root = this.selectionService.getModelRoot();
+        const target = selected.sort(this.markerComparator.compare).find(isBoundsAware);
+        if (action.direction === 'previous') {
+            return this.markerNavigator.previous(root, target, marker => this.matchesSeverities(action, marker));
         } else {
-            return this.selectionService.getSelectedElements();
-        }
-        return selectedIds.map(id => root.index.getById(id)).filter(element => element !== undefined && isSelectable(element)) as Array<
-            SModelElement & Selectable
-        >;
-    }
-
-    protected getTarget(selected: SModelElement[], root: SModelRoot): SIssueMarker | undefined {
-        const selectedBoundsAware = selected.filter(isBoundsAware).sort(this.markerComparator.compare);
-        const currentTopmost = selectedBoundsAware.length > 0 ? selectedBoundsAware[0] : undefined;
-        if (this.action.direction === 'previous') {
-            return this.markerNavigator.previous(root, currentTopmost, marker => this.matchesSeverities(marker));
-        } else {
-            return this.markerNavigator.next(root, currentTopmost, marker => this.matchesSeverities(marker));
+            return this.markerNavigator.next(root, target, marker => this.matchesSeverities(action, marker));
         }
     }
 
-    protected matchesSeverities(marker: SIssueMarker): boolean {
-        return marker.issues.find(issue => this.action.severities.includes(issue.severity)) !== undefined;
-    }
-
-    undo(context: CommandExecutionContext): CommandReturn {
-        if (this.selectCommand) {
-            context.root = this.selectCommand.undo(context);
-        }
-        return this.centerCommand ? this.centerCommand.undo(context) : context.root;
-    }
-
-    redo(context: CommandExecutionContext): CommandReturn {
-        if (this.selectCommand) {
-            context.root = this.selectCommand.redo(context);
-        }
-        return this.centerCommand ? this.centerCommand.redo(context) : context.root;
+    protected matchesSeverities(action: NavigateToMarkerAction, marker: SIssueMarker): boolean {
+        return marker.issues.find(issue => action.severities.includes(issue.severity)) !== undefined;
     }
 }
 

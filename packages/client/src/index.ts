@@ -21,7 +21,7 @@ import glspDecorationModule from './features/decoration/di.config';
 import glspEditLabelModule from './features/edit-label/di.config';
 import modelHintsModule from './features/hints/di.config';
 import glspHoverModule from './features/hover/di.config';
-import layoutCommandsModule from './features/layout/di.config';
+import layoutModule from './features/layout/di.config';
 import modelSourceWatcherModule from './features/model-source-watcher/di.config';
 import glspMouseToolModule from './features/mouse-tool/di.config';
 import { navigationModule } from './features/navigation/di.config';
@@ -65,7 +65,7 @@ export * from './features/edit-label/edit-label-validator';
 export * from './features/hints/model';
 export * from './features/hints/type-hints';
 export * from './features/hover/hover';
-export * from './features/layout/layout-commands';
+export * from './features/layout/layout-elements-action';
 export * from './features/model-source-watcher/model-source-changed-action-handler';
 export * from './features/mouse-tool/mouse-tool';
 export * from './features/navigation/navigation-action-handler';
@@ -113,7 +113,7 @@ export {
     copyPasteContextMenuModule,
     glspSelectModule,
     glspMouseToolModule,
-    layoutCommandsModule,
+    layoutModule as layoutCommandsModule,
     glspEditLabelModule,
     glspHoverModule,
     toolsModule,

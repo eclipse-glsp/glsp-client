@@ -13,6 +13,9 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+
+import { Constructor, Primitive } from './type-util';
+
 /**
  * A union type for for objects that can either be a single element or and array of elements.
  */
@@ -23,12 +26,13 @@ export type MaybeArray<T> = T | T[];
  * @param array the array.
  * @returns the element at index 0.
  */
-export function first<T>(array: T[]): number;
+export function first<T>(array: T[]): T;
+
 /**
  * Returns the first n elements of the given array.
- * @param array the array.
- * @param n the number of elements that should be returned
- * @returns the first n elements of the array
+ * @param array The array.
+ * @param n The number of elements that should be returned
+ * @returns The first n elements of the array
  */
 export function first<T>(array: T[], n: number): T[];
 export function first<T>(array: T[], n?: number): T[] | T {
@@ -36,6 +40,37 @@ export function first<T>(array: T[], n?: number): T[] | T {
         return array.filter((_, index) => index < n);
     }
     return array[0];
+}
+
+/**
+ * Returns the last element of the given array.
+ * @param array The array.
+ * @returns The last element in the array.
+ */
+export function last<T>(array: T[]): T;
+
+/**
+ * Returns the last n elements of the given array.
+ * @param array The array.
+ * @param n The number of elements that should be returned
+ * @returns The last n elements of the array
+ */
+export function last<T>(array: T[], n: number): T[];
+export function last<T>(array: T[], n?: number): T[] | T {
+    if (n) {
+        return array.filter((_, index) => array.length - index <= n);
+    }
+    return array[array.length - 1];
+}
+
+/**
+ * Plucks (i.e. extracts) the property value that corresponds to the given key from all objects of the array.
+ * @param array The array which should be plucked.
+ * @param key  The key of the property that should be extracted.
+ * @returns A new array containing the plugged property for each element of the array.
+ */
+export function pluck<T, K extends keyof T>(array: T[], key: K): Array<T[K]> {
+    return array.map(element => element[key]);
 }
 
 /**
@@ -76,10 +111,6 @@ export function distinctAdd<T>(array: T[], ...values: T[]): void {
         }
     });
 }
-interface Constructor<T> {
-    new (...args: any[]): T;
-}
-type PrimitiveType = 'bigint' | 'boolean' | 'function' | 'number' | 'object' | 'string' | 'symbol' | 'undefined';
 
 /**
  * A typeguard function to check wether a given object is an array of a specific type `T`. As it checks the type of each individual
@@ -113,7 +144,7 @@ export function isArrayOfClass<T>(object: any, constructor: Constructor<T>, supp
  * @param supportEmpty A flag to determine wether empty arrays should pass the typeguard check.
  * @returns A type predicate indicating wether the given object has passed the type guard check.
  */
-export function isArrayOfPrimitive<T>(object: any, primitiveType: PrimitiveType, supportEmpty = false): object is T[] {
+export function isArrayOfPrimitive<T>(object: any, primitiveType: Primitive, supportEmpty = false): object is T[] {
     return isArrayMatching(object, element => typeof element === primitiveType, supportEmpty);
 }
 

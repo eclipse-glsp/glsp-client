@@ -48,13 +48,12 @@ import { SelectionService } from '../select/selection-service';
 import { FeedbackActionDispatcher } from '../tool-feedback/feedback-action-dispatcher';
 import {
     AlignElementsAction,
-    AlignElementsCommand,
+    AlignElementsActionHandler,
     Alignment,
-    Reduce,
     ResizeDimension,
     ResizeElementsAction,
-    ResizeElementsCommand
-} from './layout-commands';
+    ResizeElementsActionHandler
+} from './layout-elements-action';
 
 class MockActionDispatcher implements IActionDispatcher {
     constructor(public dispatchedActions: Action[] = []) {}
@@ -71,14 +70,21 @@ class MockActionDispatcher implements IActionDispatcher {
     }
 }
 
+class MockSelectionService extends SelectionService {
+    constructor(public modelRoot: SModelRoot) {
+        super();
+    }
+    override getModelRoot(): Readonly<SModelRoot> {
+        return this.modelRoot;
+    }
+}
+
+// Generic Test setup
 const container = new Container();
 container.load(defaultModule);
 container.bind(TYPES.IFeedbackActionDispatcher).to(FeedbackActionDispatcher).inSingletonScope();
-container.bind(SelectionService).toSelf().inSingletonScope();
-container.bind(TYPES.SelectionService).toService(SelectionService);
 container.rebind(TYPES.IModelFactory).to(SGraphFactory).inSingletonScope();
 const graphFactory = container.get<SGraphFactory>(TYPES.IModelFactory);
-const selectionService = container.get<SelectionService>(TYPES.SelectionService);
 
 const actionDispatcher = new MockActionDispatcher();
 
@@ -125,16 +131,26 @@ const context: CommandExecutionContext = {
 const defaultSize = { height: 10, width: 10 };
 
 describe('AlignElementsCommand', () => {
-    it('should align all elements left', () => {
+    let handler: AlignElementsActionHandler;
+    const setModel = (newModel: SModelRoot): void => {
+        handler['selectionService'] = new MockSelectionService(newModel);
+    };
+
+    beforeEach(() => {
         actionDispatcher.dispatchedActions = [];
+
+        handler = new AlignElementsActionHandler();
+        handler['actionDispatcher'] = actionDispatcher;
+    });
+    it('should align all elements left', () => {
         const newModel = initModel([
             { elementId: 'node1', newPosition: { x: 111, y: 111 }, newSize: defaultSize },
             { elementId: 'node2', newPosition: { x: 222, y: 222 }, newSize: defaultSize },
             { elementId: 'node3', newPosition: { x: 333, y: 333 }, newSize: defaultSize }
         ]);
         const action = AlignElementsAction.create({ elementIds: ['node1', 'node2', 'node3'], alignment: Alignment.Left });
-        const command = new AlignElementsCommand(action, actionDispatcher, selectionService);
-        command.execute(newContext(newModel));
+        setModel(newModel);
+        handler.handle(action);
 
         assertAllBounds(
             new Map([
@@ -146,16 +162,14 @@ describe('AlignElementsCommand', () => {
     });
 
     it('should align all elements right', () => {
-        actionDispatcher.dispatchedActions = [];
         const newModel = initModel([
             { elementId: 'node1', newPosition: { x: 111, y: 111 }, newSize: defaultSize },
             { elementId: 'node2', newPosition: { x: 222, y: 222 }, newSize: defaultSize },
             { elementId: 'node3', newPosition: { x: 333, y: 333 }, newSize: defaultSize }
         ]);
         const action = AlignElementsAction.create({ elementIds: ['node1', 'node2', 'node3'], alignment: Alignment.Right });
-        const command = new AlignElementsCommand(action, actionDispatcher, selectionService);
-        command.execute(newContext(newModel));
-
+        setModel(newModel);
+        handler.handle(action);
         assertAllBounds(
             new Map([
                 ['node1', { x: 333, y: 111, width: defaultSize.width, height: defaultSize.height }],
@@ -173,8 +187,8 @@ describe('AlignElementsCommand', () => {
             { elementId: 'node3', newPosition: { x: 333, y: 333 }, newSize: defaultSize }
         ]);
         const action = AlignElementsAction.create({ elementIds: ['node1', 'node2', 'node3'], alignment: Alignment.Center });
-        const command = new AlignElementsCommand(action, actionDispatcher, selectionService);
-        command.execute(newContext(newModel));
+        setModel(newModel);
+        handler.handle(action);
 
         assertAllBounds(
             new Map([
@@ -186,15 +200,14 @@ describe('AlignElementsCommand', () => {
     });
 
     it('should align all elements top', () => {
-        actionDispatcher.dispatchedActions = [];
         const newModel = initModel([
             { elementId: 'node1', newPosition: { x: 111, y: 111 }, newSize: defaultSize },
             { elementId: 'node2', newPosition: { x: 222, y: 222 }, newSize: defaultSize },
             { elementId: 'node3', newPosition: { x: 333, y: 333 }, newSize: defaultSize }
         ]);
         const action = AlignElementsAction.create({ elementIds: ['node1', 'node2', 'node3'], alignment: Alignment.Top });
-        const command = new AlignElementsCommand(action, actionDispatcher, selectionService);
-        command.execute(newContext(newModel));
+        setModel(newModel);
+        handler.handle(action);
 
         assertAllBounds(
             new Map([
@@ -206,15 +219,14 @@ describe('AlignElementsCommand', () => {
     });
 
     it('should align all elements bottom', () => {
-        actionDispatcher.dispatchedActions = [];
         const newModel = initModel([
             { elementId: 'node1', newPosition: { x: 111, y: 111 }, newSize: defaultSize },
             { elementId: 'node2', newPosition: { x: 222, y: 222 }, newSize: defaultSize },
             { elementId: 'node3', newPosition: { x: 333, y: 333 }, newSize: defaultSize }
         ]);
         const action = AlignElementsAction.create({ elementIds: ['node1', 'node2', 'node3'], alignment: Alignment.Bottom });
-        const command = new AlignElementsCommand(action, actionDispatcher, selectionService);
-        command.execute(newContext(newModel));
+        setModel(newModel);
+        handler.handle(action);
 
         assertAllBounds(
             new Map([
@@ -226,15 +238,14 @@ describe('AlignElementsCommand', () => {
     });
 
     it('should align all elements middle', () => {
-        actionDispatcher.dispatchedActions = [];
         const newModel = initModel([
             { elementId: 'node1', newPosition: { x: 111, y: 111 }, newSize: defaultSize },
             { elementId: 'node2', newPosition: { x: 222, y: 222 }, newSize: defaultSize },
             { elementId: 'node3', newPosition: { x: 333, y: 333 }, newSize: defaultSize }
         ]);
         const action = AlignElementsAction.create({ elementIds: ['node1', 'node2', 'node3'], alignment: Alignment.Middle });
-        const command = new AlignElementsCommand(action, actionDispatcher, selectionService);
-        command.execute(newContext(newModel));
+        setModel(newModel);
+        handler.handle(action);
 
         assertAllBounds(
             new Map([
@@ -247,8 +258,18 @@ describe('AlignElementsCommand', () => {
 });
 
 describe('ResizeElementsCommand', () => {
-    it('should make same width as last', () => {
+    let handler: ResizeElementsActionHandler;
+    const setModel = (newModel: SModelRoot): void => {
+        handler['selectionService'] = new MockSelectionService(newModel);
+    };
+
+    beforeEach(() => {
         actionDispatcher.dispatchedActions = [];
+
+        handler = new ResizeElementsActionHandler();
+        handler['actionDispatcher'] = actionDispatcher;
+    });
+    it('should make same width as last', () => {
         const newModel = initModel([
             { elementId: 'node1', newPosition: { x: 100, y: 100 }, newSize: { height: 10, width: 10 } },
             { elementId: 'node2', newPosition: { x: 100, y: 200 }, newSize: { height: 20, width: 20 } },
@@ -257,10 +278,10 @@ describe('ResizeElementsCommand', () => {
         const action = ResizeElementsAction.create({
             elementIds: ['node1', 'node2', 'node3'],
             dimension: ResizeDimension.Width,
-            reductionFunction: Reduce.last
+            reduceFunction: 'last'
         });
-        const command = new ResizeElementsCommand(action, actionDispatcher, selectionService);
-        command.execute(newContext(newModel));
+        setModel(newModel);
+        handler.handle(action);
 
         // resize is keeping the center, so the X moves by diff / 2
         assertAllBoundsInChangeBounds(
@@ -273,7 +294,6 @@ describe('ResizeElementsCommand', () => {
     });
 
     it('should make same height as last', () => {
-        actionDispatcher.dispatchedActions = [];
         const newModel = initModel([
             { elementId: 'node1', newPosition: { x: 100, y: 100 }, newSize: { height: 10, width: 10 } },
             { elementId: 'node2', newPosition: { x: 100, y: 200 }, newSize: { height: 20, width: 20 } },
@@ -282,10 +302,10 @@ describe('ResizeElementsCommand', () => {
         const action = ResizeElementsAction.create({
             elementIds: ['node1', 'node2', 'node3'],
             dimension: ResizeDimension.Height,
-            reductionFunction: Reduce.last
+            reduceFunction: 'last'
         });
-        const command = new ResizeElementsCommand(action, actionDispatcher, selectionService);
-        command.execute(newContext(newModel));
+        setModel(newModel);
+        handler.handle(action);
 
         // resize is keeping the center, so the Y moves by diff / 2
         assertAllBoundsInChangeBounds(
@@ -298,7 +318,6 @@ describe('ResizeElementsCommand', () => {
     });
 
     it('should make same width and height as last', () => {
-        actionDispatcher.dispatchedActions = [];
         const newModel = initModel([
             { elementId: 'node1', newPosition: { x: 100, y: 100 }, newSize: { height: 10, width: 10 } },
             { elementId: 'node2', newPosition: { x: 100, y: 200 }, newSize: { height: 20, width: 20 } },
@@ -307,10 +326,10 @@ describe('ResizeElementsCommand', () => {
         const action = ResizeElementsAction.create({
             elementIds: ['node1', 'node2', 'node3'],
             dimension: ResizeDimension.Width_And_Height,
-            reductionFunction: Reduce.last
+            reduceFunction: 'last'
         });
-        const command = new ResizeElementsCommand(action, actionDispatcher, selectionService);
-        command.execute(newContext(newModel));
+        setModel(newModel);
+        handler.handle(action);
 
         // resize is keeping the center, so the Y moves by diff / 2
         assertAllBoundsInChangeBounds(
@@ -327,17 +346,6 @@ function initModel(elementAndBounds: ElementAndBounds[]): SModelRoot {
     const mySetBoundsAction = SetBoundsAction.create(elementAndBounds);
     const setBoundsCommand = new SetBoundsCommand(mySetBoundsAction);
     return setBoundsCommand.execute(context) as SModelRoot;
-}
-
-function newContext(root: SModelRoot): CommandExecutionContext {
-    return {
-        root: root,
-        modelFactory: graphFactory,
-        duration: 0,
-        modelChanged: undefined!,
-        logger: new ConsoleLogger(),
-        syncer: new AnimationFrameSyncer()
-    };
 }
 
 function assertAllBounds(allBounds: Map<string, Bounds>): void {
