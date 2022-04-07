@@ -192,7 +192,7 @@ export class SelectCommand extends Command {
 }
 
 /**
- * Handles a {@link SelectionAllAction} and propagates the new selection to the {@link SelectionService}.
+ * Handles a {@link SelectAllAction} and propagates the new selection to the {@link SelectionService}.
  * Other tools might be selection-sensitive which means {@link SelectionAllAction}s must be processed as fast as possible.
  * Handling the action with a command ensures that the action is processed before the next render tick.
  */

@@ -113,7 +113,7 @@ export {
     copyPasteContextMenuModule,
     glspSelectModule,
     glspMouseToolModule,
-    layoutModule as layoutCommandsModule,
+    layoutModule,
     glspEditLabelModule,
     glspHoverModule,
     toolsModule,

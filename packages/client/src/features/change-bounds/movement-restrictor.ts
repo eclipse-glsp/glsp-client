@@ -21,12 +21,12 @@ import { ModifyCSSFeedbackAction } from '../tool-feedback/css-feedback';
 import { isBoundsAwareMoveable, SResizeHandle } from './model';
 
 /**
- * A `MovementRestrictor` is an optional service that can be used by tools to validate wether certain element movement operation
- * in the diagram is valid.
+ * A `MovementRestrictor` is an optional service that can be used by tools to validate
+ * whether a certain move operation (e.g. `ChangeBoundsOperation`) in the diagram is valid.
  */
 export interface IMovementRestrictor {
     /**
-     * Validate wether moving the given element to a new given location is allowed.
+     * Validate whether moving the given element to a new given location is allowed.
      * @param element The element that should be moved.
      * @param newLocation The new location of the element.
      * @returns `true` if the the element is movable and moving to the given location is allowed, `false` otherwise.
@@ -110,7 +110,7 @@ export function createMovementRestrictionFeedback(
 
 /**
  * Utility function to create an action that removes the given {@link IMovementRestrictor.cssClasses} from the given element.
- * @param element The element from which the css classes should be applied.
+ * @param element The element from which the css classes should be removed.
  * @param movementRestrictor The movement restrictor whose cssClasses should be removed.
  * @returns The corresponding {@link ModifyCSSFeedbackAction}
  */

@@ -48,7 +48,7 @@ export interface Constructor<T> {
 /**
  * Utility type to declare a given type `T` as writable. Essentially this removes
  * all readonly modifiers of the type`s properties. Please use with care and only in instances
- * where you no that overwriting a readonly property is safe and doesn't cause any unintended side effects.
+ * where you know that overwriting a readonly property is safe and doesn't cause any unintended side effects.
  */
 // eslint-disable-next-line @typescript-eslint/ban-types
 export type Writable<T> = { -readonly [P in keyof T]: Writable<T[P]> };
