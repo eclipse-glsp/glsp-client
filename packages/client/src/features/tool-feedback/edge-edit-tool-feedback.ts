@@ -265,20 +265,20 @@ export class FeedbackEdgeRouteMovingMouseListener extends MouseListener {
         }
         const positionUpdate = this.pointPositionUpdater.updatePosition(target, { x: event.pageX, y: event.pageY }, !event.altKey);
         if (positionUpdate) {
-            const moveActions = this.handleMoveOnClient(target, positionUpdate);
+            const moveActions = this.handleMoveOnClient(target, positionUpdate, !event.altKey);
             result.push(...moveActions);
         }
         return result;
     }
 
-    protected handleMoveOnClient(target: SModelElement, positionUpdate: Point): Action[] {
+    protected handleMoveOnClient(target: SModelElement, positionUpdate: Point, isSnap: boolean): Action[] {
         const handleMoves: ElementMove[] = [];
         target.root.index
             .all()
             .filter(element => isSelected(element))
             .forEach(element => {
                 if (isRoutingHandle(element)) {
-                    const elementMove = this.toElementMove(element, positionUpdate);
+                    const elementMove = this.toElementMove(element, positionUpdate, isSnap);
                     if (elementMove) {
                         handleMoves.push(elementMove);
                     }
@@ -290,19 +290,27 @@ export class FeedbackEdgeRouteMovingMouseListener extends MouseListener {
         return [];
     }
 
-    protected toElementMove(element: SRoutingHandle, positionDelta: Point): ElementMove | undefined {
+    protected toElementMove(element: SRoutingHandle, positionDelta: Point, isSnap: boolean): ElementMove | undefined {
         const point = this.getHandlePosition(element);
         if (point !== undefined) {
+            const snappedPoint = this.getSnappedHandlePosition(element, point, isSnap);
             return {
                 elementId: element.id,
                 fromPosition: point,
                 toPosition: {
-                    x: point.x + positionDelta.x,
-                    y: point.y + positionDelta.y
+                    x: snappedPoint.x + positionDelta.x,
+                    y: snappedPoint.y + positionDelta.y
                 }
             };
         }
         return undefined;
+    }
+
+    protected getSnappedHandlePosition(element: SRoutingHandle, point: Point, isSnap: boolean): Point {
+        if (this.snapper && isSnap) {
+            return this.snapper.snap(point, element);
+        }
+        return point;
     }
 
     protected getHandlePosition(handle: SRoutingHandle): Point | undefined {
