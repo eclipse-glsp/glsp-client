@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, distinctAdd, remove, SelectAction, SelectAllAction } from '@eclipse-glsp/protocol';
+import { Action, distinctAdd, pluck, remove, SelectAction, SelectAllAction } from '@eclipse-glsp/protocol';
 import { inject, injectable, multiInject, optional } from 'inversify';
 import {
     Command,
@@ -25,12 +25,11 @@ import {
     SelectAllCommand as SprottySelectAllCommand,
     SelectCommand as SprottySelectCommand,
     SModelElement,
-    SModelRoot,
-    SParentElement
+    SModelRoot
 } from 'sprotty';
 import { SModelRootListener } from '../../base/model/update-model-command';
 import { TYPES } from '../../base/types';
-import { getElements } from '../../utils/smodel-util';
+import { getElements, getMatchingElements } from '../../utils/smodel-util';
 import { IFeedbackActionDispatcher } from '../tool-feedback/feedback-action-dispatcher';
 import { SelectFeedbackAction } from './select-feedback-action';
 
@@ -135,8 +134,8 @@ export class SelectionService implements SModelRootListener {
      * QUERY METHODS
      */
 
-    getSelectedElementIDs(): Set<string> {
-        return this.selectedElementIDs;
+    getSelectedElementIDs(): string[] {
+        return [...this.selectedElementIDs];
     }
 
     hasSelectedElements(): boolean {
@@ -152,6 +151,11 @@ export class SelectionService implements SModelRootListener {
     }
 }
 
+/**
+ * Handles a {@link SelectAction} and propagates the new selection to the {@link SelectionService}.
+ * Other tools might be selection-sensitive which means {@link SelectAction}s must be processed as fast as possible.
+ * Handling the action with a command ensures that the action is processed before the next render tick.
+ */
 @injectable()
 export class SelectCommand extends Command {
     static readonly KIND = SprottySelectCommand.KIND;
@@ -168,36 +172,30 @@ export class SelectCommand extends Command {
 
     execute(context: CommandExecutionContext): SModelRoot {
         const model = context.root;
-        this.action.selectedElementsIDs.forEach(id => {
-            const element = model.index.getById(id);
-            if (element instanceof SChildElement && isSelectable(element)) {
-                this.selected.push(element);
-            }
-        });
-        this.action.deselectedElementsIDs.forEach(id => {
-            const element = model.index.getById(id);
-            if (element instanceof SChildElement && isSelectable(element)) {
-                this.deselected.push(element);
-            }
-        });
-        return this.redo(context);
+        const selectionGuard = (element: any): element is SModelElement => element instanceof SChildElement && isSelectable(element);
+        const selectedElements = getElements(model.index, this.action.selectedElementsIDs, selectionGuard);
+        const deselectedElements = getElements(model.index, this.action.deselectedElementsIDs, selectionGuard);
+
+        this.selectionService.updateSelection(model, pluck(selectedElements, 'id'), pluck(deselectedElements, 'id'));
+        return model;
     }
 
+    // Basically no-op since client-side undo is not supported in GLSP.
     undo(context: CommandExecutionContext): SModelRoot {
-        const select = this.deselected.map(element => element.id);
-        const deselect = this.selected.map(element => element.id);
-        this.selectionService.updateSelection(context.root, select, deselect);
         return context.root;
     }
 
+    // Basically no-op since client-side redo is not supported in GLSP.
     redo(context: CommandExecutionContext): SModelRoot {
-        const select = this.selected.map(element => element.id);
-        const deselect = this.deselected.map(element => element.id);
-        this.selectionService.updateSelection(context.root, select, deselect);
         return context.root;
     }
 }
 
+/**
+ * Handles a {@link SelectAllAction} and propagates the new selection to the {@link SelectionService}.
+ * Other tools might be selection-sensitive which means {@link SelectionAllAction}s must be processed as fast as possible.
+ * Handling the action with a command ensures that the action is processed before the next render tick.
+ */
 @injectable()
 export class SelectAllCommand extends Command {
     static readonly KIND = SprottySelectAllCommand.KIND;
@@ -211,38 +209,27 @@ export class SelectAllCommand extends Command {
     }
 
     execute(context: CommandExecutionContext): SModelRoot {
-        return this.redo(context);
-    }
+        const model = context.root;
+        const selectionGuard = (element: any): element is SModelElement => element instanceof SChildElement && isSelectable(element);
 
-    undo(context: CommandExecutionContext): SModelRoot {
-        const index = context.root.index;
-        for (const previousState of this.previousSelection) {
-            const element = index.getById(previousState[0]);
-            if (element !== undefined && isSelectable(element)) {
-                element.selected = previousState[1];
-            }
-        }
-        return context.root;
-    }
-
-    redo(context: CommandExecutionContext): SModelRoot {
-        const selectables: string[] = [];
-        this.selectAll(context.root, this.action.select, selectables);
+        const selectables = getMatchingElements(model.index, selectionGuard);
+        const selectableIds = pluck(selectables, 'id');
         if (this.action.select) {
-            this.selectionService.updateSelection(context.root, selectables, []);
+            this.selectionService.updateSelection(model, selectableIds, []);
         } else {
-            this.selectionService.updateSelection(context.root, [], selectables);
+            this.selectionService.updateSelection(model, [], selectableIds);
         }
+
+        return model;
+    }
+
+    // Basically no-op since client-side undo is not supported in GLSP.
+    undo(context: CommandExecutionContext): SModelRoot {
         return context.root;
     }
 
-    protected selectAll(element: SParentElement, newState: boolean, selected: string[]): void {
-        if (isSelectable(element)) {
-            this.previousSelection.set(element.id, element.selected);
-            selected.push(element.id);
-        }
-        for (const child of element.children) {
-            this.selectAll(child, newState, selected);
-        }
+    // Basically no-op since client-side redo is not supported in GLSP.
+    redo(context: CommandExecutionContext): SModelRoot {
+        return context.root;
     }
 }

@@ -13,10 +13,9 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Point } from '@eclipse-glsp/protocol';
+import { Point, Writable } from '@eclipse-glsp/protocol';
 import { injectable } from 'inversify';
 import { findParentByFeature, ISnapper, isViewport, SModelElement } from 'sprotty';
-import { WriteablePoint } from '../../utils/layout-utils';
 
 @injectable()
 export class GridSnapper implements ISnapper {
@@ -46,7 +45,7 @@ export class GridSnapper implements ISnapper {
  */
 export class PointPositionUpdater {
     protected lastDragPosition?: Point;
-    protected positionDelta: WriteablePoint = { x: 0, y: 0 };
+    protected positionDelta: Writable<Point> = { x: 0, y: 0 };
 
     constructor(protected snapper?: ISnapper) {}
 

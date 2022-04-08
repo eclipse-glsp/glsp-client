@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020 EclipseSource and others.
+ * Copyright (c) 2020-2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,10 +13,11 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-export abstract class SourceUriAware {
-    abstract getSourceURI(): string;
+import { AnyObject, hasStringProp } from '@eclipse-glsp/protocol';
+export interface SourceUriAware {
+    sourceURI: string;
 }
 
 export function isSourceUriAware(obj: any): obj is SourceUriAware {
-    return obj !== undefined && typeof obj.getSourceURI === 'function';
+    return AnyObject.is(obj) && hasStringProp(obj, 'sourceURI');
 }

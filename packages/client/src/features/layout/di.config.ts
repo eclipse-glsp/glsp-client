@@ -14,19 +14,21 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { ContainerModule } from 'inversify';
-import { configureCommand, configureLayout, HBoxLayouter, VBoxLayouter } from 'sprotty';
+import { configureActionHandler, configureLayout, HBoxLayouter, VBoxLayouter } from 'sprotty';
+import { AlignElementsActionHandler } from '../..';
 import { FreeFormLayouter } from './freeform-layout';
 import { HBoxLayouterExt } from './hbox-layout';
-import { AlignElementsCommand, ResizeElementsCommand } from './layout-commands';
+import { AlignElementsAction, ResizeElementsAction, ResizeElementsActionHandler } from './layout-elements-action';
 import { VBoxLayouterExt } from './vbox-layout';
 
-const layoutCommandsModule = new ContainerModule((bind, _unbind, isBound, rebind) => {
-    configureCommand({ bind, isBound }, ResizeElementsCommand);
-    configureCommand({ bind, isBound }, AlignElementsCommand);
+const layoutModule = new ContainerModule((bind, _unbind, isBound, rebind) => {
+    const context = { bind, isBound };
+    configureActionHandler(context, ResizeElementsAction.KIND, ResizeElementsActionHandler);
+    configureActionHandler(context, AlignElementsAction.KIND, AlignElementsActionHandler);
 
     rebind(VBoxLayouter).to(VBoxLayouterExt);
     rebind(HBoxLayouter).to(HBoxLayouterExt);
     configureLayout({ bind, isBound }, FreeFormLayouter.KIND, FreeFormLayouter);
 });
 
-export default layoutCommandsModule;
+export default layoutModule;

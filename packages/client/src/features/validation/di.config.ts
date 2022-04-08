@@ -13,30 +13,33 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { SetMarkersAction } from '@eclipse-glsp/protocol';
 import { ContainerModule } from 'inversify';
-import { configureCommand } from 'sprotty';
+import { configureActionHandler, configureCommand } from 'sprotty';
 import { TYPES } from '../../base/types';
 import {
     LeftToRightTopToBottomComparator,
     MarkerNavigator,
     MarkerNavigatorContextMenuItemProvider,
     MarkerNavigatorKeyListener,
-    NavigateToMarkerCommand,
+    NavigateToMarkerAction,
+    NavigateToMarkerActionHandler,
     SModelElementComparator
 } from './marker-navigator';
-import { ApplyMarkersCommand, DeleteMarkersCommand, SetMarkersCommand, ValidationFeedbackEmitter } from './validate';
+import { ApplyMarkersCommand, DeleteMarkersCommand, SetMarkersActionHandler, ValidationFeedbackEmitter } from './validate';
 
 export const validationModule = new ContainerModule((bind, _unbind, isBound) => {
-    configureCommand({ bind, isBound }, SetMarkersCommand);
-    configureCommand({ bind, isBound }, ApplyMarkersCommand);
-    configureCommand({ bind, isBound }, DeleteMarkersCommand);
+    const context = { bind, isBound };
+    configureActionHandler(context, SetMarkersAction.KIND, SetMarkersActionHandler);
+    configureCommand(context, ApplyMarkersCommand);
+    configureCommand(context, DeleteMarkersCommand);
     bind(ValidationFeedbackEmitter).toSelf().inSingletonScope();
 });
 
 export const markerNavigatorModule = new ContainerModule((bind, _unbind, isBound) => {
     bind(SModelElementComparator).to(LeftToRightTopToBottomComparator).inSingletonScope();
     bind(MarkerNavigator).toSelf().inSingletonScope();
-    configureCommand({ bind, isBound }, NavigateToMarkerCommand);
+    configureActionHandler({ bind, isBound }, NavigateToMarkerAction.KIND, NavigateToMarkerActionHandler);
 });
 
 /**

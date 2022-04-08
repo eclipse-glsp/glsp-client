@@ -224,7 +224,7 @@ export class FeedbackMoveMouseListener extends MouseListener {
     protected validateMove(startPostion: Point, toPosition: Point, element: SModelElement, isFinished: boolean): Point {
         let newPosition = toPosition;
         if (this.tool.movementRestrictor) {
-            const valid = this.tool.movementRestrictor.validate(toPosition, element);
+            const valid = this.tool.movementRestrictor.validate(element, toPosition);
             let action;
             if (!valid) {
                 action = createMovementRestrictionFeedback(element, this.tool.movementRestrictor);

@@ -347,7 +347,7 @@ describe('SelectionService', () => {
         expect(selectionService.hasSelectedElements()).to.equal(expectedSelection.length > 0);
         expect(selectionService.getSelectedElementIDs()).to.have.lengthOf(expectedSelection.length);
         if (expectedSelection.length > 0) {
-            expect(selectionService.getSelectedElementIDs()).to.have.all.keys(...expectedSelection);
+            expect(selectionService.getSelectedElementIDs()).to.have.ordered.members(expectedSelection);
         }
     }
 

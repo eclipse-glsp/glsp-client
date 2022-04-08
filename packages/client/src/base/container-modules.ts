@@ -37,7 +37,7 @@ import glspDecorationModule from '../features/decoration/di.config';
 import glspEditLabelModule from '../features/edit-label/di.config';
 import modelHintsModule from '../features/hints/di.config';
 import glspHoverModule from '../features/hover/di.config';
-import layoutCommandsModule from '../features/layout/di.config';
+import layoutModule from '../features/layout/di.config';
 import modelSourceWatcherModule from '../features/model-source-watcher/di.config';
 import glspMouseToolModule from '../features/mouse-tool/di.config';
 import { navigationModule } from '../features/navigation/di.config';
@@ -69,7 +69,7 @@ export const DEFAULT_MODULES = [
     glspServerCopyPasteModule,
     glspViewportModule,
     labelEditUiModule,
-    layoutCommandsModule,
+    layoutModule,
     markerNavigatorModule,
     modelHintsModule,
     modelSourceModule,

@@ -90,7 +90,7 @@ export class GLSPDiagramServer extends DiagramServerProxy implements SourceUriAw
         return !isReceivedFromServer(action);
     }
 
-    public getSourceURI(): string {
+    public get sourceURI(): string {
         return this._sourceUri;
     }
 }
