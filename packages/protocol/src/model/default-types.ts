@@ -41,6 +41,7 @@ export namespace DefaultTypes {
     export const LABEL = 'label';
 
     // UI elements
+    export const BUTTON = 'button';
     export const BUTTON_EXPAND = 'button:expand';
     export const ISSUE_MARKER = 'marker';
 

@@ -26,6 +26,7 @@ import {
     ForeignObjectView,
     HtmlRoot,
     HtmlRootView,
+    moveFeature,
     PreRenderedElement,
     PreRenderedView,
     RectangularNode,
@@ -34,6 +35,7 @@ import {
     SCompartment,
     SCompartmentView,
     SEdge,
+    selectFeature,
     SGraphView,
     ShapedPreRenderedElement,
     SIssueMarker,
@@ -66,7 +68,9 @@ export function configureDefaultModelElements(context: ContainerContext): void {
     configureModelElement(context, DefaultTypes.HTML, HtmlRoot, HtmlRootView);
 
     // generic elements
-    configureModelElement(context, DefaultTypes.FOREIGN_OBJECT, ForeignObjectElement, ForeignObjectView);
+    configureModelElement(context, DefaultTypes.FOREIGN_OBJECT, ForeignObjectElement, ForeignObjectView, {
+        disable: [selectFeature, moveFeature]
+    });
     configureModelElement(context, DefaultTypes.PRE_RENDERED, PreRenderedElement, PreRenderedView);
     configureModelElement(context, DefaultTypes.SHAPE_PRE_RENDERED, ShapedPreRenderedElement, PreRenderedView);
 
