@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { SModelElementSchema } from '@eclipse-glsp/protocol';
-import { exportFeature, SGraph, SModelElement, viewportFeature } from 'sprotty/lib';
+import { exportFeature, SGraph, SModelElement, viewportFeature } from 'sprotty';
 import { Containable, containerFeature } from '../features/hints/model';
 import { Saveable, saveFeature } from '../features/save/model';
 
