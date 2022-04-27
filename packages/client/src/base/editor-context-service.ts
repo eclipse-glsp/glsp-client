@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { Action, Args, distinctAdd, EditMode, EditorContext, remove, SetEditModeAction } from '@eclipse-glsp/protocol';
-import { inject, injectable, multiInject, optional, postConstruct } from 'inversify';
+import { inject, injectable, multiInject, optional } from 'inversify';
 import { IActionHandler, ModelSource, MousePositionTracker, SModelElement, SModelRoot } from 'sprotty';
 import { SelectionService } from '../features/select/selection-service';
 import { isSourceUriAware } from './source-uri-aware';
@@ -52,12 +52,6 @@ export class EditorContextService implements IActionHandler {
     protected modelSourceProvider: () => Promise<ModelSource>;
 
     protected _editMode: string;
-    protected modelSource: ModelSource | undefined;
-
-    @postConstruct()
-    async initialize(): Promise<void> {
-        this.modelSource = await this.modelSourceProvider();
-    }
 
     register(editModeListener: EditModeListener): void {
         distinctAdd(this.editModeListeners, editModeListener);
@@ -95,8 +89,12 @@ export class EditorContextService implements IActionHandler {
         this.editModeListeners.forEach(listener => listener.editModeChanged(oldValue, this.editMode));
     }
 
-    get sourceUri(): string | undefined {
-        return this.modelSource && isSourceUriAware(this.modelSource) ? this.modelSource.sourceURI : undefined;
+    async getSourceUri(): Promise<string | undefined> {
+        const modelSource = await this.modelSourceProvider();
+        if (isSourceUriAware(modelSource)) {
+            return modelSource.sourceURI;
+        }
+        return undefined;
     }
 
     get editMode(): string {

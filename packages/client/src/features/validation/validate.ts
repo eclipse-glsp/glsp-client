@@ -98,7 +98,11 @@ export class SetMarkersActionHandler implements IActionHandler {
 
     handle(action: SetMarkersAction): void | Action | ICommand {
         const markers: Marker[] = action.markers;
-        const uri = this.editorContextService.sourceUri;
+        this.setMarkers(markers);
+    }
+
+    async setMarkers(markers: Marker[]): Promise<void> {
+        const uri = await this.editorContextService.getSourceUri();
         this.externalMarkerManager?.setMarkers(markers, uri);
         const applyMarkersAction = ApplyMarkersAction.create(markers);
         this.validationFeedbackEmitter.registerValidationFeedbackAction(applyMarkersAction);
