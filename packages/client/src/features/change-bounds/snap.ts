@@ -17,20 +17,24 @@ import { Point, Writable } from '@eclipse-glsp/protocol';
 import { injectable } from 'inversify';
 import { findParentByFeature, ISnapper, isViewport, SModelElement } from 'sprotty';
 
+/**
+ * A {@link ISnapper} implementation that snaps all elements onto a fixed gride size.
+ * The default grid size is 10x10 pixel.
+ * To configure a custom grid size  bind the `TYPES.ISnapper` service identifier
+ * to constant value, e.g:
+ *
+ * ```ts
+ * bind(TYPES.ISnapper).toConstantValue(new GridSnapper({x:25 ,y:25 }));
+ * ```
+ */
 @injectable()
 export class GridSnapper implements ISnapper {
-    get gridX(): number {
-        return 10;
-    }
-
-    get gridY(): number {
-        return 10;
-    }
+    constructor(public grid: { x: number; y: number } = { x: 10, y: 10 }) {}
 
     snap(position: Point, element: SModelElement): Point {
         return {
-            x: Math.round(position.x / this.gridX) * this.gridX,
-            y: Math.round(position.y / this.gridY) * this.gridY
+            x: Math.round(position.x / this.grid.x) * this.grid.x,
+            y: Math.round(position.y / this.grid.y) * this.grid.y
         };
     }
 }
