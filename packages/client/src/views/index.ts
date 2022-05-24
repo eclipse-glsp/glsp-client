@@ -16,6 +16,8 @@
 export * from './base-view-module';
 export * from './compartments';
 export * from './glsp-edge-view';
+export * from './glsp-projection-view';
 export * from './issue-marker-view';
 export * from './rounded-corner';
 export * from './rounded-corner-view';
+

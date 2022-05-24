@@ -104,3 +104,42 @@
     margin-top: -3px;
     margin-left: -3px;
 }
+
+.glsp-projection {
+    width: 40%;
+    opacity: 1;
+}
+
+.sprotty-projection-bar.vertical.bordered-projection-bar{
+    width: var(--theia-scrollbar-rail-width);
+}
+
+.sprotty-projection-bar.horizontal.bordered-projection-bar{
+    height: var(--theia-scrollbar-rail-width);
+}
+
+.projection-scroll-bar{
+    transition: opacity .8s linear;
+}
+
+.mouse-enter .projection-scroll-bar{
+    opacity: 0.3;
+    background: transparent;
+    background-color: #aaa;
+    z-index: 1;
+}
+
+.mouse-leave .projection-scroll-bar{
+    opacity: 0;
+    pointer-events: none;
+    background: transparent;
+    background-color: #aaa;
+    z-index: 1;
+}
+
+.bordered-projection-bar{
+    border-left: 1px solid rgba(212, 212, 212, .2);
+    border-top: 1px solid rgba(212, 212, 212, .2);
+    fill: transparent;
+    width: var(--theia-scrollbar-rail-width);  
+}

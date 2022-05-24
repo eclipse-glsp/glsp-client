@@ -20,17 +20,13 @@ import {
     createClientContainer,
     DeleteElementContextMenuItemProvider,
     DiamondNodeView,
-    editLabelFeature,
-    GridSnapper,
+    editLabelFeature, GLSPGraph, GLSPProjectionView, GridSnapper,
     LogLevel,
-    overrideViewerOptions,
-    RectangularNodeView,
+    overrideViewerOptions, RectangularNodeView,
     RevealNamedElementActionProvider,
-    RoundedCornerNodeView,
-    SCompartment,
+    RoundedCornerNodeView, SCompartment,
     SCompartmentView,
-    SEdge,
-    SLabel,
+    SEdge, SLabel,
     SLabelView,
     StructureCompartmentView,
     TYPES
@@ -53,6 +49,7 @@ const workflowDiagramModule = new ContainerModule((bind, unbind, isBound, rebind
     const context = { bind, unbind, isBound, rebind };
 
     configureDefaultModelElements(context);
+    configureModelElement(context, DefaultTypes.GRAPH, GLSPGraph, GLSPProjectionView);
     configureModelElement(context, 'task:automated', TaskNode, RoundedCornerNodeView);
     configureModelElement(context, 'task:manual', TaskNode, RoundedCornerNodeView);
     configureModelElement(context, 'label:heading', SLabel, SLabelView, { enable: [editLabelFeature] });
