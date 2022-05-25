@@ -15,10 +15,14 @@
  ********************************************************************************/
 import { ContainerModule } from 'inversify';
 import { configureActionHandler, configureLayout, HBoxLayouter, VBoxLayouter } from 'sprotty';
-import { AlignElementsActionHandler } from '../..';
 import { FreeFormLayouter } from './freeform-layout';
 import { HBoxLayouterExt } from './hbox-layout';
-import { AlignElementsAction, ResizeElementsAction, ResizeElementsActionHandler } from './layout-elements-action';
+import {
+    AlignElementsAction,
+    AlignElementsActionHandler,
+    ResizeElementsAction,
+    ResizeElementsActionHandler
+} from './layout-elements-action';
 import { VBoxLayouterExt } from './vbox-layout';
 
 const layoutModule = new ContainerModule((bind, _unbind, isBound, rebind) => {

@@ -13,25 +13,31 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, SetModelAction, UpdateModelAction } from '@eclipse-glsp/protocol';
-import { inject, injectable, multiInject, optional, postConstruct } from 'inversify';
+import { Action, SetModelAction, toTypeGuard, UpdateModelAction } from '@eclipse-glsp/protocol';
+import { inject, injectable, multiInject, optional } from 'inversify';
 import {
     ActionHandlerRegistry,
+    Animation,
     Command,
     CommandActionHandler,
     CommandExecutionContext,
     CommandReturn,
     IActionHandler,
     ILogger,
+    MorphEdgesAnimation,
     SModelRoot,
+    UpdateAnimationData,
     UpdateModelCommand
 } from 'sprotty';
 import { IFeedbackActionDispatcher } from '../../features/tool-feedback/feedback-action-dispatcher';
 import { FeedbackCommand } from '../../features/tool-feedback/model';
 import { TYPES } from '../types';
 
-/* ActionHandler that transforms a SetModelAction into an (feedback-aware) UpdateModelAction. This can be done because in sprotty
- *  UpdateModel behaves the same as SetModel if no model is present yet.*/
+/**
+ * ActionHandler that transforms a {@link SetModelAction} into an {@link UpdateModelAction} that can be handled
+ * by the {@link FeedbackAwareUpdateModelCommand}. This can be done because in sprotty an {@link UpdateModelCommand} and
+ * a {@link SetModelCommand} have the same behavior of no model is present yet.
+ */
 @injectable()
 export class SetModelActionHandler implements IActionHandler {
     handle(action: Action): Action | void {
@@ -46,38 +52,41 @@ export interface SModelRootListener {
 }
 
 /**
- * A special`UpdateModelCommand` that retrieves all registered `actions` from the `IFeedbackActionDispatcher` (if present) and applies their
- * feedback to the `newRoot` before performing the update
+ * A special {@link UpdateModelCommand} that retrieves all registered {@link Action}s from the {@link IFeedbackActionDispatcher}
+ * (if present) and applies their feedback to the `newRoot` before performing the update. This enables persistent client-side feedback
+ * across model updates initiated by the GLSP server.
  */
 @injectable()
 export class FeedbackAwareUpdateModelCommand extends UpdateModelCommand {
-    @inject(TYPES.ILogger) protected logger: ILogger;
-    @inject(TYPES.IFeedbackActionDispatcher) @optional() protected readonly feedbackActionDispatcher: IFeedbackActionDispatcher;
-    @inject(TYPES.ActionHandlerRegistryProvider) protected actionHandlerRegistryProvider: () => Promise<ActionHandlerRegistry>;
-    @multiInject(TYPES.SModelRootListener) @optional() protected modelRootListeners: SModelRootListener[] = [];
+    @inject(TYPES.ILogger)
+    protected logger: ILogger;
+
+    @inject(TYPES.IFeedbackActionDispatcher)
+    @optional()
+    protected feedbackActionDispatcher: IFeedbackActionDispatcher;
+
+    @multiInject(TYPES.SModelRootListener)
+    @optional()
+    protected modelRootListeners: SModelRootListener[] = [];
 
     protected actionHandlerRegistry?: ActionHandlerRegistry;
 
-    constructor(@inject(TYPES.Action) action: UpdateModelAction) {
+    constructor(
+        @inject(TYPES.Action) action: UpdateModelAction,
+        @inject(TYPES.ActionHandlerRegistryProvider)
+        actionHandlerRegistryProvider: () => Promise<ActionHandlerRegistry>
+    ) {
         super({ animate: true, ...action });
-    }
-
-    @postConstruct()
-    protected initialize(): void {
-        this.actionHandlerRegistryProvider().then(registry => (this.actionHandlerRegistry = registry));
+        actionHandlerRegistryProvider().then(registry => (this.actionHandlerRegistry = registry));
     }
 
     protected override performUpdate(oldRoot: SModelRoot, newRoot: SModelRoot, context: CommandExecutionContext): CommandReturn {
         if (this.feedbackActionDispatcher && this.actionHandlerRegistry) {
-            // Create a temporary context wich defines the `newRoot` as `root`
+            // Create a temporary context which defines the `newRoot` as `root`
             // This way we do not corrupt the redo/undo behavior of the super class
             const tempContext: CommandExecutionContext = {
-                root: newRoot,
-                duration: context.duration,
-                logger: context.logger,
-                modelChanged: context.modelChanged,
-                modelFactory: context.modelFactory,
-                syncer: context.syncer
+                ...context,
+                root: newRoot
             };
 
             const feedbackCommands = this.getFeedbackCommands(this.actionHandlerRegistry);
@@ -91,19 +100,24 @@ export class FeedbackAwareUpdateModelCommand extends UpdateModelCommand {
     protected getFeedbackCommands(registry: ActionHandlerRegistry): Command[] {
         const result: Command[] = [];
         this.feedbackActionDispatcher.getRegisteredFeedback().forEach(action => {
-            const handler = registry.get(action.kind).find(h => h instanceof CommandActionHandler);
-            if (handler instanceof CommandActionHandler) {
-                result.push(handler.handle(action));
-            }
+            const commands = registry
+                .get(action.kind)
+                .filter<CommandActionHandler>(toTypeGuard(CommandActionHandler))
+                .map(handler => handler.handle(action));
+            result.push(...commands);
         });
-        // sort commands descanding by priority
-        return result.sort((a, b) => getPriority(b) - getPriority(a));
+        // sort commands descanting by priority
+        return result.sort((a, b) => this.getPriority(b) - this.getPriority(a));
     }
-}
 
-function getPriority(command: Command): number {
-    if (command instanceof FeedbackCommand) {
-        return command.priority;
+    protected getPriority(command: Partial<FeedbackCommand>): number {
+        return command.priority ?? 0;
     }
-    return 0;
+
+    // Override the `createAnimations` implementation and remove the animation for edge morphing. Otherwise routing & reconnect
+    // handles flicker after each server update.
+    protected override createAnimations(data: UpdateAnimationData, root: SModelRoot, context: CommandExecutionContext): Animation[] {
+        const animations = super.createAnimations(data, root, context);
+        return animations.filter(animation => !(animation instanceof MorphEdgesAnimation));
+    }
 }
