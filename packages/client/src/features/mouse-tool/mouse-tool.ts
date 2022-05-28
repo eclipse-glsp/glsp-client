@@ -49,10 +49,6 @@ export class RankingMouseTool extends MouseTool implements IMouseTool {
         this.rankedMouseListeners = groupBy(this.mouseListeners, listener => getRank(listener));
     }
 
-    contextMenu(model: SModelRoot, event: MouseEvent): void {
-        event.preventDefault();
-    }
-
     protected override handleEvent<K extends MouseListenerMethods>(methodName: K, model: SModelRoot, event: MouseEvent): void {
         this.focusOnMouseEvent(methodName, model);
         const element = this.getTargetElement(model, event);

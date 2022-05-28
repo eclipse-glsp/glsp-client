@@ -29,18 +29,22 @@ import { SelectionService } from '../select/selection-service';
 
 @injectable()
 export class SelectionServiceAwareContextMenuMouseListener extends MouseListener {
-    @inject(TYPES.IContextMenuServiceProvider) @optional() protected readonly contextMenuService: IContextMenuServiceProvider;
-    @inject(TYPES.IContextMenuProviderRegistry) @optional() protected readonly menuProvider: ContextMenuProviderRegistry;
-    @inject(TYPES.SelectionService) protected selectionService: SelectionService;
+    @inject(TYPES.IContextMenuServiceProvider)
+    @optional()
+    protected readonly contextMenuService?: IContextMenuServiceProvider;
+
+    @inject(TYPES.IContextMenuProviderRegistry)
+    @optional()
+    protected readonly menuProvider?: ContextMenuProviderRegistry;
+
+    @inject(TYPES.SelectionService)
+    protected selectionService: SelectionService;
 
     /**
-     * Opens the context menu on right-click.
+     * Opens the context menu.
      */
-    override mouseDown(target: SModelElement, event: MouseEvent): (Action | Promise<Action>)[] {
-        if (event.button === 2 && this.contextMenuService && this.menuProvider) {
-            return this.openContextMenu(event, target);
-        }
-        return [];
+    override contextMenu(target: SModelElement, event: MouseEvent): (Action | Promise<Action>)[] {
+        return this.openContextMenu(target, event);
     }
 
     /**
@@ -54,7 +58,11 @@ export class SelectionServiceAwareContextMenuMouseListener extends MouseListener
      *
      * When the context menu is closed, we focus the diagram element again.
      */
-    protected openContextMenu(event: MouseEvent, target: SModelElement): Promise<Action>[] {
+    protected openContextMenu(target: SModelElement, event: MouseEvent): Promise<Action>[] {
+        if (!this.contextMenuService || !this.menuProvider) {
+            return [];
+        }
+
         const mousePosition = { x: event.x, y: event.y };
         const selectableTarget = findParentByFeature(target, isSelectable);
         if (selectableTarget) {
