@@ -15,14 +15,7 @@
  ********************************************************************************/
 import { Action } from '@eclipse-glsp/protocol';
 import { inject, injectable, optional } from 'inversify';
-import {
-    ContextMenuProviderRegistry,
-    findParentByFeature,
-    IContextMenuServiceProvider,
-    isSelectable,
-    MouseListener,
-    SModelElement
-} from 'sprotty';
+import { ContextMenuProviderRegistry, IContextMenuServiceProvider, MouseListener, SModelElement } from 'sprotty';
 import { FocusStateChangedAction } from '../../base/actions/focus-change-action';
 import { TYPES } from '../../base/types';
 import { SelectionService } from '../select/selection-service';
@@ -50,8 +43,6 @@ export class SelectionServiceAwareContextMenuMouseListener extends MouseListener
     /**
      * Opens the context menu.
      *
-     *   - query the element on the click-target
-     *   - select the element
      *   - query the context menu service and the context menu elements
      *   - show the context menu
      *   - send a focus state change to indicate that the diagram becomes inactive, once the context menu is shown
@@ -64,11 +55,6 @@ export class SelectionServiceAwareContextMenuMouseListener extends MouseListener
         }
 
         const mousePosition = { x: event.x, y: event.y };
-        const selectableTarget = findParentByFeature(target, isSelectable);
-        if (selectableTarget) {
-            selectableTarget.selected = true;
-            this.selectionService.updateSelection(target.root, [selectableTarget.id], []);
-        }
 
         const result = Promise.all([this.contextMenuService(), this.menuProvider.getItems(target.root, mousePosition)])
             .then(([menuService, menuItems]) => menuService.show(menuItems, mousePosition, () => this.focusEventTarget(event)))
