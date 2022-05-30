@@ -215,3 +215,8 @@ text {
     font-size: 8pt;
     text-anchor: middle;
 }
+
+.glsp-projection {
+    width: 40%;
+    opacity: 1;
+}
