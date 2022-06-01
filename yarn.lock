@@ -693,6 +693,10 @@
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/@lerna/resolve-symlink/-/resolve-symlink-4.0.0.tgz#6d006628a210c9b821964657a9e20a8c9a115e14"
   integrity sha512-RtX8VEUzqT+uLSCohx8zgmjc6zjyRlh6i/helxtZTMmc4+6O4FS9q5LJas2uGO2wKvBlhcD6siibGt7dIC3xZA==
+  dependencies:
+    fs-extra "^9.1.0"
+    npmlog "^4.1.2"
+    read-cmd-shim "^2.0.0"
 
 "@lerna/rimraf-dir@4.0.0":
   version "4.0.0"
@@ -6148,6 +6152,11 @@ randomfill@^1.0.3:
     randombytes "^2.0.5"
     safe-buffer "^5.1.0"
 
+read-cmd-shim@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/read-cmd-shim/-/read-cmd-shim-2.0.0.tgz#4a50a71d6f0965364938e9038476f7eede3928d9"
+  integrity sha512-HJpV9bQpkl6KwjxlJcBoqu9Ba0PQg8TqSNIOrulGt54a0uup0HtevreFHzYzkm0lpnleRdNBzXznKrgxglEHQw==
+
 read-package-json-fast@^2.0.1:
   version "2.0.3"
   resolved "https://registry.yarnpkg.com/read-package-json-fast/-/read-package-json-fast-2.0.3.tgz#323ca529630da82cb34b36cc0b996693c98c2b83"
@@ -6818,22 +6827,27 @@ split@^1.0.0:
   dependencies:
     through "2"
 
-sprotty-protocol@0.12.0-next.77571d6.0, sprotty-protocol@next:
+sprotty-protocol@next:
   version "0.12.0-next.77571d6.0"
   resolved "https://registry.yarnpkg.com/sprotty-protocol/-/sprotty-protocol-0.12.0-next.77571d6.0.tgz#dfd1ce4377d501620dac25b3ad7b1a0313ee4f8d"
   integrity sha512-1owFdV0xamUSxjBhJOoDtLXJ1Vp4v/TkNqaA8jlb3ILournzpu3SpGfNlmCQ4DY1qVtre9cy7jIgx8TPj1wyHQ==
 
-sprotty@next:
-  version "0.12.0-next.77571d6.0"
-  resolved "https://registry.yarnpkg.com/sprotty/-/sprotty-0.12.0-next.77571d6.0.tgz#44ba190e24f1f5ce550cd872f6dc9db182dd49a0"
-  integrity sha512-2l3t3DqJ2Phrmn8wlYh2LrIRqZd7dT3aaRttAXlBlHNMi7f6BpVCWoh7ciFykjAZZRwm1s3IIC07dKIE0rCt9w==
+sprotty-protocol@~0.12.0:
+  version "0.12.0"
+  resolved "https://registry.yarnpkg.com/sprotty-protocol/-/sprotty-protocol-0.12.0.tgz#542eb6396a645f85f8cfc2e7ef1d9b90c7b1980b"
+  integrity sha512-vbov+XfbmSeMYb46vm6dJvK3q7YKUvg0q7JnM6H7Ca5qY8TaZCEZ5Vc8zHKFZGWchcwnQYKqLTzwDItsMikD0A==
+
+sprotty@0.12.0:
+  version "0.12.0"
+  resolved "https://registry.yarnpkg.com/sprotty/-/sprotty-0.12.0.tgz#693432346d9321bb19f368c6806641539962db99"
+  integrity sha512-0RjRn3iR9McDt+LZ+cyySfdBdWyzR4kPbg4xESumvoSPziHphs6TdM7CvJ9ywTMmG131nKUF6GgbzhQZ+L6cGg==
   dependencies:
     "@vscode/codicons" "^0.0.25"
     autocompleter "^5.1.0"
     file-saver "^2.0.2"
     inversify "^5.1.1"
     snabbdom "^3.0.3"
-    sprotty-protocol "0.12.0-next.77571d6.0"
+    sprotty-protocol "~0.12.0"
     tinyqueue "^2.0.3"
 
 sshpk@^1.7.0:
