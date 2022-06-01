@@ -21,6 +21,8 @@ import {
     DeleteElementContextMenuItemProvider,
     DiamondNodeView,
     editLabelFeature,
+    GLSPGraph,
+    GLSPProjectionView,
     GridSnapper,
     LogLevel,
     overrideViewerOptions,
@@ -53,6 +55,7 @@ const workflowDiagramModule = new ContainerModule((bind, unbind, isBound, rebind
     const context = { bind, unbind, isBound, rebind };
 
     configureDefaultModelElements(context);
+    configureModelElement(context, DefaultTypes.GRAPH, GLSPGraph, GLSPProjectionView);
     configureModelElement(context, 'task:automated', TaskNode, RoundedCornerNodeView);
     configureModelElement(context, 'task:manual', TaskNode, RoundedCornerNodeView);
     configureModelElement(context, 'label:heading', SLabel, SLabelView, { enable: [editLabelFeature] });

@@ -13,13 +13,23 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Marker, MarkerKind } from '@eclipse-glsp/protocol';
-import { SDecoration, SIssue, SIssueMarker, SParentElement } from 'sprotty';
+import { Bounds, Marker, MarkerKind } from '@eclipse-glsp/protocol';
+import { isBoundsAware, Projectable, SDecoration, SIssue, SIssueMarker, SParentElement } from 'sprotty';
+import { getSeverity } from '../hover/hover';
 
-export class GIssueMarker extends SIssueMarker {
+export class GIssueMarker extends SIssueMarker implements Projectable {
     constructor() {
         super();
         this.features = new Set<symbol>(SDecoration.DEFAULT_FEATURES);
+    }
+    projectionCssClasses: string[];
+    projectedBounds?: Bounds;
+    override issues: SIssue[] = [];
+    override type = 'marker';
+
+    computeProjectionCssClasses(): void {
+        const severityCss = getSeverity(this);
+        this.projectionCssClasses = ['sprotty-issue', 'sprotty-' + severityCss];
     }
 }
 
@@ -31,14 +41,15 @@ export class GIssueMarker extends SIssueMarker {
  * @returns the child `SIssueMarker` or a new `SIssueMarker` if no such child exists.
  */
 export function getOrCreateSIssueMarker(modelElement: SParentElement): SIssueMarker {
-    let issueMarker: SIssueMarker | undefined;
+    let issueMarker: GIssueMarker | undefined;
 
     issueMarker = getSIssueMarker(modelElement);
 
     if (issueMarker === undefined) {
         issueMarker = new GIssueMarker();
-        issueMarker.type = 'marker';
-        issueMarker.issues = new Array<SIssue>();
+        if (isBoundsAware(modelElement)) {
+            issueMarker.projectedBounds = modelElement.parentToLocal(modelElement.bounds);
+        }
         modelElement.add(issueMarker);
     }
 
@@ -51,11 +62,11 @@ export function getOrCreateSIssueMarker(modelElement: SParentElement): SIssueMar
  * @param modelElement for which the `SIssueMarker` should be retrieved.
  * @returns the child `SIssueMarker` or `undefined` if no such child exists.
  */
-export function getSIssueMarker(modelElement: SParentElement): SIssueMarker | undefined {
-    let issueMarker: SIssueMarker | undefined;
+export function getSIssueMarker(modelElement: SParentElement): GIssueMarker | undefined {
+    let issueMarker: GIssueMarker | undefined;
 
     for (const child of modelElement.children) {
-        if (child instanceof SIssueMarker) {
+        if (child instanceof GIssueMarker) {
             issueMarker = child;
         }
     }
@@ -69,8 +80,8 @@ export function getSIssueMarker(modelElement: SParentElement): SIssueMarker | un
  * @param marker `Marker` for that an `SIssue` should be created.
  * @returns the created `SIssue`.
  */
-export function createSIssue(marker: Marker): SIssue {
-    const issue: SIssue = new SIssue();
+export function createSIssue(marker: Marker, parent?: SParentElement): SIssue {
+    const issue = new SIssue();
     issue.message = marker.description;
 
     switch (marker.kind) {
@@ -87,6 +98,5 @@ export function createSIssue(marker: Marker): SIssue {
             break;
         }
     }
-
     return issue;
 }

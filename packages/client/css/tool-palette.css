@@ -17,7 +17,7 @@
 /* Css for main container */
 .tool-palette {
     position: absolute;
-    right: 30px;
+    right: 40px;
     top: 25px;
     text-align: center;
     width: 225px;
@@ -140,7 +140,7 @@
 
 .minimize-palette-button {
     position: absolute;
-    right: 10px;
+    right: 20px;
     top: 35px;
     z-index: 1000;
 }

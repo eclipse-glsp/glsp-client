@@ -22,7 +22,7 @@ import { removeCssClasses } from '../../utils/smodel-util';
 import { getSeverity } from '../hover/hover';
 import { IFeedbackActionDispatcher, IFeedbackEmitter } from '../tool-feedback/feedback-action-dispatcher';
 import { FeedbackCommand } from '../tool-feedback/model';
-import { createSIssue, getOrCreateSIssueMarker, getSIssueMarker } from './issue-marker';
+import { createSIssue, getOrCreateSIssueMarker, getSIssueMarker, GIssueMarker } from './issue-marker';
 
 /**
  * Feedback emitter sending actions for visualizing model validation feedback and
@@ -151,6 +151,9 @@ export class ApplyMarkersCommand extends FeedbackCommand {
                 const issueMarker = getOrCreateSIssueMarker(modelElement);
                 const issue = createSIssue(marker);
                 issueMarker.issues.push(issue);
+                if (issueMarker instanceof GIssueMarker) {
+                    issueMarker.computeProjectionCssClasses();
+                }
                 addMaxSeverityCSSClassToIssueParent(modelElement, issueMarker);
             }
         });
@@ -160,7 +163,6 @@ export class ApplyMarkersCommand extends FeedbackCommand {
 
 function addMaxSeverityCSSClassToIssueParent(modelElement: SParentElement, issueMarker: SIssueMarker): void {
     const maxSeverityCSSClass = getSeverity(issueMarker);
-
     if (!modelElement.cssClasses) {
         modelElement.cssClasses = [maxSeverityCSSClass];
     } else {
@@ -170,7 +172,8 @@ function addMaxSeverityCSSClassToIssueParent(modelElement: SParentElement, issue
 }
 
 function removeCSSClassFromIssueParent(modelElement: SParentElement, issueMarker: SIssueMarker): void {
-    removeCssClasses(modelElement, [getSeverity(issueMarker)]);
+    const severity = getSeverity(issueMarker);
+    removeCssClasses(modelElement, [severity]);
 }
 
 /**
