@@ -13,13 +13,13 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { ModelSourceChangedAction } from '@eclipse-glsp/protocol';
+import { SourceModelChangedAction } from '@eclipse-glsp/protocol';
 import { ContainerModule } from 'inversify';
 import { configureActionHandler } from 'sprotty';
-import { ModelSourceChangedActionHandler } from './model-source-changed-action-handler';
+import { SourceModelChangedActionHandler } from './source-model-changed-action-handler';
 
-const modelSourceWatcherModule = new ContainerModule((bind, _unbind, isBound) => {
-    configureActionHandler({ bind, isBound }, ModelSourceChangedAction.KIND, ModelSourceChangedActionHandler);
+const sourceModelWatcherModule = new ContainerModule((bind, _unbind, isBound) => {
+    configureActionHandler({ bind, isBound }, SourceModelChangedAction.KIND, SourceModelChangedActionHandler);
 });
 
-export default modelSourceWatcherModule;
+export default sourceModelWatcherModule;

@@ -50,7 +50,7 @@ export namespace RequestModelAction {
 }
 
 /**
- * Sent from the model source to the client in order to set the model. If a model is already present, it is replaced.
+ * Sent from the server to the client in order to set the model. If a model is already present, it is replaced.
  * The corresponding namespace declares the action kind as constant and offers helper functions for type guard checks
  * and creating new `SetModelActions`.
  */
@@ -113,31 +113,31 @@ export namespace UpdateModelAction {
 }
 
 /**
- * Sent from the server to the client in order to indicate that the model source has changed.
- * The model source denotes the data source from which the diagram has been originally derived (such as a file, a database, etc.).
+ * Sent from the server to the client in order to indicate that the source model has changed.
+ * The source model denotes the data source from which the diagram has been originally derived (such as a file, a database, etc.).
  * The corresponding namespace declares the action kind as constant and offers helper functions for type guard checks
- * and creating new `ModelSourceChangedActions`.
+ * and creating new `SourceModelChangedActions`.
  */
-export interface ModelSourceChangedAction extends Action {
-    kind: typeof ModelSourceChangedAction.KIND;
+export interface SourceModelChangedAction extends Action {
+    kind: typeof SourceModelChangedAction.KIND;
 
     /**
-     * A human readable name of the model source (e.g. the file name).
+     * A human readable name of the source model (e.g. the file name).
      */
-    modelSourceName: string;
+    sourceModelName: string;
 }
 
-export namespace ModelSourceChangedAction {
-    export const KIND = 'modelSourceChanged';
+export namespace SourceModelChangedAction {
+    export const KIND = 'sourceModelChanged';
 
-    export function is(object: any): object is ModelSourceChangedAction {
-        return Action.hasKind(object, KIND) && hasStringProp(object, 'modelSourceName');
+    export function is(object: any): object is SourceModelChangedAction {
+        return Action.hasKind(object, KIND) && hasStringProp(object, 'sourceModelName');
     }
 
-    export function create(modelSourceName: string): ModelSourceChangedAction {
+    export function create(sourceModelName: string): SourceModelChangedAction {
         return {
             kind: KIND,
-            modelSourceName
+            sourceModelName: sourceModelName
         };
     }
 }

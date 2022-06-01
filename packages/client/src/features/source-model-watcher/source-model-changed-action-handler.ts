@@ -13,43 +13,43 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, ModelSourceChangedAction, ServerMessageAction, ServerStatusAction } from '@eclipse-glsp/protocol';
+import { Action, ServerMessageAction, ServerStatusAction, SourceModelChangedAction } from '@eclipse-glsp/protocol';
 import { inject, injectable, optional } from 'inversify';
 import { IActionDispatcher, IActionHandler, ViewerOptions } from 'sprotty';
 import { TYPES } from '../../base/types';
 
 /**
- * An external handler of the model source change event.
+ * An external handler of the source model change event.
  *
  * This allows external applications to react specifically to this event, e.g. by bringing up the diagram,
  * check their dirty state, show a dialog, etc.
  */
 @injectable()
-export abstract class ExternalModelSourceChangedHandler {
+export abstract class ExternalSourceModelChangedHandler {
     /**
-     * Notifies about a change of the model source.
+     * Notifies about a change of the source model.
      * @returns actions to be dispatched after the notification.
      */
-    abstract notifyModelSourceChange(modelSourceName: string, options: ViewerOptions): Promise<Action[]>;
+    abstract notifySourceModelChange(sourceModelName: string, options: ViewerOptions): Promise<Action[]>;
 }
 
 @injectable()
-export class ModelSourceChangedActionHandler implements IActionHandler {
+export class SourceModelChangedActionHandler implements IActionHandler {
     @inject(TYPES.IActionDispatcher)
     protected dispatcher: IActionDispatcher;
 
     @inject(TYPES.ViewerOptions)
     protected options: ViewerOptions;
 
-    @inject(ExternalModelSourceChangedHandler)
+    @inject(ExternalSourceModelChangedHandler)
     @optional()
-    protected externalModelSourceChangedHandler?: ExternalModelSourceChangedHandler;
+    protected externalModelSourceChangedHandler?: ExternalSourceModelChangedHandler;
 
     handle(action: Action): void {
-        if (ModelSourceChangedAction.is(action)) {
+        if (SourceModelChangedAction.is(action)) {
             if (this.externalModelSourceChangedHandler) {
                 this.externalModelSourceChangedHandler
-                    .notifyModelSourceChange(action.modelSourceName, this.options)
+                    .notifySourceModelChange(action.sourceModelName, this.options)
                     .then(actions => this.dispatcher.dispatchAll(actions));
                 return;
             }
@@ -57,8 +57,8 @@ export class ModelSourceChangedActionHandler implements IActionHandler {
         }
     }
 
-    protected showSimpleNotification(action: ModelSourceChangedAction): void {
-        const message = `The model source ${action.modelSourceName} has changed. You might want to consider reloading.`;
+    protected showSimpleNotification(action: SourceModelChangedAction): void {
+        const message = `The source model ${action.sourceModelName} has changed. You might want to consider reloading.`;
         const timeout = 0;
         const severity = 'WARNING';
         this.dispatcher.dispatchAll([

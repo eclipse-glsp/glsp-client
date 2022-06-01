@@ -324,7 +324,7 @@ export namespace SetResolvedNavigationTargetAction {
 }
 
 /**
- * If a {@link NavigationTarget} cannot be resolved or the resolved target is something that is not part of our model source, e.g.,
+ * If a {@link NavigationTarget} cannot be resolved or the resolved target is something that is not part of our source model, e.g.,
  * a separate documentation file, a {@link NavigateToExternalTargetAction} may be sent. Since the target it outside of the model scope such
  * an action would be typically handled by an integration layer (such as the surrounding IDE).
  * The corresponding namespace declares the action kind as constant and offers helper functions for type guard checks
