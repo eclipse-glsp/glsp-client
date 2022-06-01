@@ -17,8 +17,8 @@ import { hasBooleanProp, hasStringProp } from '../utils/type-util';
 import { Action, RequestAction, ResponseAction } from './base-protocol';
 
 /**
- * Sent from the client to the server in order to persist the current model state back to the model source.
- * A new fileUri can be defined to save the model to a new destination different from its original model source.
+ * Sent from the client to the server in order to persist the current model state back to the source model.
+ * A new fileUri can be defined to save the model to a new destination different from its original source model.
  * The corresponding namespace declares the action kind as constant and offers helper functions for type guard checks
  * and creating new `SaveModelActions`.
  */
@@ -47,7 +47,7 @@ export namespace SaveModelAction {
 
 /**
  * The server sends this action to indicate to the client that the current model state on the server does not correspond
- * to the persisted model state of the model source. A client may ignore such an action or use it to indicate to the user the dirty state.
+ * to the persisted model state of the source model. A client may ignore such an action or use it to indicate to the user the dirty state.
  * The corresponding namespace declares the action kind as constant and offers helper functions for type guard checks
  * and creating new `SetDirtyStateActions`.
  */

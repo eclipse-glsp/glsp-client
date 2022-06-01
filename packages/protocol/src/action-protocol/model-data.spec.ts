@@ -15,7 +15,7 @@
  ********************************************************************************/
 /* eslint-disable max-len */
 import { expect } from 'chai';
-import { ModelSourceChangedAction, RequestModelAction, SetModelAction, UpdateModelAction } from './model-data';
+import { RequestModelAction, SetModelAction, SourceModelChangedAction, UpdateModelAction } from './model-data';
 /**
  * Tests for the utility functions declared in the namespaces of the protocol
  * action definitions.
@@ -140,31 +140,31 @@ describe('Model data actions', () => {
         });
     });
 
-    describe('ModelSourceChangedAction', () => {
+    describe('SourceModelChangedAction', () => {
         describe('is', () => {
             it('should return true for an object having the correct type and a value for all required interface properties', () => {
-                const action: ModelSourceChangedAction = {
-                    kind: 'modelSourceChanged',
-                    modelSourceName: ''
+                const action: SourceModelChangedAction = {
+                    kind: 'sourceModelChanged',
+                    sourceModelName: ''
                 };
-                expect(ModelSourceChangedAction.is(action)).to.be.true;
+                expect(SourceModelChangedAction.is(action)).to.be.true;
             });
             it('should return false for `undefined`', () => {
-                expect(ModelSourceChangedAction.is(undefined)).to.be.false;
+                expect(SourceModelChangedAction.is(undefined)).to.be.false;
             });
             it('should return false for an object that does not have all required interface properties', () => {
-                expect(ModelSourceChangedAction.is({ kind: 'notTheRightOne' })).to.be.false;
+                expect(SourceModelChangedAction.is({ kind: 'notTheRightOne' })).to.be.false;
             });
         });
 
         describe('create', () => {
             it('should return an object conforming to the interface with matching properties for the given required arguments', () => {
-                const expected: ModelSourceChangedAction = {
-                    kind: 'modelSourceChanged',
-                    modelSourceName: 'myModelSource'
+                const expected: SourceModelChangedAction = {
+                    kind: 'sourceModelChanged',
+                    sourceModelName: 'myModelSource'
                 };
-                const { modelSourceName } = expected;
-                expect(ModelSourceChangedAction.create(modelSourceName)).to.deep.equals(expected);
+                const { sourceModelName: sourceModelName } = expected;
+                expect(SourceModelChangedAction.create(sourceModelName)).to.deep.equals(expected);
             });
         });
     });

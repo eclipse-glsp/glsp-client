@@ -38,10 +38,10 @@ import glspEditLabelModule from '../features/edit-label/di.config';
 import modelHintsModule from '../features/hints/di.config';
 import glspHoverModule from '../features/hover/di.config';
 import layoutModule from '../features/layout/di.config';
-import modelSourceWatcherModule from '../features/model-source-watcher/di.config';
 import glspMouseToolModule from '../features/mouse-tool/di.config';
 import { navigationModule } from '../features/navigation/di.config';
 import glspSelectModule from '../features/select/di.config';
+import sourceModelWatcherModule from '../features/source-model-watcher/di.config';
 import toolFeedbackModule from '../features/tool-feedback/di.config';
 import toolPaletteModule from '../features/tool-palette/di.config';
 import { enableDefaultToolsOnFocusLossModule, toolsModule } from '../features/tools/di.config';
@@ -73,7 +73,7 @@ export const DEFAULT_MODULES = [
     markerNavigatorModule,
     modelHintsModule,
     modelSourceModule,
-    modelSourceWatcherModule,
+    sourceModelWatcherModule,
     navigationModule,
     openModule,
     toolPaletteModule,
