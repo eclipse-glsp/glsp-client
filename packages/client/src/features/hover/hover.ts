@@ -23,20 +23,11 @@ import {
     SModelRootSchema
 } from '@eclipse-glsp/protocol';
 import { injectable } from 'inversify';
-import {
-    EMPTY_ROOT,
-    HoverFeedbackAction,
-    HoverMouseListener,
-    IActionHandler,
-    ICommand,
-    SIssueMarker,
-    SIssueSeverity,
-    SModelElement
-} from 'sprotty';
+import { EMPTY_ROOT, HoverFeedbackAction, HoverMouseListener, IActionHandler, ICommand, SModelElement } from 'sprotty';
 import { FocusStateChangedAction } from '../../base/actions/focus-change-action';
 import { EnableDefaultToolsAction, EnableToolsAction } from '../../base/tool-manager/tool-actions';
 import { EdgeCreationTool } from '../tools/edge-creation-tool';
-import { GIssueMarker } from '../validation/issue-marker';
+import { getSeverity, GIssueMarker } from '../validation/issue-marker';
 @injectable()
 export class GlspHoverMouseListener extends HoverMouseListener implements IActionHandler {
     protected enableHover = true;
@@ -116,17 +107,4 @@ export class GlspHoverMouseListener extends HoverMouseListener implements IActio
     protected modifyBounds(bounds: Bounds): Bounds {
         return bounds;
     }
-}
-
-export function getSeverity(marker: SIssueMarker): SIssueSeverity {
-    let currentSeverity: SIssueSeverity = 'info';
-    for (const severity of marker.issues.map(s => s.severity)) {
-        if (severity === 'error') {
-            return severity;
-        }
-        if (severity === 'warning' && currentSeverity === 'info') {
-            currentSeverity = severity;
-        }
-    }
-    return currentSeverity;
 }

@@ -14,8 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { Bounds, Marker, MarkerKind } from '@eclipse-glsp/protocol';
-import { isBoundsAware, Projectable, SDecoration, SIssue, SIssueMarker, SParentElement } from 'sprotty';
-import { getSeverity } from '../hover/hover';
+import { isBoundsAware, Projectable, SDecoration, SIssue, SIssueMarker, SIssueSeverity, SParentElement } from 'sprotty';
 
 export class GIssueMarker extends SIssueMarker implements Projectable {
     constructor() {
@@ -99,4 +98,17 @@ export function createSIssue(marker: Marker, parent?: SParentElement): SIssue {
         }
     }
     return issue;
+}
+
+export function getSeverity(marker: SIssueMarker): SIssueSeverity {
+    let currentSeverity: SIssueSeverity = 'info';
+    for (const severity of marker.issues.map(s => s.severity)) {
+        if (severity === 'error') {
+            return severity;
+        }
+        if (severity === 'warning' && currentSeverity === 'info') {
+            currentSeverity = severity;
+        }
+    }
+    return currentSeverity;
 }

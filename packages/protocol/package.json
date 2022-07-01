@@ -1,6 +1,6 @@
 {
   "name": "@eclipse-glsp/protocol",
-  "version": "0.9.0",
+  "version": "1.0.0",
   "description": "The protocol definition for client-server communication in GLSP",
   "license": "(EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0)",
   "keywords": [
@@ -33,9 +33,9 @@
     "src"
   ],
   "dependencies": {
+    "sprotty-protocol": "0.12.0",
     "uuid": "7.0.3",
-    "vscode-ws-jsonrpc": "0.2.0",
-    "sprotty-protocol": "next"
+    "vscode-ws-jsonrpc": "0.2.0"
   },
   "devDependencies": {
     "@types/uuid": "3.4.5"

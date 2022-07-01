@@ -19,10 +19,9 @@ import { CommandExecutionContext, CommandReturn, IActionDispatcher, IActionHandl
 import { EditorContextService } from '../../base/editor-context-service';
 import { TYPES } from '../../base/types';
 import { removeCssClasses } from '../../utils/smodel-util';
-import { getSeverity } from '../hover/hover';
 import { IFeedbackActionDispatcher, IFeedbackEmitter } from '../tool-feedback/feedback-action-dispatcher';
 import { FeedbackCommand } from '../tool-feedback/model';
-import { createSIssue, getOrCreateSIssueMarker, getSIssueMarker, GIssueMarker } from './issue-marker';
+import { createSIssue, getOrCreateSIssueMarker, getSeverity, getSIssueMarker, GIssueMarker } from './issue-marker';
 
 /**
  * Feedback emitter sending actions for visualizing model validation feedback and
