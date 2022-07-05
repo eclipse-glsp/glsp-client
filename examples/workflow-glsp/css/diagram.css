@@ -65,6 +65,13 @@
     fill: #5c87bd;
 }
 
+.category .category > .sprotty-node {
+    /** Add a border to nested categories, so we can distinguish them */
+    stroke: #38679a;
+    fill: #6f9ad0;
+    stroke-width: 1;
+}
+
 .sprotty-edge.weighted.low:not(.selected),
 .sprotty-edge.weighted.low:not(.selected) .arrow {
     stroke: rgb(128, 90, 233);
