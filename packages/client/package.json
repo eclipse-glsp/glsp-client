@@ -1,6 +1,6 @@
 {
   "name": "@eclipse-glsp/client",
-  "version": "1.0.0",
+  "version": "1.1.0-next",
   "description": "A sprotty-based client for GLSP",
   "license": "(EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0)",
   "keywords": [
@@ -34,7 +34,7 @@
     "css"
   ],
   "dependencies": {
-    "@eclipse-glsp/protocol": "^1.0.0",
+    "@eclipse-glsp/protocol": "1.1.0-next",
     "autocompleter": "5.1.0",
     "sprotty": "0.12.0"
   },
