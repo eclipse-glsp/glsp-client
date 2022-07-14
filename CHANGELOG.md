@@ -1,5 +1,11 @@
 # Eclipse GLSP Client Changelog
 
+## v1.1.0 - upcoming
+
+### Changes
+
+-   [layout] Improve Layouter to support more dynamic layouts and complex parent/children node structures [#187](https://github.com/eclipse-glsp/glsp-client/pull/187) - Contributed on behalf of STMicroelectronics
+
 ## [v1.0.0 - 30/06/2022](https://github.com/eclipse-glsp/glsp-client/releases/tag/v1.0.0)
 
 ### Changes
