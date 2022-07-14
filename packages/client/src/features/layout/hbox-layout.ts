@@ -49,6 +49,9 @@ export class HBoxLayouterExt extends HBoxLayouter {
 
         const fixedSize = this.getFixedContainerBounds(container, options, layouter);
 
+        const currentWidth = boundsData.bounds ? boundsData.bounds?.width - options.paddingLeft - options.paddingRight : 0;
+        const currentHeight = boundsData.bounds ? boundsData.bounds?.height - options.paddingTop - options.paddingBottom : 0;
+
         const maxWidth =
             options.paddingFactor *
             (options.resizeContainer
@@ -60,8 +63,11 @@ export class HBoxLayouterExt extends HBoxLayouter {
                 ? Math.max(fixedSize.height - options.paddingTop - options.paddingBottom, childrenSize.height)
                 : Math.max(0, fixedSize.height - options.paddingTop - options.paddingBottom));
 
+        const width = Math.max(currentWidth, maxWidth);
+        const height = Math.max(currentHeight, maxHeight);
+
         // Remaining size that can be grabbed by children with the hGrab option
-        const grabWidth: number = maxWidth - childrenSize.width;
+        const grabWidth = width - childrenSize.width;
         // Number of children that request hGrab
         // FIXME: This approach works fine when only 1 child uses HGrab, but may cause rounding issues
         // when the grabHeight can't be equally shared by all children.
@@ -69,8 +75,8 @@ export class HBoxLayouterExt extends HBoxLayouter {
             .map(child => this.getChildLayoutOptions(child, options))
             .filter(opt => opt.hGrab).length;
 
-        if (maxWidth > 0 && maxHeight > 0) {
-            const offset = this.layoutChildren(container, layouter, options, maxWidth, maxHeight, grabWidth, grabbingChildren);
+        if (width > 0 && height > 0) {
+            const offset = this.layoutChildren(container, layouter, options, width, height, grabWidth, grabbingChildren);
             boundsData.bounds = this.getFinalContainerBounds(container, offset, options, childrenSize.width, childrenSize.height);
             boundsData.boundsChanged = true;
         }
@@ -155,8 +161,15 @@ export class HBoxLayouterExt extends HBoxLayouter {
         grabWidth?: number,
         grabbingChildren?: number
     ): Point {
+        const vAlign = childOptions.vGrab ? 'top' : childOptions.vAlign;
+        const dy = this.getDy(vAlign, bounds, maxHeight);
         let offset = super.layoutChild(child, boundsData, bounds, childOptions, containerOptions, currentOffset, maxWidth, maxHeight);
-        if (childOptions.hGrab) {
+        boundsData.bounds = {
+            ...boundsData.bounds!,
+            x: currentOffset.x,
+            y: currentOffset.y + dy
+        };
+        if (childOptions.vGrab) {
             boundsData.bounds = {
                 x: boundsData.bounds!.x,
                 y: boundsData.bounds!.y,
@@ -197,7 +210,7 @@ export class HBoxLayouterExt extends HBoxLayouter {
     }
 
     protected override getChildLayoutOptions(child: SChildElement, containerOptions: HBoxLayoutOptionsExt): HBoxLayoutOptionsExt {
-        return super.getChildLayoutOptions(child, containerOptions) as HBoxLayoutOptionsExt;
+        return super.getChildLayoutOptions(child, this.filterContainerOptions(containerOptions)) as HBoxLayoutOptionsExt;
     }
 
     protected override getLayoutOptions(element: SModelElement): HBoxLayoutOptionsExt {
@@ -250,7 +263,11 @@ export class HBoxLayouterExt extends HBoxLayouter {
         };
     }
 
-    protected override spread(a: HBoxLayoutOptionsExt, b: HBoxLayoutOptionsExt): HBoxLayoutOptionsExt {
-        return { ...a, ...b };
+    protected filterContainerOptions(containerOptions: HBoxLayoutOptionsExt): HBoxLayoutOptionsExt {
+        // Reset object-specific layout options to default before merging,
+        // to make sure they won't be inherited (grab, prefSize)
+        // eslint-disable-next-line no-null/no-null
+        const localOptions = { vGrab: false, hGrab: false, prefHeight: null, prefWidth: null };
+        return { ...containerOptions, ...localOptions };
     }
 }
