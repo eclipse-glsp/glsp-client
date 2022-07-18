@@ -17,14 +17,14 @@ import download from 'mvn-artifact-download';
 import { join, resolve } from 'path';
 
 const downloadDir = resolve(join(__dirname)) + '/../../..';
-const mavenRepository = 'https://repo1.maven.org/maven2/';
+const mavenRepository = 'https://oss.sonatype.org/content/repositories/snapshots/';
 const groupId = 'org.eclipse.glsp.example';
 const artifactId = 'org.eclipse.glsp.example.workflow';
-const version = '1.0.0';
+const version = '1.1.0';
 const classifier = 'glsp';
 
 console.log('Downloading latest version of the Workflow Example Java Server from the maven repository...');
-const isSnapShot = false;
+const isSnapShot = true;
 download({ groupId, artifactId, version, classifier, isSnapShot }, downloadDir, mavenRepository).then(() =>
     console.log(
         'Download completed. Start the server using this command: \njava -jar org.eclipse.glsp.example.workflow-' +
