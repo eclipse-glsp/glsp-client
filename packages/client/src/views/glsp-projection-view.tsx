@@ -25,6 +25,7 @@ import {
     ProjectedViewportView,
     ProjectionParams,
     RenderingContext,
+    setAttr,
     setClass,
     ViewportRootElement,
     ViewProjection
@@ -36,12 +37,18 @@ import {
 @injectable()
 export class GLSPProjectionView extends ProjectedViewportView {
     override render(model: Readonly<ViewportRootElement>, context: RenderingContext, args?: IViewArgs): VNode {
-        return (
-            <div class-sprotty-graph={true} style={{ width: '100%' }}>
-                {this.renderSvg(model, context, args)}
+        const svgElem = this.renderSvg(model, context, args);
+        if (svgElem.data) {
+            svgElem.data!.class = { 'sprotty-graph': true };
+        }
+        const rootNode: VNode = (
+            <div class-sprotty-graph={false} style={{ width: '100%' }}>
+                {svgElem}
                 {this.renderProjections(model, context, args)}
             </div>
         );
+        setAttr(rootNode, 'tabindex', 0);
+        return rootNode;
     }
 
     protected override renderSvg(model: Readonly<ViewportRootElement>, context: RenderingContext, args?: IViewArgs): VNode {
