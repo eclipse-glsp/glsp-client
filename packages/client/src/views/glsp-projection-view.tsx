@@ -42,7 +42,7 @@ export class GLSPProjectionView extends ProjectedViewportView {
             svgElem.data!.class = { 'sprotty-graph': true };
         }
         const rootNode: VNode = (
-            <div class-sprotty-graph={false} style={{ width: '100%' }}>
+            <div class-sprotty-graph={false} style={{ width: '100%', height: '100%' }}>
                 {svgElem}
                 {this.renderProjections(model, context, args)}
             </div>
