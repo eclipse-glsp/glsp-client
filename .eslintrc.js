@@ -1,9 +1,12 @@
 /** @type {import('eslint').Linter.Config} */
 module.exports = {
+    root: true,
     extends: '@eclipse-glsp',
+    ignorePatterns: ['**/{node_modules,lib}', '**/.eslintrc.js'],
+
     parserOptions: {
         tsconfigRootDir: __dirname,
-        project: 'tsconfig.json'
+        project: 'tsconfig.eslint.json'
     },
     rules: {
         'no-restricted-imports': [

@@ -11,6 +11,7 @@
     "install:only": "yarn install --ignore-scripts",
     "build": "lerna run build",
     "lint": "lerna run lint --",
+    "lint:fix": "lerna run lint:fix --",
     "test": "lerna run test",
     "test:ci": "lerna run test:ci",
     "publish:prepare": "lerna version --ignore-scripts --yes --no-push",

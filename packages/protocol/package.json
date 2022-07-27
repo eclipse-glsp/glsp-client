@@ -44,7 +44,8 @@
     "prepare": "yarn clean && yarn build && yarn lint",
     "clean": "rimraf lib tsconfig.tsbuildinfo ",
     "build": "tsc",
-    "lint": "eslint -c ./.eslintrc.js --ext .ts ./src",
+    "lint": "eslint --ext .ts,.tsx ./src",
+    "lint:fix": "eslint --fix --ext .ts,.tsx ./src",
     "test": "mocha --config ../../.mocharc.json \"./src/**/*.spec.?(ts|tsx)\"",
     "test:ci": "export JUNIT_REPORT_PATH=./report.xml && yarn test --reporter mocha-jenkins-reporter",
     "watch": "tsc -w"
