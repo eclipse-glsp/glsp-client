@@ -21,6 +21,8 @@ import {
     DeleteElementContextMenuItemProvider,
     DiamondNodeView,
     editLabelFeature,
+    GLSPGraph,
+    GLSPProjectionView,
     GridSnapper,
     LogLevel,
     overrideViewerOptions,
@@ -66,7 +68,7 @@ const workflowDiagramModule = new ContainerModule((bind, unbind, isBound, rebind
     configureModelElement(context, 'activityNode:decision', ActivityNode, DiamondNodeView);
     configureModelElement(context, 'activityNode:fork', ActivityNode, RectangularNodeView);
     configureModelElement(context, 'activityNode:join', ActivityNode, RectangularNodeView);
-
+    configureModelElement(context, DefaultTypes.GRAPH, GLSPGraph, GLSPProjectionView);
     configureModelElement(context, 'category', CategoryNode, RoundedCornerNodeView);
     configureModelElement(context, 'struct', SCompartment, StructureCompartmentView);
 });
