@@ -15,13 +15,12 @@
  ********************************************************************************/
 import download from 'mvn-artifact-download';
 import { join, resolve } from 'path';
+import * as config from './config.json';
 
 const downloadDir = resolve(join(__dirname)) + '/../../..';
-const mavenRepository = 'https://oss.sonatype.org/content/repositories/snapshots/';
-const groupId = 'org.eclipse.glsp.example';
-const artifactId = 'org.eclipse.glsp.example.workflow';
-const version = '1.1.0';
-const classifier = 'glsp';
+
+const { groupId, artifactId, classifier, version, isSnapshot } = config;
+const mavenRepository = isSnapshot ? config.snapshotRepository : config.releaseRepository;
 
 console.log('Downloading latest version of the Workflow Example Java Server from the maven repository...');
 const isSnapShot = true;
