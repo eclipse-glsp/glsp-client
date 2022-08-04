@@ -104,7 +104,12 @@ export {
 export * from 'sprotty/lib/features/bounds/stack-layout';
 export * from 'sprotty/lib/features/bounds/vbox-layout';
 export * from 'sprotty/lib/features/bounds/views';
-export * from 'sprotty/lib/features/button/button-handler';
+export {
+    ButtonHandlerRegistry,
+    configureButtonHandler,
+    IButtonHandler,
+    IButtonHandlerRegistration
+} from 'sprotty/lib/features/button/button-handler';
 export * from 'sprotty/lib/features/button/model';
 export * from 'sprotty/lib/features/command-palette/action-providers';
 export * from 'sprotty/lib/features/command-palette/command-palette';
