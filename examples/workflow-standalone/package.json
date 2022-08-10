@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "workflow-standalone",
-  "version": "1.1.0-next",
+  "version": "1.1.0-RC01",
   "description": "Standalone browser-app for the Workflow example",
   "author": {
     "name": "Eclipse GLSP"
@@ -20,8 +20,8 @@
     }
   ],
   "dependencies": {
-    "@eclipse-glsp-examples/workflow-glsp": "1.1.0-next",
-    "@eclipse-glsp/client": "1.1.0-next"
+    "@eclipse-glsp-examples/workflow-glsp": "1.1.0-RC01",
+    "@eclipse-glsp/client": "1.1.0-RC01"
   },
   "devDependencies": {
     "circular-dependency-plugin": "^5.2.2",

@@ -3,7 +3,7 @@
   "snapshotRepository": "https://oss.sonatype.org/content/repositories/snapshots/",
   "groupId": "org.eclipse.glsp.example",
   "artifactId": "org.eclipse.glsp.example.workflow",
-  "version": "1.1.0",
-  "isSnapshot": true,
+  "version": "1.1.0.RC01",
+  "isSnapshot": false,
   "classifier": "glsp"
 }
