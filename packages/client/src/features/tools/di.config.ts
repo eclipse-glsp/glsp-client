@@ -18,6 +18,7 @@ import { ContainerModule, interfaces } from 'inversify';
 import { configureActionHandler, configureModelElement } from 'sprotty';
 import { FocusStateChangedAction } from '../../base/actions/focus-change-action';
 import { TYPES } from '../../base/types';
+import { GLSPSvgExporter } from '../export/glsp-svg-exporter';
 import { MARQUEE } from '../tool-feedback/marquee-tool-feedback';
 import { ChangeBoundsTool } from './change-bounds-tool';
 import { DelKeyDeleteTool, MouseDeleteTool } from './delete-tool';
@@ -34,7 +35,7 @@ import { MarqueeView } from './view';
  * Registers the default tools of GLSP (node and edge creation, changing bounds, edge editing, deletion)
  * and adds the marquee selection tool.
  */
-export const toolsModule = new ContainerModule((bind, _unbind, isBound) => {
+export const toolsModule = new ContainerModule((bind, _unbind, isBound, rebind) => {
     // Register default tools
     bind(TYPES.IDefaultTool).to(ChangeBoundsTool);
     bind(TYPES.IDefaultTool).to(EdgeEditTool);
@@ -50,6 +51,9 @@ export const toolsModule = new ContainerModule((bind, _unbind, isBound) => {
     configureMarqueeTool({ bind, isBound });
     configureActionHandler({ bind, isBound }, TriggerNodeCreationAction.KIND, NodeCreationTool);
     configureActionHandler({ bind, isBound }, TriggerEdgeCreationAction.KIND, EdgeCreationTool);
+
+    bind(GLSPSvgExporter).toSelf().inSingletonScope();
+    rebind(TYPES.SvgExporter).toService(GLSPSvgExporter);
 });
 
 export function configureMarqueeTool(context: { bind: interfaces.Bind; isBound: interfaces.IsBound }): void {
