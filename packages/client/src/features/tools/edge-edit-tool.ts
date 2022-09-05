@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, ChangeRoutingPointsOperation, ReconnectEdgeOperation } from '@eclipse-glsp/protocol';
+import { Action, ChangeRoutingPointsOperation, Point, ReconnectEdgeOperation } from '@eclipse-glsp/protocol';
 import { inject, injectable, optional } from 'inversify';
 import {
     AnchorComputerRegistry,
@@ -53,7 +53,7 @@ export class EdgeEditTool extends BaseGLSPTool {
 
     @inject(TYPES.SelectionService) protected selectionService: SelectionService;
     @inject(AnchorComputerRegistry) protected anchorRegistry: AnchorComputerRegistry;
-    @inject(EdgeRouterRegistry) @optional() protected edgeRouterRegistry?: EdgeRouterRegistry;
+    @inject(EdgeRouterRegistry) @optional() readonly edgeRouterRegistry?: EdgeRouterRegistry;
     @inject(TYPES.ISnapper) @optional() readonly snapper?: ISnapper;
 
     protected feedbackEdgeSourceMovingListener: FeedbackEdgeSourceMovingMouseListener;
@@ -237,16 +237,24 @@ class EdgeEditListener extends DragAwareMouseListener implements SelectionListen
             // reroute actions
             const latestEdge = target.index.getById(this.edge.id);
             if (latestEdge && isRoutable(latestEdge)) {
-                result.push(
-                    ChangeRoutingPointsOperation.create([{ elementId: latestEdge.id, newRoutingPoints: latestEdge.routingPoints }])
-                );
+                const newRoutingPoints = this.getRoutingPoints(latestEdge);
+                result.push(ChangeRoutingPointsOperation.create([{ elementId: latestEdge.id, newRoutingPoints }]));
                 this.routingHandle = undefined;
             }
         }
         return result;
     }
 
-    override mouseOver(target: SModelElement, event: MouseEvent): Action[] {
+    protected getRoutingPoints(edge: SRoutableElement): Point[] {
+        const router = this.tool.edgeRouterRegistry?.get(edge.routerKind);
+        // filter duplicate points (same x,y coordinates) and only keep actual routing points (no start or target, no volatile points)
+        const routedPoints = router?.route(edge)
+            .filter((point, idx, route) => idx === route.findIndex(otherPoint => otherPoint.x === point.x && otherPoint.y === point.y))
+            .filter(point => point.kind === 'linear' || point.kind === 'bezier-junction');
+        return routedPoints || edge.routingPoints;
+    }
+
+    override mouseOver(target: SModelElement, _event: MouseEvent): Action[] {
         if (this.edge && this.isReconnecting()) {
             const currentTarget = findParentByFeature(target, isConnectable);
             if (!this.newConnectable || currentTarget !== this.newConnectable) {

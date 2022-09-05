@@ -16,9 +16,7 @@
 import {
     Action,
     Bounds,
-    ChangeBoundsOperation,
-    ChangeRoutingPointsOperation,
-    CompoundOperation,
+    ChangeBoundsOperation, CompoundOperation,
     Dimension,
     ElementAndBounds,
     ElementAndRoutingPoints,
@@ -246,9 +244,6 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements Sele
                 element.outgoingEdges.map(toElementAndRoutingPoints).forEach(ear => newRoutingPoints.push(ear));
             }
         });
-        if (newRoutingPoints.length > 0) {
-            result.push(ChangeRoutingPointsOperation.create(newRoutingPoints));
-        }
         return result;
     }
 
