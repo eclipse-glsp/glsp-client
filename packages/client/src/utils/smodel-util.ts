@@ -16,6 +16,7 @@
 import { distinctAdd, ElementAndBounds, ElementAndRoutingPoints, remove, SModelElementSchema, TypeGuard } from '@eclipse-glsp/protocol';
 import {
     BoundsAware,
+    EdgeRouterRegistry,
     isBoundsAware,
     isMoveable,
     isSelectable,
@@ -214,7 +215,7 @@ export function toElementAndBounds(element: BoundsAwareModelElement): ElementAnd
 
 /**
  * Helper function to translate a given {@link SRoutableElement} into its corresponding
- * {@ElementAndRoutingPoints ElementAndBounds} representation.
+ * {@link ElementAndRoutingPoints} representation.
  * @param element The element to translate.
  * @returns The corresponding {@link ElementAndRoutingPoints} for the given element.
  */
@@ -223,6 +224,23 @@ export function toElementAndRoutingPoints(element: SRoutableElement): ElementAnd
         elementId: element.id,
         newRoutingPoints: element.routingPoints
     };
+}
+
+/**
+ * Helper function to calculate the {@link ElementAndRoutingPoints} for a given {@link SRoutableElement}.
+ * If client layout is activated, i.e., the edge routing registry is given and has a router for the element, then the routing
+ * points from the calculated route are used, otherwise we use the already specified routing points of the {@link SRoutableElement}.
+ * @param element The element to translate.
+ * @param edgeRouterRegistry the edge router registry
+ * @returns The corresponding {@link ElementAndRoutingPoints} for the given element.
+ */
+export function calcElementAndRoutingPoints(element: SRoutableElement, edgeRouterRegistry?: EdgeRouterRegistry): ElementAndRoutingPoints {
+    const router = edgeRouterRegistry?.get(element.routerKind);
+    // filter duplicate points (same x,y coordinates) and only keep actual routing points (no start or target, no volatile points)
+    const clientRoutingPoints = router?.route(element)
+        .filter((point, idx, route) => idx === route.findIndex(otherPoint => otherPoint.x === point.x && otherPoint.y === point.y))
+        .filter(point => point.kind === 'linear' || point.kind === 'bezier-junction');
+    return { elementId: element.id, newRoutingPoints: clientRoutingPoints || element.routingPoints };
 }
 
 /**
@@ -247,3 +265,4 @@ export function getElementTypeId(input: SModelElement | SModelElementSchema | st
         return (input as any)['type'] as string;
     }
 }
+

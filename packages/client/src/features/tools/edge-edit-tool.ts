@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, ChangeRoutingPointsOperation, Point, ReconnectEdgeOperation } from '@eclipse-glsp/protocol';
+import { Action, ChangeRoutingPointsOperation, ReconnectEdgeOperation } from '@eclipse-glsp/protocol';
 import { inject, injectable, optional } from 'inversify';
 import {
     AnchorComputerRegistry,
@@ -31,7 +31,7 @@ import {
 } from 'sprotty';
 import { DragAwareMouseListener } from '../../base/drag-aware-mouse-listener';
 import { TYPES } from '../../base/types';
-import { isRoutable, isRoutingHandle } from '../../utils/smodel-util';
+import { calcElementAndRoutingPoints, isRoutable, isRoutingHandle } from '../../utils/smodel-util';
 import { isReconnectable, isReconnectHandle, isSourceRoutingHandle, isTargetRoutingHandle, SReconnectHandle } from '../reconnect/model';
 import { SelectionListener, SelectionService } from '../select/selection-service';
 import { DrawFeedbackEdgeAction, feedbackEdgeId, RemoveFeedbackEdgeAction } from '../tool-feedback/creation-tool-feedback';
@@ -237,21 +237,12 @@ class EdgeEditListener extends DragAwareMouseListener implements SelectionListen
             // reroute actions
             const latestEdge = target.index.getById(this.edge.id);
             if (latestEdge && isRoutable(latestEdge)) {
-                const newRoutingPoints = this.getRoutingPoints(latestEdge);
-                result.push(ChangeRoutingPointsOperation.create([{ elementId: latestEdge.id, newRoutingPoints }]));
+                const newRoutingPoints = calcElementAndRoutingPoints(latestEdge, this.tool.edgeRouterRegistry);
+                result.push(ChangeRoutingPointsOperation.create([newRoutingPoints]));
                 this.routingHandle = undefined;
             }
         }
         return result;
-    }
-
-    protected getRoutingPoints(edge: SRoutableElement): Point[] {
-        const router = this.tool.edgeRouterRegistry?.get(edge.routerKind);
-        // filter duplicate points (same x,y coordinates) and only keep actual routing points (no start or target, no volatile points)
-        const routedPoints = router?.route(edge)
-            .filter((point, idx, route) => idx === route.findIndex(otherPoint => otherPoint.x === point.x && otherPoint.y === point.y))
-            .filter(point => point.kind === 'linear' || point.kind === 'bezier-junction');
-        return routedPoints || edge.routingPoints;
     }
 
     override mouseOver(target: SModelElement, _event: MouseEvent): Action[] {
