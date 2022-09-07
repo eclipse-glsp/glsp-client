@@ -19,11 +19,10 @@ import * as config from './config.json';
 
 const downloadDir = resolve(join(__dirname)) + '/../../..';
 
-const { groupId, artifactId, classifier, version, isSnapshot } = config;
-const mavenRepository = isSnapshot ? config.snapshotRepository : config.releaseRepository;
+const { groupId, artifactId, classifier, version, isSnapShot } = config;
+const mavenRepository = isSnapShot ? config.snapshotRepository : config.releaseRepository;
 
 console.log('Downloading latest version of the Workflow Example Java Server from the maven repository...');
-const isSnapShot = true;
 download({ groupId, artifactId, version, classifier, isSnapShot }, downloadDir, mavenRepository).then(() =>
     console.log(
         'Download completed. Start the server using this command: \njava -jar org.eclipse.glsp.example.workflow-' +
