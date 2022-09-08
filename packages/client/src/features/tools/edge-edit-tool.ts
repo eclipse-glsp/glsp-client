@@ -31,7 +31,7 @@ import {
 } from 'sprotty';
 import { DragAwareMouseListener } from '../../base/drag-aware-mouse-listener';
 import { TYPES } from '../../base/types';
-import { isRoutable, isRoutingHandle } from '../../utils/smodel-util';
+import { calcElementAndRoutingPoints, isRoutable, isRoutingHandle } from '../../utils/smodel-util';
 import { isReconnectable, isReconnectHandle, isSourceRoutingHandle, isTargetRoutingHandle, SReconnectHandle } from '../reconnect/model';
 import { SelectionListener, SelectionService } from '../select/selection-service';
 import { DrawFeedbackEdgeAction, feedbackEdgeId, RemoveFeedbackEdgeAction } from '../tool-feedback/creation-tool-feedback';
@@ -53,7 +53,7 @@ export class EdgeEditTool extends BaseGLSPTool {
 
     @inject(TYPES.SelectionService) protected selectionService: SelectionService;
     @inject(AnchorComputerRegistry) protected anchorRegistry: AnchorComputerRegistry;
-    @inject(EdgeRouterRegistry) @optional() protected edgeRouterRegistry?: EdgeRouterRegistry;
+    @inject(EdgeRouterRegistry) @optional() readonly edgeRouterRegistry?: EdgeRouterRegistry;
     @inject(TYPES.ISnapper) @optional() readonly snapper?: ISnapper;
 
     protected feedbackEdgeSourceMovingListener: FeedbackEdgeSourceMovingMouseListener;
@@ -237,16 +237,15 @@ class EdgeEditListener extends DragAwareMouseListener implements SelectionListen
             // reroute actions
             const latestEdge = target.index.getById(this.edge.id);
             if (latestEdge && isRoutable(latestEdge)) {
-                result.push(
-                    ChangeRoutingPointsOperation.create([{ elementId: latestEdge.id, newRoutingPoints: latestEdge.routingPoints }])
-                );
+                const newRoutingPoints = calcElementAndRoutingPoints(latestEdge, this.tool.edgeRouterRegistry);
+                result.push(ChangeRoutingPointsOperation.create([newRoutingPoints]));
                 this.routingHandle = undefined;
             }
         }
         return result;
     }
 
-    override mouseOver(target: SModelElement, event: MouseEvent): Action[] {
+    override mouseOver(target: SModelElement, _event: MouseEvent): Action[] {
         if (this.edge && this.isReconnecting()) {
             const currentTarget = findParentByFeature(target, isConnectable);
             if (!this.newConnectable || currentTarget !== this.newConnectable) {

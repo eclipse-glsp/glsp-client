@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import {
+ import {
     Action,
     Bounds,
     ChangeBoundsOperation,
@@ -44,10 +44,10 @@ import { DragAwareMouseListener } from '../../base/drag-aware-mouse-listener';
 import { TYPES } from '../../base/types';
 import { isValidMove, isValidSize } from '../../utils/layout-utils';
 import {
+    calcElementAndRoutingPoints,
     forEachElement,
     isNonRoutableSelectedMovableBoundsAware,
-    toElementAndBounds,
-    toElementAndRoutingPoints
+    toElementAndBounds
 } from '../../utils/smodel-util';
 import { isBoundsAwareMoveable, isResizable, Resizable, ResizeHandleLocation, SResizeHandle } from '../change-bounds/model';
 import {
@@ -237,19 +237,22 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements Sele
     }
 
     protected handleMoveRoutingPointsOnServer(target: SModelElement): Operation[] {
-        const result: Operation[] = [];
         const newRoutingPoints: ElementAndRoutingPoints[] = [];
-        forEachElement(target.index, isNonRoutableSelectedMovableBoundsAware, element => {
+        const routerRegistry = this.tool.edgeRouterRegistry;
+        if (routerRegistry) {
             //  If client routing is enabled -> delegate routingpoints of connected edges to server
-            if (this.tool.edgeRouterRegistry && element instanceof SConnectableElement) {
-                element.incomingEdges.map(toElementAndRoutingPoints).forEach(ear => newRoutingPoints.push(ear));
-                element.outgoingEdges.map(toElementAndRoutingPoints).forEach(ear => newRoutingPoints.push(ear));
-            }
-        });
-        if (newRoutingPoints.length > 0) {
-            result.push(ChangeRoutingPointsOperation.create(newRoutingPoints));
+            forEachElement(target.index, isNonRoutableSelectedMovableBoundsAware, element => {
+                if (element instanceof SConnectableElement) {
+                    element.incomingEdges.map(connectable => calcElementAndRoutingPoints(connectable, routerRegistry))
+                        .forEach(ear => newRoutingPoints.push(ear));
+                    element.outgoingEdges.map(connectable => calcElementAndRoutingPoints(connectable, routerRegistry))
+                        .forEach(ear => newRoutingPoints.push(ear));
+                }
+            });
         }
-        return result;
+        return newRoutingPoints.length > 0
+         ? [ChangeRoutingPointsOperation.create(newRoutingPoints)]
+         : [];
     }
 
     protected handleResize(activeResizeHandle: SResizeHandle): Action[] {
