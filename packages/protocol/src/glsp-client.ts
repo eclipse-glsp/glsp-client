@@ -214,5 +214,5 @@ export namespace GLSPClient {
         return typeof object === 'object' && 'id' in object && typeof object['id'] === 'string';
     }
 
-    export const protocolVersion = '0.9.0';
+    export const protocolVersion = '1.0.0';
 }
