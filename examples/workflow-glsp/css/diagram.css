@@ -111,3 +111,75 @@
     margin-top: -3px;
     margin-left: -3px;
 }
+
+.sprotty-edge.pulse path {
+    stroke: #2980b9;
+    -webkit-animation: pulsate 1s ease-out;
+    -webkit-animation-iteration-count: infinite;
+    -moz-animation: pulsate 1s ease-out;
+    -moz-animation-iteration-count: infinite;
+    -ms-animation: pulsate 1s ease-out;
+    -ms-animation-iteration-count: infinite;
+    animation: pulsate 1s ease-out;
+    animation-iteration-count: infinite;
+}
+
+@-webkit-keyframes pulsate {
+    0% {
+        opacity: 1;
+        stroke-width: 3;
+    }
+    50% {
+        opacity: 1;
+        stroke-width: 6;
+    }
+    100% {
+        opacity: 1;
+        stroke-width: 3;
+    }
+}
+
+@-moz-keyframes pulsate {
+    0% {
+        opacity: 1;
+        stroke-width: 3;
+    }
+    50% {
+        opacity: 1;
+        stroke-width: 6;
+    }
+    100% {
+        opacity: 1;
+        stroke-width: 3;
+    }
+}
+
+@-ms-keyframes pulsate {
+    0% {
+        opacity: 1;
+        stroke-width: 3;
+    }
+    50% {
+        opacity: 1;
+        stroke-width: 5;
+    }
+    100% {
+        opacity: 0.4;
+        stroke-width: 3;
+    }
+}
+
+@keyframes pulsate {
+    0% {
+        opacity: 1;
+        stroke-width: 3;
+    }
+    50% {
+        opacity: 1;
+        stroke-width: 5;
+    }
+    100% {
+        opacity: 1;
+        stroke-width: 3;
+    }
+}
