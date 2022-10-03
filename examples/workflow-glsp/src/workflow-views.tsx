@@ -17,6 +17,7 @@ import {
     angleOfPoint,
     findParentByFeature,
     getSubType,
+    getZoom,
     Point,
     PolylineEdgeViewWithGapsOnIntersections,
     RenderingContext,
@@ -36,6 +37,10 @@ const JSX = { createElement: svg };
 @injectable()
 export class WorkflowEdgeView extends PolylineEdgeViewWithGapsOnIntersections {
     protected override renderAdditionals(edge: SEdge, segments: Point[], context: RenderingContext): VNode[] {
+        if (getZoom(edge) < 0.5) {
+            return [];
+        }
+
         const additionals = super.renderAdditionals(edge, segments, context);
         const p1 = segments[segments.length - 2];
         const p2 = segments[segments.length - 1];
@@ -58,7 +63,7 @@ export class WorkflowEdgeView extends PolylineEdgeViewWithGapsOnIntersections {
 export class IconView extends ShapeView {
     render(element: Icon, context: RenderingContext): VNode | undefined {
         const taskNode = findParentByFeature(element, isTaskNode);
-        if (!taskNode || !this.isVisible(element, context)) {
+        if (!taskNode || !this.isVisible(element, context) || getZoom(taskNode) < 0.5) {
             return undefined;
         }
 
