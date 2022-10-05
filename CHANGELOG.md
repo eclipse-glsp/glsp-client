@@ -5,6 +5,12 @@
 ### Changes
 
 -   [layout] Improve Layouter to support more dynamic layouts and complex parent/children node structures [#187](https://github.com/eclipse-glsp/glsp-client/pull/187) - Contributed on behalf of STMicroelectronics
+-   [example] Updated workflow standalone example to webpack 5.
+
+### Breaking Changes
+
+-   [jsonrpc] Removed dependency to `vscode-ws-jsonrpc` from `@eclipse-glsp/protocol` and updated to version `^8.0.2` of `vscode-jsonrpc`.
+    -   GLSP clients that should be connected over websocket can simply depend `vscode-ws-jsonrpc` directly.
 
 ### Breaking Changes
 

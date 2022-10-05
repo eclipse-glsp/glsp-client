@@ -40,7 +40,6 @@
   },
   "devDependencies": {
     "@vscode/codicons": "^0.0.25",
-    "eslint-import-resolver-typescript": "2.7.0",
     "typescript": "^4.5.5"
   },
   "scripts": {

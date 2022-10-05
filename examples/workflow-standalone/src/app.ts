@@ -21,12 +21,12 @@ import {
     GLSPClient,
     GLSPDiagramServer,
     IActionDispatcher,
-    JsonrpcGLSPClient,
     RequestModelAction,
     RequestTypeHintsAction,
     TYPES
 } from '@eclipse-glsp/client';
 import { join, resolve } from 'path';
+import { listen, MessageConnection } from 'vscode-ws-jsonrpc';
 import createContainer from './di.config';
 
 const port = 8081;
@@ -36,20 +36,18 @@ const websocket = new WebSocket(`ws://localhost:${port}/${id}`);
 
 const loc = window.location.pathname;
 const currentDir = loc.substring(0, loc.lastIndexOf('/'));
-const examplePath = resolve(join(currentDir, '..', 'app', 'example1.wf'));
+const examplePath = resolve(join(currentDir, '../app/example1.wf'));
 const clientId = ApplicationIdProvider.get() + '_' + examplePath;
 
 const container = createContainer();
 const diagramServer = container.get<GLSPDiagramServer>(TYPES.ModelSource);
 diagramServer.clientId = clientId;
 
-websocket.onopen = () => {
-    const connectionProvider = JsonrpcGLSPClient.createWebsocketConnectionProvider(websocket);
-    const glspClient = new BaseJsonrpcGLSPClient({ id, connectionProvider });
-    initialize(glspClient);
-};
+listen({ webSocket: websocket, onConnection: connection => initialize(connection) });
 
-async function initialize(client: GLSPClient): Promise<void> {
+async function initialize(connectionProvider: MessageConnection): Promise<void> {
+    const client = new BaseJsonrpcGLSPClient({ id, connectionProvider });
+
     await diagramServer.connect(client);
     const result = await client.initializeServer({
         applicationId: ApplicationIdProvider.get(),
@@ -63,7 +61,7 @@ async function initialize(client: GLSPClient): Promise<void> {
     actionDispatcher.dispatch(
         RequestModelAction.create({
             options: {
-                sourceUri: `file://${examplePath}`,
+                sourceUri: `${examplePath}`,
                 diagramType
             }
         })
