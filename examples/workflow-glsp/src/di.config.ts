@@ -42,6 +42,7 @@ import 'balloon-css/balloon.min.css';
 import { Container, ContainerModule } from 'inversify';
 import 'sprotty/css/edit-label.css';
 import '../css/diagram.css';
+import { directConnectToolModule } from './direct-connect-tool/di.config';
 import { directTaskEditor } from './direct-task-editing/di.config';
 import { filterModule } from './filter/di.config';
 import { ActivityNode, CategoryNode, Icon, TaskNode, WeightedEdge } from './model';
@@ -75,7 +76,7 @@ const workflowDiagramModule = new ContainerModule((bind, unbind, isBound, rebind
 });
 
 export default function createContainer(widgetId: string): Container {
-    const container = createClientContainer(workflowDiagramModule, directTaskEditor, filterModule);
+    const container = createClientContainer(workflowDiagramModule, directTaskEditor, filterModule, directConnectToolModule);
     overrideViewerOptions(container, {
         baseDiv: widgetId,
         hiddenDiv: widgetId + '_hidden'

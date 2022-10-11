@@ -112,8 +112,7 @@
     margin-left: -3px;
 }
 
-.sprotty-edge.pulse path {
-    stroke: #2980b9;
+.pulse > path {
     -webkit-animation: pulsate 1s ease-out;
     -webkit-animation-iteration-count: infinite;
     -moz-animation: pulsate 1s ease-out;
@@ -124,62 +123,14 @@
     animation-iteration-count: infinite;
 }
 
-@-webkit-keyframes pulsate {
-    0% {
-        opacity: 1;
-        stroke-width: 3;
-    }
-    50% {
-        opacity: 1;
-        stroke-width: 6;
-    }
-    100% {
-        opacity: 1;
-        stroke-width: 3;
-    }
-}
-
-@-moz-keyframes pulsate {
-    0% {
-        opacity: 1;
-        stroke-width: 3;
-    }
-    50% {
-        opacity: 1;
-        stroke-width: 6;
-    }
-    100% {
-        opacity: 1;
-        stroke-width: 3;
-    }
-}
-
-@-ms-keyframes pulsate {
-    0% {
-        opacity: 1;
-        stroke-width: 3;
-    }
-    50% {
-        opacity: 1;
-        stroke-width: 5;
-    }
-    100% {
-        opacity: 0.4;
-        stroke-width: 3;
-    }
-}
-
 @keyframes pulsate {
     0% {
-        opacity: 1;
-        stroke-width: 3;
+        filter: brightness(50%) contrast(80%) drop-shadow(0 0 10px #fff) drop-shadow(0 0 13px #e60073) drop-shadow(0 0 20px #e60073);
     }
     50% {
-        opacity: 1;
-        stroke-width: 5;
+        filter: brightness(100%) contrast(100%) drop-shadow(0 0 5px #fff) drop-shadow(0 0 7px #e60073) drop-shadow(0 0 10px #e60073);
     }
     100% {
-        opacity: 1;
-        stroke-width: 3;
+        filter: brightness(50%) contrast(80%) drop-shadow(0 0 10px #fff) drop-shadow(0 0 12px #e60073) drop-shadow(0 0 20px #e60073);
     }
 }
