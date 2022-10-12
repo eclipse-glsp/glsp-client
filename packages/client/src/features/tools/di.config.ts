@@ -15,7 +15,7 @@
  ********************************************************************************/
 import { TriggerEdgeCreationAction, TriggerNodeCreationAction } from '@eclipse-glsp/protocol';
 import { ContainerModule, interfaces } from 'inversify';
-import { configureActionHandler, configureModelElement } from 'sprotty';
+import { configureActionHandler, configureModelElement, ManhattanEdgeRouter } from 'sprotty';
 import { FocusStateChangedAction } from '../../base/actions/focus-change-action';
 import { TYPES } from '../../base/types';
 import { GLSPSvgExporter } from '../export/glsp-svg-exporter';
@@ -25,6 +25,7 @@ import { DelKeyDeleteTool, MouseDeleteTool } from './delete-tool';
 import { EdgeCreationTool } from './edge-creation-tool';
 import { EdgeEditTool } from './edge-edit-tool';
 import { EnableDefaultToolsOnFocusLossHandler } from './enable-default-tools-on-focus-loss';
+import { GSLPManhattanEdgeRouter } from './glsp-manhattan-edge-router';
 import { MarqueeMouseTool } from './marquee-mouse-tool';
 import { MarqueeTool } from './marquee-tool';
 import { MarqueeNode } from './model';
@@ -54,6 +55,9 @@ export const toolsModule = new ContainerModule((bind, _unbind, isBound, rebind) 
 
     bind(GLSPSvgExporter).toSelf().inSingletonScope();
     rebind(TYPES.SvgExporter).toService(GLSPSvgExporter);
+
+    bind(GSLPManhattanEdgeRouter).toSelf().inSingletonScope();
+    rebind(ManhattanEdgeRouter).toService(GSLPManhattanEdgeRouter);
 });
 
 export function configureMarqueeTool(context: { bind: interfaces.Bind; isBound: interfaces.IsBound }): void {
