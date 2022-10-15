@@ -16,7 +16,6 @@
 
 import { Container, ContainerModule } from 'inversify';
 import {
-    boundsModule,
     buttonModule,
     defaultModule,
     edgeIntersectionModule,
@@ -30,6 +29,7 @@ import {
     routingModule,
     zorderModule
 } from 'sprotty';
+import glspBoundsModule from '../features/bounds/di.config';
 import glspCommandPaletteModule from '../features/command-palette/di.config';
 import glspContextMenuModule from '../features/context-menu/di.config';
 import { glspServerCopyPasteModule } from '../features/copy-paste/di.config';
@@ -52,13 +52,13 @@ import defaultGLSPModule from './di.config';
 export const DEFAULT_MODULES = [
     defaultModule,
     defaultGLSPModule,
-    boundsModule,
     buttonModule,
     edgeIntersectionModule,
     edgeLayoutModule,
     expandModule,
     exportModule,
     fadeModule,
+    glspBoundsModule,
     glspCommandPaletteModule,
     glspContextMenuModule,
     glspDecorationModule,
