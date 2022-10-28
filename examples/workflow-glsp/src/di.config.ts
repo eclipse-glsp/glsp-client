@@ -16,7 +16,6 @@
 import {
     configureDefaultModelElements,
     configureModelElement,
-    ConsoleLogger,
     createClientContainer,
     DeleteElementContextMenuItemProvider,
     DiamondNodeView,
@@ -24,7 +23,6 @@ import {
     GLSPGraph,
     GLSPProjectionView,
     GridSnapper,
-    LogLevel,
     overrideViewerOptions,
     RectangularNodeView,
     RevealNamedElementActionProvider,
@@ -49,13 +47,7 @@ import { ActivityNode, CategoryNode, Icon, TaskNode, WeightedEdge } from './mode
 import { IconView, WorkflowEdgeView } from './workflow-views';
 
 const workflowDiagramModule = new ContainerModule((bind, unbind, isBound, rebind) => {
-    rebind(TYPES.ILogger).to(ConsoleLogger).inSingletonScope();
-    rebind(TYPES.LogLevel).toConstantValue(LogLevel.warn);
-    bind(TYPES.ISnapper).to(GridSnapper);
-    bind(TYPES.ICommandPaletteActionProvider).to(RevealNamedElementActionProvider);
-    bind(TYPES.IContextMenuItemProvider).to(DeleteElementContextMenuItemProvider);
     const context = { bind, unbind, isBound, rebind };
-
     configureDefaultModelElements(context);
     configureModelElement(context, 'task:automated', TaskNode, RoundedCornerNodeView);
     configureModelElement(context, 'task:manual', TaskNode, RoundedCornerNodeView);
@@ -73,6 +65,10 @@ const workflowDiagramModule = new ContainerModule((bind, unbind, isBound, rebind
     configureModelElement(context, DefaultTypes.GRAPH, GLSPGraph, GLSPProjectionView);
     configureModelElement(context, 'category', CategoryNode, RoundedCornerNodeView);
     configureModelElement(context, 'struct', SCompartment, StructureCompartmentView);
+
+    bind(TYPES.ISnapper).to(GridSnapper);
+    bind(TYPES.ICommandPaletteActionProvider).to(RevealNamedElementActionProvider);
+    bind(TYPES.IContextMenuItemProvider).to(DeleteElementContextMenuItemProvider);
 });
 
 export default function createContainer(widgetId: string): Container {
