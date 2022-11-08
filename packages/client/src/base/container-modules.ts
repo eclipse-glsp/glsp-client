@@ -30,6 +30,7 @@ import {
     zorderModule
 } from 'sprotty';
 import glspBoundsModule from '../features/bounds/di.config';
+import svgMetadataModule from '../features/svg-metadata/di.config';
 import glspCommandPaletteModule from '../features/command-palette/di.config';
 import glspContextMenuModule from '../features/context-menu/di.config';
 import { glspServerCopyPasteModule } from '../features/copy-paste/di.config';
@@ -63,6 +64,7 @@ export const DEFAULT_MODULES = [
     glspCommandPaletteModule,
     glspContextMenuModule,
     glspDecorationModule,
+    svgMetadataModule,
     glspEditLabelModule,
     glspHoverModule,
     glspMouseToolModule,
