@@ -97,10 +97,11 @@ describe('Model layout actions', () => {
                     responseId: 'myResponse',
                     alignments: [{ elementId: 'myElement', newAlignment: Point.ORIGIN }],
                     revision: 5,
-                    bounds: [{ elementId: '', newSize: Dimension.EMPTY, newPosition: Point.ORIGIN }]
+                    bounds: [{ elementId: '', newSize: Dimension.EMPTY, newPosition: Point.ORIGIN }],
+                    routes: [{ elementId: 'myEdge', newRoutingPoints: [{ x: 42, y: 1337 }] }]
                 };
-                const { bounds, responseId, alignments, revision } = expected;
-                expect(ComputedBoundsAction.create(bounds, { responseId, alignments, revision })).to.deep.equals(expected);
+                const { bounds, responseId, alignments, revision, routes } = expected;
+                expect(ComputedBoundsAction.create(bounds, { responseId, alignments, revision, routes })).to.deep.equals(expected);
             });
         });
     });

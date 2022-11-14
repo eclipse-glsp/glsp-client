@@ -13,15 +13,18 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { distinctAdd, ElementAndBounds, ElementAndRoutingPoints, remove, SModelElementSchema, TypeGuard } from '@eclipse-glsp/protocol';
+import {
+    distinctAdd, ElementAndBounds, ElementAndRoutingPoints, Point, remove, SModelElementSchema,
+    TypeGuard
+} from '@eclipse-glsp/protocol';
 import {
     BoundsAware,
     EdgeRouterRegistry,
     isBoundsAware,
     isMoveable,
     isSelectable,
-    isSelected,
-    ModelIndexImpl,
+    isSelected, ModelIndexImpl,
+    RoutedPoint,
     Selectable,
     SModelElement,
     SRoutableElement,
@@ -226,21 +229,55 @@ export function toElementAndRoutingPoints(element: SRoutableElement): ElementAnd
     };
 }
 
+/** Pure routing point data kinds. */
+export const ROUTING_POINT_KINDS = ['linear', 'bezier-junction'];
+
+/** Pure route data kinds. */
+export const ROUTE_KINDS = [...ROUTING_POINT_KINDS, 'source', 'target'];
+
 /**
  * Helper function to calculate the {@link ElementAndRoutingPoints} for a given {@link SRoutableElement}.
  * If client layout is activated, i.e., the edge routing registry is given and has a router for the element, then the routing
  * points from the calculated route are used, otherwise we use the already specified routing points of the {@link SRoutableElement}.
  * @param element The element to translate.
- * @param edgeRouterRegistry the edge router registry
+ * @param routerRegistry the edge router registry.
  * @returns The corresponding {@link ElementAndRoutingPoints} for the given element.
  */
-export function calcElementAndRoutingPoints(element: SRoutableElement, edgeRouterRegistry?: EdgeRouterRegistry): ElementAndRoutingPoints {
-    const router = edgeRouterRegistry?.get(element.routerKind);
-    // filter duplicate points (same x,y coordinates) and only keep actual routing points (no start or target, no volatile points)
-    const clientRoutingPoints = router?.route(element)
-        .filter((point, idx, route) => idx === route.findIndex(otherPoint => otherPoint.x === point.x && otherPoint.y === point.y))
-        .filter(point => point.kind === 'linear' || point.kind === 'bezier-junction');
-    return { elementId: element.id, newRoutingPoints: clientRoutingPoints || element.routingPoints };
+export function calcElementAndRoutingPoints(element: SRoutableElement, routerRegistry?: EdgeRouterRegistry): ElementAndRoutingPoints {
+    const newRoutingPoints = routerRegistry ? calcRoute(element, routerRegistry, ROUTING_POINT_KINDS) : element.routingPoints;
+    return { elementId: element.id, newRoutingPoints };
+}
+
+/**
+ * Helper function to calculate the route for a given {@link SRoutableElement}.
+ * If client layout is activated, i.e., the edge routing registry is given and has a router for the element, then the points
+ * from the calculated route are used, otherwise we use the already specified routing points of the {@link SRoutableElement}.
+ * @param element The element to translate.
+ * @param routerRegistry the edge router registry.
+ * @returns The corresponding route for the given element.
+ */
+export function calcElementAndRoute(element: SRoutableElement, routerRegistry?: EdgeRouterRegistry): ElementAndRoutingPoints {
+    let route: Point[] | undefined = routerRegistry ? calcRoute(element, routerRegistry, ROUTE_KINDS) : undefined;
+    if (!route) {
+        // add source and target to the routing points
+        route = [...element.routingPoints];
+        route.splice(0, 0, element.source?.position || Point.ORIGIN);
+        route.push(element.target?.position || Point.ORIGIN);
+    }
+    return { elementId: element.id, newRoutingPoints: route };
+}
+
+/**
+ * Helper function to calculate the route for a given {@link SRoutableElement}.
+ * @param element The element to translate.
+ * @param routerRegistry the edge router registry.
+ * @param pointKinds the routing point kinds that should be considered.
+ * @returns The corresponding route for the given element.
+ */
+export function calcRoute(element: SRoutableElement, routerRegistry: EdgeRouterRegistry, pointKinds?: string[]): RoutedPoint[] | undefined {
+    return routerRegistry?.get(element.routerKind).route(element)
+        .filter((point, idx, fullRoute) => idx === fullRoute.findIndex(otherPoint => otherPoint.x === point.x && otherPoint.y === point.y))
+        .filter(point => !pointKinds || pointKinds.includes(point.kind));
 }
 
 /**
