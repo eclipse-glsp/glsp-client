@@ -3,30 +3,32 @@
   "name": "parent",
   "version": "1.0.0",
   "engines": {
-    "yarn": ">=1.7.0 <2.x.x"
+    "yarn": ">=1.7.0 <2.x.x",
+    "node": ">=14.18.0"
   },
   "scripts": {
-    "prepare": "lerna run prepare",
-    "watch": "lerna run --parallel watch",
-    "install:only": "yarn install --ignore-scripts",
+    "all": "yarn install && yarn lint && yarn test",
     "build": "lerna run build",
-    "lint": "lerna run lint --",
-    "lint:fix": "lerna run lint:fix --",
-    "test": "lerna run test",
-    "test:ci": "lerna run test:ci",
+    "clean": "lerna run clean",
+    "download:exampleServer": "ts-node examples/workflow-glsp/scripts/download.ts",
+    "lint": "lerna run lint",
+    "lint:ci": "lerna run lint:ci",
+    "prepare": "lerna run prepare",
     "publish:prepare": "lerna version --ignore-scripts --yes --no-push",
     "publish:latest": "lerna publish from-git --no-git-reset --no-git-tag-version --no-verify-access --no-push",
     "publish:next": "SHA=$(git rev-parse --short HEAD) && lerna publish preminor --exact --canary --preid next.${SHA} --dist-tag next --no-git-reset --no-git-tag-version --no-push --ignore-scripts --yes --no-verify-access",
     "upgrade:next": "yarn upgrade -p \"@eclipse-glsp.*|sprotty.*\" --next ",
-    "download:exampleServer": "ts-node examples/workflow-glsp/scripts/download.ts"
+    "test": "lerna run test",
+    "test:ci": "lerna run test:ci",
+    "watch": "lerna run --parallel watch"
   },
   "devDependencies": {
-    "@eclipse-glsp/config": "^1.0.0",
-    "@types/node": "12.x",
-    "lerna": "^4.0.0",
+    "@eclipse-glsp/config": "1.1.0-next.d03ad9f.112",
+    "@types/node": "14",
+    "lerna": "^6.1.0",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
-    "typescript": "~4.5.5"
+    "typescript": "^4.9.3"
   },
   "workspaces": [
     "packages/*",

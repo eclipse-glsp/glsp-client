@@ -41,13 +41,13 @@
     "@types/uuid": "3.4.5"
   },
   "scripts": {
-    "prepare": "yarn clean && yarn build && yarn lint",
     "clean": "rimraf lib tsconfig.tsbuildinfo ",
-    "build": "tsc",
+    "build": "tsc -b",
     "lint": "eslint --ext .ts,.tsx ./src",
-    "lint:fix": "eslint --fix --ext .ts,.tsx ./src",
+    "lint:ci": "yarn lint -o eslint.xml -f checkstyle",
     "test": "mocha --config ../../.mocharc.json \"./src/**/*.spec.?(ts|tsx)\"",
     "test:ci": "export JUNIT_REPORT_PATH=./report.xml && yarn test --reporter mocha-jenkins-reporter",
+    "prepare": "yarn clean && yarn build",
     "watch": "tsc -w"
   },
   "publishConfig": {

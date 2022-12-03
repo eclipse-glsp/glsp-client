@@ -4,7 +4,7 @@ kind: Pod
 spec:
   containers:
   - name: node
-    image: node:12.22.10
+    image: node:14
     tty: true
     resources:
       limits:
@@ -43,18 +43,15 @@ pipeline {
     environment {
         YARN_CACHE_FOLDER = "${env.WORKSPACE}/yarn-cache"
         SPAWN_WRAP_SHIM_ROOT = "${env.WORKSPACE}"
+        EMAIL_TO= "glsp-build@eclipse.org"
     }
     
     stages {
         stage('Build') {
             steps {
-                // Dont fail build on stage failure => always execute next stage
-                catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                    container('node') {
-                        timeout(30){
-                            sh "yarn install:only"
-                            sh "yarn build"
-                        }
+                container('node') {
+                    timeout(30){
+                        sh "yarn install"
                     }
                 }
             }
@@ -64,7 +61,7 @@ pipeline {
             steps {
                 container('node') {
                     timeout(30){
-                        sh "yarn lint -o eslint.xml -f checkstyle"                      
+                        sh "yarn lint:ci"                      
                     }
                 }
             }
@@ -93,8 +90,17 @@ pipeline {
                     }
                 }
             }
-            steps {
-                build job: 'deploy-npm-glsp-client', wait: false
+            steps { 
+                container('node') {
+                    timeout(30) {
+                        withCredentials([string(credentialsId: 'npmjs-token', variable: 'NPM_AUTH_TOKEN')]) {
+                                sh 'printf "//registry.npmjs.org/:_authToken=${NPM_AUTH_TOKEN}\n" >> $WORKSPACE/.npmrc'
+                        }
+                        sh 'git config  user.email "eclipse-glsp-bot@eclipse.org"'
+                        sh 'git config  user.name "eclipse-glsp-bot"'
+                        sh 'yarn publish:next'
+                    }
+                }
             }
         }
     }
@@ -108,6 +114,39 @@ pipeline {
 
             withChecks('Tests') {
                 junit 'node_modules/**/report.xml'
+            }
+        }
+        failure {
+            script {
+                if (env.BRANCH_NAME == 'master') {
+                    echo "Build result FAILURE: Send email notification to ${EMAIL_TO}"
+                    emailext attachLog: true,
+                    from: 'glsp-bot@eclipse.org',
+                    body: 'Job: ${JOB_NAME}<br>Build Number: ${BUILD_NUMBER}<br>Build URL: ${BUILD_URL}',
+                    mimeType: 'text/html', subject: 'Build ${JOB_NAME} (#${BUILD_NUMBER}) FAILURE', to: "${EMAIL_TO}"
+                }
+            }
+        }
+        unstable {
+            script {
+                if (env.BRANCH_NAME == 'master') {
+                    echo "Build result UNSTABLE: Send email notification to ${EMAIL_TO}"
+                    emailext attachLog: true,
+                    from: 'glsp-bot@eclipse.org',
+                    body: 'Job: ${JOB_NAME}<br>Build Number: ${BUILD_NUMBER}<br>Build URL: ${BUILD_URL}',
+                    mimeType: 'text/html', subject: 'Build ${JOB_NAME} (#${BUILD_NUMBER}) UNSTABLE', to: "${EMAIL_TO}"
+                }
+            }
+        }
+        fixed {
+            script {
+                if (env.BRANCH_NAME == 'master') {
+                    echo "Build back to normal: Send email notification to ${EMAIL_TO}"
+                    emailext attachLog: false,
+                    from: 'glsp-bot@eclipse.org',
+                    body: 'Job: ${JOB_NAME}<br>Build Number: ${BUILD_NUMBER}<br>Build URL: ${BUILD_URL}',
+                    mimeType: 'text/html', subject: 'Build ${JOB_NAME} back to normal (#${BUILD_NUMBER})', to: "${EMAIL_TO}"
+                }
             }
         }
     }
