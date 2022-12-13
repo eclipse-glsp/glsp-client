@@ -36,11 +36,11 @@
     "access": "public"
   },
   "scripts": {
-    "prepare": "yarn clean && yarn build && yarn lint",
+    "build": "tsc -b && webpack",
     "clean": "rimraf lib tsconfig.tsbuildinfo app/bundle.js app/bundle.js.map app/css",
     "lint": "eslint --ext .ts,.tsx ./src",
-    "lint:fix": "eslint --fix --ext .ts,.tsx ./src",
-    "build": "tsc && webpack",
+    "lint:ci": "yarn lint -o eslint.xml -f checkstyle",
+    "prepare": "yarn clean && yarn build",
     "watch": "tsc -w -p ./tsconfig.json"
   },
   "types": "lib",

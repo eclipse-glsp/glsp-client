@@ -39,19 +39,17 @@
     "sprotty": "0.13.0-next.1c4343c.328"
   },
   "devDependencies": {
-    "@vscode/codicons": "^0.0.25",
-    "eslint-import-resolver-typescript": "2.7.0",
-    "typescript": "^4.5.5"
+    "@vscode/codicons": "^0.0.25"
   },
   "scripts": {
-    "prepare": "yarn clean && yarn build && yarn lint",
+    "build": "tsc -b",
     "clean": "rimraf lib tsconfig.tsbuildinfo ",
-    "build": "tsc",
     "lint": "eslint --ext .ts,.tsx ./src",
-    "lint:fix": "eslint --fix --ext .ts,.tsx ./src",
-    "watch": "tsc -w",
+    "lint:ci": "yarn lint -o eslint.xml -f checkstyle",
+    "prepare": "yarn clean && yarn build",
     "test": "mocha --config ../../.mocharc.json \"./src/**/*.spec.?(ts|tsx)\"",
-    "test:ci": "export JUNIT_REPORT_PATH=./report.xml && yarn test --reporter mocha-jenkins-reporter"
+    "test:ci": "export JUNIT_REPORT_PATH=./report.xml && yarn test --reporter mocha-jenkins-reporter",
+    "watch": "tsc -w"
   },
   "publishConfig": {
     "access": "public"
