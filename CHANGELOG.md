@@ -9,7 +9,6 @@
 ### Breaking Changes
 
 -   [DI] Injecting an `IButtonHandler` constructor is now deprecated. Please use `configureButtonHandler()` instead. [#195](https://github.com/eclipse-glsp/glsp-client/pull/195) - Contributed on behalf of STMicroelectronics
--   [protocol] Update vscode-ws-jsonrpc to version 2.0.1 [#210](https://github.com/eclipse-glsp/glsp-client/pull/210)
 
 ## [v1.0.0 - 30/06/2022](https://github.com/eclipse-glsp/glsp-client/releases/tag/v1.0.0)
 
