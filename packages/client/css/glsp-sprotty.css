@@ -102,48 +102,48 @@
     stroke-dasharray: none;
 }
 
-.node-creation-mode {
+.sprotty .node-creation-mode {
     cursor: copy;
 }
 
-.overlap-forbidden-mode {
+.sprotty .overlap-forbidden-mode {
     cursor: not-allowed;
 }
 
-.default-mode {
+.sprotty .default-mode {
     cursor: default;
 }
 
-.edge-modification-not-allowed-mode {
+.sprotty .edge-modification-not-allowed-mode {
     cursor: no-drop;
 }
 
-.edge-creation-select-source-mode {
+.sprotty .edge-creation-select-source-mode {
     cursor: pointer;
 }
 
-.edge-creation-select-target-mode,
-.edge-reconnect-select-target-mode {
+.sprotty .edge-creation-select-target-mode,
+.sprotty .edge-reconnect-select-target-mode {
     cursor: crosshair;
 }
 
-.move-mode {
+.sprotty .move-mode {
     cursor: move;
 }
 
-.resize-nesw-mode {
+.sprotty .resize-nesw-mode {
     cursor: nesw-resize;
 }
 
-.resize-nwse-mode {
+.sprotty .resize-nwse-mode {
     cursor: nwse-resize;
 }
 
-.element-deletion-mode {
+.sprotty .element-deletion-mode {
     cursor: pointer;
 }
 
-.marquee-mode {
+.sprotty .marquee-mode {
     cursor: crosshair;
 }
 
@@ -180,7 +180,7 @@
     text-anchor: middle;
 }
 
-g .movement-not-allowed > .sprotty-node {
+.sprotty g .movement-not-allowed > .sprotty-node {
     stroke: var(--glsp-error-foreground) !important;
 }
 
@@ -189,25 +189,25 @@ g .movement-not-allowed > .sprotty-node {
     fill: var(--glsp-error-foreground) !important;
 }
 
-.error > .sprotty-node {
+.sprotty .error > .sprotty-node {
     filter: drop-shadow(0px 0px 2px var(--glsp-error-foreground)) !important;
 }
 
-.warning > .sprotty-node {
+.sprotty .warning > .sprotty-node {
     filter: drop-shadow(0px 0px 2px var(--glsp-warning-foreground)) !important;
 }
 
-.info > .sprotty-node {
+.sprotty .info > .sprotty-node {
     filter: drop-shadow(0px 0px 2px var(--glsp-info-foreground)) !important;
 }
 
-svg {
+.sprotty svg {
     border-style: solid;
     border-width: 1px;
     border-color: #bbb;
 }
 
-text {
+.sprotty text {
     stroke-width: 0;
     stroke: #000;
     fill: #000;
