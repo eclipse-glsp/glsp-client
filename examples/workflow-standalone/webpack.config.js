@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2017-2021 TypeFox & others
+ * Copyright (c) 2017-2022 TypeFox & others
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -29,6 +29,11 @@ module.exports = {
     mode: 'development',
     devtool: 'source-map',
     resolve: {
+        fallback: {
+            fs: false,
+            net: false,
+            path: require.resolve('path-browserify')
+        },
         extensions: ['.ts', '.tsx', '.js']
     },
     module: {
@@ -49,23 +54,16 @@ module.exports = {
             },
             {
                 test: /\.(ttf)$/,
-                loader: 'file-loader',
-                options: {
-                    name: '[name].[ext]',
-                    esModule: false
-                }
+                type: 'asset/resource'
             }
         ]
     },
-    node: { fs: 'empty', net: 'empty' },
-    stats: {
-        warningsFilter: [/Failed to parse source map/]
-    },
+    ignoreWarnings: [/Failed to parse source map/, /Can't resolve .* in '.*ws\/lib'/],
     plugins: [
         new CircularDependencyPlugin({
             exclude: /(node_modules|examples)\/./,
             failOnError: false
         }),
-        new webpack.WatchIgnorePlugin([/\.js$/, /\.d\.ts$/])
+        new webpack.WatchIgnorePlugin({ paths: [/\.js$/, /\.d\.ts$/] })
     ]
 };
