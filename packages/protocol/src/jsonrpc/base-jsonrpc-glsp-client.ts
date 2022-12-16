@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Message, MessageConnection } from 'vscode-jsonrpc';
+import { Message, MessageConnection } from 'vscode-ws-jsonrpc';
 import { ActionMessage } from '../action-protocol';
 import {
     ActionMessageHandler,
