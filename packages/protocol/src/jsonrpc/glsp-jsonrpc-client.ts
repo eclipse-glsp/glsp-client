@@ -13,15 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { MessageConnection, NotificationType, RequestType } from 'vscode-jsonrpc';
-import {
-    createMessageConnection,
-    Logger,
-    NotificationType0,
-    toSocket,
-    WebSocketMessageReader,
-    WebSocketMessageWriter
-} from 'vscode-ws-jsonrpc';
+import { MessageConnection, NotificationType, NotificationType0, RequestType } from 'vscode-jsonrpc';
 import { ActionMessage } from '../action-protocol/base-protocol';
 import {
     DisposeClientSessionParameters,
@@ -44,23 +36,13 @@ export namespace JsonrpcGLSPClient {
         return GLSPClient.isOptions(object) && 'connectionProvider' in object;
     }
 
-    export const ActionMessageNotification = new NotificationType<ActionMessage, void>('process');
-    export const InitializeRequest = new RequestType<InitializeParameters, InitializeResult, void, void>('initialize');
-    export const InitializeClientSessionRequest = new RequestType<InitializeClientSessionParameters, void, void, void>(
-        'initializeClientSession'
-    );
-    export const DisposeClientSessionRequest = new RequestType<DisposeClientSessionParameters, void, void, void>('disposeClientSession');
+    export const ActionMessageNotification = new NotificationType<ActionMessage>('process');
+    export const InitializeRequest = new RequestType<InitializeParameters, InitializeResult, void>('initialize');
+    export const InitializeClientSessionRequest = new RequestType<InitializeClientSessionParameters, void, void>('initializeClientSession');
+    export const DisposeClientSessionRequest = new RequestType<DisposeClientSessionParameters, void, void>('disposeClientSession');
 
-    export const ShutdownNotification = new NotificationType0<void>('shutdown');
+    export const ShutdownNotification = new NotificationType0('shutdown');
     export const ClientNotReadyMsg = 'JsonrpcGLSPClient is not ready yet';
-
-    export function createWebsocketConnectionProvider(websocket: WebSocket, logger?: Logger): ConnectionProvider {
-        const socket = toSocket(websocket);
-        const reader = new WebSocketMessageReader(socket);
-        const writer = new WebSocketMessageWriter(socket);
-
-        return createMessageConnection(reader, writer, logger);
-    }
 
     export function error(message: string, ...optionalParams: any[]): void {
         console.error(`[JsonrpcGLSPClient] ${message}`, optionalParams);
