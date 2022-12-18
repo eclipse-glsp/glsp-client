@@ -134,19 +134,15 @@ export class ServerCopyPasteHandler implements ICopyPasteHandler {
         }
     }
 
-    protected shouldCopy(_event: ClipboardEvent): boolean | null {
+    protected shouldCopy(_event: ClipboardEvent): boolean {
         return this.editorContext.get().selectedElementIds.length > 0 && this.isDiagramActive();
     }
 
-    protected shouldPaste(_event: ClipboardEvent): boolean | null {
+    protected shouldPaste(_event: ClipboardEvent): boolean {
         return this.isDiagramActive();
     }
 
-    private isDiagramActive(): boolean | null {
-        return (
-            document.activeElement instanceof SVGElement &&
-            document.activeElement.parentElement &&
-            document.activeElement.parentElement.id === this.viewerOptions.baseDiv
-        );
+    private isDiagramActive(): boolean {
+        return document.activeElement?.parentElement?.id === this.viewerOptions.baseDiv;
     }
 }
