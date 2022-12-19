@@ -9,7 +9,7 @@
   "scripts": {
     "all": "yarn install && yarn lint && yarn test",
     "build": "lerna run build",
-    "clean": "lerna run clean",
+    "clean": "lerna run clean && rimraf coverage .nyc_output",
     "download:exampleServer": "ts-node examples/workflow-glsp/scripts/download.ts",
     "lint": "lerna run lint",
     "lint:ci": "lerna run lint:ci",
@@ -20,15 +20,15 @@
     "upgrade:next": "yarn upgrade -p \"@eclipse-glsp.*|sprotty.*\" --next ",
     "test": "lerna run test",
     "test:ci": "lerna run test:ci",
+    "test:coverage": "lerna run test:coverage",
+    "test:coverage:ci": "yarn glsp coverageReport .",
     "watch": "lerna run --parallel watch"
   },
   "devDependencies": {
-    "@eclipse-glsp/config": "1.1.0-next.d03ad9f.112",
-    "@types/node": "16",
-    "lerna": "^6.1.0",
-    "reflect-metadata": "^0.1.13",
-    "rimraf": "^3.0.2",
-    "typescript": "^4.9.3"
+    "@eclipse-glsp/config": "1.1.0-next.e31f2e5.119",
+    "@eclipse-glsp/config-test": "1.1.0-next.e31f2e5.119",
+    "@eclipse-glsp/cli": "1.1.0-next.e31f2e5.119",
+    "@types/node": "16.x"
   },
   "workspaces": [
     "packages/*",

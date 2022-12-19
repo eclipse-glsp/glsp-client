@@ -26,9 +26,8 @@ import {
     TYPES
 } from '@eclipse-glsp/client';
 import { join, resolve } from 'path';
-import { listen, MessageConnection } from 'vscode-ws-jsonrpc';
+import { MessageConnection } from 'vscode-jsonrpc';
 import createContainer from './di.config';
-
 const port = 8081;
 const id = 'workflow';
 const diagramType = 'workflow-diagram';
@@ -43,7 +42,9 @@ const container = createContainer();
 const diagramServer = container.get<GLSPDiagramServer>(TYPES.ModelSource);
 diagramServer.clientId = clientId;
 
-listen({ webSocket: websocket, onConnection: connection => initialize(connection) });
+import('vscode-ws-jsonrpc').then(jsonrpc => {
+    jsonrpc.listen({ webSocket: websocket, onConnection: connection => initialize(connection) });
+});
 
 async function initialize(connectionProvider: MessageConnection): Promise<void> {
     const client = new BaseJsonrpcGLSPClient({ id, connectionProvider });
