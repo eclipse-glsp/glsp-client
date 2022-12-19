@@ -5,6 +5,7 @@
 ### Changes
 
 -   [layout] Improve Layouter to support more dynamic layouts and complex parent/children node structures [#187](https://github.com/eclipse-glsp/glsp-client/pull/187) - Contributed on behalf of STMicroelectronics
+-   [diagram] scope the styles to not brake existing application layout [#209](https://github.com/eclipse-glsp/glsp-client/pull/209)
 
 ### Breaking Changes
 
