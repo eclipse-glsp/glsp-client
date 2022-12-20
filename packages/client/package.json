@@ -43,12 +43,13 @@
   },
   "scripts": {
     "build": "tsc -b",
-    "clean": "rimraf lib tsconfig.tsbuildinfo",
+    "clean": "rimraf lib tsconfig.tsbuildinfo  coverage .nyc_output",
     "lint": "eslint --ext .ts,.tsx ./src",
     "lint:ci": "yarn lint -o eslint.xml -f checkstyle",
     "prepare": "yarn clean && yarn build",
-    "test": "mocha --config ../../.mocharc.json \"./src/**/*.spec.?(ts|tsx)\"",
+    "test": "mocha --config ../../.mocharc \"./src/**/*.spec.?(ts|tsx)\"",
     "test:ci": "export JUNIT_REPORT_PATH=./report.xml && yarn test --reporter mocha-jenkins-reporter",
+    "test:coverage": "nyc yarn test",
     "watch": "tsc -w"
   },
   "publishConfig": {

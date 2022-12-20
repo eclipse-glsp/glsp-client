@@ -72,6 +72,16 @@ pipeline {
                     }
                 }
             }
+
+            post{
+                always {
+                    // Record & publish ESLint issues
+                    recordIssues enabledForFailure: true, publishAllIssues: true, aggregatingResults: true, 
+                    tools: [esLint(pattern: 'node_modules/**/*/eslint.xml')], 
+                    qualityGates: [[threshold: 1, type: 'TOTAL', unstable: true]]
+
+                }
+            }
         }
 
 
@@ -80,6 +90,17 @@ pipeline {
                 container('node') {
                     timeout(30) {
                         sh "yarn test:ci"
+                    }
+                }
+            }
+        }
+
+        stage('Test Coverage (master only)') {
+            when { branch 'master' }
+             steps { 
+                container('node') {
+                    timeout(30) {
+                        sh "yarn test:coverage:ci"
                     }
                 }
             }
@@ -114,13 +135,19 @@ pipeline {
 
     post {
         success {
-            // Record & publish ESLint issues
-            recordIssues enabledForFailure: true, publishAllIssues: true, aggregatingResults: true, 
-            tools: [esLint(pattern: 'node_modules/**/*/eslint.xml')], 
-            qualityGates: [[threshold: 1, type: 'TOTAL', unstable: true]]
-
             withChecks('Tests') {
                 junit 'node_modules/**/report.xml'
+            }
+
+            script {
+                if (env.BRANCH_NAME == 'master') {
+                publishHTML target : [allowMissing: false,
+                alwaysLinkToLastBuild: true,
+                keepAll: true,
+                reportDir: 'coverage',
+                reportFiles: 'index.html',
+                reportName: 'Code Coverage']
+                }
             }
         }
         failure {
