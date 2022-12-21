@@ -25,12 +25,12 @@ import {
     isSelectable,
     isViewport,
     MouseListener,
-    MoveAction,
     SChildElement,
     SModelElement,
     SModelRoot,
     TYPES
 } from 'sprotty';
+import { MoveAction } from 'sprotty-protocol/lib/actions';
 import { forEachElement } from '../../utils/smodel-util';
 import { addResizeHandles, isResizable, removeResizeHandles, SResizeHandle } from '../change-bounds/model';
 import { createMovementRestrictionFeedback, removeMovementRestrictionFeedback } from '../change-bounds/movement-restrictor';

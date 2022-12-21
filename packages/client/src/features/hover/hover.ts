@@ -23,7 +23,8 @@ import {
     SModelRootSchema
 } from '@eclipse-glsp/protocol';
 import { injectable } from 'inversify';
-import { EMPTY_ROOT, HoverFeedbackAction, HoverMouseListener, IActionHandler, ICommand, SModelElement } from 'sprotty';
+import { EMPTY_ROOT, HoverMouseListener, IActionHandler, ICommand, SModelElement } from 'sprotty';
+import { HoverFeedbackAction } from 'sprotty-protocol/lib/actions';
 import { FocusStateChangedAction } from '../../base/actions/focus-change-action';
 import { EnableDefaultToolsAction, EnableToolsAction } from '../../base/tool-manager/tool-actions';
 import { EdgeCreationTool } from '../tools/edge-creation-tool';
