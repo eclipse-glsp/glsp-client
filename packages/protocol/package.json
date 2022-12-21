@@ -48,7 +48,7 @@
   "dependencies": {
     "sprotty-protocol": "0.13.0-next.f4445dd.342",
     "uuid": "7.0.3",
-    "vscode-ws-jsonrpc": "^2.0.1"
+    "vscode-jsonrpc": "^8.0.2"
   },
   "devDependencies": {
     "@types/uuid": "3.4.5"

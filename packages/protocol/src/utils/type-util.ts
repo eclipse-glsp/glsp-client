@@ -61,7 +61,7 @@ export type TypeGuard<T> = (element: any) => element is T;
 /**
  * Utility function that create a typeguard function for a given class constructor.
  * Essentially this wraps an instance of check as typeguard function.
- * @param constructor The constructor fo the class for which the typeguard should be created.
+ * @param constructor The constructor of the class for which the typeguard should be created.
  * @returns The typeguard for this class.
  */
 export function toTypeGuard<G>(constructor: Constructor<G>): TypeGuard<G> {
@@ -69,7 +69,7 @@ export function toTypeGuard<G>(constructor: Constructor<G>): TypeGuard<G> {
 }
 
 /**
- * Validates whether the given object as a property of type `string` with the given key.
+ * Validates whether the given object has a property of type `string` with the given key.
  * @param object The object that should be validated
  * @param propertyKey The key of the property
  * @param optional Flag to indicate wether the property can be optional i.e. also return true if the given key is undefined
@@ -80,7 +80,7 @@ export function hasStringProp(object: AnyObject, propertyKey: string, optional =
 }
 
 /**
- * Validates whether the given object as a property of type `boolean` with the given key.
+ * Validates whether the given object has a property of type `boolean` with the given key.
  * @param object The object that should be validated
  * @param propertyKey The key of the property
  * @param optional Flag to indicate wether the property can be optional i.e. also return true if the given key is undefined
@@ -91,7 +91,7 @@ export function hasBooleanProp(object: AnyObject, propertyKey: string, optional 
 }
 
 /**
- * Validates whether the given object as a property of type `number` with the given key.
+ * Validates whether the given object has a property of type `number` with the given key.
  * @param object The object that should be validated
  * @param propertyKey The key of the property
  * @param optional Flag to indicate wether the property can be optional i.e. also return true if the given key is undefined
@@ -102,7 +102,7 @@ export function hasNumberProp(object: AnyObject, propertyKey: string, optional =
 }
 
 /**
- * Validates whether the given object as a property of type `object` with the given key.
+ * Validates whether the given object has a property of type `object` with the given key.
  * @param object The object that should be validated
  * @param propertyKey The key of the property
  * @param optional Flag to indicate wether the property can be optional i.e. also return true if the given key is undefined
@@ -113,7 +113,7 @@ export function hasObjectProp(object: AnyObject, propertyKey: string, optional =
 }
 
 /**
- * Validates whether the given object as a property of type `function` with the given key.
+ * Validates whether the given object has a property of type `function` with the given key.
  * @param object The object that should be validated
  * @param propertyKey The key of the property
  * @param optional Flag to indicate wether the property can be optional i.e. also return true if the given key is undefined
@@ -124,7 +124,7 @@ export function hasFunctionProp(object: AnyObject, propertyKey: string, optional
 }
 
 /**
- * Validates whether the given object as a property of type `Array` with the given key.
+ * Validates whether the given object has a property of type `Array` with the given key.
  * @param object The object that should be validated
  * @param propertyKey The key of the property
  * @param optional Flag to indicate wether the property can be optional i.e. also return true if the given key is undefined

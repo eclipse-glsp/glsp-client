@@ -7,16 +7,16 @@
 -   [layout] Improve Layouter to support more dynamic layouts and complex parent/children node structures [#187](https://github.com/eclipse-glsp/glsp-client/pull/187) - Contributed on behalf of STMicroelectronics
 -   [diagram] Fixed SVG export for nested root elements e.g. `GLSPProjectionView` [#196](https://github.com/eclipse-glsp/glsp-client/pull/196)
 -   [diagram] scope the styles to not break existing application layout [#209](https://github.com/eclipse-glsp/glsp-client/pull/209)
--   [routing] Ensured that routes are properly re-calculated  when moving a routing point [#198](https://github.com/eclipse-glsp/glsp-client/pull/198)
+-   [routing] Ensured that routes are properly re-calculated when moving a routing point [#198](https://github.com/eclipse-glsp/glsp-client/pull/198)
 -   [diagram] Fixed a bug in the `EditLabelUIExtension` where the diagram becomes dirt wihtout an acual change. [#766](https://github.com/eclipse-glsp/glsp/issues/766)
--   [diagram] Extends `ComputedBoundsAction` definition with routing information. This enables proper forwarding of cliend-side computed routes to the server. [#201](https://github.com/eclipse-glsp/glsp-client/pull/201/)
+-   [diagram] Extends `ComputedBoundsAction` definition with routing information. This enables proper forwarding of client-side computed routes to the server. [#201](https://github.com/eclipse-glsp/glsp-client/pull/201/)
 
 ### Breaking Changes
 
 -   [DI] Injecting an `IButtonHandler` constructor is now deprecated. Please use `configureButtonHandler()` instead. [#195](https://github.com/eclipse-glsp/glsp-client/pull/195) - Contributed on behalf of STMicroelectronics
--   [protocol] Update vscode-ws-jsonrpc to version 2.0.1 [#210](https://github.com/eclipse-glsp/glsp-client/pull/210)
 -   [node] Update minimum requirements for Node to >=16.11.0 [#210](https://github.com/eclipse-glsp/glsp-client/pull/210)
 -   [protocol] Renamed `UndoOperation` and `RedoOperation` to `UndoAction` and `RedoAction` to match operation specification [#216](https://github.com/eclipse-glsp/glsp-client/pull/216)
+-   [protocol] Remove dependency to `vscode-ws-jsonrpc`. The protocol package now directly offers functions to create a websocket rpc connections [#215](https://github.com/eclipse-glsp/glsp-client/pull/215)
 
 ## [v1.0.0 - 30/06/2022](https://github.com/eclipse-glsp/glsp-client/releases/tag/v1.0.0)
 
