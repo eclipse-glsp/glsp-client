@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { RedoOperation, UndoOperation } from '@eclipse-glsp/protocol';
+import { RedoAction, UndoAction } from '@eclipse-glsp/protocol';
 import { inject, injectable } from 'inversify';
 import { CommandStack, IActionDispatcher, SModelRoot } from 'sprotty';
 import { TYPES } from './types';
@@ -23,12 +23,12 @@ export class GLSPCommandStack extends CommandStack {
     @inject(TYPES.IActionDispatcherProvider) protected actionDispatcher: () => Promise<IActionDispatcher>;
 
     override undo(): Promise<SModelRoot> {
-        this.actionDispatcher().then(dispatcher => dispatcher.dispatch(UndoOperation.create()));
+        this.actionDispatcher().then(dispatcher => dispatcher.dispatch(UndoAction.create()));
         return this.thenUpdate();
     }
 
     override redo(): Promise<SModelRoot> {
-        this.actionDispatcher().then(dispatcher => dispatcher.dispatch(RedoOperation.create()));
+        this.actionDispatcher().then(dispatcher => dispatcher.dispatch(RedoAction.create()));
         return this.thenUpdate();
     }
 }

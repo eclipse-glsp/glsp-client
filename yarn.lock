@@ -5738,27 +5738,21 @@ sprintf-js@~1.0.2:
   resolved "https://registry.yarnpkg.com/sprintf-js/-/sprintf-js-1.0.3.tgz#04e6926f662895354f3dd015203633b857297e2c"
   integrity sha512-D9cPgkvLlV3t3IzL0D0YLvGA9Ahk4PcvVwUbN0dSGr1aP0Nrt4AEnTUbuGvquEC0mA64Gqt1fzirlRs5ibXx8g==
 
-sprotty-protocol@0.12.0:
-  version "0.12.0"
-  resolved "https://registry.yarnpkg.com/sprotty-protocol/-/sprotty-protocol-0.12.0.tgz#542eb6396a645f85f8cfc2e7ef1d9b90c7b1980b"
-  integrity sha512-vbov+XfbmSeMYb46vm6dJvK3q7YKUvg0q7JnM6H7Ca5qY8TaZCEZ5Vc8zHKFZGWchcwnQYKqLTzwDItsMikD0A==
+sprotty-protocol@0.13.0-next.f4445dd.342, sprotty-protocol@0.13.0-next.f4445dd.342+f4445dd:
+  version "0.13.0-next.f4445dd.342"
+  resolved "https://registry.yarnpkg.com/sprotty-protocol/-/sprotty-protocol-0.13.0-next.f4445dd.342.tgz#79e39a3427202d59173f61f3f03429dfdec7ab9c"
+  integrity sha512-6cNoZrvay1Gk3uk6NqlmraBy68dskvhuDKDiUlpxbzFQ/ZVO4MKY2D41S5AXzjDyOtYQO6tZjlPrNCjmj5Kvrg==
 
-sprotty-protocol@0.13.0-next.1c4343c.328+1c4343c:
-  version "0.13.0-next.1c4343c.328"
-  resolved "https://registry.npmjs.org/sprotty-protocol/-/sprotty-protocol-0.13.0-next.1c4343c.328.tgz#3354fbf5eb405b289f0784f70c508cc99d6ef131"
-  integrity sha512-sprFlSDmNBHlgAgAq2vM7hllfvb8GTVAM6u0Ws7tPAnicTAA/ulmiYbeYfvJZH5uuAasSW2B7ieWzg1+kgF/xg==
-
-sprotty@0.13.0-next.1c4343c.328:
-  version "0.13.0-next.1c4343c.328"
-  resolved "https://registry.npmjs.org/sprotty/-/sprotty-0.13.0-next.1c4343c.328.tgz#ab943696ebae2be75dedc33e751b2792ec6914c8"
-  integrity sha512-6+//jO+c3ix5Sj2JG6lkHlp81PSY1/7ZGIw5DLipLwmZ/VSgFyU4JbOlXdk2FCMqUCgA77QZnU8mMmMwrDDm9A==
+sprotty@0.13.0-next.f4445dd.342:
+  version "0.13.0-next.f4445dd.342"
+  resolved "https://registry.yarnpkg.com/sprotty/-/sprotty-0.13.0-next.f4445dd.342.tgz#053fc2863109bc56f32ab6582a9c8ce46dc10cbd"
+  integrity sha512-OdaNjgaITsQz71w+omc9ZSP3TJ/66vlVdWkVg+zGPQ1spAmS/iXvYhizax7OuP5J+GsjQemCDw9ZWH8lTnbgrw==
   dependencies:
-    "@vscode/codicons" "^0.0.25"
     autocompleter "^5.1.0"
     file-saver "^2.0.2"
     inversify "^5.1.1"
     snabbdom "^3.0.3"
-    sprotty-protocol "0.13.0-next.1c4343c.328+1c4343c"
+    sprotty-protocol "0.13.0-next.f4445dd.342+f4445dd"
     tinyqueue "^2.0.3"
 
 ssri@^9.0.0, ssri@^9.0.1:

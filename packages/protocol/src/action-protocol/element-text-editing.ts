@@ -13,6 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import * as sprotty from 'sprotty-protocol/lib/actions';
 import { hasObjectProp, hasStringProp } from '../utils/type-util';
 import { Action, Operation, RequestAction, ResponseAction } from './base-protocol';
 import { Args } from './types';
@@ -107,7 +108,7 @@ export namespace SetEditValidationResultAction {
  * The corresponding namespace declares the action kind as constant and offers helper functions for type guard checks
  * and creating new `ApplyLabelEditOperations`.
  */
-export interface ApplyLabelEditOperation extends Operation {
+export interface ApplyLabelEditOperation extends Operation, sprotty.ApplyLabelEditAction {
     kind: typeof ApplyLabelEditOperation.KIND;
 
     /**

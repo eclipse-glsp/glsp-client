@@ -14,61 +14,57 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { expect } from 'chai';
-import { RedoOperation, UndoOperation } from './undo-redo';
+import { RedoAction, UndoAction } from './undo-redo';
 
 describe('Undo & Redo Actions', () => {
-    describe('UndoOperation', () => {
+    describe('UndoAction', () => {
         describe('is', () => {
             it('should return true for an object having the correct type and a value for all required interface properties', () => {
-                const action: UndoOperation = {
-                    kind: 'glspUndo',
-                    isOperation: true
+                const action: UndoAction = {
+                    kind: 'glspUndo'
                 };
-                expect(UndoOperation.is(action)).to.be.true;
+                expect(UndoAction.is(action)).to.be.true;
             });
             it('should return false for `undefined`', () => {
-                expect(UndoOperation.is(undefined)).to.be.false;
+                expect(UndoAction.is(undefined)).to.be.false;
             });
             it('should return false for an object that does not have all required interface properties', () => {
-                expect(UndoOperation.is({ kind: 'notTheRightOne' })).to.be.false;
+                expect(UndoAction.is({ kind: 'notTheRightOne' })).to.be.false;
             });
         });
 
         describe('create', () => {
             it('should return an object conforming to the interface with matching properties for the given required arguments', () => {
-                const expected: UndoOperation = {
-                    kind: 'glspUndo',
-                    isOperation: true
+                const expected: UndoAction = {
+                    kind: 'glspUndo'
                 };
-                expect(UndoOperation.create()).to.deep.equals(expected);
+                expect(UndoAction.create()).to.deep.equals(expected);
             });
         });
     });
 
-    describe('RedoOperation', () => {
+    describe('RedoAction', () => {
         describe('is', () => {
             it('should return true for an object having the correct type and a value for all required interface properties', () => {
-                const action: RedoOperation = {
-                    kind: 'glspRedo',
-                    isOperation: true
+                const action: RedoAction = {
+                    kind: 'glspRedo'
                 };
-                expect(RedoOperation.is(action)).to.be.true;
+                expect(RedoAction.is(action)).to.be.true;
             });
             it('should return false for `undefined`', () => {
-                expect(RedoOperation.is(undefined)).to.be.false;
+                expect(RedoAction.is(undefined)).to.be.false;
             });
             it('should return false for an object that does not have all required interface properties', () => {
-                expect(RedoOperation.is({ kind: 'notTheRightOne' })).to.be.false;
+                expect(RedoAction.is({ kind: 'notTheRightOne' })).to.be.false;
             });
         });
 
         describe('create', () => {
             it('should return an object conforming to the interface with matching properties for the given required arguments', () => {
-                const expected: RedoOperation = {
-                    kind: 'glspRedo',
-                    isOperation: true
+                const expected: RedoAction = {
+                    kind: 'glspRedo'
                 };
-                expect(RedoOperation.create()).to.deep.equals(expected);
+                expect(RedoAction.create()).to.deep.equals(expected);
             });
         });
     });

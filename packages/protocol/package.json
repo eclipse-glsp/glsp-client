@@ -33,7 +33,7 @@
     "src"
   ],
   "dependencies": {
-    "sprotty-protocol": "0.12.0",
+    "sprotty-protocol": "0.13.0-next.f4445dd.342",
     "vscode-ws-jsonrpc": "^2.0.1",
     "uuid": "7.0.3"
   },

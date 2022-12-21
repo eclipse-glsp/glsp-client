@@ -15,6 +15,7 @@
  ********************************************************************************/
 
 import { Point } from 'sprotty-protocol';
+import * as sprotty from 'sprotty-protocol/lib/actions';
 import { hasArrayProp, hasStringProp } from '../utils/type-util';
 import { Operation } from './base-protocol';
 import { Args } from './types';
@@ -131,7 +132,7 @@ export namespace CreateEdgeOperation {
  * The corresponding namespace declares the action kind as constant and offers helper functions for type guard checks
  * and creating new `DeleteElementOperations`.
  */
-export interface DeleteElementOperation extends Operation {
+export interface DeleteElementOperation extends Operation, Omit<sprotty.DeleteElementAction, 'kind'> {
     kind: typeof DeleteElementOperation.KIND;
 
     /**

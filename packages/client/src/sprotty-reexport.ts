@@ -22,7 +22,10 @@
 
 export * from '@eclipse-glsp/protocol';
 // sprotty-protocol
-export { CollapseExpandAction, CollapseExpandAllAction, ElementAndAlignment, SetBoundsAction } from 'sprotty-protocol/lib/actions';
+export {
+    BringToFrontAction, CollapseExpandAction, CollapseExpandAllAction,
+    ElementAndAlignment, HoverFeedbackAction, MoveAction, SetBoundsAction
+} from 'sprotty-protocol/lib/actions';
 export { Viewport } from 'sprotty-protocol/lib/model';
 // ------------------ Base ------------------
 export * from 'sprotty/lib/base/actions/action-dispatcher';
@@ -144,7 +147,6 @@ export * from 'sprotty/lib/features/fade/model';
 export {
     AbstractHoverMouseListener,
     ClosePopupActionHandler,
-    HoverFeedbackAction,
     HoverFeedbackCommand,
     HoverKeyListener,
     HoverMouseListener,
@@ -154,7 +156,10 @@ export {
 } from 'sprotty/lib/features/hover/hover';
 export * from 'sprotty/lib/features/hover/model';
 export * from 'sprotty/lib/features/move/model';
-export * from 'sprotty/lib/features/move/move';
+export {
+    ElementMove, LocationPostprocessor, MorphEdgesAnimation, MoveAnimation,
+    MoveCommand, MoveMouseListener, ResolvedElementMove, ResolvedHandleMove
+} from 'sprotty/lib/features/move/move';
 export * from 'sprotty/lib/features/move/snap';
 export * from 'sprotty/lib/features/nameable/model';
 export * from 'sprotty/lib/features/open/model';
@@ -182,7 +187,7 @@ export {
     SelectKeyboardListener,
     SelectMouseListener
 } from 'sprotty/lib/features/select/select';
-export * from 'sprotty/lib/features/undo-redo/undo-redo';
+export { UndoRedoKeyListener } from 'sprotty/lib/features/undo-redo/undo-redo';
 export * from 'sprotty/lib/features/update/model-matching';
 export { UpdateAnimationData, UpdateModelCommand } from 'sprotty/lib/features/update/update-model';
 export {
@@ -202,7 +207,7 @@ export {
 } from 'sprotty/lib/features/viewport/viewport';
 export * from 'sprotty/lib/features/viewport/viewport-root';
 export * from 'sprotty/lib/features/viewport/zoom';
-export * from 'sprotty/lib/features/zorder/zorder';
+export { BringToFrontCommand, ZOrderElement } from 'sprotty/lib/features/zorder/zorder';
 export { SCompartment, SEdge, SGraph, SGraphIndex, SLabel, SNode, SPort } from 'sprotty/lib/graph/sgraph';
 // ------------------ Graph ------------------
 export * from 'sprotty/lib/graph/sgraph-factory';
@@ -286,3 +291,4 @@ import viewportModule from 'sprotty/lib/features/viewport/di.config';
 import zorderModule from 'sprotty/lib/features/zorder/di.config';
 import graphModule from 'sprotty/lib/graph/di.config';
 import modelSourceModule from 'sprotty/lib/model-source/di.config';
+

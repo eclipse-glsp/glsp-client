@@ -29,7 +29,6 @@ import {
     ISnapper,
     isSelected,
     MouseListener,
-    MoveAction,
     PolylineEdgeRouter,
     SConnectableElement,
     SModelElement,
@@ -39,6 +38,7 @@ import {
     SwitchEditModeCommand,
     TYPES
 } from 'sprotty';
+import { MoveAction } from 'sprotty-protocol/lib/actions';
 import { forEachElement, isRoutable, isRoutingHandle } from '../../utils/smodel-util';
 import { getAbsolutePosition, toAbsoluteBounds } from '../../utils/viewpoint-util';
 import { PointPositionUpdater } from '../change-bounds/snap';

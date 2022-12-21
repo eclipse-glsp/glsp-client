@@ -14,28 +14,27 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { Operation } from './base-protocol';
-
+import * as sprotty from 'sprotty-protocol/lib/actions';
+import { Action } from './base-protocol';
 /**
  * Trigger an undo of the latest executed command.
  * The corresponding namespace declares the action kind as constant and offers helper functions for type guard checks
- * and creating new `UndoOperations`.
+ * and creating new `UndoAction`.
  */
-export interface UndoOperation extends Operation {
-    kind: typeof UndoOperation.KIND;
+export interface UndoAction extends Omit<sprotty.UndoAction, 'kind'> {
+    kind: typeof UndoAction.KIND;
 }
 
-export namespace UndoOperation {
+export namespace UndoAction {
     export const KIND = 'glspUndo';
 
-    export function is(object: any): object is UndoOperation {
-        return Operation.hasKind(object, KIND);
+    export function is(object: any): object is UndoAction {
+        return Action.hasKind(object, KIND);
     }
 
-    export function create(): UndoOperation {
+    export function create(): UndoAction {
         return {
-            kind: KIND,
-            isOperation: true
+            kind: KIND
         };
     }
 }
@@ -43,23 +42,22 @@ export namespace UndoOperation {
 /**
  * Trigger a redo of the latest undone command.
  * The corresponding namespace declares the action kind as constant and offers helper functions for type guard checks
- * and creating new `RedoOperations`.
+ * and creating new `RedoAction`.
  */
-export interface RedoOperation extends Operation {
-    kind: typeof RedoOperation.KIND;
+export interface RedoAction extends Omit<sprotty.RedoAction, 'kind'> {
+    kind: typeof RedoAction.KIND;
 }
 
-export namespace RedoOperation {
+export namespace RedoAction {
     export const KIND = 'glspRedo';
 
-    export function is(object: any): object is RedoOperation {
-        return Operation.hasKind(object, KIND);
+    export function is(object: any): object is RedoAction {
+        return Action.hasKind(object, KIND);
     }
 
-    export function create(): RedoOperation {
+    export function create(): RedoAction {
         return {
-            kind: KIND,
-            isOperation: true
+            kind: KIND
         };
     }
 }

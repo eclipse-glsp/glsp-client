@@ -15,7 +15,6 @@
  ********************************************************************************/
 import { Action, SelectAction } from '@eclipse-glsp/protocol';
 import {
-    BringToFrontAction,
     findParentByFeature,
     isCtrlOrCmd,
     isSelectable,
@@ -27,6 +26,7 @@ import {
     SRoutingHandle,
     SwitchEditModeAction
 } from 'sprotty';
+import { BringToFrontAction } from 'sprotty-protocol/lib/actions';
 import { toArray } from 'sprotty/lib/utils/iterable';
 import { DEFAULT_RANK, Ranked } from '../rank/model';
 
@@ -37,7 +37,7 @@ import { DEFAULT_RANK, Ranked } from '../rank/model';
 export class RankedSelectMouseListener extends SelectMouseListener implements Ranked {
     rank: number = DEFAULT_RANK - 1; /* we want to be executed before all default mouse listeners */
 
-    override mouseDown(target: SModelElement, event: MouseEvent): Action[] {
+    override mouseDown(target: SModelElement, event: MouseEvent): (Action | Promise<Action>)[] {
         const result: Action[] = [];
         if (this.buttonHandlerRegistry !== undefined && target instanceof SButton && target.enabled) {
             const buttonHandler = this.buttonHandlerRegistry.get(target.type);

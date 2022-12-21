@@ -24,7 +24,8 @@ import {
     Writable
 } from '@eclipse-glsp/protocol';
 import { inject, injectable, optional } from 'inversify';
-import { ElementMove, IActionDispatcher, IActionHandler, ICommand, MoveAction, SModelElement } from 'sprotty';
+import { ElementMove, IActionDispatcher, IActionHandler, ICommand, SModelElement } from 'sprotty';
+import { MoveAction } from 'sprotty-protocol/lib/actions';
 import { TYPES } from '../../base/types';
 import { toValidElementAndBounds, toValidElementMove } from '../../utils/layout-utils';
 import { BoundsAwareModelElement, getElements } from '../../utils/smodel-util';

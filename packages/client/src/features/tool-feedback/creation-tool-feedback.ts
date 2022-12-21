@@ -24,7 +24,6 @@ import {
     isBoundsAware,
     isConnectable,
     MouseListener,
-    MoveAction,
     PolylineEdgeRouter,
     SChildElement,
     SConnectableElement,
@@ -35,6 +34,7 @@ import {
     SRoutableElement,
     TYPES
 } from 'sprotty';
+import { MoveAction } from 'sprotty-protocol/lib/actions';
 import { BoundsAwareModelElement, isRoutable } from '../../utils/smodel-util';
 import { getAbsolutePosition, toAbsoluteBounds, toAbsolutePosition } from '../../utils/viewpoint-util';
 import { FeedbackCommand } from './model';
