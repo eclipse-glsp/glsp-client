@@ -18,9 +18,9 @@ import {
     BaseJsonrpcGLSPClient,
     configureServerActions,
     EnableToolPaletteAction,
+    GLSPActionDispatcher,
     GLSPClient,
     GLSPDiagramServer,
-    IActionDispatcher,
     RequestModelAction,
     RequestTypeHintsAction,
     TYPES
@@ -56,7 +56,7 @@ async function initialize(connectionProvider: MessageConnection): Promise<void> 
     });
     await configureServerActions(result, diagramType, container);
 
-    const actionDispatcher = container.get<IActionDispatcher>(TYPES.IActionDispatcher);
+    const actionDispatcher = container.get(GLSPActionDispatcher);
 
     await client.initializeClientSession({ clientSessionId: diagramServer.clientId, diagramType });
     actionDispatcher.dispatch(
@@ -68,6 +68,7 @@ async function initialize(connectionProvider: MessageConnection): Promise<void> 
         })
     );
     actionDispatcher.dispatch(RequestTypeHintsAction.create());
+    await actionDispatcher.onceModelInitialized();
     actionDispatcher.dispatch(EnableToolPaletteAction.create());
 }
 
