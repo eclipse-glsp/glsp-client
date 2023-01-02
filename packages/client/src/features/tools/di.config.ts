@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2022 EclipseSource and others.
+ * Copyright (c) 2019-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -18,7 +18,6 @@ import { ContainerModule, interfaces } from 'inversify';
 import { configureActionHandler, configureModelElement, ManhattanEdgeRouter } from 'sprotty';
 import { FocusStateChangedAction } from '../../base/actions/focus-change-action';
 import { TYPES } from '../../base/types';
-import { GLSPSvgExporter } from '../export/glsp-svg-exporter';
 import { MARQUEE } from '../tool-feedback/marquee-tool-feedback';
 import { ChangeBoundsTool } from './change-bounds-tool';
 import { DelKeyDeleteTool, MouseDeleteTool } from './delete-tool';
@@ -52,9 +51,6 @@ export const toolsModule = new ContainerModule((bind, _unbind, isBound, rebind) 
     configureMarqueeTool({ bind, isBound });
     configureActionHandler({ bind, isBound }, TriggerNodeCreationAction.KIND, NodeCreationTool);
     configureActionHandler({ bind, isBound }, TriggerEdgeCreationAction.KIND, EdgeCreationTool);
-
-    bind(GLSPSvgExporter).toSelf().inSingletonScope();
-    rebind(TYPES.SvgExporter).toService(GLSPSvgExporter);
 
     bind(GSLPManhattanEdgeRouter).toSelf().inSingletonScope();
     rebind(ManhattanEdgeRouter).toService(GSLPManhattanEdgeRouter);
