@@ -108,7 +108,6 @@ export const DEFAULT_MODULES = [
  * @param options Options to customize the module loading
  * @returns The created container.
  */
-
 export function createDiagramContainer(...customModules: Array<ContainerModule | ExcludeDescription>): Container {
     const container = new Container();
 
