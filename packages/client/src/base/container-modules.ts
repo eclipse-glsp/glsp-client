@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2021 EclipseSource and others.
+ * Copyright (c) 2021-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -14,6 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
+import { remove } from '@eclipse-glsp/protocol';
 import { Container, ContainerModule } from 'inversify';
 import {
     buttonModule,
@@ -21,7 +22,6 @@ import {
     edgeIntersectionModule,
     edgeLayoutModule,
     expandModule,
-    exportModule,
     fadeModule,
     labelEditUiModule,
     modelSourceModule,
@@ -35,6 +35,7 @@ import glspContextMenuModule from '../features/context-menu/di.config';
 import { glspServerCopyPasteModule } from '../features/copy-paste/di.config';
 import glspDecorationModule from '../features/decoration/di.config';
 import glspEditLabelModule from '../features/edit-label/di.config';
+import glspExportModule from '../features/export/di.config';
 import modelHintsModule from '../features/hints/di.config';
 import glspHoverModule from '../features/hover/di.config';
 import layoutModule from '../features/layout/di.config';
@@ -56,7 +57,7 @@ export const DEFAULT_MODULES = [
     edgeIntersectionModule,
     edgeLayoutModule,
     expandModule,
-    exportModule,
+    glspExportModule,
     fadeModule,
     glspBoundsModule,
     glspCommandPaletteModule,
@@ -83,7 +84,52 @@ export const DEFAULT_MODULES = [
     enableDefaultToolsOnFocusLossModule,
     validationModule,
     zorderModule
-];
+] as const;
+
+/**
+ *  Creates a GLSP Diagram container with the GLSP default modules and the specified custom `modules`.
+ *  Default modules can be excluded using {@link ExcludeDescription}s.
+ *
+ *  This means, you can still customize the default modules in two ways.
+ *
+ * First, you can exclude default modules and add a module with your custom code.
+ *
+ * ```typescript
+ * const container = createDiagramContainer(myModule1, {exclude: modelSourceWatcherModule},myModelSourceWatcherModule );
+ * ```
+ *
+ * Second, you can unbind or rebind implementations that are originally bound in one of the default modules.
+ *
+ * ```typescript
+ * rebind(NavigationTargetResolver).to(MyNavigationTargetResolver);
+ * ```
+ *
+ * @param customModules Custom modules to be loaded in addition to the default modules and/or default modules that should be excluded.
+ * @param options Options to customize the module loading
+ * @returns The created container.
+ */
+
+export function createDiagramContainer(...customModules: Array<ContainerModule | ExcludeDescription>): Container {
+    const container = new Container();
+
+    const modules = [...DEFAULT_MODULES];
+    customModules.forEach(customModule => {
+        if (customModule instanceof ContainerModule) {
+            modules.push(customModule);
+        } else {
+            remove(modules, customModule.exclude);
+        }
+    });
+    container.load(...modules);
+    return container;
+}
+
+/**
+ * Can be passed to the {@link createDiagramContainer} utility function to exclude (i.e. not load) a specific default module.
+ */
+export interface ExcludeDescription {
+    exclude: ContainerModule;
+}
 
 /**
  * Creates a GLSP Client container with the GLSP default modules and the specified custom `modules`.
@@ -105,9 +151,8 @@ export const DEFAULT_MODULES = [
  * ```
  * @param modules Custom modules to be loaded in addition to the default modules.
  * @returns The created container.
+ * @deprecated Please use `createDiagramContainer` from `@eclipse-glsp/client` instead
  */
 export function createClientContainer(...modules: ContainerModule[]): Container {
-    const container = new Container();
-    container.load(...DEFAULT_MODULES, ...modules);
-    return container;
+    return createDiagramContainer(...modules);
 }

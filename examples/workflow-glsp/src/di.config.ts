@@ -17,7 +17,7 @@ import {
     configureDefaultModelElements,
     configureModelElement,
     ConsoleLogger,
-    createClientContainer,
+    createDiagramContainer,
     DeleteElementContextMenuItemProvider,
     DiamondNodeView,
     editLabelFeature,
@@ -74,7 +74,7 @@ const workflowDiagramModule = new ContainerModule((bind, unbind, isBound, rebind
 });
 
 export default function createContainer(widgetId: string): Container {
-    const container = createClientContainer(workflowDiagramModule, directTaskEditor);
+    const container = createDiagramContainer(workflowDiagramModule, directTaskEditor);
     overrideViewerOptions(container, {
         baseDiv: widgetId,
         hiddenDiv: widgetId + '_hidden'

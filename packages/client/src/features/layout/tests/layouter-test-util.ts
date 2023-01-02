@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2022 STMicroelectronics and others.
+ * Copyright (c) 2022-2023 STMicroelectronics and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -30,7 +30,7 @@ import {
     SParentElement,
     TYPES
 } from 'sprotty';
-import { createClientContainer } from '../../../base/container-modules';
+import { createDiagramContainer } from '../../../base/container-modules';
 import { GLSPGraph } from '../../../lib/model';
 import { StatefulLayouterExt } from '../layouter';
 
@@ -117,6 +117,6 @@ export function layout(
 export function setupLayoutRegistry(): LayoutRegistry {
     // Generic Test setup
     // create client container that registers all default modules including the layoutModule
-    const layoutContainer = createClientContainer();
+    const layoutContainer = createDiagramContainer();
     return layoutContainer.get<LayoutRegistry>(TYPES.LayoutRegistry);
 }
