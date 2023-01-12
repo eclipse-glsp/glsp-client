@@ -20,6 +20,7 @@ import {
     DiamondNode,
     EditableLabel,
     fadeFeature,
+    GEdge,
     hoverFeedbackFeature,
     isEditableLabel,
     layoutableChildFeature,
@@ -31,7 +32,6 @@ import {
     popupFeature,
     RectangularNode,
     SChildElement,
-    SEdge,
     selectFeature,
     SModelElement,
     SShapeElement,
@@ -75,7 +75,7 @@ export function isTaskNode(element: SModelElement): element is TaskNode {
     return element instanceof TaskNode || false;
 }
 
-export class WeightedEdge extends SEdge {
+export class WeightedEdge extends GEdge {
     probability?: string;
 }
 
