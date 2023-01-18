@@ -1,37 +1,37 @@
 {
-  "private": true,
   "name": "parent",
   "version": "1.0.0",
-  "engines": {
-    "yarn": ">=1.7.0 <2.x.x",
-    "node": ">=16.11.0"
-  },
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "examples/*"
+  ],
   "scripts": {
     "all": "yarn install && yarn lint && yarn test",
     "build": "lerna run build",
+    "check:headers": "glsp checkHeaders . -t lastCommit",
+    "check:pr": "yarn all && yarn check:headers",
     "clean": "lerna run clean && rimraf coverage .nyc_output",
     "download:exampleServer": "ts-node examples/workflow-glsp/scripts/download.ts",
     "lint": "lerna run lint",
     "lint:ci": "lerna run lint:ci",
     "prepare": "lerna run prepare",
-    "publish:prepare": "lerna version --ignore-scripts --yes --no-push",
     "publish:latest": "lerna publish from-git --no-git-reset --no-git-tag-version --no-verify-access --no-push",
     "publish:next": "SHA=$(git rev-parse --short HEAD) && lerna publish preminor --exact --canary --preid next.${SHA} --dist-tag next --no-git-reset --no-git-tag-version --no-push --ignore-scripts --yes --no-verify-access",
-    "upgrade:next": "yarn upgrade -p \"@eclipse-glsp.*|sprotty.*\" --next ",
+    "publish:prepare": "lerna version --ignore-scripts --yes --no-push",
     "test": "lerna run test",
     "test:ci": "lerna run test:ci",
     "test:coverage": "lerna run test:coverage",
     "test:coverage:ci": "yarn glsp coverageReport .",
+    "upgrade:next": "yarn upgrade -p \"@eclipse-glsp.*|sprotty.*\" --next ",
     "watch": "lerna run --parallel watch"
   },
   "devDependencies": {
-    "@eclipse-glsp/config": "1.1.0-next.e31f2e5.119",
-    "@eclipse-glsp/config-test": "1.1.0-next.e31f2e5.119",
-    "@eclipse-glsp/cli": "1.1.0-next.e31f2e5.119",
+    "@eclipse-glsp/dev": "1.1.0-next.164cf99.124",
     "@types/node": "16.x"
   },
-  "workspaces": [
-    "packages/*",
-    "examples/*"
-  ]
+  "engines": {
+    "node": ">=16.11.0",
+    "yarn": ">=1.7.0 <2.x.x"
+  }
 }

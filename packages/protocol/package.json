@@ -2,7 +2,6 @@
   "name": "@eclipse-glsp/protocol",
   "version": "1.1.0-next",
   "description": "The protocol definition for client-server communication in GLSP",
-  "license": "(EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0)",
   "keywords": [
     "eclipse",
     "graphics",
@@ -12,15 +11,16 @@
     "glsp",
     "diagram editor"
   ],
-  "author": {
-    "name": "Eclipse GLSP"
-  },
   "homepage": "https://www.eclipse.org/glsp/",
+  "bugs": "https://github.com/eclipse-glsp/glsp/issues",
   "repository": {
     "type": "git",
     "url": "https://github.com/eclipse-glsp/glsp-client.git"
   },
-  "bugs": "https://github.com/eclipse-glsp/glsp/issues",
+  "license": "(EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0)",
+  "author": {
+    "name": "Eclipse GLSP"
+  },
   "contributors": [
     {
       "name": "Eclipse GLSP Project",
@@ -28,32 +28,32 @@
       "url": "https://projects.eclipse.org/projects/ecd.glsp"
     }
   ],
+  "main": "lib/index",
+  "types": "lib/index",
   "files": [
     "lib",
     "src"
   ],
+  "scripts": {
+    "build": "tsc -b",
+    "clean": "rimraf lib tsconfig.tsbuildinfo  coverage .nyc_output ",
+    "lint": "eslint --ext .ts,.tsx ./src",
+    "lint:ci": "yarn lint -o eslint.xml -f checkstyle",
+    "prepare": "yarn clean && yarn build",
+    "test": "mocha --config ../../.mocharc \"./src/**/*.spec.?(ts|tsx)\"",
+    "test:ci": "export JUNIT_REPORT_PATH=./report.xml && yarn test --reporter mocha-jenkins-reporter",
+    "test:coverage": "nyc yarn test",
+    "watch": "tsc -w"
+  },
   "dependencies": {
     "sprotty-protocol": "0.13.0-next.f4445dd.342",
-    "vscode-ws-jsonrpc": "^2.0.1",
-    "uuid": "7.0.3"
+    "uuid": "7.0.3",
+    "vscode-ws-jsonrpc": "^2.0.1"
   },
   "devDependencies": {
     "@types/uuid": "3.4.5"
   },
-  "scripts": {
-    "clean": "rimraf lib tsconfig.tsbuildinfo  coverage .nyc_output ",
-    "build": "tsc -b",
-    "lint": "eslint --ext .ts,.tsx ./src",
-    "lint:ci": "yarn lint -o eslint.xml -f checkstyle",
-    "test": "mocha --config ../../.mocharc \"./src/**/*.spec.?(ts|tsx)\"",
-    "test:ci": "export JUNIT_REPORT_PATH=./report.xml && yarn test --reporter mocha-jenkins-reporter",
-    "test:coverage": "nyc yarn test",
-    "prepare": "yarn clean && yarn build",
-    "watch": "tsc -w"
-  },
   "publishConfig": {
     "access": "public"
-  },
-  "main": "lib/index",
-  "types": "lib/index"
+  }
 }
