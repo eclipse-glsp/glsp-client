@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020-2022 EclipseSource and others.
+ * Copyright (c) 2020-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -22,8 +22,8 @@ import {
     InitializeParameters,
     InitializeResult
 } from '../glsp-client';
+import { MaybePromise } from '../utils/type-util';
 
-export type MaybePromise<T> = T | Promise<T> | PromiseLike<T>;
 export type ConnectionProvider = MessageConnection | (() => MaybePromise<MessageConnection>);
 
 export namespace JsonrpcGLSPClient {
