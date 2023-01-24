@@ -13,8 +13,8 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { SModelElementSchema } from '@eclipse-glsp/protocol';
-import { exportFeature, SGraph, SModelElement, viewportFeature } from 'sprotty';
+import { Bounds, isBounds, Point, SModelElementSchema } from '@eclipse-glsp/protocol';
+import { exportFeature, getRouteBounds, SEdge, SGraph, SModelElement, viewportFeature } from 'sprotty';
 import { Containable, containerFeature } from '../features/hints/model';
 import { Saveable, saveFeature } from '../features/save/model';
 
@@ -23,5 +23,37 @@ export class GLSPGraph extends SGraph implements Saveable, Containable {
     dirty = false;
     isContainableElement(input: string | SModelElement | SModelElementSchema): boolean {
         return true;
+    }
+}
+
+export class GEdge extends SEdge {
+    override localToParent(point: Point | Bounds): Bounds {
+        const bounds = getRouteBounds(this.routingPoints);
+        const result = {
+            x: point.x + bounds.x,
+            y: point.y + bounds.y,
+            width: -1,
+            height: -1
+        };
+        if (isBounds(point)) {
+            result.width = point.width;
+            result.height = point.height;
+        }
+        return result;
+    }
+
+    override parentToLocal(point: Point | Bounds): Bounds {
+        const bounds = getRouteBounds(this.routingPoints);
+        const result = {
+            x: point.x - bounds.x,
+            y: point.y - bounds.y,
+            width: -1,
+            height: -1
+        };
+        if (isBounds(point)) {
+            result.width = point.width;
+            result.height = point.height;
+        }
+        return result;
     }
 }

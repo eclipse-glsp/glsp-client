@@ -21,6 +21,7 @@ import {
     DeleteElementContextMenuItemProvider,
     DiamondNodeView,
     editLabelFeature,
+    GEdge,
     GLSPGraph,
     GLSPProjectionView,
     GridSnapper,
@@ -31,7 +32,6 @@ import {
     RoundedCornerNodeView,
     SCompartment,
     SCompartmentView,
-    SEdge,
     SLabel,
     SLabelView,
     StructureCompartmentView,
@@ -61,7 +61,7 @@ const workflowDiagramModule = new ContainerModule((bind, unbind, isBound, rebind
     configureModelElement(context, 'comp:comp', SCompartment, SCompartmentView);
     configureModelElement(context, 'comp:header', SCompartment, SCompartmentView);
     configureModelElement(context, 'label:icon', SLabel, SLabelView);
-    configureModelElement(context, DefaultTypes.EDGE, SEdge, WorkflowEdgeView);
+    configureModelElement(context, DefaultTypes.EDGE, GEdge, WorkflowEdgeView);
     configureModelElement(context, 'edge:weighted', WeightedEdge, WorkflowEdgeView);
     configureModelElement(context, 'icon', Icon, IconView);
     configureModelElement(context, 'activityNode:merge', ActivityNode, DiamondNodeView);
