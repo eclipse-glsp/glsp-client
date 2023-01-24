@@ -19,6 +19,28 @@ import * as sinon from 'sinon';
 import { Disposable, DisposableCollection } from './disposable';
 
 describe('Disposable', () => {
+    describe('is', () => {
+        it('should return false for a primitive', () => {
+            expect(Disposable.is('A')).to.be.false;
+        });
+        it('should return false for any function', () => {
+            expect(Disposable.is('A'.toString)).to.be.false;
+        });
+        it('should return true for the return value of Disposable.create()', () => {
+            expect(Disposable.is(Disposable.create(() => 'A'.toString()))).to.be.true;
+        });
+        it('should return true for the return value of Disposable.empty()', () => {
+            expect(Disposable.is(Disposable.empty())).to.be.true;
+        });
+        it('should return false for an object with conflicting `dispose` property', () => {
+            const obj = { dispose: '' };
+            expect(Disposable.is(obj)).to.be.false;
+        });
+        it('disposable object', () => {
+            const obj: Disposable = { dispose: () => 'ok' };
+            expect(Disposable.is(obj)).to.be.true;
+        });
+    });
     describe('DisposableCollection', () => {
         let disposableCollection: DisposableCollection;
         beforeEach(() => (disposableCollection = new DisposableCollection()));
