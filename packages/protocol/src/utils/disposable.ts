@@ -28,7 +28,7 @@ export interface Disposable {
 
 export namespace Disposable {
     export function is(value: unknown): value is Disposable {
-        return AnyObject.is(value) && hasFunctionProp(value, '');
+        return AnyObject.is(value) && hasFunctionProp(value, 'dispose');
     }
 
     /**
