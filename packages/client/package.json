@@ -2,7 +2,6 @@
   "name": "@eclipse-glsp/client",
   "version": "1.1.0-next",
   "description": "A sprotty-based client for GLSP",
-  "license": "(EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0)",
   "keywords": [
     "eclipse",
     "graphics",
@@ -12,15 +11,16 @@
     "glsp",
     "diagram editor"
   ],
-  "author": {
-    "name": "Eclipse GLSP"
-  },
   "homepage": "https://www.eclipse.org/glsp/",
+  "bugs": "https://github.com/eclipse-glsp/glsp/issues",
   "repository": {
     "type": "git",
     "url": "https://github.com/eclipse-glsp/glsp-client.git"
   },
-  "bugs": "https://github.com/eclipse-glsp/glsp/issues",
+  "license": "(EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0)",
+  "author": {
+    "name": "Eclipse GLSP"
+  },
   "contributors": [
     {
       "name": "Eclipse GLSP Project",
@@ -28,19 +28,13 @@
       "url": "https://projects.eclipse.org/projects/ecd.glsp"
     }
   ],
+  "main": "lib/index",
+  "types": "lib/index",
   "files": [
     "lib",
     "src",
     "css"
   ],
-  "dependencies": {
-    "@eclipse-glsp/protocol": "1.1.0-next",
-    "autocompleter": "5.1.0",
-    "sprotty": "0.13.0-next.f4445dd.342"
-  },
-  "devDependencies": {
-    "@vscode/codicons": "^0.0.25"
-  },
   "scripts": {
     "build": "tsc -b",
     "clean": "rimraf lib tsconfig.tsbuildinfo  coverage .nyc_output",
@@ -52,9 +46,15 @@
     "test:coverage": "nyc yarn test",
     "watch": "tsc -w"
   },
+  "dependencies": {
+    "@eclipse-glsp/protocol": "1.1.0-next",
+    "autocompleter": "5.1.0",
+    "sprotty": "0.13.0-next.f4445dd.342"
+  },
+  "devDependencies": {
+    "@vscode/codicons": "^0.0.25"
+  },
   "publishConfig": {
     "access": "public"
-  },
-  "main": "lib/index",
-  "types": "lib/index"
+  }
 }

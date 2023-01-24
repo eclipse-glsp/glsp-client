@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2022 STMicroelectronics and others.
+ * Copyright (c) 2022-2023 STMicroelectronics and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { expect } from 'chai';
-import { AnyObject, hasArrayProp, hasBooleanProp, hasNumberProp, hasObjectProp, hasStringProp } from './type-util';
+import { AnyObject, hasArrayProp, hasBooleanProp, hasFunctionProp, hasNumberProp, hasObjectProp, hasStringProp } from './type-util';
 
 describe('TypeUtil', () => {
     describe('AnyObject', () => {
@@ -92,6 +92,19 @@ describe('TypeUtil', () => {
         });
         it('should return false for an object that does not have a property that matches the given key.', () => {
             expect(hasObjectProp({ anotherProp: 123 }, 'someProp')).to.be.false;
+        });
+    });
+
+    describe('hasFunctionProp', () => {
+        it('should return true for an object that has a property that matches the given key and type', () => {
+            // eslint-disable-next-line @typescript-eslint/no-empty-function
+            expect(hasFunctionProp({ someProp: () => {} }, 'someProp')).to.be.true;
+        });
+        it('should return false for an object that has a property that matches the given but not the given type', () => {
+            expect(hasFunctionProp({ someProp: '123' }, 'someProp')).to.be.false;
+        });
+        it('should return false for an object that does not have a property that matches the given key.', () => {
+            expect(hasFunctionProp({ anotherProp: 123 }, 'someProp')).to.be.false;
         });
     });
 

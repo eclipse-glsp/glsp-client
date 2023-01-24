@@ -1,17 +1,17 @@
 {
-  "private": true,
   "name": "workflow-standalone",
   "version": "1.1.0-next",
+  "private": true,
   "description": "Standalone browser-app for the Workflow example",
-  "author": {
-    "name": "Eclipse GLSP"
-  },
   "homepage": "https://www.eclipse.org/glsp/",
+  "bugs": "https://github.com/eclipse-glsp/glsp/issues",
   "repository": {
     "type": "git",
     "url": "https://github.com/eclipse-glsp/glsp-client.git"
   },
-  "bugs": "https://github.com/eclipse-glsp/glsp/issues",
+  "author": {
+    "name": "Eclipse GLSP"
+  },
   "contributors": [
     {
       "name": "Eclipse GLSP Project",
@@ -19,6 +19,16 @@
       "url": "https://projects.eclipse.org/projects/ecd.glsp"
     }
   ],
+  "main": "lib",
+  "types": "lib",
+  "scripts": {
+    "build": "tsc -b && webpack",
+    "clean": "rimraf lib tsconfig.tsbuildinfo app/bundle.js app/bundle.js.map app/css",
+    "lint": "eslint --ext .ts,.tsx ./src",
+    "lint:ci": "yarn lint -o eslint.xml -f checkstyle",
+    "prepare": "yarn clean && yarn build",
+    "watch": "tsc -w -p ./tsconfig.json"
+  },
   "dependencies": {
     "@eclipse-glsp-examples/workflow-glsp": "1.1.0-next",
     "@eclipse-glsp/client": "1.1.0-next"
@@ -34,15 +44,5 @@
   },
   "publishConfig": {
     "access": "public"
-  },
-  "scripts": {
-    "build": "tsc -b && webpack",
-    "clean": "rimraf lib tsconfig.tsbuildinfo app/bundle.js app/bundle.js.map app/css",
-    "lint": "eslint --ext .ts,.tsx ./src",
-    "lint:ci": "yarn lint -o eslint.xml -f checkstyle",
-    "prepare": "yarn clean && yarn build",
-    "watch": "tsc -w -p ./tsconfig.json"
-  },
-  "types": "lib",
-  "main": "lib"
+  }
 }

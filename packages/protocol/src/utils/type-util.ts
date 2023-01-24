@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2021-2022 EclipseSource and others.
+ * Copyright (c) 2021-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -54,9 +54,14 @@ export interface Constructor<T> {
 export type Writable<T> = { -readonly [P in keyof T]: Writable<T[P]> };
 
 /**
+ * Utility type to describe a value as might be provided as a promise.
+ */
+export type MaybePromise<T> = T | PromiseLike<T>;
+
+/**
  * Utility type to describe typeguard functions.
  */
-export type TypeGuard<T> = (element: any, ...args: any[]) => element is T;
+export type TypeGuard<T> = (element: any) => element is T;
 
 /**
  * Utility function that create a typeguard function for a given class constructor.
@@ -65,7 +70,7 @@ export type TypeGuard<T> = (element: any, ...args: any[]) => element is T;
  * @returns The typeguard for this class.
  */
 export function toTypeGuard<G>(constructor: Constructor<G>): TypeGuard<G> {
-    return (element: any): element is G => element instanceof constructor;
+    return (element: unknown): element is G => element instanceof constructor;
 }
 
 /**
@@ -106,6 +111,16 @@ export function hasNumberProp(object: AnyObject, propertyKey: string): boolean {
  */
 export function hasObjectProp(object: AnyObject, propertyKey: string): boolean {
     return propertyKey in object && AnyObject.is(object[propertyKey]);
+}
+
+/**
+ * Validates whether the given object as a property of type `function` with the given key.
+ * @param object The object that should be validated
+ * @param propertyKey The key of the property
+ * @returns `true` if the object has property with matching key of type `function`.
+ */
+export function hasFunctionProp(object: AnyObject, propertyKey: string): boolean {
+    return propertyKey in object && typeof object[propertyKey] === 'function';
 }
 
 /**
