@@ -14,12 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-/**
- * The built-in 'object' & 'Object' types are currently hard to use
- * an should be avoided. It's recommended to use Record instead to describe the
- * type meaning of "any object";
- */
-export type AnyObject = Record<PropertyKey, unknown>;
+export type AnyObject = object;
 
 export namespace AnyObject {
     /**
@@ -80,7 +75,7 @@ export function toTypeGuard<G>(constructor: Constructor<G>): TypeGuard<G> {
  * @returns `true` if the object has property with matching key of type `string`.
  */
 export function hasStringProp(object: AnyObject, propertyKey: string): boolean {
-    return propertyKey in object && typeof object[propertyKey] === 'string';
+    return !!object && propertyKey in object && typeof (object as any)[propertyKey] === 'string';
 }
 
 /**
@@ -90,7 +85,7 @@ export function hasStringProp(object: AnyObject, propertyKey: string): boolean {
  * @returns `true` if the object has property with matching key of type `boolean`.
  */
 export function hasBooleanProp(object: AnyObject, propertyKey: string): boolean {
-    return propertyKey in object && typeof object[propertyKey] === 'boolean';
+    return propertyKey in object && typeof (object as any)[propertyKey] === 'boolean';
 }
 
 /**
@@ -100,7 +95,7 @@ export function hasBooleanProp(object: AnyObject, propertyKey: string): boolean 
  * @returns `true` if the object has property with matching key of type `number`.
  */
 export function hasNumberProp(object: AnyObject, propertyKey: string): boolean {
-    return propertyKey in object && typeof object[propertyKey] === 'number';
+    return propertyKey in object && typeof (object as any)[propertyKey] === 'number';
 }
 
 /**
@@ -110,7 +105,7 @@ export function hasNumberProp(object: AnyObject, propertyKey: string): boolean {
  * @returns `true` if the object has property with matching key of type `object`.
  */
 export function hasObjectProp(object: AnyObject, propertyKey: string): boolean {
-    return propertyKey in object && AnyObject.is(object[propertyKey]);
+    return propertyKey in object && AnyObject.is((object as any)[propertyKey]);
 }
 
 /**
@@ -120,7 +115,7 @@ export function hasObjectProp(object: AnyObject, propertyKey: string): boolean {
  * @returns `true` if the object has property with matching key of type `function`.
  */
 export function hasFunctionProp(object: AnyObject, propertyKey: string): boolean {
-    return propertyKey in object && typeof object[propertyKey] === 'function';
+    return propertyKey in object && typeof (object as any)[propertyKey] === 'function';
 }
 
 /**
@@ -130,5 +125,5 @@ export function hasFunctionProp(object: AnyObject, propertyKey: string): boolean
  * @returns `true` if the object has property with matching key of type `Array`.
  */
 export function hasArrayProp(object: AnyObject, propertyKey: string): boolean {
-    return propertyKey in object && Array.isArray(object[propertyKey]);
+    return propertyKey in object && Array.isArray((object as any)[propertyKey]);
 }
