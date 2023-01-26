@@ -32,7 +32,6 @@ import {
     PolylineEdgeRouter,
     SConnectableElement,
     SModelElement,
-    SModelRoot,
     SRoutingHandle,
     SwitchEditModeAction,
     SwitchEditModeCommand,
@@ -326,14 +325,7 @@ export class FeedbackEdgeRouteMovingMouseListener extends MouseListener {
         return undefined;
     }
 
-    override mouseEnter(target: SModelElement, event: MouseEvent): Action[] {
-        if (target instanceof SModelRoot && event.buttons === 0) {
-            this.mouseUp(target, event);
-        }
-        return [];
-    }
-
-    override mouseUp(_target: SModelElement, event: MouseEvent): Action[] {
+    override mouseUp(_target: SModelElement, _event: MouseEvent): Action[] {
         this.pointPositionUpdater.resetPosition();
         return [];
     }
