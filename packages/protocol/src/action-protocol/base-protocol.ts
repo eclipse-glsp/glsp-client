@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2021-2022 STMicroelectronics and others.
+ * Copyright (c) 2021-2023 STMicroelectronics and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -65,7 +65,7 @@ export interface ActionMessage<A extends Action = Action> extends sprotty.Action
 export namespace ActionMessage {
     export function is<A extends Action>(object: any, typeguard?: TypeGuard<A>): object is ActionMessage<A> {
         const actionGuard = typeguard ?? Action.is;
-        return AnyObject.is(object) && hasStringProp(object, 'clientId') && actionGuard(object.action);
+        return AnyObject.is(object) && hasStringProp(object, 'clientId') && 'action' in object && actionGuard(object.action);
     }
 }
 
