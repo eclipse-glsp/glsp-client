@@ -67,7 +67,12 @@ export namespace EditTaskOperation {
     export const KIND = 'editTask';
 
     export function is(object: any): object is EditTaskOperation {
-        return Action.hasKind(object, KIND) && hasStringProp(object, 'taskId') && hasStringProp(object, 'expression');
+        return (
+            Action.hasKind(object, KIND) &&
+            hasStringProp(object, 'taskId') &&
+            hasStringProp(object, 'feature') &&
+            hasStringProp(object, 'value')
+        );
     }
 
     export function create(options: { taskId: string; feature: 'duration' | 'taskType'; value: string }): EditTaskOperation {
