@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020-2022 EclipseSource and others.
+ * Copyright (c) 2020-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -42,10 +42,10 @@ import { isTaskNode, TaskNode } from '../model';
 
 /**
  * Is send from the {@link TaskEditor} to the GLSP server
- * to execute a task edit operation.
+ * to update a feature from a specified task.
  */
-export interface ApplyTaskEditOperation extends Operation {
-    kind: typeof ApplyTaskEditOperation.KIND;
+export interface EditTaskOperation extends Operation {
+    kind: typeof EditTaskOperation.KIND;
 
     /**
      * Id of the task that should be edited
@@ -53,19 +53,24 @@ export interface ApplyTaskEditOperation extends Operation {
     taskId: string;
 
     /**
-     * The edit expression
+     * The feature that is to be updated
      */
-    expression: string;
+    feature: 'duration' | 'taskType';
+
+    /**
+     * The new feature value
+     */
+    value: string;
 }
 
-export namespace ApplyTaskEditOperation {
-    export const KIND = 'applyTaskEdit';
+export namespace EditTaskOperation {
+    export const KIND = 'editTask';
 
-    export function is(object: any): object is ApplyTaskEditOperation {
-        return Operation.hasKind(object, KIND) && hasStringProp(object, 'taskId') && hasStringProp(object, 'expression');
+    export function is(object: any): object is EditTaskOperation {
+        return Action.hasKind(object, KIND) && hasStringProp(object, 'taskId') && hasStringProp(object, 'expression');
     }
 
-    export function create(options: { taskId: string; expression: string }): ApplyTaskEditOperation {
+    export function create(options: { taskId: string; feature: 'duration' | 'taskType'; value: string }): EditTaskOperation {
         return {
             kind: KIND,
             isOperation: true,
@@ -178,8 +183,17 @@ export class TaskEditor extends AbstractUIExtension {
     }
 
     protected executeFromTextOnlyInput(input: string): void {
-        const action = ApplyTaskEditOperation.create({ taskId: this.task.id, expression: input });
-        this.actionDispatcher.dispatch(action);
+        if (input.startsWith('duration:')) {
+            const value = input.substring('duration:'.length);
+            const action = EditTaskOperation.create({ taskId: this.task.id, feature: 'duration', value });
+            this.actionDispatcher.dispatch(action);
+        } else if (input.startsWith('taskType:')) {
+            const value = input.substring('taskType:'.length);
+            const action = EditTaskOperation.create({ taskId: this.task.id, feature: 'taskType', value });
+            this.actionDispatcher.dispatch(action);
+        } else {
+            throw new Error('Unsupported Task Editing: ' + input);
+        }
     }
 
     override hide(): void {
