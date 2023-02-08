@@ -72,58 +72,64 @@ export function toTypeGuard<G>(constructor: Constructor<G>): TypeGuard<G> {
  * Validates whether the given object as a property of type `string` with the given key.
  * @param object The object that should be validated
  * @param propertyKey The key of the property
+ * @param optional Flag to indicate wether the property can be optional i.e. also return true if the given key is undefined
  * @returns `true` if the object has property with matching key of type `string`.
  */
-export function hasStringProp(object: AnyObject, propertyKey: string): boolean {
-    return !!object && propertyKey in object && typeof (object as any)[propertyKey] === 'string';
+export function hasStringProp(object: AnyObject, propertyKey: string, optional = false): boolean {
+    return propertyKey in object ? typeof (object as any)[propertyKey] === 'string' : optional;
 }
 
 /**
  * Validates whether the given object as a property of type `boolean` with the given key.
  * @param object The object that should be validated
  * @param propertyKey The key of the property
+ * @param optional Flag to indicate wether the property can be optional i.e. also return true if the given key is undefined
  * @returns `true` if the object has property with matching key of type `boolean`.
  */
-export function hasBooleanProp(object: AnyObject, propertyKey: string): boolean {
-    return propertyKey in object && typeof (object as any)[propertyKey] === 'boolean';
+export function hasBooleanProp(object: AnyObject, propertyKey: string, optional = false): boolean {
+    return propertyKey in object ? typeof (object as any)[propertyKey] === 'boolean' : optional;
 }
 
 /**
  * Validates whether the given object as a property of type `number` with the given key.
  * @param object The object that should be validated
  * @param propertyKey The key of the property
+ * @param optional Flag to indicate wether the property can be optional i.e. also return true if the given key is undefined
  * @returns `true` if the object has property with matching key of type `number`.
  */
-export function hasNumberProp(object: AnyObject, propertyKey: string): boolean {
-    return propertyKey in object && typeof (object as any)[propertyKey] === 'number';
+export function hasNumberProp(object: AnyObject, propertyKey: string, optional = false): boolean {
+    return propertyKey in object ? typeof (object as any)[propertyKey] === 'number' : optional;
 }
 
 /**
  * Validates whether the given object as a property of type `object` with the given key.
  * @param object The object that should be validated
  * @param propertyKey The key of the property
+ * @param optional Flag to indicate wether the property can be optional i.e. also return true if the given key is undefined
  * @returns `true` if the object has property with matching key of type `object`.
  */
-export function hasObjectProp(object: AnyObject, propertyKey: string): boolean {
-    return propertyKey in object && AnyObject.is((object as any)[propertyKey]);
+export function hasObjectProp(object: AnyObject, propertyKey: string, optional = false): boolean {
+    return propertyKey in object ? AnyObject.is((object as any)[propertyKey]) : optional;
 }
 
 /**
  * Validates whether the given object as a property of type `function` with the given key.
  * @param object The object that should be validated
  * @param propertyKey The key of the property
+ * @param optional Flag to indicate wether the property can be optional i.e. also return true if the given key is undefined
  * @returns `true` if the object has property with matching key of type `function`.
  */
-export function hasFunctionProp(object: AnyObject, propertyKey: string): boolean {
-    return propertyKey in object && typeof (object as any)[propertyKey] === 'function';
+export function hasFunctionProp(object: AnyObject, propertyKey: string, optional = false): boolean {
+    return propertyKey in object ? typeof (object as any)[propertyKey] === 'function' : optional;
 }
 
 /**
  * Validates whether the given object as a property of type `Array` with the given key.
  * @param object The object that should be validated
  * @param propertyKey The key of the property
+ * @param optional Flag to indicate wether the property can be optional i.e. also return true if the given key is undefined
  * @returns `true` if the object has property with matching key of type `Array`.
  */
-export function hasArrayProp(object: AnyObject, propertyKey: string): boolean {
-    return propertyKey in object && Array.isArray((object as any)[propertyKey]);
+export function hasArrayProp(object: AnyObject, propertyKey: string, optional = false): boolean {
+    return propertyKey in object ? Array.isArray((object as any)[propertyKey]) : optional;
 }
