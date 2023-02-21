@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, Bounds, Point } from '@eclipse-glsp/protocol';
+import { Action, Bounds, Point, SEdgeSchema } from '@eclipse-glsp/protocol';
 import { inject, injectable } from 'inversify';
 import {
     AnchorComputerRegistry,
@@ -28,7 +28,6 @@ import {
     SChildElement,
     SConnectableElement,
     SDanglingAnchor,
-    SEdge as SEdgeSchema,
     SModelElement,
     SModelRoot,
     SRoutableElement,
@@ -69,8 +68,7 @@ export class DrawFeedbackEdgeCommand extends FeedbackCommand {
     }
 
     execute(context: CommandExecutionContext): CommandReturn {
-        const feedbackEdgeSchema = this.action.edgeSchema ? this.action.edgeSchema : defaultFeedbackEdgeSchema;
-        drawFeedbackEdge(context, this.action.sourceId, this.action.elementTypeId, feedbackEdgeSchema);
+        drawFeedbackEdge(context, this.action.sourceId, this.action.elementTypeId, this.action.edgeSchema);
         return context.root;
     }
 }
@@ -195,16 +193,16 @@ export function feedbackEdgeEndId(root: SModelRoot): string {
     return root.id + '_feedback_anchor';
 }
 
-export const defaultFeedbackEdgeSchema: SEdgeSchema = {
+export const defaultFeedbackEdgeSchema: Partial<SEdgeSchema> = {
     cssClasses: ['feedback-edge'],
     opacity: 0.3
-} as SEdgeSchema;
+};
 
 export function drawFeedbackEdge(
     context: CommandExecutionContext,
     sourceId: string,
     elementTypeId: string,
-    feedbackEdgeSchema: SEdgeSchema
+    edgeTemplate?: Partial<SEdgeSchema>
 ): void {
     const root = context.root;
     const sourceChild = root.index.getById(sourceId);
@@ -221,12 +219,16 @@ export function drawFeedbackEdge(
     edgeEnd.id = feedbackEdgeEndId(root);
     edgeEnd.position = toAbsolutePosition(source);
 
-    feedbackEdgeSchema.id = feedbackEdgeId(root);
-    feedbackEdgeSchema.type = elementTypeId;
-    feedbackEdgeSchema.sourceId = source.id;
-    feedbackEdgeSchema.targetId = edgeEnd.id;
+    const edgeSchema: SEdgeSchema = {
+        id: feedbackEdgeId(root),
+        type: elementTypeId,
+        sourceId: source.id,
+        targetId: edgeEnd.id,
+        ...defaultFeedbackEdgeSchema,
+        ...edgeTemplate
+    };
 
-    const feedbackEdge = context.modelFactory.createElement(feedbackEdgeSchema);
+    const feedbackEdge = context.modelFactory.createElement(edgeSchema);
     if (isRoutable(feedbackEdge)) {
         edgeEnd.feedbackEdge = feedbackEdge;
         root.add(edgeEnd);
