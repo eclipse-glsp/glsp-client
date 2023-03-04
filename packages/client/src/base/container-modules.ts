@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { remove } from '@eclipse-glsp/protocol';
+import { asArray, distinctAdd, MaybeArray, remove } from '@eclipse-glsp/protocol';
 import { Container, ContainerModule } from 'inversify';
 import {
     buttonModule,
@@ -88,14 +88,19 @@ export const DEFAULT_MODULES = [
 
 /**
  *  Creates a GLSP Diagram container with the GLSP default modules and the specified custom `modules`.
- *  Default modules can be excluded using {@link ExcludeDescription}s.
- *
+ *  Additional modules can be passed as direct arguments or as part of a {@link ModuleConfiguration}.
+ *  ```typescript
+ *  const container= createDiagramContainer(myModule1, myModule2)
+ *  // or
+ *  const container= createDiagramContainer({ add: [myModule1, myModule2]})
+ *  ```
+ *  Default modules can be excluded using {@link ModuleConfiguration}s.
  *  This means, you can still customize the default modules in two ways.
  *
  * First, you can exclude default modules and add a module with your custom code.
  *
  * ```typescript
- * const container = createDiagramContainer(myModule1, {exclude: modelSourceWatcherModule},myModelSourceWatcherModule );
+ * const container = createDiagramContainer({ add:myModelSourceWatcherModule, remove: modelSourceWatcherModule} );
  * ```
  *
  * Second, you can unbind or rebind implementations that are originally bound in one of the default modules.
@@ -108,7 +113,7 @@ export const DEFAULT_MODULES = [
  * @param options Options to customize the module loading
  * @returns The created container.
  */
-export function createDiagramContainer(...customModules: Array<ContainerModule | ExcludeDescription>): Container {
+export function createDiagramContainer(...customModules: Array<ContainerModule | ModuleConfiguration>): Container {
     const container = new Container();
 
     const modules = [...DEFAULT_MODULES];
@@ -116,7 +121,12 @@ export function createDiagramContainer(...customModules: Array<ContainerModule |
         if (customModule instanceof ContainerModule) {
             modules.push(customModule);
         } else {
-            remove(modules, customModule.exclude);
+            if (customModule.remove) {
+                remove(modules, ...asArray(customModule.remove));
+            }
+            if (customModule.add) {
+                distinctAdd(modules, ...asArray(customModule.add));
+            }
         }
     });
     container.load(...modules);
@@ -124,10 +134,12 @@ export function createDiagramContainer(...customModules: Array<ContainerModule |
 }
 
 /**
- * Can be passed to the {@link createDiagramContainer} utility function to exclude (i.e. not load) a specific default module.
+ * Can be passed to the {@link createDiagramContainer} utility function to configure additional modules or
+ *  remove (i.e. not load) default modules.
  */
-export interface ExcludeDescription {
-    exclude: ContainerModule;
+export interface ModuleConfiguration {
+    add?: MaybeArray<ContainerModule>;
+    remove?: MaybeArray<ContainerModule>;
 }
 
 /**
