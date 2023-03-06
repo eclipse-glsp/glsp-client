@@ -10,7 +10,7 @@
 -   [routing] Ensured that routes are properly re-calculated when moving a routing point [#198](https://github.com/eclipse-glsp/glsp-client/pull/198)
 -   [diagram] Fixed a bug in the `EditLabelUIExtension` where the diagram becomes dirt wihtout an acual change. [#766](https://github.com/eclipse-glsp/glsp/issues/766)
 -   [diagram] Extends `ComputedBoundsAction` definition with routing information. This enables proper forwarding of cliend-side computed routes to the server. [#201](https://github.com/eclipse-glsp/glsp-client/pull/201/)
--   [DI] The `createClientContainer` function is now deprecated. Please use `createDiagramContainer` instead. This new function also can be used with `ModuleConfiguration` which allow fine granular configuration including the removal of default modules.[#218](https://github.com/eclipse-glsp/glsp/issues/218)[#231](https://github.com/eclipse-glsp/glsp-client/pull/231)
+-   [DI] The `createClientContainer` function is now deprecated. Please use `createDiagramContainer` instead. This new function also can be used with `ModuleConfigurations` which allow a more fine granular configuration by adding new modules and/or removing default modules. [#218](https://github.com/eclipse-glsp/glsp/issues/218) [#231](https://github.com/eclipse-glsp/glsp-client/pull/231)
 
 ### Breaking Changes
 
