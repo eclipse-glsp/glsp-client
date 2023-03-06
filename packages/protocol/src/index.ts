@@ -50,6 +50,7 @@ export * from './action-protocol';
 export * from './glsp-client';
 export * from './jsonrpc/base-jsonrpc-glsp-client';
 export * from './jsonrpc/glsp-jsonrpc-client';
+export * from './jsonrpc/websocket-connection';
 export * from './model/default-types';
 export * from './model/model-schema';
 export * from './utils/array-util';

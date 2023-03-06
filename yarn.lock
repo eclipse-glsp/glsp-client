@@ -6904,17 +6904,10 @@ validate-npm-package-name@^4.0.0:
   dependencies:
     builtins "^5.0.0"
 
-vscode-jsonrpc@8.0.2:
+vscode-jsonrpc@^8.0.2:
   version "8.0.2"
   resolved "https://registry.yarnpkg.com/vscode-jsonrpc/-/vscode-jsonrpc-8.0.2.tgz#f239ed2cd6004021b6550af9fd9d3e47eee3cac9"
   integrity sha512-RY7HwI/ydoC1Wwg4gJ3y6LpU9FJRZAUnTYMXthqhFXXu77ErDd/xkREpGuk4MyYkk4a+XDWAMqe0S3KkelYQEQ==
-
-vscode-ws-jsonrpc@^2.0.1:
-  version "2.0.1"
-  resolved "https://registry.yarnpkg.com/vscode-ws-jsonrpc/-/vscode-ws-jsonrpc-2.0.1.tgz#e0ac448a4a1df57d982a5abc62fc7128f4972587"
-  integrity sha512-ne5DO8/qe8tHt1U4LafLiYS832Yd4OltkP4+YZVOQwqGEU5nwLwZowUBqqEWt8sOZ0eLdCLV9luotGC2aUQ+LA==
-  dependencies:
-    vscode-jsonrpc "8.0.2"
 
 walk-up-path@^1.0.0:
   version "1.0.0"

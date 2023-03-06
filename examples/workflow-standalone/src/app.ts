@@ -21,6 +21,7 @@ import {
     GLSPActionDispatcher,
     GLSPClient,
     GLSPDiagramServer,
+    listen,
     RequestModelAction,
     RequestTypeHintsAction,
     TYPES
@@ -42,9 +43,7 @@ const container = createContainer();
 const diagramServer = container.get<GLSPDiagramServer>(TYPES.ModelSource);
 diagramServer.clientId = clientId;
 
-import('vscode-ws-jsonrpc').then(jsonrpc => {
-    jsonrpc.listen({ webSocket: websocket, onConnection: connection => initialize(connection) });
-});
+listen(websocket, connection => initialize(connection));
 
 async function initialize(connectionProvider: MessageConnection): Promise<void> {
     const client = new BaseJsonrpcGLSPClient({ id, connectionProvider });
