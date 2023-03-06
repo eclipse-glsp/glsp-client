@@ -13,8 +13,12 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-// based on https://github.com/TypeFox/monaco-languageclient/blob/vwj-2.0.1/packages/vscode-ws-jsonrpc/src/socket/reader.ts
 
+// based on https://github.com/TypeFox/monaco-languageclient/blob/vwj-2.0.1/packages/vscode-ws-jsonrpc/src/socket/reader.ts
+/* --------------------------------------------------------------------------------------------
+ * Copyright (c) 2018-2022 TypeFox GmbH (http://www.typefox.io). All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * ------------------------------------------------------------------------------------------ */
 import {
     AbstractMessageReader,
     AbstractMessageWriter,
@@ -153,11 +157,24 @@ export function createWebSocketConnection(socket: WebSocketWrapper, logger?: Log
     return createMessageConnection(reader, writer, logger);
 }
 
-export function listen(webSocket: WebSocket, onConnection: (connection: MessageConnection) => void, logger?: Logger): void {
-    webSocket.onopen = () => {
-        const socket = wrap(webSocket);
-
-        const connection = createWebSocketConnection(socket, logger);
-        onConnection(connection);
-    };
+/**
+ * Creates a new {@link MessageConnection} on top of the given websocket on open.
+ * @param webSocket The target webSocket
+ * @param onConnection Optional callback that is invoked after the connection has been created
+ * @param logger Optional connection logger
+ * @returns A promise of the created connection
+ */
+export function listen(
+    webSocket: WebSocket,
+    onConnection?: (connection: MessageConnection) => void,
+    logger?: Logger
+): Promise<MessageConnection> {
+    return new Promise(resolve => {
+        webSocket.onopen = () => {
+            const socket = wrap(webSocket);
+            const connection = createWebSocketConnection(socket, logger);
+            onConnection?.(connection);
+            resolve(connection);
+        };
+    });
 }
