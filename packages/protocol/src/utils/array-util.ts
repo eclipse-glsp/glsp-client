@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2022 EclipseSource and others.
+ * Copyright (c) 2019-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -98,6 +98,17 @@ export function flatPush<T>(array: T[], toPush: MaybeArray<T>[]): void {
     toPush.forEach(value => (Array.isArray(value) ? array.push(...value) : array.push(value)));
 }
 
+/**
+ * Helper function to convert a {@link MaybeArray} into an array.
+ * @param maybe The MaybeArray to convert
+ * @returns The corresponding array
+ */
+export function asArray<T>(maybe: MaybeArray<T>): T[] {
+    if (Array.isArray(maybe)) {
+        return maybe;
+    }
+    return [maybe];
+}
 /**
  * Adds the given values to the given array. The add operation is executed distinct meaning
  * a value will not be pushed to the array if its already present in the array.
