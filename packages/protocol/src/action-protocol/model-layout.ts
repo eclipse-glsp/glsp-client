@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2021-2022 STMicroelectronics and others.
+ * Copyright (c) 2021-2023 STMicroelectronics and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -115,9 +115,9 @@ export interface LayoutOperation extends Operation, Omit<sprotty.LayoutAction, '
     kind: typeof LayoutOperation.KIND;
 
     /**
-     * The identifiers of the elements that should be layouted, may be just the root element.
+     * The identifiers of the elements that should be layouted, will default to the root element if not defined.
      */
-    elementIds: string[];
+    elementIds?: string[];
 }
 
 export namespace LayoutOperation {
@@ -127,7 +127,7 @@ export namespace LayoutOperation {
         return Action.hasKind(object, KIND) && hasArrayProp(object, 'elementIds');
     }
 
-    export function create(elementIds: string[]): LayoutOperation {
+    export function create(elementIds?: string[]): LayoutOperation {
         return {
             kind: KIND,
             isOperation: true,
