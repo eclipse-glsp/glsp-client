@@ -41,7 +41,7 @@ export interface DrawFeedbackEdgeAction extends Action {
     kind: typeof DrawFeedbackEdgeAction.KIND;
     elementTypeId: string;
     sourceId: string;
-    edgeSchema?: SEdgeSchema;
+    edgeSchema?: Partial<SEdgeSchema>;
 }
 
 export namespace DrawFeedbackEdgeAction {
@@ -51,7 +51,11 @@ export namespace DrawFeedbackEdgeAction {
         return Action.hasKind(object, KIND);
     }
 
-    export function create(options: { elementTypeId: string; sourceId: string; edgeSchema?: SEdgeSchema }): DrawFeedbackEdgeAction {
+    export function create(options: {
+        elementTypeId: string;
+        sourceId: string;
+        edgeSchema?: Partial<SEdgeSchema>;
+    }): DrawFeedbackEdgeAction {
         return {
             kind: KIND,
             ...options
