@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2022 EclipseSource and others.
+ * Copyright (c) 2022-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -33,9 +33,11 @@ export class GSLPManhattanEdgeRouter extends ManhattanEdgeRouter {
                         if (routingPoints.length === 0) {
                             routingPoints.push({ x: correctedX, y: correctedY });
                             move.handle.pointIndex = 0;
+                        } else if (almostEquals(route[0].x, route[1].x)) {
+                            this.alignX(routingPoints, 0, correctedX);
+                        } else {
+                            this.alignY(routingPoints, 0, correctedY);
                         }
-                        else if (almostEquals(route[0].x, route[1].x)) { this.alignX(routingPoints, 0, correctedX); }
-                        else { this.alignY(routingPoints, 0, correctedY); }
                     } else if (index < routingPoints.length - 1) {
                         if (almostEquals(routingPoints[index].x, routingPoints[index + 1].x)) {
                             this.alignX(routingPoints, index, correctedX);
@@ -47,8 +49,9 @@ export class GSLPManhattanEdgeRouter extends ManhattanEdgeRouter {
                     } else {
                         if (almostEquals(route[route.length - 2].x, route[route.length - 1].x)) {
                             this.alignX(routingPoints, routingPoints.length - 1, correctedX);
+                        } else {
+                            this.alignY(routingPoints, routingPoints.length - 1, correctedY);
                         }
-                        else { this.alignY(routingPoints, routingPoints.length - 1, correctedY); }
                     }
                     break;
             }

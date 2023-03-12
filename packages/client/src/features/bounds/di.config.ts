@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2022 EclipseSource and others.
+ * Copyright (c) 2022-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -15,8 +15,16 @@
  ********************************************************************************/
 import { ContainerModule } from 'inversify';
 import {
-    configureCommand, configureLayout, HBoxLayouter, HiddenBoundsUpdater, Layouter,
-    LayoutRegistry, RequestBoundsCommand, SetBoundsCommand, StackLayouter, VBoxLayouter
+    configureCommand,
+    configureLayout,
+    HBoxLayouter,
+    HiddenBoundsUpdater,
+    Layouter,
+    LayoutRegistry,
+    RequestBoundsCommand,
+    SetBoundsCommand,
+    StackLayouter,
+    VBoxLayouter
 } from 'sprotty';
 import '../../../css/command-palette.css';
 import { TYPES } from '../../base/types';

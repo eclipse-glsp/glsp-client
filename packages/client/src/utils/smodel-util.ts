@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2022 EclipseSource and others.
+ * Copyright (c) 2019-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -14,7 +14,12 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import {
-    distinctAdd, ElementAndBounds, ElementAndRoutingPoints, Point, remove, SModelElementSchema,
+    distinctAdd,
+    ElementAndBounds,
+    ElementAndRoutingPoints,
+    Point,
+    remove,
+    SModelElementSchema,
     TypeGuard
 } from '@eclipse-glsp/protocol';
 import {
@@ -23,7 +28,8 @@ import {
     isBoundsAware,
     isMoveable,
     isSelectable,
-    isSelected, ModelIndexImpl,
+    isSelected,
+    ModelIndexImpl,
     RoutedPoint,
     Selectable,
     SModelElement,
@@ -275,7 +281,9 @@ export function calcElementAndRoute(element: SRoutableElement, routerRegistry?: 
  * @returns The corresponding route for the given element.
  */
 export function calcRoute(element: SRoutableElement, routerRegistry: EdgeRouterRegistry, pointKinds?: string[]): RoutedPoint[] | undefined {
-    return routerRegistry?.get(element.routerKind).route(element)
+    return routerRegistry
+        ?.get(element.routerKind)
+        .route(element)
         .filter((point, idx, fullRoute) => idx === fullRoute.findIndex(otherPoint => otherPoint.x === point.x && otherPoint.y === point.y))
         .filter(point => !pointKinds || pointKinds.includes(point.kind));
 }
@@ -302,4 +310,3 @@ export function getElementTypeId(input: SModelElement | SModelElementSchema | st
         return (input as any)['type'] as string;
     }
 }
-
