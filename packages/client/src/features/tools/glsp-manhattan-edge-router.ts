@@ -17,7 +17,7 @@
 import { almostEquals } from '@eclipse-glsp/protocol';
 import { ManhattanEdgeRouter, ResolvedHandleMove, SRoutableElement } from 'sprotty';
 
-export class GSLPManhattanEdgeRouter extends ManhattanEdgeRouter {
+export class GLSPManhattanEdgeRouter extends ManhattanEdgeRouter {
     protected override applyInnerHandleMoves(edge: SRoutableElement, moves: ResolvedHandleMove[]): void {
         const route = this.route(edge);
         const routingPoints = edge.routingPoints;

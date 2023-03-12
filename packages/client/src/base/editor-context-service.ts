@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020-2022 EclipseSource and others.
+ * Copyright (c) 2020-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -21,7 +21,7 @@ import { isSourceUriAware } from './source-uri-aware';
 import { TYPES } from './types';
 
 export interface EditModeListener {
-    editModeChanged(newValue: string, oldvalue: string): void;
+    editModeChanged(newValue: string, oldValue: string): void;
 }
 
 /**
@@ -81,11 +81,11 @@ export class EditorContextService implements IActionHandler {
         if (SetEditModeAction.is(action)) {
             const oldValue = this._editMode;
             this._editMode = action.editMode;
-            this.notifiyEditModeListeners(oldValue);
+            this.notifyEditModeListeners(oldValue);
         }
     }
 
-    protected notifiyEditModeListeners(oldValue: string): void {
+    protected notifyEditModeListeners(oldValue: string): void {
         this.editModeListeners.forEach(listener => listener.editModeChanged(oldValue, this.editMode));
     }
 

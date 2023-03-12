@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020-2022 EclipseSource and others.
+ * Copyright (c) 2020-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -223,7 +223,7 @@ export class AutoCompleteWidget {
 
     protected renderSuggestions(item: LabeledAction, value: string): HTMLDivElement {
         const itemElement = document.createElement('div');
-        const wordMatcher = this.espaceForRegExp(value).split(' ').join('|');
+        const wordMatcher = this.escapeForRegExp(value).split(' ').join('|');
         const regex = new RegExp(wordMatcher, 'gi');
         if (item.icon) {
             this.renderIcon(itemElement, item.icon);
@@ -232,7 +232,7 @@ export class AutoCompleteWidget {
         return itemElement;
     }
 
-    protected espaceForRegExp(value: string): string {
+    protected escapeForRegExp(value: string): string {
         return value.replace(/([.?*+^$[\]\\(){}|-])/g, '\\$1');
     }
 

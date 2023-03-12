@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2022 EclipseSource and others.
+ * Copyright (c) 2019-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -221,7 +221,7 @@ export class FeedbackMoveMouseListener extends MouseListener {
         }
     }
 
-    protected validateMove(startPostion: Point, toPosition: Point, element: SModelElement, isFinished: boolean): Point {
+    protected validateMove(startPosition: Point, toPosition: Point, element: SModelElement, isFinished: boolean): Point {
         let newPosition = toPosition;
         if (this.tool.movementRestrictor) {
             const valid = this.tool.movementRestrictor.validate(element, toPosition);
@@ -230,7 +230,7 @@ export class FeedbackMoveMouseListener extends MouseListener {
                 action = createMovementRestrictionFeedback(element, this.tool.movementRestrictor);
 
                 if (isFinished) {
-                    newPosition = startPostion;
+                    newPosition = startPosition;
                 }
             } else {
                 action = removeMovementRestrictionFeedback(element, this.tool.movementRestrictor);

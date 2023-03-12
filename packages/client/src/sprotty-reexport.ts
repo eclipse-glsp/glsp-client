@@ -192,8 +192,8 @@ export * from 'sprotty/lib/features/select/model';
 export {
     GetSelectionAction,
     GetSelectionCommand,
-    SelectAllCommand,
-    SelectCommand,
+    SelectAllCommand as SprottySelectAllCommand,
+    SelectCommand as SprottySelectCommand,
     SelectionResult,
     SelectKeyboardListener,
     SelectMouseListener

@@ -90,7 +90,7 @@ export class ActivityNode extends DiamondNode {
 
 export namespace ActivityNode {
     export namespace Type {
-        export const INITIAL = 'initalNode';
+        export const INITIAL = 'initialNode';
         export const FINAL = 'finalNode';
         export const DECISION = 'decisionNode';
         export const MERGE = 'mergeNode';

@@ -24,7 +24,7 @@ import { DelKeyDeleteTool, MouseDeleteTool } from './delete-tool';
 import { EdgeCreationTool } from './edge-creation-tool';
 import { EdgeEditTool } from './edge-edit-tool';
 import { EnableDefaultToolsOnFocusLossHandler } from './enable-default-tools-on-focus-loss';
-import { GSLPManhattanEdgeRouter } from './glsp-manhattan-edge-router';
+import { GLSPManhattanEdgeRouter } from './glsp-manhattan-edge-router';
 import { MarqueeMouseTool } from './marquee-mouse-tool';
 import { MarqueeTool } from './marquee-tool';
 import { MarqueeNode } from './model';
@@ -52,8 +52,8 @@ export const toolsModule = new ContainerModule((bind, _unbind, isBound, rebind) 
     configureActionHandler({ bind, isBound }, TriggerNodeCreationAction.KIND, NodeCreationTool);
     configureActionHandler({ bind, isBound }, TriggerEdgeCreationAction.KIND, EdgeCreationTool);
 
-    bind(GSLPManhattanEdgeRouter).toSelf().inSingletonScope();
-    rebind(ManhattanEdgeRouter).toService(GSLPManhattanEdgeRouter);
+    bind(GLSPManhattanEdgeRouter).toSelf().inSingletonScope();
+    rebind(ManhattanEdgeRouter).toService(GLSPManhattanEdgeRouter);
 });
 
 export function configureMarqueeTool(context: { bind: interfaces.Bind; isBound: interfaces.IsBound }): void {

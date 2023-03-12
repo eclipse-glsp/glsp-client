@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020-2022 EclipseSource and others.
+ * Copyright (c) 2020-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,19 +13,14 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { distinctAdd, EditMode } from '@eclipse-glsp/protocol';
+import { AnyObject, distinctAdd, EditMode, hasBooleanProp, hasFunctionProp, hasStringProp } from '@eclipse-glsp/protocol';
 import { inject, injectable, multiInject, optional, postConstruct } from 'inversify';
 import { Tool, ToolManager } from 'sprotty';
 import { EditModeListener, EditorContextService, EditorContextServiceProvider } from '../editor-context-service';
 import { TYPES } from '../types';
 
-export interface IGLSPToolManager extends ToolManager {
-    /* Disables all actives tools and activates only default tool with non-edit function*/
-    disableEditTools(): void;
-}
-
 @injectable()
-export class GLSPToolManager extends ToolManager implements IGLSPToolManager, EditModeListener {
+export class GLSPToolManager extends ToolManager implements EditModeListener {
     protected editorContext?: EditorContextService;
 
     @multiInject(TYPES.ITool) @optional() override tools: Tool[];
@@ -59,7 +54,7 @@ export class GLSPToolManager extends ToolManager implements IGLSPToolManager, Ed
         this.disableActiveTools();
         let tools = toolIds.map(id => this.tool(id));
         if (this.editorContext && this.editorContext.isReadonly) {
-            tools = tools.filter(tool => tool && (!isGLSPTool(tool) || tool.isEditTool === false));
+            tools = tools.filter(tool => tool && (!GLSPTool.is(tool) || tool.isEditTool === false));
         }
         tools.forEach(tool => {
             if (tool !== undefined) {
@@ -71,7 +66,7 @@ export class GLSPToolManager extends ToolManager implements IGLSPToolManager, Ed
 
     disableEditTools(): void {
         this.disableActiveTools();
-        this.enable(this.defaultTools.filter(tool => !isGLSPTool(tool) || tool.isEditTool === false).map(tool => tool.id));
+        this.enable(this.defaultTools.filter(tool => !GLSPTool.is(tool) || tool.isEditTool === false).map(tool => tool.id));
     }
 
     editModeChanged(oldValue: string, newValue: string): void {
@@ -90,6 +85,14 @@ export interface GLSPTool extends Tool {
     isEditTool: boolean;
 }
 
-export function isGLSPTool(tool: any): tool is GLSPTool {
-    return 'isEditTool' in tool && typeof tool['isEditTool'] === 'boolean';
+export namespace GLSPTool {
+    export function is(object: unknown): object is GLSPTool {
+        return (
+            AnyObject.is(object) &&
+            hasStringProp(object, 'id') &&
+            hasFunctionProp(object, 'enable') &&
+            hasFunctionProp(object, 'disable') &&
+            hasBooleanProp(object, 'isEditTool')
+        );
+    }
 }
