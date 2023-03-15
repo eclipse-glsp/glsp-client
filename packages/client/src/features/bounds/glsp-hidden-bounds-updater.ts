@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2022 EclipseSource and others.
+ * Copyright (c) 2022-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -14,10 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import {
-    Action, ComputedBoundsAction, Deferred, ElementAndRoutingPoints, RequestAction,
-    ResponseAction
-} from '@eclipse-glsp/protocol';
+import { Action, ComputedBoundsAction, Deferred, ElementAndRoutingPoints, RequestAction, ResponseAction } from '@eclipse-glsp/protocol';
 import { inject, injectable, optional } from 'inversify';
 import { VNode } from 'snabbdom';
 import { EdgeRouterRegistry, HiddenBoundsUpdater, IActionDispatcher, SModelElement, SRoutableElement } from 'sprotty';
@@ -30,7 +27,6 @@ import { calcElementAndRoute, isRoutable } from '../../utils/smodel-util';
  */
 @injectable()
 export class GLSPHiddenBoundsUpdater extends HiddenBoundsUpdater {
-
     @inject(EdgeRouterRegistry) @optional() protected readonly edgeRouterRegistry?: EdgeRouterRegistry;
 
     protected element2route: ElementAndRoutingPoints[] = [];
@@ -47,7 +43,8 @@ export class GLSPHiddenBoundsUpdater extends HiddenBoundsUpdater {
 
     override postUpdate(cause?: Action): void {
         const actions = this.captureActions(() => super.postUpdate(cause));
-        actions.filter(action => ComputedBoundsAction.is(action))
+        actions
+            .filter(action => ComputedBoundsAction.is(action))
             .forEach(action => this.actionDispatcher.dispatch(this.enhanceAction(action as ComputedBoundsAction)));
         this.element2route = [];
     }

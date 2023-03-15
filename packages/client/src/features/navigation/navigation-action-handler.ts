@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020-2022 EclipseSource and others.
+ * Copyright (c) 2020-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -123,7 +123,7 @@ export namespace ProcessNavigationArgumentsAction {
  *   *(a)* the navigation target already specifies element IDs, in which case this action handler navigates
  *         to the specified elements directly, by the selecting them and centering them in the viewport.
  *   *(b)* the arguments of the navigation targets don't contain element IDs, but other arguments, the
- *         navigation target needs to be resolved into actual elment IDs by the `NavigationTargetResolver`.
+ *         navigation target needs to be resolved into actual element IDs by the `NavigationTargetResolver`.
  *         This can for instance be useful, if the navigation deals with queries or some other more complex
  *         logic that can't be dealt with on the client.
  *  *(c)* the target isn't resolved by the `NavigationTargetResolver`, e.g. because the `uri` doesn't match

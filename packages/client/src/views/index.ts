@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2022 EclipseSource and others.
+ * Copyright (c) 2019-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -20,4 +20,3 @@ export * from './glsp-projection-view';
 export * from './issue-marker-view';
 export * from './rounded-corner';
 export * from './rounded-corner-view';
-

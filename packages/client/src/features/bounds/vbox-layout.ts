@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2021-2022 EclipseSource and others.
+ * Copyright (c) 2021-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -24,11 +24,11 @@ import {
     SModelElement,
     SParentElement,
     StatefulLayouter,
-    HBoxLayouter,
-    HBoxLayoutOptions
+    VBoxLayouter,
+    VBoxLayoutOptions
 } from 'sprotty';
 
-export interface HBoxLayoutOptionsExt extends HBoxLayoutOptions {
+export interface VBoxLayoutOptionsExt extends VBoxLayoutOptions {
     hGrab: boolean;
     vGrab: boolean;
     prefWidth: number | null;
@@ -36,11 +36,11 @@ export interface HBoxLayoutOptionsExt extends HBoxLayoutOptions {
 }
 
 /**
- * Extends HBoxLayouter to support additional layout options
+ * Extends VBoxLayouter to support additional layout options
  */
 @injectable()
-export class HBoxLayouterExt extends HBoxLayouter {
-    static override KIND = HBoxLayouter.KIND;
+export class VBoxLayouterExt extends VBoxLayouter {
+    static override KIND = VBoxLayouter.KIND;
 
     override layout(container: SParentElement & LayoutContainer, layouter: StatefulLayouter): void {
         const boundsData = layouter.getBoundsData(container);
@@ -49,8 +49,8 @@ export class HBoxLayouterExt extends HBoxLayouter {
 
         const fixedSize = this.getFixedContainerBounds(container, options, layouter);
 
-        const currentWidth = boundsData.bounds ? boundsData.bounds?.width - options.paddingLeft - options.paddingRight : 0;
-        const currentHeight = boundsData.bounds ? boundsData.bounds?.height - options.paddingTop - options.paddingBottom : 0;
+        const currentWidth = (boundsData.bounds?.width || 0) - options.paddingLeft - options.paddingRight;
+        const currentHeight = (boundsData.bounds?.height || 0) - options.paddingTop - options.paddingBottom;
 
         const maxWidth =
             options.paddingFactor *
@@ -66,17 +66,17 @@ export class HBoxLayouterExt extends HBoxLayouter {
         const width = Math.max(currentWidth, maxWidth);
         const height = Math.max(currentHeight, maxHeight);
 
-        // Remaining size that can be grabbed by children with the hGrab option
-        const grabWidth = width - childrenSize.width;
-        // Number of children that request hGrab
-        // FIXME: This approach works fine when only 1 child uses HGrab, but may cause rounding issues
+        // Remaining size that can be grabbed by children with the vGrab option
+        const grabHeight: number = height - childrenSize.height;
+        // Number of children that request vGrab
+        // FIXME: This approach works fine when only 1 child uses VGrab, but may cause rounding issues
         // when the grabHeight can't be equally shared by all children.
         const grabbingChildren = container.children
             .map(child => this.getChildLayoutOptions(child, options))
-            .filter(opt => opt.hGrab).length;
+            .filter(opt => opt.vGrab).length;
 
-        if (width > 0 && height > 0) {
-            const offset = this.layoutChildren(container, layouter, options, width, height, grabWidth, grabbingChildren);
+        if (maxWidth > 0 && maxHeight > 0) {
+            const offset = this.layoutChildren(container, layouter, options, width, height, grabHeight, grabbingChildren);
             boundsData.bounds = this.getFinalContainerBounds(container, offset, options, childrenSize.width, childrenSize.height);
             boundsData.boundsChanged = true;
         }
@@ -84,23 +84,23 @@ export class HBoxLayouterExt extends HBoxLayouter {
 
     protected override getChildrenSize(
         container: SParentElement & LayoutContainer,
-        containerOptions: HBoxLayoutOptionsExt,
+        containerOptions: VBoxLayoutOptionsExt,
         layouter: StatefulLayouter
     ): Dimension {
-        let maxWidth = 0;
-        let maxHeight = -1;
+        let maxWidth = -1;
+        let maxHeight = 0;
         let isFirst = true;
         container.children.forEach(child => {
             if (isLayoutableChild(child)) {
                 const bounds = layouter.getBoundsData(child).bounds;
                 if (bounds !== undefined && Dimension.isValid(bounds)) {
-                    maxWidth += bounds.width;
+                    maxHeight += bounds.height;
                     if (isFirst) {
                         isFirst = false;
                     } else {
-                        maxWidth += containerOptions.hGap;
+                        maxHeight += containerOptions.vGap;
                     }
-                    maxHeight = Math.max(maxHeight, bounds.height);
+                    maxWidth = Math.max(maxWidth, bounds.width);
                 }
             }
         });
@@ -114,10 +114,10 @@ export class HBoxLayouterExt extends HBoxLayouter {
     protected override layoutChildren(
         container: SParentElement & LayoutContainer,
         layouter: StatefulLayouter,
-        containerOptions: HBoxLayoutOptionsExt,
+        containerOptions: VBoxLayoutOptionsExt,
         maxWidth: number,
         maxHeight: number,
-        grabWidth?: number,
+        grabHeight?: number,
         grabbingChildren?: number
     ): Point {
         let currentOffset: Point = {
@@ -140,7 +140,7 @@ export class HBoxLayouterExt extends HBoxLayouter {
                         currentOffset,
                         maxWidth,
                         maxHeight,
-                        grabWidth,
+                        grabHeight,
                         grabbingChildren
                     );
                 }
@@ -153,48 +153,48 @@ export class HBoxLayouterExt extends HBoxLayouter {
         child: SChildElement,
         boundsData: BoundsData,
         bounds: Bounds,
-        childOptions: HBoxLayoutOptionsExt,
-        containerOptions: HBoxLayoutOptionsExt,
+        childOptions: VBoxLayoutOptionsExt,
+        containerOptions: VBoxLayoutOptionsExt,
         currentOffset: Point,
         maxWidth: number,
         maxHeight: number,
-        grabWidth?: number,
+        grabHeight?: number,
         grabbingChildren?: number
     ): Point {
-        const vAlign = childOptions.vGrab ? 'top' : childOptions.vAlign;
-        const dy = this.getDy(vAlign, bounds, maxHeight);
+        const hAlign = childOptions.hGrab ? 'left' : childOptions.hAlign;
+        const dx = this.getDx(hAlign, bounds, maxWidth);
         let offset = super.layoutChild(child, boundsData, bounds, childOptions, containerOptions, currentOffset, maxWidth, maxHeight);
         boundsData.bounds = {
             ...boundsData.bounds!,
-            x: currentOffset.x,
-            y: currentOffset.y + dy
+            x: currentOffset.x + dx,
+            y: currentOffset.y
         };
-        if (childOptions.vGrab) {
+        if (childOptions.hGrab) {
+            boundsData.bounds = {
+                x: boundsData.bounds!.x,
+                y: boundsData.bounds!.y,
+                width: maxWidth,
+                height: boundsData.bounds!.height
+            };
+            boundsData.boundsChanged = true;
+        }
+        if (childOptions.vGrab && grabHeight && grabbingChildren) {
+            const height = boundsData.bounds!.height + grabHeight / grabbingChildren;
             boundsData.bounds = {
                 x: boundsData.bounds!.x,
                 y: boundsData.bounds!.y,
                 width: boundsData.bounds!.width,
-                height: maxHeight
+                height: height
             };
             boundsData.boundsChanged = true;
-        }
-        if (childOptions.hGrab && grabWidth && grabbingChildren) {
-            const width = boundsData.bounds!.width + grabWidth / grabbingChildren;
-            boundsData.bounds = {
-                x: boundsData.bounds!.x,
-                y: boundsData.bounds!.y,
-                width: width,
-                height: boundsData.bounds!.height
-            };
-            boundsData.boundsChanged = true;
-            offset = { x: currentOffset.x + width, y: currentOffset.y };
+            offset = { x: currentOffset.x, y: currentOffset.y + height };
         }
         return offset;
     }
 
     protected override getFixedContainerBounds(
         container: SModelElement,
-        layoutOptions: HBoxLayoutOptionsExt,
+        layoutOptions: VBoxLayoutOptionsExt,
         layouter: StatefulLayouter
     ): Bounds {
         const currentContainer = container;
@@ -209,22 +209,22 @@ export class HBoxLayouterExt extends HBoxLayouter {
         return Bounds.EMPTY;
     }
 
-    protected override getChildLayoutOptions(child: SChildElement, containerOptions: HBoxLayoutOptionsExt): HBoxLayoutOptionsExt {
-        return super.getChildLayoutOptions(child, this.filterContainerOptions(containerOptions)) as HBoxLayoutOptionsExt;
+    protected override getChildLayoutOptions(child: SChildElement, containerOptions: VBoxLayoutOptionsExt): VBoxLayoutOptionsExt {
+        return super.getChildLayoutOptions(child, this.filterContainerOptions(containerOptions)) as VBoxLayoutOptionsExt;
     }
 
-    protected override getLayoutOptions(element: SModelElement): HBoxLayoutOptionsExt {
-        return super.getLayoutOptions(element) as HBoxLayoutOptionsExt;
+    protected override getLayoutOptions(element: SModelElement): VBoxLayoutOptionsExt {
+        return super.getLayoutOptions(element) as VBoxLayoutOptionsExt;
     }
 
-    protected getElementLayoutOptions(element: SModelElement): HBoxLayoutOptionsExt | undefined {
+    protected getElementLayoutOptions(element: SModelElement): VBoxLayoutOptionsExt | undefined {
         return (element as any).layoutOptions;
     }
 
     protected override getFinalContainerBounds(
         container: SParentElement & LayoutContainer,
         lastOffset: Point,
-        options: HBoxLayoutOptionsExt,
+        options: VBoxLayoutOptionsExt,
         maxWidth: number,
         maxHeight: number
     ): Bounds {
@@ -242,7 +242,7 @@ export class HBoxLayouterExt extends HBoxLayouter {
         return result;
     }
 
-    protected override getDefaultLayoutOptions(): HBoxLayoutOptionsExt {
+    protected override getDefaultLayoutOptions(): VBoxLayoutOptionsExt {
         return {
             resizeContainer: true,
             paddingTop: 5,
@@ -250,8 +250,8 @@ export class HBoxLayouterExt extends HBoxLayouter {
             paddingLeft: 5,
             paddingRight: 5,
             paddingFactor: 1,
-            hGap: 1,
-            vAlign: 'center',
+            vGap: 1,
+            hAlign: 'center',
             minWidth: 0,
             minHeight: 0,
             hGrab: false,
@@ -263,7 +263,7 @@ export class HBoxLayouterExt extends HBoxLayouter {
         };
     }
 
-    protected filterContainerOptions(containerOptions: HBoxLayoutOptionsExt): HBoxLayoutOptionsExt {
+    protected filterContainerOptions(containerOptions: VBoxLayoutOptionsExt): VBoxLayoutOptionsExt {
         // Reset object-specific layout options to default before merging,
         // to make sure they won't be inherited (grab, prefSize)
         // eslint-disable-next-line no-null/no-null

@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2021-2022 EclipseSource and others.
+ * Copyright (c) 2021-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -32,7 +32,7 @@ export class GEdgeView extends PolylineEdgeView {
         }
 
         return (
-            <g class-sprotty-edge={true} class-mouseover={edge.hoverFeedback} {...this.addtionalClasses(edge, context)}>
+            <g class-sprotty-edge={true} class-mouseover={edge.hoverFeedback} {...this.additionalClasses(edge, context)}>
                 {this.renderLine(edge, route, context)}
                 {this.renderAdditionals(edge, route, context)}
                 {context.renderChildren(edge, { route })}
@@ -40,7 +40,7 @@ export class GEdgeView extends PolylineEdgeView {
         );
     }
 
-    protected addtionalClasses(_edge: Readonly<SEdge>, _context: RenderingContext): Classes {
+    protected additionalClasses(_edge: Readonly<SEdge>, _context: RenderingContext): Classes {
         return {};
     }
 

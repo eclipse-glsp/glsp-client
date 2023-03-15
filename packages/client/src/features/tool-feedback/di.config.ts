@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2022 EclipseSource and others.
+ * Copyright (c) 2019-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -43,7 +43,7 @@ const toolFeedbackModule = new ContainerModule((bind, _unbind, isBound) => {
     configureCommand({ bind, isBound }, RemoveMarqueeCommand);
 
     configureView({ bind, isBound }, FeedbackEdgeEnd.TYPE, FeedbackEdgeEndView);
-    // move tool feedback: we use sprotties MoveCommand as client-side visual feedback
+    // move tool feedback: we use sprotty's MoveCommand as client-side visual feedback
     configureCommand({ bind, isBound }, MoveCommand);
 
     // resize tool feedback

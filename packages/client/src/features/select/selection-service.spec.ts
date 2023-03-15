@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020-2022 EclipseSource and others.
+ * Copyright (c) 2020-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -200,7 +200,7 @@ describe('SelectionService', () => {
             selectionService.modelRootChanged(newRoot);
             assertSelectionAndFeedback(['node1'], ['node2']);
         });
-        it('Changing root with new selection correctly selects matchting elements and deselects not matching elements.', () => {
+        it('Changing root with new selection correctly selects matching elements and deselects not matching elements.', () => {
             assertSelectionAndFeedback([], []);
             selectionService.updateSelection(root, ['node1', 'node2'], []);
             assertSelectionAndFeedback(['node1', 'node2'], []);

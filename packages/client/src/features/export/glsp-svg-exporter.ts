@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2022 EclipseSource and others.
+ * Copyright (c) 2022-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -18,8 +18,8 @@ import { injectable } from 'inversify';
 import { ExportSvgAction, SModelRoot, SvgExporter } from 'sprotty';
 import { v4 as uuid } from 'uuid';
 
- @injectable()
- export class GLSPSvgExporter extends SvgExporter {
+@injectable()
+export class GLSPSvgExporter extends SvgExporter {
     override export(root: SModelRoot, _request?: RequestAction<ExportSvgAction>): void {
         if (typeof document !== 'undefined') {
             const svgElement = this.findSvgElement();
@@ -30,9 +30,10 @@ import { v4 as uuid } from 'uuid';
                     svgElement.id = originalId || uuid();
                     // provide generated svg code with respective sizing for proper viewing in browser and remove undesired border
                     const bounds = this.getBounds(root);
-                    const svg = this.createSvg(svgElement, root)
-                        .replace('style="',
-                            `style="width: ${bounds.width}px !important;height: ${bounds.height}px !important;border: none !important;`);
+                    const svg = this.createSvg(svgElement, root).replace(
+                        'style="',
+                        `style="width: ${bounds.width}px !important;height: ${bounds.height}px !important;border: none !important;`
+                    );
                     // do not give request/response id here as otherwise the action is treated as an unrequested response
                     this.actionDispatcher.dispatch(ExportSvgAction.create(svg, ''));
                 } finally {
@@ -47,4 +48,4 @@ import { v4 as uuid } from 'uuid';
         // search for first svg element as hierarchy within Sprotty might change
         return div && div.querySelector('svg');
     }
- }
+}

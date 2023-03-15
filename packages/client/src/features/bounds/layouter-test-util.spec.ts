@@ -16,7 +16,6 @@
 
 import { Dimension, Point } from '@eclipse-glsp/protocol';
 import 'mocha';
-import 'reflect-metadata';
 import {
     BoundsData,
     ConsoleLogger,
@@ -30,9 +29,9 @@ import {
     SParentElement,
     TYPES
 } from 'sprotty';
-import { createDiagramContainer } from '../../../base/container-modules';
-import { GLSPGraph } from '../../../lib/model';
-import { StatefulLayouterExt } from '../layouter';
+import { createDiagramContainer } from '../../base/container-modules';
+import { GLSPGraph } from '../../lib/model';
+import { StatefulLayouterExt } from './layouter';
 
 export function gModel(): GLSPGraph {
     return new GLSPGraph();

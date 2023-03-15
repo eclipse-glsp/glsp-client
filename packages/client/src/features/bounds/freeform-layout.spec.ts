@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2022 STMicroelectronics and others.
+ * Copyright (c) 2022-2023 STMicroelectronics and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -17,7 +17,7 @@ import { expect } from 'chai';
 import 'mocha';
 import 'reflect-metadata';
 import { BoundsData, ConsoleLogger, SModelElement } from 'sprotty';
-import { gModel, layout, sComp, setupLayoutRegistry, sLabel, sNode } from './layouter-test-util';
+import { gModel, layout, sComp, setupLayoutRegistry, sLabel, sNode } from './layouter-test-util.spec';
 
 describe('FreeFormLayouter', () => {
     const layoutRegistry = setupLayoutRegistry();

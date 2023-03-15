@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2022 EclipseSource and others.
+ * Copyright (c) 2019-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -23,16 +23,17 @@ import modelHintsModule from './features/hints/di.config';
 import glspHoverModule from './features/hover/di.config';
 import layoutModule from './features/layout/di.config';
 import glspMouseToolModule from './features/mouse-tool/di.config';
-import { navigationModule } from './features/navigation/di.config';
+import navigationModule from './features/navigation/di.config';
 import saveModule from './features/save/di.config';
 import glspSelectModule from './features/select/di.config';
 import sourceModelWatcherModule from './features/source-model-watcher/di.config';
 import toolFeedbackModule from './features/tool-feedback/di.config';
 import paletteModule from './features/tool-palette/di.config';
 import { enableDefaultToolsOnFocusLossModule, toolsModule } from './features/tools/di.config';
-import { markerNavigatorModule, validationModule } from './features/validation/di.config';
+import { markerNavigatorContextMenuModule, markerNavigatorModule, validationModule } from './features/validation/di.config';
 import glspViewportModule from './features/viewport/di.config';
 
+// ------------------ Base ------------------
 export * from './base/action-dispatcher';
 export * from './base/actions/focus-change-action';
 export * from './base/argumentable';
@@ -50,18 +51,31 @@ export * from './base/model/model-registry';
 export * from './base/model/update-model-command';
 export * from './base/selection-clearing-mouse-listener';
 export * from './base/source-uri-aware';
+export * from './base/tool-manager/glsp-tool-manager';
 export * from './base/tool-manager/tool-actions';
 export * from './base/types';
 export * from './base/view/view-registry';
+//
+// ------------------ Features ------------------
+export * from './features/bounds/freeform-layout';
+export * from './features/bounds/glsp-hidden-bounds-updater';
+export * from './features/bounds/hbox-layout';
+export * from './features/bounds/layouter';
+export * from './features/bounds/vbox-layout';
 export * from './features/change-bounds/model';
 export * from './features/change-bounds/movement-restrictor';
 export * from './features/change-bounds/snap';
+export * from './features/command-palette/command-palette-tool';
 export * from './features/command-palette/server-command-palette-provider';
 export * from './features/context-menu/delete-element-context-menu';
+export * from './features/context-menu/selection-service-aware-context-menu-mouse-listener';
+export * from './features/context-menu/server-context-menu-provider';
+export * from './features/copy-paste/copy-paste-context-menu';
 export * from './features/copy-paste/copy-paste-handler';
 export * from './features/decoration/decoration-placer';
 export * from './features/edit-label/edit-label-tool';
 export * from './features/edit-label/edit-label-validator';
+export * from './features/export/glsp-svg-exporter';
 export * from './features/hints/model';
 export * from './features/hints/type-hints';
 export * from './features/hover/hover';
@@ -73,33 +87,47 @@ export * from './features/rank/model';
 export * from './features/reconnect/model';
 export * from './features/save/model';
 export * from './features/save/save-keylistener';
+export * from './features/select/select-feedback-action';
+export * from './features/select/select-mouse-listener';
+export * from './features/select/selection-service';
 export * from './features/source-model-watcher/source-model-changed-action-handler';
 export * from './features/tool-feedback/change-bounds-tool-feedback';
 export * from './features/tool-feedback/creation-tool-feedback';
 export * from './features/tool-feedback/css-feedback';
 export * from './features/tool-feedback/edge-edit-tool-feedback';
 export * from './features/tool-feedback/feedback-action-dispatcher';
+export * from './features/tool-feedback/marquee-tool-feedback';
 export * from './features/tool-feedback/model';
+export * from './features/tool-feedback/view';
 export * from './features/tool-palette/tool-palette';
 export * from './features/tools/base-glsp-tool';
 export * from './features/tools/change-bounds-tool';
 export * from './features/tools/delete-tool';
+export { configureMarqueeTool } from './features/tools/di.config';
 export * from './features/tools/edge-creation-tool';
 export * from './features/tools/edge-edit-tool';
+export * from './features/tools/enable-default-tools-on-focus-loss';
+export * from './features/tools/glsp-manhattan-edge-router';
 export * from './features/tools/marquee-behavior';
+export * from './features/tools/model';
 export * from './features/tools/node-creation-tool';
 export * from './features/validation/issue-marker';
 export * from './features/validation/marker-navigator';
 export * from './features/validation/validate';
 export * from './features/viewport/glsp-scroll-mouse-listener';
+//
+// ------------------ Misc ------------------
 export * from './lib/model';
 export * from './model-source/glsp-diagram-server';
 export * from './sprotty-reexport';
 export * from './utils/argument-utils';
+export * from './utils/html-utils';
+export * from './utils/layout-utils';
 export * from './utils/marker';
 export * from './utils/smodel-util';
 export * from './utils/viewpoint-util';
 export * from './views';
+// ------------------ DI Modules ------------------
 export {
     validationModule,
     saveModule,
@@ -121,6 +149,7 @@ export {
     navigationModule,
     markerNavigatorModule,
     glspDecorationModule,
-    sourceModelWatcherModule as modelSourceWatcherModule,
+    sourceModelWatcherModule,
+    markerNavigatorContextMenuModule,
     glspViewportModule
 };
