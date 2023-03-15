@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020-2022 EclipseSource and others.
+ * Copyright (c) 2019-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,11 +13,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { TYPES } from '@eclipse-glsp/client';
+import { bindAsService, TYPES } from '@eclipse-glsp/client';
 import { ContainerModule } from 'inversify';
 import { TaskEditor } from './direct-task-editor';
 
-export const directTaskEditor = new ContainerModule((bind, _unbind, isBound) => {
-    bind(TaskEditor).toSelf().inSingletonScope();
-    bind(TYPES.IUIExtension).toService(TaskEditor);
+export const directTaskEditor = new ContainerModule((bind, _unbind, _isBound) => {
+    bindAsService(bind, TYPES.IUIExtension, TaskEditor);
 });

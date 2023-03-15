@@ -53,6 +53,9 @@
   "devDependencies": {
     "@types/uuid": "3.4.5"
   },
+  "peerDependencies": {
+    "inversify": "^5.1.1"
+  },
   "publishConfig": {
     "access": "public"
   }

@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2022 EclipseSource and others.
+ * Copyright (c) 2019-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,15 +13,15 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { bindAsService } from '@eclipse-glsp/protocol';
 import { ContainerModule } from 'inversify';
 import { configureActionHandler, EnableDefaultToolsAction } from 'sprotty';
 import '../../../css/tool-palette.css';
 import { TYPES } from '../../base/types';
 import { EnableToolPaletteAction, ToolPalette } from './tool-palette';
 
-const toolPaletteModule = new ContainerModule((bind, _unbind, isBound, rebind) => {
-    bind(ToolPalette).toSelf().inSingletonScope();
-    bind(TYPES.IUIExtension).toService(ToolPalette);
+const toolPaletteModule = new ContainerModule((bind, _unbind, isBound, _rebind) => {
+    bindAsService(bind, TYPES.IUIExtension, ToolPalette);
     configureActionHandler({ bind, isBound }, EnableToolPaletteAction.KIND, ToolPalette);
     configureActionHandler({ bind, isBound }, EnableDefaultToolsAction.KIND, ToolPalette);
 });

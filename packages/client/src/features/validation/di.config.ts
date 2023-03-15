@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2022 EclipseSource and others.
+ * Copyright (c) 2019-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { SetMarkersAction } from '@eclipse-glsp/protocol';
+import { bindAsService, SetMarkersAction } from '@eclipse-glsp/protocol';
 import { ContainerModule } from 'inversify';
 import { configureActionHandler, configureCommand } from 'sprotty';
 import { TYPES } from '../../base/types';
@@ -47,7 +47,7 @@ export const markerNavigatorModule = new ContainerModule((bind, _unbind, isBound
  * in a standalone deployment of GLSP. If the GLSP diagram is in Theia use the Theia-native
  * `registerMarkerNavigationCommands()` in `glsp-theia-integration` instead.
  */
-export const markerNavigatorContextMenuModule = new ContainerModule((bind, _unbind, isBound) => {
-    bind(TYPES.IContextMenuProvider).to(MarkerNavigatorContextMenuItemProvider).inSingletonScope();
-    bind(TYPES.KeyListener).to(MarkerNavigatorKeyListener).inSingletonScope();
+export const markerNavigatorContextMenuModule = new ContainerModule((bind, _unbind, _isBound) => {
+    bindAsService(bind, TYPES.IContextMenuProvider, MarkerNavigatorContextMenuItemProvider);
+    bindAsService(bind, TYPES.KeyListener, MarkerNavigatorKeyListener);
 });

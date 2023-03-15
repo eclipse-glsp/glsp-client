@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { TriggerEdgeCreationAction, TriggerNodeCreationAction } from '@eclipse-glsp/protocol';
+import { bindAsService, bindOrRebind, TriggerEdgeCreationAction, TriggerNodeCreationAction } from '@eclipse-glsp/protocol';
 import { ContainerModule, interfaces } from 'inversify';
 import { configureActionHandler, configureModelElement, ManhattanEdgeRouter } from 'sprotty';
 import { FocusStateChangedAction } from '../../base/actions/focus-change-action';
@@ -36,30 +36,29 @@ import { MarqueeView } from './view';
  * and adds the marquee selection tool.
  */
 export const toolsModule = new ContainerModule((bind, _unbind, isBound, rebind) => {
+    const context = { bind, isBound, rebind };
     // Register default tools
-    bind(TYPES.IDefaultTool).to(ChangeBoundsTool);
-    bind(TYPES.IDefaultTool).to(EdgeEditTool);
-    bind(TYPES.IDefaultTool).to(DelKeyDeleteTool);
+    bindAsService(context, TYPES.IDefaultTool, ChangeBoundsTool);
+    bindAsService(context, TYPES.IDefaultTool, EdgeEditTool);
+    bindAsService(context, TYPES.IDefaultTool, DelKeyDeleteTool);
 
     // Register  tools
-    bind(TYPES.ITool).to(MouseDeleteTool);
-    bind(NodeCreationTool).toSelf().inSingletonScope();
-    bind(EdgeCreationTool).toSelf().inSingletonScope();
-    bind(TYPES.ITool).toService(EdgeCreationTool);
-    bind(TYPES.ITool).toService(NodeCreationTool);
+    bindAsService(context, TYPES.ITool, MouseDeleteTool);
+    bindAsService(context, TYPES.ITool, NodeCreationTool);
+    bindAsService(context, TYPES.ITool, EdgeCreationTool);
 
-    configureMarqueeTool({ bind, isBound });
-    configureActionHandler({ bind, isBound }, TriggerNodeCreationAction.KIND, NodeCreationTool);
-    configureActionHandler({ bind, isBound }, TriggerEdgeCreationAction.KIND, EdgeCreationTool);
+    configureMarqueeTool(context);
+    configureActionHandler(context, TriggerNodeCreationAction.KIND, NodeCreationTool);
+    configureActionHandler(context, TriggerEdgeCreationAction.KIND, EdgeCreationTool);
 
     bind(GLSPManhattanEdgeRouter).toSelf().inSingletonScope();
-    rebind(ManhattanEdgeRouter).toService(GLSPManhattanEdgeRouter);
+    bindOrRebind(context, ManhattanEdgeRouter).toService(GLSPManhattanEdgeRouter);
 });
 
 export function configureMarqueeTool(context: { bind: interfaces.Bind; isBound: interfaces.IsBound }): void {
     configureModelElement(context, MARQUEE, MarqueeNode, MarqueeView);
-    context.bind(TYPES.IDefaultTool).to(MarqueeTool);
-    context.bind(TYPES.ITool).to(MarqueeMouseTool);
+    bindAsService(context, TYPES.IDefaultTool, MarqueeTool);
+    bindAsService(context, TYPES.ITool, MarqueeMouseTool);
 }
 
 /**

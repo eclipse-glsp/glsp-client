@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2021-2022 EclipseSource and others.
+ * Copyright (c) 2021-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,6 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { bindAsService } from '@eclipse-glsp/protocol';
 import { ContainerModule } from 'inversify';
 import {
     CenterCommand,
@@ -30,17 +31,18 @@ import {
 import { GLSPScrollMouseListener } from './glsp-scroll-mouse-listener';
 
 const glspViewportModule = new ContainerModule((bind, _unbind, isBound) => {
-    configureCommand({ bind, isBound }, CenterCommand);
-    configureCommand({ bind, isBound }, FitToScreenCommand);
-    configureCommand({ bind, isBound }, GetViewportCommand);
-    configureCommand({ bind, isBound }, SetViewportCommand);
-    bind(TYPES.KeyListener).to(CenterKeyboardListener);
-    bind(TYPES.MouseListener).to(ZoomMouseListener);
-    bind(GLSPScrollMouseListener).toSelf().inSingletonScope();
-    bind(TYPES.MouseListener).toService(GLSPScrollMouseListener);
+    const context = { bind, isBound };
+    configureCommand(context, CenterCommand);
+    configureCommand(context, FitToScreenCommand);
+    configureCommand(context, GetViewportCommand);
+    configureCommand(context, SetViewportCommand);
 
-    configureActionHandler({ bind, isBound }, EnableToolsAction.KIND, GLSPScrollMouseListener);
-    configureActionHandler({ bind, isBound }, EnableDefaultToolsAction.KIND, GLSPScrollMouseListener);
+    bindAsService(context, TYPES.KeyListener, CenterKeyboardListener);
+    bindAsService(context, TYPES.MouseListener, ZoomMouseListener);
+    bindAsService(context, TYPES.MouseListener, GLSPScrollMouseListener);
+
+    configureActionHandler(context, EnableToolsAction.KIND, GLSPScrollMouseListener);
+    configureActionHandler(context, EnableDefaultToolsAction.KIND, GLSPScrollMouseListener);
 });
 
 export default glspViewportModule;
