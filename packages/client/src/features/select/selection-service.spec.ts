@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 /* eslint-disable import/no-deprecated,no-unused-expressions */
-import { Action, SModelElementSchema } from '@eclipse-glsp/protocol';
+import { Action, initializeContainer, SModelElementSchema } from '@eclipse-glsp/protocol';
 import { AssertionError, expect } from 'chai';
 import { Container, injectable } from 'inversify';
 import { defaultModule, SGraphFactory, SModelRoot } from 'sprotty';
@@ -72,8 +72,7 @@ class MockSelectionListener implements SelectionListener {
 }
 
 function createContainer(): Container {
-    const container = new Container();
-    container.load(defaultModule);
+    const container = initializeContainer(new Container(), defaultModule);
     // eslint-disable-next-line deprecation/deprecation
     container.rebind(TYPES.IModelFactory).to(SGraphFactory).inSingletonScope();
     container.bind(TYPES.IFeedbackActionDispatcher).to(MockFeedbackActionDispatcher).inSingletonScope();

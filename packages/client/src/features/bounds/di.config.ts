@@ -13,6 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { bindAsService } from '@eclipse-glsp/protocol';
 import { ContainerModule } from 'inversify';
 import {
     configureCommand,
@@ -32,17 +33,17 @@ import { HBoxLayouterExt } from './hbox-layout';
 import { VBoxLayouterExt } from './vbox-layout';
 
 const glspBoundsModule = new ContainerModule((bind, _unbind, isBound, _rebind) => {
-    configureCommand({ bind, isBound }, SetBoundsCommand);
-    configureCommand({ bind, isBound }, RequestBoundsCommand);
+    const context = { bind, isBound };
+    configureCommand(context, SetBoundsCommand);
+    configureCommand(context, RequestBoundsCommand);
     bind(HiddenBoundsUpdater).toSelf().inSingletonScope();
-    bind(GLSPHiddenBoundsUpdater).toSelf().inSingletonScope();
-    bind(TYPES.HiddenVNodePostprocessor).toService(GLSPHiddenBoundsUpdater);
+    bindAsService(context, TYPES.HiddenVNodePostprocessor, GLSPHiddenBoundsUpdater);
     bind(TYPES.Layouter).to(Layouter).inSingletonScope();
     bind(TYPES.LayoutRegistry).to(LayoutRegistry).inSingletonScope();
 
-    configureLayout({ bind, isBound }, VBoxLayouter.KIND, VBoxLayouterExt);
-    configureLayout({ bind, isBound }, HBoxLayouter.KIND, HBoxLayouterExt);
-    configureLayout({ bind, isBound }, FreeFormLayouter.KIND, FreeFormLayouter);
+    configureLayout(context, VBoxLayouter.KIND, VBoxLayouterExt);
+    configureLayout(context, HBoxLayouter.KIND, HBoxLayouterExt);
+    configureLayout(context, FreeFormLayouter.KIND, FreeFormLayouter);
 });
 
 export default glspBoundsModule;

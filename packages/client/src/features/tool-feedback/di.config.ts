@@ -13,6 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { bindAsService } from '@eclipse-glsp/protocol';
 import { ContainerModule } from 'inversify';
 import { configureCommand, configureView, LocationPostprocessor, MoveCommand } from 'sprotty';
 import { TYPES } from '../../base/types';
@@ -31,35 +32,36 @@ import { DrawMarqueeCommand, RemoveMarqueeCommand } from './marquee-tool-feedbac
 import { FeedbackEdgeEndView, SResizeHandleView } from './view';
 
 const toolFeedbackModule = new ContainerModule((bind, _unbind, isBound) => {
+    const context = { bind, isBound };
     bind(TYPES.IFeedbackActionDispatcher).to(FeedbackActionDispatcher).inSingletonScope();
 
-    configureCommand({ bind, isBound }, ModifyCssFeedbackCommand);
+    configureCommand(context, ModifyCssFeedbackCommand);
 
     // create node and edge tool feedback
-    configureCommand({ bind, isBound }, DrawFeedbackEdgeCommand);
-    configureCommand({ bind, isBound }, RemoveFeedbackEdgeCommand);
+    configureCommand(context, DrawFeedbackEdgeCommand);
+    configureCommand(context, RemoveFeedbackEdgeCommand);
 
-    configureCommand({ bind, isBound }, DrawMarqueeCommand);
-    configureCommand({ bind, isBound }, RemoveMarqueeCommand);
+    configureCommand(context, DrawMarqueeCommand);
+    configureCommand(context, RemoveMarqueeCommand);
 
-    configureView({ bind, isBound }, FeedbackEdgeEnd.TYPE, FeedbackEdgeEndView);
+    configureView(context, FeedbackEdgeEnd.TYPE, FeedbackEdgeEndView);
     // move tool feedback: we use sprotty's MoveCommand as client-side visual feedback
-    configureCommand({ bind, isBound }, MoveCommand);
+    configureCommand(context, MoveCommand);
 
     // resize tool feedback
-    configureCommand({ bind, isBound }, ShowChangeBoundsToolResizeFeedbackCommand);
-    configureCommand({ bind, isBound }, HideChangeBoundsToolResizeFeedbackCommand);
-    configureView({ bind, isBound }, SResizeHandle.TYPE, SResizeHandleView);
+    configureCommand(context, ShowChangeBoundsToolResizeFeedbackCommand);
+    configureCommand(context, HideChangeBoundsToolResizeFeedbackCommand);
+    configureView(context, SResizeHandle.TYPE, SResizeHandleView);
 
     // reconnect edge tool feedback
-    configureCommand({ bind, isBound }, ShowEdgeReconnectHandlesFeedbackCommand);
-    configureCommand({ bind, isBound }, HideEdgeReconnectHandlesFeedbackCommand);
-    configureCommand({ bind, isBound }, DrawFeedbackEdgeSourceCommand);
+    configureCommand(context, ShowEdgeReconnectHandlesFeedbackCommand);
+    configureCommand(context, HideEdgeReconnectHandlesFeedbackCommand);
+    configureCommand(context, DrawFeedbackEdgeSourceCommand);
 
-    configureCommand({ bind, isBound }, SwitchRoutingModeCommand);
+    configureCommand(context, SwitchRoutingModeCommand);
 
-    bind(TYPES.IVNodePostprocessor).to(LocationPostprocessor);
-    bind(TYPES.HiddenVNodePostprocessor).to(LocationPostprocessor);
+    bindAsService(context, TYPES.IVNodePostprocessor, LocationPostprocessor);
+    bind(TYPES.HiddenVNodePostprocessor).toService(LocationPostprocessor);
 });
 
 export default toolFeedbackModule;

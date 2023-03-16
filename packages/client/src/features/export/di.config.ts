@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2023 EclipseSource and others.
+ * Copyright (c) 2019-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,15 +13,16 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { bindAsService } from '@eclipse-glsp/protocol';
 import { ContainerModule } from 'inversify';
 import { configureCommand, ExportSvgCommand, ExportSvgKeyListener, ExportSvgPostprocessor, TYPES } from 'sprotty';
 import { GLSPSvgExporter } from './glsp-svg-exporter';
 
 const glspExportSvgModule = new ContainerModule((bind, _unbind, isBound) => {
-    bind(ExportSvgKeyListener).toSelf().inSingletonScope();
-    bind(TYPES.KeyListener).toService(ExportSvgKeyListener);
-    bind(TYPES.HiddenVNodePostprocessor).to(ExportSvgPostprocessor).inSingletonScope();
-    configureCommand({ bind, isBound }, ExportSvgCommand);
+    const context = { bind, isBound };
+    bindAsService(context, TYPES.KeyListener, ExportSvgKeyListener);
+    bindAsService(context, TYPES.HiddenVNodePostprocessor, ExportSvgPostprocessor);
+    configureCommand(context, ExportSvgCommand);
     bind(TYPES.SvgExporter).to(GLSPSvgExporter).inSingletonScope();
 });
 
