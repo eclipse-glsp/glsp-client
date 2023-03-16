@@ -72,7 +72,7 @@ export type ContainerConfiguration = Array<ContainerModule | ModuleConfiguration
 
 /**
  * Can be passed to create DI container utility functions to configure additional modules or
- *  remove (i.e. not load) default modules.
+ * remove (i.e. not load) default modules.
  */
 export interface ModuleConfiguration {
     /** Set of modules that should be loaded into the container. Loading */
@@ -91,9 +91,9 @@ export interface ModuleConfiguration {
  * ```
  * is equivalent to:
  * ```
- * if (isBound(MyService)){
+ * if (isBound(MyService)) {
  *    rebind(MyService).to(SomeOtherService);
- * }else {
+ * } else {
  *    bind(MyService).to(SomeOtherService);
  * }
  * ```
@@ -120,7 +120,7 @@ export function bindOrRebind<T>(
  * ```
  * is equivalent to:
  * ```
- * if (!isBound(MyService)){
+ * if (!isBound(MyService)) {
  *    bind(MyService).to(SomeOtherService);
  * }
  * ```

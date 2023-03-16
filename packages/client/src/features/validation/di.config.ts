@@ -47,7 +47,7 @@ export const markerNavigatorModule = new ContainerModule((bind, _unbind, isBound
  * in a standalone deployment of GLSP. If the GLSP diagram is in Theia use the Theia-native
  * `registerMarkerNavigationCommands()` in `glsp-theia-integration` instead.
  */
-export const markerNavigatorContextMenuModule = new ContainerModule((bind, _unbind, _isBound) => {
+export const markerNavigatorContextMenuModule = new ContainerModule(bind => {
     bindAsService(bind, TYPES.IContextMenuProvider, MarkerNavigatorContextMenuItemProvider);
     bindAsService(bind, TYPES.KeyListener, MarkerNavigatorKeyListener);
 });
