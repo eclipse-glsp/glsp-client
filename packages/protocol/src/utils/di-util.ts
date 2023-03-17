@@ -160,7 +160,7 @@ export function bindAsService<S, T extends S>(
     serviceIdentifier: interfaces.ServiceIdentifier<S>,
     targetService: interfaces.ServiceIdentifier<T>
 ): void {
-    const bind = typeof context === 'object' ? context.bind : context;
+    const bind = typeof context === 'object' ? context.bind.bind(context) : context;
     bind(targetService).toSelf().inSingletonScope();
     bind(serviceIdentifier).toService(targetService);
 }
