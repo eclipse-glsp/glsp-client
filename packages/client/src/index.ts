@@ -54,7 +54,7 @@ export * from './base/source-uri-aware';
 export * from './base/tool-manager/glsp-tool-manager';
 export * from './base/tool-manager/tool-actions';
 export * from './base/types';
-export * from './base/view/view-registry';
+export * from './base/views/view-registry';
 //
 // ------------------ Features ------------------
 export * from './features/bounds/freeform-layout';

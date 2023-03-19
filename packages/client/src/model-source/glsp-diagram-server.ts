@@ -24,12 +24,11 @@ import {
 } from '@eclipse-glsp/protocol';
 import { injectable } from 'inversify';
 import { ActionHandlerRegistry, DiagramServerProxy, ExportSvgAction, ICommand, ServerStatusAction, SwitchEditModeCommand } from 'sprotty';
-import { SourceUriAware } from '../base/source-uri-aware';
 
 const receivedFromServerProperty = '__receivedFromServer';
 
 @injectable()
-export class GLSPDiagramServer extends DiagramServerProxy implements SourceUriAware {
+export class GLSPDiagramServer extends DiagramServerProxy {
     protected _sourceUri: string;
     protected _glspClient?: GLSPClient;
     protected ready = false;

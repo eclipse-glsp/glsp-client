@@ -15,9 +15,9 @@
  ********************************************************************************/
 import { Action, Args, distinctAdd, EditMode, EditorContext, remove, SetEditModeAction } from '@eclipse-glsp/protocol';
 import { inject, injectable, multiInject, optional } from 'inversify';
-import { IActionHandler, ModelSource, MousePositionTracker, SModelElement, SModelRoot } from 'sprotty';
+import { IActionHandler, MousePositionTracker, SModelElement, SModelRoot } from 'sprotty';
 import { SelectionService } from '../features/select/selection-service';
-import { isSourceUriAware } from './source-uri-aware';
+import { GLSPDiagramOptions } from './diagram-options';
 import { TYPES } from './types';
 
 export interface EditModeListener {
@@ -48,8 +48,8 @@ export class EditorContextService implements IActionHandler {
     @optional()
     protected editModeListeners: EditModeListener[] = [];
 
-    @inject(TYPES.ModelSourceProvider)
-    protected modelSourceProvider: () => Promise<ModelSource>;
+    @inject(TYPES.GLSPDiagramOptions)
+    protected diagramOptions: GLSPDiagramOptions;
 
     protected _editMode: string;
 
@@ -89,12 +89,16 @@ export class EditorContextService implements IActionHandler {
         this.editModeListeners.forEach(listener => listener.editModeChanged(oldValue, this.editMode));
     }
 
-    async getSourceUri(): Promise<string | undefined> {
-        const modelSource = await this.modelSourceProvider();
-        if (isSourceUriAware(modelSource)) {
-            return modelSource.sourceURI;
-        }
-        return undefined;
+    /**
+     *
+     * @deprecated Use `EditorContextService.sourceUri` instead.
+     */
+    getSourceUri(): Promise<string | undefined> {
+        return Promise.resolve(this.sourceUri);
+    }
+
+    get sourceUri(): string | undefined {
+        return this.diagramOptions.sourceUri;
     }
 
     get editMode(): string {

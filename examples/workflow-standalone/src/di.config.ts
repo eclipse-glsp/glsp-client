@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2022 EclipseSource and others.
+ * Copyright (c) 2019-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -18,8 +18,8 @@ import { bindAsService, bindOrRebind, ConsoleLogger, GLSPDiagramServer, LogLevel
 import { Container } from 'inversify';
 import '../css/diagram.css';
 
-export default function createContainer(): Container {
-    const container = createWorkflowDiagramContainer('sprotty');
+export default function createContainer(diagramType: string, clientId: string): Container {
+    const container = createWorkflowDiagramContainer({ diagramType, clientId });
     bindAsService(container, TYPES.ModelSource, GLSPDiagramServer);
     bindOrRebind(container, TYPES.ModelSource).toService(GLSPDiagramServer);
     bindOrRebind(container, TYPES.ILogger).to(ConsoleLogger).inSingletonScope();

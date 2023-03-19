@@ -29,7 +29,7 @@ import { FeedbackAwareUpdateModelCommand, SetModelActionHandler } from './model/
 import { SelectionClearingMouseListener } from './selection-clearing-mouse-listener';
 import { GLSPToolManager } from './tool-manager/glsp-tool-manager';
 import { TYPES } from './types';
-import { GLSPViewRegistry } from './view/view-registry';
+import { GLSPViewRegistry } from './views/view-registry';
 
 const defaultGLSPModule = new ContainerModule((bind, _unbind, isBound, rebind) => {
     const context = { bind, _unbind, isBound, rebind };

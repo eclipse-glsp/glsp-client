@@ -16,7 +16,7 @@
 import { NavigationTarget, ResolveNavigationTargetAction, ResponseAction, SetResolvedNavigationTargetAction } from '@eclipse-glsp/protocol';
 import { inject, injectable } from 'inversify';
 import { IActionDispatcher, ILogger } from 'sprotty';
-import { EditorContextServiceProvider } from '../../base/editor-context-service';
+import { GLSPDiagramOptions } from '../../base/diagram-options';
 import { TYPES } from '../../base/types';
 
 /**
@@ -27,14 +27,17 @@ import { TYPES } from '../../base/types';
  */
 @injectable()
 export class NavigationTargetResolver {
-    @inject(TYPES.IEditorContextServiceProvider) protected editorContextService: EditorContextServiceProvider;
-    @inject(TYPES.IActionDispatcher) protected dispatcher: IActionDispatcher;
-    @inject(TYPES.ILogger) protected readonly logger: ILogger;
+    @inject(TYPES.IActionDispatcher)
+    protected dispatcher: IActionDispatcher;
+
+    @inject(TYPES.ILogger)
+    protected readonly logger: ILogger;
+
+    @inject(TYPES.GLSPDiagramOptions)
+    protected readonly diagramOptions: GLSPDiagramOptions;
 
     async resolve(navigationTarget: NavigationTarget): Promise<SetResolvedNavigationTargetAction | undefined> {
-        const contextService = await this.editorContextService();
-        const sourceUri = await contextService.getSourceUri();
-        return this.resolveWithSourceUri(sourceUri, navigationTarget);
+        return this.resolveWithSourceUri(this.diagramOptions.sourceUri, navigationTarget);
     }
 
     async resolveWithSourceUri(

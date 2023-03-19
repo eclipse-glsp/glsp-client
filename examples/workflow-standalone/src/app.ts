@@ -39,7 +39,7 @@ const currentDir = loc.substring(0, loc.lastIndexOf('/'));
 const examplePath = resolve(join(currentDir, '../app/example1.wf'));
 const clientId = ApplicationIdProvider.get() + '_' + examplePath;
 
-const container = createContainer();
+const container = createContainer(diagramType, clientId);
 const diagramServer = container.get<GLSPDiagramServer>(TYPES.ModelSource);
 diagramServer.clientId = clientId;
 

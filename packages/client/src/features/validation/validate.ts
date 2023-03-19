@@ -13,10 +13,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, DeleteMarkersAction, hasArrayProp, Marker, SetMarkersAction } from '@eclipse-glsp/protocol';
+import { Action, DeleteMarkersAction, hasArrayProp, Marker, MaybePromise, SetMarkersAction } from '@eclipse-glsp/protocol';
 import { inject, injectable, optional } from 'inversify';
 import { CommandExecutionContext, CommandReturn, IActionDispatcher, IActionHandler, ICommand, SIssueMarker, SParentElement } from 'sprotty';
-import { EditorContextService } from '../../base/editor-context-service';
+import { GLSPDiagramOptions } from '../../base/diagram-options';
 import { TYPES } from '../../base/types';
 import { removeCssClasses } from '../../utils/smodel-util';
 import { IFeedbackActionDispatcher, IFeedbackEmitter } from '../tool-feedback/feedback-action-dispatcher';
@@ -92,17 +92,16 @@ export class SetMarkersActionHandler implements IActionHandler {
     @optional()
     protected externalMarkerManager?: ExternalMarkerManager;
 
-    @inject(EditorContextService)
-    protected editorContextService: EditorContextService;
+    @inject(TYPES.GLSPDiagramOptions)
+    protected diagramOptions: GLSPDiagramOptions;
 
     handle(action: SetMarkersAction): void | Action | ICommand {
         const markers: Marker[] = action.markers;
         this.setMarkers(markers);
     }
 
-    async setMarkers(markers: Marker[]): Promise<void> {
-        const uri = await this.editorContextService.getSourceUri();
-        this.externalMarkerManager?.setMarkers(markers, uri);
+    setMarkers(markers: Marker[]): MaybePromise<void> {
+        this.externalMarkerManager?.setMarkers(markers, this.diagramOptions.sourceUri);
         const applyMarkersAction = ApplyMarkersAction.create(markers);
         this.validationFeedbackEmitter.registerValidationFeedbackAction(applyMarkersAction);
     }

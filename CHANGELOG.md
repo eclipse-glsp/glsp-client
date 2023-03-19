@@ -18,6 +18,7 @@
 -   [node] Update minimum requirements for Node to >=16.11.0 [#210](https://github.com/eclipse-glsp/glsp-client/pull/210)
 -   [protocol] Renamed `UndoOperation` and `RedoOperation` to `UndoAction` and `RedoAction` to match operation specification [#216](https://github.com/eclipse-glsp/glsp-client/pull/216)
 -   [protocol] Remove dependency to `vscode-ws-jsonrpc`. The protocol package now directly offers functions to create a websocket rpc connections [#215](https://github.com/eclipse-glsp/glsp-client/pull/215)
+-   [DI] Introduced a `GlSPDiagramOptions` which now have to be configured for each GLSP diagram container. The `configureDiagramContainer` helper function can be used for that. [#238](https://github.com/eclipse-glsp/glsp-client/pull/238)
 
 ## [v1.0.0 - 30/06/2022](https://github.com/eclipse-glsp/glsp-client/releases/tag/v1.0.0)
 

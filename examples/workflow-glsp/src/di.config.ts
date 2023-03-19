@@ -27,7 +27,6 @@ import {
     GridSnapper,
     initializeDiagramContainer,
     LogLevel,
-    overrideViewerOptions,
     RectangularNodeView,
     RevealNamedElementActionProvider,
     RoundedCornerNodeView,
@@ -38,6 +37,7 @@ import {
     StructureCompartmentView,
     TYPES
 } from '@eclipse-glsp/client';
+import { configureDiagramContainer, PartialGLSPDiagramOptions } from '@eclipse-glsp/client/lib/base/diagram-options';
 import { bindOrRebind, ContainerConfiguration, DefaultTypes } from '@eclipse-glsp/protocol';
 import 'balloon-css/balloon.min.css';
 import { Container, ContainerModule } from 'inversify';
@@ -75,19 +75,20 @@ export const workflowDiagramModule = new ContainerModule((bind, unbind, isBound,
     configureModelElement(context, 'struct', SCompartment, StructureCompartmentView);
 });
 
-export function createWorkflowDiagramContainer(widgetId: string, ...containerConfiguration: ContainerConfiguration): Container {
-    return initializeWorkflowDiagramContainer(new Container(), widgetId, ...containerConfiguration);
+export function createWorkflowDiagramContainer(
+    options: PartialGLSPDiagramOptions,
+    ...containerConfiguration: ContainerConfiguration
+): Container {
+    return initializeWorkflowDiagramContainer(new Container(), options, ...containerConfiguration);
 }
 
 export function initializeWorkflowDiagramContainer(
     container: Container,
-    widgetId: string,
+    options: PartialGLSPDiagramOptions,
     ...containerConfiguration: ContainerConfiguration
 ): Container {
     initializeDiagramContainer(container, workflowDiagramModule, directTaskEditor, ...containerConfiguration);
-    overrideViewerOptions(container, {
-        baseDiv: widgetId,
-        hiddenDiv: widgetId + '_hidden'
-    });
+    configureDiagramContainer(container, options);
+
     return container;
 }
