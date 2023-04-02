@@ -35,6 +35,7 @@ import {
     SLabel,
     SLabelView,
     StructureCompartmentView,
+    svgMetadataModule,
     TYPES
 } from '@eclipse-glsp/client';
 import { DefaultTypes } from '@eclipse-glsp/protocol';
@@ -79,5 +80,8 @@ export default function createContainer(widgetId: string): Container {
         baseDiv: widgetId,
         hiddenDiv: widgetId + '_hidden'
     });
+
+    container.load(svgMetadataModule);
+
     return container;
 }

@@ -13,21 +13,33 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { injectable } from 'inversify';
+import { injectable, inject } from 'inversify';
 import { VNode } from 'snabbdom';
-import { IVNodePostprocessor, SChildElement, SEdge, setAttr, SModelElement } from 'sprotty';
+import { IVNodePostprocessor, SChildElement, SEdge, setAttr, SModelElement, SModelRoot } from 'sprotty';
+import { DOMHelper } from 'sprotty/lib/base/views/dom-helper';
+import { TYPES } from '../../base/types';
 
 @injectable()
 export class MetadataPlacer implements IVNodePostprocessor {
+    @inject(TYPES.DOMHelper) protected domHelper: DOMHelper;
+
     decorate(vnode: VNode, element: SModelElement): VNode {
-        setAttr(vnode, 'data-type', element.type);
+        if (element instanceof SModelRoot) {
+            setAttr(vnode, 'data-svg-metadata-api', true);
+        }
+
+        setAttr(vnode, 'data-svg-metadata-type', element.type);
 
         if (element instanceof SChildElement) {
-            setAttr(vnode, 'data-parent', element.parent.id);
+            setAttr(vnode, 'data-svg-metadata-parent-id', this.domHelper.createUniqueDOMElementId(element.parent));
         }
         if (element instanceof SEdge) {
-            setAttr(vnode, 'data-source', element.sourceId);
-            setAttr(vnode, 'data-target', element.targetId);
+            if (element.source !== undefined) {
+                setAttr(vnode, 'data-svg-metadata-edge-source-id', this.domHelper.createUniqueDOMElementId(element.source));
+            }
+            if (element.target !== undefined) {
+                setAttr(vnode, 'data-svg-metadata-edge-target-id', this.domHelper.createUniqueDOMElementId(element.target));
+            }
         }
         return vnode;
     }
