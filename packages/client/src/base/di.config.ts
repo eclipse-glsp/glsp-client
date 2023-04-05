@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2022 EclipseSource and others.
+ * Copyright (c) 2019-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { InitializeResult, SetEditModeAction } from '@eclipse-glsp/protocol';
+import { bindAsService, bindOrRebind, InitializeResult, SetEditModeAction } from '@eclipse-glsp/protocol';
 import '@vscode/codicons/dist/codicon.css';
 import { Container, ContainerModule } from 'inversify';
 import { ActionHandlerRegistry, configureActionHandler, configureCommand, ModelSource, SetModelCommand } from 'sprotty';
@@ -54,19 +54,19 @@ const defaultGLSPModule = new ContainerModule((bind, _unbind, isBound, rebind) =
     configureCommand(context, FeedbackAwareUpdateModelCommand);
     configureActionHandler(context, SetModelCommand.KIND, SetModelActionHandler);
 
-    bind(TYPES.MouseListener).to(SelectionClearingMouseListener);
+    bindAsService(context, TYPES.MouseListener, SelectionClearingMouseListener);
 
-    rebind(TYPES.ICommandStack).to(GLSPCommandStack);
+    bindOrRebind(context, TYPES.ICommandStack).to(GLSPCommandStack);
     bind(GLSPToolManager).toSelf().inSingletonScope();
-    rebind(TYPES.IToolManager).toService(GLSPToolManager);
+    bindOrRebind(context, TYPES.IToolManager).toService(GLSPToolManager);
     bind(GLSPActionDispatcher).toSelf().inSingletonScope();
-    rebind(TYPES.IActionDispatcher).toService(GLSPActionDispatcher);
+    bindOrRebind(context, TYPES.IActionDispatcher).toService(GLSPActionDispatcher);
 
     bind(ModelInitializationConstraint).to(DefaultModelInitializationConstraint).inSingletonScope();
 
     // support re-registration of model elements and views
-    rebind(TYPES.SModelRegistry).to(GLSPModelRegistry).inSingletonScope();
-    rebind(TYPES.ViewRegistry).to(GLSPViewRegistry).inSingletonScope();
+    bindOrRebind(context, TYPES.SModelRegistry).to(GLSPModelRegistry).inSingletonScope();
+    bindOrRebind(context, TYPES.ViewRegistry).to(GLSPViewRegistry).inSingletonScope();
 });
 
 export default defaultGLSPModule;

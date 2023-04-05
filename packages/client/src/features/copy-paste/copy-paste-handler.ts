@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2022 EclipseSource and others.
+ * Copyright (c) 2019-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -96,7 +96,7 @@ const CLIPBOARD_DATA_FORMAT = 'text/plain';
 export class ServerCopyPasteHandler implements ICopyPasteHandler {
     @inject(TYPES.IActionDispatcher) protected actionDispatcher: GLSPActionDispatcher;
     @inject(TYPES.ViewerOptions) protected viewerOptions: ViewerOptions;
-    @inject(TYPES.IAsyncClipboardService) protected clipboadService: IAsyncClipboardService;
+    @inject(TYPES.IAsyncClipboardService) protected clipboardService: IAsyncClipboardService;
     @inject(EditorContextService) protected editorContext: EditorContextService;
 
     handleCopy(event: ClipboardEvent): void {
@@ -105,13 +105,13 @@ export class ServerCopyPasteHandler implements ICopyPasteHandler {
             event.clipboardData.setData(CLIPBOARD_DATA_FORMAT, toClipboardId(clipboardId));
             this.actionDispatcher
                 .request<SetClipboardDataAction>(RequestClipboardDataAction.create(this.editorContext.get()))
-                .then(action => this.clipboadService.put(action.clipboardData, clipboardId));
+                .then(action => this.clipboardService.put(action.clipboardData, clipboardId));
             event.preventDefault();
         } else {
             if (event.clipboardData) {
                 event.clipboardData.clearData();
             }
-            this.clipboadService.clear();
+            this.clipboardService.clear();
         }
     }
 
@@ -126,7 +126,7 @@ export class ServerCopyPasteHandler implements ICopyPasteHandler {
     handlePaste(event: ClipboardEvent): void {
         if (event.clipboardData && this.shouldPaste(event)) {
             const clipboardId = getClipboardIdFromDataTransfer(event.clipboardData);
-            const clipboardData = this.clipboadService.get(clipboardId);
+            const clipboardData = this.clipboardService.get(clipboardId);
             if (clipboardData) {
                 this.actionDispatcher.dispatch(PasteOperation.create({ clipboardData, editorContext: this.editorContext.get() }));
             }

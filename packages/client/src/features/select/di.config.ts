@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2022 EclipseSource and others.
+ * Copyright (c) 2019-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,6 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { bindAsService } from '@eclipse-glsp/protocol';
 import { ContainerModule } from 'inversify';
 import { configureCommand } from 'sprotty';
 import { TYPES } from '../../base/types';
@@ -21,12 +22,12 @@ import { RankedSelectMouseListener } from './select-mouse-listener';
 import { SelectAllCommand, SelectCommand, SelectionService } from './selection-service';
 
 const glspSelectModule = new ContainerModule((bind, _unbind, isBound) => {
-    bind(SelectionService).toSelf().inSingletonScope();
-    bind(TYPES.SelectionService).toService(SelectionService);
-    configureCommand({ bind, isBound }, SelectCommand);
-    configureCommand({ bind, isBound }, SelectAllCommand);
-    configureCommand({ bind, isBound }, SelectFeedbackCommand);
-    bind(TYPES.MouseListener).to(RankedSelectMouseListener);
+    const context = { bind, isBound };
+    bindAsService(context, TYPES.SelectionService, SelectionService);
+    configureCommand(context, SelectCommand);
+    configureCommand(context, SelectAllCommand);
+    configureCommand(context, SelectFeedbackCommand);
+    bindAsService(context, TYPES.MouseListener, RankedSelectMouseListener);
     bind(TYPES.SModelRootListener).toService(SelectionService);
 });
 

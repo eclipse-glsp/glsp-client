@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020-2021 EclipseSource and others.
+ * Copyright (c) 2020-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -19,7 +19,7 @@ import { configureActionHandler } from 'sprotty';
 import { NavigateAction, NavigationActionHandler, ProcessNavigationArgumentsAction } from './navigation-action-handler';
 import { NavigationTargetResolver } from './navigation-target-resolver';
 
-export const navigationModule = new ContainerModule((bind, _unbind, isBound) => {
+const navigationModule = new ContainerModule((bind, _unbind, isBound) => {
     bind(NavigationTargetResolver).toSelf().inSingletonScope();
     bind(NavigationActionHandler).toSelf().inSingletonScope();
     configureActionHandler({ bind, isBound }, NavigateAction.KIND, NavigationActionHandler);
@@ -27,3 +27,5 @@ export const navigationModule = new ContainerModule((bind, _unbind, isBound) => 
     configureActionHandler({ bind, isBound }, ProcessNavigationArgumentsAction.KIND, NavigationActionHandler);
     configureActionHandler({ bind, isBound }, NavigateToExternalTargetAction.KIND, NavigationActionHandler);
 });
+
+export default navigationModule;

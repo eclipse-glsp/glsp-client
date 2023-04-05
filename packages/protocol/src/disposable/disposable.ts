@@ -13,8 +13,8 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { remove } from './array-util';
-import { AnyObject, hasFunctionProp } from './type-util';
+import { remove } from '../utils/array-util';
+import { AnyObject, hasFunctionProp } from '../utils/type-util';
 
 /**
  * Interface for objects that can or need to be disposed properly.

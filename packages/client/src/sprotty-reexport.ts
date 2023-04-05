@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2022 STMicroelectronics and others.
+ * Copyright (c) 2022-2023 STMicroelectronics and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -23,8 +23,13 @@
 export * from '@eclipse-glsp/protocol';
 // sprotty-protocol
 export {
-    BringToFrontAction, CollapseExpandAction, CollapseExpandAllAction,
-    ElementAndAlignment, HoverFeedbackAction, MoveAction, SetBoundsAction
+    BringToFrontAction,
+    CollapseExpandAction,
+    CollapseExpandAllAction,
+    ElementAndAlignment,
+    HoverFeedbackAction,
+    MoveAction,
+    SetBoundsAction
 } from 'sprotty-protocol/lib/actions';
 export { Viewport } from 'sprotty-protocol/lib/model';
 // ------------------ Base ------------------
@@ -157,8 +162,14 @@ export {
 export * from 'sprotty/lib/features/hover/model';
 export * from 'sprotty/lib/features/move/model';
 export {
-    ElementMove, LocationPostprocessor, MorphEdgesAnimation, MoveAnimation,
-    MoveCommand, MoveMouseListener, ResolvedElementMove, ResolvedHandleMove
+    ElementMove,
+    LocationPostprocessor,
+    MorphEdgesAnimation,
+    MoveAnimation,
+    MoveCommand,
+    MoveMouseListener,
+    ResolvedElementMove,
+    ResolvedHandleMove
 } from 'sprotty/lib/features/move/move';
 export * from 'sprotty/lib/features/move/snap';
 export * from 'sprotty/lib/features/nameable/model';
@@ -181,8 +192,8 @@ export * from 'sprotty/lib/features/select/model';
 export {
     GetSelectionAction,
     GetSelectionCommand,
-    SelectAllCommand,
-    SelectCommand,
+    SelectAllCommand as SprottySelectAllCommand,
+    SelectCommand as SprottySelectCommand,
     SelectionResult,
     SelectKeyboardListener,
     SelectMouseListener
@@ -291,4 +302,3 @@ import viewportModule from 'sprotty/lib/features/viewport/di.config';
 import zorderModule from 'sprotty/lib/features/zorder/di.config';
 import graphModule from 'sprotty/lib/graph/di.config';
 import modelSourceModule from 'sprotty/lib/model-source/di.config';
-

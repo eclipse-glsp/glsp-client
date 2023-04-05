@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020-2022 EclipseSource and others.
+ * Copyright (c) 2020-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 /* eslint-disable import/no-deprecated,no-unused-expressions */
-import { Action, SModelElementSchema } from '@eclipse-glsp/protocol';
+import { Action, initializeContainer, SModelElementSchema } from '@eclipse-glsp/protocol';
 import { AssertionError, expect } from 'chai';
 import { Container, injectable } from 'inversify';
 import { defaultModule, SGraphFactory, SModelRoot } from 'sprotty';
@@ -72,8 +72,7 @@ class MockSelectionListener implements SelectionListener {
 }
 
 function createContainer(): Container {
-    const container = new Container();
-    container.load(defaultModule);
+    const container = initializeContainer(new Container(), defaultModule);
     // eslint-disable-next-line deprecation/deprecation
     container.rebind(TYPES.IModelFactory).to(SGraphFactory).inSingletonScope();
     container.bind(TYPES.IFeedbackActionDispatcher).to(MockFeedbackActionDispatcher).inSingletonScope();
@@ -200,7 +199,7 @@ describe('SelectionService', () => {
             selectionService.modelRootChanged(newRoot);
             assertSelectionAndFeedback(['node1'], ['node2']);
         });
-        it('Changing root with new selection correctly selects matchting elements and deselects not matching elements.', () => {
+        it('Changing root with new selection correctly selects matching elements and deselects not matching elements.', () => {
             assertSelectionAndFeedback([], []);
             selectionService.updateSelection(root, ['node1', 'node2'], []);
             assertSelectionAndFeedback(['node1', 'node2'], []);

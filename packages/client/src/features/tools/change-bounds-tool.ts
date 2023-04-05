@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2022 EclipseSource and others.
+ * Copyright (c) 2019-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
- import {
+import {
     Action,
     Bounds,
     ChangeBoundsOperation,
@@ -243,16 +243,16 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements Sele
             //  If client routing is enabled -> delegate routingpoints of connected edges to server
             forEachElement(target.index, isNonRoutableSelectedMovableBoundsAware, element => {
                 if (element instanceof SConnectableElement) {
-                    element.incomingEdges.map(connectable => calcElementAndRoutingPoints(connectable, routerRegistry))
+                    element.incomingEdges
+                        .map(connectable => calcElementAndRoutingPoints(connectable, routerRegistry))
                         .forEach(ear => newRoutingPoints.push(ear));
-                    element.outgoingEdges.map(connectable => calcElementAndRoutingPoints(connectable, routerRegistry))
+                    element.outgoingEdges
+                        .map(connectable => calcElementAndRoutingPoints(connectable, routerRegistry))
                         .forEach(ear => newRoutingPoints.push(ear));
                 }
             });
         }
-        return newRoutingPoints.length > 0
-         ? [ChangeRoutingPointsOperation.create(newRoutingPoints)]
-         : [];
+        return newRoutingPoints.length > 0 ? [ChangeRoutingPointsOperation.create(newRoutingPoints)] : [];
     }
 
     protected handleResize(activeResizeHandle: SResizeHandle): Action[] {

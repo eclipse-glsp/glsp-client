@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2022 TypeFox, STMicroelectronics and others.
+ * Copyright (c) 2022-2023 TypeFox, STMicroelectronics and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -19,7 +19,7 @@ import { expect } from 'chai';
 import 'mocha';
 import 'reflect-metadata';
 import { BoundsData, ConsoleLogger, SModelElement, SNode } from 'sprotty';
-import { layout, setupLayoutRegistry, sLabel, sNode } from './layouter-test-util';
+import { layout, setupLayoutRegistry, sLabel, sNode } from './layouter-test-util.spec';
 
 describe('VBoxLayouter', () => {
     const layoutRegistry = setupLayoutRegistry();

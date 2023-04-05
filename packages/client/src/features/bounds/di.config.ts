@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2022 EclipseSource and others.
+ * Copyright (c) 2022-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,27 +13,37 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { bindAsService } from '@eclipse-glsp/protocol';
 import { ContainerModule } from 'inversify';
 import {
-    configureCommand, configureLayout, HBoxLayouter, HiddenBoundsUpdater, Layouter,
-    LayoutRegistry, RequestBoundsCommand, SetBoundsCommand, StackLayouter, VBoxLayouter
+    configureCommand,
+    configureLayout,
+    HBoxLayouter,
+    HiddenBoundsUpdater,
+    Layouter,
+    LayoutRegistry,
+    RequestBoundsCommand,
+    SetBoundsCommand,
+    VBoxLayouter
 } from 'sprotty';
-import '../../../css/command-palette.css';
 import { TYPES } from '../../base/types';
+import { FreeFormLayouter } from './freeform-layout';
 import { GLSPHiddenBoundsUpdater } from './glsp-hidden-bounds-updater';
+import { HBoxLayouterExt } from './hbox-layout';
+import { VBoxLayouterExt } from './vbox-layout';
 
 const glspBoundsModule = new ContainerModule((bind, _unbind, isBound, _rebind) => {
-    configureCommand({ bind, isBound }, SetBoundsCommand);
-    configureCommand({ bind, isBound }, RequestBoundsCommand);
+    const context = { bind, isBound };
+    configureCommand(context, SetBoundsCommand);
+    configureCommand(context, RequestBoundsCommand);
     bind(HiddenBoundsUpdater).toSelf().inSingletonScope();
-    bind(GLSPHiddenBoundsUpdater).toSelf().inSingletonScope();
-    bind(TYPES.HiddenVNodePostprocessor).toService(GLSPHiddenBoundsUpdater);
+    bindAsService(context, TYPES.HiddenVNodePostprocessor, GLSPHiddenBoundsUpdater);
     bind(TYPES.Layouter).to(Layouter).inSingletonScope();
     bind(TYPES.LayoutRegistry).to(LayoutRegistry).inSingletonScope();
 
-    configureLayout({ bind, isBound }, VBoxLayouter.KIND, VBoxLayouter);
-    configureLayout({ bind, isBound }, HBoxLayouter.KIND, HBoxLayouter);
-    configureLayout({ bind, isBound }, StackLayouter.KIND, StackLayouter);
+    configureLayout(context, VBoxLayouter.KIND, VBoxLayouterExt);
+    configureLayout(context, HBoxLayouter.KIND, HBoxLayouterExt);
+    configureLayout(context, FreeFormLayouter.KIND, FreeFormLayouter);
 });
 
 export default glspBoundsModule;

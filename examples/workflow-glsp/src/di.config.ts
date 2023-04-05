@@ -14,10 +14,10 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import {
+    bindAsService,
     configureDefaultModelElements,
     configureModelElement,
     ConsoleLogger,
-    createDiagramContainer,
     DeleteElementContextMenuItemProvider,
     DiamondNodeView,
     editLabelFeature,
@@ -25,6 +25,7 @@ import {
     GLSPGraph,
     GLSPProjectionView,
     GridSnapper,
+    initializeDiagramContainer,
     LogLevel,
     overrideViewerOptions,
     RectangularNodeView,
@@ -38,7 +39,7 @@ import {
     svgMetadataModule,
     TYPES
 } from '@eclipse-glsp/client';
-import { DefaultTypes } from '@eclipse-glsp/protocol';
+import { bindOrRebind, ContainerConfiguration, DefaultTypes } from '@eclipse-glsp/protocol';
 import 'balloon-css/balloon.min.css';
 import { Container, ContainerModule } from 'inversify';
 import 'sprotty/css/edit-label.css';
@@ -47,13 +48,14 @@ import { directTaskEditor } from './direct-task-editing/di.config';
 import { ActivityNode, CategoryNode, Icon, TaskNode, WeightedEdge } from './model';
 import { IconView, WorkflowEdgeView } from './workflow-views';
 
-const workflowDiagramModule = new ContainerModule((bind, unbind, isBound, rebind) => {
-    rebind(TYPES.ILogger).to(ConsoleLogger).inSingletonScope();
-    rebind(TYPES.LogLevel).toConstantValue(LogLevel.info);
-    bind(TYPES.ISnapper).to(GridSnapper);
-    bind(TYPES.ICommandPaletteActionProvider).to(RevealNamedElementActionProvider);
-    bind(TYPES.IContextMenuItemProvider).to(DeleteElementContextMenuItemProvider);
+export const workflowDiagramModule = new ContainerModule((bind, unbind, isBound, rebind) => {
     const context = { bind, unbind, isBound, rebind };
+
+    bindOrRebind(context, TYPES.ILogger).to(ConsoleLogger).inSingletonScope();
+    bindOrRebind(context, TYPES.LogLevel).toConstantValue(LogLevel.warn);
+    bind(TYPES.ISnapper).to(GridSnapper);
+    bindAsService(context, TYPES.ICommandPaletteActionProvider, RevealNamedElementActionProvider);
+    bindAsService(context, TYPES.IContextMenuItemProvider, DeleteElementContextMenuItemProvider);
 
     configureDefaultModelElements(context);
     configureModelElement(context, 'task:automated', TaskNode, RoundedCornerNodeView);
@@ -74,8 +76,16 @@ const workflowDiagramModule = new ContainerModule((bind, unbind, isBound, rebind
     configureModelElement(context, 'struct', SCompartment, StructureCompartmentView);
 });
 
-export default function createContainer(widgetId: string): Container {
-    const container = createDiagramContainer(workflowDiagramModule, directTaskEditor);
+export function createWorkflowDiagramContainer(widgetId: string, ...containerConfiguration: ContainerConfiguration): Container {
+    return initializeWorkflowDiagramContainer(new Container(), widgetId, ...containerConfiguration);
+}
+
+export function initializeWorkflowDiagramContainer(
+    container: Container,
+    widgetId: string,
+    ...containerConfiguration: ContainerConfiguration
+): Container {
+    initializeDiagramContainer(container, workflowDiagramModule, directTaskEditor, ...containerConfiguration);
     overrideViewerOptions(container, {
         baseDiv: widgetId,
         hiddenDiv: widgetId + '_hidden'

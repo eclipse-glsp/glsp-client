@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2021 EclipseSource and others.
+ * Copyright (c) 2021-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -76,7 +76,7 @@ export class RoundedCornerWrapper {
 }
 
 /*
- * Scales the radius if necessary. (Percentual downscaling if the radius is bigger then the maximal allowed length)
+ * Scales the radius if necessary. (Percentile down scaling if the radius is bigger then the maximal allowed length)
  */
 export function scaledRadius(radius: number, maximalLength: number): number {
     if (radius <= maximalLength) {

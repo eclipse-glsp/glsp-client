@@ -15,8 +15,8 @@
  ********************************************************************************/
 
 import { Dimension, Point } from '@eclipse-glsp/protocol';
+import { Container } from 'inversify';
 import 'mocha';
-import 'reflect-metadata';
 import {
     BoundsData,
     ConsoleLogger,
@@ -30,9 +30,9 @@ import {
     SParentElement,
     TYPES
 } from 'sprotty';
-import { createDiagramContainer } from '../../../base/container-modules';
-import { GLSPGraph } from '../../../lib/model';
-import { StatefulLayouterExt } from '../layouter';
+import { initializeDiagramContainer } from '../../base/container-modules';
+import { GLSPGraph } from '../../lib/model';
+import { StatefulLayouterExt } from './layouter';
 
 export function gModel(): GLSPGraph {
     return new GLSPGraph();
@@ -117,6 +117,6 @@ export function layout(
 export function setupLayoutRegistry(): LayoutRegistry {
     // Generic Test setup
     // create client container that registers all default modules including the layoutModule
-    const layoutContainer = createDiagramContainer();
+    const layoutContainer = initializeDiagramContainer(new Container());
     return layoutContainer.get<LayoutRegistry>(TYPES.LayoutRegistry);
 }
