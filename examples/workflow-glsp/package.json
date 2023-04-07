@@ -1,6 +1,6 @@
 {
   "name": "@eclipse-glsp-examples/workflow-glsp",
-  "version": "1.1.0-next",
+  "version": "1.1.0-RC07",
   "description": "GLSP diagrams for the Workflow DSL",
   "keywords": [
     "glsp",
@@ -43,7 +43,7 @@
     "watch": "tsc -w"
   },
   "dependencies": {
-    "@eclipse-glsp/client": "1.1.0-next",
+    "@eclipse-glsp/client": "1.1.0-RC07",
     "balloon-css": "^0.5.0"
   },
   "devDependencies": {
