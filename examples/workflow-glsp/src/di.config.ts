@@ -36,7 +36,6 @@ import {
     SLabel,
     SLabelView,
     StructureCompartmentView,
-    svgMetadataModule,
     TYPES
 } from '@eclipse-glsp/client';
 import { bindOrRebind, ContainerConfiguration, DefaultTypes } from '@eclipse-glsp/protocol';
@@ -90,8 +89,5 @@ export function initializeWorkflowDiagramContainer(
         baseDiv: widgetId,
         hiddenDiv: widgetId + '_hidden'
     });
-
-    container.load(svgMetadataModule);
-
     return container;
 }

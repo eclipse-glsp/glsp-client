@@ -29,6 +29,7 @@ import {
     routingModule,
     zorderModule
 } from 'sprotty';
+import svgMetadataModule from '../features/svg-metadata/di.config';
 import glspBoundsModule from '../features/bounds/di.config';
 import glspCommandPaletteModule from '../features/command-palette/di.config';
 import glspContextMenuModule from '../features/context-menu/di.config';
@@ -83,7 +84,8 @@ export const DEFAULT_MODULES = [
     toolsModule,
     enableDefaultToolsOnFocusLossModule,
     validationModule,
-    zorderModule
+    zorderModule,
+    svgMetadataModule
 ] as const;
 
 /**
