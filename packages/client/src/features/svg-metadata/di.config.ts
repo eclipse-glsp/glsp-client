@@ -15,11 +15,10 @@
  ********************************************************************************/
 
 import { ContainerModule } from 'inversify';
-import '../../../css/decoration.css';
 import { TYPES } from '../../base/types';
 import { MetadataPlacer } from './metadata-placer';
 
-const svgMetadataModule = new ContainerModule((bind, _unbind, isBound) => {
+const svgMetadataModule = new ContainerModule(bind => {
     bind(MetadataPlacer).toSelf().inSingletonScope();
     bind(TYPES.IVNodePostprocessor).toService(MetadataPlacer);
 });
