@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2022 EclipseSource and others.
+ * Copyright (c) 2019-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -33,7 +33,7 @@ export class ValidationFeedbackEmitter implements IFeedbackEmitter {
 
     @inject(TYPES.IActionDispatcherProvider) protected actionDispatcher: () => Promise<IActionDispatcher>;
 
-    private registeredAction: ApplyMarkersAction;
+    private registeredFeedbackByReason: Map<string, ApplyMarkersAction> = new Map();
 
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     private constructor() {}
@@ -41,20 +41,21 @@ export class ValidationFeedbackEmitter implements IFeedbackEmitter {
     /**
      * Register the action that should be emitted for visualizing validation feedback.
      * @param action the action that should be emitted when the model is updated and that will visualize the model validation feedback.
+     * @param reason the reason for this validation feedback
      */
-    registerValidationFeedbackAction(action: ApplyMarkersAction): void {
-        // De-register old action responsible for applying markers and re-applying them when the model is updated
-        this.feedbackActionDispatcher.deregisterFeedback(this, []);
-
-        // Clear existing markers
-        if (this.registeredAction !== undefined) {
-            const deleteMarkersAction = DeleteMarkersAction.create(this.registeredAction.markers);
+    registerValidationFeedbackAction(action: ApplyMarkersAction, reason: string | undefined): void {
+        // De-register feedback and clear existing markers with the same reason
+        const safeReason = reason ?? '';
+        const previousFeedbackWithSameReason = this.registeredFeedbackByReason.get(safeReason);
+        if (previousFeedbackWithSameReason) {
+            this.feedbackActionDispatcher.deregisterFeedback(this, [previousFeedbackWithSameReason]);
+            const deleteMarkersAction = DeleteMarkersAction.create(previousFeedbackWithSameReason.markers);
             this.actionDispatcher().then(dispatcher => dispatcher.dispatch(deleteMarkersAction));
         }
 
         // Register new action responsible for applying markers and re-applying them when the model is updated
-        this.feedbackActionDispatcher.registerFeedback(this, [action]);
-        this.registeredAction = action;
+        this.registeredFeedbackByReason.set(safeReason, action);
+        this.feedbackActionDispatcher.registerFeedback(this, [...this.registeredFeedbackByReason.values()]);
     }
 }
 
@@ -80,7 +81,7 @@ export abstract class ExternalMarkerManager {
         }
     }
 
-    abstract setMarkers(markers: Marker[], sourceUri?: string): void;
+    abstract setMarkers(markers: Marker[], reason?: string, sourceUri?: string): void;
 }
 
 @injectable()
@@ -97,14 +98,14 @@ export class SetMarkersActionHandler implements IActionHandler {
 
     handle(action: SetMarkersAction): void | Action | ICommand {
         const markers: Marker[] = action.markers;
-        this.setMarkers(markers);
+        this.setMarkers(markers, action.reason);
     }
 
-    async setMarkers(markers: Marker[]): Promise<void> {
+    async setMarkers(markers: Marker[], reason: string | undefined): Promise<void> {
         const uri = await this.editorContextService.getSourceUri();
-        this.externalMarkerManager?.setMarkers(markers, uri);
+        this.externalMarkerManager?.setMarkers(markers, reason, uri);
         const applyMarkersAction = ApplyMarkersAction.create(markers);
-        this.validationFeedbackEmitter.registerValidationFeedbackAction(applyMarkersAction);
+        this.validationFeedbackEmitter.registerValidationFeedbackAction(applyMarkersAction, reason);
     }
 }
 
