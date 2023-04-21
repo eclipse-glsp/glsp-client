@@ -45,7 +45,8 @@ describe('Element validation actions', () => {
                 const expected: RequestMarkersAction = {
                     kind: 'requestMarkers',
                     requestId: '',
-                    elementsIDs: ['myIds']
+                    elementsIDs: ['myIds'],
+                    reason: 'batch'
                 };
                 const { elementsIDs } = expected;
                 expect(RequestMarkersAction.create(elementsIDs)).to.deep.equals(expected);
@@ -54,7 +55,8 @@ describe('Element validation actions', () => {
                 const expected: RequestMarkersAction = {
                     kind: 'requestMarkers',
                     requestId: 'myRequest',
-                    elementsIDs: ['myIds']
+                    elementsIDs: ['myIds'],
+                    reason: 'batch'
                 };
                 const { elementsIDs, requestId } = expected;
                 expect(RequestMarkersAction.create(elementsIDs, { requestId })).to.deep.equals(expected);

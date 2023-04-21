@@ -48,6 +48,16 @@ export namespace MarkerKind {
 }
 
 /**
+ * The default reasons for markers.
+ */
+export namespace MarkersReason {
+    /** Markers resulting from a batch validation */
+    export const BATCH = 'batch';
+    /** Markers resulting from a live validation */
+    export const LIVE = 'live';
+}
+
+/**
  * Action to retrieve markers for the specified model elements. Sent from the client to the server.
  * The corresponding namespace declares the action kind as constant and offers helper functions for type guard checks
  * and creating new `RequestMarkersActions`.
@@ -59,6 +69,11 @@ export interface RequestMarkersAction extends RequestAction<SetMarkersAction> {
      * The elements for which markers are requested, may be just the root element.
      */
     elementsIDs: string[];
+
+    /**
+     * The reason for this request, such as `batch` or `live` validation. `batch` by default.
+     */
+    reason?: string;
 }
 
 export namespace RequestMarkersAction {
@@ -68,11 +83,12 @@ export namespace RequestMarkersAction {
         return RequestAction.hasKind(object, KIND) && hasArrayProp(object, 'elementsIDs');
     }
 
-    export function create(elementsIDs: string[], options: { requestId?: string } = {}): RequestMarkersAction {
+    export function create(elementsIDs: string[], options: { requestId?: string; reason?: string } = {}): RequestMarkersAction {
         return {
             kind: KIND,
             requestId: '',
             elementsIDs,
+            reason: MarkersReason.BATCH,
             ...options
         };
     }
@@ -92,6 +108,11 @@ export interface SetMarkersAction extends ResponseAction {
      * The list of markers to be added to the diagram.
      */
     readonly markers: Marker[];
+
+    /**
+     * The reason for message, such as `batch` or `live` validation.
+     */
+    reason?: string;
 }
 
 export namespace SetMarkersAction {
