@@ -33,20 +33,16 @@ export class ValidationFeedbackEmitter implements IFeedbackEmitter {
 
     @inject(TYPES.IActionDispatcherProvider) protected actionDispatcher: () => Promise<IActionDispatcher>;
 
-    private registeredFeedbackByReason: Map<string, ApplyMarkersAction> = new Map();
-
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    private constructor() {}
+    protected registeredFeedbackByReason: Map<string, ApplyMarkersAction> = new Map();
 
     /**
      * Register the action that should be emitted for visualizing validation feedback.
      * @param action the action that should be emitted when the model is updated and that will visualize the model validation feedback.
-     * @param reason the reason for this validation feedback
+     * @param reason the reason for this validation feedback.
      */
-    registerValidationFeedbackAction(action: ApplyMarkersAction, reason: string | undefined): void {
+    registerValidationFeedbackAction(action: ApplyMarkersAction, reason = ''): void {
         // De-register feedback and clear existing markers with the same reason
-        const safeReason = reason ?? '';
-        const previousFeedbackWithSameReason = this.registeredFeedbackByReason.get(safeReason);
+        const previousFeedbackWithSameReason = this.registeredFeedbackByReason.get(reason);
         if (previousFeedbackWithSameReason) {
             this.feedbackActionDispatcher.deregisterFeedback(this, [previousFeedbackWithSameReason]);
             const deleteMarkersAction = DeleteMarkersAction.create(previousFeedbackWithSameReason.markers);
@@ -54,7 +50,7 @@ export class ValidationFeedbackEmitter implements IFeedbackEmitter {
         }
 
         // Register new action responsible for applying markers and re-applying them when the model is updated
-        this.registeredFeedbackByReason.set(safeReason, action);
+        this.registeredFeedbackByReason.set(reason, action);
         this.feedbackActionDispatcher.registerFeedback(this, [...this.registeredFeedbackByReason.values()]);
     }
 }

@@ -88,6 +88,7 @@ export namespace RequestMarkersAction {
             kind: KIND,
             requestId: '',
             elementsIDs,
+            reason: MarkersReason.BATCH,
             ...options
         };
     }
