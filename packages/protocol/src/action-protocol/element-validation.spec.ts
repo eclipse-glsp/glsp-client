@@ -87,6 +87,7 @@ describe('Element validation actions', () => {
                 const expected: SetMarkersAction = {
                     kind: 'setMarkers',
                     responseId: '',
+                    reason: 'batch',
                     markers: [{ description: 'desc', elementId: 'myId', kind: 'info', label: 'string' }]
                 };
                 const { markers } = expected;
@@ -96,6 +97,7 @@ describe('Element validation actions', () => {
                 const expected: SetMarkersAction = {
                     kind: 'setMarkers',
                     responseId: 'myResponse',
+                    reason: 'batch',
                     markers: [{ description: 'desc', elementId: 'myId', kind: 'info', label: 'string' }]
                 };
                 const { markers, responseId } = expected;

@@ -122,11 +122,12 @@ export namespace SetMarkersAction {
         return Action.hasKind(object, KIND) && hasArrayProp(object, 'markers');
     }
 
-    export function create(markers: Marker[], options: { responseId?: string } = {}): SetMarkersAction {
+    export function create(markers: Marker[], options: { responseId?: string; reason?: string } = {}): SetMarkersAction {
         return {
             kind: KIND,
             responseId: '',
             markers,
+            reason: MarkersReason.BATCH,
             ...options
         };
     }
