@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020-2022 EclipseSource and others.
+ * Copyright (c) 2020-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -15,76 +15,8 @@
  ********************************************************************************/
 import * as uuid from 'uuid';
 
-import { ActionMessage } from './action-protocol';
-import { Args } from './action-protocol/types';
-
-/**
- * A key-value pair structure to map a diagramType to its server-handled action kinds.
- */
-export interface ServerActions {
-    [key: string]: string[];
-}
-
-export interface InitializeParameters {
-    /**
-     * Unique identifier for the current client application.
-     */
-    applicationId: string;
-
-    /**
-     * GLSP protocol version that this client is implementing.
-     */
-    protocolVersion: string;
-
-    /**
-     * Additional custom arguments e.g. application specific parameters.
-     */
-    args?: Args;
-}
-
-export interface InitializeResult {
-    /**
-     * GLSP protocol version that the server is implementing.
-     */
-    protocolVersion: string;
-
-    /**
-     * The actions (grouped by diagramType) that the server can handle.
-     */
-    serverActions: ServerActions;
-}
-
-/**
- * Known server actions i.e. action kinds that the server can handle for a specific diagram type.
- */
-export interface InitializeClientSessionParameters {
-    /**
-     * Unique identifier for the new client session.
-     */
-    clientSessionId: string;
-
-    /**
-     * Unique identifier of the diagram type for which the session should be configured.
-     */
-    diagramType: string;
-
-    /**
-     * Additional custom arguments.
-     */
-    args?: Args;
-}
-
-export interface DisposeClientSessionParameters {
-    /**
-     * Unique identifier of the client session that should be disposed.
-     */
-    clientSessionId: string;
-
-    /**
-     * Additional custom arguments.
-     */
-    args?: Args;
-}
+import { ActionMessage } from '../action-protocol';
+import { DisposeClientSessionParameters, InitializeClientSessionParameters, InitializeParameters, InitializeResult } from './types';
 
 export class ApplicationIdProvider {
     private static _applicationId?: string;

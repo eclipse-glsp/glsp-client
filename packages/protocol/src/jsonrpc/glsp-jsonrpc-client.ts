@@ -15,13 +15,13 @@
  ********************************************************************************/
 import { MessageConnection, NotificationType, NotificationType0, RequestType } from 'vscode-jsonrpc';
 import { ActionMessage } from '../action-protocol/base-protocol';
+import { GLSPClient } from '../client-server-protocol/glsp-client';
 import {
     DisposeClientSessionParameters,
-    GLSPClient,
     InitializeClientSessionParameters,
     InitializeParameters,
     InitializeResult
-} from '../glsp-client';
+} from '../client-server-protocol/types';
 import { MaybePromise } from '../utils/type-util';
 
 export type ConnectionProvider = MessageConnection | (() => MaybePromise<MessageConnection>);

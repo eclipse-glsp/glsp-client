@@ -47,10 +47,13 @@ export * from 'sprotty-protocol/lib/utils/json';
 export * from 'sprotty-protocol/lib/utils/model-utils';
 // Default export of @eclipse-glsp/protocol
 export * from './action-protocol';
+export * from './client-server-protocol/glsp-client';
+export * from './client-server-protocol/glsp-server';
+export * from './client-server-protocol/types';
 export * from './disposable/disposable';
-export * from './glsp-client';
 export * from './jsonrpc/base-jsonrpc-glsp-client';
 export * from './jsonrpc/glsp-jsonrpc-client';
+export * from './jsonrpc/glsp-jsonrpc-server';
 export * from './jsonrpc/websocket-connection';
 export * from './model/default-types';
 export * from './model/model-schema';
