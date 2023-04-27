@@ -18,6 +18,7 @@ import glspCommandPaletteModule from './features/command-palette/di.config';
 import glspContextMenuModule from './features/context-menu/di.config';
 import { copyPasteContextMenuModule, glspServerCopyPasteModule } from './features/copy-paste/di.config';
 import glspDecorationModule from './features/decoration/di.config';
+import svgMetadataModule from './features/svg-metadata/di.config';
 import glspEditLabelModule from './features/edit-label/di.config';
 import modelHintsModule from './features/hints/di.config';
 import glspHoverModule from './features/hover/di.config';
@@ -73,6 +74,7 @@ export * from './features/context-menu/server-context-menu-provider';
 export * from './features/copy-paste/copy-paste-context-menu';
 export * from './features/copy-paste/copy-paste-handler';
 export * from './features/decoration/decoration-placer';
+export * from './features/svg-metadata/metadata-placer';
 export * from './features/edit-label/edit-label-tool';
 export * from './features/edit-label/edit-label-validator';
 export * from './features/export/glsp-svg-exporter';
@@ -151,5 +153,6 @@ export {
     glspDecorationModule,
     sourceModelWatcherModule,
     markerNavigatorContextMenuModule,
-    glspViewportModule
+    glspViewportModule,
+    svgMetadataModule
 };
