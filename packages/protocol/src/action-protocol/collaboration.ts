@@ -17,7 +17,7 @@ import {hasBooleanProp, hasObjectProp} from '../utils/type-util';
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { AnyObject} from '../utils/type-util';
-import {Point} from 'sprotty-protocol';
+import {Bounds, Point} from 'sprotty-protocol';
 
 export type SubclientInfo = { subclientId: string, name: string; color: string };
 /**
@@ -66,11 +66,6 @@ export namespace DisposeSubclientAction {
     }
 }
 
-/**
- * The `RequestContextActions` is sent from the client to the server to request the available actions for the context with id contextId.
- * The corresponding namespace declares the action kind as constant and offers helper functions for type guard checks
- * and creating new `RequestContextActions`.
- */
 export interface MouseMoveAction extends CollaborationAction {
     kind: typeof MouseMoveAction.KIND;
 
@@ -85,6 +80,28 @@ export namespace MouseMoveAction {
     }
 
     export function create(options: { position: Point }): MouseMoveAction {
+        return {
+            kind: KIND,
+            collaboration: true,
+            ...options
+        };
+    }
+}
+
+export interface ViewportBoundsChangeAction extends CollaborationAction {
+    kind: typeof ViewportBoundsChangeAction.KIND;
+
+    bounds: Bounds;
+}
+
+export namespace ViewportBoundsChangeAction {
+    export const KIND = 'viewportBoundsChange';
+
+    export function is(object: any): object is ViewportBoundsChangeAction {
+        return Action.hasKind(object, KIND) && hasObjectProp(object, 'bounds');
+    }
+
+    export function create(options: { bounds: Bounds }): ViewportBoundsChangeAction {
         return {
             kind: KIND,
             collaboration: true,

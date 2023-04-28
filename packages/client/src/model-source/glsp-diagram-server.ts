@@ -20,7 +20,7 @@ import {
     GLSPClient, MouseMoveAction,
     RequestModelAction,
     ServerMessageAction,
-    SetEditModeAction
+    SetEditModeAction, ViewportBoundsChangeAction
 } from '@eclipse-glsp/protocol';
 import { injectable } from 'inversify';
 import { ActionHandlerRegistry, DiagramServerProxy, ExportSvgAction, ICommand, ServerStatusAction, SwitchEditModeCommand } from 'sprotty';
@@ -112,4 +112,5 @@ export function registerDefaultGLSPServerActions(registry: ActionHandlerRegistry
 
 export function registerCollaborationActions(registry: ActionHandlerRegistry, diagramServer: DiagramServerProxy): void {
     registry.register(MouseMoveAction.KIND, diagramServer);
+    registry.register(ViewportBoundsChangeAction.KIND, diagramServer);
 }

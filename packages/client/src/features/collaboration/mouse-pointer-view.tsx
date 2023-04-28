@@ -34,7 +34,7 @@ export class MousePointerView extends ShapeView {
                     <rect fill={node.color} x="12.5" y="13.6" transform="matrix(0.9221 -0.3871 0.3871 0.9221 -5.7605 6.5909)" width="2" height="8"/>
                     <polygon fill={node.color} points="9.2,7.3 9.2,18.5 12.2,15.6 12.6,15.5 17.4,15.5 "/>
                 </g>
-                <text class-mouse-pointer-text={true} style={{ fill: node.color, textAnchor: 'start'}} transform="translate(0,30)">{ node.name }</text>
+                <text class-mouse-pointer-text={true} style={{ fill: node.color }} transform="translate(0,30)">{ node.name }</text>
             </g>
         );
         return graph;

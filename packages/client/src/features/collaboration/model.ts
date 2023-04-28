@@ -17,10 +17,12 @@
 import {SShapeElement} from 'sprotty';
 
 export class MousePointer extends SShapeElement {
-    override readonly size = {
-        width: 10,
-        height: 10
-    };
     color: string;
     name: string;
 }
+
+export class ViewportRect extends SShapeElement {
+    color: string;
+    name: string;
+}
+
