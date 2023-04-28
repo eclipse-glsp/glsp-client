@@ -17,7 +17,7 @@ import {
     Action,
     ActionMessage,
     ComputedBoundsAction,
-    GLSPClient,
+    GLSPClient, MouseMoveAction,
     RequestModelAction,
     ServerMessageAction,
     SetEditModeAction
@@ -55,6 +55,7 @@ export class GLSPDiagramServer extends DiagramServerProxy implements SourceUriAw
 
     override initialize(registry: ActionHandlerRegistry): void {
         registerDefaultGLSPServerActions(registry, this);
+        registerCollaborationActions(registry, this);
         if (!this.clientId) {
             this.clientId = this.viewerOptions.baseDiv;
         }
@@ -107,4 +108,8 @@ export function registerDefaultGLSPServerActions(registry: ActionHandlerRegistry
     // Register an empty handler for SwitchEditMode, to avoid runtime exceptions.
     // We don't support SwitchEditMode, but Sprotty still sends those actions, so ignore them.
     registry.register(SwitchEditModeCommand.KIND, { handle: action => undefined });
+}
+
+export function registerCollaborationActions(registry: ActionHandlerRegistry, diagramServer: DiagramServerProxy): void {
+    registry.register(MouseMoveAction.KIND, diagramServer);
 }

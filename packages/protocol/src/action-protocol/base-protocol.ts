@@ -16,6 +16,7 @@
 import { JsonPrimitive } from 'sprotty-protocol';
 import * as sprotty from 'sprotty-protocol/lib/actions';
 import { AnyObject, hasArrayProp, hasStringProp, TypeGuard } from '../utils/type-util';
+import { Args } from './types';
 
 /**
  * An action is a declarative description of a behavior that shall be invoked by the receiver upon receipt of the action.
@@ -28,6 +29,11 @@ export interface Action extends sprotty.Action {
      * Unique identifier specifying the kind of action to process.
      */
     kind: string;
+
+    /**
+     * Unique identifier specifying the subclient of the process.
+     */
+    subclientId?: string;
 }
 
 export namespace Action {
@@ -60,6 +66,10 @@ export interface ActionMessage<A extends Action = Action> extends sprotty.Action
      * The action to execute.
      */
     action: A;
+    /**
+     *     Additional custom arguments e.g. application specific parameters.
+     */
+    args?: Args;
 }
 
 export namespace ActionMessage {

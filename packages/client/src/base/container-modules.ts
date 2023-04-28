@@ -49,6 +49,7 @@ import { enableDefaultToolsOnFocusLossModule, toolsModule } from '../features/to
 import { markerNavigatorModule, validationModule } from '../features/validation/di.config';
 import glspViewportModule from '../features/viewport/di.config';
 import defaultGLSPModule from './di.config';
+import glspMouseMoveModule from '../features/mouse-move/di.config';
 
 export const DEFAULT_MODULES = [
     defaultModule,
@@ -83,7 +84,8 @@ export const DEFAULT_MODULES = [
     toolsModule,
     enableDefaultToolsOnFocusLossModule,
     validationModule,
-    zorderModule
+    zorderModule,
+    glspMouseMoveModule
 ] as const;
 
 /**

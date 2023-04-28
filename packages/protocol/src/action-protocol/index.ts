@@ -16,6 +16,7 @@
 export * from './base-protocol';
 export * from './client-notification';
 export * from './clipboard';
+export * from './collaboration';
 export * from './contexts';
 export * from './edge-modification';
 export * from './element-creation';

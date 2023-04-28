@@ -254,3 +254,7 @@
     fill: transparent;
     width: var(--theia-scrollbar-rail-width);
 }
+
+.mouse-pointer-text {
+    text-anchor: start !important;
+}
