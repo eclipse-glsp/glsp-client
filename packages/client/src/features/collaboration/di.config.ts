@@ -26,19 +26,20 @@ import {
     configureActionHandler,
     configureCommand, configureModelElement, InitializeCanvasBoundsAction
 } from 'sprotty';
-import {DrawMousePointerCommand, MouseMoveTool, DrawMousePointerProvider, RemoveMousePointerCommand} from './mouse-move';
+import {MouseMoveTool, DrawMousePointerProvider} from './mouse-move/mouse-move';
 import {MousePointer, SelectionIcon, ViewportRect} from './model';
-import { MousePointerView } from './mouse-pointer-view';
+import { MousePointerView } from './mouse-move/mouse-pointer-view';
 import {
-    DrawViewportRectCommand,
     DrawViewportRectProvider,
-    RemoveViewportRectCommand,
     ViewportBoundsChangeTool
-} from './viewport-bounds-change';
-import {ViewportRectView} from './viewport-rect-view';
-import {DrawSelectionIconCommand, RemoveSelectionIconCommand, SelectionChangeTool, SelectionIconProvider} from './selection-change';
+} from './viewport-bounds-change/viewport-bounds-change';
+import {ViewportRectView} from './viewport-bounds-change/viewport-rect-view';
+import {SelectionChangeTool, SelectionIconProvider} from './selection-change/selection-change';
 import {TYPES} from '../../base/types';
-import {SelectionIconView} from './selection-icon-view';
+import {SelectionIconView} from './selection-change/selection-icon-view';
+import {DrawMousePointerCommand, RemoveMousePointerCommand} from './mouse-move/mouse-move-commands';
+import {DrawViewportRectCommand, RemoveViewportRectCommand} from './viewport-bounds-change/viewport-bounds-change-commands';
+import {DrawSelectionIconCommand, RemoveSelectionIconCommand} from './selection-change/selection-change-commands';
 
 const glspMouseMoveModule = new ContainerModule((bind, _unbind, isBound) => {
     const context = { bind, isBound };

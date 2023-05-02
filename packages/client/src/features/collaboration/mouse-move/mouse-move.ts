@@ -15,26 +15,20 @@
  ********************************************************************************/
 
 import {
-    Command,
-    CommandExecutionContext,
-    CommandReturn,
     IActionHandler,
     MouseListener,
-    SChildElement,
-    SModelElement,
-    SModelRoot
+    SModelElement
 } from 'sprotty';
 import {
-    Action, DefaultTypes, DisposeSubclientAction,
-    hasObjectProp,
+    Action, DisposeSubclientAction,
     MouseMoveAction,
-    Point, SetViewportAction, SubclientInfo, Viewport
+    SetViewportAction, Viewport
 } from '@eclipse-glsp/protocol';
 import {inject, injectable} from 'inversify';
-import {IFeedbackActionDispatcher} from '../tool-feedback/feedback-action-dispatcher';
-import {FeedbackCommand} from '../tool-feedback/model';
-import {TYPES} from '../../base/types';
-import {BaseGLSPTool} from '../tools/base-glsp-tool';
+import {IFeedbackActionDispatcher} from '../../tool-feedback/feedback-action-dispatcher';
+import {TYPES} from '../../../base/types';
+import {BaseGLSPTool} from '../../tools/base-glsp-tool';
+import {DrawMousePointerAction, RemoveMousePointerAction} from './mouse-move-actions';
 
 @injectable()
 export class MouseMoveTool extends BaseGLSPTool implements IActionHandler {
@@ -86,107 +80,6 @@ export class MouseMoveListener extends MouseListener {
         const y = lastViewport.scroll.y + (event.pageY / lastViewport.zoom);
 
         return [MouseMoveAction.create({ position: { x, y }})];
-    }
-}
-
-export interface DrawMousePointerAction extends Action {
-    kind: typeof DrawMousePointerAction.KIND;
-    position: Point;
-    initialSubclientInfo: SubclientInfo;
-}
-
-export namespace DrawMousePointerAction {
-    export const KIND = 'drawMousePointer';
-
-    export function is(object: any): object is DrawMousePointerAction {
-        return Action.hasKind(object, KIND) && hasObjectProp(object, 'position') && hasObjectProp(object, 'initialSubclientInfo');
-    }
-
-    export function create(options: { position: Point, initialSubclientInfo: SubclientInfo }): DrawMousePointerAction {
-        return {
-            kind: KIND,
-            ...options
-        };
-    }
-}
-
-@injectable()
-export class DrawMousePointerCommand extends FeedbackCommand {
-    static readonly KIND = DrawMousePointerAction.KIND;
-
-    constructor(@inject(TYPES.Action) protected action: DrawMousePointerAction) {
-        super();
-    }
-
-    execute(context: CommandExecutionContext): CommandReturn {
-        const id = mousePointerId(context.root, this.action.initialSubclientInfo.subclientId);
-        removeMousePointer(context.root, id);
-        const mousePointerSchema = {
-            id,
-            type: DefaultTypes.MOUSE_POINTER,
-            position: {
-                x: this.action.position.x,
-                y: this.action.position.y
-            },
-            color: this.action.initialSubclientInfo.color,
-            name: this.action.initialSubclientInfo.name
-        };
-        context.root.add(context.modelFactory.createElement(mousePointerSchema));
-        return context.root;
-    }
-}
-
-export interface RemoveMousePointerAction extends Action {
-    kind: typeof RemoveMousePointerAction.KIND;
-    initialSubclientInfo: SubclientInfo;
-}
-
-export namespace RemoveMousePointerAction {
-    export const KIND = 'removeMousePointer';
-
-    export function is(object: any): object is RemoveMousePointerAction {
-        return Action.hasKind(object, KIND) && hasObjectProp(object, 'initialSubclientInfo');
-    }
-
-    export function create(options: { initialSubclientInfo: SubclientInfo }): RemoveMousePointerAction {
-        return {
-            kind: KIND,
-            ...options
-        };
-    }
-}
-
-@injectable()
-export class RemoveMousePointerCommand extends Command {
-    static readonly KIND = RemoveMousePointerAction.KIND;
-
-    constructor(@inject(TYPES.Action) protected action: RemoveMousePointerAction) {
-        super();
-    }
-
-    execute(context: CommandExecutionContext): CommandReturn {
-        const id = mousePointerId(context.root, this.action.initialSubclientInfo.subclientId);
-        removeMousePointer(context.root, id);
-        return context.root;
-    }
-
-    redo(context: CommandExecutionContext): CommandReturn {
-        return context.root;
-    }
-
-    undo(context: CommandExecutionContext): CommandReturn {
-        return context.root;
-    }
-}
-
-export function mousePointerId(root: SModelRoot, subclientId: string): string {
-    return root.id + '_' + DefaultTypes.MOUSE_POINTER + '_' + subclientId;
-}
-
-export function removeMousePointer(root: SModelRoot, id: string): void {
-    const mousePointer = root.index.getById(id);
-    if (mousePointer instanceof SChildElement) {
-        root.remove(mousePointer);
     }
 }
 

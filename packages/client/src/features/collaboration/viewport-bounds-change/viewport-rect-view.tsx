@@ -17,24 +17,19 @@
 import { injectable } from 'inversify';
 import { VNode } from 'snabbdom';
 import { RenderingContext, svg } from 'sprotty';
-import {MousePointer} from './model';
 import {ShapeView} from 'sprotty/lib';
+import {ViewportRect} from '../model';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const JSX = { createElement: svg };
 
 @injectable()
-export class MousePointerView extends ShapeView {
-    override render(node: MousePointer, _context: RenderingContext): VNode {
+export class ViewportRectView extends ShapeView {
+    override render(node: ViewportRect, _context: RenderingContext): VNode {
         const graph = (
             <g>
-                <g transform="translate(-8.3, -7.3)">
-                    <polygon fill="#FFFFFF" points="8.2,20.9 8.2,4.9 19.8,16.5 13,16.5 12.6,16.6 "/>
-                    <polygon fill="#FFFFFF" points="17.3,21.6 13.7,23.1 9,12 12.7,10.5 "/>
-                    <rect fill={node.color} x="12.5" y="13.6" transform="matrix(0.9221 -0.3871 0.3871 0.9221 -5.7605 6.5909)" width="2" height="8"/>
-                    <polygon fill={node.color} points="9.2,7.3 9.2,18.5 12.2,15.6 12.6,15.5 17.4,15.5 "/>
-                </g>
-                <text class-mouse-pointer-text={true} style={{ fill: node.color }} transform="translate(0,30)">{ node.name }</text>
+                <rect stroke={node.color} width={node.bounds.width} height={node.bounds.height} rx={2} ry={2}
+                      style-stroke-width={3} style-vector-effect='non-scaling-stroke' fill="none"></rect>
             </g>
         );
         return graph;

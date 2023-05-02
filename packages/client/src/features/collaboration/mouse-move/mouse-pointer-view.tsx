@@ -17,24 +17,24 @@
 import { injectable } from 'inversify';
 import { VNode } from 'snabbdom';
 import { RenderingContext, svg } from 'sprotty';
+import {MousePointer} from '../model';
 import {ShapeView} from 'sprotty/lib';
-import {SelectionIcon} from './model';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const JSX = { createElement: svg };
 
 @injectable()
-export class SelectionIconView extends ShapeView {
-    override render(node: SelectionIcon, _context: RenderingContext): VNode {
-        const selectionIconIdx = node.parent.children
-            .filter(c => c instanceof SelectionIcon)
-            .indexOf(node);
-        const translate = 'translate(' + (12 * selectionIconIdx) + ',-5)';
+export class MousePointerView extends ShapeView {
+    override render(node: MousePointer, _context: RenderingContext): VNode {
         const graph = (
             <g>
-                <g transform={translate}>
-                    <circle r={5} cx={5} cy={5} fill={node.color} style-fill-opacity={0.5} stroke={node.color} style-stroke-width={1}></circle>
+                <g transform="translate(-8.3, -7.3)">
+                    <polygon fill="#FFFFFF" points="8.2,20.9 8.2,4.9 19.8,16.5 13,16.5 12.6,16.6 "/>
+                    <polygon fill="#FFFFFF" points="17.3,21.6 13.7,23.1 9,12 12.7,10.5 "/>
+                    <rect fill={node.color} x="12.5" y="13.6" transform="matrix(0.9221 -0.3871 0.3871 0.9221 -5.7605 6.5909)" width="2" height="8"/>
+                    <polygon fill={node.color} points="9.2,7.3 9.2,18.5 12.2,15.6 12.6,15.5 17.4,15.5 "/>
                 </g>
+                <text class-mouse-pointer-text={true} style={{ fill: node.color }} transform="translate(0,30)">{ node.name }</text>
             </g>
         );
         return graph;

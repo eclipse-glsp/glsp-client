@@ -18,18 +18,23 @@ import { injectable } from 'inversify';
 import { VNode } from 'snabbdom';
 import { RenderingContext, svg } from 'sprotty';
 import {ShapeView} from 'sprotty/lib';
-import {ViewportRect} from './model';
+import {SelectionIcon} from '../model';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const JSX = { createElement: svg };
 
 @injectable()
-export class ViewportRectView extends ShapeView {
-    override render(node: ViewportRect, _context: RenderingContext): VNode {
+export class SelectionIconView extends ShapeView {
+    override render(node: SelectionIcon, _context: RenderingContext): VNode {
+        const selectionIconIdx = node.parent.children
+            .filter(c => c instanceof SelectionIcon)
+            .indexOf(node);
+        const translate = 'translate(' + (12 * selectionIconIdx) + ',-5)';
         const graph = (
             <g>
-                <rect stroke={node.color} width={node.bounds.width} height={node.bounds.height} rx={2} ry={2}
-                      style-stroke-width={3} style-vector-effect='non-scaling-stroke' fill="none"></rect>
+                <g transform={translate}>
+                    <circle r={5} cx={5} cy={5} fill={node.color} style-fill-opacity={0.5} stroke={node.color} style-stroke-width={1}></circle>
+                </g>
             </g>
         );
         return graph;
