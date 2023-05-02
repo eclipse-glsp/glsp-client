@@ -49,4 +49,10 @@ export namespace DefaultTypes {
     export const NODE_CIRCLE = 'node:circle';
     export const NODE_RECTANGLE = 'node:rectangle';
     export const NODE_DIAMOND = 'node:diamond';
+
+    // collaboration
+    export const MOUSE_POINTER = 'mouse-pointer';
+    export const VIEWPORT_RECT = 'viewport-rect';
+    export const SELECTION_ICON = 'selection-icon';
+
 }

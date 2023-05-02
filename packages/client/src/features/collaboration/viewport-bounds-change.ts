@@ -23,7 +23,7 @@ import {
     SModelRoot
 } from 'sprotty';
 import {
-    Action, Bounds, DisposeSubclientAction,
+    Action, Bounds, DefaultTypes, DisposeSubclientAction,
     hasObjectProp,
     SetViewportAction, SubclientInfo, Viewport, ViewportBoundsChangeAction
 } from '@eclipse-glsp/protocol';
@@ -32,7 +32,44 @@ import {IFeedbackActionDispatcher} from '../tool-feedback/feedback-action-dispat
 import {FeedbackCommand} from '../tool-feedback/model';
 import {TYPES} from '../../base/types';
 
-export const VIEWPORT_RECT = 'viewport-rect';
+@injectable()
+export class ViewportBoundsChangeTool implements IActionHandler {
+
+    protected lastViewport: Viewport = {
+        scroll: {
+            x: 0,
+            y: 0
+        },
+        zoom: 1
+    };
+
+    protected lastCanvasBounds: Bounds | undefined = undefined;
+
+    handle(action: Action): Action | void {
+        if (isInitializeCanvasBoundsAction(action)) {
+            this.lastCanvasBounds = action.newCanvasBounds;
+        }
+        if (SetViewportAction.is(action)) {
+            this.lastViewport = action.newViewport;
+        }
+        if (this.lastCanvasBounds) {
+            return ViewportBoundsChangeAction.create({
+                bounds: {
+                    x: this.lastViewport.scroll.x,
+                    y: this.lastViewport.scroll.y,
+                    width: this.lastCanvasBounds.width/this.lastViewport.zoom,
+                    height: this.lastCanvasBounds.height/this.lastViewport.zoom
+                }
+            })
+        }
+    }
+
+}
+
+function isInitializeCanvasBoundsAction(action: Action): action is InitializeCanvasBoundsAction {
+    return action.kind === InitializeCanvasBoundsAction.KIND;
+}
+
 
 export interface DrawViewportRectAction extends Action {
     kind: typeof DrawViewportRectAction.KIND;
@@ -68,7 +105,7 @@ export class DrawViewportRectCommand extends FeedbackCommand {
         removeViewportRect(context.root, id);
         const viewportRectSchema = {
             id,
-            type: VIEWPORT_RECT,
+            type: DefaultTypes.VIEWPORT_RECT,
             position: {
                 x: this.action.bounds.x,
                 y: this.action.bounds.y
@@ -77,8 +114,7 @@ export class DrawViewportRectCommand extends FeedbackCommand {
                 width: this.action.bounds.width,
                 height: this.action.bounds.height
             },
-            color: this.action.initialSubclientInfo.color,
-            name: this.action.initialSubclientInfo.name
+            color: this.action.initialSubclientInfo.color
         };
         context.root.add(context.modelFactory.createElement(viewportRectSchema));
         return context.root;
@@ -129,7 +165,7 @@ export class RemoveViewportRectCommand extends Command {
 }
 
 export function viewportRectId(root: SModelRoot, subclientId: string): string {
-    return root.id + '_' + VIEWPORT_RECT + '_' + subclientId;
+    return root.id + '_' + DefaultTypes.VIEWPORT_RECT + '_' + subclientId;
 }
 
 export function removeViewportRect(root: SModelRoot, id: string): void {
@@ -137,44 +173,6 @@ export function removeViewportRect(root: SModelRoot, id: string): void {
     if (viewportRect instanceof SChildElement) {
         root.remove(viewportRect);
     }
-}
-
-@injectable()
-export class ViewportBoundsChangeTool implements IActionHandler {
-
-    protected lastViewport: Viewport = {
-        scroll: {
-            x: 0,
-            y: 0
-        },
-        zoom: 1
-    };
-
-    protected lastCanvasBounds: Bounds | undefined = undefined;
-
-    handle(action: Action): Action | void {
-        if (isInitializeCanvasBoundsAction(action)) {
-            this.lastCanvasBounds = action.newCanvasBounds;
-        }
-        if (SetViewportAction.is(action)) {
-            this.lastViewport = action.newViewport;
-        }
-        if (this.lastCanvasBounds) {
-            return ViewportBoundsChangeAction.create({
-                bounds: {
-                    x: this.lastViewport.scroll.x,
-                    y: this.lastViewport.scroll.y,
-                    width: this.lastCanvasBounds.width/this.lastViewport.zoom,
-                    height: this.lastCanvasBounds.height/this.lastViewport.zoom
-                }
-            })
-        }
-    }
-
-}
-
-function isInitializeCanvasBoundsAction(action: Action): action is InitializeCanvasBoundsAction {
-    return action.kind === InitializeCanvasBoundsAction.KIND;
 }
 
 /**
@@ -194,7 +192,6 @@ export class DrawViewportRectProvider implements IActionHandler {
                 bounds: action.bounds,
                 initialSubclientInfo: action.initialSubclientInfo
             });
-            // we could also use something to identify mousepointer and subclient in feedbackActionDispatcher instead of lastActions
             this.lastActions.set(feedbackAction.initialSubclientInfo.subclientId, feedbackAction);
             this.feedbackActionDispatcher.registerFeedback(this, [...this.lastActions.values()]);
         }

@@ -15,6 +15,7 @@
  ********************************************************************************/
 
 import {SShapeElement} from 'sprotty';
+import {DefaultTypes} from '@eclipse-glsp/protocol';
 
 export class MousePointer extends SShapeElement {
     color: string;
@@ -23,6 +24,10 @@ export class MousePointer extends SShapeElement {
 
 export class ViewportRect extends SShapeElement {
     color: string;
-    name: string;
+}
+
+export class SelectionIcon extends SShapeElement {
+    override type = DefaultTypes.SELECTION_ICON;
+    color: string;
 }
 

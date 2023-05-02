@@ -34,7 +34,7 @@ import { IFeedbackActionDispatcher } from '../tool-feedback/feedback-action-disp
 import { SelectFeedbackAction } from './select-feedback-action';
 
 export interface SelectionListener {
-    selectionChanged(root: Readonly<SModelRoot>, selectedElements: string[]): void;
+    selectionChanged(root: Readonly<SModelRoot>, selectedElements: string[], deselectedElements: string[]): void;
 }
 
 @injectable()
@@ -110,7 +110,7 @@ export class SelectionService implements SModelRootListener {
         const rootChanged = prevRoot !== root;
         if (rootChanged || selectionChanged) {
             // notify listeners after the feedback action
-            this.notifyListeners(this.root, this.selectedElementIDs);
+            this.notifyListeners(this.root, this.selectedElementIDs, deselectedElementIDs);
         }
     }
 
@@ -118,8 +118,8 @@ export class SelectionService implements SModelRootListener {
         this.feedbackDispatcher.registerFeedback(this, actions);
     }
 
-    notifyListeners(root: SModelRoot, selectedElementIDs: Set<string>): void {
-        this.selectionListeners.forEach(listener => listener.selectionChanged(root, Array.from(selectedElementIDs)));
+    notifyListeners(root: SModelRoot, selectedElementIDs: Set<string>, deselectedElementIds: Set<string>): void {
+        this.selectionListeners.forEach(listener => listener.selectionChanged(root, Array.from(selectedElementIDs), Array.from(deselectedElementIds)));
     }
 
     getModelRoot(): Readonly<SModelRoot> {

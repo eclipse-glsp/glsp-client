@@ -51,11 +51,13 @@ class MockSelectionListener implements SelectionListener {
     private called = 0;
     private root: SModelRoot;
     private selectedElements: string[] = [];
+    private deselectedElements: string[] = [];
 
-    selectionChanged(newRoot: Readonly<SModelRoot>, selectedElements: string[]): void {
+    selectionChanged(newRoot: Readonly<SModelRoot>, selectedElements: string[], deselectedElements: string[]): void {
         this.called++;
         this.root = newRoot;
         this.selectedElements = selectedElements;
+        this.deselectedElements = deselectedElements;
     }
 
     getRoot(): SModelRoot {
@@ -64,6 +66,10 @@ class MockSelectionListener implements SelectionListener {
 
     getSelectedElements(): string[] {
         return this.selectedElements;
+    }
+
+    getDeselectedElements(): string[] {
+        return this.deselectedElements;
     }
 
     getCalled(): number {

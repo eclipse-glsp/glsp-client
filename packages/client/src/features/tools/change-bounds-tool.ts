@@ -266,7 +266,7 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements Sele
         return actions;
     }
 
-    selectionChanged(root: SModelRoot, selectedElements: string[]): void {
+    selectionChanged(root: SModelRoot, selectedElements: string[], deselectedElements: string[]): void {
         if (this.activeResizeElement) {
             if (selectedElements.includes(this.activeResizeElement.id)) {
                 // our active element is still selected, nothing to do

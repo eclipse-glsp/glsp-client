@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Bounds, isBounds, Point, SModelElementSchema } from '@eclipse-glsp/protocol';
+import {Args, Bounds, isBounds, Point, SModelElementSchema} from '@eclipse-glsp/protocol';
 import { exportFeature, getRouteBounds, SEdge, SGraph, SModelElement, viewportFeature } from 'sprotty';
 import { Containable, containerFeature } from '../features/hints/model';
 import { Saveable, saveFeature } from '../features/save/model';
@@ -27,6 +27,7 @@ export class GLSPGraph extends SGraph implements Saveable, Containable {
 }
 
 export class GEdge extends SEdge {
+    args: Args;
     override localToParent(point: Point | Bounds): Bounds {
         const bounds = getRouteBounds(this.routingPoints);
         const result = {

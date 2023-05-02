@@ -14,34 +14,37 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import {
-    bindAsService,
+    bindAsService, DefaultTypes,
     DisposeSubclientAction,
     MouseMoveAction,
+    SelectionChangeAction,
     SetViewportAction,
     ViewportBoundsChangeAction
 } from '@eclipse-glsp/protocol';
 import { ContainerModule } from 'inversify';
 import {
     configureActionHandler,
-    configureCommand, configureModelElement, InitializeCanvasBoundsAction,
-    TYPES
+    configureCommand, configureModelElement, InitializeCanvasBoundsAction
 } from 'sprotty';
-import {DrawMousePointerCommand, MOUSE_POINTER, MouseMoveListener, DrawMousePointerProvider, RemoveMousePointerCommand} from './mouse-move';
-import {MousePointer, ViewportRect} from './model';
+import {DrawMousePointerCommand, MouseMoveTool, DrawMousePointerProvider, RemoveMousePointerCommand} from './mouse-move';
+import {MousePointer, SelectionIcon, ViewportRect} from './model';
 import { MousePointerView } from './mouse-pointer-view';
 import {
     DrawViewportRectCommand,
     DrawViewportRectProvider,
-    RemoveViewportRectCommand, VIEWPORT_RECT,
+    RemoveViewportRectCommand,
     ViewportBoundsChangeTool
 } from './viewport-bounds-change';
 import {ViewportRectView} from './viewport-rect-view';
+import {DrawSelectionIconCommand, RemoveSelectionIconCommand, SelectionChangeTool, SelectionIconProvider} from './selection-change';
+import {TYPES} from '../../base/types';
+import {SelectionIconView} from './selection-icon-view';
 
 const glspMouseMoveModule = new ContainerModule((bind, _unbind, isBound) => {
     const context = { bind, isBound };
 
-    bindAsService(context, TYPES.MouseListener, MouseMoveListener);
-    configureActionHandler(context, SetViewportAction.KIND, MouseMoveListener);
+    bindAsService(context, TYPES.IDefaultTool, MouseMoveTool);
+    configureActionHandler(context, SetViewportAction.KIND, MouseMoveTool);
 
     bind(DrawMousePointerProvider).toSelf().inSingletonScope();
     configureActionHandler(context, MouseMoveAction.KIND, DrawMousePointerProvider);
@@ -49,7 +52,7 @@ const glspMouseMoveModule = new ContainerModule((bind, _unbind, isBound) => {
 
     configureCommand(context, DrawMousePointerCommand);
     configureCommand(context, RemoveMousePointerCommand);
-    configureModelElement(context, MOUSE_POINTER, MousePointer, MousePointerView);
+    configureModelElement(context, DefaultTypes.MOUSE_POINTER, MousePointer, MousePointerView);
 
     ///
 
@@ -63,8 +66,19 @@ const glspMouseMoveModule = new ContainerModule((bind, _unbind, isBound) => {
 
     configureCommand(context, DrawViewportRectCommand);
     configureCommand(context, RemoveViewportRectCommand);
-    configureModelElement(context, VIEWPORT_RECT, ViewportRect, ViewportRectView);
+    configureModelElement(context, DefaultTypes.VIEWPORT_RECT, ViewportRect, ViewportRectView);
 
+    ///
+
+    bindAsService(context, TYPES.IDefaultTool, SelectionChangeTool);
+
+    bind(SelectionIconProvider).toSelf().inSingletonScope();
+    configureActionHandler(context, SelectionChangeAction.KIND, SelectionIconProvider);
+    configureActionHandler(context, DisposeSubclientAction.KIND, SelectionIconProvider);
+
+    configureCommand(context, DrawSelectionIconCommand);
+    configureCommand(context, RemoveSelectionIconCommand);
+    configureModelElement(context, DefaultTypes.SELECTION_ICON, SelectionIcon, SelectionIconView);
 });
 
 export default glspMouseMoveModule;

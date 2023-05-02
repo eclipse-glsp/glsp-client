@@ -18,7 +18,7 @@ import {
     ActionMessage,
     ComputedBoundsAction,
     GLSPClient, MouseMoveAction,
-    RequestModelAction,
+    RequestModelAction, SelectionChangeAction,
     ServerMessageAction,
     SetEditModeAction, ViewportBoundsChangeAction
 } from '@eclipse-glsp/protocol';
@@ -113,4 +113,5 @@ export function registerDefaultGLSPServerActions(registry: ActionHandlerRegistry
 export function registerCollaborationActions(registry: ActionHandlerRegistry, diagramServer: DiagramServerProxy): void {
     registry.register(MouseMoveAction.KIND, diagramServer);
     registry.register(ViewportBoundsChangeAction.KIND, diagramServer);
+    registry.register(SelectionChangeAction.KIND, diagramServer);
 }

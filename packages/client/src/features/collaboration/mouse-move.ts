@@ -25,7 +25,7 @@ import {
     SModelRoot
 } from 'sprotty';
 import {
-    Action, DisposeSubclientAction,
+    Action, DefaultTypes, DisposeSubclientAction,
     hasObjectProp,
     MouseMoveAction,
     Point, SetViewportAction, SubclientInfo, Viewport
@@ -34,8 +34,60 @@ import {inject, injectable} from 'inversify';
 import {IFeedbackActionDispatcher} from '../tool-feedback/feedback-action-dispatcher';
 import {FeedbackCommand} from '../tool-feedback/model';
 import {TYPES} from '../../base/types';
+import {BaseGLSPTool} from '../tools/base-glsp-tool';
 
-export const MOUSE_POINTER = 'mouse-pointer';
+@injectable()
+export class MouseMoveTool extends BaseGLSPTool implements IActionHandler {
+    static ID = 'glsp.mouse-move-tool';
+
+    protected mouseListener: MouseMoveListener;
+
+    get id(): string {
+        return MouseMoveTool.ID;
+    }
+
+    protected lastViewport: Viewport = {
+        scroll: {
+            x: 0,
+            y: 0
+        },
+        zoom: 1
+    };
+
+    handle(action: Action): void {
+        if (SetViewportAction.is(action)) {
+            this.lastViewport = action.newViewport;
+        }
+    }
+
+    enable(): void {
+        this.mouseListener = new MouseMoveListener(this);
+        this.mouseTool.register(this.mouseListener);
+    }
+
+    disable(): void {
+        this.mouseTool.deregister(this.mouseListener);
+    }
+
+    getLastViewport(): Viewport {
+        return this.lastViewport;
+    }
+}
+
+export class MouseMoveListener extends MouseListener {
+
+    constructor(protected tool: MouseMoveTool) {
+        super();
+    }
+
+    override mouseMove(target: SModelElement, event: MouseEvent): Action[] {
+        const lastViewport = this.tool.getLastViewport();
+        const x = lastViewport.scroll.x + (event.pageX / lastViewport.zoom);
+        const y = lastViewport.scroll.y + (event.pageY / lastViewport.zoom);
+
+        return [MouseMoveAction.create({ position: { x, y }})];
+    }
+}
 
 export interface DrawMousePointerAction extends Action {
     kind: typeof DrawMousePointerAction.KIND;
@@ -71,7 +123,7 @@ export class DrawMousePointerCommand extends FeedbackCommand {
         removeMousePointer(context.root, id);
         const mousePointerSchema = {
             id,
-            type: MOUSE_POINTER,
+            type: DefaultTypes.MOUSE_POINTER,
             position: {
                 x: this.action.position.x,
                 y: this.action.position.y
@@ -128,7 +180,7 @@ export class RemoveMousePointerCommand extends Command {
 }
 
 export function mousePointerId(root: SModelRoot, subclientId: string): string {
-    return root.id + '_' + MOUSE_POINTER + '_' + subclientId;
+    return root.id + '_' + DefaultTypes.MOUSE_POINTER + '_' + subclientId;
 }
 
 export function removeMousePointer(root: SModelRoot, id: string): void {
@@ -136,32 +188,6 @@ export function removeMousePointer(root: SModelRoot, id: string): void {
     if (mousePointer instanceof SChildElement) {
         root.remove(mousePointer);
     }
-}
-
-@injectable()
-export class MouseMoveListener extends MouseListener implements IActionHandler {
-
-    protected lastViewport: Viewport = {
-        scroll: {
-            x: 0,
-            y: 0
-        },
-        zoom: 1
-    };
-
-    override mouseMove(target: SModelElement, event: MouseEvent): Action[] {
-        const x = this.lastViewport.scroll.x + (event.pageX / this.lastViewport.zoom);
-        const y = this.lastViewport.scroll.y + (event.pageY / this.lastViewport.zoom);
-
-        return [MouseMoveAction.create({ position: { x, y }})];
-    }
-
-    handle(action: Action): void {
-        if (SetViewportAction.is(action)) {
-            this.lastViewport = action.newViewport;
-        }
-    }
-
 }
 
 /**

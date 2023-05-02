@@ -1,5 +1,5 @@
 import {Action} from './base-protocol';
-import {hasBooleanProp, hasObjectProp} from '../utils/type-util';
+import {hasArrayProp, hasBooleanProp, hasObjectProp} from '../utils/type-util';
 
 /********************************************************************************
  * Copyright (c) 2021-2023 STMicroelectronics and others.
@@ -102,6 +102,31 @@ export namespace ViewportBoundsChangeAction {
     }
 
     export function create(options: { bounds: Bounds }): ViewportBoundsChangeAction {
+        return {
+            kind: KIND,
+            collaboration: true,
+            ...options
+        };
+    }
+}
+
+export interface SelectionChangeAction extends CollaborationAction {
+    kind: typeof SelectionChangeAction.KIND;
+
+    selectedElements: string[];
+
+    deselectedElements: string[];
+}
+
+export namespace SelectionChangeAction {
+    export const KIND = 'selectionChange';
+
+    export function is(object: any): object is SelectionChangeAction {
+        return Action.hasKind(object, KIND)
+            && (hasArrayProp(object, 'selectedElements') || hasArrayProp(object, 'deselectedElements'));
+    }
+
+    export function create(options: { selectedElements: string[], deselectedElements: string[] }): SelectionChangeAction {
         return {
             kind: KIND,
             collaboration: true,
