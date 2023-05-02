@@ -29,7 +29,7 @@ export class ViewportRectView extends ShapeView {
         const graph = (
             <g>
                 <rect stroke={node.color} width={node.bounds.width} height={node.bounds.height} rx={2} ry={2}
-                      style={{ fillOpacity: '0', strokeWidth: '5px', vectorEffect: 'non-scaling-stroke' }} fill="transparent"></rect>
+                      style-stroke-width={5} style-vector-effect='non-scaling-stroke' fill="none"></rect>
             </g>
         );
         return graph;
