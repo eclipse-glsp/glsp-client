@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2022 EclipseSource and others.
+ * Copyright (c) 2019-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,17 +13,17 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { injectable } from 'inversify';
 import { Message, MessageConnection } from 'vscode-jsonrpc';
+import { GLSPClientProxy } from '..';
 import { ActionMessage } from '../action-protocol';
+import { ActionMessageHandler, ClientState, GLSPClient } from '../client-server-protocol/glsp-client';
 import {
-    ActionMessageHandler,
-    ClientState,
     DisposeClientSessionParameters,
-    GLSPClient,
     InitializeClientSessionParameters,
     InitializeParameters,
     InitializeResult
-} from '../glsp-client';
+} from '../client-server-protocol/types';
 import { ConnectionProvider, JsonrpcGLSPClient } from './glsp-jsonrpc-client';
 
 export class BaseJsonrpcGLSPClient implements GLSPClient {
@@ -160,5 +160,26 @@ export class BaseJsonrpcGLSPClient implements GLSPClient {
 
     get currentState(): ClientState {
         return this.state;
+    }
+}
+
+/**
+ * Default {@link GLSPClientProxy} implementation for jsonrpc-based client-server communication with typescript based servers.
+ */
+@injectable()
+export class JsonrpcClientProxy implements GLSPClientProxy {
+    protected clientConnection?: MessageConnection;
+    protected enableLogging: boolean;
+
+    initialize(clientConnection: MessageConnection, enableLogging = true): void {
+        this.clientConnection = clientConnection;
+        this.enableLogging = enableLogging;
+    }
+
+    process(message: ActionMessage): void {
+        if (this.enableLogging) {
+            console.log(`Send action '${message.action.kind}' to client '${message.clientId}'`);
+        }
+        this.clientConnection?.sendNotification(JsonrpcGLSPClient.ActionMessageNotification, message);
     }
 }
