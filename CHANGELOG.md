@@ -11,7 +11,12 @@
 -   [diagram] Fixed a bug in the `EditLabelUIExtension` where the diagram becomes dirt wihtout an acual change. [#766](https://github.com/eclipse-glsp/glsp/issues/766)
 -   [diagram] Extends `ComputedBoundsAction` definition with routing information. This enables proper forwarding of cliend-side computed routes to the server. [#201](https://github.com/eclipse-glsp/glsp-client/pull/201/)
 -   [DI] The `createClientContainer` function is now deprecated. Please use `initializeDiagramContainer` instead. This new function also can be used with `ModuleConfigurations` which allow a more fine granular configuration by adding new modules and/or removing default modules. [#218](https://github.com/eclipse-glsp/glsp-client/pull/218) [#231](https://github.com/eclipse-glsp/glsp-client/pull/231) [#236](https://github.com/eclipse-glsp/glsp-client/pull/236)
+-   [diagram] Fixed incorrect calculation of decorator popup positions for edges. [#221](https://github.com/eclipse-glsp/glsp-client/pull/221)
+-   [protocol] Introduce a reusable `Disposable` type [#222](https://github.com/eclipse-glsp/glsp-client/pull/222)
+-   [protocol] Introduce reusable utility function for DI configuration [#236](https://github.com/eclipse-glsp/glsp-client/pull/236)[#237](https://github.com/eclipse-glsp/glsp-client/pull/237)
+-   [diagram] Augment diagram SVG with additional model metadata to enable easier integration tests and accessibility. [#239](https://github.com/eclipse-glsp/glsp-client/pull/239)
 -   [validation] Add and track reason for validation markers (e.g. batch and live validation) [#243](https://github.com/eclipse-glsp/glsp-client/pull/243)
+-   [protocol] Provide the common interfaces and type definitions for TS-based GLSP servers [#245](https://github.com/eclipse-glsp/glsp-client/pull/245) - Contributed on behalf of STMicroelectronics
 
 ### Breaking Changes
 
@@ -19,6 +24,7 @@
 -   [node] Update minimum requirements for Node to >=16.11.0 [#210](https://github.com/eclipse-glsp/glsp-client/pull/210)
 -   [protocol] Renamed `UndoOperation` and `RedoOperation` to `UndoAction` and `RedoAction` to match operation specification [#216](https://github.com/eclipse-glsp/glsp-client/pull/216)
 -   [protocol] Remove dependency to `vscode-ws-jsonrpc`. The protocol package now directly offers functions to create a websocket rpc connections [#215](https://github.com/eclipse-glsp/glsp-client/pull/215)
+-   [protocol] The `elementIds` property of `LayoutOperation` is now optional. If `undefined` the entire model will be layouted. [#232](https://github.com/eclipse-glsp/glsp-client/pull/232)
 
 ## [v1.0.0 - 30/06/2022](https://github.com/eclipse-glsp/glsp-client/releases/tag/v1.0.0)
 

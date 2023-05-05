@@ -21,7 +21,7 @@ const appRoot = path.resolve(__dirname, 'app');
 var CircularDependencyPlugin = require('circular-dependency-plugin');
 
 module.exports = {
-    entry: [path.resolve(buildRoot, 'index')],
+    entry: [path.resolve(buildRoot, 'app')],
     output: {
         filename: 'bundle.js',
         path: appRoot
