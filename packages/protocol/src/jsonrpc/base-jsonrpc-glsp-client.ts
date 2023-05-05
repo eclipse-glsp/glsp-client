@@ -15,9 +15,9 @@
  ********************************************************************************/
 import { injectable } from 'inversify';
 import { Message, MessageConnection } from 'vscode-jsonrpc';
-import { GLSPClientProxy } from '..';
 import { ActionMessage } from '../action-protocol';
 import { ActionMessageHandler, ClientState, GLSPClient } from '../client-server-protocol/glsp-client';
+import { GLSPClientProxy } from '../client-server-protocol/glsp-server';
 import {
     DisposeClientSessionParameters,
     InitializeClientSessionParameters,
