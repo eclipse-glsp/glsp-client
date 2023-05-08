@@ -20,10 +20,6 @@ export class DrawSelectionIconCommand extends FeedbackCommand {
         if (modelElement instanceof SParentElement) {
             const id = selectionIconId(context.root, modelElement, this.action.initialSubclientInfo.subclientId);
             removeElementFromParent(modelElement, id);
-            /*const existingSelectionIcon = modelElement.index.getById(id);
-            if (existingSelectionIcon) {
-                return context.root;
-            }*/
             const icon = new SelectionIcon();
             icon.id = id;
             icon.color = this.action.initialSubclientInfo.color;
