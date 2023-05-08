@@ -22,7 +22,7 @@ import {
 import {
     Action, DisposeSubclientAction,
     MouseMoveAction,
-    SetViewportAction, Viewport
+    SetViewportAction, ToggleCollaborationFeatureAction, Viewport
 } from '@eclipse-glsp/protocol';
 import {inject, injectable} from 'inversify';
 import {IFeedbackActionDispatcher} from '../../tool-feedback/feedback-action-dispatcher';
@@ -92,24 +92,48 @@ export class DrawMousePointerProvider implements IActionHandler {
     @inject(TYPES.IFeedbackActionDispatcher)
     protected feedbackActionDispatcher: IFeedbackActionDispatcher;
 
+    // Map<subclientId, action>
     protected lastActions: Map<string, DrawMousePointerAction> = new Map();
 
+    protected lastViewport: Viewport = {
+        scroll: {
+            x: 0,
+            y: 0
+        },
+        zoom: 1
+    };
+
     handle(action: Action): Action | void {
+        if (SetViewportAction.is(action)) {
+            this.lastViewport = action.newViewport;
+            Array.from(this.lastActions.values()).forEach(a => a.zoom = this.lastViewport.zoom);
+            this.dispatchFeedback();
+        }
         if (MouseMoveAction.is(action) && action.initialSubclientInfo != null) {
             const feedbackAction = DrawMousePointerAction.create({
                 position: action.position,
-                initialSubclientInfo: action.initialSubclientInfo
+                initialSubclientInfo: action.initialSubclientInfo,
+                zoom: this.lastViewport.zoom,
+                visible: action.visible
             });
             // we could also use something to identify mousepointer and subclient in feedbackActionDispatcher instead of lastActions
             this.lastActions.set(feedbackAction.initialSubclientInfo.subclientId, feedbackAction);
-            this.feedbackActionDispatcher.registerFeedback(this, [...this.lastActions.values()]);
+            this.dispatchFeedback();
         }
-        if (DisposeSubclientAction.is(action) && action.initialSubclientInfo != null) {
-            this.lastActions.delete(action.initialSubclientInfo.subclientId);
-            this.feedbackActionDispatcher.registerFeedback(this, [...this.lastActions.values()]);
+        if (ToggleCollaborationFeatureAction.is(action) && action.actionKind === MouseMoveAction.KIND) {
+            Array.from(this.lastActions.values()).forEach(a => a.visible = !a.visible);
+            this.dispatchFeedback();
+        }
+        if (DisposeSubclientAction.is(action) && action.initialSubclientId != null) {
+            this.lastActions.delete(action.initialSubclientId);
+            this.dispatchFeedback();
             return RemoveMousePointerAction.create({
-                initialSubclientInfo: action.initialSubclientInfo
+                initialSubclientId: action.initialSubclientId
             });
         }
+    }
+
+    private dispatchFeedback(): void {
+        this.feedbackActionDispatcher.registerFeedback(this, Array.from(this.lastActions.values()));
     }
 }

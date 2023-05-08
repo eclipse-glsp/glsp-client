@@ -13,7 +13,7 @@ export namespace DrawSelectionIconAction {
         return Action.hasKind(object, KIND) && hasStringProp(object, 'element') && DrawCollaborationAction.is(object);
     }
 
-    export function create(options: { element: string, initialSubclientInfo: SubclientInfo }): DrawSelectionIconAction {
+    export function create(options: { element: string, initialSubclientInfo: SubclientInfo, visible: boolean}): DrawSelectionIconAction {
         return {
             kind: KIND,
             ...options
@@ -33,7 +33,7 @@ export namespace RemoveSelectionIconAction {
         return Action.hasKind(object, KIND) && hasStringProp(object, 'element') && RemoveCollaborationAction.is(object);
     }
 
-    export function create(options: { element: string, initialSubclientInfo: SubclientInfo }): RemoveSelectionIconAction {
+    export function create(options: { element: string, initialSubclientId: string }): RemoveSelectionIconAction {
         return {
             kind: KIND,
             ...options

@@ -13,7 +13,7 @@ export namespace DrawViewportRectAction {
         return Action.hasKind(object, KIND) && hasObjectProp(object, 'bounds') && DrawCollaborationAction.is(object);
     }
 
-    export function create(options: { bounds: Bounds, initialSubclientInfo: SubclientInfo }): DrawViewportRectAction {
+    export function create(options: { bounds: Bounds, initialSubclientInfo: SubclientInfo, visible: boolean }): DrawViewportRectAction {
         return {
             kind: KIND,
             ...options
@@ -32,7 +32,7 @@ export namespace RemoveViewportRectAction {
         return Action.hasKind(object, KIND) && RemoveCollaborationAction.is(object);
     }
 
-    export function create(options: { initialSubclientInfo: SubclientInfo }): RemoveViewportRectAction {
+    export function create(options: { initialSubclientId: string }): RemoveViewportRectAction {
         return {
             kind: KIND,
             ...options

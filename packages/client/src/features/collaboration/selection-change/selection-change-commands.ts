@@ -2,7 +2,7 @@ import {inject, injectable} from 'inversify';
 import {FeedbackCommand} from '../../tool-feedback/model';
 import {TYPES} from '../../../base/types';
 import {Command, CommandExecutionContext, CommandReturn, SModelRoot, SParentElement} from 'sprotty';
-import {SelectionIcon} from '../model';
+import {removeElementFromParent, SelectionIcon} from '../model';
 import {GEdge} from '../../../lib/model';
 import {DefaultTypes, Point} from '@eclipse-glsp/protocol';
 import {DrawSelectionIconAction, RemoveSelectionIconAction} from './selection-change-actions';
@@ -19,13 +19,15 @@ export class DrawSelectionIconCommand extends FeedbackCommand {
         const modelElement = context.root.index.getById(this.action.element);
         if (modelElement instanceof SParentElement) {
             const id = selectionIconId(context.root, modelElement, this.action.initialSubclientInfo.subclientId);
-            const existingSelectionIcon = modelElement.index.getById(id);
+            removeElementFromParent(modelElement, id);
+            /*const existingSelectionIcon = modelElement.index.getById(id);
             if (existingSelectionIcon) {
                 return context.root;
-            }
+            }*/
             const icon = new SelectionIcon();
             icon.id = id;
             icon.color = this.action.initialSubclientInfo.color;
+            icon.visible = this.action.visible;
             if (modelElement instanceof GEdge) {
                 const sourcePoint: Point = modelElement.args.edgeSourcePoint as any;
                 const targetPoint: Point = modelElement.args.edgeTargetPoint as any;
@@ -51,7 +53,7 @@ export class RemoveSelectionIconCommand extends Command {
     execute(context: CommandExecutionContext): CommandReturn {
         const modelElement = context.root.index.getById(this.action.element);
         if (modelElement instanceof SParentElement) {
-            const id = selectionIconId(context.root, modelElement, this.action.initialSubclientInfo.subclientId);
+            const id = selectionIconId(context.root, modelElement, this.action.initialSubclientId);
             const existingSelectionIcon = modelElement.children.find(c => c.id === id);
             if (!existingSelectionIcon) {
                 return context.root;

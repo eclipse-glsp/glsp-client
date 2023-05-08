@@ -25,16 +25,25 @@ const JSX = { createElement: svg };
 
 @injectable()
 export class MousePointerView extends ShapeView {
-    override render(node: MousePointer, _context: RenderingContext): VNode {
+    override render(mousePointer: MousePointer, _context: RenderingContext): VNode | undefined {
+        if (!mousePointer.visible) {
+            return undefined;
+        }
+        const invertedZoom = 1 / mousePointer.zoom;
+        const pointerX = -8.3 / mousePointer.zoom;
+        const pointerY = -7.3 / mousePointer.zoom;
+        const textY = 30 / mousePointer.zoom;
+        const pointerTransform = 'translate(' + pointerX + ', ' + pointerY + ') scale(' + invertedZoom + ')';
+        const textTransform = 'translate(0, ' + textY + ') scale(' + invertedZoom + ')';
         const graph = (
             <g>
-                <g transform="translate(-8.3, -7.3)">
+                <g transform={pointerTransform}>
                     <polygon fill="#FFFFFF" points="8.2,20.9 8.2,4.9 19.8,16.5 13,16.5 12.6,16.6 "/>
                     <polygon fill="#FFFFFF" points="17.3,21.6 13.7,23.1 9,12 12.7,10.5 "/>
-                    <rect fill={node.color} x="12.5" y="13.6" transform="matrix(0.9221 -0.3871 0.3871 0.9221 -5.7605 6.5909)" width="2" height="8"/>
-                    <polygon fill={node.color} points="9.2,7.3 9.2,18.5 12.2,15.6 12.6,15.5 17.4,15.5 "/>
+                    <rect fill={mousePointer.color} x="12.5" y="13.6" transform="matrix(0.9221 -0.3871 0.3871 0.9221 -5.7605 6.5909)" width="2" height="8"/>
+                    <polygon fill={mousePointer.color} points="9.2,7.3 9.2,18.5 12.2,15.6 12.6,15.5 17.4,15.5 "/>
                 </g>
-                <text class-mouse-pointer-text={true} style={{ fill: node.color }} transform="translate(0,30)">{ node.name }</text>
+                <text class-mouse-pointer-text={true} style={{ fill: mousePointer.color }} transform={textTransform}>{ mousePointer.name }</text>
             </g>
         );
         return graph;

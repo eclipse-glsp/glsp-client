@@ -1,5 +1,5 @@
 import {Action} from './base-protocol';
-import {hasArrayProp, hasBooleanProp, hasObjectProp} from '../utils/type-util';
+import {hasArrayProp, hasBooleanProp, hasObjectProp, hasStringProp} from '../utils/type-util';
 
 /********************************************************************************
  * Copyright (c) 2021-2023 STMicroelectronics and others.
@@ -30,41 +30,19 @@ export interface CollaborationAction extends Action {
     collaboration: true;
 
     initialSubclientInfo?: SubclientInfo;
+
+    visible: boolean;
 }
 
 export namespace CollaborationAction {
     export function is(object: any): object is CollaborationAction {
-        return AnyObject.is(object) && hasBooleanProp(object, 'collaboration') && (object as any).collaboration;
-    }
-    /**
-     * Typeguard function to check wether the given object is an {@link Action} with the given `kind`.
-     * @param object The object to check.
-     * @param kind  The expected action kind.
-     * @returns A type literal indicating wether the given object is an action with the given kind.
-     */
-    export function hasKind(object: any, kind: string): object is Action {
-        return Action.is(object) && object.kind === kind;
+        return AnyObject.is(object)
+            && hasBooleanProp(object, 'collaboration') && (object as any).collaboration
+            && hasBooleanProp(object, 'visible');
     }
 }
 
-export interface DisposeSubclientAction extends CollaborationAction {
-    kind: typeof DisposeSubclientAction.KIND;
-}
-
-export namespace DisposeSubclientAction {
-    export const KIND = 'disposeSubclient';
-
-    export function is(object: any): object is MouseMoveAction {
-        return Action.hasKind(object, KIND);
-    }
-
-    export function create(): DisposeSubclientAction {
-        return {
-            kind: KIND,
-            collaboration: true
-        };
-    }
-}
+export type CollaborationActionKinds = typeof MouseMoveAction.KIND | typeof ViewportBoundsChangeAction.KIND | typeof SelectionChangeAction.KIND;
 
 export interface MouseMoveAction extends CollaborationAction {
     kind: typeof MouseMoveAction.KIND;
@@ -83,6 +61,7 @@ export namespace MouseMoveAction {
         return {
             kind: KIND,
             collaboration: true,
+            visible: true,
             ...options
         };
     }
@@ -105,6 +84,7 @@ export namespace ViewportBoundsChangeAction {
         return {
             kind: KIND,
             collaboration: true,
+            visible: true,
             ...options
         };
     }
@@ -114,23 +94,65 @@ export interface SelectionChangeAction extends CollaborationAction {
     kind: typeof SelectionChangeAction.KIND;
 
     selectedElements: string[];
-
-    deselectedElements: string[];
 }
 
 export namespace SelectionChangeAction {
     export const KIND = 'selectionChange';
 
     export function is(object: any): object is SelectionChangeAction {
-        return Action.hasKind(object, KIND)
-            && (hasArrayProp(object, 'selectedElements') || hasArrayProp(object, 'deselectedElements'));
+        return Action.hasKind(object, KIND) && hasArrayProp(object, 'selectedElements');
     }
 
-    export function create(options: { selectedElements: string[], deselectedElements: string[] }): SelectionChangeAction {
+    export function create(options: { selectedElements: string[] }): SelectionChangeAction {
         return {
             kind: KIND,
             collaboration: true,
+            visible: true,
             ...options
         };
     }
 }
+
+export interface DisposeSubclientAction extends Action {
+    kind: typeof DisposeSubclientAction.KIND;
+    initialSubclientId: string;
+}
+
+export namespace DisposeSubclientAction {
+    export const KIND = 'disposeSubclient';
+
+    export function is(object: any): object is DisposeSubclientAction {
+        return Action.hasKind(object, KIND) && hasStringProp(object, 'initialSubclientId');
+    }
+
+    export function create(options: { initialSubclientId: string }): DisposeSubclientAction {
+        return {
+            kind: KIND,
+            ...options
+        };
+    }
+}
+
+export interface ToggleCollaborationFeatureAction extends Action {
+    kind: typeof ToggleCollaborationFeatureAction.KIND;
+
+    actionKind: CollaborationActionKinds;
+}
+
+export namespace ToggleCollaborationFeatureAction {
+    export const KIND = 'toggleCollaborationFeature';
+
+    export function is(object: any): object is ToggleCollaborationFeatureAction {
+        return Action.hasKind(object, KIND)
+            && hasStringProp(object, 'actionKind');
+    }
+
+    export function create(options: { actionKind: CollaborationActionKinds }): ToggleCollaborationFeatureAction {
+        return {
+            kind: KIND,
+            ...options
+        };
+    }
+}
+
+

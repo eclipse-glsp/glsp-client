@@ -25,15 +25,18 @@ const JSX = { createElement: svg };
 
 @injectable()
 export class SelectionIconView extends ShapeView {
-    override render(node: SelectionIcon, _context: RenderingContext): VNode {
-        const selectionIconIdx = node.parent.children
+    override render(selectionIcon: SelectionIcon, _context: RenderingContext): VNode | undefined {
+        if (!selectionIcon.visible) {
+            return undefined;
+        }
+        const selectionIconIdx = selectionIcon.parent.children
             .filter(c => c instanceof SelectionIcon)
-            .indexOf(node);
+            .indexOf(selectionIcon);
         const translate = 'translate(' + (12 * selectionIconIdx) + ',-5)';
         const graph = (
             <g>
                 <g transform={translate}>
-                    <circle r={5} cx={5} cy={5} fill={node.color} style-fill-opacity={0.5} stroke={node.color} style-stroke-width={1}></circle>
+                    <circle r={5} cx={5} cy={5} fill={selectionIcon.color} style-fill-opacity={0.5} stroke={selectionIcon.color} style-stroke-width={1}></circle>
                 </g>
             </g>
         );

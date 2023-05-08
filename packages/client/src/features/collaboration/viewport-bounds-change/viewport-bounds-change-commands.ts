@@ -4,7 +4,7 @@ import {TYPES} from '../../../base/types';
 import {Command, CommandExecutionContext, CommandReturn, SModelRoot} from 'sprotty';
 import {DefaultTypes} from '@eclipse-glsp/protocol';
 import {DrawViewportRectAction, RemoveViewportRectAction} from './viewport-bounds-change-actions';
-import {removeElementFromRoot} from '../model';
+import {removeElementFromParent} from '../model';
 
 @injectable()
 export class DrawViewportRectCommand extends FeedbackCommand {
@@ -16,7 +16,7 @@ export class DrawViewportRectCommand extends FeedbackCommand {
 
     execute(context: CommandExecutionContext): CommandReturn {
         const id = viewportRectId(context.root, this.action.initialSubclientInfo.subclientId);
-        removeElementFromRoot(context.root, id);
+        removeElementFromParent(context.root, id);
         const viewportRectSchema = {
             id,
             type: DefaultTypes.VIEWPORT_RECT,
@@ -28,7 +28,8 @@ export class DrawViewportRectCommand extends FeedbackCommand {
                 width: this.action.bounds.width,
                 height: this.action.bounds.height
             },
-            color: this.action.initialSubclientInfo.color
+            color: this.action.initialSubclientInfo.color,
+            visible: this.action.visible
         };
         context.root.add(context.modelFactory.createElement(viewportRectSchema));
         return context.root;
@@ -44,8 +45,8 @@ export class RemoveViewportRectCommand extends Command {
     }
 
     execute(context: CommandExecutionContext): CommandReturn {
-        const id = viewportRectId(context.root, this.action.initialSubclientInfo.subclientId);
-        removeElementFromRoot(context.root, id);
+        const id = viewportRectId(context.root, this.action.initialSubclientId);
+        removeElementFromParent(context.root, id);
         return context.root;
     }
 

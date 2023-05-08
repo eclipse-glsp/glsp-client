@@ -14,16 +14,18 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import {SChildElement, SModelRoot, SShapeElement} from 'sprotty';
+import {SChildElement, SParentElement, SShapeElement} from 'sprotty';
 import {DefaultTypes} from '@eclipse-glsp/protocol';
 
 export class CollaborationElement extends SShapeElement {
     color: string;
+    visible: boolean;
 }
 
 export class MousePointer extends CollaborationElement {
     override type = DefaultTypes.MOUSE_POINTER;
     name: string;
+    zoom: number;
 }
 
 export class ViewportRect extends CollaborationElement {
@@ -34,10 +36,10 @@ export class SelectionIcon extends CollaborationElement {
     override type = DefaultTypes.SELECTION_ICON;
 }
 
-export function removeElementFromRoot(root: SModelRoot, id: string): void {
-    const child = root.index.getById(id);
+export function removeElementFromParent(parent: SParentElement, id: string): void {
+    const child = parent.index.getById(id);
     if (child instanceof SChildElement) {
-        root.remove(child);
+        parent.remove(child);
     }
 }
 

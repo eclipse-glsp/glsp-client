@@ -25,11 +25,14 @@ const JSX = { createElement: svg };
 
 @injectable()
 export class ViewportRectView extends ShapeView {
-    override render(node: ViewportRect, _context: RenderingContext): VNode {
+    override render(viewportRect: ViewportRect, _context: RenderingContext): VNode | undefined {
+        if (!viewportRect.visible) {
+            return undefined;
+        }
         const graph = (
             <g>
-                <rect stroke={node.color} width={node.bounds.width} height={node.bounds.height} rx={2} ry={2}
-                      style-stroke-width={3} style-vector-effect='non-scaling-stroke' fill="none"></rect>
+                <rect stroke={viewportRect.color} width={viewportRect.bounds.width} height={viewportRect.bounds.height} rx={2} ry={2}
+                      style-stroke-width={1.5} style-stroke-linecap="round" style-stroke-dasharray="10 5" style-vector-effect="non-scaling-stroke" fill="none"></rect>
             </g>
         );
         return graph;

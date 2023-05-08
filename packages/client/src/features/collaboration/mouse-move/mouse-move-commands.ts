@@ -4,7 +4,7 @@ import {TYPES} from '../../../base/types';
 import {Command, CommandExecutionContext, CommandReturn, SModelRoot} from 'sprotty';
 import {DefaultTypes} from '@eclipse-glsp/protocol';
 import {DrawMousePointerAction, RemoveMousePointerAction} from './mouse-move-actions';
-import {removeElementFromRoot} from '../model';
+import {removeElementFromParent} from '../model';
 
 @injectable()
 export class DrawMousePointerCommand extends FeedbackCommand {
@@ -16,7 +16,7 @@ export class DrawMousePointerCommand extends FeedbackCommand {
 
     execute(context: CommandExecutionContext): CommandReturn {
         const id = mousePointerId(context.root, this.action.initialSubclientInfo.subclientId);
-        removeElementFromRoot(context.root, id);
+        removeElementFromParent(context.root, id);
         const mousePointerSchema = {
             id,
             type: DefaultTypes.MOUSE_POINTER,
@@ -25,7 +25,9 @@ export class DrawMousePointerCommand extends FeedbackCommand {
                 y: this.action.position.y
             },
             color: this.action.initialSubclientInfo.color,
-            name: this.action.initialSubclientInfo.name
+            name: this.action.initialSubclientInfo.name,
+            zoom: this.action.zoom,
+            visible: this.action.visible
         };
         context.root.add(context.modelFactory.createElement(mousePointerSchema));
         return context.root;
@@ -41,8 +43,8 @@ export class RemoveMousePointerCommand extends Command {
     }
 
     execute(context: CommandExecutionContext): CommandReturn {
-        const id = mousePointerId(context.root, this.action.initialSubclientInfo.subclientId);
-        removeElementFromRoot(context.root, id);
+        const id = mousePointerId(context.root, this.action.initialSubclientId);
+        removeElementFromParent(context.root, id);
         return context.root;
     }
 

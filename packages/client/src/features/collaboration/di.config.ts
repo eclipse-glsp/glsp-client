@@ -18,7 +18,7 @@ import {
     DisposeSubclientAction,
     MouseMoveAction,
     SelectionChangeAction,
-    SetViewportAction,
+    SetViewportAction, ToggleCollaborationFeatureAction,
     ViewportBoundsChangeAction
 } from '@eclipse-glsp/protocol';
 import { ContainerModule } from 'inversify';
@@ -48,7 +48,9 @@ const glspMouseMoveModule = new ContainerModule((bind, _unbind, isBound) => {
     configureActionHandler(context, SetViewportAction.KIND, MouseMoveTool);
 
     bind(DrawMousePointerProvider).toSelf().inSingletonScope();
+    configureActionHandler(context, SetViewportAction.KIND, DrawMousePointerProvider);
     configureActionHandler(context, MouseMoveAction.KIND, DrawMousePointerProvider);
+    configureActionHandler(context, ToggleCollaborationFeatureAction.KIND, DrawMousePointerProvider);
     configureActionHandler(context, DisposeSubclientAction.KIND, DrawMousePointerProvider);
 
     configureCommand(context, DrawMousePointerCommand);
@@ -63,6 +65,7 @@ const glspMouseMoveModule = new ContainerModule((bind, _unbind, isBound) => {
 
     bind(DrawViewportRectProvider).toSelf().inSingletonScope();
     configureActionHandler(context, ViewportBoundsChangeAction.KIND, DrawViewportRectProvider);
+    configureActionHandler(context, ToggleCollaborationFeatureAction.KIND, DrawViewportRectProvider);
     configureActionHandler(context, DisposeSubclientAction.KIND, DrawViewportRectProvider);
 
     configureCommand(context, DrawViewportRectCommand);
@@ -75,6 +78,7 @@ const glspMouseMoveModule = new ContainerModule((bind, _unbind, isBound) => {
 
     bind(SelectionIconProvider).toSelf().inSingletonScope();
     configureActionHandler(context, SelectionChangeAction.KIND, SelectionIconProvider);
+    configureActionHandler(context, ToggleCollaborationFeatureAction.KIND, SelectionIconProvider);
     configureActionHandler(context, DisposeSubclientAction.KIND, SelectionIconProvider);
 
     configureCommand(context, DrawSelectionIconCommand);

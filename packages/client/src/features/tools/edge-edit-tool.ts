@@ -265,7 +265,7 @@ class EdgeEditListener extends DragAwareMouseListener implements SelectionListen
         return [];
     }
 
-    selectionChanged(root: Readonly<SModelRoot>, selectedElements: string[], deselectedElements: string[]): void {
+    selectionChanged(root: Readonly<SModelRoot>, selectedElements: string[]): void {
         if (this.edge) {
             if (selectedElements.indexOf(this.edge.id) > -1) {
                 // our active edge is still selected, nothing to do

@@ -19,7 +19,7 @@ import {
 } from 'sprotty';
 import {
     Action, DisposeSubclientAction,
-    SelectionChangeAction
+    SelectionChangeAction, ToggleCollaborationFeatureAction
 } from '@eclipse-glsp/protocol';
 import {inject, injectable} from 'inversify';
 import {IFeedbackActionDispatcher} from '../../tool-feedback/feedback-action-dispatcher';
@@ -46,10 +46,9 @@ export class SelectionChangeTool extends BaseGLSPTool implements SelectionListen
         this.selectionService.deregister(this);
     }
 
-    selectionChanged(root: Readonly<SModelRoot>, selectedElements: string[], deselectedElements: string[]): void {
+    selectionChanged(root: Readonly<SModelRoot>, selectedElements: string[]): void {
         this.dispatchActions([SelectionChangeAction.create({
-            selectedElements,
-            deselectedElements
+            selectedElements
         })]);
     }
 
@@ -69,42 +68,53 @@ export class SelectionIconProvider implements IActionHandler {
     handle(action: Action): void {
         if (SelectionChangeAction.is(action) && action.initialSubclientInfo != null) {
             const lastActionsForSubclientId = this.lastActions.get(action.initialSubclientInfo.subclientId) || new Map<string, DrawSelectionIconAction>();
+
             const deleteActions: RemoveSelectionIconAction[] = [];
-            action.deselectedElements.forEach(element => {
-                lastActionsForSubclientId.delete(element);
-                deleteActions.push(RemoveSelectionIconAction.create({
-                    element,
-                    initialSubclientInfo: action.initialSubclientInfo!
-                }));
-            });
+            for (const element of lastActionsForSubclientId.keys()) {
+                if (!action.selectedElements.includes(element)) {
+                    lastActionsForSubclientId.delete(element);
+                    deleteActions.push(RemoveSelectionIconAction.create({
+                        element,
+                        initialSubclientId: action.initialSubclientInfo.subclientId
+                    }));
+                }
+            }
             this.actionDispatcher.dispatchAll(deleteActions);
 
             action.selectedElements.forEach(element => {
                 lastActionsForSubclientId.set(element, DrawSelectionIconAction.create({
                     element,
-                    initialSubclientInfo: action.initialSubclientInfo!
+                    initialSubclientInfo: action.initialSubclientInfo!,
+                    visible: action.visible
                 }));
             });
             this.lastActions.set(action.initialSubclientInfo.subclientId, lastActionsForSubclientId);
-            this.feedbackActionDispatcher.registerFeedback(this, this.getActionsAsArray());
+            this.dispatchFeedback();
         }
-        if (DisposeSubclientAction.is(action) && action.initialSubclientInfo != null) {
-            const drawActions = this.lastActions.get(action.initialSubclientInfo.subclientId);
+        if (ToggleCollaborationFeatureAction.is(action) && action.actionKind === SelectionChangeAction.KIND) {
+            this.getActionsAsArray().forEach(a => a.visible = !a.visible);
+            this.dispatchFeedback();
+        }
+        if (DisposeSubclientAction.is(action) && action.initialSubclientId != null) {
+            const drawActions = this.lastActions.get(action.initialSubclientId);
             if (drawActions) {
                 const deleteActions = Array.from(drawActions.values()).map(drawAction =>
                     RemoveSelectionIconAction.create({
                         element: drawAction.element,
-                        initialSubclientInfo: drawAction.initialSubclientInfo
+                        initialSubclientId: drawAction.initialSubclientInfo.subclientId
                     })
                 );
                 this.actionDispatcher.dispatchAll(deleteActions);
 
-                this.lastActions.delete(action.initialSubclientInfo.subclientId);
-                this.feedbackActionDispatcher.registerFeedback(this, this.getActionsAsArray());
+                this.lastActions.delete(action.initialSubclientId);
+                this.dispatchFeedback();
             }
         }
     }
 
+    private dispatchFeedback(): void {
+        this.feedbackActionDispatcher.registerFeedback(this, this.getActionsAsArray());
+    }
 
     private getActionsAsArray(): DrawSelectionIconAction[] {
         return Array.from(this.lastActions.values()).map(map => Array.from(map.values())).flat();

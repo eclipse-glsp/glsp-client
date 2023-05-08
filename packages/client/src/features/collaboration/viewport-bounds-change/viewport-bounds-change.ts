@@ -19,7 +19,7 @@ import {
 } from 'sprotty';
 import {
     Action, Bounds, DisposeSubclientAction,
-    SetViewportAction, Viewport, ViewportBoundsChangeAction
+    SetViewportAction, ToggleCollaborationFeatureAction, Viewport, ViewportBoundsChangeAction
 } from '@eclipse-glsp/protocol';
 import {inject, injectable} from 'inversify';
 import {IFeedbackActionDispatcher} from '../../tool-feedback/feedback-action-dispatcher';
@@ -75,17 +75,26 @@ export class DrawViewportRectProvider implements IActionHandler {
         if (ViewportBoundsChangeAction.is(action) && action.initialSubclientInfo != null) {
             const feedbackAction = DrawViewportRectAction.create({
                 bounds: action.bounds,
-                initialSubclientInfo: action.initialSubclientInfo
+                initialSubclientInfo: action.initialSubclientInfo,
+                visible: action.visible
             });
             this.lastActions.set(feedbackAction.initialSubclientInfo.subclientId, feedbackAction);
-            this.feedbackActionDispatcher.registerFeedback(this, [...this.lastActions.values()]);
+            this.dispatchFeedback();
         }
-        if (DisposeSubclientAction.is(action) && action.initialSubclientInfo != null) {
-            this.lastActions.delete(action.initialSubclientInfo.subclientId);
-            this.feedbackActionDispatcher.registerFeedback(this, [...this.lastActions.values()]);
+        if (ToggleCollaborationFeatureAction.is(action) && action.actionKind === ViewportBoundsChangeAction.KIND) {
+            Array.from(this.lastActions.values()).forEach(a => a.visible = !a.visible);
+            this.dispatchFeedback();
+        }
+        if (DisposeSubclientAction.is(action) && action.initialSubclientId != null) {
+            this.lastActions.delete(action.initialSubclientId);
+            this.dispatchFeedback();
             return RemoveViewportRectAction.create({
-                initialSubclientInfo: action.initialSubclientInfo
+                initialSubclientId: action.initialSubclientId
             });
         }
+    }
+
+    private dispatchFeedback(): void {
+        this.feedbackActionDispatcher.registerFeedback(this, Array.from(this.lastActions.values()));
     }
 }
