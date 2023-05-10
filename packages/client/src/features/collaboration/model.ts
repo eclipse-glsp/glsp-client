@@ -34,6 +34,7 @@ export class ViewportRect extends CollaborationElement {
 
 export class SelectionIcon extends CollaborationElement {
     override type = DefaultTypes.SELECTION_ICON;
+    elementType: 'Node' | 'Edge';
 }
 
 export function removeElementFromParent(parent: SParentElement, id: string): void {

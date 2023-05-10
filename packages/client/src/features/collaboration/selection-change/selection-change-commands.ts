@@ -3,8 +3,7 @@ import {FeedbackCommand} from '../../tool-feedback/model';
 import {TYPES} from '../../../base/types';
 import {Command, CommandExecutionContext, CommandReturn, SModelRoot, SParentElement} from 'sprotty';
 import {removeElementFromParent, SelectionIcon} from '../model';
-import {GEdge} from '../../../lib/model';
-import {DefaultTypes, Point} from '@eclipse-glsp/protocol';
+import {DefaultTypes, hasObjectProp, Point} from '@eclipse-glsp/protocol';
 import {DrawSelectionIconAction, RemoveSelectionIconAction} from './selection-change-actions';
 
 @injectable()
@@ -24,17 +23,28 @@ export class DrawSelectionIconCommand extends FeedbackCommand {
             icon.id = id;
             icon.color = this.action.initialSubclientInfo.color;
             icon.visible = this.action.visible;
-            if (modelElement instanceof GEdge) {
-                const sourcePoint: Point = modelElement.args.edgeSourcePoint as any;
-                const targetPoint: Point = modelElement.args.edgeTargetPoint as any;
+            if (this.modelHasEdgePoints(modelElement)) {
+                const sourcePoint: Point = modelElement.args.edgeSourcePoint;
                 icon.position = {
-                    x: (sourcePoint.x + targetPoint.x) / 2,
-                    y: (sourcePoint.y + targetPoint.y) / 2
+                    ...sourcePoint
                 };
+                icon.elementType = 'Edge';
+            } else {
+                icon.elementType = 'Node';
             }
             modelElement.add(icon);
         }
         return context.root;
+    }
+
+    private modelHasEdgePoints(modelElement: any): modelElement is { args: {
+            edgeSourcePoint: Point,
+            edgeTargetPoint: Point
+        }
+    } {
+        return hasObjectProp(modelElement, 'args')
+            && hasObjectProp(modelElement.args, 'edgeSourcePoint')
+            && hasObjectProp(modelElement.args, 'edgeTargetPoint');
     }
 }
 

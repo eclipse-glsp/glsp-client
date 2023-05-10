@@ -36,10 +36,32 @@ export class SelectionIconView extends ShapeView {
         const graph = (
             <g>
                 <g transform={translate}>
-                    <circle r={5} cx={5} cy={5} fill={selectionIcon.color} style-fill-opacity={0.5} stroke={selectionIcon.color} style-stroke-width={1}></circle>
+                    { this.renderElement(selectionIcon) }
                 </g>
             </g>
         );
         return graph;
+    }
+
+    private renderElement(selectionIcon: SelectionIcon): VNode | undefined {
+        if (selectionIcon.elementType === 'Node') {
+            return this.renderNode(selectionIcon);
+        }
+        if (selectionIcon.elementType === 'Edge') {
+            return this.renderEdge(selectionIcon);
+        }
+        return undefined;
+    }
+
+    private renderNode(selectionIcon: SelectionIcon): VNode {
+        return (
+            <rect width={10} height={10} fill={selectionIcon.color} style-fill-opacity={0.5} stroke={selectionIcon.color} style-stroke-width={1}></rect>
+        );
+    }
+
+    private renderEdge(selectionIcon: SelectionIcon): VNode {
+        return (
+            <circle r={5} cx={5} cy={5} fill={selectionIcon.color} style-fill-opacity={0.5} stroke={selectionIcon.color} style-stroke-width={1}></circle>
+        );
     }
 }
