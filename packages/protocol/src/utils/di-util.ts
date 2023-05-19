@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { Container, ContainerModule, interfaces } from 'inversify';
-import { asArray, distinctAdd, MaybeArray, remove } from './array-util';
+import { MaybeArray, asArray, distinctAdd, remove } from './array-util';
 import { hasFunctionProp, hasNumberProp } from './type-util';
 
 /**
@@ -30,7 +30,7 @@ export interface BindingContext {
 
 /**
  * Initializes a container with the given {@link ContainerConfiguration}. The container configuration
- * consists of the set of {@link ContainerModule}s that should be loaded in the container and/or
+ * consists of the set of {@link ContainerModule}s that should be loaded in the container.
  * In addition, for more fine-grained control {@link ModuleConfiguration}s can be passed as part fo the container configuration
  * Module loading is distinct,this means each module will only get loaded once even if it is configured multiple times.
   @param containerConfiguration

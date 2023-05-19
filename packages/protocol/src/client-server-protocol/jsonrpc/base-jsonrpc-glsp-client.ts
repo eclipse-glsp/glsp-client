@@ -14,16 +14,11 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { injectable } from 'inversify';
-import { Message, MessageConnection } from 'vscode-jsonrpc';
-import { ActionMessage } from '../action-protocol';
-import { ActionMessageHandler, ClientState, GLSPClient } from '../client-server-protocol/glsp-client';
-import { GLSPClientProxy } from '../client-server-protocol/glsp-server';
-import {
-    DisposeClientSessionParameters,
-    InitializeClientSessionParameters,
-    InitializeParameters,
-    InitializeResult
-} from '../client-server-protocol/types';
+import { Disposable, Message, MessageConnection } from 'vscode-jsonrpc';
+import { ActionMessage } from '../../action-protocol';
+import { ActionMessageHandler, ClientState, GLSPClient } from '../glsp-client';
+import { GLSPClientProxy } from '../node/glsp-server';
+import { DisposeClientSessionParameters, InitializeClientSessionParameters, InitializeParameters, InitializeResult } from '../types';
 import { ConnectionProvider, JsonrpcGLSPClient } from './glsp-jsonrpc-client';
 
 export class BaseJsonrpcGLSPClient implements GLSPClient {
@@ -40,49 +35,41 @@ export class BaseJsonrpcGLSPClient implements GLSPClient {
     }
 
     shutdownServer(): void {
-        if (this.checkConnectionState()) {
-            this.resolvedConnection!.sendNotification(JsonrpcGLSPClient.ShutdownNotification);
-        }
+        this.checkedConnection.sendNotification(JsonrpcGLSPClient.ShutdownNotification);
     }
 
     initializeServer(params: InitializeParameters): Promise<InitializeResult> {
-        if (this.checkConnectionState()) {
-            return this.resolvedConnection!.sendRequest(JsonrpcGLSPClient.InitializeRequest, params);
-        }
-        return Promise.reject(JsonrpcGLSPClient.ClientNotReadyMsg);
+        return this.checkedConnection.sendRequest(JsonrpcGLSPClient.InitializeRequest, params);
     }
 
     initializeClientSession(params: InitializeClientSessionParameters): Promise<void> {
-        if (this.checkConnectionState()) {
-            return this.resolvedConnection!.sendRequest(JsonrpcGLSPClient.InitializeClientSessionRequest, params);
-        }
-        return Promise.reject(JsonrpcGLSPClient.ClientNotReadyMsg);
+        return this.checkedConnection.sendRequest(JsonrpcGLSPClient.InitializeClientSessionRequest, params);
     }
 
     disposeClientSession(params: DisposeClientSessionParameters): Promise<void> {
-        if (this.checkConnectionState()) {
-            return this.resolvedConnection!.sendRequest(JsonrpcGLSPClient.DisposeClientSessionRequest, params);
-        }
-        return Promise.reject(JsonrpcGLSPClient.ClientNotReadyMsg);
+        return this.checkedConnection.sendRequest(JsonrpcGLSPClient.DisposeClientSessionRequest, params);
     }
 
-    onActionMessage(handler: ActionMessageHandler): void {
-        if (this.checkConnectionState()) {
-            this.resolvedConnection!.onNotification(JsonrpcGLSPClient.ActionMessageNotification, handler);
-        }
+    onActionMessage(handler: ActionMessageHandler): Disposable {
+        return this.checkedConnection.onNotification(JsonrpcGLSPClient.ActionMessageNotification, handler);
     }
 
     sendActionMessage(message: ActionMessage): void {
-        if (this.checkConnectionState()) {
-            this.resolvedConnection!.sendNotification(JsonrpcGLSPClient.ActionMessageNotification, message);
-        }
+        this.checkedConnection.sendNotification(JsonrpcGLSPClient.ActionMessageNotification, message);
     }
 
-    protected checkConnectionState(): boolean {
+    protected get checkedConnection(): MessageConnection {
         if (!this.isConnectionActive()) {
             throw new Error(JsonrpcGLSPClient.ClientNotReadyMsg);
         }
-        return true;
+        return this.resolvedConnection!;
+    }
+
+    /**
+     * @Deprecated use {@link checkConnection} instead
+     */
+    protected checkConnectionState(): boolean {
+        return this.checkedConnection !== undefined;
     }
 
     async start(): Promise<void> {
@@ -116,7 +103,7 @@ export class BaseJsonrpcGLSPClient implements GLSPClient {
         }));
     }
 
-    private resolveConnection(): Promise<MessageConnection> {
+    protected resolveConnection(): Promise<MessageConnection> {
         if (!this.connectionPromise) {
             this.connectionPromise = this.doCreateConnection();
         }
@@ -154,7 +141,7 @@ export class BaseJsonrpcGLSPClient implements GLSPClient {
         this.state = ClientState.ServerError;
     }
 
-    protected isConnectionActive(): boolean {
+    public isConnectionActive(): boolean {
         return this.state === ClientState.Running && !!this.resolvedConnection;
     }
 

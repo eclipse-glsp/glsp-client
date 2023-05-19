@@ -14,13 +14,13 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { ActionMessage } from '../action-protocol';
-import { DisposeClientSessionParameters, InitializeClientSessionParameters, InitializeParameters, InitializeResult } from './types';
+import { ActionMessage } from '../../action-protocol';
+import { DisposeClientSessionParameters, InitializeClientSessionParameters, InitializeParameters, InitializeResult } from '../types';
 
 /**
- * Interface for implementations of a server component using json-rpc for client-server communication.
+ * Interface for implementations of a ts server component.
  * Based on the specification of the Graphical Language Server Protocol:
- * https://github.com/eclipse-glsp/glsp/blob/master/PROTOCOL.md
+ * https://www.eclipse.org/glsp/documentation/protocol/
  */
 export interface GLSPServer {
     /**

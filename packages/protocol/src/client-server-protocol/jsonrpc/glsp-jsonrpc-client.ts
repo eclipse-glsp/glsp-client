@@ -14,15 +14,10 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { MessageConnection, NotificationType, NotificationType0, RequestType } from 'vscode-jsonrpc';
-import { ActionMessage } from '../action-protocol/base-protocol';
-import { GLSPClient } from '../client-server-protocol/glsp-client';
-import {
-    DisposeClientSessionParameters,
-    InitializeClientSessionParameters,
-    InitializeParameters,
-    InitializeResult
-} from '../client-server-protocol/types';
-import { MaybePromise } from '../utils/type-util';
+import { ActionMessage } from '../../action-protocol/base-protocol';
+import { MaybePromise } from '../../utils/type-util';
+import { GLSPClient } from '../glsp-client';
+import { DisposeClientSessionParameters, InitializeClientSessionParameters, InitializeParameters, InitializeResult } from '../types';
 
 export type ConnectionProvider = MessageConnection | (() => MaybePromise<MessageConnection>);
 
