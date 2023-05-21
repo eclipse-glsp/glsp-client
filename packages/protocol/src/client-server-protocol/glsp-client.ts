@@ -16,6 +16,7 @@
 import * as uuid from 'uuid';
 
 import { ActionMessage } from '../action-protocol';
+import { Disposable } from '../disposable/disposable';
 import { DisposeClientSessionParameters, InitializeClientSessionParameters, InitializeParameters, InitializeResult } from './types';
 
 export class ApplicationIdProvider {
@@ -133,8 +134,9 @@ export interface GLSPClient {
      * Sets a handler/listener for action messages received from the server.
      *
      * @param handler The action message handler
+     * @returns A {@link Disposable} that can be used to unregister the handler
      */
-    onActionMessage(handler: ActionMessageHandler): void;
+    onActionMessage(handler: ActionMessageHandler): Disposable;
 }
 export namespace GLSPClient {
     export interface Options {

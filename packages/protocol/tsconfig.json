@@ -6,5 +6,6 @@
     "reactNamespace": "JSX",
     "baseUrl": "."
   },
+  "exclude": ["**/*.spec.ts", "src/utils/test-util.ts"],
   "include": ["src"]
 }
