@@ -18,7 +18,7 @@ import { expect } from 'chai';
 import * as sinon from 'sinon';
 import * as util from 'util';
 import { Action, ActionMessage } from '../..';
-import { expectToThrowAsync } from '../../utils/test-util.spec';
+import { expectToThrowAsync } from '../../utils/test-util';
 import { ClientState } from '../glsp-client';
 import { DisposeClientSessionParameters, InitializeClientSessionParameters, InitializeParameters, InitializeResult } from '../types';
 import { GLSPServer, GLSPServerListener } from './glsp-server';

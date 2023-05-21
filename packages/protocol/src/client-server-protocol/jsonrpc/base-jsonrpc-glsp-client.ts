@@ -141,7 +141,7 @@ export class BaseJsonrpcGLSPClient implements GLSPClient {
         this.state = ClientState.ServerError;
     }
 
-    public isConnectionActive(): boolean {
+    isConnectionActive(): boolean {
         return this.state === ClientState.Running && !!this.resolvedConnection;
     }
 

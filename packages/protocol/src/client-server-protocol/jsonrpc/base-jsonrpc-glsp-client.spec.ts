@@ -17,8 +17,9 @@
 import { expect } from 'chai';
 import * as sinon from 'sinon';
 import { Disposable, Event, MessageConnection, NotificationHandler, ProgressType } from 'vscode-jsonrpc';
+import { ActionMessage } from '../../action-protocol/base-protocol';
 import { remove } from '../../utils/array-util';
-import { expectToThrowAsync } from '../../utils/test-util.spec';
+import { expectToThrowAsync } from '../../utils/test-util';
 import { ClientState } from '../glsp-client';
 import { BaseJsonrpcGLSPClient } from './base-jsonrpc-glsp-client';
 import { JsonrpcGLSPClient } from './glsp-jsonrpc-client';
@@ -186,6 +187,23 @@ describe('Base JSON-RPC GLSP Client', () => {
             const messageMock = connection.sendNotification.withArgs(JsonrpcGLSPClient.ActionMessageNotification, message);
             client.sendActionMessage({ action: { kind: '' }, clientId: '' });
             expect(messageMock.calledOnce).to.be.true;
+        });
+    });
+
+    describe('onActionMessage', () => {
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        const handler = sandbox.spy((_message: ActionMessage): void => {});
+
+        it('should fail if client is not running', async () => {
+            await resetClient(false);
+            await expectToThrowAsync(() => client.onActionMessage(handler));
+            expect(connection.onNotification.called).to.be.false;
+        });
+
+        it('should invoked the corresponding connection method', async () => {
+            await resetClient();
+            client.onActionMessage(handler);
+            expect(connection.onNotification.withArgs(JsonrpcGLSPClient.ActionMessageNotification, handler).calledOnce).to.be.true;
         });
     });
 

@@ -16,6 +16,12 @@
 
 import { expect } from 'chai';
 import { MaybePromise } from './type-util';
+
+/*
+ * Utility classes used for testing.
+ * Only available in the testing context. Should not be used in production code.
+ */
+
 /**
  * Creates a promise that resolves after the given timeout
  * @param timeout the timeout in milliseconds
