@@ -17,12 +17,12 @@
 import { expect } from 'chai';
 import * as sinon from 'sinon';
 import * as util from 'util';
-import { Action, ActionMessage } from '../..';
-import { expectToThrowAsync } from '../../utils/test-util';
-import { ClientState } from '../glsp-client';
-import { DisposeClientSessionParameters, InitializeClientSessionParameters, InitializeParameters, InitializeResult } from '../types';
+import { Action, ActionMessage } from '../action-protocol';
+import { expectToThrowAsync } from '../utils/test-util';
+import { BaseGLSPClient } from './base-glsp-client';
+import { ClientState } from './glsp-client';
 import { GLSPServer, GLSPServerListener } from './glsp-server';
-import { NodeGLSPClient } from './node-glsp-client';
+import { DisposeClientSessionParameters, InitializeClientSessionParameters, InitializeParameters, InitializeResult } from './types';
 
 class StubGLSPServer implements GLSPServer {
     initialize(params: InitializeParameters): Promise<InitializeResult> {
@@ -52,10 +52,10 @@ describe('Node GLSP Client', () => {
     const server = sandbox.stub(new StubGLSPServer());
 
     // Shared test client instance that is already in running state
-    let client = new NodeGLSPClient({ id: 'test' });
+    let client = new BaseGLSPClient({ id: 'test' });
     function resetClient(setRunning = true): void {
         sandbox.reset();
-        client = new NodeGLSPClient({ id: 'test' });
+        client = new BaseGLSPClient({ id: 'test' });
         if (setRunning) {
             client['_server'] = server;
             client['state'] = ClientState.Running;
