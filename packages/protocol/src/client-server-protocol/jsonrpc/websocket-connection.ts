@@ -35,7 +35,7 @@ import {
  * independent of the underlying WebSocket implementation/library. e.g. one could use Socket.io instead of plain WebSockets
  */
 export interface WebSocketWrapper extends Disposable {
-    send(content: string): void;
+    send(content: string | ArrayBufferLike | ArrayBufferView): void;
     onMessage(cb: (data: any) => void): void;
     onError(cb: (reason: any) => void): void;
     onClose(cb: (code: number, reason: string) => void): void;
