@@ -16,17 +16,18 @@
 
 import { Deferred } from 'sprotty-protocol';
 import { Disposable } from 'vscode-jsonrpc';
-import { Action, ActionMessage } from '../../action-protocol';
-import { distinctAdd, remove } from '../../utils/array-util';
-import { ActionMessageHandler, ClientState, GLSPClient } from '../glsp-client';
-import { DisposeClientSessionParameters, InitializeClientSessionParameters, InitializeParameters, InitializeResult } from '../types';
+import { Action, ActionMessage } from '../action-protocol';
+import { distinctAdd, remove } from '../utils/array-util';
+import { ActionMessageHandler, ClientState, GLSPClient } from './glsp-client';
 import { GLSPClientProxy, GLSPServer } from './glsp-server';
+import { DisposeClientSessionParameters, InitializeClientSessionParameters, InitializeParameters, InitializeResult } from './types';
 
 /**
  * A simple {@link GLSPClient} implementation for use cases where the client & server are running
- * in the same (node) context i.e. process without a communication layer (like json-rpc) between.
+ * in the same context/process without a communication layer (like json-rpc) between. The client
+ * directly communicates with a given {@link GLSPServer} instance.
  */
-export class NodeGLSPClient implements GLSPClient {
+export class BaseGLSPClient implements GLSPClient {
     protected state: ClientState;
     protected _server?: GLSPServer;
     protected serverDeferred = new Deferred<GLSPServer>();

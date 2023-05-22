@@ -15,7 +15,7 @@
  ********************************************************************************/
 
 import { MessageConnection } from 'vscode-jsonrpc';
-import { GLSPServer } from '../node/glsp-server';
+import { GLSPServer } from '../glsp-server';
 import { DisposeClientSessionParameters, InitializeClientSessionParameters, InitializeParameters } from '../types';
 import { JsonrpcGLSPClient } from './glsp-jsonrpc-client';
 
