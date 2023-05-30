@@ -220,13 +220,13 @@
   resolved "https://registry.yarnpkg.com/@discoveryjs/json-ext/-/json-ext-0.5.7.tgz#1d572bfbbe14b7704e0ba0f39b74815b84870d70"
   integrity sha512-dBVuXR082gk3jsFp7Rd/JI4kytwGHecnCoTtXFb7DB6CNHp4rg5k1bhg0nWdLGLnOV71lmDzGQaLMy8iPLY0pw==
 
-"@eclipse-glsp-examples/workflow-server@next":
-  version "1.1.0-next.c1be494.51"
-  resolved "https://registry.yarnpkg.com/@eclipse-glsp-examples/workflow-server/-/workflow-server-1.1.0-next.c1be494.51.tgz#a82dfb3b86ada911cbe04a297376564bfcd2b809"
-  integrity sha512-n4fZo0JNdAFNVf/7m/t2/lW4FOgz2SkCYkXOi0C2MMHNYOhHuT5Dq/QUEN5p6eMKKs8YqI8X+NGqzqBZe96VEQ==
+"@eclipse-glsp-examples/workflow-server@1.1.0-next.9fd0925.53":
+  version "1.1.0-next.9fd0925.53"
+  resolved "https://registry.yarnpkg.com/@eclipse-glsp-examples/workflow-server/-/workflow-server-1.1.0-next.9fd0925.53.tgz#91fd760095c7d259a3f6094e37a92e1a8984bae9"
+  integrity sha512-fLPYc5GxwUsKGF11lhn9dcheJ9DOP4cyxGg3nn+RUhthNbKbLoi0SIASilptXCoNfNf579Wpuxq53O8jJpydQQ==
   dependencies:
-    "@eclipse-glsp/layout-elk" "1.1.0-next.c1be494.51+c1be494"
-    "@eclipse-glsp/server" "1.1.0-next.c1be494.51+c1be494"
+    "@eclipse-glsp/layout-elk" "1.1.0-next.9fd0925.53+9fd0925"
+    "@eclipse-glsp/server" "1.1.0-next.9fd0925.53+9fd0925"
 
 "@eclipse-glsp/cli@1.1.0-next.164cf99.124+164cf99":
   version "1.1.0-next.164cf99.124"
@@ -297,19 +297,19 @@
   resolved "https://registry.yarnpkg.com/@eclipse-glsp/eslint-config/-/eslint-config-1.1.0-next.164cf99.124.tgz#76de663200f2554374397dc4b213454dfc12a73d"
   integrity sha512-CqSwWyn0H+y3oHQ+3h9hqCT/DJa0E+qarOtH86k4V9KDKNMEg8l+IKfSxUJ1EgDR82oTtoGZgzaLI/RbuU9ryA==
 
-"@eclipse-glsp/graph@1.1.0-next.c1be494.51+c1be494":
-  version "1.1.0-next.c1be494.51"
-  resolved "https://registry.yarnpkg.com/@eclipse-glsp/graph/-/graph-1.1.0-next.c1be494.51.tgz#a4758490ac6043eea60e3a8ed65ca841e914d408"
-  integrity sha512-wUx8+cnSZh5dTRMbZiGDke6sJEOF4gqBRWA5Xh8M53/k63zfXAqk+y+iGdA7Xl57OpF1NwjvGmDm9qmIBPd83A==
+"@eclipse-glsp/graph@1.1.0-next.9fd0925.53+9fd0925":
+  version "1.1.0-next.9fd0925.53"
+  resolved "https://registry.yarnpkg.com/@eclipse-glsp/graph/-/graph-1.1.0-next.9fd0925.53.tgz#f13a23fa35dd32be85dbe4bdae4ecc44350cb7ff"
+  integrity sha512-SK0QdJoba7cVXmggAxS0p4y97hAycUDkM2B2oHnBkWJowmVum1u6mpcKwzVW/RuZRx2cF8IFitjYv33lDywgTg==
   dependencies:
     "@eclipse-glsp/protocol" next
 
-"@eclipse-glsp/layout-elk@1.1.0-next.c1be494.51+c1be494":
-  version "1.1.0-next.c1be494.51"
-  resolved "https://registry.yarnpkg.com/@eclipse-glsp/layout-elk/-/layout-elk-1.1.0-next.c1be494.51.tgz#4fd821606095dab40f9ed114c9b4d4477ce73cf5"
-  integrity sha512-H4bZjEK58c448h7kq+fwb02PiLKjFOdxklai6AzAz9BYygvcv9tP8xd4VG1BHJHGZ48z1774z4cZvqEgytPI4g==
+"@eclipse-glsp/layout-elk@1.1.0-next.9fd0925.53+9fd0925":
+  version "1.1.0-next.9fd0925.53"
+  resolved "https://registry.yarnpkg.com/@eclipse-glsp/layout-elk/-/layout-elk-1.1.0-next.9fd0925.53.tgz#6f05a622291fbe4db9c6ba392a4ed399275ab8de"
+  integrity sha512-M7qHbKhIAKiz1ow5NoPrZdYHsSfTYIgcKq92MSnc+pk/p9ThBcySq0jjkZIqXfo+GQy5MXUoKwzxF6K+DauY6g==
   dependencies:
-    "@eclipse-glsp/server" "1.1.0-next.c1be494.51+c1be494"
+    "@eclipse-glsp/server" "1.1.0-next.9fd0925.53+9fd0925"
     elkjs "^0.7.1"
     sprotty-elk "0.12.0"
 
@@ -339,12 +339,12 @@
     uuid "7.0.3"
     vscode-jsonrpc "^8.0.2"
 
-"@eclipse-glsp/server@1.1.0-next.c1be494.51+c1be494":
-  version "1.1.0-next.c1be494.51"
-  resolved "https://registry.yarnpkg.com/@eclipse-glsp/server/-/server-1.1.0-next.c1be494.51.tgz#afcdc34f2652530ed4abfac0429d30684230d902"
-  integrity sha512-WHN7PKTotkahkgSYyFGEIGKomH49uh+893fDaFYciCA93ozUDjnfMeOqOlzUo0wNCZVaA4HKWIFsQFdPy117cA==
+"@eclipse-glsp/server@1.1.0-next.9fd0925.53+9fd0925":
+  version "1.1.0-next.9fd0925.53"
+  resolved "https://registry.yarnpkg.com/@eclipse-glsp/server/-/server-1.1.0-next.9fd0925.53.tgz#16c2fd74bfabc2d1c38a9d838dd8a81a8cd72414"
+  integrity sha512-i8SGsoqo1p6gCbLPXhZhykJWN8CNYxHkSYjzKmL52M3K54rxQ9tlp6mHf1RZ6J3P5IyEH7xE8ftCxOpyIdkjsw==
   dependencies:
-    "@eclipse-glsp/graph" "1.1.0-next.c1be494.51+c1be494"
+    "@eclipse-glsp/graph" "1.1.0-next.9fd0925.53+9fd0925"
     "@eclipse-glsp/protocol" next
     "@types/uuid" "8.3.1"
     commander "^8.3.0"
