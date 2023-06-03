@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2022 EclipseSource and others.
+ * Copyright (c) 2019-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -253,4 +253,19 @@
     border-top: 1px solid rgba(212, 212, 212, 0.2);
     fill: transparent;
     width: var(--theia-scrollbar-rail-width);
+}
+
+.search-hidden {
+    opacity: 0.2;
+}
+
+.search-highlighted .sprotty-node,
+.search-highlighted .sprotty-edge {
+    stroke-width: 1.5px;
+    stroke-width: 2px;
+    stroke-dashoffset: 5;
+    stroke-dasharray: 5, 5;
+    stroke-linecap: round;
+    stroke: rgb(218, 89, 15) !important;
+    stroke: #130bf7 !important;
 }

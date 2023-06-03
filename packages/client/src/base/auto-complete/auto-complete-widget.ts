@@ -28,6 +28,7 @@ export interface AutoCompleteSettings {
     readonly showOnFocus?: boolean;
 }
 
+export type CloseReason = 'submission' | 'blur' | 'escape';
 export interface InputValidator {
     validate(input: string): Promise<ValidationStatus>;
 }
@@ -46,6 +47,11 @@ export interface SuggestionSubmitHandler {
 
 export interface TextSubmitHandler {
     executeFromTextOnlyInput(input: string): void;
+}
+
+export interface AutoCompleteWidgetOptions {
+    visibleSuggestionsChanged?: (suggestions: LabeledAction[]) => void;
+    selectedSuggestionChanged?: (suggestion?: LabeledAction) => void;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -78,8 +84,9 @@ export class AutoCompleteWidget {
         public suggestionProvider: SuggestionProvider,
         public suggestionSubmitHandler: SuggestionSubmitHandler,
         // eslint-disable-next-line @typescript-eslint/no-empty-function
-        protected notifyClose: () => void = () => {},
-        protected logger?: ILogger
+        protected notifyClose: (reason: CloseReason) => void = () => {},
+        protected logger?: ILogger,
+        protected options?: AutoCompleteWidgetOptions
     ) {}
 
     configureValidation(
@@ -109,13 +116,18 @@ export class AutoCompleteWidget {
         inputElement.autocomplete = 'false';
         inputElement.style.width = '100%';
         inputElement.addEventListener('keydown', event => this.handleKeyDown(event));
-        inputElement.addEventListener('blur', () => window.setTimeout(() => this.notifyClose(), 200));
+        inputElement.addEventListener('blur', () => {
+            if (this.containerElement.style.visibility !== 'hidden') {
+                window.setTimeout(() => this.notifyClose('blur'), 200);
+            }
+        });
+
         return inputElement;
     }
 
     protected handleKeyDown(event: KeyboardEvent): void {
         if (matchesKeystroke(event, 'Escape')) {
-            this.notifyClose();
+            this.notifyClose('escape');
             return;
         }
         if (matchesKeystroke(event, 'Enter') && !this.isInputElementChanged() && this.isSuggestionAvailable()) {
@@ -133,7 +145,7 @@ export class AutoCompleteWidget {
         }
         if (this.textSubmitHandler) {
             this.executeFromTextOnlyInput();
-            this.notifyClose();
+            this.notifyClose('submission');
         }
     }
 
@@ -175,6 +187,17 @@ export class AutoCompleteWidget {
         // move container into our UIExtension container as this is already positioned correctly
         if (this.containerElement) {
             this.containerElement.appendChild(container);
+
+            if (this.options && this.options.selectedSuggestionChanged) {
+                const selectedElement = container.querySelector('.selected');
+                // eslint-disable-next-line no-null/no-null
+                if (selectedElement !== null && selectedElement !== undefined) {
+                    const index = Array.from(container.children).indexOf(selectedElement);
+                    this.options.selectedSuggestionChanged(this.contextActions?.[index]);
+                } else {
+                    this.options.selectedSuggestionChanged(undefined);
+                }
+            }
         }
     }
 
@@ -189,6 +212,7 @@ export class AutoCompleteWidget {
             .then(actions => {
                 this.contextActions = this.filterActions(text, actions);
                 update(this.contextActions);
+                this.options?.visibleSuggestionsChanged?.(this.contextActions);
                 this.onLoaded('success');
             })
             .catch(reason => {
@@ -228,7 +252,7 @@ export class AutoCompleteWidget {
         if (item.icon) {
             this.renderIcon(itemElement, item.icon);
         }
-        itemElement.innerHTML += item.label.replace(regex, match => '<em>' + match + '</em>');
+        itemElement.innerHTML += item.label.replace(regex, match => '<em>' + match + '</em>').replace(/ /g, '&nbsp;');
         return itemElement;
     }
 
@@ -257,7 +281,7 @@ export class AutoCompleteWidget {
             window.setTimeout(() => this.inputElement.dispatchEvent(new Event('keyup')));
         } else {
             this.executeFromSuggestion(item);
-            this.notifyClose();
+            this.notifyClose('submission');
         }
     }
 

@@ -14,11 +14,12 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import defaultGLSPModule from './base/di.config';
+import { glspAccessibilityModule } from './features/accessibility/di.config';
+import { glspSearchPaletteModule } from './features/accessibility/search/di.config';
 import glspCommandPaletteModule from './features/command-palette/di.config';
 import glspContextMenuModule from './features/context-menu/di.config';
 import { copyPasteContextMenuModule, glspServerCopyPasteModule } from './features/copy-paste/di.config';
 import glspDecorationModule from './features/decoration/di.config';
-import svgMetadataModule from './features/svg-metadata/di.config';
 import glspEditLabelModule from './features/edit-label/di.config';
 import modelHintsModule from './features/hints/di.config';
 import glspHoverModule from './features/hover/di.config';
@@ -28,6 +29,7 @@ import navigationModule from './features/navigation/di.config';
 import saveModule from './features/save/di.config';
 import glspSelectModule from './features/select/di.config';
 import sourceModelWatcherModule from './features/source-model-watcher/di.config';
+import svgMetadataModule from './features/svg-metadata/di.config';
 import toolFeedbackModule from './features/tool-feedback/di.config';
 import paletteModule from './features/tool-palette/di.config';
 import { enableDefaultToolsOnFocusLossModule, toolsModule } from './features/tools/di.config';
@@ -74,7 +76,6 @@ export * from './features/context-menu/server-context-menu-provider';
 export * from './features/copy-paste/copy-paste-context-menu';
 export * from './features/copy-paste/copy-paste-handler';
 export * from './features/decoration/decoration-placer';
-export * from './features/svg-metadata/metadata-placer';
 export * from './features/edit-label/edit-label-tool';
 export * from './features/edit-label/edit-label-validator';
 export * from './features/export/glsp-svg-exporter';
@@ -93,6 +94,7 @@ export * from './features/select/select-feedback-action';
 export * from './features/select/select-mouse-listener';
 export * from './features/select/selection-service';
 export * from './features/source-model-watcher/source-model-changed-action-handler';
+export * from './features/svg-metadata/metadata-placer';
 export * from './features/tool-feedback/change-bounds-tool-feedback';
 export * from './features/tool-feedback/creation-tool-feedback';
 export * from './features/tool-feedback/css-feedback';
@@ -154,5 +156,7 @@ export {
     sourceModelWatcherModule,
     markerNavigatorContextMenuModule,
     glspViewportModule,
-    svgMetadataModule
+    svgMetadataModule,
+    glspSearchPaletteModule,
+    glspAccessibilityModule
 };
