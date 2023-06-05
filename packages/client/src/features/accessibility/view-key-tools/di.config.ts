@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2023 Business Informatics Group (TU Wien) and others.
+ * Copyright (c) 2019-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -14,17 +14,20 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
+import { bindAsService, BindingContext } from '@eclipse-glsp/protocol';
 import { ContainerModule } from 'inversify';
-import { configureMoveZoom } from './move-zoom/di.config';
-import { configureSearchPaletteModule } from './search/di.config';
-import { configureViewKeyTools } from './view-key-tools/di.config';
+import { TYPES } from '../../../base/types';
+import { DeselectKeyTool } from '../view-key-tools/deselect-key-tool';
+import { MovementKeyTool } from './movement-key-tool';
+import { ZoomKeyTool } from './zoom-key-tool';
 
-/**
- * Enables the accessibility tools for a keyboard-only-usage
- */
-export const glspAccessibilityModule = new ContainerModule((bind, unbind, isBound, rebind) => {
-    const context = { bind, unbind, isBound, rebind };
+export const glspViewKeyToolsModule = new ContainerModule((bind, _unbind, isBound, rebind) => {
+    const context = { bind, isBound, rebind };
     configureViewKeyTools(context);
-    configureMoveZoom(context);
-    configureSearchPaletteModule(context);
 });
+
+export function configureViewKeyTools(context: Pick<BindingContext, 'bind'>): void {
+    bindAsService(context, TYPES.IDefaultTool, MovementKeyTool);
+    bindAsService(context, TYPES.IDefaultTool, ZoomKeyTool);
+    bindAsService(context, TYPES.IDefaultTool, DeselectKeyTool);
+}
