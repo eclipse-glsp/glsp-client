@@ -22,6 +22,7 @@ import {
     DiamondNodeView,
     editLabelFeature,
     GEdge,
+    glspAccessibilityModule,
     GLSPGraph,
     GLSPProjectionView,
     GridSnapper,
@@ -84,7 +85,7 @@ export function initializeWorkflowDiagramContainer(
     widgetId: string,
     ...containerConfiguration: ContainerConfiguration
 ): Container {
-    initializeDiagramContainer(container, workflowDiagramModule, directTaskEditor, ...containerConfiguration);
+    initializeDiagramContainer(container, workflowDiagramModule, directTaskEditor, glspAccessibilityModule, ...containerConfiguration);
     overrideViewerOptions(container, {
         baseDiv: widgetId,
         hiddenDiv: widgetId + '_hidden'
