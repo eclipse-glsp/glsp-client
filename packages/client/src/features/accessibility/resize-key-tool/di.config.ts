@@ -14,19 +14,24 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
+import { bindAsService, BindingContext } from '@eclipse-glsp/protocol';
 import { ContainerModule } from 'inversify';
-import { configureMoveZoom } from './move-zoom/di.config';
-import { configureResizeTools } from './resize-key-tool/di.config';
-import { configureSearchPaletteModule } from './search/di.config';
-import { configureViewKeyTools } from './view-key-tools/di.config';
+import { configureActionHandler } from 'sprotty';
+import { TYPES } from '../../../base/types';
+import { ResizeElementAction, ResizeElementHandler } from './resize-key-handler';
+import { ResizeKeyTool } from './resize-key-tool';
 
 /**
- * Enables the accessibility tools for a keyboard-only-usage
+ * Handles resize actions.
  */
-export const glspAccessibilityModule = new ContainerModule((bind, unbind, isBound, rebind) => {
+export const glspResizeKeyModule = new ContainerModule((bind, unbind, isBound, rebind) => {
     const context = { bind, unbind, isBound, rebind };
     configureResizeTools(context);
-    configureViewKeyTools(context);
-    configureMoveZoom(context);
-    configureSearchPaletteModule(context);
 });
+
+export function configureResizeTools(context: BindingContext): void {
+    context.bind(ResizeElementHandler).toSelf().inSingletonScope();
+
+    configureActionHandler(context, ResizeElementAction.KIND, ResizeElementHandler);
+    bindAsService(context, TYPES.IDefaultTool, ResizeKeyTool);
+}

@@ -16,6 +16,7 @@
 import defaultGLSPModule from './base/di.config';
 import { glspAccessibilityModule } from './features/accessibility/di.config';
 import { glspMoveZoomModule } from './features/accessibility/move-zoom/di.config';
+import { glspResizeKeyModule } from './features/accessibility/resize-key-tool/di.config';
 import { glspSearchPaletteModule } from './features/accessibility/search/di.config';
 import { glspViewKeyToolsModule } from './features/accessibility/view-key-tools/di.config';
 import glspCommandPaletteModule from './features/command-palette/di.config';
@@ -60,6 +61,7 @@ export * from './base/tool-manager/glsp-tool-manager';
 export * from './base/tool-manager/tool-actions';
 export * from './base/types';
 export * from './base/view/view-registry';
+export * from './features/accessibility/resize-key-tool/resize-key-tool';
 export * from './features/accessibility/view-key-tools/deselect-key-tool';
 export * from './features/accessibility/view-key-tools/movement-key-tool';
 export * from './features/accessibility/view-key-tools/zoom-key-tool';
@@ -162,8 +164,9 @@ export {
     markerNavigatorContextMenuModule,
     glspViewportModule,
     svgMetadataModule,
-    glspViewKeyToolsModule,
-    glspMoveZoomModule,
+    glspResizeKeyModule,
+    glspSearchPaletteModule,
     glspAccessibilityModule,
-    glspSearchPaletteModule
+    glspViewKeyToolsModule,
+    glspMoveZoomModule
 };
