@@ -34,7 +34,7 @@
     "@eclipse-glsp/client": "1.1.0-next"
   },
   "devDependencies": {
-    "@eclipse-glsp-examples/workflow-server": "next",
+    "@eclipse-glsp-examples/workflow-server-bundled": "next",
     "circular-dependency-plugin": "^5.2.2",
     "css-loader": "^6.7.1",
     "path-browserify": "^1.0.1",

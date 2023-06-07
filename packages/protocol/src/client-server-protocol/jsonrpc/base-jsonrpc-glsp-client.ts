@@ -158,7 +158,7 @@ export class JsonrpcClientProxy implements GLSPClientProxy {
     protected clientConnection?: MessageConnection;
     protected enableLogging: boolean;
 
-    initialize(clientConnection: MessageConnection, enableLogging = true): void {
+    initialize(clientConnection: MessageConnection, enableLogging = false): void {
         this.clientConnection = clientConnection;
         this.enableLogging = enableLogging;
     }
