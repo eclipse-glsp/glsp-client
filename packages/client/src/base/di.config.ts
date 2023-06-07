@@ -13,10 +13,20 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { bindAsService, bindOrRebind, InitializeResult, SetEditModeAction } from '@eclipse-glsp/protocol';
 import '@vscode/codicons/dist/codicon.css';
 import { Container, ContainerModule } from 'inversify';
-import { ActionHandlerRegistry, configureActionHandler, configureCommand, ModelSource, SetModelCommand } from 'sprotty';
+import {
+    ActionHandlerRegistry,
+    bindAsService,
+    bindOrRebind,
+    configureActionHandler,
+    configureCommand,
+    InitializeResult,
+    ModelSource,
+    SetEditModeAction,
+    SetModelCommand,
+    TYPES
+} from '~glsp-sprotty';
 import '../../css/glsp-sprotty.css';
 import { GLSPActionDispatcher } from './action-dispatcher';
 import { FocusStateChangedAction } from './actions/focus-change-action';
@@ -28,7 +38,6 @@ import { GLSPModelRegistry } from './model/model-registry';
 import { FeedbackAwareUpdateModelCommand, SetModelActionHandler } from './model/update-model-command';
 import { SelectionClearingMouseListener } from './selection-clearing-mouse-listener';
 import { GLSPToolManager } from './tool-manager/glsp-tool-manager';
-import { TYPES } from './types';
 import { GLSPViewRegistry } from './view/view-registry';
 
 const defaultGLSPModule = new ContainerModule((bind, _unbind, isBound, rebind) => {

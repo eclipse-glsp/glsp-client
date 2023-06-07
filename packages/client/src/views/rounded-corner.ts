@@ -13,8 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Dimension } from '@eclipse-glsp/protocol';
-import { Hoverable, Selectable, SShapeElement } from 'sprotty';
+import { Dimension, Hoverable, Selectable, SShapeElement } from '~glsp-sprotty';
 import { CornerRadius } from '../utils/argument-utils';
 
 export interface RoundedCorner {

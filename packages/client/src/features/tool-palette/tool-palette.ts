@@ -13,21 +13,26 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, MarkersReason, PaletteItem, RequestContextActions, RequestMarkersAction, SetContextActions } from '@eclipse-glsp/protocol';
 import { inject, injectable, postConstruct } from 'inversify';
 import {
     AbstractUIExtension,
+    Action,
     EnableDefaultToolsAction,
     EnableToolsAction,
     IActionHandler,
     ICommand,
     IToolManager,
+    MarkersReason,
+    PaletteItem,
+    RequestContextActions,
+    RequestMarkersAction,
     SModelRoot,
+    SetContextActions,
     SetUIExtensionVisibilityAction,
-    TYPES
-} from 'sprotty';
-import { codiconCSSClasses } from 'sprotty/lib/utils/codicon';
-import { matchesKeystroke } from 'sprotty/lib/utils/keyboard';
+    TYPES,
+    codiconCSSClasses,
+    matchesKeystroke
+} from '~glsp-sprotty';
 import { GLSPActionDispatcher } from '../../base/action-dispatcher';
 import { EditModeListener, EditorContextService } from '../../base/editor-context-service';
 import { MouseDeleteTool } from '../tools/delete-tool';

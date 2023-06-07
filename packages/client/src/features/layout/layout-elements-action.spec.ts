@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2022 EclipseSource and others.
+ * Copyright (c) 2019-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -14,35 +14,33 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 /* eslint-disable deprecation/deprecation */
-import {
-    Action,
-    Bounds,
-    ChangeBoundsOperation,
-    ElementAndBounds,
-    RequestAction,
-    ResponseAction,
-    SetBoundsAction
-} from '@eclipse-glsp/protocol';
 import { expect } from 'chai';
 import { Container } from 'inversify';
 import 'mocha';
 import 'reflect-metadata';
 import {
+    Action,
     AnimationFrameSyncer,
+    Bounds,
+    ChangeBoundsOperation,
     CommandExecutionContext,
     ConsoleLogger,
-    defaultModule,
+    ElementAndBounds,
     ElementMove,
     FeatureSet,
     IActionDispatcher,
     MoveAction,
     MoveCommand,
+    RequestAction,
+    ResponseAction,
     SChildElement,
-    SetBoundsCommand,
     SGraphFactory,
-    SModelRoot
-} from 'sprotty';
-import { TYPES } from '../../base/types';
+    SModelRoot,
+    SetBoundsAction,
+    SetBoundsCommand,
+    TYPES,
+    defaultModule
+} from '~glsp-sprotty';
 import { resizeFeature } from '../change-bounds/model';
 import { SelectionService } from '../select/selection-service';
 import { FeedbackActionDispatcher } from '../tool-feedback/feedback-action-dispatcher';

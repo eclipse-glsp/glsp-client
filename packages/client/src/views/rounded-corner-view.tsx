@@ -15,7 +15,7 @@
  ********************************************************************************/
 import { injectable } from 'inversify';
 import { Classes, VNode } from 'snabbdom';
-import { Hoverable, RectangularNodeView, RenderingContext, Selectable, SNode, SPort, SShapeElement, svg } from 'sprotty';
+import { Hoverable, RectangularNodeView, RenderingContext, SNode, SPort, SShapeElement, Selectable, svg } from '~glsp-sprotty';
 import { CornerRadius } from '../utils/argument-utils';
 import { RoundedCornerWrapper } from './rounded-corner';
 

@@ -13,35 +13,33 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { inject, injectable, optional } from 'inversify';
 import {
     Action,
     Bounds,
+    BoundsAware,
     ChangeBoundsOperation,
     ChangeRoutingPointsOperation,
     CompoundOperation,
     Dimension,
+    EdgeRouterRegistry,
     ElementAndBounds,
     ElementAndRoutingPoints,
+    ISnapper,
+    MouseListener,
     Operation,
     Point,
-    SetBoundsAction
-} from '@eclipse-glsp/protocol';
-import { inject, injectable, optional } from 'inversify';
-import {
-    BoundsAware,
-    EdgeRouterRegistry,
-    findParentByFeature,
-    ISnapper,
-    isSelected,
-    MouseListener,
     SChildElement,
     SConnectableElement,
     SModelElement,
     SModelRoot,
-    SParentElement
-} from 'sprotty';
+    SParentElement,
+    SetBoundsAction,
+    findParentByFeature,
+    isSelected
+} from '~glsp-sprotty';
 import { DragAwareMouseListener } from '../../base/drag-aware-mouse-listener';
-import { TYPES } from '../../base/types';
+import { TYPES } from '../../glsp-sprotty/types';
 import { isValidMove, isValidSize } from '../../utils/layout-utils';
 import {
     calcElementAndRoutingPoints,
@@ -49,10 +47,10 @@ import {
     isNonRoutableSelectedMovableBoundsAware,
     toElementAndBounds
 } from '../../utils/smodel-util';
-import { isBoundsAwareMoveable, isResizable, Resizable, ResizeHandleLocation, SResizeHandle } from '../change-bounds/model';
+import { Resizable, ResizeHandleLocation, SResizeHandle, isBoundsAwareMoveable, isResizable } from '../change-bounds/model';
 import {
-    createMovementRestrictionFeedback,
     IMovementRestrictor,
+    createMovementRestrictionFeedback,
     removeMovementRestrictionFeedback
 } from '../change-bounds/movement-restrictor';
 import { PointPositionUpdater } from '../change-bounds/snap';
@@ -62,7 +60,7 @@ import {
     HideChangeBoundsToolResizeFeedbackAction,
     ShowChangeBoundsToolResizeFeedbackAction
 } from '../tool-feedback/change-bounds-tool-feedback';
-import { applyCssClasses, CursorCSS, cursorFeedbackAction, deleteCssClasses } from '../tool-feedback/css-feedback';
+import { CursorCSS, applyCssClasses, cursorFeedbackAction, deleteCssClasses } from '../tool-feedback/css-feedback';
 import { BaseGLSPTool } from './base-glsp-tool';
 
 /**

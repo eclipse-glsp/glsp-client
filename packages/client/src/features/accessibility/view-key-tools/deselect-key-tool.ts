@@ -14,11 +14,19 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { Action, SelectAction } from '@eclipse-glsp/protocol';
 import { inject, injectable } from 'inversify';
-import { isSelectable, KeyListener, KeyTool, SModelElement, SRoutableElement, SwitchEditModeAction } from 'sprotty';
 import { toArray } from 'sprotty/lib/utils/iterable';
 import { matchesKeystroke } from 'sprotty/lib/utils/keyboard';
+import {
+    Action,
+    KeyListener,
+    KeyTool,
+    SModelElement,
+    SRoutableElement,
+    SelectAction,
+    SwitchEditModeAction,
+    isSelectable
+} from '~glsp-sprotty';
 import { GLSPTool } from '../../../base/tool-manager/glsp-tool-manager';
 import { SResizeHandle } from '../../change-bounds/model';
 

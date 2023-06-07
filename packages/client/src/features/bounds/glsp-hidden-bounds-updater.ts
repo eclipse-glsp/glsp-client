@@ -14,10 +14,21 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { Action, ComputedBoundsAction, Deferred, ElementAndRoutingPoints, RequestAction, ResponseAction } from '@eclipse-glsp/protocol';
 import { inject, injectable, optional } from 'inversify';
 import { VNode } from 'snabbdom';
-import { EdgeRouterRegistry, HiddenBoundsUpdater, IActionDispatcher, SModelElement, SRoutableElement } from 'sprotty';
+import {
+    Action,
+    ComputedBoundsAction,
+    Deferred,
+    EdgeRouterRegistry,
+    ElementAndRoutingPoints,
+    HiddenBoundsUpdater,
+    IActionDispatcher,
+    RequestAction,
+    ResponseAction,
+    SModelElement,
+    SRoutableElement
+} from '~glsp-sprotty';
 import { calcElementAndRoute, isRoutable } from '../../utils/smodel-util';
 
 /**

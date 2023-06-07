@@ -13,19 +13,19 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { injectable } from 'inversify';
+import { Bounds } from 'sprotty-protocol/lib/utils/geometry';
 import {
     BoundsData,
     ILogger,
-    LayoutRegistry,
-    StatefulLayouter,
-    SModelElement,
-    Layouter,
-    SParentElement,
     LayoutContainer,
+    LayoutRegistry,
+    Layouter,
+    SModelElement,
+    SParentElement,
+    StatefulLayouter,
     isLayoutContainer
-} from 'sprotty';
-import { injectable } from 'inversify';
-import { Bounds } from 'sprotty-protocol/lib/utils/geometry';
+} from '~glsp-sprotty';
 
 @injectable()
 export class LayouterExt extends Layouter {

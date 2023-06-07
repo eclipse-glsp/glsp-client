@@ -14,29 +14,27 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import {
+    BoundsAware,
     distinctAdd,
+    EdgeRouterRegistry,
     ElementAndBounds,
     ElementAndRoutingPoints,
-    Point,
-    remove,
-    SModelElementSchema,
-    TypeGuard
-} from '@eclipse-glsp/protocol';
-import {
-    BoundsAware,
-    EdgeRouterRegistry,
+    FluentIterable,
     isBoundsAware,
     isMoveable,
     isSelectable,
     isSelected,
     ModelIndexImpl,
+    Point,
+    remove,
     RoutedPoint,
     Selectable,
     SModelElement,
+    SModelElementSchema,
     SRoutableElement,
-    SRoutingHandle
-} from 'sprotty';
-import { FluentIterable } from 'sprotty/lib/utils/iterable';
+    SRoutingHandle,
+    TypeGuard
+} from '~glsp-sprotty';
 
 /**
  * Helper type to represent a filter predicate for {@link SModelElement}s. This is used to retrieve

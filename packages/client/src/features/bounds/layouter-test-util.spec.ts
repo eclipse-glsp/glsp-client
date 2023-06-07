@@ -14,22 +14,23 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { Dimension, Point } from '@eclipse-glsp/protocol';
 import { Container } from 'inversify';
 import 'mocha';
 import {
     BoundsData,
     ConsoleLogger,
-    createFeatureSet,
-    layoutableChildFeature,
+    Dimension,
     LayoutRegistry,
+    Point,
     SCompartment,
     SLabel,
     SModelElement,
     SNode,
     SParentElement,
-    TYPES
-} from 'sprotty';
+    TYPES,
+    createFeatureSet,
+    layoutableChildFeature
+} from '~glsp-sprotty';
 import { initializeDiagramContainer } from '../../base/container-modules';
 import { GLSPGraph } from '../../lib/model';
 import { StatefulLayouterExt } from './layouter';

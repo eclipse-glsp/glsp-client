@@ -13,11 +13,8 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, LabeledAction, ValidationStatus } from '@eclipse-glsp/protocol';
 import { AutocompleteResult, AutocompleteSettings } from 'autocompleter';
-import { codiconCSSClasses, ILogger, SModelRoot } from 'sprotty';
-import { toArray } from 'sprotty/lib/utils/iterable';
-import { matchesKeystroke } from 'sprotty/lib/utils/keyboard';
+import { Action, ILogger, LabeledAction, SModelRoot, ValidationStatus, codiconCSSClasses, matchesKeystroke, toArray } from '~glsp-sprotty';
 import { AutoCompleteValue } from './auto-complete-actions';
 import { IValidationDecorator } from './validation-decorator';
 

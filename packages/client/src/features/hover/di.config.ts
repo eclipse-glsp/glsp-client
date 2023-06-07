@@ -13,13 +13,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { bindAsService } from '@eclipse-glsp/protocol';
 import { ContainerModule } from 'inversify';
 import {
     CenterCommand,
     ClosePopupActionHandler,
-    configureActionHandler,
-    configureCommand,
     EnableDefaultToolsAction,
     EnableToolsAction,
     FitToScreenCommand,
@@ -28,11 +25,14 @@ import {
     HoverState,
     MoveCommand,
     PopupHoverMouseListener,
+    PopupPositionUpdater,
     SetPopupModelCommand,
     SetViewportCommand,
-    TYPES
-} from 'sprotty';
-import { PopupPositionUpdater } from 'sprotty/lib/features/hover/popup-position-updater';
+    TYPES,
+    bindAsService,
+    configureActionHandler,
+    configureCommand
+} from '~glsp-sprotty';
 import { FocusStateChangedAction } from '../../base/actions/focus-change-action';
 import { GlspHoverMouseListener } from './hover';
 

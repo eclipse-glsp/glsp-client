@@ -13,9 +13,9 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { bindAsService } from '@eclipse-glsp/protocol';
 import { ContainerModule } from 'inversify';
-import { TYPES } from '../../base/types';
+import { bindAsService } from '~glsp-sprotty';
+import { TYPES } from '../../glsp-sprotty/types';
 import { SaveModelKeyboardListener } from './save-keylistener';
 
 /**

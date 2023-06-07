@@ -19,12 +19,12 @@ import { hasBooleanProp, hasObjectProp, hasStringProp } from './utils/type-util'
 
 // Add the is() function to the namespace declarations of sprotty-protocol actions
 declare module 'sprotty-protocol/lib/actions' {
-    // eslint-disable-next-line no-shadow
+    // eslint-disable-next-line @typescript-eslint/no-shadow
     namespace SetViewportAction {
         export function is(object: any): object is SetViewportAction;
     }
 
-    // eslint-disable-next-line no-shadow
+    // eslint-disable-next-line @typescript-eslint/no-shadow
     namespace SetBoundsAction {
         export function is(object: any): object is SetBoundsAction;
     }

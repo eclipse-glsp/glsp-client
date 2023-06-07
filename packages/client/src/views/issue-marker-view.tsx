@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020-2022 EclipseSource and others.
+ * Copyright (c) 2020-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -16,7 +16,7 @@
 /* eslint-disable max-len */
 import { injectable } from 'inversify';
 import { VNode } from 'snabbdom';
-import { IssueMarkerView, RenderingContext, setClass, SIssueMarker, SIssueSeverity, svg } from 'sprotty';
+import { IssueMarkerView, RenderingContext, setClass, SIssueMarker, SIssueSeverity, svg } from '~glsp-sprotty';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const JSX = { createElement: svg };

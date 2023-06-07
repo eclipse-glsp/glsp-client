@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020-2022 EclipseSource and others.
+ * Copyright (c) 2020-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,22 +13,27 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { injectable } from 'inversify';
+import { HoverFeedbackAction } from 'sprotty-protocol/lib/actions';
 import {
     Action,
     Bounds,
+    EMPTY_ROOT,
+    EnableDefaultToolsAction,
+    EnableToolsAction,
+    HoverMouseListener,
+    IActionHandler,
+    ICommand,
     PreRenderedElementSchema,
     RequestPopupModelAction,
-    SetPopupModelAction,
+    SModelElement,
     SModelElementSchema,
-    SModelRootSchema
-} from '@eclipse-glsp/protocol';
-import { injectable } from 'inversify';
-import { EMPTY_ROOT, HoverMouseListener, IActionHandler, ICommand, SModelElement } from 'sprotty';
-import { HoverFeedbackAction } from 'sprotty-protocol/lib/actions';
+    SModelRootSchema,
+    SetPopupModelAction
+} from '~glsp-sprotty';
 import { FocusStateChangedAction } from '../../base/actions/focus-change-action';
-import { EnableDefaultToolsAction, EnableToolsAction } from '../../base/tool-manager/tool-actions';
 import { EdgeCreationTool } from '../tools/edge-creation-tool';
-import { getSeverity, GIssueMarker } from '../validation/issue-marker';
+import { GIssueMarker, getSeverity } from '../validation/issue-marker';
 @injectable()
 export class GlspHoverMouseListener extends HoverMouseListener implements IActionHandler {
     protected enableHover = true;

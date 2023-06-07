@@ -27,9 +27,12 @@
     "watch": "lerna run --parallel watch"
   },
   "devDependencies": {
-    "@eclipse-glsp/dev": "1.1.0-next.164cf99.124",
+    "@eclipse-glsp/dev": "next",
     "@types/lodash": "4.14.191",
-    "@types/node": "16.x"
+    "@types/node": "16.x",
+    "lerna": "^6.6.2",
+    "tsc-alias": "^1.8.2",
+    "typescript": "^5.0.4"
   },
   "engines": {
     "node": ">=16.11.0",

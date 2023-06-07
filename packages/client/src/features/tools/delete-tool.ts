@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2022 EclipseSource and others.
+ * Copyright (c) 2019-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,22 +13,23 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, DeleteElementOperation } from '@eclipse-glsp/protocol';
 import { inject, injectable } from 'inversify';
 import {
+    Action,
+    DeleteElementOperation,
     EnableDefaultToolsAction,
+    KeyListener,
+    KeyTool,
+    MouseListener,
+    SModelElement,
     findParentByFeature,
     isCtrlOrCmd,
     isDeletable,
     isSelectable,
-    KeyListener,
-    KeyTool,
-    MouseListener,
-    SModelElement
-} from 'sprotty';
-import { matchesKeystroke } from 'sprotty/lib/utils/keyboard';
+    matchesKeystroke
+} from '~glsp-sprotty';
 import { GLSPTool } from '../../base/tool-manager/glsp-tool-manager';
-import { TYPES } from '../../base/types';
+import { TYPES } from '../../glsp-sprotty/types';
 import { IMouseTool } from '../mouse-tool/mouse-tool';
 import { CursorCSS, cursorFeedbackAction } from '../tool-feedback/css-feedback';
 import { IFeedbackActionDispatcher } from '../tool-feedback/feedback-action-dispatcher';

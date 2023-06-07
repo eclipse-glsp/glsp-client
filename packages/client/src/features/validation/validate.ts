@@ -13,15 +13,27 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, DeleteMarkersAction, hasArrayProp, Marker, SetMarkersAction } from '@eclipse-glsp/protocol';
 import { inject, injectable, optional } from 'inversify';
-import { CommandExecutionContext, CommandReturn, IActionDispatcher, IActionHandler, ICommand, SIssueMarker, SParentElement } from 'sprotty';
+import {
+    Action,
+    CommandExecutionContext,
+    CommandReturn,
+    DeleteMarkersAction,
+    IActionDispatcher,
+    IActionHandler,
+    ICommand,
+    Marker,
+    SIssueMarker,
+    SParentElement,
+    SetMarkersAction,
+    hasArrayProp
+} from '~glsp-sprotty';
 import { EditorContextService } from '../../base/editor-context-service';
-import { TYPES } from '../../base/types';
+import { TYPES } from '../../glsp-sprotty/types';
 import { removeCssClasses } from '../../utils/smodel-util';
 import { IFeedbackActionDispatcher, IFeedbackEmitter } from '../tool-feedback/feedback-action-dispatcher';
 import { FeedbackCommand } from '../tool-feedback/model';
-import { createSIssue, getOrCreateSIssueMarker, getSeverity, getSIssueMarker, GIssueMarker } from './issue-marker';
+import { GIssueMarker, createSIssue, getOrCreateSIssueMarker, getSIssueMarker, getSeverity } from './issue-marker';
 
 /**
  * Feedback emitter sending actions for visualizing model validation feedback and

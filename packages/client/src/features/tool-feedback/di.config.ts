@@ -13,10 +13,9 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { bindAsService } from '@eclipse-glsp/protocol';
 import { ContainerModule } from 'inversify';
-import { configureCommand, configureView, LocationPostprocessor, MoveCommand } from 'sprotty';
-import { TYPES } from '../../base/types';
+import { bindAsService, configureCommand, configureView, LocationPostprocessor, MoveCommand } from '~glsp-sprotty';
+import { TYPES } from '../../glsp-sprotty/types';
 import { SResizeHandle } from '../change-bounds/model';
 import { HideChangeBoundsToolResizeFeedbackCommand, ShowChangeBoundsToolResizeFeedbackCommand } from './change-bounds-tool-feedback';
 import { DrawFeedbackEdgeCommand, FeedbackEdgeEnd, RemoveFeedbackEdgeCommand } from './creation-tool-feedback';

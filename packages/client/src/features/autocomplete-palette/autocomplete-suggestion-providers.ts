@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { LabeledAction, SModelElement, SModelRoot } from 'sprotty';
+import { LabeledAction, SModelElement, SModelRoot } from '~glsp-sprotty';
 
 /**
  * Interface for a provider that provides suggestions that can be used to fill the autocomplete

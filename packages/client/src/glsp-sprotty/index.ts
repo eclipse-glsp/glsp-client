@@ -19,19 +19,32 @@
  * The deprecated definitions are planned to be removed with Sprotty 1.0.0.
  * Until then we have to manually reexport the sprotty main index and exclude the clashing types.
  */
+/* eslint-disable no-restricted-imports */
 
+/**
+ * @eclipse-glsp/protocol
+ */
 export * from '@eclipse-glsp/protocol';
-// sprotty-protocol
+/*
+ * sprotty-protocol
+ */
 export {
     BringToFrontAction,
     CollapseExpandAction,
     CollapseExpandAllAction,
     ElementAndAlignment,
+    GetSelectionAction,
+    GetViewportAction,
     HoverFeedbackAction,
     MoveAction,
-    SetBoundsAction
+    SelectionResult,
+    SetBoundsAction,
+    ViewportResult
 } from 'sprotty-protocol/lib/actions';
 export { Viewport } from 'sprotty-protocol/lib/model';
+/*
+ * sprotty
+ */
 // ------------------ Base ------------------
 export * from 'sprotty/lib/base/actions/action-dispatcher';
 export * from 'sprotty/lib/base/actions/action-handler';
@@ -46,15 +59,15 @@ export * from 'sprotty/lib/base/commands/command-stack-options';
 export * from 'sprotty/lib/base/features/initialize-canvas';
 export { SetModelCommand } from 'sprotty/lib/base/features/set-model';
 export {
-    createRandomId,
     FeatureSet,
     IModelIndex,
-    isParent,
     ModelIndexImpl,
-    SChildElement,
-    SModelElement,
-    SModelRoot,
-    SParentElement
+    SChildElementImpl as SChildElement,
+    SModelElementImpl as SModelElement,
+    SModelRootImpl as SModelRoot,
+    SParentElementImpl as SParentElement,
+    createRandomId,
+    isParent
 } from 'sprotty/lib/base/model/smodel';
 export * from 'sprotty/lib/base/model/smodel-extension';
 export * from 'sprotty/lib/base/model/smodel-factory';
@@ -70,6 +83,7 @@ export * from 'sprotty/lib/base/tool-manager/tool';
 export * from 'sprotty/lib/base/tool-manager/tool-manager';
 export * from 'sprotty/lib/base/ui-extensions/ui-extension';
 export * from 'sprotty/lib/base/ui-extensions/ui-extension-registry';
+export * from 'sprotty/lib/base/views/dom-helper';
 export * from 'sprotty/lib/base/views/key-tool';
 export * from 'sprotty/lib/base/views/mouse-tool';
 export * from 'sprotty/lib/base/views/thunk-view';
@@ -79,6 +93,7 @@ export * from 'sprotty/lib/base/views/viewer-cache';
 export * from 'sprotty/lib/base/views/viewer-options';
 export * from 'sprotty/lib/base/views/vnode-postprocessor';
 export * from 'sprotty/lib/base/views/vnode-utils';
+export * from 'sprotty/lib/features/bounds/abstract-layout';
 // ------------------ Features ------------------
 export {
     RequestBoundsCommand,
@@ -89,34 +104,35 @@ export {
 export * from 'sprotty/lib/features/bounds/hbox-layout';
 export * from 'sprotty/lib/features/bounds/hidden-bounds-updater';
 export * from 'sprotty/lib/features/bounds/layout';
+export * from 'sprotty/lib/features/bounds/layout-options';
 export {
     Alignable,
-    alignFeature,
     BoundsAware,
+    LayoutContainer,
+    LayoutableChild,
+    ModelLayoutOptions,
+    SShapeElementImpl as SShapeElement,
+    alignFeature,
     boundsFeature,
     findChildrenAtPosition,
     getAbsoluteBounds,
     getAbsoluteClientBounds,
     isAlignable,
     isBoundsAware,
-    isLayoutableChild,
     isLayoutContainer,
+    isLayoutableChild,
     isSizeable,
-    LayoutableChild,
-    layoutableChildFeature,
-    LayoutContainer,
     layoutContainerFeature,
-    ModelLayoutOptions,
-    SShapeElement
+    layoutableChildFeature
 } from 'sprotty/lib/features/bounds/model';
 export * from 'sprotty/lib/features/bounds/stack-layout';
 export * from 'sprotty/lib/features/bounds/vbox-layout';
 export * from 'sprotty/lib/features/bounds/views';
 export {
     ButtonHandlerRegistry,
-    configureButtonHandler,
     IButtonHandler,
-    IButtonHandlerRegistration
+    IButtonHandlerRegistration,
+    configureButtonHandler
 } from 'sprotty/lib/features/button/button-handler';
 export * from 'sprotty/lib/features/button/model';
 export * from 'sprotty/lib/features/command-palette/action-providers';
@@ -146,7 +162,7 @@ export * from 'sprotty/lib/features/expand/model';
 export * from 'sprotty/lib/features/expand/views';
 export { ExportSvgCommand, ExportSvgKeyListener, ExportSvgPostprocessor, RequestExportSvgAction } from 'sprotty/lib/features/export/export';
 export * from 'sprotty/lib/features/export/model';
-export { SvgExporter } from 'sprotty/lib/features/export/svg-exporter';
+export { ExportSvgAction, SvgExporter } from 'sprotty/lib/features/export/svg-exporter';
 export * from 'sprotty/lib/features/fade/fade';
 export * from 'sprotty/lib/features/fade/model';
 export {
@@ -160,6 +176,7 @@ export {
     SetPopupModelCommand
 } from 'sprotty/lib/features/hover/hover';
 export * from 'sprotty/lib/features/hover/model';
+export { PopupPositionUpdater } from 'sprotty/lib/features/hover/popup-position-updater';
 export * from 'sprotty/lib/features/move/model';
 export {
     ElementMove,
@@ -183,20 +200,31 @@ export * from 'sprotty/lib/features/routing/bezier-anchors';
 export * from 'sprotty/lib/features/routing/bezier-edge-router';
 export * from 'sprotty/lib/features/routing/manhattan-anchors';
 export * from 'sprotty/lib/features/routing/manhattan-edge-router';
-export * from 'sprotty/lib/features/routing/model';
+export {
+    Connectable,
+    RoutingHandleKind,
+    SConnectableElementImpl as SConnectableElement,
+    SDanglingAnchorImpl as SDanglingAnchor,
+    SRoutableElementImpl as SRoutableElement,
+    SRoutingHandleImpl as SRoutingHandle,
+    connectableFeature,
+    edgeInProgressID,
+    edgeInProgressTargetHandleID,
+    getAbsoluteRouteBounds,
+    getRouteBounds,
+    isConnectable
+} from 'sprotty/lib/features/routing/model';
 export * from 'sprotty/lib/features/routing/polyline-anchors';
 export * from 'sprotty/lib/features/routing/polyline-edge-router';
 export * from 'sprotty/lib/features/routing/routing';
 export * from 'sprotty/lib/features/routing/views';
 export * from 'sprotty/lib/features/select/model';
 export {
-    GetSelectionAction,
     GetSelectionCommand,
-    SelectAllCommand as SprottySelectAllCommand,
-    SelectCommand as SprottySelectCommand,
-    SelectionResult,
     SelectKeyboardListener,
-    SelectMouseListener
+    SelectMouseListener,
+    SelectAllCommand as SprottySelectAllCommand,
+    SelectCommand as SprottySelectCommand
 } from 'sprotty/lib/features/select/select';
 export { UndoRedoKeyListener } from 'sprotty/lib/features/undo-redo/undo-redo';
 export * from 'sprotty/lib/features/update/model-matching';
@@ -209,17 +237,19 @@ export {
 } from 'sprotty/lib/features/viewport/center-fit';
 export * from 'sprotty/lib/features/viewport/model';
 export * from 'sprotty/lib/features/viewport/scroll';
-export {
-    GetViewportAction,
-    GetViewportCommand,
-    SetViewportCommand,
-    ViewportAnimation,
-    ViewportResult
-} from 'sprotty/lib/features/viewport/viewport';
+export { GetViewportCommand, SetViewportCommand, ViewportAnimation } from 'sprotty/lib/features/viewport/viewport';
 export * from 'sprotty/lib/features/viewport/viewport-root';
 export * from 'sprotty/lib/features/viewport/zoom';
 export { BringToFrontCommand, ZOrderElement } from 'sprotty/lib/features/zorder/zorder';
-export { SCompartment, SEdge, SGraph, SGraphIndex, SLabel, SNode, SPort } from 'sprotty/lib/graph/sgraph';
+export {
+    SCompartmentImpl as SCompartment,
+    SEdgeImpl as SEdge,
+    SGraphImpl as SGraph,
+    SGraphIndex,
+    SLabelImpl as SLabel,
+    SNodeImpl as SNode,
+    SPortImpl as SPort
+} from 'sprotty/lib/graph/sgraph';
 // ------------------ Graph ------------------
 export * from 'sprotty/lib/graph/sgraph-factory';
 export * from 'sprotty/lib/graph/views';
@@ -230,12 +260,12 @@ export {
     CircularNode,
     CircularPort,
     DiamondNode,
-    ForeignObjectElement,
-    HtmlRoot,
-    PreRenderedElement,
+    ForeignObjectElementImpl as ForeignObjectElement,
+    HtmlRootImpl as HtmlRoot,
+    PreRenderedElementImpl as PreRenderedElement,
     RectangularNode,
     RectangularPort,
-    ShapedPreRenderedElement
+    ShapedPreRenderedElementImpl as ShapedPreRenderedElement
 } from 'sprotty/lib/lib/model';
 // ------------------ Library ------------------
 export * from 'sprotty/lib/lib/modules';
@@ -251,10 +281,20 @@ export * from 'sprotty/lib/model-source/websocket';
 export * from 'sprotty/lib/utils/browser';
 export * from 'sprotty/lib/utils/codicon';
 export * from 'sprotty/lib/utils/color';
-export { Diamond, Insets, intersection, Line, Orientation, PointToPointLine } from 'sprotty/lib/utils/geometry';
+export { Diamond, Insets, Line, Orientation, PointToPointLine, intersection } from 'sprotty/lib/utils/geometry';
 export * from 'sprotty/lib/utils/inversify';
+export * from 'sprotty/lib/utils/iterable';
+export * from 'sprotty/lib/utils/keyboard';
 export * from 'sprotty/lib/utils/logging';
 export * from 'sprotty/lib/utils/registry';
+/**
+ * Misc glsp adaptions/augmentations
+ */
+export * from './augmented-actions';
+export * from './types';
+/**
+ * Modules
+ */
 export { defaultModule };
 export {
     graphModule,
@@ -279,7 +319,6 @@ export {
     zorderModule
 };
 export { modelSourceModule };
-
 import defaultModule from 'sprotty/lib/base/di.config';
 import boundsModule from 'sprotty/lib/features/bounds/di.config';
 import buttonModule from 'sprotty/lib/features/button/di.config';

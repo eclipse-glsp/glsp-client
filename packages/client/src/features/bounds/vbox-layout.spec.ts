@@ -14,12 +14,11 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 /* eslint-disable deprecation/deprecation */
-import { Dimension } from '@eclipse-glsp/protocol';
 import { expect } from 'chai';
 import 'mocha';
 import 'reflect-metadata';
-import { BoundsData, ConsoleLogger, SModelElement, SNode } from 'sprotty';
-import { layout, setupLayoutRegistry, sLabel, sNode } from './layouter-test-util.spec';
+import { BoundsData, ConsoleLogger, Dimension, SModelElement, SNode } from '~glsp-sprotty';
+import { layout, sLabel, sNode, setupLayoutRegistry } from './layouter-test-util.spec';
 
 describe('VBoxLayouter', () => {
     const layoutRegistry = setupLayoutRegistry();

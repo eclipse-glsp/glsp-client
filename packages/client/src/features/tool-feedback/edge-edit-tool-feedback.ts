@@ -13,22 +13,26 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, Bounds, hasStringProp, Point } from '@eclipse-glsp/protocol';
 import { inject, injectable } from 'inversify';
 import { VNode } from 'snabbdom';
+import { MoveAction } from 'sprotty-protocol/lib/actions';
 import {
+    Action,
     AnchorComputerRegistry,
+    Bounds,
     CommandExecutionContext,
     CommandReturn,
     EdgeRouterRegistry,
     ElementMove,
     findChildrenAtPosition,
     findParentByFeature,
+    hasStringProp,
     isBoundsAware,
     isConnectable,
     ISnapper,
     isSelected,
     MouseListener,
+    Point,
     PolylineEdgeRouter,
     SConnectableElement,
     SModelElement,
@@ -36,8 +40,7 @@ import {
     SwitchEditModeAction,
     SwitchEditModeCommand,
     TYPES
-} from 'sprotty';
-import { MoveAction } from 'sprotty-protocol/lib/actions';
+} from '~glsp-sprotty';
 import { forEachElement, isRoutable, isRoutingHandle } from '../../utils/smodel-util';
 import { getAbsolutePosition, toAbsoluteBounds } from '../../utils/viewpoint-util';
 import { PointPositionUpdater } from '../change-bounds/snap';

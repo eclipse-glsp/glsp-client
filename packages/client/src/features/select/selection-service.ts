@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2022 EclipseSource and others.
+ * Copyright (c) 2019-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,22 +13,27 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, distinctAdd, pluck, remove, SelectAction, SelectAllAction } from '@eclipse-glsp/protocol';
 import { inject, injectable, multiInject, optional } from 'inversify';
 import {
+    Action,
     Command,
     CommandExecutionContext,
+    distinctAdd,
     ILogger,
     isSelectable,
+    pluck,
+    remove,
     SChildElement,
     Selectable,
-    SelectAllCommand as SprottySelectAllCommand,
-    SelectCommand as SprottySelectCommand,
+    SelectAction,
+    SelectAllAction,
     SModelElement,
-    SModelRoot
-} from 'sprotty';
+    SModelRoot,
+    SprottySelectAllCommand,
+    SprottySelectCommand
+} from '~glsp-sprotty';
 import { SModelRootListener } from '../../base/model/update-model-command';
-import { TYPES } from '../../base/types';
+import { TYPES } from '../../glsp-sprotty/types';
 import { getElements, getMatchingElements } from '../../utils/smodel-util';
 import { IFeedbackActionDispatcher } from '../tool-feedback/feedback-action-dispatcher';
 import { SelectFeedbackAction } from './select-feedback-action';

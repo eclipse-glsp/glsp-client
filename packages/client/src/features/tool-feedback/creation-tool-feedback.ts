@@ -13,27 +13,30 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, Bounds, Point, SEdgeSchema } from '@eclipse-glsp/protocol';
 import { inject, injectable } from 'inversify';
+import { MoveAction } from 'sprotty-protocol/lib/actions';
 import {
+    Action,
     AnchorComputerRegistry,
+    Bounds,
     CommandExecutionContext,
     CommandReturn,
-    findChildrenAtPosition,
-    findParentByFeature,
-    isBoundsAware,
-    isConnectable,
     MouseListener,
+    Point,
     PolylineEdgeRouter,
     SChildElement,
     SConnectableElement,
     SDanglingAnchor,
+    SEdgeSchema,
     SModelElement,
     SModelRoot,
     SRoutableElement,
-    TYPES
-} from 'sprotty';
-import { MoveAction } from 'sprotty-protocol/lib/actions';
+    TYPES,
+    findChildrenAtPosition,
+    findParentByFeature,
+    isBoundsAware,
+    isConnectable
+} from '~glsp-sprotty';
 import { BoundsAwareModelElement, isRoutable } from '../../utils/smodel-util';
 import { getAbsolutePosition, toAbsoluteBounds, toAbsolutePosition } from '../../utils/viewpoint-util';
 import { FeedbackCommand } from './model';

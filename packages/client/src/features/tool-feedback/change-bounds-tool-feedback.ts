@@ -13,24 +13,26 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, hasStringProp, Point } from '@eclipse-glsp/protocol';
 import { inject, injectable } from 'inversify';
 import { VNode } from 'snabbdom';
+import { MoveAction } from 'sprotty-protocol/lib/actions';
 import {
+    Action,
     CommandExecutionContext,
     CommandReturn,
     ElementMove,
     findParentByFeature,
+    hasStringProp,
     isMoveable,
     isSelectable,
     isViewport,
     MouseListener,
+    Point,
     SChildElement,
     SModelElement,
     SModelRoot,
     TYPES
-} from 'sprotty';
-import { MoveAction } from 'sprotty-protocol/lib/actions';
+} from '~glsp-sprotty';
 import { forEachElement } from '../../utils/smodel-util';
 import { addResizeHandles, isResizable, removeResizeHandles, SResizeHandle } from '../change-bounds/model';
 import { createMovementRestrictionFeedback, removeMovementRestrictionFeedback } from '../change-bounds/movement-restrictor';

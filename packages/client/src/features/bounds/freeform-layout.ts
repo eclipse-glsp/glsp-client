@@ -13,11 +13,19 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Bounds, Dimension, Point } from '@eclipse-glsp/protocol';
 import { injectable } from 'inversify';
-import { BoundsData, LayoutContainer, SChildElement, SParentElement, StatefulLayouter } from 'sprotty';
-import { AbstractLayout } from 'sprotty/lib/features/bounds/abstract-layout';
-import { AbstractLayoutOptions } from 'sprotty/lib/features/bounds/layout-options';
+import {
+    AbstractLayout,
+    AbstractLayoutOptions,
+    Bounds,
+    BoundsData,
+    Dimension,
+    LayoutContainer,
+    Point,
+    SChildElement,
+    SParentElement,
+    StatefulLayouter
+} from '~glsp-sprotty';
 
 /**
  * Layouts children of a container with explicit X/Y positions

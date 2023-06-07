@@ -13,11 +13,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { AnyObject, distinctAdd, EditMode, hasBooleanProp, hasFunctionProp, hasStringProp } from '@eclipse-glsp/protocol';
 import { inject, injectable, multiInject, optional, postConstruct } from 'inversify';
-import { Tool, ToolManager } from 'sprotty';
+import { AnyObject, EditMode, Tool, ToolManager, distinctAdd, hasBooleanProp, hasFunctionProp, hasStringProp } from '~glsp-sprotty';
+import { TYPES } from '../../glsp-sprotty/types';
 import { EditModeListener, EditorContextService, EditorContextServiceProvider } from '../editor-context-service';
-import { TYPES } from '../types';
 
 @injectable()
 export class GLSPToolManager extends ToolManager implements EditModeListener {

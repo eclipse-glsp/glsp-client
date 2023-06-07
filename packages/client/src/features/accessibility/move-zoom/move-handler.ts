@@ -14,13 +14,24 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { Action, ChangeBoundsOperation, Point, SetViewportAction, Viewport } from '@eclipse-glsp/protocol';
 import { inject, injectable } from 'inversify';
 import { throttle } from 'lodash';
-import { findParentByFeature, IActionDispatcher, IActionHandler, ICommand, isViewport, SModelRoot } from 'sprotty';
+import {
+    Action,
+    ChangeBoundsOperation,
+    IActionDispatcher,
+    IActionHandler,
+    ICommand,
+    Point,
+    SModelRoot,
+    SetViewportAction,
+    TYPES,
+    Viewport,
+    findParentByFeature,
+    isViewport
+} from '~glsp-sprotty';
 import { EditorContextService } from '../../../base/editor-context-service';
-import { TYPES } from '../../../base/types';
-import { getElements, isSelectableAndBoundsAware, SelectableBoundsAware } from '../../../utils/smodel-util';
+import { SelectableBoundsAware, getElements, isSelectableAndBoundsAware } from '../../../utils/smodel-util';
 
 /**
  * Action for triggering moving of the viewport.

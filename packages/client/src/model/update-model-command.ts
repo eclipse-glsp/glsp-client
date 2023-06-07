@@ -27,14 +27,14 @@ import {
     MorphEdgesAnimation,
     SModelRoot,
     SetModelAction,
+    TYPES,
     UpdateAnimationData,
     UpdateModelAction,
     UpdateModelCommand,
     toTypeGuard
 } from '~glsp-sprotty';
-import { IFeedbackActionDispatcher } from '../../features/tool-feedback/feedback-action-dispatcher';
-import { FeedbackCommand } from '../../features/tool-feedback/model';
-import { TYPES } from '../../glsp-sprotty/types';
+import { IFeedbackActionDispatcher } from '../features/tool-feedback/feedback-action-dispatcher';
+import { FeedbackCommand } from '../features/tool-feedback/model';
 
 /**
  * ActionHandler that transforms a {@link SetModelAction} into an {@link UpdateModelAction} that can be handled
