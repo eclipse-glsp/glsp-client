@@ -14,7 +14,6 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { inject, injectable, optional } from 'inversify';
-import { MoveAction } from 'sprotty-protocol/lib/actions';
 import {
     Action,
     ChangeBoundsOperation,
@@ -23,14 +22,15 @@ import {
     IActionDispatcher,
     IActionHandler,
     ICommand,
+    MoveAction,
     SModelElement,
     SetBoundsAction,
+    TYPES,
     Writable,
     hasArrayProp,
     hasNumberProp,
     hasStringProp
 } from '~glsp-sprotty';
-import { TYPES } from '../../glsp-sprotty/types';
 import { toValidElementAndBounds, toValidElementMove } from '../../utils/layout-utils';
 import { BoundsAwareModelElement, getElements } from '../../utils/smodel-util';
 import { isBoundsAwareMoveable, isResizable } from '../change-bounds/model';

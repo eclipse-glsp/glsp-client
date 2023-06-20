@@ -14,9 +14,8 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { inject, injectable, optional } from 'inversify';
-import { Action, ContextMenuProviderRegistry, IContextMenuServiceProvider, MouseListener, SModelElement } from '~glsp-sprotty';
+import { Action, ContextMenuProviderRegistry, IContextMenuServiceProvider, MouseListener, SModelElement, TYPES } from '~glsp-sprotty';
 import { FocusStateChangedAction } from '../../base/actions/focus-change-action';
-import { TYPES } from '../../glsp-sprotty/types';
 import { SelectionService } from '../select/selection-service';
 
 @injectable()

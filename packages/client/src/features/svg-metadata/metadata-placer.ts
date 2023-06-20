@@ -16,8 +16,7 @@
 
 import { inject, injectable } from 'inversify';
 import { VNode } from 'snabbdom';
-import { DOMHelper, IVNodePostprocessor, SChildElement, SEdge, SModelElement, SModelRoot, setAttr } from '~glsp-sprotty';
-import { TYPES } from '../../glsp-sprotty/types';
+import { DOMHelper, IVNodePostprocessor, SChildElement, SEdge, SModelElement, SModelRoot, TYPES, setAttr } from '~glsp-sprotty';
 
 @injectable()
 export class MetadataPlacer implements IVNodePostprocessor {

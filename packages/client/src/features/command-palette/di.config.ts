@@ -14,9 +14,8 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { ContainerModule } from 'inversify';
-import { CommandPalette, CommandPaletteActionProviderRegistry, bindAsService } from '~glsp-sprotty';
+import { CommandPalette, CommandPaletteActionProviderRegistry, TYPES, bindAsService } from '~glsp-sprotty';
 import '../../../css/command-palette.css';
-import { TYPES } from '../../glsp-sprotty/types';
 import { CommandPaletteTool } from './command-palette-tool';
 import { ServerCommandPaletteActionProvider } from './server-command-palette-provider';
 

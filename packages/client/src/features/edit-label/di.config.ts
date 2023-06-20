@@ -14,8 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { ContainerModule } from 'inversify';
-import { ApplyLabelEditCommand, bindAsService, configureCommand } from '~glsp-sprotty';
-import { TYPES } from '../../glsp-sprotty/types';
+import { ApplyLabelEditCommand, TYPES, bindAsService, configureCommand } from '~glsp-sprotty';
 import { DirectLabelEditTool } from './edit-label-tool';
 import { BalloonLabelValidationDecorator, ServerEditLabelValidator } from './edit-label-validator';
 

@@ -22,10 +22,10 @@ import {
     configureModelElement,
     ManhattanEdgeRouter,
     TriggerEdgeCreationAction,
-    TriggerNodeCreationAction
+    TriggerNodeCreationAction,
+    TYPES
 } from '~glsp-sprotty';
 import { FocusStateChangedAction } from '../../base/actions/focus-change-action';
-import { TYPES } from '../../glsp-sprotty/types';
 import { MARQUEE } from '../tool-feedback/marquee-tool-feedback';
 import { ChangeBoundsTool } from './change-bounds-tool';
 import { DelKeyDeleteTool, MouseDeleteTool } from './delete-tool';

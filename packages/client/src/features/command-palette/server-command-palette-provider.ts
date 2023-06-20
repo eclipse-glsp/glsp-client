@@ -21,11 +21,11 @@ import {
     Point,
     RequestContextActions,
     SModelElement,
-    SetContextActions
+    SetContextActions,
+    TYPES
 } from '~glsp-sprotty';
 import { GLSPActionDispatcher } from '../../base/action-dispatcher';
 import { EditorContextService } from '../../base/editor-context-service';
-import { TYPES } from '../../glsp-sprotty/types';
 
 export namespace ServerCommandPalette {
     export const CONTEXT_ID = 'command-palette';

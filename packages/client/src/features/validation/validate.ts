@@ -26,10 +26,10 @@ import {
     SIssueMarker,
     SParentElement,
     SetMarkersAction,
+    TYPES,
     hasArrayProp
 } from '~glsp-sprotty';
 import { EditorContextService } from '../../base/editor-context-service';
-import { TYPES } from '../../glsp-sprotty/types';
 import { removeCssClasses } from '../../utils/smodel-util';
 import { IFeedbackActionDispatcher, IFeedbackEmitter } from '../tool-feedback/feedback-action-dispatcher';
 import { FeedbackCommand } from '../tool-feedback/model';

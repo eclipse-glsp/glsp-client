@@ -250,6 +250,7 @@ export {
     SNodeImpl as SNode,
     SPortImpl as SPort
 } from 'sprotty/lib/graph/sgraph';
+export * from 'sprotty/lib/lib/virtualize';
 // ------------------ Graph ------------------
 export * from 'sprotty/lib/graph/sgraph-factory';
 export * from 'sprotty/lib/graph/views';
@@ -295,20 +296,21 @@ export * from './types';
 /**
  * Modules
  */
-export { defaultModule };
 export {
-    graphModule,
     boundsModule,
     buttonModule,
     commandPaletteModule,
     contextMenuModule,
     decorationModule,
+    defaultModule,
     edgeIntersectionModule,
     edgeLayoutModule,
     expandModule,
     exportModule,
     fadeModule,
+    graphModule,
     hoverModule,
+    modelSourceModule,
     moveModule,
     openModule,
     routingModule,
@@ -318,7 +320,6 @@ export {
     viewportModule,
     zorderModule
 };
-export { modelSourceModule };
 import defaultModule from 'sprotty/lib/base/di.config';
 import boundsModule from 'sprotty/lib/features/bounds/di.config';
 import buttonModule from 'sprotty/lib/features/button/di.config';

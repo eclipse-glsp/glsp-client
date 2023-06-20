@@ -34,11 +34,11 @@ import {
     ServerStatusAction,
     SetNavigationTargetsAction,
     SetResolvedNavigationTargetAction,
+    TYPES,
     hasObjectProp,
     hasStringProp
 } from '~glsp-sprotty';
 import { EditorContextServiceProvider } from '../../base/editor-context-service';
-import { TYPES } from '../../glsp-sprotty/types';
 import { NavigationTargetResolver } from './navigation-target-resolver';
 
 /**

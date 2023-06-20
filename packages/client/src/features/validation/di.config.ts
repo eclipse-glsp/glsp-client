@@ -14,8 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { ContainerModule } from 'inversify';
-import { SetMarkersAction, bindAsService, configureActionHandler, configureCommand } from '~glsp-sprotty';
-import { TYPES } from '../../glsp-sprotty/types';
+import { SetMarkersAction, TYPES, bindAsService, configureActionHandler, configureCommand } from '~glsp-sprotty';
 import {
     LeftToRightTopToBottomComparator,
     MarkerNavigator,

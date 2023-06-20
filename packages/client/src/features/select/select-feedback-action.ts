@@ -14,8 +14,16 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { inject, injectable } from 'inversify';
-import { Action, Command, CommandExecutionContext, SModelRoot, SelectAction, SprottySelectCommand, hasArrayProp } from '~glsp-sprotty';
-import { TYPES } from '../../glsp-sprotty/types';
+import {
+    Action,
+    Command,
+    CommandExecutionContext,
+    SModelRoot,
+    SelectAction,
+    SprottySelectCommand,
+    TYPES,
+    hasArrayProp
+} from '~glsp-sprotty';
 
 export interface SelectFeedbackAction extends Omit<SelectAction, 'kind'>, Action {
     kind: typeof SelectFeedbackAction.KIND;

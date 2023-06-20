@@ -22,6 +22,7 @@ import {
     KeyTool,
     MouseListener,
     SModelElement,
+    TYPES,
     findParentByFeature,
     isCtrlOrCmd,
     isDeletable,
@@ -29,7 +30,6 @@ import {
     matchesKeystroke
 } from '~glsp-sprotty';
 import { GLSPTool } from '../../base/tool-manager/glsp-tool-manager';
-import { TYPES } from '../../glsp-sprotty/types';
 import { IMouseTool } from '../mouse-tool/mouse-tool';
 import { CursorCSS, cursorFeedbackAction } from '../tool-feedback/css-feedback';
 import { IFeedbackActionDispatcher } from '../tool-feedback/feedback-action-dispatcher';

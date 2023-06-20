@@ -14,8 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { inject, injectable, multiInject, optional, postConstruct } from 'inversify';
-import { AnyObject, EditMode, Tool, ToolManager, distinctAdd, hasBooleanProp, hasFunctionProp, hasStringProp } from '~glsp-sprotty';
-import { TYPES } from '../../glsp-sprotty/types';
+import { AnyObject, EditMode, TYPES, Tool, ToolManager, distinctAdd, hasBooleanProp, hasFunctionProp, hasStringProp } from '~glsp-sprotty';
 import { EditModeListener, EditorContextService, EditorContextServiceProvider } from '../editor-context-service';
 
 @injectable()

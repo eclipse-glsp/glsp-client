@@ -14,10 +14,9 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { inject, injectable } from 'inversify';
-import { Action, IActionDispatcher, KeyTool } from '~glsp-sprotty';
+import { Action, IActionDispatcher, KeyTool, TYPES } from '~glsp-sprotty';
 import { EditorContextService } from '../../base/editor-context-service';
 import { GLSPTool } from '../../base/tool-manager/glsp-tool-manager';
-import { TYPES } from '../../glsp-sprotty/types';
 import { IMouseTool } from '../mouse-tool/mouse-tool';
 import { IFeedbackActionDispatcher, IFeedbackEmitter } from '../tool-feedback/feedback-action-dispatcher';
 

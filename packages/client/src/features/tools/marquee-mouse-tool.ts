@@ -25,11 +25,11 @@ import {
     SModelRoot,
     SNode,
     SelectAction,
+    TYPES,
     isSelectable,
     isSelected
 } from '~glsp-sprotty';
 import { DragAwareMouseListener } from '../../base/drag-aware-mouse-listener';
-import { TYPES } from '../../glsp-sprotty/types';
 import { getAbsolutePosition, toAbsoluteBounds } from '../../utils/viewpoint-util';
 import { CursorCSS, cursorFeedbackAction } from '../tool-feedback/css-feedback';
 import { RemoveMarqueeAction } from '../tool-feedback/marquee-tool-feedback';

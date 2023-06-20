@@ -15,7 +15,6 @@
  ********************************************************************************/
 import { inject, injectable } from 'inversify';
 import { VNode } from 'snabbdom';
-import { MoveAction } from 'sprotty-protocol/lib/actions';
 import {
     Action,
     AnchorComputerRegistry,
@@ -24,14 +23,9 @@ import {
     CommandReturn,
     EdgeRouterRegistry,
     ElementMove,
-    findChildrenAtPosition,
-    findParentByFeature,
-    hasStringProp,
-    isBoundsAware,
-    isConnectable,
     ISnapper,
-    isSelected,
     MouseListener,
+    MoveAction,
     Point,
     PolylineEdgeRouter,
     SConnectableElement,
@@ -39,13 +33,19 @@ import {
     SRoutingHandle,
     SwitchEditModeAction,
     SwitchEditModeCommand,
-    TYPES
+    TYPES,
+    findChildrenAtPosition,
+    findParentByFeature,
+    hasStringProp,
+    isBoundsAware,
+    isConnectable,
+    isSelected
 } from '~glsp-sprotty';
 import { forEachElement, isRoutable, isRoutingHandle } from '../../utils/smodel-util';
 import { getAbsolutePosition, toAbsoluteBounds } from '../../utils/viewpoint-util';
 import { PointPositionUpdater } from '../change-bounds/snap';
 import { addReconnectHandles, removeReconnectHandles } from '../reconnect/model';
-import { FeedbackEdgeEnd, feedbackEdgeEndId, FeedbackEdgeEndMovingMouseListener, feedbackEdgeId } from './creation-tool-feedback';
+import { FeedbackEdgeEnd, FeedbackEdgeEndMovingMouseListener, feedbackEdgeEndId, feedbackEdgeId } from './creation-tool-feedback';
 import { FeedbackCommand } from './model';
 
 /**

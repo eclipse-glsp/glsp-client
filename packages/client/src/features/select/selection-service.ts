@@ -18,22 +18,22 @@ import {
     Action,
     Command,
     CommandExecutionContext,
-    distinctAdd,
     ILogger,
-    isSelectable,
-    pluck,
-    remove,
     SChildElement,
-    Selectable,
-    SelectAction,
-    SelectAllAction,
     SModelElement,
     SModelRoot,
+    SelectAction,
+    SelectAllAction,
+    Selectable,
     SprottySelectAllCommand,
-    SprottySelectCommand
+    SprottySelectCommand,
+    TYPES,
+    distinctAdd,
+    isSelectable,
+    pluck,
+    remove
 } from '~glsp-sprotty';
 import { SModelRootListener } from '../../base/model/update-model-command';
-import { TYPES } from '../../glsp-sprotty/types';
 import { getElements, getMatchingElements } from '../../utils/smodel-util';
 import { IFeedbackActionDispatcher } from '../tool-feedback/feedback-action-dispatcher';
 import { SelectFeedbackAction } from './select-feedback-action';

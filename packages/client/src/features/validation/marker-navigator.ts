@@ -30,6 +30,7 @@ import {
     SModelRoot,
     SelectAction,
     Selectable,
+    TYPES,
     findParentByFeature,
     hasArrayProp,
     hasStringProp,
@@ -37,7 +38,6 @@ import {
     isSelectable,
     matchesKeystroke
 } from '~glsp-sprotty';
-import { TYPES } from '../../glsp-sprotty/types';
 import { MarkerPredicates, collectIssueMarkers } from '../../utils/marker';
 import { getElements, isSelectableAndBoundsAware } from '../../utils/smodel-util';
 import { SelectionService } from '../select/selection-service';

@@ -22,11 +22,11 @@ import {
     RequestContextActions,
     SModelElement,
     SetContextActions,
+    TYPES,
     isSelected
 } from '~glsp-sprotty';
 import { GLSPActionDispatcher } from '../../base/action-dispatcher';
 import { EditorContextService } from '../../base/editor-context-service';
-import { TYPES } from '../../glsp-sprotty/types';
 
 export namespace ServerContextMenu {
     export const CONTEXT_ID = 'context-menu';

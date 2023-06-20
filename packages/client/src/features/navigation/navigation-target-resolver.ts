@@ -20,10 +20,10 @@ import {
     NavigationTarget,
     ResolveNavigationTargetAction,
     ResponseAction,
-    SetResolvedNavigationTargetAction
+    SetResolvedNavigationTargetAction,
+    TYPES
 } from '~glsp-sprotty';
 import { EditorContextServiceProvider } from '../../base/editor-context-service';
-import { TYPES } from '../../glsp-sprotty/types';
 
 /**
  * Resolves `NavigationTargets` to element ids.

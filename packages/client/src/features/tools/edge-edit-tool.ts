@@ -26,13 +26,13 @@ import {
     SModelRoot,
     SRoutableElement,
     SRoutingHandle,
+    TYPES,
     canEditRouting,
     findParentByFeature,
     isConnectable,
     isSelected
 } from '~glsp-sprotty';
 import { DragAwareMouseListener } from '../../base/drag-aware-mouse-listener';
-import { TYPES } from '../../glsp-sprotty/types';
 import { calcElementAndRoutingPoints, isRoutable, isRoutingHandle } from '../../utils/smodel-util';
 import { SReconnectHandle, isReconnectHandle, isReconnectable, isSourceRoutingHandle, isTargetRoutingHandle } from '../reconnect/model';
 import { SelectionListener, SelectionService } from '../select/selection-service';

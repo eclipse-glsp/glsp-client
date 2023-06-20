@@ -15,18 +15,18 @@
  ********************************************************************************/
 import { ContainerModule } from 'inversify';
 import {
-    bindAsService,
-    configureCommand,
-    configureLayout,
     HBoxLayouter,
     HiddenBoundsUpdater,
-    Layouter,
     LayoutRegistry,
+    Layouter,
     RequestBoundsCommand,
     SetBoundsCommand,
-    VBoxLayouter
+    TYPES,
+    VBoxLayouter,
+    bindAsService,
+    configureCommand,
+    configureLayout
 } from '~glsp-sprotty';
-import { TYPES } from '../../glsp-sprotty/types';
 import { FreeFormLayouter } from './freeform-layout';
 import { GLSPHiddenBoundsUpdater } from './glsp-hidden-bounds-updater';
 import { HBoxLayouterExt } from './hbox-layout';

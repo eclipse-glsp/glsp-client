@@ -35,11 +35,11 @@ import {
     SModelRoot,
     SParentElement,
     SetBoundsAction,
+    TYPES,
     findParentByFeature,
     isSelected
 } from '~glsp-sprotty';
 import { DragAwareMouseListener } from '../../base/drag-aware-mouse-listener';
-import { TYPES } from '../../glsp-sprotty/types';
 import { isValidMove, isValidSize } from '../../utils/layout-utils';
 import {
     calcElementAndRoutingPoints,

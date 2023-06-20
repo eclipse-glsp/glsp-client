@@ -21,9 +21,9 @@ import {
     ServerMessageAction,
     ServerStatusAction,
     SourceModelChangedAction,
+    TYPES,
     ViewerOptions
 } from '~glsp-sprotty';
-import { TYPES } from '../../glsp-sprotty/types';
 
 /**
  * An external handler of the source model change event.

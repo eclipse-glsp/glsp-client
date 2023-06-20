@@ -15,7 +15,7 @@
  ********************************************************************************/
 
 import { ContainerModule } from 'inversify';
-import { TYPES } from '../../glsp-sprotty/types';
+import { TYPES } from '~glsp-sprotty';
 import { MetadataPlacer } from './metadata-placer';
 
 const svgMetadataModule = new ContainerModule(bind => {

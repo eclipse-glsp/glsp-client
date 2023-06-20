@@ -17,18 +17,18 @@
 import { inject, injectable } from 'inversify';
 import {
     Action,
-    hasStringProp,
     IActionDispatcher,
     IActionHandler,
     IContextMenuItemProvider,
-    isSelected,
     MenuItem,
     Point,
+    SModelRoot,
     ServerMessageAction,
     ServerStatusAction,
-    SModelRoot
+    TYPES,
+    hasStringProp,
+    isSelected
 } from '~glsp-sprotty';
-import { TYPES } from '../../glsp-sprotty/types';
 
 /**
  * An `InvokeCopyPasteAction` is dispatched by the client to initiate a cut, copy or paste operation.

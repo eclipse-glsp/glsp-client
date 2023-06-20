@@ -15,26 +15,26 @@
  ********************************************************************************/
 import { inject, injectable } from 'inversify';
 import { VNode } from 'snabbdom';
-import { MoveAction } from 'sprotty-protocol/lib/actions';
 import {
     Action,
     CommandExecutionContext,
     CommandReturn,
     ElementMove,
-    findParentByFeature,
-    hasStringProp,
-    isMoveable,
-    isSelectable,
-    isViewport,
     MouseListener,
+    MoveAction,
     Point,
     SChildElement,
     SModelElement,
     SModelRoot,
-    TYPES
+    TYPES,
+    findParentByFeature,
+    hasStringProp,
+    isMoveable,
+    isSelectable,
+    isViewport
 } from '~glsp-sprotty';
 import { forEachElement } from '../../utils/smodel-util';
-import { addResizeHandles, isResizable, removeResizeHandles, SResizeHandle } from '../change-bounds/model';
+import { SResizeHandle, addResizeHandles, isResizable, removeResizeHandles } from '../change-bounds/model';
 import { createMovementRestrictionFeedback, removeMovementRestrictionFeedback } from '../change-bounds/movement-restrictor';
 import { CursorCSS, cursorFeedbackAction } from '../tool-feedback/css-feedback';
 import { ChangeBoundsTool } from '../tools/change-bounds-tool';

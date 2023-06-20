@@ -14,8 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { ContainerModule } from 'inversify';
-import { configureActionHandler } from '~glsp-sprotty';
-import { TYPES } from '../../glsp-sprotty/types';
+import { configureActionHandler, TYPES } from '~glsp-sprotty';
 import { CopyPasteContextMenuItemProvider, InvokeCopyPasteAction, InvokeCopyPasteActionHandler } from './copy-paste-context-menu';
 import { LocalClipboardService, ServerCopyPasteHandler } from './copy-paste-handler';
 

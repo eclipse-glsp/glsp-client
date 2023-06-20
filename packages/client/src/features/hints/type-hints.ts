@@ -29,13 +29,13 @@ import {
     SShapeElement,
     SetTypeHintsAction,
     ShapeTypeHint,
+    TYPES,
     TypeHint,
     connectableFeature,
     deletableFeature,
     editFeature,
     moveFeature
 } from '~glsp-sprotty';
-import { TYPES } from '../../glsp-sprotty/types';
 import { getElementTypeId, hasCompatibleType } from '../../utils/smodel-util';
 import { resizeFeature } from '../change-bounds/model';
 import { reconnectFeature } from '../reconnect/model';
