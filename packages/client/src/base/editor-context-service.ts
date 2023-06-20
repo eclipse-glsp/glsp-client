@@ -13,12 +13,24 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, Args, distinctAdd, EditMode, EditorContext, remove, SetEditModeAction } from '@eclipse-glsp/protocol';
 import { inject, injectable, multiInject, optional } from 'inversify';
-import { IActionHandler, ModelSource, MousePositionTracker, SModelElement, SModelRoot } from 'sprotty';
+import {
+    Action,
+    Args,
+    EditMode,
+    EditorContext,
+    IActionHandler,
+    ModelSource,
+    MousePositionTracker,
+    SModelElement,
+    SModelRoot,
+    SetEditModeAction,
+    TYPES,
+    distinctAdd,
+    remove
+} from '~glsp-sprotty';
 import { SelectionService } from '../features/select/selection-service';
 import { isSourceUriAware } from './source-uri-aware';
-import { TYPES } from './types';
 
 export interface EditModeListener {
     editModeChanged(newValue: string, oldValue: string): void;

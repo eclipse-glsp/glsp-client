@@ -14,22 +14,22 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { ContainerConfiguration, initializeContainer } from '@eclipse-glsp/protocol';
 import { Container, ContainerModule } from 'inversify';
 import {
+    ContainerConfiguration,
     buttonModule,
     defaultModule,
     edgeIntersectionModule,
     edgeLayoutModule,
     expandModule,
     fadeModule,
+    initializeContainer,
     labelEditUiModule,
     modelSourceModule,
     openModule,
     routingModule,
     zorderModule
-} from 'sprotty';
-import svgMetadataModule from '../features/svg-metadata/di.config';
+} from '~glsp-sprotty';
 import glspBoundsModule from '../features/bounds/di.config';
 import glspCommandPaletteModule from '../features/command-palette/di.config';
 import glspContextMenuModule from '../features/context-menu/di.config';
@@ -44,6 +44,7 @@ import glspMouseToolModule from '../features/mouse-tool/di.config';
 import navigationModule from '../features/navigation/di.config';
 import glspSelectModule from '../features/select/di.config';
 import sourceModelWatcherModule from '../features/source-model-watcher/di.config';
+import svgMetadataModule from '../features/svg-metadata/di.config';
 import toolFeedbackModule from '../features/tool-feedback/di.config';
 import toolPaletteModule from '../features/tool-palette/di.config';
 import { enableDefaultToolsOnFocusLossModule, toolsModule } from '../features/tools/di.config';

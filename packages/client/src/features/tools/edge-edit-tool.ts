@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2022 EclipseSource and others.
+ * Copyright (c) 2019-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,28 +13,30 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, ChangeRoutingPointsOperation, ReconnectEdgeOperation } from '@eclipse-glsp/protocol';
 import { inject, injectable, optional } from 'inversify';
 import {
+    Action,
     AnchorComputerRegistry,
-    canEditRouting,
+    ChangeRoutingPointsOperation,
     Connectable,
     EdgeRouterRegistry,
-    findParentByFeature,
-    isConnectable,
     ISnapper,
-    isSelected,
+    ReconnectEdgeOperation,
     SModelElement,
     SModelRoot,
     SRoutableElement,
-    SRoutingHandle
-} from 'sprotty';
+    SRoutingHandle,
+    TYPES,
+    canEditRouting,
+    findParentByFeature,
+    isConnectable,
+    isSelected
+} from '~glsp-sprotty';
 import { DragAwareMouseListener } from '../../base/drag-aware-mouse-listener';
-import { TYPES } from '../../base/types';
 import { calcElementAndRoutingPoints, isRoutable, isRoutingHandle } from '../../utils/smodel-util';
-import { isReconnectable, isReconnectHandle, isSourceRoutingHandle, isTargetRoutingHandle, SReconnectHandle } from '../reconnect/model';
+import { SReconnectHandle, isReconnectHandle, isReconnectable, isSourceRoutingHandle, isTargetRoutingHandle } from '../reconnect/model';
 import { SelectionListener, SelectionService } from '../select/selection-service';
-import { DrawFeedbackEdgeAction, feedbackEdgeId, RemoveFeedbackEdgeAction } from '../tool-feedback/creation-tool-feedback';
+import { DrawFeedbackEdgeAction, RemoveFeedbackEdgeAction, feedbackEdgeId } from '../tool-feedback/creation-tool-feedback';
 import { CursorCSS, cursorFeedbackAction } from '../tool-feedback/css-feedback';
 import {
     DrawFeedbackEdgeSourceAction,

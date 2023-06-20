@@ -13,8 +13,18 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Bounds, isBounds, Point, SModelElementSchema } from '@eclipse-glsp/protocol';
-import { exportFeature, getRouteBounds, SEdge, SGraph, SModelElement, viewportFeature } from 'sprotty';
+import {
+    Bounds,
+    exportFeature,
+    getRouteBounds,
+    isBounds,
+    Point,
+    SEdge,
+    SGraph,
+    SModelElement,
+    SModelElementSchema,
+    viewportFeature
+} from '~glsp-sprotty';
 import { Containable, containerFeature } from '../features/hints/model';
 import { Saveable, saveFeature } from '../features/save/model';
 

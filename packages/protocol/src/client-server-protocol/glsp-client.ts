@@ -31,7 +31,6 @@ export class ApplicationIdProvider {
 
 export type ActionMessageHandler = (message: ActionMessage) => void;
 
-// eslint-disable-next-line no-shadow
 export enum ClientState {
     /**
      * The client has been created.

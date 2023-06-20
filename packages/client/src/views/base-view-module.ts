@@ -13,12 +13,12 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { BindingContext, DefaultTypes } from '@eclipse-glsp/protocol';
 import { ContainerModule } from 'inversify';
 import {
+    BindingContext,
     CircularNode,
     CircularNodeView,
-    configureModelElement,
+    DefaultTypes,
     DiamondNode,
     DiamondNodeView,
     ExpandButtonView,
@@ -26,7 +26,6 @@ import {
     ForeignObjectView,
     HtmlRoot,
     HtmlRootView,
-    moveFeature,
     PreRenderedElement,
     PreRenderedView,
     RectangularNode,
@@ -35,9 +34,7 @@ import {
     SCompartment,
     SCompartmentView,
     SEdge,
-    selectFeature,
     SGraphView,
-    ShapedPreRenderedElement,
     SIssueMarker,
     SLabel,
     SLabelView,
@@ -45,9 +42,13 @@ import {
     SPort,
     SRoutingHandle,
     SRoutingHandleView,
+    ShapedPreRenderedElement,
     SvgViewportView,
-    ViewportRootElement
-} from 'sprotty';
+    ViewportRootElement,
+    configureModelElement,
+    moveFeature,
+    selectFeature
+} from '~glsp-sprotty';
 import { GLSPGraph } from '../lib/model';
 import { GEdgeView } from './glsp-edge-view';
 import { GIssueMarkerView } from './issue-marker-view';

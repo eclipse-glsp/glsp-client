@@ -13,11 +13,19 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { bindAsService, BindingContext, bindOrRebind, TriggerEdgeCreationAction, TriggerNodeCreationAction } from '@eclipse-glsp/protocol';
 import { ContainerModule } from 'inversify';
-import { configureActionHandler, configureModelElement, ManhattanEdgeRouter } from 'sprotty';
+import {
+    bindAsService,
+    BindingContext,
+    bindOrRebind,
+    configureActionHandler,
+    configureModelElement,
+    ManhattanEdgeRouter,
+    TriggerEdgeCreationAction,
+    TriggerNodeCreationAction,
+    TYPES
+} from '~glsp-sprotty';
 import { FocusStateChangedAction } from '../../base/actions/focus-change-action';
-import { TYPES } from '../../base/types';
 import { MARQUEE } from '../tool-feedback/marquee-tool-feedback';
 import { ChangeBoundsTool } from './change-bounds-tool';
 import { DelKeyDeleteTool, MouseDeleteTool } from './delete-tool';

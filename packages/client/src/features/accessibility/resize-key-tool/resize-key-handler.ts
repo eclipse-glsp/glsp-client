@@ -14,17 +14,26 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { Action, ChangeBoundsOperation, Dimension, Point } from '@eclipse-glsp/protocol';
 import { inject, injectable, optional } from 'inversify';
-import { IActionDispatcher, IActionHandler, ICommand, ISnapper, SModelElement, SParentElement } from 'sprotty';
+import {
+    Action,
+    ChangeBoundsOperation,
+    Dimension,
+    IActionDispatcher,
+    IActionHandler,
+    ICommand,
+    ISnapper,
+    Point,
+    SModelElement,
+    SParentElement,
+    TYPES
+} from '~glsp-sprotty';
 import { EditorContextService } from '../../../base/editor-context-service';
-import { TYPES } from '../../../base/types';
 import { isValidMove, isValidSize, minHeight, minWidth } from '../../../utils/layout-utils';
-import { getElements, isSelectableAndBoundsAware, SelectableBoundsAware, toElementAndBounds } from '../../../utils/smodel-util';
+import { SelectableBoundsAware, getElements, isSelectableAndBoundsAware, toElementAndBounds } from '../../../utils/smodel-util';
 import { Resizable } from '../../change-bounds/model';
 import { GridSnapper } from '../../change-bounds/snap';
 
-// eslint-disable-next-line no-shadow
 export enum ResizeType {
     Increase,
     Decrease,

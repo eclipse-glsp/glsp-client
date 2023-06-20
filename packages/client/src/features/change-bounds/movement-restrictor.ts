@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2022 EclipseSource and others.
+ * Copyright (c) 2019-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,12 +13,11 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Point } from '@eclipse-glsp/protocol';
 import { injectable } from 'inversify';
-import { BoundsAware, SModelElement, SNode, SParentElement } from 'sprotty';
+import { BoundsAware, Point, SModelElement, SNode, SParentElement } from '~glsp-sprotty';
 import { toAbsoluteBounds } from '../../utils/viewpoint-util';
 import { ModifyCSSFeedbackAction } from '../tool-feedback/css-feedback';
-import { isBoundsAwareMoveable, SResizeHandle } from './model';
+import { SResizeHandle, isBoundsAwareMoveable } from './model';
 
 /**
  * A `MovementRestrictor` is an optional service that can be used by tools to validate

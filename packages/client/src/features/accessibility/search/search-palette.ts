@@ -14,11 +14,23 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { Action, CenterAction, SelectAction, SelectAllAction } from '@eclipse-glsp/protocol';
 import { injectable } from 'inversify';
 import { isEqual } from 'lodash';
-import { codiconCSSString, isNameable, LabeledAction, name, SEdge, SModelElement, SModelRoot, SNode } from 'sprotty';
 import { toArray } from 'sprotty/lib/utils/iterable';
+import {
+    Action,
+    CenterAction,
+    LabeledAction,
+    SEdge,
+    SModelElement,
+    SModelRoot,
+    SNode,
+    SelectAction,
+    SelectAllAction,
+    codiconCSSString,
+    isNameable,
+    name
+} from '~glsp-sprotty';
 import { AutocompleteSuggestion, IAutocompleteSuggestionProvider } from '../../autocomplete-palette/autocomplete-suggestion-providers';
 import { BaseAutocompletePalette } from '../../autocomplete-palette/base-autocomplete-palette';
 
@@ -32,11 +44,11 @@ export class RevealNamedElementAutocompleteSuggestionProvider implements IAutoco
         const nameables = toArray(root.index.all().filter(element => isNameable(element)));
         return nameables.map(nameable => ({
             element: nameable,
-            action: new LabeledAction(
-                `[${nameable.type}] ${name(nameable) ?? '<no-name>'}`,
-                this.getActions(nameable),
-                codiconCSSString('eye')
-            )
+            action: {
+                label: `[${nameable.type}] ${name(nameable) ?? '<no-name>'}`,
+                actions: this.getActions(nameable),
+                icon: codiconCSSString('eye')
+            }
         }));
     }
 
@@ -50,11 +62,11 @@ export class RevealEdgeElementAutocompleteSuggestionProvider implements IAutocom
         const edges = toArray(root.index.all().filter(element => element instanceof SEdge)) as SEdge[];
         return edges.map(edge => ({
             element: edge,
-            action: new LabeledAction(
-                `[${edge.type}] ` + this.getEdgeLabel(root, edge),
-                this.getActions(edge),
-                codiconCSSString('arrow-both')
-            )
+            action: {
+                label: `[${edge.type}]  ${this.getEdgeLabel(root, edge)}`,
+                actions: this.getActions(edge),
+                icon: codiconCSSString('arrow-both')
+            }
         }));
     }
     protected getActions(edge: SEdge): Action[] {

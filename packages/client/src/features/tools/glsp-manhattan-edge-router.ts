@@ -14,8 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { almostEquals } from '@eclipse-glsp/protocol';
-import { ManhattanEdgeRouter, ResolvedHandleMove, SRoutableElement } from 'sprotty';
+import { ManhattanEdgeRouter, ResolvedHandleMove, SRoutableElement, almostEquals } from '~glsp-sprotty';
 
 export class GLSPManhattanEdgeRouter extends ManhattanEdgeRouter {
     protected override applyInnerHandleMoves(edge: SRoutableElement, moves: ResolvedHandleMove[]): void {

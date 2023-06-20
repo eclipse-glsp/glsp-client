@@ -36,7 +36,7 @@
     "css"
   ],
   "scripts": {
-    "build": "tsc -b",
+    "build": "tsc -b && tsc-alias",
     "clean": "rimraf lib tsconfig.tsbuildinfo  coverage .nyc_output",
     "lint": "eslint --ext .ts,.tsx ./src",
     "lint:ci": "yarn lint -o eslint.xml -f checkstyle",
@@ -50,11 +50,12 @@
     "@eclipse-glsp/protocol": "1.1.0-next",
     "autocompleter": "5.1.0",
     "lodash": "4.17.21",
-    "sprotty": "0.13.0-next.f4445dd.342"
+    "sprotty": "0.14.0-next.02bbac0.26"
   },
   "devDependencies": {
     "@types/lodash": "4.14.191",
-    "@vscode/codicons": "^0.0.25"
+    "@vscode/codicons": "^0.0.25",
+    "tsc-alias": "^1.8.2"
   },
   "publishConfig": {
     "access": "public"

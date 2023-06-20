@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020-2022 EclipseSource and others.
+ * Copyright (c) 2020-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,11 +13,17 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { NavigationTarget, ResolveNavigationTargetAction, ResponseAction, SetResolvedNavigationTargetAction } from '@eclipse-glsp/protocol';
 import { inject, injectable } from 'inversify';
-import { IActionDispatcher, ILogger } from 'sprotty';
+import {
+    IActionDispatcher,
+    ILogger,
+    NavigationTarget,
+    ResolveNavigationTargetAction,
+    ResponseAction,
+    SetResolvedNavigationTargetAction,
+    TYPES
+} from '~glsp-sprotty';
 import { EditorContextServiceProvider } from '../../base/editor-context-service';
-import { TYPES } from '../../base/types';
 
 /**
  * Resolves `NavigationTargets` to element ids.

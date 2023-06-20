@@ -13,36 +13,39 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, Bounds, hasStringProp, Point } from '@eclipse-glsp/protocol';
 import { inject, injectable } from 'inversify';
 import { VNode } from 'snabbdom';
 import {
+    Action,
     AnchorComputerRegistry,
+    Bounds,
     CommandExecutionContext,
     CommandReturn,
     EdgeRouterRegistry,
     ElementMove,
-    findChildrenAtPosition,
-    findParentByFeature,
-    isBoundsAware,
-    isConnectable,
     ISnapper,
-    isSelected,
     MouseListener,
+    MoveAction,
+    Point,
     PolylineEdgeRouter,
     SConnectableElement,
     SModelElement,
     SRoutingHandle,
     SwitchEditModeAction,
     SwitchEditModeCommand,
-    TYPES
-} from 'sprotty';
-import { MoveAction } from 'sprotty-protocol/lib/actions';
+    TYPES,
+    findChildrenAtPosition,
+    findParentByFeature,
+    hasStringProp,
+    isBoundsAware,
+    isConnectable,
+    isSelected
+} from '~glsp-sprotty';
 import { forEachElement, isRoutable, isRoutingHandle } from '../../utils/smodel-util';
 import { getAbsolutePosition, toAbsoluteBounds } from '../../utils/viewpoint-util';
 import { PointPositionUpdater } from '../change-bounds/snap';
 import { addReconnectHandles, removeReconnectHandles } from '../reconnect/model';
-import { FeedbackEdgeEnd, feedbackEdgeEndId, FeedbackEdgeEndMovingMouseListener, feedbackEdgeId } from './creation-tool-feedback';
+import { FeedbackEdgeEnd, FeedbackEdgeEndMovingMouseListener, feedbackEdgeEndId, feedbackEdgeId } from './creation-tool-feedback';
 import { FeedbackCommand } from './model';
 
 /**

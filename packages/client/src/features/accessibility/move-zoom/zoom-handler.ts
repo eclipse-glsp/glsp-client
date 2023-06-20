@@ -14,22 +14,26 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { Action, Bounds, Point, SetViewportAction, Viewport } from '@eclipse-glsp/protocol';
 import { inject, injectable } from 'inversify';
 import { throttle } from 'lodash';
 import {
-    findParentByFeature,
+    Action,
+    Bounds,
     IActionDispatcher,
     IActionHandler,
     ICommand,
-    isViewport,
+    Point,
     SChildElement,
     SModelElement,
-    SModelRoot
-} from 'sprotty';
+    SModelRoot,
+    SetViewportAction,
+    TYPES,
+    Viewport,
+    findParentByFeature,
+    isViewport
+} from '~glsp-sprotty';
 import { EditorContextService } from '../../../base/editor-context-service';
-import { TYPES } from '../../../base/types';
-import { getElements, isSelectableAndBoundsAware, SelectableBoundsAware } from '../../../utils/smodel-util';
+import { SelectableBoundsAware, getElements, isSelectableAndBoundsAware } from '../../../utils/smodel-util';
 
 /**
  * Action for triggering zooming of the viewport.

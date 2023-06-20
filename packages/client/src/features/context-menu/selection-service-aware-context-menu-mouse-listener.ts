@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2022 EclipseSource and others.
+ * Copyright (c) 2019-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,11 +13,9 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action } from '@eclipse-glsp/protocol';
 import { inject, injectable, optional } from 'inversify';
-import { ContextMenuProviderRegistry, IContextMenuServiceProvider, MouseListener, SModelElement } from 'sprotty';
+import { Action, ContextMenuProviderRegistry, IContextMenuServiceProvider, MouseListener, SModelElement, TYPES } from '~glsp-sprotty';
 import { FocusStateChangedAction } from '../../base/actions/focus-change-action';
-import { TYPES } from '../../base/types';
 import { SelectionService } from '../select/selection-service';
 
 @injectable()

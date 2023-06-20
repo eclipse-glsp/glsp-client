@@ -14,10 +14,8 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { bindAsService, BindingContext } from '@eclipse-glsp/protocol';
 import { ContainerModule } from 'inversify';
-import { configureActionHandler } from 'sprotty';
-import { TYPES } from '../../../base/types';
+import { bindAsService, BindingContext, configureActionHandler, TYPES } from '~glsp-sprotty';
 import { ResizeElementAction, ResizeElementHandler } from './resize-key-handler';
 import { ResizeKeyTool } from './resize-key-tool';
 

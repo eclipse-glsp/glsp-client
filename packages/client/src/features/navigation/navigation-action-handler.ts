@@ -13,12 +13,16 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { inject, injectable } from 'inversify';
 import {
     Action,
+    ActionHandlerRegistry,
     Args,
     CenterAction,
-    hasObjectProp,
-    hasStringProp,
+    IActionDispatcher,
+    IActionHandler,
+    ICommand,
+    ILogger,
     NavigateToExternalTargetAction,
     NavigateToTargetAction,
     NavigationTarget,
@@ -29,12 +33,12 @@ import {
     ServerSeverity,
     ServerStatusAction,
     SetNavigationTargetsAction,
-    SetResolvedNavigationTargetAction
-} from '@eclipse-glsp/protocol';
-import { inject, injectable } from 'inversify';
-import { ActionHandlerRegistry, IActionDispatcher, IActionHandler, ICommand, ILogger } from 'sprotty';
+    SetResolvedNavigationTargetAction,
+    TYPES,
+    hasObjectProp,
+    hasStringProp
+} from '~glsp-sprotty';
 import { EditorContextServiceProvider } from '../../base/editor-context-service';
-import { TYPES } from '../../base/types';
 import { NavigationTargetResolver } from './navigation-target-resolver';
 
 /**

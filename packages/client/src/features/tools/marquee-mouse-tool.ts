@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2021-2022 EclipseSource and others.
+ * Copyright (c) 2021-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,22 +13,23 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, SelectAction } from '@eclipse-glsp/protocol';
 import { inject, injectable, optional } from 'inversify';
 import {
+    Action,
     BoundsAware,
+    DOMHelper,
     EnableDefaultToolsAction,
-    isSelectable,
-    isSelected,
     KeyListener,
     SEdge,
     SModelElement,
     SModelRoot,
-    SNode
-} from 'sprotty';
-import { DOMHelper } from 'sprotty/lib/base/views/dom-helper';
+    SNode,
+    SelectAction,
+    TYPES,
+    isSelectable,
+    isSelected
+} from '~glsp-sprotty';
 import { DragAwareMouseListener } from '../../base/drag-aware-mouse-listener';
-import { TYPES } from '../../base/types';
 import { getAbsolutePosition, toAbsoluteBounds } from '../../utils/viewpoint-util';
 import { CursorCSS, cursorFeedbackAction } from '../tool-feedback/css-feedback';
 import { RemoveMarqueeAction } from '../tool-feedback/marquee-tool-feedback';

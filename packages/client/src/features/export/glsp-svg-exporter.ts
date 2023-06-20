@@ -13,10 +13,9 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { RequestAction } from '@eclipse-glsp/protocol';
 import { injectable } from 'inversify';
-import { ExportSvgAction, SModelRoot, SvgExporter } from 'sprotty';
 import { v4 as uuid } from 'uuid';
+import { ExportSvgAction, RequestAction, SModelRoot, SvgExporter } from '~glsp-sprotty';
 
 @injectable()
 export class GLSPSvgExporter extends SvgExporter {

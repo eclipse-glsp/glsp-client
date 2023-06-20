@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2017-2022 TypeFox and others.
+ * Copyright (c) 2017-2023 TypeFox and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -14,12 +14,10 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-/** @jsx html */
-import { Bounds } from '@eclipse-glsp/protocol';
 import { injectable } from 'inversify';
 import { h, VNode, VNodeStyle } from 'snabbdom';
 import {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    Bounds,
     html,
     IViewArgs,
     ProjectedViewportView,
@@ -29,7 +27,10 @@ import {
     setClass,
     ViewportRootElement,
     ViewProjection
-} from 'sprotty';
+} from '~glsp-sprotty';
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const JSX = { createElement: html };
 
 /**
  * Special viewport root view that renders horizontal and vertical projection bars for quick navigation.

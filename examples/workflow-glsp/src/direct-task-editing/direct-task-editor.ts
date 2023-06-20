@@ -17,28 +17,28 @@ import {
     AbstractUIExtension,
     Action,
     AutoCompleteWidget,
+    DOMHelper,
     EditorContextService,
-    getAbsoluteClientBounds,
     GLSPActionDispatcher,
-    hasStringProp,
     ILogger,
     LabeledAction,
     ModelIndexImpl,
     Operation,
     RequestContextActions,
     RequestEditValidationAction,
+    SModelRoot,
     SetContextActions,
     SetEditValidationResultAction,
-    SModelRoot,
-    toActionArray,
     TYPES,
     ValidationDecorator,
     ValidationStatus,
-    ViewerOptions
+    ViewerOptions,
+    getAbsoluteClientBounds,
+    hasStringProp,
+    toActionArray
 } from '@eclipse-glsp/client';
 import { inject, injectable } from 'inversify';
-import { DOMHelper } from 'sprotty/lib/base/views/dom-helper';
-import { isTaskNode, TaskNode } from '../model';
+import { TaskNode, isTaskNode } from '../model';
 
 /**
  * Is send from the {@link TaskEditor} to the GLSP server

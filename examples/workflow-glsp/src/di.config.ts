@@ -14,21 +14,17 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import {
-    bindAsService,
-    configureDefaultModelElements,
-    configureModelElement,
     ConsoleLogger,
+    ContainerConfiguration,
+    DefaultTypes,
     DeleteElementContextMenuItemProvider,
     DiamondNodeView,
-    editLabelFeature,
     GEdge,
     glspAccessibilityModule,
     GLSPGraph,
     GLSPProjectionView,
     GridSnapper,
-    initializeDiagramContainer,
     LogLevel,
-    overrideViewerOptions,
     RectangularNodeView,
     RevealNamedElementActionProvider,
     RoundedCornerNodeView,
@@ -37,9 +33,15 @@ import {
     SLabel,
     SLabelView,
     StructureCompartmentView,
-    TYPES
+    TYPES,
+    bindAsService,
+    bindOrRebind,
+    configureDefaultModelElements,
+    configureModelElement,
+    editLabelFeature,
+    initializeDiagramContainer,
+    overrideViewerOptions
 } from '@eclipse-glsp/client';
-import { bindOrRebind, ContainerConfiguration, DefaultTypes } from '@eclipse-glsp/protocol';
 import 'balloon-css/balloon.min.css';
 import { Container, ContainerModule } from 'inversify';
 import 'sprotty/css/edit-label.css';

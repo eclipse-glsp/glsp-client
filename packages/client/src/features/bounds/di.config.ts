@@ -13,20 +13,20 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { bindAsService } from '@eclipse-glsp/protocol';
 import { ContainerModule } from 'inversify';
 import {
-    configureCommand,
-    configureLayout,
     HBoxLayouter,
     HiddenBoundsUpdater,
-    Layouter,
     LayoutRegistry,
+    Layouter,
     RequestBoundsCommand,
     SetBoundsCommand,
-    VBoxLayouter
-} from 'sprotty';
-import { TYPES } from '../../base/types';
+    TYPES,
+    VBoxLayouter,
+    bindAsService,
+    configureCommand,
+    configureLayout
+} from '~glsp-sprotty';
 import { FreeFormLayouter } from './freeform-layout';
 import { GLSPHiddenBoundsUpdater } from './glsp-hidden-bounds-updater';
 import { HBoxLayouterExt } from './hbox-layout';

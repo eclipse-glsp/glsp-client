@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2022 EclipseSource and others.
+ * Copyright (c) 2019-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,17 +13,22 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { injectable } from 'inversify';
 import {
     Action,
+    ActionHandlerRegistry,
     ActionMessage,
     ComputedBoundsAction,
+    DiagramServerProxy,
+    ExportSvgAction,
     GLSPClient,
+    ICommand,
     RequestModelAction,
     ServerMessageAction,
-    SetEditModeAction
-} from '@eclipse-glsp/protocol';
-import { injectable } from 'inversify';
-import { ActionHandlerRegistry, DiagramServerProxy, ExportSvgAction, ICommand, ServerStatusAction, SwitchEditModeCommand } from 'sprotty';
+    ServerStatusAction,
+    SetEditModeAction,
+    SwitchEditModeCommand
+} from '~glsp-sprotty';
 import { SourceUriAware } from '../base/source-uri-aware';
 
 const receivedFromServerProperty = '__receivedFromServer';

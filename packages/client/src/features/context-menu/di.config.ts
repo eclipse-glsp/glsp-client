@@ -13,10 +13,8 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { bindAsService } from '@eclipse-glsp/protocol';
 import { ContainerModule } from 'inversify';
-import { ContextMenuProviderRegistry, IContextMenuService } from 'sprotty';
-import { TYPES } from '../../base/types';
+import { ContextMenuProviderRegistry, IContextMenuService, TYPES, bindAsService } from '~glsp-sprotty';
 import { SelectionServiceAwareContextMenuMouseListener } from './selection-service-aware-context-menu-mouse-listener';
 import { ServerContextMenuItemProvider } from './server-context-menu-provider';
 

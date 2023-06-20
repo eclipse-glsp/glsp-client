@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2022 EclipseSource and others.
+ * Copyright (c) 2019-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,9 +13,9 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, SetModelAction, toTypeGuard, UpdateModelAction } from '@eclipse-glsp/protocol';
 import { inject, injectable, multiInject, optional } from 'inversify';
 import {
+    Action,
     ActionHandlerRegistry,
     Animation,
     Command,
@@ -26,12 +26,15 @@ import {
     ILogger,
     MorphEdgesAnimation,
     SModelRoot,
+    SetModelAction,
+    TYPES,
     UpdateAnimationData,
-    UpdateModelCommand
-} from 'sprotty';
+    UpdateModelAction,
+    UpdateModelCommand,
+    toTypeGuard
+} from '~glsp-sprotty';
 import { IFeedbackActionDispatcher } from '../../features/tool-feedback/feedback-action-dispatcher';
 import { FeedbackCommand } from '../../features/tool-feedback/model';
-import { TYPES } from '../types';
 
 /**
  * ActionHandler that transforms a {@link SetModelAction} into an {@link UpdateModelAction} that can be handled

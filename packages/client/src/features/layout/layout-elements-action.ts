@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2022 EclipseSource and others.
+ * Copyright (c) 2019-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,20 +13,24 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { inject, injectable, optional } from 'inversify';
 import {
     Action,
     ChangeBoundsOperation,
     ElementAndBounds,
+    ElementMove,
+    IActionDispatcher,
+    IActionHandler,
+    ICommand,
+    MoveAction,
+    SModelElement,
+    SetBoundsAction,
+    TYPES,
+    Writable,
     hasArrayProp,
     hasNumberProp,
-    hasStringProp,
-    SetBoundsAction,
-    Writable
-} from '@eclipse-glsp/protocol';
-import { inject, injectable, optional } from 'inversify';
-import { ElementMove, IActionDispatcher, IActionHandler, ICommand, SModelElement } from 'sprotty';
-import { MoveAction } from 'sprotty-protocol/lib/actions';
-import { TYPES } from '../../base/types';
+    hasStringProp
+} from '~glsp-sprotty';
 import { toValidElementAndBounds, toValidElementMove } from '../../utils/layout-utils';
 import { BoundsAwareModelElement, getElements } from '../../utils/smodel-util';
 import { isBoundsAwareMoveable, isResizable } from '../change-bounds/model';
@@ -36,7 +40,6 @@ import { SelectionService } from '../select/selection-service';
 /**
  * Used to specify the desired resize dimension for a {@link ResizeElementsCommand}.
  */
-// eslint-disable-next-line no-shadow
 export enum ResizeDimension {
     Width,
     Height,
@@ -272,7 +275,6 @@ export class ResizeElementsActionHandler extends LayoutElementsActionHandler {
     }
 }
 
-// eslint-disable-next-line no-shadow
 export enum Alignment {
     Left,
     Center,

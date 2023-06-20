@@ -13,9 +13,8 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { bindAsService } from '@eclipse-glsp/protocol';
 import { ContainerModule } from 'inversify';
-import { configureCommand, ExportSvgCommand, ExportSvgKeyListener, ExportSvgPostprocessor, TYPES } from 'sprotty';
+import { bindAsService, configureCommand, ExportSvgCommand, ExportSvgKeyListener, ExportSvgPostprocessor, TYPES } from '~glsp-sprotty';
 import { GLSPSvgExporter } from './glsp-svg-exporter';
 
 const glspExportSvgModule = new ContainerModule((bind, _unbind, isBound) => {

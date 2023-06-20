@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2021 EclipseSource and others.
+ * Copyright (c) 2021-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -15,7 +15,7 @@
  ********************************************************************************/
 import { injectable } from 'inversify';
 import { VNode } from 'snabbdom';
-import { BoundsAware, RenderingContext, SChildElement, SCompartment, ShapeView, svg } from 'sprotty/lib';
+import { BoundsAware, RenderingContext, SChildElement, SCompartment, ShapeView, svg } from '~glsp-sprotty';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const JSX = { createElement: svg };

@@ -16,8 +16,8 @@
 import { expect } from 'chai';
 import 'mocha';
 import 'reflect-metadata';
-import { BoundsData, ConsoleLogger, SModelElement } from 'sprotty';
-import { gModel, layout, sComp, setupLayoutRegistry, sLabel, sNode } from './layouter-test-util.spec';
+import { BoundsData, ConsoleLogger, SModelElement } from '~glsp-sprotty';
+import { gModel, layout, sComp, sLabel, sNode, setupLayoutRegistry } from './layouter-test-util.spec';
 
 describe('FreeFormLayouter', () => {
     const layoutRegistry = setupLayoutRegistry();

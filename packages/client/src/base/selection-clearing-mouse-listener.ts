@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020-2022 EclipseSource and others.
+ * Copyright (c) 2020-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { injectable } from 'inversify';
-import { MouseListener, SModelElement } from 'sprotty';
+import { MouseListener, SModelElement } from '~glsp-sprotty';
 
 /**
  * A mouse listener that clears the document selection on click

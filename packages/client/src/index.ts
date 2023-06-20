@@ -58,8 +58,6 @@ export * from './base/model/update-model-command';
 export * from './base/selection-clearing-mouse-listener';
 export * from './base/source-uri-aware';
 export * from './base/tool-manager/glsp-tool-manager';
-export * from './base/tool-manager/tool-actions';
-export * from './base/types';
 export * from './base/view/view-registry';
 export * from './features/accessibility/resize-key-tool/resize-key-tool';
 export * from './features/accessibility/view-key-tools/deselect-key-tool';
@@ -126,11 +124,12 @@ export * from './features/validation/issue-marker';
 export * from './features/validation/marker-navigator';
 export * from './features/validation/validate';
 export * from './features/viewport/glsp-scroll-mouse-listener';
+export * from './glsp-sprotty';
+export * from './glsp-sprotty/types';
 //
 // ------------------ Misc ------------------
 export * from './lib/model';
 export * from './model-source/glsp-diagram-server';
-export * from './sprotty-reexport';
 export * from './utils/argument-utils';
 export * from './utils/html-utils';
 export * from './utils/layout-utils';

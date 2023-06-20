@@ -13,26 +13,28 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, hasStringProp, Point } from '@eclipse-glsp/protocol';
 import { inject, injectable } from 'inversify';
 import { VNode } from 'snabbdom';
 import {
+    Action,
     CommandExecutionContext,
     CommandReturn,
     ElementMove,
-    findParentByFeature,
-    isMoveable,
-    isSelectable,
-    isViewport,
     MouseListener,
+    MoveAction,
+    Point,
     SChildElement,
     SModelElement,
     SModelRoot,
-    TYPES
-} from 'sprotty';
-import { MoveAction } from 'sprotty-protocol/lib/actions';
+    TYPES,
+    findParentByFeature,
+    hasStringProp,
+    isMoveable,
+    isSelectable,
+    isViewport
+} from '~glsp-sprotty';
 import { forEachElement } from '../../utils/smodel-util';
-import { addResizeHandles, isResizable, removeResizeHandles, SResizeHandle } from '../change-bounds/model';
+import { SResizeHandle, addResizeHandles, isResizable, removeResizeHandles } from '../change-bounds/model';
 import { createMovementRestrictionFeedback, removeMovementRestrictionFeedback } from '../change-bounds/movement-restrictor';
 import { CursorCSS, cursorFeedbackAction } from '../tool-feedback/css-feedback';
 import { ChangeBoundsTool } from '../tools/change-bounds-tool';
