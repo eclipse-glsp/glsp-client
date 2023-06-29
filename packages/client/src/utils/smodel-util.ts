@@ -232,6 +232,8 @@ export function toElementAndRoutingPoints(element: SRoutableElement): ElementAnd
         newRoutingPoints: element.routingPoints
     };
 }
+/** All routing points. */
+export const ALL_ROUTING_POINTS = undefined;
 
 /** Pure routing point data kinds. */
 export const ROUTING_POINT_KINDS = ['linear', 'bezier-junction'];
@@ -272,18 +274,36 @@ export function calcElementAndRoute(element: SRoutableElement, routerRegistry?: 
 }
 
 /**
- * Helper function to calculate the route for a given {@link SRoutableElement}.
+ * Helper function to calculate the route for a given {@link SRoutableElement} by filtering duplicate points.
  * @param element The element to translate.
  * @param routerRegistry the edge router registry.
  * @param pointKinds the routing point kinds that should be considered.
+ * @param tolerance the tolerance applied to a point's coordinates to determine duplicates.
  * @returns The corresponding route for the given element.
  */
-export function calcRoute(element: SRoutableElement, routerRegistry: EdgeRouterRegistry, pointKinds?: string[]): RoutedPoint[] | undefined {
-    return routerRegistry
-        ?.get(element.routerKind)
-        .route(element)
-        .filter((point, idx, fullRoute) => idx === fullRoute.findIndex(otherPoint => otherPoint.x === point.x && otherPoint.y === point.y))
-        .filter(point => !pointKinds || pointKinds.includes(point.kind));
+export function calcRoute(
+    element: SRoutableElement,
+    routerRegistry: EdgeRouterRegistry,
+    pointKinds: string[] | undefined = ALL_ROUTING_POINTS,
+    tolerance = Number.EPSILON
+): RoutedPoint[] | undefined {
+    const route = routerRegistry.get(element.routerKind).route(element);
+    const calculatedRoute: RoutedPoint[] = [];
+    for (const point of route) {
+        // only include points we are actually interested in
+        if (pointKinds && !pointKinds.includes(point.kind)) {
+            continue;
+        }
+        // check if we are a duplicate based on coordinates in the already calculated route
+        if (
+            ROUTING_POINT_KINDS.includes(point.kind) &&
+            calculatedRoute.find(calculatedPoint => Point.maxDistance(point, calculatedPoint) < tolerance)
+        ) {
+            continue;
+        }
+        calculatedRoute.push(point);
+    }
+    return calculatedRoute;
 }
 
 /**
