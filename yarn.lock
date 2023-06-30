@@ -203,10 +203,10 @@
   resolved "https://registry.yarnpkg.com/@discoveryjs%2fjson-ext/-/json-ext-0.5.7.tgz#1d572bfbbe14b7704e0ba0f39b74815b84870d70"
   integrity sha512-dBVuXR082gk3jsFp7Rd/JI4kytwGHecnCoTtXFb7DB6CNHp4rg5k1bhg0nWdLGLnOV71lmDzGQaLMy8iPLY0pw==
 
-"@eclipse-glsp-examples/workflow-server-bundled@next":
-  version "1.1.0-next.f692ea4.55"
-  resolved "https://registry.yarnpkg.com/@eclipse-glsp-examples/workflow-server-bundled/-/workflow-server-bundled-1.1.0-next.f692ea4.55.tgz#aeea1284bc0b4f5fadbac93be015006c3e4a35c1"
-  integrity sha512-sxC1rkdSuMfr2DUDNMAvWEEeIU3RQ0Bp+vPc8Y9YEveJSyn0vePyooK0ynshAOgGrIc2pAviCUxtQu+GDpZysQ==
+"@eclipse-glsp-examples/workflow-server-bundled@1.1.0-next.e49c816.56":
+  version "1.1.0-next.e49c816.56"
+  resolved "https://registry.yarnpkg.com/@eclipse-glsp-examples/workflow-server-bundled/-/workflow-server-bundled-1.1.0-next.e49c816.56.tgz#0cf3d02ccd9f80de4329b699df0369d131cfe0c8"
+  integrity sha512-4QjOnUL8+KcuPJXFpaL3xu0wAbjJHckVlBHugdRZK6MWtkrYXj0o5QIIY4rjFwLr98mhp7mvhjj+QayAnQpNzg==
 
 "@eclipse-glsp/cli@1.1.0-next.73d6685.138+73d6685":
   version "1.1.0-next.73d6685.138"
@@ -6730,16 +6730,7 @@ ssri@^10.0.0, ssri@^10.0.1:
   dependencies:
     minipass "^5.0.0"
 
-"string-width-cjs@npm:string-width@^4.2.0":
-  version "4.2.3"
-  resolved "https://registry.yarnpkg.com/string-width/-/string-width-4.2.3.tgz#269c7117d27b05ad2e536830a8ec895ef9c6d010"
-  integrity sha512-wKyQRQpjJ0sIp62ErSZdGsjMJWsap5oRNihHhu6G7JVO/9jIB6UyevL+tXuOqrng8j/cxKTWyWUwvSTriiZz/g==
-  dependencies:
-    emoji-regex "^8.0.0"
-    is-fullwidth-code-point "^3.0.0"
-    strip-ansi "^6.0.1"
-
-"string-width@^1.0.2 || 2 || 3 || 4", string-width@^4.1.0, string-width@^4.2.0, string-width@^4.2.3:
+"string-width-cjs@npm:string-width@^4.2.0", "string-width@^1.0.2 || 2 || 3 || 4", string-width@^4.1.0, string-width@^4.2.0, string-width@^4.2.3:
   version "4.2.3"
   resolved "https://registry.yarnpkg.com/string-width/-/string-width-4.2.3.tgz#269c7117d27b05ad2e536830a8ec895ef9c6d010"
   integrity sha512-wKyQRQpjJ0sIp62ErSZdGsjMJWsap5oRNihHhu6G7JVO/9jIB6UyevL+tXuOqrng8j/cxKTWyWUwvSTriiZz/g==
