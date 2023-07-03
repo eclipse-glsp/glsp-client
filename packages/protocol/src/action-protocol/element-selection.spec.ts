@@ -45,7 +45,8 @@ describe('Element selection actions', () => {
                 const expected: SelectAction = {
                     kind: 'elementSelected',
                     selectedElementsIDs: [],
-                    deselectedElementsIDs: []
+                    deselectedElementsIDs: [],
+                    deselectAll: false
                 };
                 expect(SelectAction.create()).to.deep.equals(expected);
             });
@@ -53,10 +54,68 @@ describe('Element selection actions', () => {
                 const expected: SelectAction = {
                     kind: 'elementSelected',
                     selectedElementsIDs: ['selected'],
-                    deselectedElementsIDs: ['deselected']
+                    deselectedElementsIDs: ['deselected'],
+                    deselectAll: false
                 };
                 const { selectedElementsIDs, deselectedElementsIDs } = expected;
                 expect(SelectAction.create({ deselectedElementsIDs, selectedElementsIDs })).to.deep.equals(expected);
+            });
+            it('should return an object conforming to the interface with matching properties for the given required and optional arguments: deselectAll', () => {
+                const expected: SelectAction = {
+                    kind: 'elementSelected',
+                    selectedElementsIDs: ['selected'],
+                    deselectedElementsIDs: [],
+                    deselectAll: true
+                };
+                const { selectedElementsIDs } = expected;
+                expect(SelectAction.create({ deselectedElementsIDs: true, selectedElementsIDs })).to.deep.equals(expected);
+            });
+        });
+        describe('addSelection', () => {
+            it('should return an object conforming to the interface with matching properties for the given required and optional arguments', () => {
+                const expected: SelectAction = {
+                    kind: 'elementSelected',
+                    selectedElementsIDs: ['selected'],
+                    deselectedElementsIDs: [],
+                    deselectAll: false
+                };
+                const { selectedElementsIDs } = expected;
+                expect(SelectAction.addSelection({ selectedElementsIDs })).to.deep.equals(expected);
+            });
+        });
+        describe('removeSelection', () => {
+            it('should return an object conforming to the interface with matching properties for the given required and optional arguments', () => {
+                const expected: SelectAction = {
+                    kind: 'elementSelected',
+                    selectedElementsIDs: [],
+                    deselectedElementsIDs: ['deselected'],
+                    deselectAll: false
+                };
+                const { deselectedElementsIDs } = expected;
+                expect(SelectAction.removeSelection({ deselectedElementsIDs })).to.deep.equals(expected);
+            });
+        });
+        describe('setSelection', () => {
+            it('should return an object conforming to the interface with matching properties for the given required and optional arguments', () => {
+                const expected: SelectAction = {
+                    kind: 'elementSelected',
+                    selectedElementsIDs: ['selected'],
+                    deselectedElementsIDs: [],
+                    deselectAll: true
+                };
+                const { selectedElementsIDs } = expected;
+                expect(SelectAction.setSelection({ selectedElementsIDs })).to.deep.equals(expected);
+            });
+        });
+        describe('deselectAll', () => {
+            it('should return an object conforming to the interface with matching properties for the given required and optional arguments', () => {
+                const expected: SelectAction = {
+                    kind: 'elementSelected',
+                    selectedElementsIDs: [],
+                    deselectedElementsIDs: [],
+                    deselectAll: true
+                };
+                expect(SelectAction.deselectAll()).to.deep.equals(expected);
             });
         });
     });

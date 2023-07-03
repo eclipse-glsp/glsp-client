@@ -36,8 +36,24 @@ export namespace SelectFeedbackAction {
         return Action.hasKind(object, KIND) && hasArrayProp(object, 'selectedElementsIDs') && hasArrayProp(object, 'deselectedElementsIDs');
     }
 
-    export function create(options?: { selectedElementsIDs?: string[]; deselectedElementsIDs?: string[] }): SelectFeedbackAction {
+    export function create(options?: { selectedElementsIDs?: string[]; deselectedElementsIDs?: string[] | boolean }): SelectFeedbackAction {
         return { ...SelectAction.create(options), kind: KIND };
+    }
+
+    export function addSelection(options: { selectedElementsIDs: string[] }): SelectFeedbackAction {
+        return { ...SelectAction.addSelection(options), kind: KIND };
+    }
+
+    export function removeSelection(options: { deselectedElementsIDs: string[] }): SelectFeedbackAction {
+        return { ...SelectAction.removeSelection(options), kind: KIND };
+    }
+
+    export function setSelection(options: { selectedElementsIDs: string[] }): SelectFeedbackAction {
+        return { ...SelectAction.setSelection(options), kind: KIND };
+    }
+
+    export function deselectAll(options: object = {}): SelectFeedbackAction {
+        return { ...SelectAction.deselectAll(options), kind: KIND };
     }
 }
 @injectable()

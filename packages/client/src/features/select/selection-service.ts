@@ -179,7 +179,9 @@ export class SelectCommand extends Command {
         const model = context.root;
         const selectionGuard = (element: any): element is SModelElement => element instanceof SChildElement && isSelectable(element);
         const selectedElements = getElements(model.index, this.action.selectedElementsIDs, selectionGuard);
-        const deselectedElements = getElements(model.index, this.action.deselectedElementsIDs, selectionGuard);
+        const deselectedElements = this.action.deselectAll
+            ? this.selectionService.getSelectedElements()
+            : getElements(model.index, this.action.deselectedElementsIDs, selectionGuard);
 
         this.selectionService.updateSelection(model, pluck(selectedElements, 'id'), pluck(deselectedElements, 'id'));
         return model;
