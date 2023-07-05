@@ -33,9 +33,9 @@ import {
     pluck,
     remove
 } from '~glsp-sprotty';
-import { SModelRootListener } from '../../base/model/update-model-command';
+import { SModelRootListener } from '../../base/command-stack';
+import { IFeedbackActionDispatcher } from '../../base/feedback/feedback-action-dispatcher';
 import { getElements, getMatchingElements } from '../../utils/smodel-util';
-import { IFeedbackActionDispatcher } from '../tool-feedback/feedback-action-dispatcher';
 import { SelectFeedbackAction } from './select-feedback-action';
 
 export interface SelectionListener {

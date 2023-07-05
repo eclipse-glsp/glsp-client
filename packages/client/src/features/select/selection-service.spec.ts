@@ -16,7 +16,7 @@
 import { AssertionError, expect } from 'chai';
 import { Container, injectable } from 'inversify';
 import { Action, SGraphFactory, SModelElementSchema, SModelRoot, TYPES, defaultModule, initializeContainer } from '~glsp-sprotty';
-import { IFeedbackActionDispatcher, IFeedbackEmitter } from '../tool-feedback/feedback-action-dispatcher';
+import { IFeedbackActionDispatcher, IFeedbackEmitter } from '../../base/feedback/feedback-action-dispatcher';
 import { SelectFeedbackAction } from './select-feedback-action';
 import { SelectionListener, SelectionService } from './selection-service';
 

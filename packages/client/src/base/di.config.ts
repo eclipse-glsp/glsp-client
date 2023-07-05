@@ -17,25 +17,25 @@ import '@vscode/codicons/dist/codicon.css';
 import { Container, ContainerModule } from 'inversify';
 import {
     ActionHandlerRegistry,
-    bindAsService,
-    bindOrRebind,
-    configureActionHandler,
-    configureCommand,
     InitializeResult,
     ModelSource,
     SetEditModeAction,
-    SetModelCommand,
-    TYPES
+    TYPES,
+    bindAsService,
+    bindOrRebind,
+    configureActionHandler,
+    configureCommand
 } from '~glsp-sprotty';
 import '../../css/glsp-sprotty.css';
 import { GLSPActionDispatcher } from './action-dispatcher';
 import { FocusStateChangedAction } from './actions/focus-change-action';
 import { GLSPCommandStack } from './command-stack';
 import { EditorContextService } from './editor-context-service';
+import { FeedbackActionDispatcher } from './feedback/feedback-action-dispatcher';
+import { FeedbackAwareUpdateModelCommand } from './feedback/update-model-command';
 import { FocusTracker } from './focus-tracker';
 import { DefaultModelInitializationConstraint, ModelInitializationConstraint } from './model-initialization-constraint';
 import { GLSPModelRegistry } from './model/model-registry';
-import { FeedbackAwareUpdateModelCommand, SetModelActionHandler } from './model/update-model-command';
 import { SelectionClearingMouseListener } from './selection-clearing-mouse-listener';
 import { GLSPToolManager } from './tool-manager/glsp-tool-manager';
 import { GLSPViewRegistry } from './view/view-registry';
@@ -59,9 +59,9 @@ const defaultGLSPModule = new ContainerModule((bind, _unbind, isBound, rebind) =
     bind(FocusTracker).toSelf().inSingletonScope();
     configureActionHandler(context, FocusStateChangedAction.KIND, FocusTracker);
 
-    // Model update initialization ------------------------------------
+    // Model update initialization ------------------------------------#
+    bind(TYPES.IFeedbackActionDispatcher).to(FeedbackActionDispatcher).inSingletonScope();
     configureCommand(context, FeedbackAwareUpdateModelCommand);
-    configureActionHandler(context, SetModelCommand.KIND, SetModelActionHandler);
 
     bindAsService(context, TYPES.MouseListener, SelectionClearingMouseListener);
 

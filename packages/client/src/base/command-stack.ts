@@ -13,11 +13,23 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { injectable } from 'inversify';
-import { CommandStack, SModelRoot } from '~glsp-sprotty';
+import { injectable, multiInject, optional } from 'inversify';
+import { CommandStack, ICommand, SModelRoot, SetModelCommand, TYPES, UpdateModelCommand } from '~glsp-sprotty';
+
+/**
+ * A hook to listen for model root changes. Will be called after a server update
+ * has been processed
+ */
+export interface SModelRootListener {
+    modelRootChanged(root: Readonly<SModelRoot>): void;
+}
 
 @injectable()
 export class GLSPCommandStack extends CommandStack {
+    @multiInject(TYPES.SModelRootListener)
+    @optional()
+    protected modelRootListeners: SModelRootListener[] = [];
+
     override undo(): Promise<SModelRoot> {
         this.logger.warn(
             this,
@@ -32,5 +44,17 @@ export class GLSPCommandStack extends CommandStack {
             'GLSPCommandStack.redo() was called. This should never happen as the GLSP server is responsible for handling redo requests'
         );
         return this.currentModel;
+    }
+
+    override execute(command: ICommand): Promise<SModelRoot> {
+        const result = super.execute(command);
+        if (command instanceof SetModelCommand || command instanceof UpdateModelCommand) {
+            result.then(root => this.notifyListeners(root));
+        }
+        return result;
+    }
+
+    protected notifyListeners(root: Readonly<SModelRoot>): void {
+        this.modelRootListeners.forEach(listener => listener.modelRootChanged(root));
     }
 }

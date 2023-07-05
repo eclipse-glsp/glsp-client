@@ -37,9 +37,9 @@ import {
     isBoundsAware,
     isConnectable
 } from '~glsp-sprotty';
+import { FeedbackCommand } from '../../base/feedback/feeback-command';
 import { BoundsAwareModelElement, isRoutable } from '../../utils/smodel-util';
 import { getAbsolutePosition, toAbsoluteBounds, toAbsolutePosition } from '../../utils/viewpoint-util';
-import { FeedbackCommand } from './model';
 export interface DrawFeedbackEdgeAction extends Action {
     kind: typeof DrawFeedbackEdgeAction.KIND;
     elementTypeId: string;

@@ -51,10 +51,12 @@ export * from './base/container-modules';
 export { configureServerActions } from './base/di.config';
 export * from './base/drag-aware-mouse-listener';
 export * from './base/editor-context-service';
+export * from './base/feedback/feeback-command';
+export * from './base/feedback/feedback-action-dispatcher';
+export * from './base/feedback/update-model-command';
 export * from './base/focus-tracker';
 export * from './base/model-initialization-constraint';
 export * from './base/model/model-registry';
-export * from './base/model/update-model-command';
 export * from './base/selection-clearing-mouse-listener';
 export * from './base/source-uri-aware';
 export * from './base/tool-manager/glsp-tool-manager';
@@ -104,9 +106,7 @@ export * from './features/tool-feedback/change-bounds-tool-feedback';
 export * from './features/tool-feedback/creation-tool-feedback';
 export * from './features/tool-feedback/css-feedback';
 export * from './features/tool-feedback/edge-edit-tool-feedback';
-export * from './features/tool-feedback/feedback-action-dispatcher';
 export * from './features/tool-feedback/marquee-tool-feedback';
-export * from './features/tool-feedback/model';
 export * from './features/tool-feedback/view';
 export * from './features/tool-palette/tool-palette';
 export * from './features/tools/base-glsp-tool';
@@ -139,33 +139,33 @@ export * from './utils/viewpoint-util';
 export * from './views';
 // ------------------ DI Modules ------------------
 export {
-    validationModule,
-    saveModule,
-    paletteModule,
-    toolFeedbackModule,
+    copyPasteContextMenuModule,
     defaultGLSPModule,
-    modelHintsModule,
+    enableDefaultToolsOnFocusLossModule,
+    glspAccessibilityModule,
     glspCommandPaletteModule,
     glspContextMenuModule,
-    glspServerCopyPasteModule,
-    copyPasteContextMenuModule,
-    glspSelectModule,
-    glspMouseToolModule,
-    layoutModule,
+    glspDecorationModule,
     glspEditLabelModule,
     glspHoverModule,
-    toolsModule,
-    enableDefaultToolsOnFocusLossModule,
-    navigationModule,
-    markerNavigatorModule,
-    glspDecorationModule,
-    sourceModelWatcherModule,
-    markerNavigatorContextMenuModule,
-    glspViewportModule,
-    svgMetadataModule,
+    glspMouseToolModule,
+    glspMoveZoomModule,
     glspResizeKeyModule,
     glspSearchPaletteModule,
-    glspAccessibilityModule,
+    glspSelectModule,
+    glspServerCopyPasteModule,
     glspViewKeyToolsModule,
-    glspMoveZoomModule
+    glspViewportModule,
+    layoutModule,
+    markerNavigatorContextMenuModule,
+    markerNavigatorModule,
+    modelHintsModule,
+    navigationModule,
+    paletteModule,
+    saveModule,
+    sourceModelWatcherModule,
+    svgMetadataModule,
+    toolFeedbackModule,
+    toolsModule,
+    validationModule
 };

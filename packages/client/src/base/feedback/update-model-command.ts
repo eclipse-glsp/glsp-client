@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { inject, injectable, multiInject, optional } from 'inversify';
+import { inject, injectable, optional } from 'inversify';
 import {
     Action,
     ActionHandlerRegistry,
@@ -22,37 +22,17 @@ import {
     CommandActionHandler,
     CommandExecutionContext,
     CommandReturn,
-    IActionHandler,
     ILogger,
     MorphEdgesAnimation,
     SModelRoot,
-    SetModelAction,
     TYPES,
     UpdateAnimationData,
     UpdateModelAction,
     UpdateModelCommand,
     toTypeGuard
 } from '~glsp-sprotty';
-import { IFeedbackActionDispatcher } from '../../features/tool-feedback/feedback-action-dispatcher';
-import { FeedbackCommand } from '../../features/tool-feedback/model';
-
-/**
- * ActionHandler that transforms a {@link SetModelAction} into an {@link UpdateModelAction} that can be handled
- * by the {@link FeedbackAwareUpdateModelCommand}. This can be done because in sprotty an {@link UpdateModelCommand} and
- * a {@link SetModelCommand} have the same behavior of no model is present yet.
- */
-@injectable()
-export class SetModelActionHandler implements IActionHandler {
-    handle(action: Action): Action | void {
-        if (SetModelAction.is(action)) {
-            return UpdateModelAction.create(action.newRoot, { animate: false });
-        }
-    }
-}
-
-export interface SModelRootListener {
-    modelRootChanged(root: Readonly<SModelRoot>): void;
-}
+import { FeedbackCommand } from './feeback-command';
+import { IFeedbackActionDispatcher } from './feedback-action-dispatcher';
 
 /**
  * A special {@link UpdateModelCommand} that retrieves all registered {@link Action}s from the {@link IFeedbackActionDispatcher}
@@ -67,10 +47,6 @@ export class FeedbackAwareUpdateModelCommand extends UpdateModelCommand {
     @inject(TYPES.IFeedbackActionDispatcher)
     @optional()
     protected feedbackActionDispatcher: IFeedbackActionDispatcher;
-
-    @multiInject(TYPES.SModelRootListener)
-    @optional()
-    protected modelRootListeners: SModelRootListener[] = [];
 
     protected actionHandlerRegistry?: ActionHandlerRegistry;
 
@@ -96,7 +72,6 @@ export class FeedbackAwareUpdateModelCommand extends UpdateModelCommand {
             feedbackCommands.forEach(command => command.execute(tempContext));
         }
 
-        this.modelRootListeners.forEach(listener => listener.modelRootChanged(newRoot));
         return super.performUpdate(oldRoot, newRoot, context);
     }
 

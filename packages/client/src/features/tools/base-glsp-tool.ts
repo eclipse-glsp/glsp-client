@@ -16,9 +16,9 @@
 import { inject, injectable } from 'inversify';
 import { Action, IActionDispatcher, KeyTool, TYPES } from '~glsp-sprotty';
 import { EditorContextService } from '../../base/editor-context-service';
+import { IFeedbackActionDispatcher, IFeedbackEmitter } from '../../base/feedback/feedback-action-dispatcher';
 import { GLSPTool } from '../../base/tool-manager/glsp-tool-manager';
 import { IMouseTool } from '../mouse-tool/mouse-tool';
-import { IFeedbackActionDispatcher, IFeedbackEmitter } from '../tool-feedback/feedback-action-dispatcher';
 
 @injectable()
 export abstract class BaseGLSPTool implements GLSPTool {

@@ -29,10 +29,10 @@ import {
     isSelectable,
     matchesKeystroke
 } from '~glsp-sprotty';
+import { IFeedbackActionDispatcher } from '../../base/feedback/feedback-action-dispatcher';
 import { GLSPTool } from '../../base/tool-manager/glsp-tool-manager';
 import { IMouseTool } from '../mouse-tool/mouse-tool';
 import { CursorCSS, cursorFeedbackAction } from '../tool-feedback/css-feedback';
-import { IFeedbackActionDispatcher } from '../tool-feedback/feedback-action-dispatcher';
 
 /**
  * Deletes selected elements when hitting the `Del` key.
