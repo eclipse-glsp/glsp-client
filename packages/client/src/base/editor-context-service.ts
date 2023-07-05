@@ -29,7 +29,7 @@ import {
     distinctAdd,
     remove
 } from '~glsp-sprotty';
-import { SelectionService } from '../features/select/selection-service';
+import { SelectionService } from './selection-service';
 import { isSourceUriAware } from './source-uri-aware';
 
 export interface EditModeListener {
@@ -50,7 +50,7 @@ export interface EditModeListener {
  */
 @injectable()
 export class EditorContextService implements IActionHandler {
-    @inject(TYPES.SelectionService)
+    @inject(SelectionService)
     protected selectionService: SelectionService;
 
     @inject(MousePositionTracker)

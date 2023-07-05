@@ -27,7 +27,6 @@ export const TYPES = {
     IToolFactory: Symbol('Factory<Tool>'),
     ITypeHintProvider: Symbol('ITypeHintProvider'),
     IMovementRestrictor: Symbol('IMovementRestrictor'),
-    SelectionService: Symbol('SelectionService'),
     SelectionListener: Symbol('SelectionListener'),
     SModelRootListener: Symbol('SModelRootListener'),
     MouseTool: Symbol('MouseTool'),

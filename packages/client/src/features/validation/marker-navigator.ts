@@ -38,9 +38,9 @@ import {
     isSelectable,
     matchesKeystroke
 } from '~glsp-sprotty';
+import { SelectionService } from '../../base/selection-service';
 import { MarkerPredicates, collectIssueMarkers } from '../../utils/marker';
 import { getElements, isSelectableAndBoundsAware } from '../../utils/smodel-util';
-import { SelectionService } from '../select/selection-service';
 
 export interface NavigateToMarkerAction extends Action {
     kind: typeof NavigateToMarkerAction.KIND;
@@ -164,7 +164,7 @@ export class NavigateToMarkerActionHandler implements IActionHandler {
     @inject(MarkerNavigator)
     protected markerNavigator: MarkerNavigator;
 
-    @inject(TYPES.SelectionService)
+    @inject(SelectionService)
     protected selectionService: SelectionService;
 
     @inject(TYPES.IActionDispatcher)
@@ -206,7 +206,7 @@ export class NavigateToMarkerActionHandler implements IActionHandler {
 
 @injectable()
 export class MarkerNavigatorContextMenuItemProvider implements IContextMenuItemProvider {
-    @inject(TYPES.SelectionService) protected selectionService: SelectionService;
+    @inject(SelectionService) protected selectionService: SelectionService;
 
     getItems(root: Readonly<SModelRoot>, lastMousePosition?: Point): Promise<MenuItem[]> {
         const selectedElementIds = Array.from(this.selectionService.getSelectedElementIDs());

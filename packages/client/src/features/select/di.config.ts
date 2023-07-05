@@ -15,18 +15,16 @@
  ********************************************************************************/
 import { ContainerModule } from 'inversify';
 import { TYPES, bindAsService, configureCommand } from '~glsp-sprotty';
-import { SelectFeedbackCommand } from './select-feedback-action';
+import { SelectAllCommand, SelectCommand } from '../../base/selection-service';
+import { SelectFeedbackCommand } from './select-feedback-command';
 import { RankedSelectMouseListener } from './select-mouse-listener';
-import { SelectAllCommand, SelectCommand, SelectionService } from './selection-service';
 
 const glspSelectModule = new ContainerModule((bind, _unbind, isBound) => {
     const context = { bind, isBound };
-    bindAsService(context, TYPES.SelectionService, SelectionService);
     configureCommand(context, SelectCommand);
     configureCommand(context, SelectAllCommand);
     configureCommand(context, SelectFeedbackCommand);
     bindAsService(context, TYPES.MouseListener, RankedSelectMouseListener);
-    bind(TYPES.SModelRootListener).toService(SelectionService);
 });
 
 export default glspSelectModule;

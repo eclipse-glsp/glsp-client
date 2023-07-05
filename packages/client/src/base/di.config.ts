@@ -37,6 +37,7 @@ import { FocusTracker } from './focus-tracker';
 import { DefaultModelInitializationConstraint, ModelInitializationConstraint } from './model-initialization-constraint';
 import { GLSPModelRegistry } from './model/model-registry';
 import { SelectionClearingMouseListener } from './selection-clearing-mouse-listener';
+import { SelectionService } from './selection-service';
 import { GLSPToolManager } from './tool-manager/glsp-tool-manager';
 import { GLSPViewRegistry } from './view/view-registry';
 
@@ -76,6 +77,8 @@ const defaultGLSPModule = new ContainerModule((bind, _unbind, isBound, rebind) =
     // support re-registration of model elements and views
     bindOrRebind(context, TYPES.SModelRegistry).to(GLSPModelRegistry).inSingletonScope();
     bindOrRebind(context, TYPES.ViewRegistry).to(GLSPViewRegistry).inSingletonScope();
+
+    bind(SelectionService).toSelf().inSingletonScope();
 });
 
 export default defaultGLSPModule;

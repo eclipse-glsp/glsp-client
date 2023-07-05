@@ -14,44 +14,8 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { inject, injectable } from 'inversify';
-import {
-    Action,
-    Command,
-    CommandExecutionContext,
-    SModelRoot,
-    SelectAction,
-    SprottySelectCommand,
-    TYPES,
-    hasArrayProp
-} from '~glsp-sprotty';
-
-export interface SelectFeedbackAction extends Omit<SelectAction, 'kind'>, Action {
-    kind: typeof SelectFeedbackAction.KIND;
-}
-
-export namespace SelectFeedbackAction {
-    export const KIND = 'selectFeedback';
-
-    export function is(object: any): object is SelectFeedbackAction {
-        return Action.hasKind(object, KIND) && hasArrayProp(object, 'selectedElementsIDs') && hasArrayProp(object, 'deselectedElementsIDs');
-    }
-
-    export function create(options?: { selectedElementsIDs?: string[]; deselectedElementsIDs?: string[] | boolean }): SelectFeedbackAction {
-        return { ...SelectAction.create(options), kind: KIND };
-    }
-
-    export function addSelection(selectedElementsIDs: string[]): SelectFeedbackAction {
-        return { ...SelectAction.addSelection(selectedElementsIDs), kind: KIND };
-    }
-
-    export function removeSelection(deselectedElementsIDs: string[]): SelectFeedbackAction {
-        return { ...SelectAction.removeSelection(deselectedElementsIDs), kind: KIND };
-    }
-
-    export function setSelection(selectedElementsIDs: string[]): SelectFeedbackAction {
-        return { ...SelectAction.setSelection(selectedElementsIDs), kind: KIND };
-    }
-}
+import { Command, CommandExecutionContext, SModelRoot, SelectAction, SprottySelectCommand, TYPES } from '~glsp-sprotty';
+import { SelectFeedbackAction } from '../../base/selection-service';
 
 @injectable()
 export class SelectFeedbackCommand extends Command {

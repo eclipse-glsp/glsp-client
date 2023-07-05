@@ -42,8 +42,8 @@ import {
     defaultModule
 } from '~glsp-sprotty';
 import { FeedbackActionDispatcher } from '../../base/feedback/feedback-action-dispatcher';
+import { SelectionService } from '../../base/selection-service';
 import { resizeFeature } from '../change-bounds/model';
-import { SelectionService } from '../select/selection-service';
 import {
     AlignElementsAction,
     AlignElementsActionHandler,

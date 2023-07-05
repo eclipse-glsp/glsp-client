@@ -58,15 +58,17 @@ export * from './base/focus-tracker';
 export * from './base/model-initialization-constraint';
 export * from './base/model/model-registry';
 export * from './base/selection-clearing-mouse-listener';
+export * from './base/selection-service';
 export * from './base/source-uri-aware';
 export * from './base/tool-manager/glsp-tool-manager';
 export * from './base/view/view-registry';
+
+//
+// ------------------ Features ------------------
 export * from './features/accessibility/resize-key-tool/resize-key-tool';
 export * from './features/accessibility/view-key-tools/deselect-key-tool';
 export * from './features/accessibility/view-key-tools/movement-key-tool';
 export * from './features/accessibility/view-key-tools/zoom-key-tool';
-//
-// ------------------ Features ------------------
 export * from './features/bounds/freeform-layout';
 export * from './features/bounds/glsp-hidden-bounds-updater';
 export * from './features/bounds/hbox-layout';
@@ -97,9 +99,8 @@ export * from './features/rank/model';
 export * from './features/reconnect/model';
 export * from './features/save/model';
 export * from './features/save/save-keylistener';
-export * from './features/select/select-feedback-action';
+export * from './features/select/select-feedback-command';
 export * from './features/select/select-mouse-listener';
-export * from './features/select/selection-service';
 export * from './features/source-model-watcher/source-model-changed-action-handler';
 export * from './features/svg-metadata/metadata-placer';
 export * from './features/tool-feedback/change-bounds-tool-feedback';

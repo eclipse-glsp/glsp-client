@@ -33,9 +33,9 @@ import {
     isSelected
 } from '~glsp-sprotty';
 import { DragAwareMouseListener } from '../../base/drag-aware-mouse-listener';
+import { SelectionListener, SelectionService } from '../../base/selection-service';
 import { calcElementAndRoutingPoints, isRoutable, isRoutingHandle } from '../../utils/smodel-util';
 import { SReconnectHandle, isReconnectHandle, isReconnectable, isSourceRoutingHandle, isTargetRoutingHandle } from '../reconnect/model';
-import { SelectionListener, SelectionService } from '../select/selection-service';
 import { DrawFeedbackEdgeAction, RemoveFeedbackEdgeAction, feedbackEdgeId } from '../tool-feedback/creation-tool-feedback';
 import { CursorCSS, cursorFeedbackAction } from '../tool-feedback/css-feedback';
 import {
@@ -53,7 +53,7 @@ import { BaseGLSPTool } from './base-glsp-tool';
 export class EdgeEditTool extends BaseGLSPTool {
     static ID = 'glsp.edge-edit-tool';
 
-    @inject(TYPES.SelectionService) protected selectionService: SelectionService;
+    @inject(SelectionService) protected selectionService: SelectionService;
     @inject(AnchorComputerRegistry) protected anchorRegistry: AnchorComputerRegistry;
     @inject(EdgeRouterRegistry) @optional() readonly edgeRouterRegistry?: EdgeRouterRegistry;
     @inject(TYPES.ISnapper) @optional() readonly snapper?: ISnapper;
