@@ -9,6 +9,5 @@
       "~glsp-sprotty": ["src/glsp-sprotty/index"]
     }
   },
-  "exclude": ["**/*.spec.ts"],
   "include": ["src"]
 }

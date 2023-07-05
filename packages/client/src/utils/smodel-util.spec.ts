@@ -13,6 +13,8 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { expect } from 'chai';
+import { Container } from 'inversify';
 import {
     AbstractEdgeRouter,
     EdgeRouterRegistry,
@@ -26,9 +28,7 @@ import {
     SRoutableElement,
     SRoutingHandle,
     routingModule
-} from '@eclipse-glsp/client';
-import { expect } from 'chai';
-import { Container } from 'inversify';
+} from '~glsp-sprotty';
 import { ALL_ROUTING_POINTS, ROUTE_KINDS, ROUTING_POINT_KINDS, calcRoute } from './smodel-util';
 
 class TestRouter extends AbstractEdgeRouter {
