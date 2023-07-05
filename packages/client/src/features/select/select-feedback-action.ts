@@ -40,22 +40,19 @@ export namespace SelectFeedbackAction {
         return { ...SelectAction.create(options), kind: KIND };
     }
 
-    export function addSelection(options: { selectedElementsIDs: string[] }): SelectFeedbackAction {
-        return { ...SelectAction.addSelection(options), kind: KIND };
+    export function addSelection(selectedElementsIDs: string[]): SelectFeedbackAction {
+        return { ...SelectAction.addSelection(selectedElementsIDs), kind: KIND };
     }
 
-    export function removeSelection(options: { deselectedElementsIDs: string[] }): SelectFeedbackAction {
-        return { ...SelectAction.removeSelection(options), kind: KIND };
+    export function removeSelection(deselectedElementsIDs: string[]): SelectFeedbackAction {
+        return { ...SelectAction.removeSelection(deselectedElementsIDs), kind: KIND };
     }
 
-    export function setSelection(options: { selectedElementsIDs: string[] }): SelectFeedbackAction {
-        return { ...SelectAction.setSelection(options), kind: KIND };
-    }
-
-    export function deselectAll(options: object = {}): SelectFeedbackAction {
-        return { ...SelectAction.deselectAll(options), kind: KIND };
+    export function setSelection(selectedElementsIDs: string[]): SelectFeedbackAction {
+        return { ...SelectAction.setSelection(selectedElementsIDs), kind: KIND };
     }
 }
+
 @injectable()
 export class SelectFeedbackCommand extends Command {
     static readonly KIND = SelectFeedbackAction.KIND;

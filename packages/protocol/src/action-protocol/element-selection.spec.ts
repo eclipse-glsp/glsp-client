@@ -80,7 +80,7 @@ describe('Element selection actions', () => {
                     deselectAll: false
                 };
                 const { selectedElementsIDs } = expected;
-                expect(SelectAction.addSelection({ selectedElementsIDs })).to.deep.equals(expected);
+                expect(SelectAction.addSelection(selectedElementsIDs)).to.deep.equals(expected);
             });
         });
         describe('removeSelection', () => {
@@ -92,7 +92,7 @@ describe('Element selection actions', () => {
                     deselectAll: false
                 };
                 const { deselectedElementsIDs } = expected;
-                expect(SelectAction.removeSelection({ deselectedElementsIDs })).to.deep.equals(expected);
+                expect(SelectAction.removeSelection(deselectedElementsIDs)).to.deep.equals(expected);
             });
         });
         describe('setSelection', () => {
@@ -104,18 +104,7 @@ describe('Element selection actions', () => {
                     deselectAll: true
                 };
                 const { selectedElementsIDs } = expected;
-                expect(SelectAction.setSelection({ selectedElementsIDs })).to.deep.equals(expected);
-            });
-        });
-        describe('deselectAll', () => {
-            it('should return an object conforming to the interface with matching properties for the given required and optional arguments', () => {
-                const expected: SelectAction = {
-                    kind: 'elementSelected',
-                    selectedElementsIDs: [],
-                    deselectedElementsIDs: [],
-                    deselectAll: true
-                };
-                expect(SelectAction.deselectAll()).to.deep.equals(expected);
+                expect(SelectAction.setSelection(selectedElementsIDs)).to.deep.equals(expected);
             });
         });
     });

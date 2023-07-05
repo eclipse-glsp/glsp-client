@@ -52,30 +52,25 @@ export namespace SelectAction {
     }
 
     export function create(options: { selectedElementsIDs?: string[]; deselectedElementsIDs?: string[] | boolean } = {}): SelectAction {
-        const { deselectedElementsIDs, ...remainingOptions } = options;
+        const deselectedElementsIDs = options.deselectedElementsIDs ?? [];
         return {
             kind: KIND,
             selectedElementsIDs: options.selectedElementsIDs ?? [],
             deselectedElementsIDs: isStringArray(deselectedElementsIDs, true) ? deselectedElementsIDs : [],
-            deselectAll: typeof deselectedElementsIDs === 'boolean' ? deselectedElementsIDs : false,
-            ...remainingOptions
+            deselectAll: typeof deselectedElementsIDs === 'boolean' ? deselectedElementsIDs : false
         };
     }
 
-    export function addSelection(options: { selectedElementsIDs: string[] }): SelectAction {
-        return create(options);
+    export function addSelection(selectedElementsIDs: string[]): SelectAction {
+        return create({ selectedElementsIDs });
     }
 
-    export function removeSelection(options: { deselectedElementsIDs: string[] }): SelectAction {
-        return create(options);
+    export function removeSelection(deselectedElementsIDs: string[]): SelectAction {
+        return create({ deselectedElementsIDs });
     }
 
-    export function setSelection(options: { selectedElementsIDs: string[] }): SelectAction {
-        return create({ ...options, deselectedElementsIDs: true });
-    }
-
-    export function deselectAll(options: object = {}): SelectAction {
-        return create({ ...options, selectedElementsIDs: [], deselectedElementsIDs: true });
+    export function setSelection(selectedElementsIDs: string[]): SelectAction {
+        return create({ selectedElementsIDs, deselectedElementsIDs: true });
     }
 }
 

@@ -114,10 +114,7 @@ export class MarqueeMouseListener extends DragAwareMouseListener {
             const nodeIdsSelected = this.nodes.filter(e => this.marqueeUtil.isNodeMarked(toAbsoluteBounds(e))).map(e => e.id);
             const edgeIdsSelected = this.edges.filter(e => this.isEdgeMarked(e)).map(e => this.domHelper.findSModelIdByDOMElement(e));
             const selected = nodeIdsSelected.concat(edgeIdsSelected);
-            return [
-                SelectAction.setSelection({ selectedElementsIDs: selected.concat(this.previouslySelected) }),
-                this.marqueeUtil.drawMarqueeAction()
-            ];
+            return [SelectAction.setSelection(selected.concat(this.previouslySelected)), this.marqueeUtil.drawMarqueeAction()];
         }
         return [];
     }
