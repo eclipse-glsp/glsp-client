@@ -14,6 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import * as sprotty from 'sprotty-protocol/lib/actions';
+import { isStringArray } from '../utils/array-util';
 import { hasArrayProp, hasBooleanProp } from '../utils/type-util';
 import { Action } from './base-protocol';
 
@@ -36,6 +37,11 @@ export interface SelectAction extends Action, sprotty.SelectAction {
      * The identifiers of the elements to mark as not selected.
      */
     deselectedElementsIDs: string[];
+
+    /**
+     * Whether all currently selected elements should be deselected.
+     */
+    deselectAll?: boolean;
 }
 
 export namespace SelectAction {
@@ -45,13 +51,26 @@ export namespace SelectAction {
         return Action.hasKind(object, KIND) && hasArrayProp(object, 'selectedElementsIDs') && hasArrayProp(object, 'deselectedElementsIDs');
     }
 
-    export function create(options: { selectedElementsIDs?: string[]; deselectedElementsIDs?: string[] } = {}): SelectAction {
+    export function create(options: { selectedElementsIDs?: string[]; deselectedElementsIDs?: string[] | boolean } = {}): SelectAction {
+        const deselectedElementsIDs = options.deselectedElementsIDs ?? [];
         return {
             kind: KIND,
-            selectedElementsIDs: [],
-            deselectedElementsIDs: [],
-            ...options
+            selectedElementsIDs: options.selectedElementsIDs ?? [],
+            deselectedElementsIDs: isStringArray(deselectedElementsIDs, true) ? deselectedElementsIDs : [],
+            deselectAll: typeof deselectedElementsIDs === 'boolean' ? deselectedElementsIDs : false
         };
+    }
+
+    export function addSelection(selectedElementsIDs: string[]): SelectAction {
+        return create({ selectedElementsIDs });
+    }
+
+    export function removeSelection(deselectedElementsIDs: string[]): SelectAction {
+        return create({ deselectedElementsIDs });
+    }
+
+    export function setSelection(selectedElementsIDs: string[]): SelectAction {
+        return create({ selectedElementsIDs, deselectedElementsIDs: true });
     }
 }
 
