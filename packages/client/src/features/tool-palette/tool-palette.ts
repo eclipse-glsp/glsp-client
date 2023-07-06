@@ -35,6 +35,7 @@ import {
 } from '~glsp-sprotty';
 import { GLSPActionDispatcher } from '../../base/action-dispatcher';
 import { EditModeListener, EditorContextService } from '../../base/editor-context-service';
+import { FocusTracker } from '../../base/focus-tracker';
 import { MouseDeleteTool } from '../tools/delete-tool';
 import { MarqueeMouseTool } from '../tools/marquee-mouse-tool';
 
@@ -66,6 +67,7 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
     @inject(TYPES.IActionDispatcher) protected readonly actionDispatcher: GLSPActionDispatcher;
     @inject(TYPES.IToolManager) protected readonly toolManager: IToolManager;
     @inject(EditorContextService) protected readonly editorContext: EditorContextService;
+    @inject(FocusTracker) protected readonly focusTracker: FocusTracker;
 
     protected paletteItems: PaletteItem[];
     protected paletteItemsCopy: PaletteItem[] = [];
@@ -311,7 +313,7 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
         if (button) {
             button.classList.add(CLICKED_CSS_CLASS);
             this.lastActivebutton = button;
-        } else {
+        } else if (this.defaultToolsButton) {
             this.defaultToolsButton.classList.add(CLICKED_CSS_CLASS);
             this.lastActivebutton = this.defaultToolsButton;
         }
@@ -335,7 +337,10 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
             });
         } else if (action.kind === EnableDefaultToolsAction.KIND) {
             this.changeActiveButton();
-            this.restoreFocus();
+            if (this.focusTracker.hasFocus) {
+                // if focus was deliberately taken do not restore focus to the palette
+                this.restoreFocus();
+            }
         }
     }
 

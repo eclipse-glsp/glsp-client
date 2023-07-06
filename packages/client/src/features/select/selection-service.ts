@@ -132,7 +132,7 @@ export class SelectionService implements SModelRootListener {
     }
 
     getSelectedElements(): Readonly<SModelElement & Selectable>[] {
-        return getElements(this.root.index, Array.from(this.selectedElementIDs), isSelectable);
+        return !this.root ? [] : getElements(this.root.index, Array.from(this.selectedElementIDs), isSelectable);
     }
 
     /**
