@@ -25,6 +25,10 @@
 -   [protocol] Renamed `UndoOperation` and `RedoOperation` to `UndoAction` and `RedoAction` to match operation specification [#216](https://github.com/eclipse-glsp/glsp-client/pull/216)
 -   [protocol] Remove dependency to `vscode-ws-jsonrpc`. The protocol package now directly offers functions to create a websocket rpc connections [#215](https://github.com/eclipse-glsp/glsp-client/pull/215)
 -   [protocol] The `elementIds` property of `LayoutOperation` is now optional. If `undefined` the entire model will be layouted. [#232](https://github.com/eclipse-glsp/glsp-client/pull/232)
+-   [api] Refactored base API [#259](https://github.com/eclipse-glsp/glsp-client/pull/#259)
+    -   Removed the `TYPES.SelectionService` service identifier. Please directly use the `SelectionService` class as service identifier instead.
+    -   The `SelectionService` binding is now part of the `defaultGLSPModule`. This means the `SelectionService` remains available even if the `selectModule` is not configured.
+    -   `RootModelChangeListener`s are no longer tied to the `FeedbackawareUpdateModelCommand` instead they are managed by the `GLSPCommandStack`.
 
 ## [v1.0.0 - 30/06/2022](https://github.com/eclipse-glsp/glsp-client/releases/tag/v1.0.0)
 
