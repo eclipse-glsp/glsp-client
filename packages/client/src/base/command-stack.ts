@@ -13,6 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { distinctAdd, remove } from '@eclipse-glsp/protocol';
 import { injectable, multiInject, optional } from 'inversify';
 import { CommandStack, ICommand, SModelRoot, SetModelCommand, TYPES, UpdateModelCommand } from '~glsp-sprotty';
 
@@ -56,5 +57,13 @@ export class GLSPCommandStack extends CommandStack {
 
     protected notifyListeners(root: Readonly<SModelRoot>): void {
         this.modelRootListeners.forEach(listener => listener.modelRootChanged(root));
+    }
+
+    register(listener: SModelRootListener): void {
+        distinctAdd(this.modelRootListeners, listener);
+    }
+
+    deregister(listener: SModelRootListener): void {
+        remove(this.modelRootListeners, listener);
     }
 }
