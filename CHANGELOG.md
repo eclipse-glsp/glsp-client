@@ -29,6 +29,11 @@
     -   Removed the `TYPES.SelectionService` service identifier. Please directly use the `SelectionService` class as service identifier instead.
     -   The `SelectionService` binding is now part of the `defaultGLSPModule`. This means the `SelectionService` remains available even if the `selectModule` is not configured.
     -   `RootModelChangeListener`s are no longer tied to the `FeedbackawareUpdateModelCommand` instead they are managed by the `GLSPCommandStack`.
+    -   `IMouseTool` and `TYPES.IMouseTool` are no longer available. Directly inject and use `MouseTool` instead.
+    -   Refactored rank utility functions
+        -   `isRanked()` -> `Ranked.is()`
+        -   `getRank()` -> `Ranked.getRank()`
+        -   `DEFAULT_RANK` -> `Ranked.DEFAULT_RANK`
 
 ## [v1.0.0 - 30/06/2022](https://github.com/eclipse-glsp/glsp-client/releases/tag/v1.0.0)
 

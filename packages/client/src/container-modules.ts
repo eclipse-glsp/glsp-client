@@ -41,7 +41,6 @@ import glspExportModule from './features/export/di.config';
 import modelHintsModule from './features/hints/di.config';
 import glspHoverModule from './features/hover/di.config';
 import layoutModule from './features/layout/di.config';
-import glspMouseToolModule from './features/mouse-tool/di.config';
 import navigationModule from './features/navigation/di.config';
 import glspSelectModule from './features/select/di.config';
 import sourceModelWatcherModule from './features/source-model-watcher/di.config';
@@ -67,7 +66,6 @@ export const DEFAULT_MODULES = [
     glspDecorationModule,
     glspEditLabelModule,
     glspHoverModule,
-    glspMouseToolModule,
     glspSelectModule,
     glspServerCopyPasteModule,
     glspViewportModule,

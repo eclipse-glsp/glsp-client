@@ -21,6 +21,7 @@ import {
     KeyListener,
     KeyTool,
     MouseListener,
+    MouseTool,
     SModelElement,
     TYPES,
     findParentByFeature,
@@ -31,7 +32,6 @@ import {
 } from '~glsp-sprotty';
 import { IFeedbackActionDispatcher } from '../../base/feedback/feedback-action-dispatcher';
 import { GLSPTool } from '../../base/tool-manager/glsp-tool-manager';
-import { IMouseTool } from '../mouse-tool/mouse-tool';
 import { CursorCSS, cursorFeedbackAction } from '../tool-feedback/css-feedback';
 
 /**
@@ -89,7 +89,7 @@ export class MouseDeleteTool implements GLSPTool {
 
     protected deleteToolMouseListener: DeleteToolMouseListener = new DeleteToolMouseListener();
 
-    @inject(TYPES.MouseTool) protected mouseTool: IMouseTool;
+    @inject(MouseTool) protected mouseTool: MouseTool;
     @inject(TYPES.IFeedbackActionDispatcher) protected readonly feedbackDispatcher: IFeedbackActionDispatcher;
 
     get id(): string {

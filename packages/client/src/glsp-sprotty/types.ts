@@ -29,7 +29,6 @@ export const TYPES = {
     IMovementRestrictor: Symbol('IMovementRestrictor'),
     SelectionListener: Symbol('SelectionListener'),
     SModelRootListener: Symbol('SModelRootListener'),
-    MouseTool: Symbol('MouseTool'),
     IContextMenuProvider: Symbol('IContextMenuProvider'),
     ICopyPasteHandler: Symbol('ICopyPasteHandler'),
     ITool: Symbol('ITool'),

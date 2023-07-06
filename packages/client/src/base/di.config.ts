@@ -19,6 +19,7 @@ import {
     ActionHandlerRegistry,
     InitializeResult,
     ModelSource,
+    MouseTool,
     SetEditModeAction,
     TYPES,
     bindAsService,
@@ -39,6 +40,7 @@ import { GLSPModelRegistry } from './model/model-registry';
 import { SelectionClearingMouseListener } from './selection-clearing-mouse-listener';
 import { SelectionService } from './selection-service';
 import { GLSPToolManager } from './tool-manager/glsp-tool-manager';
+import { RankingMouseTool } from './view/mouse-tool';
 import { GLSPViewRegistry } from './view/view-registry';
 
 const defaultGLSPModule = new ContainerModule((bind, _unbind, isBound, rebind) => {
@@ -63,6 +65,8 @@ const defaultGLSPModule = new ContainerModule((bind, _unbind, isBound, rebind) =
     // Model update initialization ------------------------------------#
     bind(TYPES.IFeedbackActionDispatcher).to(FeedbackActionDispatcher).inSingletonScope();
     configureCommand(context, FeedbackAwareUpdateModelCommand);
+
+    rebind(MouseTool).to(RankingMouseTool).inSingletonScope();
 
     bindAsService(context, TYPES.MouseListener, SelectionClearingMouseListener);
 

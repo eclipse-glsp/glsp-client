@@ -27,7 +27,6 @@ import glspEditLabelModule from './features/edit-label/di.config';
 import modelHintsModule from './features/hints/di.config';
 import glspHoverModule from './features/hover/di.config';
 import layoutModule from './features/layout/di.config';
-import glspMouseToolModule from './features/mouse-tool/di.config';
 import navigationModule from './features/navigation/di.config';
 import saveModule from './features/save/di.config';
 import glspSelectModule from './features/select/di.config';
@@ -56,15 +55,18 @@ export * from './base/feedback/update-model-command';
 export * from './base/focus-tracker';
 export * from './base/model-initialization-constraint';
 export * from './base/model/model-registry';
+export * from './base/ranked';
 export * from './base/selection-clearing-mouse-listener';
 export * from './base/selection-service';
 export * from './base/source-uri-aware';
 export * from './base/tool-manager/glsp-tool-manager';
+export * from './base/view/mouse-tool';
 export * from './base/view/view-registry';
 export * from './container-modules';
 
 //
 // ------------------ Features ------------------
+export * from './base/view/mouse-tool';
 export * from './features/accessibility/resize-key-tool/resize-key-tool';
 export * from './features/accessibility/view-key-tools/deselect-key-tool';
 export * from './features/accessibility/view-key-tools/movement-key-tool';
@@ -92,10 +94,8 @@ export * from './features/hints/model';
 export * from './features/hints/type-hints';
 export * from './features/hover/hover';
 export * from './features/layout/layout-elements-action';
-export * from './features/mouse-tool/mouse-tool';
 export * from './features/navigation/navigation-action-handler';
 export * from './features/navigation/navigation-target-resolver';
-export * from './features/rank/model';
 export * from './features/reconnect/model';
 export * from './features/save/model';
 export * from './features/save/save-keylistener';
@@ -149,7 +149,6 @@ export {
     glspDecorationModule,
     glspEditLabelModule,
     glspHoverModule,
-    glspMouseToolModule,
     glspMoveZoomModule,
     glspResizeKeyModule,
     glspSearchPaletteModule,

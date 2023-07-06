@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2021 EclipseSource and others.
+ * Copyright (c) 2019-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -14,16 +14,29 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-export const DEFAULT_RANK = 0;
+import { AnyObject, hasNumberProp } from '~glsp-sprotty';
 
+/**
+ * A common interface for services/listeners that should be
+ * orderable by a type or rank/priority.
+ */
 export interface Ranked {
     rank: number;
 }
 
-export function isRanked(arg: any): arg is Ranked {
-    return arg !== undefined && arg.rank !== undefined && typeof arg.rank === 'number';
-}
+export namespace Ranked {
+    export const DEFAULT_RANK = 0;
+    export function is(object: unknown): object is Ranked {
+        return AnyObject.is(object) && hasNumberProp(object, 'rank');
+    }
 
-export function getRank(arg: any): number {
-    return isRanked(arg) ? arg.rank : DEFAULT_RANK;
+    /**
+     * Tries to retrieve the rank form the given object. If the object
+     * implements the {@link Ranked} interface the corresponding rank is returned
+     * otherwise the {@link DEFAULT_RANK} is returned.
+     * @param object
+     */
+    export function getRank(object: unknown): number {
+        return is(object) ? object.rank : DEFAULT_RANK;
+    }
 }

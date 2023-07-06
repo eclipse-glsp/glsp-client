@@ -134,7 +134,7 @@ export {
     IButtonHandlerRegistration,
     configureButtonHandler
 } from 'sprotty/lib/features/button/button-handler';
-export * from 'sprotty/lib/features/button/model';
+export { SButtonImpl as SButton, SButtonSchema } from 'sprotty/lib/features/button/model';
 export * from 'sprotty/lib/features/command-palette/action-providers';
 export * from 'sprotty/lib/features/command-palette/command-palette';
 export { Anchor, IContextMenuService, IContextMenuServiceProvider } from 'sprotty/lib/features/context-menu/context-menu-service';
