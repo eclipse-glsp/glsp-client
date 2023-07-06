@@ -15,7 +15,6 @@
  ********************************************************************************/
 import { inject, injectable, optional } from 'inversify';
 import {
-    Action,
     ActionHandlerRegistry,
     Animation,
     Command,
