@@ -47,7 +47,6 @@ export * from './base/auto-complete/auto-complete-actions';
 export * from './base/auto-complete/auto-complete-widget';
 export * from './base/auto-complete/validation-decorator';
 export * from './base/command-stack';
-export * from './base/container-modules';
 export { configureServerActions } from './base/di.config';
 export * from './base/drag-aware-mouse-listener';
 export * from './base/editor-context-service';
@@ -62,6 +61,7 @@ export * from './base/selection-service';
 export * from './base/source-uri-aware';
 export * from './base/tool-manager/glsp-tool-manager';
 export * from './base/view/view-registry';
+export * from './container-modules';
 
 //
 // ------------------ Features ------------------
