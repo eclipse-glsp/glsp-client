@@ -14,17 +14,16 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { inject, injectable } from 'inversify';
-import { Action, IActionDispatcher, KeyTool, TYPES } from '~glsp-sprotty';
+import { Action, IActionDispatcher, KeyTool, MouseTool, TYPES } from '~glsp-sprotty';
 import { EditorContextService } from '../../base/editor-context-service';
+import { IFeedbackActionDispatcher, IFeedbackEmitter } from '../../base/feedback/feedback-action-dispatcher';
 import { GLSPTool } from '../../base/tool-manager/glsp-tool-manager';
-import { IMouseTool } from '../mouse-tool/mouse-tool';
-import { IFeedbackActionDispatcher, IFeedbackEmitter } from '../tool-feedback/feedback-action-dispatcher';
 
 @injectable()
 export abstract class BaseGLSPTool implements GLSPTool {
     @inject(TYPES.IFeedbackActionDispatcher) protected feedbackDispatcher: IFeedbackActionDispatcher;
     @inject(TYPES.IActionDispatcher) protected actionDispatcher: IActionDispatcher;
-    @inject(TYPES.MouseTool) protected mouseTool: IMouseTool;
+    @inject(MouseTool) protected mouseTool: MouseTool;
     @inject(KeyTool) protected keyTool: KeyTool;
     @inject(EditorContextService) protected readonly editorContext: EditorContextService;
 

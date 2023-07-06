@@ -29,14 +29,14 @@ import {
     SprottySelectCommand,
     TYPES,
     distinctAdd,
+    hasArrayProp,
     isSelectable,
     pluck,
     remove
 } from '~glsp-sprotty';
-import { SModelRootListener } from '../../base/model/update-model-command';
-import { getElements, getMatchingElements } from '../../utils/smodel-util';
-import { IFeedbackActionDispatcher } from '../tool-feedback/feedback-action-dispatcher';
-import { SelectFeedbackAction } from './select-feedback-action';
+import { getElements, getMatchingElements } from '../utils/smodel-util';
+import { SModelRootListener } from './command-stack';
+import { IFeedbackActionDispatcher } from './feedback/feedback-action-dispatcher';
 
 export interface SelectionListener {
     selectionChanged(root: Readonly<SModelRoot>, selectedElements: string[]): void;
@@ -44,11 +44,14 @@ export interface SelectionListener {
 
 @injectable()
 export class SelectionService implements SModelRootListener {
-    private root: Readonly<SModelRoot>;
-    private selectedElementIDs: Set<string> = new Set();
+    protected root: Readonly<SModelRoot>;
+    protected selectedElementIDs: Set<string> = new Set();
 
-    @inject(TYPES.IFeedbackActionDispatcher) protected feedbackDispatcher: IFeedbackActionDispatcher;
-    @inject(TYPES.ILogger) protected logger: ILogger;
+    @inject(TYPES.IFeedbackActionDispatcher)
+    protected feedbackDispatcher: IFeedbackActionDispatcher;
+
+    @inject(TYPES.ILogger)
+    protected logger: ILogger;
 
     constructor(@multiInject(TYPES.SelectionListener) @optional() protected selectionListeners: SelectionListener[] = []) {}
 
@@ -168,10 +171,7 @@ export class SelectCommand extends Command {
     protected selected: SModelElement[] = [];
     protected deselected: SModelElement[] = [];
 
-    constructor(
-        @inject(TYPES.Action) public action: SelectAction,
-        @inject(TYPES.SelectionService) public selectionService: SelectionService
-    ) {
+    constructor(@inject(TYPES.Action) public action: SelectAction, @inject(SelectionService) public selectionService: SelectionService) {
         super();
     }
 
@@ -208,10 +208,7 @@ export class SelectAllCommand extends Command {
     static readonly KIND = SprottySelectAllCommand.KIND;
     protected previousSelection: Map<string, boolean> = new Map<string, boolean>();
 
-    constructor(
-        @inject(TYPES.Action) public action: SelectAllAction,
-        @inject(TYPES.SelectionService) public selectionService: SelectionService
-    ) {
+    constructor(@inject(TYPES.Action) public action: SelectAllAction, @inject(SelectionService) public selectionService: SelectionService) {
         super();
     }
 
@@ -238,5 +235,33 @@ export class SelectAllCommand extends Command {
     // Basically no-op since client-side redo is not supported in GLSP.
     redo(context: CommandExecutionContext): SModelRoot {
         return context.root;
+    }
+}
+
+export interface SelectFeedbackAction extends Omit<SelectAction, 'kind'>, Action {
+    kind: typeof SelectFeedbackAction.KIND;
+}
+
+export namespace SelectFeedbackAction {
+    export const KIND = 'selectFeedback';
+
+    export function is(object: any): object is SelectFeedbackAction {
+        return Action.hasKind(object, KIND) && hasArrayProp(object, 'selectedElementsIDs') && hasArrayProp(object, 'deselectedElementsIDs');
+    }
+
+    export function create(options?: { selectedElementsIDs?: string[]; deselectedElementsIDs?: string[] | boolean }): SelectFeedbackAction {
+        return { ...SelectAction.create(options), kind: KIND };
+    }
+
+    export function addSelection(selectedElementsIDs: string[]): SelectFeedbackAction {
+        return { ...SelectAction.addSelection(selectedElementsIDs), kind: KIND };
+    }
+
+    export function removeSelection(deselectedElementsIDs: string[]): SelectFeedbackAction {
+        return { ...SelectAction.removeSelection(deselectedElementsIDs), kind: KIND };
+    }
+
+    export function setSelection(selectedElementsIDs: string[]): SelectFeedbackAction {
+        return { ...SelectAction.setSelection(selectedElementsIDs), kind: KIND };
     }
 }

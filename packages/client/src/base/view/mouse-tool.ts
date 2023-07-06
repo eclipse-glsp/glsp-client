@@ -15,12 +15,7 @@
  ********************************************************************************/
 import { injectable, multiInject, optional } from 'inversify';
 import { Action, MouseListener, MouseTool, SModelElement, SModelRoot, TYPES } from '~glsp-sprotty';
-import { getRank } from '../rank/model';
-
-export interface IMouseTool {
-    register(mouseListener: MouseListener): void;
-    deregister(mouseListener: MouseListener): void;
-}
+import { Ranked } from '../ranked';
 
 /**
  * Custom helper type to declare the explicit mouse listener methods
@@ -29,22 +24,22 @@ export interface IMouseTool {
 type MouseListenerMethods = keyof Omit<MouseListener, 'decorate'>;
 
 @injectable()
-export class RankingMouseTool extends MouseTool implements IMouseTool {
+export class RankingMouseTool extends MouseTool {
     protected rankedMouseListeners: Map<number, MouseListener[]>;
 
     constructor(@multiInject(TYPES.MouseListener) @optional() protected override mouseListeners: MouseListener[] = []) {
         super(mouseListeners);
-        this.rankedMouseListeners = groupBy(mouseListeners, listener => getRank(listener));
+        this.rankedMouseListeners = groupBy(mouseListeners, listener => Ranked.getRank(listener));
     }
 
     override register(mouseListener: MouseListener): void {
         super.register(mouseListener);
-        this.rankedMouseListeners = groupBy(this.mouseListeners, listener => getRank(listener));
+        this.rankedMouseListeners = groupBy(this.mouseListeners, listener => Ranked.getRank(listener));
     }
 
     override deregister(mouseListener: MouseListener): void {
         super.deregister(mouseListener);
-        this.rankedMouseListeners = groupBy(this.mouseListeners, listener => getRank(listener));
+        this.rankedMouseListeners = groupBy(this.mouseListeners, listener => Ranked.getRank(listener));
     }
 
     protected override handleEvent<K extends MouseListenerMethods>(methodName: K, model: SModelRoot, event: MouseEvent): void {
@@ -53,13 +48,12 @@ export class RankingMouseTool extends MouseTool implements IMouseTool {
         if (!element) {
             return;
         }
-        this.notifyListenersByRank(element, methodName, model, event);
+        this.notifyListenersByRank(element, methodName, event);
     }
 
-    async notifyListenersByRank<K extends MouseListenerMethods>(
+    protected async notifyListenersByRank<K extends MouseListenerMethods>(
         element: SModelElement,
         methodName: K,
-        model: SModelRoot,
         event: MouseEvent
     ): Promise<void> {
         for (const rank of this.rankedMouseListeners) {
@@ -67,7 +61,7 @@ export class RankingMouseTool extends MouseTool implements IMouseTool {
         }
     }
 
-    async dispatchActions<K extends MouseListenerMethods>(
+    protected async dispatchActions<K extends MouseListenerMethods>(
         mouseListeners: MouseListener[],
         methodName: K,
         element: SModelElement,

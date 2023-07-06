@@ -31,7 +31,7 @@ import {
     createFeatureSet,
     layoutableChildFeature
 } from '~glsp-sprotty';
-import { initializeDiagramContainer } from '../../base/container-modules';
+import { initializeDiagramContainer } from '../../container-modules';
 import { GLSPGraph } from '../../lib/model';
 import { StatefulLayouterExt } from './layouter';
 

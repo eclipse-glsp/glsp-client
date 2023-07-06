@@ -27,7 +27,6 @@ import glspEditLabelModule from './features/edit-label/di.config';
 import modelHintsModule from './features/hints/di.config';
 import glspHoverModule from './features/hover/di.config';
 import layoutModule from './features/layout/di.config';
-import glspMouseToolModule from './features/mouse-tool/di.config';
 import navigationModule from './features/navigation/di.config';
 import saveModule from './features/save/di.config';
 import glspSelectModule from './features/select/di.config';
@@ -47,24 +46,31 @@ export * from './base/auto-complete/auto-complete-actions';
 export * from './base/auto-complete/auto-complete-widget';
 export * from './base/auto-complete/validation-decorator';
 export * from './base/command-stack';
-export * from './base/container-modules';
 export { configureServerActions } from './base/di.config';
 export * from './base/drag-aware-mouse-listener';
 export * from './base/editor-context-service';
+export * from './base/feedback/feeback-command';
+export * from './base/feedback/feedback-action-dispatcher';
+export * from './base/feedback/update-model-command';
 export * from './base/focus-tracker';
 export * from './base/model-initialization-constraint';
 export * from './base/model/model-registry';
-export * from './base/model/update-model-command';
+export * from './base/ranked';
 export * from './base/selection-clearing-mouse-listener';
+export * from './base/selection-service';
 export * from './base/source-uri-aware';
 export * from './base/tool-manager/glsp-tool-manager';
+export * from './base/view/mouse-tool';
 export * from './base/view/view-registry';
+export * from './container-modules';
+
+//
+// ------------------ Features ------------------
+export * from './base/view/mouse-tool';
 export * from './features/accessibility/resize-key-tool/resize-key-tool';
 export * from './features/accessibility/view-key-tools/deselect-key-tool';
 export * from './features/accessibility/view-key-tools/movement-key-tool';
 export * from './features/accessibility/view-key-tools/zoom-key-tool';
-//
-// ------------------ Features ------------------
 export * from './features/bounds/freeform-layout';
 export * from './features/bounds/glsp-hidden-bounds-updater';
 export * from './features/bounds/hbox-layout';
@@ -88,25 +94,20 @@ export * from './features/hints/model';
 export * from './features/hints/type-hints';
 export * from './features/hover/hover';
 export * from './features/layout/layout-elements-action';
-export * from './features/mouse-tool/mouse-tool';
 export * from './features/navigation/navigation-action-handler';
 export * from './features/navigation/navigation-target-resolver';
-export * from './features/rank/model';
 export * from './features/reconnect/model';
 export * from './features/save/model';
 export * from './features/save/save-keylistener';
-export * from './features/select/select-feedback-action';
+export * from './features/select/select-feedback-command';
 export * from './features/select/select-mouse-listener';
-export * from './features/select/selection-service';
 export * from './features/source-model-watcher/source-model-changed-action-handler';
 export * from './features/svg-metadata/metadata-placer';
 export * from './features/tool-feedback/change-bounds-tool-feedback';
 export * from './features/tool-feedback/creation-tool-feedback';
 export * from './features/tool-feedback/css-feedback';
 export * from './features/tool-feedback/edge-edit-tool-feedback';
-export * from './features/tool-feedback/feedback-action-dispatcher';
 export * from './features/tool-feedback/marquee-tool-feedback';
-export * from './features/tool-feedback/model';
 export * from './features/tool-feedback/view';
 export * from './features/tool-palette/tool-palette';
 export * from './features/tools/base-glsp-tool';
@@ -139,33 +140,32 @@ export * from './utils/viewpoint-util';
 export * from './views';
 // ------------------ DI Modules ------------------
 export {
-    validationModule,
-    saveModule,
-    paletteModule,
-    toolFeedbackModule,
+    copyPasteContextMenuModule,
     defaultGLSPModule,
-    modelHintsModule,
+    enableDefaultToolsOnFocusLossModule,
+    glspAccessibilityModule,
     glspCommandPaletteModule,
     glspContextMenuModule,
-    glspServerCopyPasteModule,
-    copyPasteContextMenuModule,
-    glspSelectModule,
-    glspMouseToolModule,
-    layoutModule,
+    glspDecorationModule,
     glspEditLabelModule,
     glspHoverModule,
-    toolsModule,
-    enableDefaultToolsOnFocusLossModule,
-    navigationModule,
-    markerNavigatorModule,
-    glspDecorationModule,
-    sourceModelWatcherModule,
-    markerNavigatorContextMenuModule,
-    glspViewportModule,
-    svgMetadataModule,
+    glspMoveZoomModule,
     glspResizeKeyModule,
     glspSearchPaletteModule,
-    glspAccessibilityModule,
+    glspSelectModule,
+    glspServerCopyPasteModule,
     glspViewKeyToolsModule,
-    glspMoveZoomModule
+    glspViewportModule,
+    layoutModule,
+    markerNavigatorContextMenuModule,
+    markerNavigatorModule,
+    modelHintsModule,
+    navigationModule,
+    paletteModule,
+    saveModule,
+    sourceModelWatcherModule,
+    svgMetadataModule,
+    toolFeedbackModule,
+    toolsModule,
+    validationModule
 };

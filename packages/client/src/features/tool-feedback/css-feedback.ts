@@ -15,8 +15,8 @@
  ********************************************************************************/
 import { inject, injectable } from 'inversify';
 import { Action, CommandExecutionContext, SModelElement, SModelRoot, TYPES, hasArrayProp } from '~glsp-sprotty';
+import { FeedbackCommand } from '../../base/feedback/feeback-command';
 import { addCssClasses, getElements, removeCssClasses } from '../../utils/smodel-util';
-import { FeedbackCommand } from './model';
 
 export interface ModifyCSSFeedbackAction extends Action {
     kind: typeof ModifyCSSFeedbackAction.KIND;

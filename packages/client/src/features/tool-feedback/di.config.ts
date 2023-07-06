@@ -25,13 +25,11 @@ import {
     ShowEdgeReconnectHandlesFeedbackCommand,
     SwitchRoutingModeCommand
 } from './edge-edit-tool-feedback';
-import { FeedbackActionDispatcher } from './feedback-action-dispatcher';
 import { DrawMarqueeCommand, RemoveMarqueeCommand } from './marquee-tool-feedback';
 import { FeedbackEdgeEndView, SResizeHandleView } from './view';
 
 const toolFeedbackModule = new ContainerModule((bind, _unbind, isBound) => {
     const context = { bind, isBound };
-    bind(TYPES.IFeedbackActionDispatcher).to(FeedbackActionDispatcher).inSingletonScope();
 
     configureCommand(context, ModifyCssFeedbackCommand);
 

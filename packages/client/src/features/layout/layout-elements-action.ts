@@ -31,11 +31,11 @@ import {
     hasNumberProp,
     hasStringProp
 } from '~glsp-sprotty';
+import { SelectionService } from '../../base/selection-service';
 import { toValidElementAndBounds, toValidElementMove } from '../../utils/layout-utils';
 import { BoundsAwareModelElement, getElements } from '../../utils/smodel-util';
 import { isBoundsAwareMoveable, isResizable } from '../change-bounds/model';
 import { IMovementRestrictor } from '../change-bounds/movement-restrictor';
-import { SelectionService } from '../select/selection-service';
 
 /**
  * Used to specify the desired resize dimension for a {@link ResizeElementsCommand}.
@@ -161,7 +161,7 @@ export abstract class LayoutElementsActionHandler implements IActionHandler {
     @inject(TYPES.IActionDispatcher)
     protected actionDispatcher: IActionDispatcher;
 
-    @inject(TYPES.SelectionService)
+    @inject(SelectionService)
     protected selectionService: SelectionService;
 
     @inject(TYPES.IMovementRestrictor)

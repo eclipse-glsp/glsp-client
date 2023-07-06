@@ -16,9 +16,8 @@
 import { AssertionError, expect } from 'chai';
 import { Container, injectable } from 'inversify';
 import { Action, SGraphFactory, SModelElementSchema, SModelRoot, TYPES, defaultModule, initializeContainer } from '~glsp-sprotty';
-import { IFeedbackActionDispatcher, IFeedbackEmitter } from '../tool-feedback/feedback-action-dispatcher';
-import { SelectFeedbackAction } from './select-feedback-action';
-import { SelectionListener, SelectionService } from './selection-service';
+import { IFeedbackActionDispatcher, IFeedbackEmitter } from './feedback/feedback-action-dispatcher';
+import { SelectFeedbackAction, SelectionListener, SelectionService } from './selection-service';
 
 @injectable()
 class MockFeedbackActionDispatcher implements IFeedbackActionDispatcher {
@@ -74,7 +73,6 @@ function createContainer(): Container {
     container.rebind(TYPES.IModelFactory).to(SGraphFactory).inSingletonScope();
     container.bind(TYPES.IFeedbackActionDispatcher).to(MockFeedbackActionDispatcher).inSingletonScope();
     container.bind(SelectionService).toSelf().inSingletonScope();
-    container.bind(TYPES.SelectionService).toService(SelectionService);
     return container;
 }
 
@@ -90,7 +88,7 @@ describe('SelectionService', () => {
         // eslint-disable-next-line deprecation/deprecation
         graphFactory = container.get<SGraphFactory>(TYPES.IModelFactory);
         root = createRoot('node1', 'node2', 'node3', 'node4', 'node5');
-        selectionService = container.get<SelectionService>(TYPES.SelectionService);
+        selectionService = container.get<SelectionService>(SelectionService);
         feedbackDispatcher = container.get<MockFeedbackActionDispatcher>(TYPES.IFeedbackActionDispatcher);
     });
 

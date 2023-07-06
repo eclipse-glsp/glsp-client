@@ -16,9 +16,9 @@
 
 import { inject, injectable } from 'inversify';
 import { matchesKeystroke } from 'sprotty/lib/utils/keyboard';
-import { Action, CenterAction, KeyListener, KeyTool, SModelElement, TYPES } from '~glsp-sprotty';
+import { Action, CenterAction, KeyListener, KeyTool, SModelElement } from '~glsp-sprotty';
+import { SelectionService } from '../../../base/selection-service';
 import { GLSPTool } from '../../../base/tool-manager/glsp-tool-manager';
-import { SelectionService } from '../../select/selection-service';
 import { ZoomElementAction, ZoomViewportAction } from '../move-zoom/zoom-handler';
 
 /**
@@ -33,7 +33,7 @@ export class ZoomKeyTool implements GLSPTool {
     protected readonly zoomKeyListener = new ZoomKeyListener(this);
 
     @inject(KeyTool) protected readonly keytool: KeyTool;
-    @inject(TYPES.SelectionService) selectionService: SelectionService;
+    @inject(SelectionService) selectionService: SelectionService;
 
     get id(): string {
         return ZoomKeyTool.ID;

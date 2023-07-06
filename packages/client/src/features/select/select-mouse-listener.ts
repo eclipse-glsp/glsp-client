@@ -29,14 +29,14 @@ import {
     isSelectable,
     toArray
 } from '~glsp-sprotty';
-import { DEFAULT_RANK, Ranked } from '../rank/model';
+import { Ranked } from '../../base/ranked';
 
 /**
  * Ranked select mouse listener that is executed before default mouse listeners when using the RankedMouseTool.
  * This ensures that default mouse listeners are working on a model that has selection changes already applied.
  */
 export class RankedSelectMouseListener extends SelectMouseListener implements Ranked {
-    rank: number = DEFAULT_RANK - 1; /* we want to be executed before all default mouse listeners */
+    rank: number = Ranked.DEFAULT_RANK - 1; /* we want to be executed before all default mouse listeners */
 
     override mouseDown(target: SModelElement, event: MouseEvent): (Action | Promise<Action>)[] {
         const result: Action[] = [];

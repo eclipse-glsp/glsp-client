@@ -20,7 +20,7 @@ import { Action, ISnapper, KeyListener, KeyTool, SModelElement, TYPES } from '~g
 import { GLSPTool } from '../../../base/tool-manager/glsp-tool-manager';
 import { GridSnapper } from '../../change-bounds/snap';
 
-import { SelectionService } from '../../select/selection-service';
+import { SelectionService } from '../../../base/selection-service';
 import { MoveElementAction, MoveViewportAction } from '../move-zoom/move-handler';
 
 /**
@@ -35,7 +35,7 @@ export class MovementKeyTool implements GLSPTool {
     protected readonly movementKeyListener = new MoveKeyListener(this);
 
     @inject(KeyTool) protected readonly keytool: KeyTool;
-    @inject(TYPES.SelectionService) selectionService: SelectionService;
+    @inject(SelectionService) selectionService: SelectionService;
     @inject(TYPES.ISnapper) @optional() readonly snapper?: ISnapper;
 
     get id(): string {

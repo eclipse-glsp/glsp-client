@@ -33,12 +33,12 @@ import {
     isSelectable,
     isViewport
 } from '~glsp-sprotty';
+import { FeedbackCommand } from '../../base/feedback/feeback-command';
 import { forEachElement } from '../../utils/smodel-util';
 import { SResizeHandle, addResizeHandles, isResizable, removeResizeHandles } from '../change-bounds/model';
 import { createMovementRestrictionFeedback, removeMovementRestrictionFeedback } from '../change-bounds/movement-restrictor';
 import { CursorCSS, cursorFeedbackAction } from '../tool-feedback/css-feedback';
 import { ChangeBoundsTool } from '../tools/change-bounds-tool';
-import { FeedbackCommand } from './model';
 
 export interface ShowChangeBoundsToolResizeFeedbackAction extends Action {
     kind: typeof ShowChangeBoundsToolResizeFeedbackAction.KIND;

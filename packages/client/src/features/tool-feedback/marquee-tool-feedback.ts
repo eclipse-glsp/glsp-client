@@ -27,7 +27,7 @@ import {
     TYPES,
     hasObjectProp
 } from '~glsp-sprotty';
-import { FeedbackCommand } from './model';
+import { FeedbackCommand } from '../../base/feedback/feeback-command';
 
 export interface DrawMarqueeAction extends Action {
     kind: typeof DrawMarqueeAction.KIND;

@@ -17,9 +17,9 @@
 import { inject, injectable, optional } from 'inversify';
 import { matchesKeystroke } from 'sprotty/lib/utils/keyboard';
 import { Action, EnableDefaultToolsAction, EnableToolsAction, ISnapper, KeyListener, KeyTool, SModelElement, TYPES } from '~glsp-sprotty';
+import { SelectionService } from '../../../base/selection-service';
 import { GLSPTool } from '../../../base/tool-manager/glsp-tool-manager';
 import { IMovementRestrictor } from '../../change-bounds/movement-restrictor';
-import { SelectionService } from '../../select/selection-service';
 import { ResizeElementAction, ResizeType } from './resize-key-handler';
 
 @injectable()
@@ -31,7 +31,7 @@ export class ResizeKeyTool implements GLSPTool {
     @inject(KeyTool) protected readonly keytool: KeyTool;
     @inject(TYPES.IMovementRestrictor) @optional() readonly movementRestrictor?: IMovementRestrictor;
     @inject(TYPES.ISnapper) @optional() readonly snapper?: ISnapper;
-    @inject(TYPES.SelectionService) readonly selectionService: SelectionService;
+    @inject(SelectionService) readonly selectionService: SelectionService;
 
     protected resizeKeyListener: ResizeKeyListener = new ResizeKeyListener(this);
 

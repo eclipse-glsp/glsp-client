@@ -17,27 +17,30 @@ import '@vscode/codicons/dist/codicon.css';
 import { Container, ContainerModule } from 'inversify';
 import {
     ActionHandlerRegistry,
+    InitializeResult,
+    ModelSource,
+    MouseTool,
+    SetEditModeAction,
+    TYPES,
     bindAsService,
     bindOrRebind,
     configureActionHandler,
-    configureCommand,
-    InitializeResult,
-    ModelSource,
-    SetEditModeAction,
-    SetModelCommand,
-    TYPES
+    configureCommand
 } from '~glsp-sprotty';
 import '../../css/glsp-sprotty.css';
 import { GLSPActionDispatcher } from './action-dispatcher';
 import { FocusStateChangedAction } from './actions/focus-change-action';
 import { GLSPCommandStack } from './command-stack';
 import { EditorContextService } from './editor-context-service';
+import { FeedbackActionDispatcher } from './feedback/feedback-action-dispatcher';
+import { FeedbackAwareUpdateModelCommand } from './feedback/update-model-command';
 import { FocusTracker } from './focus-tracker';
 import { DefaultModelInitializationConstraint, ModelInitializationConstraint } from './model-initialization-constraint';
 import { GLSPModelRegistry } from './model/model-registry';
-import { FeedbackAwareUpdateModelCommand, SetModelActionHandler } from './model/update-model-command';
 import { SelectionClearingMouseListener } from './selection-clearing-mouse-listener';
+import { SelectionService } from './selection-service';
 import { GLSPToolManager } from './tool-manager/glsp-tool-manager';
+import { RankingMouseTool } from './view/mouse-tool';
 import { GLSPViewRegistry } from './view/view-registry';
 
 const defaultGLSPModule = new ContainerModule((bind, _unbind, isBound, rebind) => {
@@ -60,8 +63,10 @@ const defaultGLSPModule = new ContainerModule((bind, _unbind, isBound, rebind) =
     configureActionHandler(context, FocusStateChangedAction.KIND, FocusTracker);
 
     // Model update initialization ------------------------------------
+    bind(TYPES.IFeedbackActionDispatcher).to(FeedbackActionDispatcher).inSingletonScope();
     configureCommand(context, FeedbackAwareUpdateModelCommand);
-    configureActionHandler(context, SetModelCommand.KIND, SetModelActionHandler);
+
+    rebind(MouseTool).to(RankingMouseTool).inSingletonScope();
 
     bindAsService(context, TYPES.MouseListener, SelectionClearingMouseListener);
 
@@ -76,6 +81,8 @@ const defaultGLSPModule = new ContainerModule((bind, _unbind, isBound, rebind) =
     // support re-registration of model elements and views
     bindOrRebind(context, TYPES.SModelRegistry).to(GLSPModelRegistry).inSingletonScope();
     bindOrRebind(context, TYPES.ViewRegistry).to(GLSPViewRegistry).inSingletonScope();
+
+    bind(SelectionService).toSelf().inSingletonScope();
 });
 
 export default defaultGLSPModule;

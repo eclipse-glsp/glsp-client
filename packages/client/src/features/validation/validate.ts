@@ -30,9 +30,9 @@ import {
     hasArrayProp
 } from '~glsp-sprotty';
 import { EditorContextService } from '../../base/editor-context-service';
+import { FeedbackCommand } from '../../base/feedback/feeback-command';
+import { IFeedbackActionDispatcher, IFeedbackEmitter } from '../../base/feedback/feedback-action-dispatcher';
 import { removeCssClasses } from '../../utils/smodel-util';
-import { IFeedbackActionDispatcher, IFeedbackEmitter } from '../tool-feedback/feedback-action-dispatcher';
-import { FeedbackCommand } from '../tool-feedback/model';
 import { GIssueMarker, createSIssue, getOrCreateSIssueMarker, getSIssueMarker, getSeverity } from './issue-marker';
 
 /**

@@ -41,12 +41,12 @@ import {
     isConnectable,
     isSelected
 } from '~glsp-sprotty';
+import { FeedbackCommand } from '../../base/feedback/feeback-command';
 import { forEachElement, isRoutable, isRoutingHandle } from '../../utils/smodel-util';
 import { getAbsolutePosition, toAbsoluteBounds } from '../../utils/viewpoint-util';
 import { PointPositionUpdater } from '../change-bounds/snap';
 import { addReconnectHandles, removeReconnectHandles } from '../reconnect/model';
 import { FeedbackEdgeEnd, FeedbackEdgeEndMovingMouseListener, feedbackEdgeEndId, feedbackEdgeId } from './creation-tool-feedback';
-import { FeedbackCommand } from './model';
 
 /**
  * RECONNECT HANDLES FEEDBACK

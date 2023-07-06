@@ -40,6 +40,7 @@ import {
     isSelected
 } from '~glsp-sprotty';
 import { DragAwareMouseListener } from '../../base/drag-aware-mouse-listener';
+import { SelectionListener, SelectionService } from '../../base/selection-service';
 import { isValidMove, isValidSize } from '../../utils/layout-utils';
 import {
     calcElementAndRoutingPoints,
@@ -54,7 +55,6 @@ import {
     removeMovementRestrictionFeedback
 } from '../change-bounds/movement-restrictor';
 import { PointPositionUpdater } from '../change-bounds/snap';
-import { SelectionListener, SelectionService } from '../select/selection-service';
 import {
     FeedbackMoveMouseListener,
     HideChangeBoundsToolResizeFeedbackAction,
@@ -80,7 +80,7 @@ import { BaseGLSPTool } from './base-glsp-tool';
 export class ChangeBoundsTool extends BaseGLSPTool {
     static ID = 'glsp.change-bounds-tool';
 
-    @inject(TYPES.SelectionService) protected selectionService: SelectionService;
+    @inject(SelectionService) protected selectionService: SelectionService;
     @inject(EdgeRouterRegistry) @optional() readonly edgeRouterRegistry?: EdgeRouterRegistry;
     @inject(TYPES.ISnapper) @optional() readonly snapper?: ISnapper;
     @inject(TYPES.IMovementRestrictor) @optional() readonly movementRestrictor?: IMovementRestrictor;
