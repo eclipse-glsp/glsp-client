@@ -62,7 +62,7 @@ const defaultGLSPModule = new ContainerModule((bind, _unbind, isBound, rebind) =
     bind(FocusTracker).toSelf().inSingletonScope();
     configureActionHandler(context, FocusStateChangedAction.KIND, FocusTracker);
 
-    // Model update initialization ------------------------------------#
+    // Model update initialization ------------------------------------
     bind(TYPES.IFeedbackActionDispatcher).to(FeedbackActionDispatcher).inSingletonScope();
     configureCommand(context, FeedbackAwareUpdateModelCommand);
 

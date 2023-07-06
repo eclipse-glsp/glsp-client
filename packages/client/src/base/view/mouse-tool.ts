@@ -48,13 +48,12 @@ export class RankingMouseTool extends MouseTool {
         if (!element) {
             return;
         }
-        this.notifyListenersByRank(element, methodName, model, event);
+        this.notifyListenersByRank(element, methodName, event);
     }
 
-    async notifyListenersByRank<K extends MouseListenerMethods>(
+    protected async notifyListenersByRank<K extends MouseListenerMethods>(
         element: SModelElement,
         methodName: K,
-        model: SModelRoot,
         event: MouseEvent
     ): Promise<void> {
         for (const rank of this.rankedMouseListeners) {
@@ -62,7 +61,7 @@ export class RankingMouseTool extends MouseTool {
         }
     }
 
-    async dispatchActions<K extends MouseListenerMethods>(
+    protected async dispatchActions<K extends MouseListenerMethods>(
         mouseListeners: MouseListener[],
         methodName: K,
         element: SModelElement,

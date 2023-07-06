@@ -13,9 +13,8 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { distinctAdd, remove } from '@eclipse-glsp/protocol';
 import { injectable, multiInject, optional } from 'inversify';
-import { CommandStack, ICommand, SModelRoot, SetModelCommand, TYPES, UpdateModelCommand } from '~glsp-sprotty';
+import { CommandStack, ICommand, SModelRoot, SetModelCommand, TYPES, UpdateModelCommand, distinctAdd, remove } from '~glsp-sprotty';
 
 /**
  * A hook to listen for model root changes. Will be called after a server update
