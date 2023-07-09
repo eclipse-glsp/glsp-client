@@ -69,6 +69,12 @@ export function toTypeGuard<G>(constructor: Constructor<G>): TypeGuard<G> {
 }
 
 /**
+ * Utility type that represents an arbitrary function. Should be used instead
+ * of the default `Function` type which is considered to be unsafe.
+ */
+export type SafeFunction<T = any> = (...args: any[]) => T;
+
+/**
  * Validates whether the given object has a property of type `string` with the given key.
  * @param object The object that should be validated
  * @param propertyKey The key of the property

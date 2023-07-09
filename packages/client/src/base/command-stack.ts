@@ -13,22 +13,38 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { injectable, multiInject, optional } from 'inversify';
-import { CommandStack, ICommand, SModelRoot, SetModelCommand, TYPES, UpdateModelCommand, distinctAdd, remove } from '~glsp-sprotty';
+import { injectable, multiInject, optional, preDestroy } from 'inversify';
+import { CommandStack, Disposable, Emitter, Event, ICommand, SModelRoot, SetModelCommand, TYPES, UpdateModelCommand } from '~glsp-sprotty';
 
 /**
  * A hook to listen for model root changes. Will be called after a server update
  * has been processed
  */
-export interface SModelRootListener {
+export interface ISModelRootListener {
     modelRootChanged(root: Readonly<SModelRoot>): void;
 }
 
 @injectable()
-export class GLSPCommandStack extends CommandStack {
-    @multiInject(TYPES.SModelRootListener)
+export class GLSPCommandStack extends CommandStack implements Disposable {
+    @multiInject(TYPES.ISModelRootListener)
     @optional()
-    protected modelRootListeners: SModelRootListener[] = [];
+    protected modelRootListeners: ISModelRootListener[] = [];
+
+    protected override initialize(): void {
+        super.initialize();
+        this.modelRootListeners.forEach(listener => this.onModelRootChanged(root => listener.modelRootChanged(root)));
+    }
+
+    @preDestroy()
+    dispose(): void {
+        this.onModelRootChangedEmitter.dispose();
+        this.modelRootListeners = [];
+    }
+
+    protected onModelRootChangedEmitter = new Emitter<Readonly<SModelRoot>>();
+    get onModelRootChanged(): Event<Readonly<SModelRoot>> {
+        return this.onModelRootChangedEmitter.event;
+    }
 
     override undo(): Promise<SModelRoot> {
         this.logger.warn(
@@ -55,14 +71,6 @@ export class GLSPCommandStack extends CommandStack {
     }
 
     protected notifyListeners(root: Readonly<SModelRoot>): void {
-        this.modelRootListeners.forEach(listener => listener.modelRootChanged(root));
-    }
-
-    register(listener: SModelRootListener): void {
-        distinctAdd(this.modelRootListeners, listener);
-    }
-
-    deregister(listener: SModelRootListener): void {
-        remove(this.modelRootListeners, listener);
+        this.onModelRootChangedEmitter.fire(root);
     }
 }

@@ -13,11 +13,14 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { inject, injectable, multiInject, optional } from 'inversify';
+import { inject, injectable, multiInject, optional, postConstruct, preDestroy } from 'inversify';
 import {
     Action,
     Command,
     CommandExecutionContext,
+    Disposable,
+    Emitter,
+    Event,
     ILogger,
     SChildElement,
     SModelElement,
@@ -28,22 +31,26 @@ import {
     SprottySelectAllCommand,
     SprottySelectCommand,
     TYPES,
-    distinctAdd,
     hasArrayProp,
     isSelectable,
-    pluck,
-    remove
+    pluck
 } from '~glsp-sprotty';
 import { getElements, getMatchingElements } from '../utils/smodel-util';
-import { SModelRootListener } from './command-stack';
+import { ISModelRootListener } from './command-stack';
 import { IFeedbackActionDispatcher } from './feedback/feedback-action-dispatcher';
 
-export interface SelectionListener {
-    selectionChanged(root: Readonly<SModelRoot>, selectedElements: string[]): void;
+export interface ISelectionListener {
+    selectionChanged(root: Readonly<SModelRoot>, selectedElements: string[], deselectedElements?: string[]): void;
+}
+
+export interface SelectionChange {
+    root: Readonly<SModelRoot>;
+    selectedElements: string[];
+    deselectedElements: string[];
 }
 
 @injectable()
-export class SelectionService implements SModelRootListener {
+export class SelectionService implements ISModelRootListener, Disposable {
     protected root: Readonly<SModelRoot>;
     protected selectedElementIDs: Set<string> = new Set();
 
@@ -53,14 +60,26 @@ export class SelectionService implements SModelRootListener {
     @inject(TYPES.ILogger)
     protected logger: ILogger;
 
-    constructor(@multiInject(TYPES.SelectionListener) @optional() protected selectionListeners: SelectionListener[] = []) {}
+    @multiInject(TYPES.ISelectionListener)
+    @optional()
+    protected selectionListeners: ISelectionListener[] = [];
 
-    register(selectionListener: SelectionListener): void {
-        distinctAdd(this.selectionListeners, selectionListener);
+    @postConstruct()
+    protected initialize(): void {
+        this.selectionListeners.forEach(listener =>
+            this.onSelectionChanged(change => listener.selectionChanged(change.root, change.selectedElements, change.deselectedElements))
+        );
     }
 
-    deregister(selectionListener: SelectionListener): void {
-        remove(this.selectionListeners, selectionListener);
+    @preDestroy()
+    dispose(): void {
+        this.onSelectionChangedEmitter.dispose();
+        this.selectionListeners = [];
+    }
+
+    protected onSelectionChangedEmitter = new Emitter<SelectionChange>();
+    get onSelectionChanged(): Event<SelectionChange> {
+        return this.onSelectionChangedEmitter.event;
     }
 
     modelRootChanged(root: Readonly<SModelRoot>): void {
@@ -118,7 +137,7 @@ export class SelectionService implements SModelRootListener {
         const rootChanged = prevRoot !== root;
         if (rootChanged || selectionChanged) {
             // notify listeners after the feedback action
-            this.notifyListeners(this.root, this.selectedElementIDs);
+            this.notifyListeners(this.root, this.selectedElementIDs, deselectedElementIDs);
         }
     }
 
@@ -126,8 +145,12 @@ export class SelectionService implements SModelRootListener {
         this.feedbackDispatcher.registerFeedback(this, actions);
     }
 
-    notifyListeners(root: SModelRoot, selectedElementIDs: Set<string>): void {
-        this.selectionListeners.forEach(listener => listener.selectionChanged(root, Array.from(selectedElementIDs)));
+    notifyListeners(root: SModelRoot, selectedElementIDs: Set<string>, deselectedElementIDs: Set<string>): void {
+        this.onSelectionChangedEmitter.fire({
+            root,
+            selectedElements: Array.from(selectedElementIDs),
+            deselectedElements: Array.from(deselectedElementIDs)
+        });
     }
 
     getModelRoot(): Readonly<SModelRoot> {

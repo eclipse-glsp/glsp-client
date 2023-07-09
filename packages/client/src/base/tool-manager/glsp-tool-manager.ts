@@ -15,10 +15,10 @@
  ********************************************************************************/
 import { inject, injectable, multiInject, optional, postConstruct } from 'inversify';
 import { AnyObject, EditMode, TYPES, Tool, ToolManager, distinctAdd, hasBooleanProp, hasFunctionProp, hasStringProp } from '~glsp-sprotty';
-import { EditModeListener, EditorContextService, EditorContextServiceProvider } from '../editor-context-service';
+import { EditorContextService, EditorContextServiceProvider, IEditModeListener } from '../editor-context-service';
 
 @injectable()
-export class GLSPToolManager extends ToolManager implements EditModeListener {
+export class GLSPToolManager extends ToolManager implements IEditModeListener {
     protected editorContext?: EditorContextService;
 
     @multiInject(TYPES.ITool) @optional() override tools: Tool[];
@@ -31,7 +31,7 @@ export class GLSPToolManager extends ToolManager implements EditModeListener {
         this.registerDefaultTools(...this.defaultTools);
         this.enableDefaultTools();
         this.contextServiceProvider().then(editorContext => {
-            editorContext.register(this);
+            editorContext.onEditModeChanged(change => this.editModeChanged(change.newValue, change.oldValue));
             this.editorContext = editorContext;
         });
     }
@@ -67,7 +67,7 @@ export class GLSPToolManager extends ToolManager implements EditModeListener {
         this.enable(this.defaultTools.filter(tool => !GLSPTool.is(tool) || tool.isEditTool === false).map(tool => tool.id));
     }
 
-    editModeChanged(oldValue: string, newValue: string): void {
+    editModeChanged(newValue: string, oldValue: string): void {
         if (oldValue === newValue) {
             return;
         }

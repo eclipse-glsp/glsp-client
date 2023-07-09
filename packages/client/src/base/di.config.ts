@@ -70,7 +70,7 @@ const defaultGLSPModule = new ContainerModule((bind, _unbind, isBound, rebind) =
 
     bindAsService(context, TYPES.MouseListener, SelectionClearingMouseListener);
 
-    bindOrRebind(context, TYPES.ICommandStack).to(GLSPCommandStack);
+    bindOrRebind(context, TYPES.ICommandStack).to(GLSPCommandStack).inSingletonScope();
     bind(GLSPToolManager).toSelf().inSingletonScope();
     bindOrRebind(context, TYPES.IToolManager).toService(GLSPToolManager);
     bind(GLSPActionDispatcher).toSelf().inSingletonScope();
@@ -83,6 +83,7 @@ const defaultGLSPModule = new ContainerModule((bind, _unbind, isBound, rebind) =
     bindOrRebind(context, TYPES.ViewRegistry).to(GLSPViewRegistry).inSingletonScope();
 
     bind(SelectionService).toSelf().inSingletonScope();
+    bind(TYPES.ISModelRootListener).toService(SelectionService);
 });
 
 export default defaultGLSPModule;

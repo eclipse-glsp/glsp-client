@@ -16,7 +16,7 @@
 import * as uuid from 'uuid';
 
 import { ActionMessage } from '../action-protocol';
-import { Disposable } from '../disposable/disposable';
+import { Disposable } from '../utils/disposable';
 import { DisposeClientSessionParameters, InitializeClientSessionParameters, InitializeParameters, InitializeResult } from './types';
 
 export class ApplicationIdProvider {

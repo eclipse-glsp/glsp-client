@@ -34,7 +34,7 @@ import {
     matchesKeystroke
 } from '~glsp-sprotty';
 import { GLSPActionDispatcher } from '../../base/action-dispatcher';
-import { EditModeListener, EditorContextService } from '../../base/editor-context-service';
+import { EditorContextService, IEditModeListener } from '../../base/editor-context-service';
 import { FocusTracker } from '../../base/focus-tracker';
 import { MouseDeleteTool } from '../tools/delete-tool';
 import { MarqueeMouseTool } from '../tools/marquee-mouse-tool';
@@ -61,7 +61,7 @@ export namespace EnableToolPaletteAction {
     }
 }
 @injectable()
-export class ToolPalette extends AbstractUIExtension implements IActionHandler, EditModeListener {
+export class ToolPalette extends AbstractUIExtension implements IActionHandler, IEditModeListener {
     static readonly ID = 'tool-palette';
 
     @inject(TYPES.IActionDispatcher) protected readonly actionDispatcher: GLSPActionDispatcher;
@@ -72,7 +72,7 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
     protected paletteItems: PaletteItem[];
     protected paletteItemsCopy: PaletteItem[] = [];
     protected bodyDiv?: HTMLElement;
-    protected lastActivebutton?: HTMLElement;
+    protected lastActiveButton?: HTMLElement;
     protected defaultToolsButton: HTMLElement;
     protected searchField: HTMLInputElement;
     modelRootId: string;
@@ -86,7 +86,7 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
 
     @postConstruct()
     postConstruct(): void {
-        this.editorContext.register(this);
+        this.editorContext.onEditModeChanged(change => this.editModeChanged(change.newValue, change.oldValue));
     }
 
     override initialize(): boolean {
@@ -99,7 +99,7 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
     protected initializeContents(_containerElement: HTMLElement): void {
         this.createHeader();
         this.createBody();
-        this.lastActivebutton = this.defaultToolsButton;
+        this.lastActiveButton = this.defaultToolsButton;
     }
 
     protected override onBeforeShow(_containerElement: HTMLElement, root: Readonly<SModelRoot>): void {
@@ -307,15 +307,15 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
     }
 
     changeActiveButton(button?: HTMLElement): void {
-        if (this.lastActivebutton) {
-            this.lastActivebutton.classList.remove(CLICKED_CSS_CLASS);
+        if (this.lastActiveButton) {
+            this.lastActiveButton.classList.remove(CLICKED_CSS_CLASS);
         }
         if (button) {
             button.classList.add(CLICKED_CSS_CLASS);
-            this.lastActivebutton = button;
+            this.lastActiveButton = button;
         } else if (this.defaultToolsButton) {
             this.defaultToolsButton.classList.add(CLICKED_CSS_CLASS);
-            this.lastActivebutton = this.defaultToolsButton;
+            this.lastActiveButton = this.defaultToolsButton;
         }
     }
 
@@ -344,7 +344,7 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
         }
     }
 
-    editModeChanged(_oldValue: string, _newValue: string): void {
+    editModeChanged(_newValue: string, _oldValue: string): void {
         this.actionDispatcher.dispatch(
             SetUIExtensionVisibilityAction.create({ extensionId: ToolPalette.ID, visible: !this.editorContext.isReadonly })
         );

@@ -19,6 +19,7 @@ import {
     AnchorComputerRegistry,
     ChangeRoutingPointsOperation,
     Connectable,
+    DisposableCollection,
     EdgeRouterRegistry,
     ISnapper,
     ReconnectEdgeOperation,
@@ -33,7 +34,7 @@ import {
     isSelected
 } from '~glsp-sprotty';
 import { DragAwareMouseListener } from '../../base/drag-aware-mouse-listener';
-import { SelectionListener, SelectionService } from '../../base/selection-service';
+import { ISelectionListener, SelectionService } from '../../base/selection-service';
 import { calcElementAndRoutingPoints, isRoutable, isRoutingHandle } from '../../utils/smodel-util';
 import { SReconnectHandle, isReconnectHandle, isReconnectable, isSourceRoutingHandle, isTargetRoutingHandle } from '../reconnect/model';
 import { DrawFeedbackEdgeAction, RemoveFeedbackEdgeAction, feedbackEdgeId } from '../tool-feedback/creation-tool-feedback';
@@ -62,6 +63,7 @@ export class EdgeEditTool extends BaseGLSPTool {
     protected feedbackEdgeTargetMovingListener: FeedbackEdgeTargetMovingMouseListener;
     protected feedbackMovingListener: FeedbackEdgeRouteMovingMouseListener;
     protected edgeEditListener: EdgeEditListener;
+    protected toDispose = new DisposableCollection();
 
     get id(): string {
         return EdgeEditTool.ID;
@@ -70,7 +72,9 @@ export class EdgeEditTool extends BaseGLSPTool {
     enable(): void {
         this.edgeEditListener = new EdgeEditListener(this);
         this.mouseTool.register(this.edgeEditListener);
-        this.selectionService.register(this.edgeEditListener);
+        this.toDispose.push(
+            this.selectionService.onSelectionChanged(change => this.edgeEditListener.selectionChanged(change.root, change.selectedElements))
+        );
 
         // install feedback move mouse listener for client-side move updates
         this.feedbackEdgeSourceMovingListener = new FeedbackEdgeSourceMovingMouseListener(this.anchorRegistry);
@@ -92,13 +96,13 @@ export class EdgeEditTool extends BaseGLSPTool {
 
     disable(): void {
         this.edgeEditListener.reset();
-        this.selectionService.deregister(this.edgeEditListener);
         this.deregisterFeedbackListeners();
         this.mouseTool.deregister(this.edgeEditListener);
+        this.toDispose.dispose();
     }
 }
 
-class EdgeEditListener extends DragAwareMouseListener implements SelectionListener {
+class EdgeEditListener extends DragAwareMouseListener implements ISelectionListener {
     // active selection data
     protected edge?: SRoutableElement;
     protected routingHandle?: SRoutingHandle;

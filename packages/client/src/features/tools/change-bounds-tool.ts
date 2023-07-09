@@ -22,6 +22,7 @@ import {
     ChangeRoutingPointsOperation,
     CompoundOperation,
     Dimension,
+    DisposableCollection,
     EdgeRouterRegistry,
     ElementAndBounds,
     ElementAndRoutingPoints,
@@ -40,7 +41,7 @@ import {
     isSelected
 } from '~glsp-sprotty';
 import { DragAwareMouseListener } from '../../base/drag-aware-mouse-listener';
-import { SelectionListener, SelectionService } from '../../base/selection-service';
+import { ISelectionListener, SelectionService } from '../../base/selection-service';
 import { isValidMove, isValidSize } from '../../utils/layout-utils';
 import {
     calcElementAndRoutingPoints,
@@ -85,7 +86,8 @@ export class ChangeBoundsTool extends BaseGLSPTool {
     @inject(TYPES.ISnapper) @optional() readonly snapper?: ISnapper;
     @inject(TYPES.IMovementRestrictor) @optional() readonly movementRestrictor?: IMovementRestrictor;
     protected feedbackMoveMouseListener: MouseListener;
-    protected changeBoundsListener: MouseListener & SelectionListener;
+    protected changeBoundsListener: MouseListener & ISelectionListener;
+    protected toDispose = new DisposableCollection();
 
     get id(): string {
         return ChangeBoundsTool.ID;
@@ -99,27 +101,31 @@ export class ChangeBoundsTool extends BaseGLSPTool {
         // install change bounds listener for client-side resize updates and server-side updates
         this.changeBoundsListener = this.createChangeBoundsListener();
         this.mouseTool.register(this.changeBoundsListener);
-        this.selectionService.register(this.changeBoundsListener);
+        this.toDispose.push(
+            this.selectionService.onSelectionChanged(change =>
+                this.changeBoundsListener.selectionChanged(change.root, change.selectedElements)
+            )
+        );
     }
 
     protected createMoveMouseListener(): MouseListener {
         return new FeedbackMoveMouseListener(this);
     }
 
-    protected createChangeBoundsListener(): MouseListener & SelectionListener {
+    protected createChangeBoundsListener(): MouseListener & ISelectionListener {
         return new ChangeBoundsListener(this);
     }
 
     disable(): void {
         this.mouseTool.deregister(this.changeBoundsListener);
-        this.selectionService.deregister(this.changeBoundsListener);
         this.mouseTool.deregister(this.feedbackMoveMouseListener);
         this.deregisterFeedback([], this.feedbackMoveMouseListener);
         this.deregisterFeedback([HideChangeBoundsToolResizeFeedbackAction.create()], this.changeBoundsListener);
+        this.toDispose.dispose();
     }
 }
 
-export class ChangeBoundsListener extends DragAwareMouseListener implements SelectionListener {
+export class ChangeBoundsListener extends DragAwareMouseListener implements ISelectionListener {
     static readonly CSS_CLASS_ACTIVE = 'active';
 
     // members for calculating the correct position change
