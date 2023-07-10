@@ -15,10 +15,10 @@
  ********************************************************************************/
 import { AssertionError, expect } from 'chai';
 import { Container, injectable } from 'inversify';
+import * as sinon from 'sinon';
 import { Action, SGraphFactory, SModelElementSchema, SModelRoot, TYPES, defaultModule, initializeContainer } from '~glsp-sprotty';
 import { IFeedbackActionDispatcher, IFeedbackEmitter } from './feedback/feedback-action-dispatcher';
-import { SelectFeedbackAction, SelectionListener, SelectionService } from './selection-service';
-
+import { ISelectionListener, SelectFeedbackAction, SelectionService } from './selection-service';
 @injectable()
 class MockFeedbackActionDispatcher implements IFeedbackActionDispatcher {
     protected feedbackEmitters: Map<IFeedbackEmitter, Action[]> = new Map();
@@ -43,27 +43,9 @@ class MockFeedbackActionDispatcher implements IFeedbackActionDispatcher {
     }
 }
 
-class MockSelectionListener implements SelectionListener {
-    private called = 0;
-    private root: SModelRoot;
-    private selectedElements: string[] = [];
-
-    selectionChanged(newRoot: Readonly<SModelRoot>, selectedElements: string[]): void {
-        this.called++;
-        this.root = newRoot;
-        this.selectedElements = selectedElements;
-    }
-
-    getRoot(): SModelRoot {
-        return this.root;
-    }
-
-    getSelectedElements(): string[] {
-        return this.selectedElements;
-    }
-
-    getCalled(): number {
-        return this.called;
+class MockSelectionListener implements ISelectionListener {
+    selectionChanged(root: Readonly<SModelRoot>, selectedElements: string[], deselectedElements: string[] | undefined): void {
+        // no.op
     }
 }
 
@@ -205,118 +187,56 @@ describe('SelectionService', () => {
         });
     });
     describe('Listeners', () => {
+        const sandbox = sinon.createSandbox();
+        const listener = sandbox.createStubInstance(MockSelectionListener);
+
+        beforeEach(() => {
+            selectionService.onSelectionChanged(change =>
+                listener.selectionChanged(change.root, change.selectedElements, change.deselectedElements)
+            );
+        });
+
+        afterEach(() => {
+            selectionService.dispose();
+            sandbox.reset();
+        });
         it('A registered listener should be notified of a single selection change.', () => {
-            const listener: MockSelectionListener = new MockSelectionListener();
-            selectionService.register(listener);
-            assertListener(listener, undefined, [], 0);
             selectionService.updateSelection(root, ['node1', 'node1'], []);
-            assertListener(listener, root, ['node1'], 1);
+            assertListener(listener, root, ['node1'], [], 1);
         });
         it('A registered listener should be notified of a multi-selection change.', () => {
-            const listener: MockSelectionListener = new MockSelectionListener();
-            selectionService.register(listener);
-            assertListener(listener, undefined, [], 0);
             selectionService.updateSelection(root, ['node1', 'node2', 'node3'], []);
-            assertListener(listener, root, ['node1', 'node2', 'node3'], 1);
+            assertListener(listener, root, ['node1', 'node2', 'node3'], [], 1);
         });
         it('A registered listener should be notified of series of selection changes.', () => {
-            const listener: MockSelectionListener = new MockSelectionListener();
-            selectionService.register(listener);
-            assertListener(listener, undefined, [], 0);
             selectionService.updateSelection(root, ['node1'], []);
-            assertListener(listener, root, ['node1'], 1);
+            assertListener(listener, root, ['node1'], [], 1);
             selectionService.updateSelection(root, ['node2'], ['node1']);
-            assertListener(listener, root, ['node2'], 2);
+            assertListener(listener, root, ['node2'], ['node1'], 2);
             selectionService.updateSelection(root, ['node3', 'node4'], []);
-            assertListener(listener, root, ['node2', 'node3', 'node4'], 3);
+            assertListener(listener, root, ['node2', 'node3', 'node4'], [], 3);
             selectionService.updateSelection(root, [], ['node4']);
-            assertListener(listener, root, ['node2', 'node3'], 4);
-        });
-        it('A registered listener should receive the selected elements in the right order.', () => {
-            const listener: MockSelectionListener = new MockSelectionListener();
-            selectionService.register(listener);
-            assertListener(listener, undefined, [], 0);
-            selectionService.updateSelection(root, ['node2', 'node1'], []);
-            expect(() => assertListener(listener, root, ['node1', 'node2'], 1)).to.throw(AssertionError, 'ordered members');
+            assertListener(listener, root, ['node2', 'node3'], ['node4'], 4);
         });
         it('A registered listener should be notified of root changes.', () => {
-            const listener: MockSelectionListener = new MockSelectionListener();
-            selectionService.register(listener);
-            assertListener(listener, undefined, [], 0);
             selectionService.updateSelection(root, [], []);
-            assertListener(listener, root, [], 1);
+            assertListener(listener, root, [], [], 1);
 
             const newRoot = createRoot('node1', 'newNode2', 'newNode3');
             selectionService.updateSelection(newRoot, [], []);
-            assertListener(listener, newRoot, [], 2);
-        });
-        it('Registering an already registered listener should have no effect.', () => {
-            const listener: MockSelectionListener = new MockSelectionListener();
-            selectionService.register(listener);
-            selectionService.register(listener);
-            selectionService.register(listener);
-            assertListener(listener, undefined, [], 0);
-            selectionService.updateSelection(root, ['node1', 'node2', 'node3'], []);
-            assertListener(listener, root, ['node1', 'node2', 'node3'], 1);
-            selectionService.register(listener);
-            selectionService.updateSelection(root, [], ['node2']);
-            assertListener(listener, root, ['node1', 'node3'], 2);
+            assertListener(listener, newRoot, [], [], 2);
         });
         it('Selecting the same elements consecutively should not trigger a listener update.', () => {
-            const listener: MockSelectionListener = new MockSelectionListener();
-            selectionService.register(listener);
-            assertListener(listener, undefined, [], 0);
             selectionService.updateSelection(root, ['node1'], []);
-            assertListener(listener, root, ['node1'], 1);
+            assertListener(listener, root, ['node1'], [], 1);
             selectionService.updateSelection(root, ['node1'], []);
-            assertListener(listener, root, ['node1'], 1);
+            assertListener(listener, root, ['node1'], [], 1);
         });
         it('Selecting a not-existing elements should not trigger a listener update.', () => {
-            const listener: MockSelectionListener = new MockSelectionListener();
-            selectionService.register(listener);
-            assertListener(listener, undefined, [], 0);
             selectionService.updateSelection(root, ['node1'], []);
-            assertListener(listener, root, ['node1'], 1);
+            assertListener(listener, root, ['node1'], [], 1);
             selectionService.updateSelection(root, ['not-existing'], []);
-            assertListener(listener, root, ['node1'], 1);
-        });
-        it('All registered listeners should be called on selection changes.', () => {
-            const listener: MockSelectionListener = new MockSelectionListener();
-            const listener2: MockSelectionListener = new MockSelectionListener();
-            selectionService.register(listener);
-            selectionService.register(listener2);
-            assertListener(listener, undefined, [], 0);
-            assertListener(listener2, undefined, [], 0);
-            selectionService.updateSelection(root, ['node1'], []);
-            assertListener(listener, root, ['node1'], 1);
-            assertListener(listener2, root, ['node1'], 1);
-            selectionService.updateSelection(root, ['node2'], ['node1']);
-            assertListener(listener, root, ['node2'], 2);
-            assertListener(listener2, root, ['node2'], 2);
-            selectionService.updateSelection(root, ['node3', 'node4'], []);
-            assertListener(listener, root, ['node2', 'node3', 'node4'], 3);
-            assertListener(listener2, root, ['node2', 'node3', 'node4'], 3);
-            selectionService.updateSelection(root, [], ['node4']);
-            assertListener(listener, root, ['node2', 'node3'], 4);
-            assertListener(listener2, root, ['node2', 'node3'], 4);
-        });
-        it('A deregistered listener should not receive further updates.', () => {
-            const listener: MockSelectionListener = new MockSelectionListener();
-            selectionService.register(listener);
-            assertListener(listener, undefined, [], 0);
-            selectionService.updateSelection(root, ['node1'], []);
-            assertListener(listener, root, ['node1'], 1);
-            selectionService.deregister(listener);
-            selectionService.updateSelection(root, ['node2'], ['node1']);
-            assertListener(listener, root, ['node1'], 1);
-            selectionService.updateSelection(root, ['node3', 'node4'], []);
-            assertListener(listener, root, ['node1'], 1);
-            selectionService.updateSelection(root, [], ['node4']);
-            assertListener(listener, root, ['node1'], 1);
-
-            const newRoot = createRoot('node1', 'newNode2', 'newNode3');
-            selectionService.updateSelection(newRoot, [], []);
-            assertListener(listener, root, ['node1'], 1);
+            assertListener(listener, root, ['node1'], [], 1);
         });
     });
 
@@ -361,14 +281,15 @@ describe('SelectionService', () => {
     }
 
     function assertListener(
-        listener: MockSelectionListener,
+        listener: sinon.SinonStubbedInstance<MockSelectionListener>,
         expectedRoot: SModelRoot | undefined,
         expectedSelection: string[],
+        expectedDeselection: string[],
         expectedCalled: number
     ): void {
-        expect(listener.getRoot()).to.equal(expectedRoot);
-        expect(listener.getSelectedElements()).to.have.lengthOf(expectedSelection.length);
-        expect(listener.getSelectedElements()).to.have.ordered.members(expectedSelection);
-        expect(listener.getCalled()).to.equal(expectedCalled);
+        expect(listener.selectionChanged.callCount).to.be.equal(expectedCalled);
+        expect(listener.selectionChanged.lastCall.args[0]).to.be.deep.equals(expectedRoot);
+        expect(listener.selectionChanged.lastCall.args[1]).to.be.deep.equals(expectedSelection);
+        expect(listener.selectionChanged.lastCall.args[2]).to.be.deep.equals(expectedDeselection);
     }
 });

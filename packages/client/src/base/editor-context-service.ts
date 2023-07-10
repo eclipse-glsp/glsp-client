@@ -13,12 +13,16 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { inject, injectable, multiInject, optional } from 'inversify';
+import { inject, injectable, multiInject, optional, postConstruct, preDestroy } from 'inversify';
 import {
     Action,
     Args,
+    Disposable,
+    DisposableCollection,
     EditMode,
     EditorContext,
+    Emitter,
+    Event,
     IActionHandler,
     ModelSource,
     MousePositionTracker,
@@ -26,13 +30,12 @@ import {
     SModelRoot,
     SetEditModeAction,
     TYPES,
-    distinctAdd,
-    remove
+    ValueChange
 } from '~glsp-sprotty';
 import { SelectionService } from './selection-service';
 import { isSourceUriAware } from './source-uri-aware';
 
-export interface EditModeListener {
+export interface IEditModeListener {
     editModeChanged(newValue: string, oldValue: string): void;
 }
 
@@ -49,7 +52,7 @@ export interface EditModeListener {
  *    position, etc.).
  */
 @injectable()
-export class EditorContextService implements IActionHandler {
+export class EditorContextService implements IActionHandler, Disposable {
     @inject(SelectionService)
     protected selectionService: SelectionService;
 
@@ -58,19 +61,31 @@ export class EditorContextService implements IActionHandler {
 
     @multiInject(TYPES.IEditModeListener)
     @optional()
-    protected editModeListeners: EditModeListener[] = [];
+    protected editModeListeners: IEditModeListener[] = [];
 
     @inject(TYPES.ModelSourceProvider)
     protected modelSourceProvider: () => Promise<ModelSource>;
 
     protected _editMode: string;
 
-    register(editModeListener: EditModeListener): void {
-        distinctAdd(this.editModeListeners, editModeListener);
+    protected onEditModeChangedEmitter = new Emitter<ValueChange<string>>();
+    get onEditModeChanged(): Event<ValueChange<string>> {
+        return this.onEditModeChangedEmitter.event;
     }
 
-    deregister(editModeListener: EditModeListener): void {
-        remove(this.editModeListeners, editModeListener);
+    protected toDispose = new DisposableCollection();
+
+    @postConstruct()
+    protected initialize(): void {
+        this.toDispose.push(this.onEditModeChangedEmitter);
+        this.editModeListeners.forEach(listener =>
+            this.onEditModeChanged(change => listener.editModeChanged(change.newValue, change.oldValue))
+        );
+    }
+
+    @preDestroy()
+    dispose(): void {
+        this.toDispose.dispose();
     }
 
     get(args?: Args): EditorContext {
@@ -98,7 +113,7 @@ export class EditorContextService implements IActionHandler {
     }
 
     protected notifyEditModeListeners(oldValue: string): void {
-        this.editModeListeners.forEach(listener => listener.editModeChanged(oldValue, this.editMode));
+        this.onEditModeChangedEmitter.fire({ newValue: this.editMode, oldValue });
     }
 
     async getSourceUri(): Promise<string | undefined> {
