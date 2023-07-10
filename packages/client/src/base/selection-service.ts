@@ -19,6 +19,7 @@ import {
     Command,
     CommandExecutionContext,
     Disposable,
+    DisposableCollection,
     Emitter,
     Event,
     ILogger,
@@ -64,8 +65,11 @@ export class SelectionService implements ISModelRootListener, Disposable {
     @optional()
     protected selectionListeners: ISelectionListener[] = [];
 
+    protected toDispose = new DisposableCollection();
+
     @postConstruct()
     protected initialize(): void {
+        this.toDispose.push(this.onSelectionChangedEmitter);
         this.selectionListeners.forEach(listener =>
             this.onSelectionChanged(change => listener.selectionChanged(change.root, change.selectedElements, change.deselectedElements))
         );
@@ -73,8 +77,7 @@ export class SelectionService implements ISModelRootListener, Disposable {
 
     @preDestroy()
     dispose(): void {
-        this.onSelectionChangedEmitter.dispose();
-        this.selectionListeners = [];
+        this.toDispose.dispose();
     }
 
     protected onSelectionChangedEmitter = new Emitter<SelectionChange>();

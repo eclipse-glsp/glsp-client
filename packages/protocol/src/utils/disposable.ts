@@ -13,13 +13,14 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import * as jsonrpc from 'vscode-jsonrpc';
 import { remove } from '../utils/array-util';
 import { AnyObject, hasFunctionProp } from '../utils/type-util';
 
 /**
  * Interface for objects that can or need to be disposed properly.
  */
-export interface Disposable {
+export interface Disposable extends jsonrpc.Disposable {
     /**
      * Dispose this object.
      */

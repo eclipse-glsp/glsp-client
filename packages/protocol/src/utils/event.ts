@@ -45,6 +45,7 @@ export interface Event<T> extends jsonrpc.Event<T> {
      */
     (listener: (e: T) => any, thisArgs?: any, disposables?: Disposable[]): Disposable;
 }
+
 /**
  * Optional options that can be passed to the constructor
  * of an {@link Emitter}.

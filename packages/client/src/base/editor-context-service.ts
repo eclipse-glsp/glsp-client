@@ -18,6 +18,7 @@ import {
     Action,
     Args,
     Disposable,
+    DisposableCollection,
     EditMode,
     EditorContext,
     Emitter,
@@ -68,13 +69,15 @@ export class EditorContextService implements IActionHandler, Disposable {
     protected _editMode: string;
 
     protected onEditModeChangedEmitter = new Emitter<ValueChange<string>>();
-
     get onEditModeChanged(): Event<ValueChange<string>> {
         return this.onEditModeChangedEmitter.event;
     }
 
+    protected toDispose = new DisposableCollection();
+
     @postConstruct()
     protected initialize(): void {
+        this.toDispose.push(this.onEditModeChangedEmitter);
         this.editModeListeners.forEach(listener =>
             this.onEditModeChanged(change => listener.editModeChanged(change.newValue, change.oldValue))
         );
@@ -82,8 +85,7 @@ export class EditorContextService implements IActionHandler, Disposable {
 
     @preDestroy()
     dispose(): void {
-        this.onEditModeChangedEmitter.dispose();
-        this.editModeListeners = [];
+        this.toDispose.dispose();
     }
 
     get(args?: Args): EditorContext {
