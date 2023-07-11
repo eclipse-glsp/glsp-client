@@ -18,6 +18,7 @@ import { Container, ContainerModule } from 'inversify';
 import {
     ActionHandlerRegistry,
     InitializeResult,
+    KeyTool,
     ModelSource,
     MouseTool,
     SetEditModeAction,
@@ -32,6 +33,7 @@ import { GLSPActionDispatcher } from './action-dispatcher';
 import { FocusStateChangedAction } from './actions/focus-change-action';
 import { GLSPCommandStack } from './command-stack';
 import { EditorContextService } from './editor-context-service';
+import { ModifyCssFeedbackCommand } from './feedback/css-feedback';
 import { FeedbackActionDispatcher } from './feedback/feedback-action-dispatcher';
 import { FeedbackAwareUpdateModelCommand } from './feedback/update-model-command';
 import { FocusTracker } from './focus-tracker';
@@ -40,6 +42,8 @@ import { GLSPModelRegistry } from './model/model-registry';
 import { SelectionClearingMouseListener } from './selection-clearing-mouse-listener';
 import { SelectionService } from './selection-service';
 import { GLSPToolManager } from './tool-manager/glsp-tool-manager';
+import { GLSPKeyTool } from './view/glsp-key-tool';
+import { GLSPMouseTool } from './view/glsp-mouse-tool';
 import { RankingMouseTool } from './view/mouse-tool';
 import { GLSPViewRegistry } from './view/view-registry';
 
@@ -66,7 +70,10 @@ const defaultGLSPModule = new ContainerModule((bind, _unbind, isBound, rebind) =
     bind(TYPES.IFeedbackActionDispatcher).to(FeedbackActionDispatcher).inSingletonScope();
     configureCommand(context, FeedbackAwareUpdateModelCommand);
 
-    rebind(MouseTool).to(RankingMouseTool).inSingletonScope();
+    bindAsService(context, GLSPMouseTool, RankingMouseTool);
+    rebind(MouseTool).toService(RankingMouseTool);
+    bind(GLSPKeyTool).toSelf().inSingletonScope();
+    bindOrRebind(context, KeyTool).toService(GLSPKeyTool);
 
     bindAsService(context, TYPES.MouseListener, SelectionClearingMouseListener);
 
@@ -84,6 +91,9 @@ const defaultGLSPModule = new ContainerModule((bind, _unbind, isBound, rebind) =
 
     bind(SelectionService).toSelf().inSingletonScope();
     bind(TYPES.ISModelRootListener).toService(SelectionService);
+
+    // Generic re-usable feedback modifying css classes
+    configureCommand(context, ModifyCssFeedbackCommand);
 });
 
 export default defaultGLSPModule;

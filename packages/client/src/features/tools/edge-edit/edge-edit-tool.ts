@@ -19,7 +19,7 @@ import {
     AnchorComputerRegistry,
     ChangeRoutingPointsOperation,
     Connectable,
-    DisposableCollection,
+    Disposable,
     EdgeRouterRegistry,
     ISnapper,
     ReconnectEdgeOperation,
@@ -33,12 +33,13 @@ import {
     isConnectable,
     isSelected
 } from '~glsp-sprotty';
-import { DragAwareMouseListener } from '../../base/drag-aware-mouse-listener';
-import { ISelectionListener, SelectionService } from '../../base/selection-service';
-import { calcElementAndRoutingPoints, isRoutable, isRoutingHandle } from '../../utils/smodel-util';
-import { SReconnectHandle, isReconnectHandle, isReconnectable, isSourceRoutingHandle, isTargetRoutingHandle } from '../reconnect/model';
-import { DrawFeedbackEdgeAction, RemoveFeedbackEdgeAction, feedbackEdgeId } from '../tool-feedback/creation-tool-feedback';
-import { CursorCSS, cursorFeedbackAction } from '../tool-feedback/css-feedback';
+import { DragAwareMouseListener } from '../../../base/drag-aware-mouse-listener';
+import { CursorCSS, cursorFeedbackAction } from '../../../base/feedback/css-feedback';
+import { ISelectionListener, SelectionService } from '../../../base/selection-service';
+import { calcElementAndRoutingPoints, isRoutable, isRoutingHandle } from '../../../utils/smodel-util';
+import { SReconnectHandle, isReconnectHandle, isReconnectable, isSourceRoutingHandle, isTargetRoutingHandle } from '../../reconnect/model';
+import { BaseGLSPTool } from '../base-glsp-tool';
+import { DrawFeedbackEdgeAction, RemoveFeedbackEdgeAction, feedbackEdgeId } from '../edge-creation/dangling-edge-feedback';
 import {
     DrawFeedbackEdgeSourceAction,
     FeedbackEdgeRouteMovingMouseListener,
@@ -47,8 +48,7 @@ import {
     HideEdgeReconnectHandlesFeedbackAction,
     ShowEdgeReconnectHandlesFeedbackAction,
     SwitchRoutingModeAction
-} from '../tool-feedback/edge-edit-tool-feedback';
-import { BaseGLSPTool } from './base-glsp-tool';
+} from './edge-edit-tool-feedback';
 
 @injectable()
 export class EdgeEditTool extends BaseGLSPTool {
@@ -63,7 +63,6 @@ export class EdgeEditTool extends BaseGLSPTool {
     protected feedbackEdgeTargetMovingListener: FeedbackEdgeTargetMovingMouseListener;
     protected feedbackMovingListener: FeedbackEdgeRouteMovingMouseListener;
     protected edgeEditListener: EdgeEditListener;
-    protected toDispose = new DisposableCollection();
 
     get id(): string {
         return EdgeEditTool.ID;
@@ -71,8 +70,9 @@ export class EdgeEditTool extends BaseGLSPTool {
 
     enable(): void {
         this.edgeEditListener = new EdgeEditListener(this);
-        this.mouseTool.register(this.edgeEditListener);
-        this.toDispose.push(
+        this.onDisable.push(
+            Disposable.create(() => this.edgeEditListener.reset()),
+            this.mouseTool.registerListener(this.edgeEditListener),
             this.selectionService.onSelectionChanged(change => this.edgeEditListener.selectionChanged(change.root, change.selectedElements))
         );
 
@@ -93,16 +93,9 @@ export class EdgeEditTool extends BaseGLSPTool {
         this.mouseTool.deregister(this.feedbackEdgeTargetMovingListener);
         this.mouseTool.deregister(this.feedbackMovingListener);
     }
-
-    disable(): void {
-        this.edgeEditListener.reset();
-        this.deregisterFeedbackListeners();
-        this.mouseTool.deregister(this.edgeEditListener);
-        this.toDispose.dispose();
-    }
 }
 
-class EdgeEditListener extends DragAwareMouseListener implements ISelectionListener {
+export class EdgeEditListener extends DragAwareMouseListener implements ISelectionListener {
     // active selection data
     protected edge?: SRoutableElement;
     protected routingHandle?: SRoutingHandle;
@@ -136,7 +129,7 @@ class EdgeEditListener extends DragAwareMouseListener implements ISelectionListe
         if (isReconnectable(edge)) {
             feedbackActions.push(ShowEdgeReconnectHandlesFeedbackAction.create(this.edge.id));
         }
-        this.tool.dispatchFeedback(feedbackActions);
+        this.tool.registerFeedback(feedbackActions);
     }
 
     protected isEdgeSelected(): boolean {
@@ -146,14 +139,14 @@ class EdgeEditListener extends DragAwareMouseListener implements ISelectionListe
     protected setReconnectHandleSelected(edge: SRoutableElement, reconnectHandle: SReconnectHandle): void {
         if (this.edge && this.edge.target && this.edge.source) {
             if (isSourceRoutingHandle(edge, reconnectHandle)) {
-                this.tool.dispatchFeedback([
+                this.tool.registerFeedback([
                     HideEdgeReconnectHandlesFeedbackAction.create(),
                     cursorFeedbackAction(CursorCSS.EDGE_RECONNECT),
                     DrawFeedbackEdgeSourceAction.create({ elementTypeId: this.edge.type, targetId: this.edge.targetId })
                 ]);
                 this.reconnectMode = 'NEW_SOURCE';
             } else if (isTargetRoutingHandle(edge, reconnectHandle)) {
-                this.tool.dispatchFeedback([
+                this.tool.registerFeedback([
                     HideEdgeReconnectHandlesFeedbackAction.create(),
                     cursorFeedbackAction(CursorCSS.EDGE_CREATION_TARGET),
                     DrawFeedbackEdgeAction.create({ elementTypeId: this.edge.type, sourceId: this.edge.sourceId })
@@ -261,11 +254,11 @@ class EdgeEditListener extends DragAwareMouseListener implements ISelectionListe
                         (this.reconnectMode === 'NEW_SOURCE' && currentTarget.canConnect(this.edge, 'source')) ||
                         (this.reconnectMode === 'NEW_TARGET' && currentTarget.canConnect(this.edge, 'target'))
                     ) {
-                        this.tool.dispatchFeedback([cursorFeedbackAction(CursorCSS.EDGE_RECONNECT)]);
+                        this.tool.registerFeedback([cursorFeedbackAction(CursorCSS.EDGE_RECONNECT)]);
                         return [];
                     }
                 }
-                this.tool.dispatchFeedback([cursorFeedbackAction(CursorCSS.OPERATION_NOT_ALLOWED)]);
+                this.tool.registerFeedback([cursorFeedbackAction(CursorCSS.OPERATION_NOT_ALLOWED)]);
             }
         }
         return [];

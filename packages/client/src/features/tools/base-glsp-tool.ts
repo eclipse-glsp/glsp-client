@@ -14,21 +14,28 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { inject, injectable } from 'inversify';
-import { Action, IActionDispatcher, KeyTool, MouseTool, TYPES } from '~glsp-sprotty';
+import { Action, Disposable, DisposableCollection, IActionDispatcher, TYPES } from '~glsp-sprotty';
 import { EditorContextService } from '../../base/editor-context-service';
 import { IFeedbackActionDispatcher, IFeedbackEmitter } from '../../base/feedback/feedback-action-dispatcher';
 import { GLSPTool } from '../../base/tool-manager/glsp-tool-manager';
+import { GLSPKeyTool } from '../../base/view/glsp-key-tool';
+import { GLSPMouseTool } from '../../base/view/glsp-mouse-tool';
 
 @injectable()
 export abstract class BaseGLSPTool implements GLSPTool {
     @inject(TYPES.IFeedbackActionDispatcher) protected feedbackDispatcher: IFeedbackActionDispatcher;
     @inject(TYPES.IActionDispatcher) protected actionDispatcher: IActionDispatcher;
-    @inject(MouseTool) protected mouseTool: MouseTool;
-    @inject(KeyTool) protected keyTool: KeyTool;
+    @inject(GLSPMouseTool) protected mouseTool: GLSPMouseTool;
+    @inject(GLSPKeyTool) protected keyTool: GLSPKeyTool;
     @inject(EditorContextService) protected readonly editorContext: EditorContextService;
 
+    protected onDisable = new DisposableCollection();
+
     abstract enable(): void;
-    abstract disable(): void;
+
+    disable(): void {
+        this.onDisable.dispose();
+    }
 
     abstract id: string;
 
@@ -40,11 +47,11 @@ export abstract class BaseGLSPTool implements GLSPTool {
         this.actionDispatcher.dispatchAll(actions);
     }
 
-    dispatchFeedback(actions: Action[], feedbackEmitter?: IFeedbackEmitter): void {
-        this.feedbackDispatcher.registerFeedback(feedbackEmitter ?? this, actions);
+    registerFeedback(actions: Action[], feedbackEmitter?: IFeedbackEmitter, cleanupActions?: Action[]): Disposable {
+        return this.feedbackDispatcher.registerFeedback(feedbackEmitter ?? this, actions, cleanupActions);
     }
 
-    deregisterFeedback(actions: Action[], feedbackEmitter?: IFeedbackEmitter): void {
+    deregisterFeedback(actions?: Action[], feedbackEmitter?: IFeedbackEmitter): void {
         this.feedbackDispatcher.deregisterFeedback(feedbackEmitter ?? this, actions);
     }
 }

@@ -16,30 +16,26 @@
 import { inject, injectable } from 'inversify';
 import {
     Action,
-    AnchorComputerRegistry,
-    Bounds,
+    BindingContext,
     CommandExecutionContext,
     CommandReturn,
-    MouseListener,
-    MoveAction,
-    Point,
-    PolylineEdgeRouter,
     SChildElement,
-    SConnectableElement,
     SDanglingAnchor,
     SEdgeSchema,
-    SModelElement,
     SModelRoot,
     SRoutableElement,
     TYPES,
-    findChildrenAtPosition,
+    configureCommand,
+    configureView,
     findParentByFeature,
     isBoundsAware,
     isConnectable
 } from '~glsp-sprotty';
-import { FeedbackCommand } from '../../base/feedback/feeback-command';
-import { BoundsAwareModelElement, isRoutable } from '../../utils/smodel-util';
-import { getAbsolutePosition, toAbsoluteBounds, toAbsolutePosition } from '../../utils/viewpoint-util';
+import { FeedbackCommand } from '../../../base/feedback/feeback-command';
+import { isRoutable } from '../../../utils/smodel-util';
+import { toAbsolutePosition } from '../../../utils/viewpoint-util';
+import { FeedbackEdgeEndView } from './view';
+
 export interface DrawFeedbackEdgeAction extends Action {
     kind: typeof DrawFeedbackEdgeAction.KIND;
     elementTypeId: string;
@@ -75,7 +71,7 @@ export class DrawFeedbackEdgeCommand extends FeedbackCommand {
     }
 
     execute(context: CommandExecutionContext): CommandReturn {
-        drawFeedbackEdge(context, this.action.sourceId, this.action.elementTypeId, this.action.edgeSchema);
+        drawDanglingFeedbackEdge(context, this.action.sourceId, this.action.elementTypeId, this.action.edgeSchema);
         return context.root;
     }
 }
@@ -101,7 +97,7 @@ export class RemoveFeedbackEdgeCommand extends FeedbackCommand {
     static readonly KIND = RemoveFeedbackEdgeAction.KIND;
 
     execute(context: CommandExecutionContext): CommandReturn {
-        removeFeedbackEdge(context.root);
+        removeDanglingFeedbackEdge(context.root);
         return context.root;
     }
 }
@@ -118,80 +114,6 @@ export class FeedbackEdgeEnd extends SDanglingAnchor {
     }
 }
 
-export class FeedbackEdgeEndMovingMouseListener extends MouseListener {
-    constructor(protected anchorRegistry: AnchorComputerRegistry) {
-        super();
-    }
-
-    override mouseMove(target: SModelElement, event: MouseEvent): Action[] {
-        const root = target.root;
-        const edgeEnd = root.index.getById(feedbackEdgeEndId(root));
-        if (!(edgeEnd instanceof FeedbackEdgeEnd) || !edgeEnd.feedbackEdge) {
-            return [];
-        }
-
-        const edge = edgeEnd.feedbackEdge;
-        const position = getAbsolutePosition(edgeEnd, event);
-        const endAtMousePosition = findChildrenAtPosition(target.root, position)
-            .reverse()
-            .find(element => isConnectable(element) && element.canConnect(edge, 'target'));
-
-        if (endAtMousePosition instanceof SConnectableElement && edge.source && isBoundsAware(edge.source)) {
-            const anchor = this.computeAbsoluteAnchor(endAtMousePosition, Bounds.center(toAbsoluteBounds(edge.source)));
-            if (Point.euclideanDistance(anchor, edgeEnd.position) > 1) {
-                return [MoveAction.create([{ elementId: edgeEnd.id, toPosition: anchor }], { animate: false })];
-            }
-        } else {
-            return [MoveAction.create([{ elementId: edgeEnd.id, toPosition: position }], { animate: false })];
-        }
-
-        return [];
-    }
-
-    protected computeAbsoluteAnchor(element: SConnectableElement, absoluteReferencePoint: Point, offset?: number): Point {
-        const referencePointInParent = absoluteToParent(element, absoluteReferencePoint);
-        const anchorComputer = this.anchorRegistry.get(PolylineEdgeRouter.KIND, element.anchorKind);
-        let anchor = anchorComputer.getAnchor(element, referencePointInParent, offset);
-        // The anchor is computed in the local coordinate system of the element.
-        // If the element is a nested child element we have to add the absolute position of its parent to the anchor.
-        if (element.parent !== element.root) {
-            const parent = findParentByFeature(element.parent, isBoundsAware);
-            if (parent) {
-                const absoluteParentPosition = toAbsoluteBounds(parent);
-                anchor = Point.add(absoluteParentPosition, anchor);
-            }
-        }
-        return anchor;
-    }
-}
-
-/**
- * Convert a point, specified in absolute coordinates, to a point relative
- * to the parent of the specified child element.
- * @param element the child element
- * @param absolutePoint a point in absolute coordinates
- * @returns the equivalent point, relative to the element's parent coordinates
- */
-function absoluteToParent(element: BoundsAwareModelElement & SChildElement, absolutePoint: Point): Point {
-    if (isBoundsAware(element.parent)) {
-        return absoluteToLocal(element.parent, absolutePoint);
-    }
-    // If the parent is not bounds-aware, assume it's at 0; 0 and proceed
-    return absoluteToLocal(element, absolutePoint);
-}
-
-/**
- * Convert a point, specified in absolute coordinates, to a point relative
- * to the specified element.
- * @param element the element
- * @param absolutePoint a point in absolute coordinates
- * @returns the equivalent point, relative to the element's coordinates
- */
-function absoluteToLocal(element: BoundsAwareModelElement, absolutePoint: Point): Point {
-    const absoluteElementBounds = toAbsoluteBounds(element);
-    return { x: absolutePoint.x - absoluteElementBounds.x, y: absolutePoint.y - absoluteElementBounds.y };
-}
-
 export function feedbackEdgeId(root: SModelRoot): string {
     return root.id + '_feedback_edge';
 }
@@ -205,7 +127,7 @@ export const defaultFeedbackEdgeSchema: Partial<SEdgeSchema> = {
     opacity: 0.3
 };
 
-export function drawFeedbackEdge(
+export function drawDanglingFeedbackEdge(
     context: CommandExecutionContext,
     sourceId: string,
     elementTypeId: string,
@@ -243,7 +165,7 @@ export function drawFeedbackEdge(
     }
 }
 
-export function removeFeedbackEdge(root: SModelRoot): void {
+export function removeDanglingFeedbackEdge(root: SModelRoot): void {
     const feedbackEdge = root.index.getById(feedbackEdgeId(root));
     const feedbackEdgeEnd = root.index.getById(feedbackEdgeEndId(root));
     if (feedbackEdge instanceof SChildElement) {
@@ -251,5 +173,13 @@ export function removeFeedbackEdge(root: SModelRoot): void {
     }
     if (feedbackEdgeEnd instanceof SChildElement) {
         root.remove(feedbackEdgeEnd);
+    }
+}
+
+export function configureDanglingFeedbackEdge(context: BindingContext): void {
+    if (!context.isBound(DrawFeedbackEdgeCommand) && !context.isBound(RemoveFeedbackEdgeCommand) && !context.isBound(FeedbackEdgeEndView)) {
+        configureCommand(context, DrawFeedbackEdgeCommand);
+        configureCommand(context, RemoveFeedbackEdgeCommand);
+        configureView(context, FeedbackEdgeEnd.TYPE, FeedbackEdgeEndView);
     }
 }

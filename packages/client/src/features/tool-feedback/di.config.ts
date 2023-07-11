@@ -14,47 +14,12 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { ContainerModule } from 'inversify';
-import { bindAsService, configureCommand, configureView, LocationPostprocessor, MoveCommand, TYPES } from '~glsp-sprotty';
-import { SResizeHandle } from '../change-bounds/model';
-import { HideChangeBoundsToolResizeFeedbackCommand, ShowChangeBoundsToolResizeFeedbackCommand } from './change-bounds-tool-feedback';
-import { DrawFeedbackEdgeCommand, FeedbackEdgeEnd, RemoveFeedbackEdgeCommand } from './creation-tool-feedback';
-import { ModifyCssFeedbackCommand } from './css-feedback';
-import {
-    DrawFeedbackEdgeSourceCommand,
-    HideEdgeReconnectHandlesFeedbackCommand,
-    ShowEdgeReconnectHandlesFeedbackCommand,
-    SwitchRoutingModeCommand
-} from './edge-edit-tool-feedback';
-import { DrawMarqueeCommand, RemoveMarqueeCommand } from './marquee-tool-feedback';
-import { FeedbackEdgeEndView, SResizeHandleView } from './view';
+import { LocationPostprocessor, MoveCommand, TYPES, bindAsService, configureCommand } from '~glsp-sprotty';
 
 const toolFeedbackModule = new ContainerModule((bind, _unbind, isBound) => {
     const context = { bind, isBound };
-
-    configureCommand(context, ModifyCssFeedbackCommand);
-
-    // create node and edge tool feedback
-    configureCommand(context, DrawFeedbackEdgeCommand);
-    configureCommand(context, RemoveFeedbackEdgeCommand);
-
-    configureCommand(context, DrawMarqueeCommand);
-    configureCommand(context, RemoveMarqueeCommand);
-
-    configureView(context, FeedbackEdgeEnd.TYPE, FeedbackEdgeEndView);
-    // move tool feedback: we use sprotty's MoveCommand as client-side visual feedback
+    // move tool feedback: we allow to use sprotty's MoveCommand as client-side visual feedback
     configureCommand(context, MoveCommand);
-
-    // resize tool feedback
-    configureCommand(context, ShowChangeBoundsToolResizeFeedbackCommand);
-    configureCommand(context, HideChangeBoundsToolResizeFeedbackCommand);
-    configureView(context, SResizeHandle.TYPE, SResizeHandleView);
-
-    // reconnect edge tool feedback
-    configureCommand(context, ShowEdgeReconnectHandlesFeedbackCommand);
-    configureCommand(context, HideEdgeReconnectHandlesFeedbackCommand);
-    configureCommand(context, DrawFeedbackEdgeSourceCommand);
-
-    configureCommand(context, SwitchRoutingModeCommand);
 
     bindAsService(context, TYPES.IVNodePostprocessor, LocationPostprocessor);
     bind(TYPES.HiddenVNodePostprocessor).toService(LocationPostprocessor);

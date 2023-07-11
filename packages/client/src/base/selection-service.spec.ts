@@ -16,15 +16,26 @@
 import { AssertionError, expect } from 'chai';
 import { Container, injectable } from 'inversify';
 import * as sinon from 'sinon';
-import { Action, SGraphFactory, SModelElementSchema, SModelRoot, TYPES, defaultModule, initializeContainer } from '~glsp-sprotty';
+import {
+    Action,
+    Disposable,
+    SGraphFactory,
+    SModelElementSchema,
+    SModelRoot,
+    TYPES,
+    defaultModule,
+    initializeContainer
+} from '~glsp-sprotty';
 import { IFeedbackActionDispatcher, IFeedbackEmitter } from './feedback/feedback-action-dispatcher';
 import { ISelectionListener, SelectFeedbackAction, SelectionService } from './selection-service';
+
 @injectable()
 class MockFeedbackActionDispatcher implements IFeedbackActionDispatcher {
     protected feedbackEmitters: Map<IFeedbackEmitter, Action[]> = new Map();
 
-    registerFeedback(feedbackEmitter: IFeedbackEmitter, actions: Action[]): void {
+    registerFeedback(feedbackEmitter: IFeedbackEmitter, actions: Action[]): Disposable {
         this.feedbackEmitters.set(feedbackEmitter, actions);
+        return Disposable.create(() => this.deregisterFeedback(feedbackEmitter, []));
     }
 
     deregisterFeedback(feedbackEmitter: IFeedbackEmitter, actions: Action[]): void {

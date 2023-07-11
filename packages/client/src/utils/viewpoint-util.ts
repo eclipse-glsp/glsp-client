@@ -19,13 +19,16 @@ import {
     BoundsAware,
     Dimension,
     Point,
+    SChildElement,
     SModelElement,
     Viewport,
     findParentByFeature,
     isAlignable,
+    isBoundsAware,
     isViewport,
     translateBounds
 } from '~glsp-sprotty';
+import { BoundsAwareModelElement } from './smodel-util';
 
 /**
  * Return the position corresponding to this mouse event (Browser coordinates)
@@ -97,4 +100,33 @@ export function toAbsolutePosition(target: SModelElement & BoundsAware): Point {
  */
 export function toAbsoluteSize(target: SModelElement & BoundsAware): Dimension {
     return toAbsoluteBounds(target);
+}
+
+/**
+ * Convert a point, specified in absolute coordinates, to a point relative
+ * to the parent of the specified child element.
+ *
+ * @param element the child element
+ * @param absolutePoint a point in absolute coordinates
+ * @returns the equivalent point, relative to the element's parent coordinates
+ */
+export function absoluteToParent(element: BoundsAwareModelElement & SChildElement, absolutePoint: Point): Point {
+    if (isBoundsAware(element.parent)) {
+        return absoluteToLocal(element.parent, absolutePoint);
+    }
+    // If the parent is not bounds-aware, assume it's at 0; 0 and proceed
+    return absoluteToLocal(element, absolutePoint);
+}
+
+/**
+ * Convert a point, specified in absolute coordinates, to a point relative
+ * to the specified element.
+ *
+ * @param element the element
+ * @param absolutePoint a point in absolute coordinates
+ * @returns the equivalent point, relative to the element's coordinates
+ */
+export function absoluteToLocal(element: BoundsAwareModelElement, absolutePoint: Point): Point {
+    const absoluteElementBounds = toAbsoluteBounds(element);
+    return { x: absolutePoint.x - absoluteElementBounds.x, y: absolutePoint.y - absoluteElementBounds.y };
 }

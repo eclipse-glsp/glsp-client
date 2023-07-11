@@ -14,18 +14,17 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { ContainerModule } from 'inversify';
-import { configureActionHandler } from '~glsp-sprotty';
-import {
-    AlignElementsAction,
-    AlignElementsActionHandler,
-    ResizeElementsAction,
-    ResizeElementsActionHandler
-} from './layout-elements-action';
+import { ManhattanEdgeRouter, bindOrRebind } from '~glsp-sprotty';
+import { GLSPManhattanEdgeRouter } from './glsp-manhattan-edge-router';
 
-const layoutModule = new ContainerModule((bind, _unbind, isBound) => {
-    const context = { bind, isBound };
-    configureActionHandler(context, ResizeElementsAction.KIND, ResizeElementsActionHandler);
-    configureActionHandler(context, AlignElementsAction.KIND, AlignElementsActionHandler);
+/**
+ * Registers the default tools of GLSP (node and edge creation, changing bounds, edge editing, deletion)
+ * and adds the marquee selection tool.
+ */
+const glspRoutingModule = new ContainerModule((bind, _unbind, isBound, rebind) => {
+    const context = { bind, isBound, rebind };
+    bind(GLSPManhattanEdgeRouter).toSelf().inSingletonScope();
+    bindOrRebind(context, ManhattanEdgeRouter).toService(GLSPManhattanEdgeRouter);
 });
 
-export default layoutModule;
+export default glspRoutingModule;

@@ -19,8 +19,6 @@ import {
     AnchorComputerRegistry,
     CreateEdgeOperation,
     EnableDefaultToolsAction,
-    EnableToolsAction,
-    IActionHandler,
     SEdge,
     SModelElement,
     TriggerEdgeCreationAction,
@@ -28,54 +26,37 @@ import {
     isConnectable,
     isCtrlOrCmd
 } from '~glsp-sprotty';
-import { DragAwareMouseListener } from '../../base/drag-aware-mouse-listener';
-import {
-    DrawFeedbackEdgeAction,
-    FeedbackEdgeEndMovingMouseListener,
-    RemoveFeedbackEdgeAction
-} from '../tool-feedback/creation-tool-feedback';
-import { CursorCSS, cursorFeedbackAction } from '../tool-feedback/css-feedback';
-import { BaseGLSPTool } from './base-glsp-tool';
+import { DragAwareMouseListener } from '../../../base/drag-aware-mouse-listener';
+
+import { CursorCSS, cursorFeedbackAction } from '../../../base/feedback/css-feedback';
+import { BaseGLSPCreationTool } from '../base-glsp-creation-tool';
+import { DrawFeedbackEdgeAction, RemoveFeedbackEdgeAction } from './dangling-edge-feedback';
+import { FeedbackEdgeEndMovingMouseListener } from './edge-creation-tool-feedback';
 
 /**
  * Tool to create connections in a Diagram, by selecting a source and target node.
  */
 @injectable()
-export class EdgeCreationTool extends BaseGLSPTool implements IActionHandler {
+export class EdgeCreationTool extends BaseGLSPCreationTool<TriggerEdgeCreationAction> {
     static ID = 'tool_create_edge';
 
     @inject(AnchorComputerRegistry) protected anchorRegistry: AnchorComputerRegistry;
 
-    protected triggerAction: TriggerEdgeCreationAction;
-    protected creationToolMouseListener: EdgeCreationToolMouseListener;
-    protected feedbackEndMovingMouseListener: FeedbackEdgeEndMovingMouseListener;
+    protected isTriggerAction = TriggerEdgeCreationAction.is;
 
     get id(): string {
         return EdgeCreationTool.ID;
     }
 
-    enable(): void {
-        if (this.triggerAction === undefined) {
-            throw new TypeError(`Could not enable tool ${this.id}.The triggerAction cannot be undefined.`);
-        }
-        this.creationToolMouseListener = new EdgeCreationToolMouseListener(this.triggerAction, this);
-        this.mouseTool.register(this.creationToolMouseListener);
-        this.feedbackEndMovingMouseListener = new FeedbackEdgeEndMovingMouseListener(this.anchorRegistry);
-        this.mouseTool.register(this.feedbackEndMovingMouseListener);
-        this.dispatchFeedback([cursorFeedbackAction(CursorCSS.OPERATION_NOT_ALLOWED)]);
-    }
-
-    disable(): void {
-        this.mouseTool.deregister(this.creationToolMouseListener);
-        this.mouseTool.deregister(this.feedbackEndMovingMouseListener);
-        this.deregisterFeedback([RemoveFeedbackEdgeAction.create(), cursorFeedbackAction()]);
-    }
-
-    handle(action: Action): Action | void {
-        if (TriggerEdgeCreationAction.is(action)) {
-            this.triggerAction = action;
-            return EnableToolsAction.create([this.id]);
-        }
+    doEnable(): void {
+        this.onDisable.push(
+            this.mouseTool.registerListener(new EdgeCreationToolMouseListener(this.triggerAction, this)),
+            this.mouseTool.registerListener(new FeedbackEdgeEndMovingMouseListener(this.anchorRegistry)),
+            this.registerFeedback([cursorFeedbackAction(CursorCSS.OPERATION_NOT_ALLOWED)], this, [
+                RemoveFeedbackEdgeAction.create(),
+                cursorFeedbackAction()
+            ])
+        );
     }
 }
 
@@ -98,7 +79,7 @@ export class EdgeCreationToolMouseListener extends DragAwareMouseListener {
         this.target = undefined;
         this.currentTarget = undefined;
         this.allowedTarget = false;
-        this.tool.dispatchFeedback([RemoveFeedbackEdgeAction.create()]);
+        this.tool.registerFeedback([RemoveFeedbackEdgeAction.create()]);
     }
 
     override nonDraggingMouseUp(_element: SModelElement, event: MouseEvent): Action[] {
@@ -107,7 +88,7 @@ export class EdgeCreationToolMouseListener extends DragAwareMouseListener {
             if (!this.isSourceSelected()) {
                 if (this.currentTarget && this.allowedTarget) {
                     this.source = this.currentTarget.id;
-                    this.tool.dispatchFeedback([
+                    this.tool.registerFeedback([
                         DrawFeedbackEdgeAction.create({ elementTypeId: this.triggerAction.elementTypeId, sourceId: this.source })
                     ]);
                 }

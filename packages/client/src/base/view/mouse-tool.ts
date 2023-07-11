@@ -14,8 +14,9 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { injectable, multiInject, optional } from 'inversify';
-import { Action, MouseListener, MouseTool, SModelElement, SModelRoot, TYPES } from '~glsp-sprotty';
+import { Action, Disposable, MouseListener, SModelElement, SModelRoot, TYPES } from '~glsp-sprotty';
 import { Ranked } from '../ranked';
+import { GLSPMouseTool } from './glsp-mouse-tool';
 
 /**
  * Custom helper type to declare the explicit mouse listener methods
@@ -24,7 +25,7 @@ import { Ranked } from '../ranked';
 type MouseListenerMethods = keyof Omit<MouseListener, 'decorate'>;
 
 @injectable()
-export class RankingMouseTool extends MouseTool {
+export class RankingMouseTool extends GLSPMouseTool {
     protected rankedMouseListeners: Map<number, MouseListener[]>;
 
     constructor(@multiInject(TYPES.MouseListener) @optional() protected override mouseListeners: MouseListener[] = []) {
@@ -35,6 +36,12 @@ export class RankingMouseTool extends MouseTool {
     override register(mouseListener: MouseListener): void {
         super.register(mouseListener);
         this.rankedMouseListeners = groupBy(this.mouseListeners, listener => Ranked.getRank(listener));
+    }
+
+    override registerListener(mouseListener: MouseListener): Disposable {
+        const deregister = super.registerListener(mouseListener);
+        this.rankedMouseListeners = groupBy(this.mouseListeners, listener => Ranked.getRank(listener));
+        return deregister;
     }
 
     override deregister(mouseListener: MouseListener): void {

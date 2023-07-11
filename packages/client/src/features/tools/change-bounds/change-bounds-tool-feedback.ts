@@ -34,12 +34,12 @@ import {
     isSelectable,
     isViewport
 } from '~glsp-sprotty';
-import { FeedbackCommand } from '../../base/feedback/feeback-command';
-import { forEachElement } from '../../utils/smodel-util';
-import { SResizeHandle, addResizeHandles, isResizable, removeResizeHandles } from '../change-bounds/model';
-import { createMovementRestrictionFeedback, removeMovementRestrictionFeedback } from '../change-bounds/movement-restrictor';
-import { CursorCSS, cursorFeedbackAction } from '../tool-feedback/css-feedback';
-import { ChangeBoundsTool } from '../tools/change-bounds-tool';
+import { CursorCSS, cursorFeedbackAction } from '../../../base/feedback/css-feedback';
+import { FeedbackCommand } from '../../../base/feedback/feeback-command';
+import { forEachElement } from '../../../utils/smodel-util';
+import { SResizeHandle, addResizeHandles, isResizable, removeResizeHandles } from '../../change-bounds/model';
+import { createMovementRestrictionFeedback, removeMovementRestrictionFeedback } from '../../change-bounds/movement-restrictor';
+import { ChangeBoundsTool } from './change-bounds-tool';
 
 export interface ShowChangeBoundsToolResizeFeedbackAction extends Action {
     kind: typeof ShowChangeBoundsToolResizeFeedbackAction.KIND;
@@ -157,7 +157,7 @@ export class FeedbackMoveMouseListener extends MouseListener implements Disposab
                 result.push(cursorFeedbackAction(CursorCSS.MOVE));
             }
         }
-        this.tool.dispatchFeedback(result, this);
+        this.tool.registerFeedback(result, this);
         return [];
     }
 
@@ -253,7 +253,7 @@ export class FeedbackMoveMouseListener extends MouseListener implements Disposab
             } else {
                 action = removeMovementRestrictionFeedback(element, this.tool.movementRestrictor);
             }
-            this.tool.dispatchFeedback([action], this);
+            this.tool.registerFeedback([action], this);
         }
         return newPosition;
     }
@@ -280,10 +280,12 @@ export class FeedbackMoveMouseListener extends MouseListener implements Disposab
             if (moveAction) {
                 result.push(moveAction);
             }
+            const feebackCleanup: Action[] = [];
             if (this.tool.movementRestrictor) {
-                this.tool.deregisterFeedback([removeMovementRestrictionFeedback(target, this.tool.movementRestrictor)], this);
+                feebackCleanup.push(removeMovementRestrictionFeedback(target, this.tool.movementRestrictor));
             }
-            result.push(cursorFeedbackAction(CursorCSS.DEFAULT));
+            feebackCleanup.push(cursorFeedbackAction(CursorCSS.DEFAULT));
+            this.tool.deregisterFeedback(feebackCleanup, this);
         }
         this.reset();
         return result;

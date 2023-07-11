@@ -42,12 +42,19 @@ import modelHintsModule from './features/hints/di.config';
 import glspHoverModule from './features/hover/di.config';
 import layoutModule from './features/layout/di.config';
 import navigationModule from './features/navigation/di.config';
+import glspRoutingModule from './features/routing/di.config';
 import glspSelectModule from './features/select/di.config';
 import sourceModelWatcherModule from './features/source-model-watcher/di.config';
 import svgMetadataModule from './features/svg-metadata/di.config';
 import toolFeedbackModule from './features/tool-feedback/di.config';
 import toolPaletteModule from './features/tool-palette/di.config';
-import { enableDefaultToolsOnFocusLossModule, toolsModule } from './features/tools/di.config';
+import changeBoundsToolModule from './features/tools/change-bounds/di.config';
+import deletionToolModule from './features/tools/deletion/di.config';
+import edgeCreationToolModule from './features/tools/edge-creation/di.config';
+import edgeEditToolModule from './features/tools/edge-edit/di.config';
+import { enableDefaultToolsOnFocusLossModule } from './features/tools/enable-default-tools-on-focus-loss';
+import marqueeSelectionToolModule from './features/tools/marquee-selection/di.config';
+import nodeCreationToolModule from './features/tools/node-creation/di.config';
 import { markerNavigatorModule, validationModule } from './features/validation/di.config';
 import glspViewportModule from './features/viewport/di.config';
 
@@ -77,10 +84,16 @@ export const DEFAULT_MODULES = [
     sourceModelWatcherModule,
     navigationModule,
     openModule,
-    toolPaletteModule,
     routingModule,
+    glspRoutingModule,
     toolFeedbackModule,
-    toolsModule,
+    toolPaletteModule,
+    edgeCreationToolModule,
+    edgeEditToolModule,
+    deletionToolModule,
+    nodeCreationToolModule,
+    changeBoundsToolModule,
+    marqueeSelectionToolModule,
     enableDefaultToolsOnFocusLossModule,
     validationModule,
     zorderModule,

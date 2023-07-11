@@ -41,7 +41,6 @@ import {
     TYPES,
     defaultModule
 } from '~glsp-sprotty';
-import { FeedbackActionDispatcher } from '../../base/feedback/feedback-action-dispatcher';
 import { SelectionService } from '../../base/selection-service';
 import { resizeFeature } from '../change-bounds/model';
 import {
@@ -80,7 +79,6 @@ class MockSelectionService extends SelectionService {
 // Generic Test setup
 const container = new Container();
 container.load(defaultModule);
-container.bind(TYPES.IFeedbackActionDispatcher).to(FeedbackActionDispatcher).inSingletonScope();
 container.rebind(TYPES.IModelFactory).to(SGraphFactory).inSingletonScope();
 const graphFactory = container.get<SGraphFactory>(TYPES.IModelFactory);
 

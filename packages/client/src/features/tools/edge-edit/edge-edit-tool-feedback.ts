@@ -41,12 +41,13 @@ import {
     isConnectable,
     isSelected
 } from '~glsp-sprotty';
-import { FeedbackCommand } from '../../base/feedback/feeback-command';
-import { forEachElement, isRoutable, isRoutingHandle } from '../../utils/smodel-util';
-import { getAbsolutePosition, toAbsoluteBounds } from '../../utils/viewpoint-util';
-import { PointPositionUpdater } from '../change-bounds/snap';
-import { addReconnectHandles, removeReconnectHandles } from '../reconnect/model';
-import { FeedbackEdgeEnd, FeedbackEdgeEndMovingMouseListener, feedbackEdgeEndId, feedbackEdgeId } from './creation-tool-feedback';
+import { FeedbackCommand } from '../../../base/feedback/feeback-command';
+import { forEachElement, isRoutable, isRoutingHandle } from '../../../utils/smodel-util';
+import { getAbsolutePosition, toAbsoluteBounds } from '../../../utils/viewpoint-util';
+import { PointPositionUpdater } from '../../change-bounds/snap';
+import { addReconnectHandles, removeReconnectHandles } from '../../reconnect/model';
+import { FeedbackEdgeEnd, feedbackEdgeEndId, feedbackEdgeId } from '../edge-creation/dangling-edge-feedback';
+import { FeedbackEdgeEndMovingMouseListener } from '../edge-creation/edge-creation-tool-feedback';
 
 /**
  * RECONNECT HANDLES FEEDBACK
@@ -67,6 +68,7 @@ export namespace ShowEdgeReconnectHandlesFeedbackAction {
         return { kind: KIND, elementId };
     }
 }
+
 export interface HideEdgeReconnectHandlesFeedbackAction extends Action {
     kind: typeof HideEdgeReconnectHandlesFeedbackAction.KIND;
 }
@@ -135,6 +137,7 @@ export namespace SwitchRoutingModeAction {
         };
     }
 }
+
 @injectable()
 export class SwitchRoutingModeCommand extends SwitchEditModeCommand {
     static override KIND = SwitchRoutingModeAction.KIND;
@@ -207,7 +210,7 @@ export class FeedbackEdgeSourceMovingMouseListener extends MouseListener {
         const edge = edgeEnd.feedbackEdge;
         const position = getAbsolutePosition(edgeEnd, event);
         const endAtMousePosition = findChildrenAtPosition(target.root, position).find(
-            e => isConnectable(e) && e.canConnect(edge, 'source')
+            element => isConnectable(element) && element.canConnect(edge, 'source')
         );
 
         if (endAtMousePosition instanceof SConnectableElement && edge.target && isBoundsAware(edge.target)) {
@@ -341,8 +344,7 @@ export class FeedbackEdgeRouteMovingMouseListener extends MouseListener {
 /**
  * UTILITY FUNCTIONS
  */
-
-function drawFeedbackEdgeSource(context: CommandExecutionContext, targetId: string, elementTypeId: string): void {
+export function drawFeedbackEdgeSource(context: CommandExecutionContext, targetId: string, elementTypeId: string): void {
     const root = context.root;
     const targetChild = root.index.getById(targetId);
     if (!targetChild) {
