@@ -22,6 +22,7 @@ import {
     ChangeRoutingPointsOperation,
     CompoundOperation,
     Dimension,
+    Disposable,
     DisposableCollection,
     EdgeRouterRegistry,
     ElementAndBounds,
@@ -117,6 +118,12 @@ export class ChangeBoundsTool extends BaseGLSPTool {
     }
 
     disable(): void {
+        if (Disposable.is(this.feedbackMoveMouseListener)) {
+            this.feedbackMoveMouseListener.dispose();
+        }
+        if (Disposable.is(this.changeBoundsListener)) {
+            this.changeBoundsListener.dispose();
+        }
         this.mouseTool.deregister(this.changeBoundsListener);
         this.mouseTool.deregister(this.feedbackMoveMouseListener);
         this.deregisterFeedback([], this.feedbackMoveMouseListener);
@@ -125,7 +132,7 @@ export class ChangeBoundsTool extends BaseGLSPTool {
     }
 }
 
-export class ChangeBoundsListener extends DragAwareMouseListener implements ISelectionListener {
+export class ChangeBoundsListener extends DragAwareMouseListener implements ISelectionListener, Disposable {
     static readonly CSS_CLASS_ACTIVE = 'active';
 
     // members for calculating the correct position change
@@ -176,7 +183,7 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
                 const resizeActions = this.handleResizeOnClient(positionUpdate);
                 actions.push(...resizeActions);
             }
-            return actions;
+            this.tool.dispatchFeedback(actions, this);
         }
         return [];
     }
@@ -319,9 +326,23 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
         }
     }
 
+    dispose(): void {
+        this.reset();
+    }
+
     protected reset(): void {
         if (this.activeResizeElement && isResizable(this.activeResizeElement)) {
-            this.tool.dispatchFeedback([HideChangeBoundsToolResizeFeedbackAction.create()], this);
+            if (this.initialBounds) {
+                const resetResizeAction = SetBoundsAction.create([
+                    {
+                        elementId: this.activeResizeElement.id,
+                        newPosition: this.initialBounds,
+                        newSize: this.initialBounds
+                    }
+                ]);
+                this.tool.deregisterFeedback([resetResizeAction], this);
+            }
+            this.tool.deregisterFeedback([HideChangeBoundsToolResizeFeedbackAction.create()], this);
         }
         this.tool.dispatchActions([cursorFeedbackAction(CursorCSS.DEFAULT)]);
         this.resetPosition();
