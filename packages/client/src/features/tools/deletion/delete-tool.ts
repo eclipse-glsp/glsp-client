@@ -90,7 +90,7 @@ export class MouseDeleteTool extends BaseGLSPTool {
     }
 
     enable(): void {
-        this.onDisable.push(
+        this.toDisposeOnDisable.push(
             this.mouseTool.registerListener(this.deleteToolMouseListener),
             this.registerFeedback([cursorFeedbackAction(CursorCSS.ELEMENT_DELETION)], this, [cursorFeedbackAction()])
         );

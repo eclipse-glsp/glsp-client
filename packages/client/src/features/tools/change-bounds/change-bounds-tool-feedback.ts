@@ -35,7 +35,7 @@ import {
     isViewport
 } from '~glsp-sprotty';
 import { CursorCSS, cursorFeedbackAction } from '../../../base/feedback/css-feedback';
-import { FeedbackCommand } from '../../../base/feedback/feeback-command';
+import { FeedbackCommand } from '../../../base/feedback/feedback-command';
 import { forEachElement } from '../../../utils/smodel-util';
 import { SResizeHandle, addResizeHandles, isResizable, removeResizeHandles } from '../../change-bounds/model';
 import { createMovementRestrictionFeedback, removeMovementRestrictionFeedback } from '../../change-bounds/movement-restrictor';
@@ -280,12 +280,10 @@ export class FeedbackMoveMouseListener extends MouseListener implements Disposab
             if (moveAction) {
                 result.push(moveAction);
             }
-            const feebackCleanup: Action[] = [];
             if (this.tool.movementRestrictor) {
-                feebackCleanup.push(removeMovementRestrictionFeedback(target, this.tool.movementRestrictor));
+                this.tool.deregisterFeedback(this, [removeMovementRestrictionFeedback(target, this.tool.movementRestrictor)]);
             }
-            feebackCleanup.push(cursorFeedbackAction(CursorCSS.DEFAULT));
-            this.tool.deregisterFeedback(feebackCleanup, this);
+            result.push(cursorFeedbackAction(CursorCSS.DEFAULT));
         }
         this.reset();
         return result;
@@ -295,7 +293,7 @@ export class FeedbackMoveMouseListener extends MouseListener implements Disposab
         if (this.rootElement && resetFeedback) {
             const elementMoves: ElementMove[] = this.getElementMovesForDelta(this.rootElement, { x: 0, y: 0 }, true, true);
             const moveAction = MoveAction.create(elementMoves, { animate: false, finished: true });
-            this.tool.deregisterFeedback([moveAction], this);
+            this.tool.deregisterFeedback(this, [moveAction]);
         }
         this.hasDragged = false;
         this.startDragPosition = undefined;

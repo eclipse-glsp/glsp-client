@@ -31,7 +31,7 @@ import {
     isBoundsAware,
     isConnectable
 } from '~glsp-sprotty';
-import { FeedbackCommand } from '../../../base/feedback/feeback-command';
+import { FeedbackCommand } from '../../../base/feedback/feedback-command';
 import { isRoutable } from '../../../utils/smodel-util';
 import { toAbsolutePosition } from '../../../utils/viewpoint-util';
 import { FeedbackEdgeEndView } from './view';

@@ -49,9 +49,11 @@ export class EdgeCreationTool extends BaseGLSPCreationTool<TriggerEdgeCreationAc
     }
 
     doEnable(): void {
-        this.onDisable.push(
+        const mouseMovingFeedback = new FeedbackEdgeEndMovingMouseListener(this.anchorRegistry, this.feedbackDispatcher);
+        this.toDisposeOnDisable.push(
+            mouseMovingFeedback,
             this.mouseTool.registerListener(new EdgeCreationToolMouseListener(this.triggerAction, this)),
-            this.mouseTool.registerListener(new FeedbackEdgeEndMovingMouseListener(this.anchorRegistry)),
+            this.mouseTool.registerListener(mouseMovingFeedback),
             this.registerFeedback([cursorFeedbackAction(CursorCSS.OPERATION_NOT_ALLOWED)], this, [
                 RemoveFeedbackEdgeAction.create(),
                 cursorFeedbackAction()
@@ -98,6 +100,11 @@ export class EdgeCreationToolMouseListener extends DragAwareMouseListener {
                 }
             }
             if (this.source && this.target) {
+                if (!isCtrlOrCmd(event)) {
+                    result.push(EnableDefaultToolsAction.create());
+                } else {
+                    this.reinitialize();
+                }
                 result.push(
                     CreateEdgeOperation.create({
                         elementTypeId: this.triggerAction.elementTypeId,
@@ -106,11 +113,6 @@ export class EdgeCreationToolMouseListener extends DragAwareMouseListener {
                         args: this.triggerAction.args
                     })
                 );
-                if (!isCtrlOrCmd(event)) {
-                    result.push(EnableDefaultToolsAction.create());
-                } else {
-                    this.reinitialize();
-                }
             }
         } else if (event.button === 2) {
             result.push(EnableDefaultToolsAction.create());

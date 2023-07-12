@@ -19,8 +19,10 @@ import {
     ActionHandlerRegistry,
     InitializeResult,
     KeyTool,
+    LocationPostprocessor,
     ModelSource,
     MouseTool,
+    MoveCommand,
     SetEditModeAction,
     TYPES,
     bindAsService,
@@ -42,9 +44,8 @@ import { GLSPModelRegistry } from './model/model-registry';
 import { SelectionClearingMouseListener } from './selection-clearing-mouse-listener';
 import { SelectionService } from './selection-service';
 import { GLSPToolManager } from './tool-manager/glsp-tool-manager';
-import { GLSPKeyTool } from './view/glsp-key-tool';
-import { GLSPMouseTool } from './view/glsp-mouse-tool';
-import { RankingMouseTool } from './view/mouse-tool';
+import { GLSPKeyTool } from './view/key-tool';
+import { GLSPMouseTool } from './view/mouse-tool';
 import { GLSPViewRegistry } from './view/view-registry';
 
 const defaultGLSPModule = new ContainerModule((bind, _unbind, isBound, rebind) => {
@@ -70,8 +71,8 @@ const defaultGLSPModule = new ContainerModule((bind, _unbind, isBound, rebind) =
     bind(TYPES.IFeedbackActionDispatcher).to(FeedbackActionDispatcher).inSingletonScope();
     configureCommand(context, FeedbackAwareUpdateModelCommand);
 
-    bindAsService(context, GLSPMouseTool, RankingMouseTool);
-    rebind(MouseTool).toService(RankingMouseTool);
+    bind(GLSPMouseTool).toSelf().inSingletonScope();
+    bindOrRebind(context, MouseTool).toService(GLSPMouseTool);
     bind(GLSPKeyTool).toSelf().inSingletonScope();
     bindOrRebind(context, KeyTool).toService(GLSPKeyTool);
 
@@ -92,8 +93,14 @@ const defaultGLSPModule = new ContainerModule((bind, _unbind, isBound, rebind) =
     bind(SelectionService).toSelf().inSingletonScope();
     bind(TYPES.ISModelRootListener).toService(SelectionService);
 
+    // Feedback Support ------------------------------------
     // Generic re-usable feedback modifying css classes
     configureCommand(context, ModifyCssFeedbackCommand);
+    // We support using sprotty's MoveCommand as client-side visual feedback
+    configureCommand(context, MoveCommand);
+
+    bindAsService(context, TYPES.IVNodePostprocessor, LocationPostprocessor);
+    bind(TYPES.HiddenVNodePostprocessor).toService(LocationPostprocessor);
 });
 
 export default defaultGLSPModule;

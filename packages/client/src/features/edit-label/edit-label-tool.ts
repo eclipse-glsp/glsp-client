@@ -34,7 +34,9 @@ export class DirectLabelEditTool extends BaseGLSPTool {
     }
 
     enable(): void {
-        this.onDisable.push(this.mouseTool.registerListener(this.createEditLabelMouseListener()));
-        this.onDisable.push(this.keyTool.registerListener(this.createEditLabelKeyListener()));
+        this.toDisposeOnDisable.push(
+            this.mouseTool.registerListener(this.createEditLabelMouseListener()),
+            this.keyTool.registerListener(this.createEditLabelKeyListener())
+        );
     }
 }

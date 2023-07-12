@@ -45,7 +45,7 @@ export class NodeCreationTool extends BaseGLSPCreationTool<TriggerNodeCreationAc
     }
 
     doEnable(): void {
-        this.onDisable.push(
+        this.toDisposeOnDisable.push(
             this.mouseTool.registerListener(new NodeCreationToolMouseListener(this.triggerAction, this)),
             this.registerFeedback([cursorFeedbackAction(CursorCSS.NODE_CREATION)], this, [cursorFeedbackAction()])
         );

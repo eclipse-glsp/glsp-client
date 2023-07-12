@@ -17,6 +17,7 @@ import {
     Action,
     AnchorComputerRegistry,
     Bounds,
+    Disposable,
     MouseListener,
     MoveAction,
     Point,
@@ -28,11 +29,12 @@ import {
     isBoundsAware,
     isConnectable
 } from '~glsp-sprotty';
+import { IFeedbackActionDispatcher } from '../../../base/feedback/feedback-action-dispatcher';
 import { absoluteToParent, getAbsolutePosition, toAbsoluteBounds } from '../../../utils/viewpoint-util';
 import { FeedbackEdgeEnd, feedbackEdgeEndId } from './dangling-edge-feedback';
 
-export class FeedbackEdgeEndMovingMouseListener extends MouseListener {
-    constructor(protected anchorRegistry: AnchorComputerRegistry) {
+export class FeedbackEdgeEndMovingMouseListener extends MouseListener implements Disposable {
+    constructor(protected anchorRegistry: AnchorComputerRegistry, protected feedbackDispatcher: IFeedbackActionDispatcher) {
         super();
     }
 
@@ -52,10 +54,14 @@ export class FeedbackEdgeEndMovingMouseListener extends MouseListener {
         if (endAtMousePosition instanceof SConnectableElement && edge.source && isBoundsAware(edge.source)) {
             const anchor = this.computeAbsoluteAnchor(endAtMousePosition, Bounds.center(toAbsoluteBounds(edge.source)));
             if (Point.euclideanDistance(anchor, edgeEnd.position) > 1) {
-                return [MoveAction.create([{ elementId: edgeEnd.id, toPosition: anchor }], { animate: false })];
+                this.feedbackDispatcher.registerFeedback(this, [
+                    MoveAction.create([{ elementId: edgeEnd.id, toPosition: anchor }], { animate: false })
+                ]);
             }
         } else {
-            return [MoveAction.create([{ elementId: edgeEnd.id, toPosition: position }], { animate: false })];
+            this.feedbackDispatcher.registerFeedback(this, [
+                MoveAction.create([{ elementId: edgeEnd.id, toPosition: position }], { animate: false })
+            ]);
         }
 
         return [];
@@ -75,5 +81,9 @@ export class FeedbackEdgeEndMovingMouseListener extends MouseListener {
             }
         }
         return anchor;
+    }
+
+    dispose(): void {
+        this.feedbackDispatcher.deregisterFeedback(this);
     }
 }

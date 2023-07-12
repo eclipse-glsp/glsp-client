@@ -50,7 +50,7 @@ export class MarqueeMouseTool extends BaseGLSPTool {
     }
 
     enable(): void {
-        this.onDisable.push(
+        this.toDisposeOnDisable.push(
             this.mouseTool.registerListener(new MarqueeMouseListener(this.domHelper, this.editorContext.modelRoot, this.marqueeBehavior)),
             this.keyTool.registerListener(this.shiftKeyListener),
             this.registerFeedback([cursorFeedbackAction(CursorCSS.MARQUEE)], this, [cursorFeedbackAction()])

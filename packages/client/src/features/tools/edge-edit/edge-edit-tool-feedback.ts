@@ -21,6 +21,7 @@ import {
     Bounds,
     CommandExecutionContext,
     CommandReturn,
+    Disposable,
     EdgeRouterRegistry,
     ElementMove,
     ISnapper,
@@ -41,7 +42,8 @@ import {
     isConnectable,
     isSelected
 } from '~glsp-sprotty';
-import { FeedbackCommand } from '../../../base/feedback/feeback-command';
+import { IFeedbackActionDispatcher } from '../../../base/feedback/feedback-action-dispatcher';
+import { FeedbackCommand } from '../../../base/feedback/feedback-command';
 import { forEachElement, isRoutable, isRoutingHandle } from '../../../utils/smodel-util';
 import { getAbsolutePosition, toAbsoluteBounds } from '../../../utils/viewpoint-util';
 import { PointPositionUpdater } from '../../change-bounds/snap';
@@ -190,13 +192,13 @@ export class DrawFeedbackEdgeSourceCommand extends FeedbackCommand {
  */
 
 export class FeedbackEdgeTargetMovingMouseListener extends FeedbackEdgeEndMovingMouseListener {
-    constructor(protected override anchorRegistry: AnchorComputerRegistry) {
-        super(anchorRegistry);
+    constructor(anchorRegistry: AnchorComputerRegistry, feedbackDispatcher: IFeedbackActionDispatcher) {
+        super(anchorRegistry, feedbackDispatcher);
     }
 }
 
-export class FeedbackEdgeSourceMovingMouseListener extends MouseListener {
-    constructor(protected anchorRegistry: AnchorComputerRegistry) {
+export class FeedbackEdgeSourceMovingMouseListener extends MouseListener implements Disposable {
+    constructor(protected anchorRegistry: AnchorComputerRegistry, protected feedbackDispatcher: IFeedbackActionDispatcher) {
         super();
     }
 
@@ -216,10 +218,14 @@ export class FeedbackEdgeSourceMovingMouseListener extends MouseListener {
         if (endAtMousePosition instanceof SConnectableElement && edge.target && isBoundsAware(edge.target)) {
             const anchor = this.computeAbsoluteAnchor(endAtMousePosition, Bounds.center(edge.target.bounds));
             if (Point.euclideanDistance(anchor, edgeEnd.position) > 1) {
-                return [MoveAction.create([{ elementId: edgeEnd.id, toPosition: anchor }], { animate: false })];
+                this.feedbackDispatcher.registerFeedback(this, [
+                    MoveAction.create([{ elementId: edgeEnd.id, toPosition: anchor }], { animate: false })
+                ]);
             }
         } else {
-            return [MoveAction.create([{ elementId: edgeEnd.id, toPosition: position }], { animate: false })];
+            this.feedbackDispatcher.registerFeedback(this, [
+                MoveAction.create([{ elementId: edgeEnd.id, toPosition: position }], { animate: false })
+            ]);
         }
 
         return [];
@@ -238,6 +244,10 @@ export class FeedbackEdgeSourceMovingMouseListener extends MouseListener {
             }
         }
         return anchor;
+    }
+
+    dispose(): void {
+        this.feedbackDispatcher.deregisterFeedback(this);
     }
 }
 

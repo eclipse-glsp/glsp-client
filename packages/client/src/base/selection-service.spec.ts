@@ -35,10 +35,10 @@ class MockFeedbackActionDispatcher implements IFeedbackActionDispatcher {
 
     registerFeedback(feedbackEmitter: IFeedbackEmitter, actions: Action[]): Disposable {
         this.feedbackEmitters.set(feedbackEmitter, actions);
-        return Disposable.create(() => this.deregisterFeedback(feedbackEmitter, []));
+        return Disposable.create(() => this.deregisterFeedback(feedbackEmitter));
     }
 
-    deregisterFeedback(feedbackEmitter: IFeedbackEmitter, actions: Action[]): void {
+    deregisterFeedback(feedbackEmitter: IFeedbackEmitter, _actions?: Action[]): void {
         this.feedbackEmitters.delete(feedbackEmitter);
     }
 

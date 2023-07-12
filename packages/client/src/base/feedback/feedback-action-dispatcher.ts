@@ -36,7 +36,8 @@ export interface IFeedbackActionDispatcher {
      * Registers `actions` to be sent out by a `feedbackEmitter`.
      * @param feedbackEmitter the emitter sending out feedback actions.
      * @param feedbackActions the actions to be sent out.
-     * @returns A 'Disposable' that de-registers the `feedbackEmitter` with the given `cleanupActions`.
+     * @param cleanupActions the actions to be sent out when the feedback is de-registered through the returned Disposable.
+     * @returns A 'Disposable' that de-registers the feedback and cleans up any pending feedback with the given `cleanupActions`.
      */
     registerFeedback(feedbackEmitter: IFeedbackEmitter, feedbackActions: Action[], cleanupActions?: Action[]): Disposable;
 
@@ -94,10 +95,13 @@ export class FeedbackActionDispatcher implements IFeedbackActionDispatcher {
         return result;
     }
 
-    protected dispatchFeedback(actions: Action[], feedbackEmitter: IFeedbackEmitter): void {
-        this.actionDispatcher()
-            .then(dispatcher => dispatcher.dispatchAll(actions))
-            .then(() => this.logger.info(this, `Dispatched feedback actions for ${feedbackEmitter}`))
-            .catch(reason => this.logger.error(this, 'Failed to dispatch feedback actions', reason));
+    protected async dispatchFeedback(actions: Action[], feedbackEmitter: IFeedbackEmitter): Promise<void> {
+        try {
+            const actionDispatcher = await this.actionDispatcher();
+            await actionDispatcher.dispatchAll(actions);
+            this.logger.info(this, `Dispatched feedback actions for ${feedbackEmitter}`);
+        } catch (reason) {
+            this.logger.error(this, 'Failed to dispatch feedback actions', reason);
+        }
     }
 }

@@ -70,16 +70,19 @@ export class EdgeEditTool extends BaseGLSPTool {
 
     enable(): void {
         this.edgeEditListener = new EdgeEditListener(this);
-        this.onDisable.push(
-            Disposable.create(() => this.edgeEditListener.reset()),
-            this.mouseTool.registerListener(this.edgeEditListener),
-            this.selectionService.onSelectionChanged(change => this.edgeEditListener.selectionChanged(change.root, change.selectedElements))
-        );
 
         // install feedback move mouse listener for client-side move updates
-        this.feedbackEdgeSourceMovingListener = new FeedbackEdgeSourceMovingMouseListener(this.anchorRegistry);
-        this.feedbackEdgeTargetMovingListener = new FeedbackEdgeTargetMovingMouseListener(this.anchorRegistry);
+        this.feedbackEdgeSourceMovingListener = new FeedbackEdgeSourceMovingMouseListener(this.anchorRegistry, this.feedbackDispatcher);
+        this.feedbackEdgeTargetMovingListener = new FeedbackEdgeTargetMovingMouseListener(this.anchorRegistry, this.feedbackDispatcher);
         this.feedbackMovingListener = new FeedbackEdgeRouteMovingMouseListener(this.edgeRouterRegistry, this.snapper);
+
+        this.toDisposeOnDisable.push(
+            Disposable.create(() => this.edgeEditListener.reset()),
+            this.mouseTool.registerListener(this.edgeEditListener),
+            this.feedbackEdgeSourceMovingListener,
+            this.feedbackEdgeTargetMovingListener,
+            this.selectionService.onSelectionChanged(change => this.edgeEditListener.selectionChanged(change.root, change.selectedElements))
+        );
     }
 
     registerFeedbackListeners(): void {
@@ -89,6 +92,8 @@ export class EdgeEditTool extends BaseGLSPTool {
     }
 
     deregisterFeedbackListeners(): void {
+        this.feedbackEdgeSourceMovingListener.dispose();
+        this.feedbackEdgeTargetMovingListener.dispose();
         this.mouseTool.deregister(this.feedbackEdgeSourceMovingListener);
         this.mouseTool.deregister(this.feedbackEdgeTargetMovingListener);
         this.mouseTool.deregister(this.feedbackMovingListener);
@@ -311,7 +316,7 @@ export class EdgeEditListener extends DragAwareMouseListener implements ISelecti
             result.push(SwitchRoutingModeAction.create({ elementsToDeactivate: [this.edge.id] }));
         }
         result.push(...[HideEdgeReconnectHandlesFeedbackAction.create(), cursorFeedbackAction(), RemoveFeedbackEdgeAction.create()]);
-        this.tool.deregisterFeedback(result);
+        this.tool.deregisterFeedback(undefined, result);
         this.tool.deregisterFeedbackListeners();
     }
 }

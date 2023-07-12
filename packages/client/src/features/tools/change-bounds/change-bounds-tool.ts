@@ -94,15 +94,21 @@ export class ChangeBoundsTool extends BaseGLSPTool {
     enable(): void {
         // install feedback move mouse listener for client-side move updates
         const feedbackMoveMouseListener = this.createMoveMouseListener();
+        if (Disposable.is(feedbackMoveMouseListener)) {
+            this.toDisposeOnDisable.push(feedbackMoveMouseListener);
+        }
 
         // install change bounds listener for client-side resize updates and server-side updates
         const changeBoundsListener = this.createChangeBoundsListener();
+        if (Disposable.is(changeBoundsListener)) {
+            this.toDisposeOnDisable.push(changeBoundsListener);
+        }
 
-        this.onDisable.push(
+        this.toDisposeOnDisable.push(
             this.mouseTool.registerListener(feedbackMoveMouseListener),
-            Disposable.create(() => this.deregisterFeedback([], feedbackMoveMouseListener)),
             this.mouseTool.registerListener(changeBoundsListener),
-            Disposable.create(() => this.deregisterFeedback([HideChangeBoundsToolResizeFeedbackAction.create()], changeBoundsListener)),
+            Disposable.create(() => this.deregisterFeedback(feedbackMoveMouseListener)),
+            Disposable.create(() => this.deregisterFeedback(changeBoundsListener, [HideChangeBoundsToolResizeFeedbackAction.create()])),
             this.selectionService.onSelectionChanged(change => changeBoundsListener.selectionChanged(change.root, change.selectedElements))
         );
     }
@@ -116,7 +122,7 @@ export class ChangeBoundsTool extends BaseGLSPTool {
     }
 }
 
-export class ChangeBoundsListener extends DragAwareMouseListener implements ISelectionListener {
+export class ChangeBoundsListener extends DragAwareMouseListener implements ISelectionListener, Disposable {
     static readonly CSS_CLASS_ACTIVE = 'active';
 
     // members for calculating the correct position change
@@ -167,12 +173,12 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
                 const resizeActions = this.handleResizeOnClient(positionUpdate);
                 actions.push(...resizeActions);
             }
-            return actions;
+            this.tool.registerFeedback(actions, this);
         }
         return [];
     }
 
-    override draggingMouseUp(target: SModelElement, event: MouseEvent): Action[] {
+    override draggingMouseUp(target: SModelElement, _event: MouseEvent): Action[] {
         if (this.pointPositionUpdater.isLastDragPositionUndefined()) {
             this.resetPosition();
             return [];
@@ -310,12 +316,30 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
         }
     }
 
+    dispose(): void {
+        this.reset();
+    }
+
     protected reset(): void {
+        this.resetFeedback();
+        this.resetPosition();
+    }
+
+    protected resetFeedback(): void {
         if (this.activeResizeElement && isResizable(this.activeResizeElement)) {
-            this.tool.registerFeedback([HideChangeBoundsToolResizeFeedbackAction.create()], this);
+            if (this.initialBounds) {
+                const resetResizeAction = SetBoundsAction.create([
+                    {
+                        elementId: this.activeResizeElement.id,
+                        newPosition: this.initialBounds,
+                        newSize: this.initialBounds
+                    }
+                ]);
+                this.tool.deregisterFeedback(this, [resetResizeAction]);
+            }
+            this.tool.deregisterFeedback(this, [HideChangeBoundsToolResizeFeedbackAction.create()]);
         }
         this.tool.dispatchActions([cursorFeedbackAction(CursorCSS.DEFAULT)]);
-        this.resetPosition();
     }
 
     protected resetPosition(): void {

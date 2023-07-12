@@ -18,8 +18,7 @@ import { ManhattanEdgeRouter, bindOrRebind } from '~glsp-sprotty';
 import { GLSPManhattanEdgeRouter } from './glsp-manhattan-edge-router';
 
 /**
- * Registers the default tools of GLSP (node and edge creation, changing bounds, edge editing, deletion)
- * and adds the marquee selection tool.
+ * Customizes the routing module for GLSP.
  */
 const glspRoutingModule = new ContainerModule((bind, _unbind, isBound, rebind) => {
     const context = { bind, isBound, rebind };

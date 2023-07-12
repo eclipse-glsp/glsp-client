@@ -34,6 +34,8 @@ export class EnableDefaultToolsOnFocusLossHandler implements IActionHandler {
 /**
  * Enables the default tools in the tool manager if the diagram looses focus.
  */
-export const enableDefaultToolsOnFocusLossModule = new ContainerModule((bind, _unbind, isBound) => {
+const enableDefaultToolsOnFocusLossModule = new ContainerModule((bind, _unbind, isBound) => {
     configureActionHandler({ bind, isBound }, FocusStateChangedAction.KIND, EnableDefaultToolsOnFocusLossHandler);
 });
+
+export default enableDefaultToolsOnFocusLossModule;

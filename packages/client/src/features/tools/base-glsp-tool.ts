@@ -18,8 +18,8 @@ import { Action, Disposable, DisposableCollection, IActionDispatcher, TYPES } fr
 import { EditorContextService } from '../../base/editor-context-service';
 import { IFeedbackActionDispatcher, IFeedbackEmitter } from '../../base/feedback/feedback-action-dispatcher';
 import { GLSPTool } from '../../base/tool-manager/glsp-tool-manager';
-import { GLSPKeyTool } from '../../base/view/glsp-key-tool';
-import { GLSPMouseTool } from '../../base/view/glsp-mouse-tool';
+import { GLSPKeyTool } from '../../base/view/key-tool';
+import { GLSPMouseTool } from '../../base/view/mouse-tool';
 
 @injectable()
 export abstract class BaseGLSPTool implements GLSPTool {
@@ -29,12 +29,12 @@ export abstract class BaseGLSPTool implements GLSPTool {
     @inject(GLSPKeyTool) protected keyTool: GLSPKeyTool;
     @inject(EditorContextService) protected readonly editorContext: EditorContextService;
 
-    protected onDisable = new DisposableCollection();
+    protected readonly toDisposeOnDisable = new DisposableCollection();
 
     abstract enable(): void;
 
     disable(): void {
-        this.onDisable.dispose();
+        this.toDisposeOnDisable.dispose();
     }
 
     abstract id: string;
@@ -47,11 +47,27 @@ export abstract class BaseGLSPTool implements GLSPTool {
         this.actionDispatcher.dispatchAll(actions);
     }
 
-    registerFeedback(actions: Action[], feedbackEmitter?: IFeedbackEmitter, cleanupActions?: Action[]): Disposable {
-        return this.feedbackDispatcher.registerFeedback(feedbackEmitter ?? this, actions, cleanupActions);
+    /**
+     * Registers `actions` to be sent out as feedback, i.e., changes that are re-established whenever the `SModelRoot`
+     * has been set or updated.
+     *
+     * @param feedbackActions the actions to be sent out.
+     * @param feedbackEmitter the emitter sending out feedback actions (this tool by default).
+     * @param cleanupActions the actions to be sent out when the feedback is de-registered through the returned Disposable.
+     * @returns A 'Disposable' that de-registers the feedback and cleans up any pending feedback with the given `cleanupActions`.
+     */
+    registerFeedback(feedbackActions: Action[], feedbackEmitter?: IFeedbackEmitter, cleanupActions?: Action[]): Disposable {
+        return this.feedbackDispatcher.registerFeedback(feedbackEmitter ?? this, feedbackActions, cleanupActions);
     }
 
-    deregisterFeedback(actions?: Action[], feedbackEmitter?: IFeedbackEmitter): void {
-        this.feedbackDispatcher.deregisterFeedback(feedbackEmitter ?? this, actions);
+    /**
+     * De-registers all feedback from the given `feedbackEmitter` (this tool by default) and cleans up any pending feedback with the
+     * given `cleanupActions`.
+     *
+     * @param feedbackEmitter the emitter to be deregistered (this tool by default).
+     * @param cleanupActions the actions to be dispatched right after the deregistration to clean up any pending feedback.
+     */
+    deregisterFeedback(feedbackEmitter?: IFeedbackEmitter, cleanupActions?: Action[]): void {
+        this.feedbackDispatcher.deregisterFeedback(feedbackEmitter ?? this, cleanupActions);
     }
 }

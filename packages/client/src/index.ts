@@ -33,13 +33,12 @@ import saveModule from './features/save/di.config';
 import glspSelectModule from './features/select/di.config';
 import sourceModelWatcherModule from './features/source-model-watcher/di.config';
 import svgMetadataModule from './features/svg-metadata/di.config';
-import toolFeedbackModule from './features/tool-feedback/di.config';
 import paletteModule from './features/tool-palette/di.config';
 import changeBoundsToolModule from './features/tools/change-bounds/di.config';
 import deletionToolModule from './features/tools/deletion/di.config';
 import edgeCreationToolModule from './features/tools/edge-creation/di.config';
 import edgeEditToolModule from './features/tools/edge-edit/di.config';
-import { enableDefaultToolsOnFocusLossModule } from './features/tools/enable-default-tools-on-focus-loss';
+import enableDefaultToolsOnFocusLossModule from './features/tools/enable-default-tools-on-focus-loss';
 import marqueeSelectionToolModule from './features/tools/marquee-selection/di.config';
 import nodeCreationToolModule from './features/tools/node-creation/di.config';
 import { markerNavigatorContextMenuModule, markerNavigatorModule, validationModule } from './features/validation/di.config';
@@ -56,8 +55,8 @@ export * from './base/command-stack';
 export { configureServerActions } from './base/di.config';
 export * from './base/drag-aware-mouse-listener';
 export * from './base/editor-context-service';
-export * from './base/feedback/feeback-command';
 export * from './base/feedback/feedback-action-dispatcher';
+export * from './base/feedback/feedback-command';
 export * from './base/feedback/update-model-command';
 export * from './base/focus-tracker';
 export * from './base/model-initialization-constraint';
@@ -182,6 +181,5 @@ export {
     saveModule,
     sourceModelWatcherModule,
     svgMetadataModule,
-    toolFeedbackModule,
     validationModule
 };

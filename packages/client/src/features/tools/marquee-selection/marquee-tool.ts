@@ -29,7 +29,7 @@ export class MarqueeTool extends BaseGLSPTool {
     }
 
     enable(): void {
-        this.onDisable.push(this.keyTool.registerListener(this.marqueeKeyListener));
+        this.toDisposeOnDisable.push(this.keyTool.registerListener(this.marqueeKeyListener));
     }
 }
 
