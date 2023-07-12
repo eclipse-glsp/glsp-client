@@ -20,6 +20,7 @@ import {
     ActionMessage,
     ComputedBoundsAction,
     DiagramServerProxy,
+    EndProgressAction,
     ExportSvgAction,
     GLSPClient,
     ICommand,
@@ -27,7 +28,9 @@ import {
     ServerMessageAction,
     ServerStatusAction,
     SetEditModeAction,
-    SwitchEditModeCommand
+    StartProgressAction,
+    SwitchEditModeCommand,
+    UpdateProgressAction
 } from '~glsp-sprotty';
 import { SourceUriAware } from '../base/source-uri-aware';
 
@@ -108,6 +111,9 @@ export function registerDefaultGLSPServerActions(registry: ActionHandlerRegistry
     registry.register(ServerMessageAction.KIND, diagramServer);
     registry.register(ServerStatusAction.KIND, diagramServer);
     registry.register(ExportSvgAction.KIND, diagramServer);
+    registry.register(StartProgressAction.KIND, diagramServer);
+    registry.register(UpdateProgressAction.KIND, diagramServer);
+    registry.register(EndProgressAction.KIND, diagramServer);
 
     // Register an empty handler for SwitchEditMode, to avoid runtime exceptions.
     // We don't support SwitchEditMode, but Sprotty still sends those actions, so ignore them.

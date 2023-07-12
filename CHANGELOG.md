@@ -38,6 +38,7 @@
     -   Reworked `SelectionService`, `GlspCommandStack` & `EditorContextService` to make use of this new API
     -   Removed explicit (de)registration methods for listeners. Use the corresponding event property (e.g. `SelectionService.onSelectionChanged`) instead.
     -   Aligned naming of injectable interfaces & service identifiers to consistently use the `I` prefix.
+-   [protocol] Add messages for server-side progress reporting and remove timeout in `ServerMessageAction`. [#265](https://github.com/eclipse-glsp/glsp-client/pull/265)
 
 ## [v1.0.0 - 30/06/2022](https://github.com/eclipse-glsp/glsp-client/releases/tag/v1.0.0)
 

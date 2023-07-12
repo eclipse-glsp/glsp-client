@@ -268,7 +268,7 @@ export class NavigationActionHandler implements IActionHandler {
         const timeout = this.notificationTimeout;
         this.dispatcher.dispatchAll([
             ServerStatusAction.create(message, { severity, timeout }),
-            ServerMessageAction.create(message, { severity, timeout })
+            ServerMessageAction.create(message, { severity })
         ]);
     }
 }
