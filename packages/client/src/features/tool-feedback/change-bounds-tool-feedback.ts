@@ -19,6 +19,7 @@ import {
     Action,
     CommandExecutionContext,
     CommandReturn,
+    Disposable,
     ElementMove,
     MouseListener,
     MoveAction,
@@ -118,9 +119,10 @@ export class HideChangeBoundsToolResizeFeedbackCommand extends FeedbackCommand {
  * the visual feedback but also the basis for sending the change to the server
  * (see also `tools/MoveTool`).
  */
-export class FeedbackMoveMouseListener extends MouseListener {
+export class FeedbackMoveMouseListener extends MouseListener implements Disposable {
     protected hasDragged = false;
-    protected startDragPosition: Point | undefined;
+    protected rootElement?: SModelRoot;
+    protected startDragPosition?: Point;
     protected elementId2startPos = new Map<string, Point>();
 
     constructor(protected tool: ChangeBoundsTool) {
@@ -155,10 +157,12 @@ export class FeedbackMoveMouseListener extends MouseListener {
                 result.push(cursorFeedbackAction(CursorCSS.MOVE));
             }
         }
-        return result;
+        this.tool.dispatchFeedback(result, this);
+        return [];
     }
 
     protected collectStartPositions(root: SModelRoot): void {
+        this.rootElement = root;
         const selectedElements = root.index.all().filter(element => isSelectable(element) && element.selected);
         const elementsSet = new Set(selectedElements);
         selectedElements
@@ -184,13 +188,29 @@ export class FeedbackMoveMouseListener extends MouseListener {
         if (!this.startDragPosition) {
             return undefined;
         }
-        const elementMoves: ElementMove[] = [];
+
         const viewport = findParentByFeature(target, isViewport);
         const zoom = viewport ? viewport.zoom : 1;
         const delta = {
             x: (event.pageX - this.startDragPosition.x) / zoom,
             y: (event.pageY - this.startDragPosition.y) / zoom
         };
+
+        const elementMoves: ElementMove[] = this.getElementMovesForDelta(target, delta, !event.shiftKey, finished);
+        if (elementMoves.length > 0) {
+            return MoveAction.create(elementMoves, { animate: false, finished });
+        } else {
+            return undefined;
+        }
+    }
+
+    protected getElementMovesForDelta(
+        target: SModelElement,
+        delta: { x: number; y: number },
+        isSnap: boolean,
+        finished: boolean
+    ): ElementMove[] {
+        const elementMoves: ElementMove[] = [];
         this.elementId2startPos.forEach((startPosition, elementId) => {
             const element = target.root.index.getById(elementId);
             if (element) {
@@ -200,7 +220,7 @@ export class FeedbackMoveMouseListener extends MouseListener {
                         y: startPosition.y + delta.y
                     },
                     element,
-                    !event.shiftKey
+                    isSnap
                 );
 
                 if (isMoveable(element)) {
@@ -216,11 +236,7 @@ export class FeedbackMoveMouseListener extends MouseListener {
                 }
             }
         });
-        if (elementMoves.length > 0) {
-            return MoveAction.create(elementMoves, { animate: false, finished });
-        } else {
-            return undefined;
-        }
+        return elementMoves;
     }
 
     protected validateMove(startPosition: Point, toPosition: Point, element: SModelElement, isFinished: boolean): Point {
@@ -237,7 +253,6 @@ export class FeedbackMoveMouseListener extends MouseListener {
             } else {
                 action = removeMovementRestrictionFeedback(element, this.tool.movementRestrictor);
             }
-
             this.tool.dispatchFeedback([action], this);
         }
         return newPosition;
@@ -270,13 +285,27 @@ export class FeedbackMoveMouseListener extends MouseListener {
             }
             result.push(cursorFeedbackAction(CursorCSS.DEFAULT));
         }
+        this.reset();
+        return result;
+    }
+
+    protected reset(resetFeedback = false): void {
+        if (this.rootElement && resetFeedback) {
+            const elementMoves: ElementMove[] = this.getElementMovesForDelta(this.rootElement, { x: 0, y: 0 }, true, true);
+            const moveAction = MoveAction.create(elementMoves, { animate: false, finished: true });
+            this.tool.deregisterFeedback([moveAction], this);
+        }
         this.hasDragged = false;
         this.startDragPosition = undefined;
+        this.rootElement = undefined;
         this.elementId2startPos.clear();
-        return result;
     }
 
     override decorate(vnode: VNode, _element: SModelElement): VNode {
         return vnode;
+    }
+
+    dispose(): void {
+        this.reset(true);
     }
 }
