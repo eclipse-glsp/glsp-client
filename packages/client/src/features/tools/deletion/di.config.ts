@@ -14,18 +14,13 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { ContainerModule } from 'inversify';
-import { configureActionHandler } from '~glsp-sprotty';
-import {
-    AlignElementsAction,
-    AlignElementsActionHandler,
-    ResizeElementsAction,
-    ResizeElementsActionHandler
-} from './layout-elements-action';
+import { TYPES, bindAsService } from '~glsp-sprotty';
+import { DelKeyDeleteTool, MouseDeleteTool } from './delete-tool';
 
-const layoutModule = new ContainerModule((bind, _unbind, isBound) => {
-    const context = { bind, isBound };
-    configureActionHandler(context, ResizeElementsAction.KIND, ResizeElementsActionHandler);
-    configureActionHandler(context, AlignElementsAction.KIND, AlignElementsActionHandler);
+const deletionToolModule = new ContainerModule((bind, unbind, isBound, rebind) => {
+    const context = { bind, unbind, isBound, rebind };
+    bindAsService(context, TYPES.IDefaultTool, DelKeyDeleteTool);
+    bindAsService(context, TYPES.ITool, MouseDeleteTool);
 });
 
-export default layoutModule;
+export default deletionToolModule;

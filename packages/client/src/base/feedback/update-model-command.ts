@@ -30,8 +30,8 @@ import {
     UpdateModelCommand,
     toTypeGuard
 } from '~glsp-sprotty';
-import { FeedbackCommand } from './feeback-command';
 import { IFeedbackActionDispatcher } from './feedback-action-dispatcher';
+import { FeedbackCommand } from './feedback-command';
 
 /**
  * A special {@link UpdateModelCommand} that retrieves all registered {@link Action}s from the {@link IFeedbackActionDispatcher}

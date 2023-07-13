@@ -18,8 +18,11 @@ import { Container, ContainerModule } from 'inversify';
 import {
     ActionHandlerRegistry,
     InitializeResult,
+    KeyTool,
+    LocationPostprocessor,
     ModelSource,
     MouseTool,
+    MoveCommand,
     SetEditModeAction,
     TYPES,
     bindAsService,
@@ -32,6 +35,7 @@ import { GLSPActionDispatcher } from './action-dispatcher';
 import { FocusStateChangedAction } from './actions/focus-change-action';
 import { GLSPCommandStack } from './command-stack';
 import { EditorContextService } from './editor-context-service';
+import { ModifyCssFeedbackCommand } from './feedback/css-feedback';
 import { FeedbackActionDispatcher } from './feedback/feedback-action-dispatcher';
 import { FeedbackAwareUpdateModelCommand } from './feedback/update-model-command';
 import { FocusTracker } from './focus-tracker';
@@ -40,7 +44,8 @@ import { GLSPModelRegistry } from './model/model-registry';
 import { SelectionClearingMouseListener } from './selection-clearing-mouse-listener';
 import { SelectionService } from './selection-service';
 import { GLSPToolManager } from './tool-manager/glsp-tool-manager';
-import { RankingMouseTool } from './view/mouse-tool';
+import { GLSPKeyTool } from './view/key-tool';
+import { GLSPMouseTool } from './view/mouse-tool';
 import { GLSPViewRegistry } from './view/view-registry';
 
 const defaultGLSPModule = new ContainerModule((bind, _unbind, isBound, rebind) => {
@@ -66,7 +71,10 @@ const defaultGLSPModule = new ContainerModule((bind, _unbind, isBound, rebind) =
     bind(TYPES.IFeedbackActionDispatcher).to(FeedbackActionDispatcher).inSingletonScope();
     configureCommand(context, FeedbackAwareUpdateModelCommand);
 
-    rebind(MouseTool).to(RankingMouseTool).inSingletonScope();
+    bind(GLSPMouseTool).toSelf().inSingletonScope();
+    bindOrRebind(context, MouseTool).toService(GLSPMouseTool);
+    bind(GLSPKeyTool).toSelf().inSingletonScope();
+    bindOrRebind(context, KeyTool).toService(GLSPKeyTool);
 
     bindAsService(context, TYPES.MouseListener, SelectionClearingMouseListener);
 
@@ -84,6 +92,15 @@ const defaultGLSPModule = new ContainerModule((bind, _unbind, isBound, rebind) =
 
     bind(SelectionService).toSelf().inSingletonScope();
     bind(TYPES.ISModelRootListener).toService(SelectionService);
+
+    // Feedback Support ------------------------------------
+    // Generic re-usable feedback modifying css classes
+    configureCommand(context, ModifyCssFeedbackCommand);
+    // We support using sprotty's MoveCommand as client-side visual feedback
+    configureCommand(context, MoveCommand);
+
+    bindAsService(context, TYPES.IVNodePostprocessor, LocationPostprocessor);
+    bind(TYPES.HiddenVNodePostprocessor).toService(LocationPostprocessor);
 });
 
 export default defaultGLSPModule;

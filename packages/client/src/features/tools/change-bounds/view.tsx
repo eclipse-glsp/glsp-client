@@ -15,23 +15,11 @@
  ********************************************************************************/
 import { injectable } from 'inversify';
 import { VNode } from 'snabbdom';
-import { IView, Point, RenderingContext, setAttr, SModelElement, svg } from '~glsp-sprotty';
-import { isResizable, ResizeHandleLocation, SResizeHandle } from '../change-bounds/model';
+import { IView, Point, RenderingContext, setAttr, svg } from '~glsp-sprotty';
+import { ResizeHandleLocation, SResizeHandle, isResizable } from '../../change-bounds/model';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const JSX = { createElement: svg };
-
-/**
- * This view is used for the invisible end of the feedback edge.
- * A feedback edge is shown as a visual feedback when creating edges.
- */
-@injectable()
-export class FeedbackEdgeEndView implements IView {
-    render(model: Readonly<SModelElement>, context: RenderingContext): VNode {
-        const position: Point = (model as any).position ?? Point.ORIGIN;
-        return <g x={position.x} y={position.y} />;
-    }
-}
 
 @injectable()
 export class SResizeHandleView implements IView {

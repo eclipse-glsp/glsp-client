@@ -36,8 +36,8 @@ import {
 import { GLSPActionDispatcher } from '../../base/action-dispatcher';
 import { EditorContextService, IEditModeListener } from '../../base/editor-context-service';
 import { FocusTracker } from '../../base/focus-tracker';
-import { MouseDeleteTool } from '../tools/delete-tool';
-import { MarqueeMouseTool } from '../tools/marquee-mouse-tool';
+import { MouseDeleteTool } from '../tools/deletion/delete-tool';
+import { MarqueeMouseTool } from '../tools/marquee-selection/marquee-mouse-tool';
 
 const CLICKED_CSS_CLASS = 'clicked';
 const SEARCH_ICON_ID = 'search';

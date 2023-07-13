@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { inject, injectable } from 'inversify';
-import { Action, IActionDispatcher, ILogger, TYPES } from '~glsp-sprotty';
+import { Action, Disposable, IActionDispatcher, ILogger, TYPES } from '~glsp-sprotty';
 
 export interface IFeedbackEmitter {}
 
@@ -35,21 +35,23 @@ export interface IFeedbackActionDispatcher {
     /**
      * Registers `actions` to be sent out by a `feedbackEmitter`.
      * @param feedbackEmitter the emitter sending out feedback actions.
-     * @param actions the actions to be sent out.
+     * @param feedbackActions the actions to be sent out.
+     * @param cleanupActions the actions to be sent out when the feedback is de-registered through the returned Disposable.
+     * @returns A 'Disposable' that de-registers the feedback and cleans up any pending feedback with the given `cleanupActions`.
      */
-    registerFeedback(feedbackEmitter: IFeedbackEmitter, actions: Action[]): void;
+    registerFeedback(feedbackEmitter: IFeedbackEmitter, feedbackActions: Action[], cleanupActions?: Action[]): Disposable;
 
     /**
      * Deregisters a `feedbackEmitter` from this dispatcher and thereafter
      * dispatches the provided `actions`.
      * @param feedbackEmitter the emitter to be deregistered.
-     * @param actions the actions to be dispatched right after the deregistration.
+     * @param cleanupActions the actions to be dispatched right after the deregistration.
      * These actions do not have to be related to the actions sent out by the
      * deregistered `feedbackEmitter`. The purpose of these actions typically is
      * to reset the normal state of the diagram without the feedback (e.g., reset a
      * CSS class that was set by a feedbackEmitter).
      */
-    deregisterFeedback(feedbackEmitter: IFeedbackEmitter, actions: Action[]): void;
+    deregisterFeedback(feedbackEmitter: IFeedbackEmitter, cleanupActions?: Action[]): void;
 
     /**
      * Retrieve all `actions` sent out by currently registered `feedbackEmitter`.
@@ -59,41 +61,47 @@ export interface IFeedbackActionDispatcher {
 
 @injectable()
 export class FeedbackActionDispatcher implements IFeedbackActionDispatcher {
-    protected feedbackEmitters: Map<IFeedbackEmitter, Action[]> = new Map();
+    protected registeredFeedback: Map<IFeedbackEmitter, Action[]> = new Map();
 
     @inject(TYPES.IActionDispatcherProvider) protected actionDispatcher: () => Promise<IActionDispatcher>;
     @inject(TYPES.ILogger) protected logger: ILogger;
 
-    registerFeedback(feedbackEmitter: IFeedbackEmitter, actions: Action[]): void {
-        this.feedbackEmitters.set(feedbackEmitter, actions);
-        this.dispatch(actions, feedbackEmitter);
+    registerFeedback(feedbackEmitter: IFeedbackEmitter, feedbackActions: Action[], cleanupActions?: Action[] | undefined): Disposable {
+        this.registeredFeedback.set(feedbackEmitter, feedbackActions);
+        this.dispatchFeedback(feedbackActions, feedbackEmitter);
+        return Disposable.create(() => this.deregisterFeedback(feedbackEmitter, cleanupActions));
     }
 
-    deregisterFeedback(feedbackEmitter: IFeedbackEmitter, actions: Action[]): void {
-        this.feedbackEmitters.delete(feedbackEmitter);
-        this.dispatch(actions, feedbackEmitter);
-    }
-
-    private dispatch(actions: Action[], feedbackEmitter: IFeedbackEmitter): void {
-        this.actionDispatcher()
-            .then(dispatcher => dispatcher.dispatchAll(actions))
-            .then(() => this.logger.info(this, `Dispatched feedback actions for ${feedbackEmitter}`))
-            .catch(reason => this.logger.error(this, 'Failed to dispatch feedback actions', reason));
+    deregisterFeedback(feedbackEmitter: IFeedbackEmitter, cleanupActions?: Action[] | undefined): void {
+        this.registeredFeedback.delete(feedbackEmitter);
+        if (cleanupActions) {
+            this.dispatchFeedback(cleanupActions, feedbackEmitter);
+        }
     }
 
     getRegisteredFeedback(): Action[] {
         const result: Action[] = [];
-        this.feedbackEmitters.forEach((value, key) => result.push(...value));
+        this.registeredFeedback.forEach(actions => result.push(...actions));
         return result;
     }
 
     getRegisteredFeedbackEmitters(action: Action): IFeedbackEmitter[] {
         const result: IFeedbackEmitter[] = [];
-        this.feedbackEmitters.forEach((value, key) => {
-            if (value.find(a => a === action)) {
-                result.push(key);
+        this.registeredFeedback.forEach((actions, emitter) => {
+            if (actions.includes(action)) {
+                result.push(emitter);
             }
         });
         return result;
+    }
+
+    protected async dispatchFeedback(actions: Action[], feedbackEmitter: IFeedbackEmitter): Promise<void> {
+        try {
+            const actionDispatcher = await this.actionDispatcher();
+            await actionDispatcher.dispatchAll(actions);
+            this.logger.info(this, `Dispatched feedback actions for ${feedbackEmitter}`);
+        } catch (reason) {
+            this.logger.error(this, 'Failed to dispatch feedback actions', reason);
+        }
     }
 }

@@ -13,19 +13,21 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { ContainerModule } from 'inversify';
-import { configureActionHandler } from '~glsp-sprotty';
-import {
-    AlignElementsAction,
-    AlignElementsActionHandler,
-    ResizeElementsAction,
-    ResizeElementsActionHandler
-} from './layout-elements-action';
+import { injectable } from 'inversify';
+import { VNode } from 'snabbdom';
+import { IView, Point, RenderingContext, SModelElement, svg } from '~glsp-sprotty';
 
-const layoutModule = new ContainerModule((bind, _unbind, isBound) => {
-    const context = { bind, isBound };
-    configureActionHandler(context, ResizeElementsAction.KIND, ResizeElementsActionHandler);
-    configureActionHandler(context, AlignElementsAction.KIND, AlignElementsActionHandler);
-});
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const JSX = { createElement: svg };
 
-export default layoutModule;
+/**
+ * This view is used for the invisible end of the feedback edge.
+ * A feedback edge is shown as a visual feedback when creating edges.
+ */
+@injectable()
+export class FeedbackEdgeEndView implements IView {
+    render(model: Readonly<SModelElement>, context: RenderingContext): VNode {
+        const position: Point = (model as any).position ?? Point.ORIGIN;
+        return <g x={position.x} y={position.y} />;
+    }
+}
