@@ -28,13 +28,19 @@ import modelHintsModule from './features/hints/di.config';
 import glspHoverModule from './features/hover/di.config';
 import layoutModule from './features/layout/di.config';
 import navigationModule from './features/navigation/di.config';
+import glspRoutingModule from './features/routing/di.config';
 import saveModule from './features/save/di.config';
 import glspSelectModule from './features/select/di.config';
 import sourceModelWatcherModule from './features/source-model-watcher/di.config';
 import svgMetadataModule from './features/svg-metadata/di.config';
-import toolFeedbackModule from './features/tool-feedback/di.config';
 import paletteModule from './features/tool-palette/di.config';
-import { enableDefaultToolsOnFocusLossModule, toolsModule } from './features/tools/di.config';
+import changeBoundsToolModule from './features/tools/change-bounds/di.config';
+import deletionToolModule from './features/tools/deletion/di.config';
+import edgeCreationToolModule from './features/tools/edge-creation/di.config';
+import edgeEditToolModule from './features/tools/edge-edit/di.config';
+import enableDefaultToolsOnFocusLossModule from './features/tools/enable-default-tools-on-focus-loss';
+import marqueeSelectionToolModule from './features/tools/marquee-selection/di.config';
+import nodeCreationToolModule from './features/tools/node-creation/di.config';
 import { markerNavigatorContextMenuModule, markerNavigatorModule, validationModule } from './features/validation/di.config';
 import glspViewportModule from './features/viewport/di.config';
 
@@ -49,8 +55,8 @@ export * from './base/command-stack';
 export { configureServerActions } from './base/di.config';
 export * from './base/drag-aware-mouse-listener';
 export * from './base/editor-context-service';
-export * from './base/feedback/feeback-command';
 export * from './base/feedback/feedback-action-dispatcher';
+export * from './base/feedback/feedback-command';
 export * from './base/feedback/update-model-command';
 export * from './base/focus-tracker';
 export * from './base/model-initialization-constraint';
@@ -66,6 +72,7 @@ export * from './container-modules';
 
 //
 // ------------------ Features ------------------
+export * from './base/feedback/css-feedback';
 export * from './base/view/mouse-tool';
 export * from './features/accessibility/resize-key-tool/resize-key-tool';
 export * from './features/accessibility/view-key-tools/deselect-key-tool';
@@ -97,30 +104,32 @@ export * from './features/layout/layout-elements-action';
 export * from './features/navigation/navigation-action-handler';
 export * from './features/navigation/navigation-target-resolver';
 export * from './features/reconnect/model';
+export * from './features/routing/glsp-manhattan-edge-router';
 export * from './features/save/model';
 export * from './features/save/save-keylistener';
 export * from './features/select/select-feedback-command';
 export * from './features/select/select-mouse-listener';
 export * from './features/source-model-watcher/source-model-changed-action-handler';
 export * from './features/svg-metadata/metadata-placer';
-export * from './features/tool-feedback/change-bounds-tool-feedback';
-export * from './features/tool-feedback/creation-tool-feedback';
-export * from './features/tool-feedback/css-feedback';
-export * from './features/tool-feedback/edge-edit-tool-feedback';
-export * from './features/tool-feedback/marquee-tool-feedback';
-export * from './features/tool-feedback/view';
 export * from './features/tool-palette/tool-palette';
 export * from './features/tools/base-glsp-tool';
-export * from './features/tools/change-bounds-tool';
-export * from './features/tools/delete-tool';
-export { configureMarqueeTool } from './features/tools/di.config';
-export * from './features/tools/edge-creation-tool';
-export * from './features/tools/edge-edit-tool';
+export * from './features/tools/change-bounds/change-bounds-tool';
+export * from './features/tools/change-bounds/change-bounds-tool-feedback';
+export * from './features/tools/change-bounds/view';
+export * from './features/tools/deletion/delete-tool';
+export * from './features/tools/edge-creation/edge-creation-tool';
+export * from './features/tools/edge-creation/edge-creation-tool-feedback';
+export * from './features/tools/edge-creation/view';
+export * from './features/tools/edge-edit/edge-edit-tool';
+export * from './features/tools/edge-edit/edge-edit-tool-feedback';
 export * from './features/tools/enable-default-tools-on-focus-loss';
-export * from './features/tools/glsp-manhattan-edge-router';
-export * from './features/tools/marquee-behavior';
-export * from './features/tools/model';
-export * from './features/tools/node-creation-tool';
+export * from './features/tools/marquee-selection/marquee-behavior';
+export * from './features/tools/marquee-selection/marquee-mouse-tool';
+export * from './features/tools/marquee-selection/marquee-tool';
+export * from './features/tools/marquee-selection/marquee-tool-feedback';
+export * from './features/tools/marquee-selection/model';
+export * from './features/tools/marquee-selection/view';
+export * from './features/tools/node-creation/node-creation-tool';
 export * from './features/validation/issue-marker';
 export * from './features/validation/marker-navigator';
 export * from './features/validation/validate';
@@ -140,8 +149,12 @@ export * from './utils/viewpoint-util';
 export * from './views';
 // ------------------ DI Modules ------------------
 export {
+    changeBoundsToolModule,
     copyPasteContextMenuModule,
     defaultGLSPModule,
+    deletionToolModule,
+    edgeCreationToolModule,
+    edgeEditToolModule,
     enableDefaultToolsOnFocusLossModule,
     glspAccessibilityModule,
     glspCommandPaletteModule,
@@ -151,6 +164,7 @@ export {
     glspHoverModule,
     glspMoveZoomModule,
     glspResizeKeyModule,
+    glspRoutingModule,
     glspSearchPaletteModule,
     glspSelectModule,
     glspServerCopyPasteModule,
@@ -159,13 +173,13 @@ export {
     layoutModule,
     markerNavigatorContextMenuModule,
     markerNavigatorModule,
+    marqueeSelectionToolModule,
     modelHintsModule,
     navigationModule,
+    nodeCreationToolModule,
     paletteModule,
     saveModule,
     sourceModelWatcherModule,
     svgMetadataModule,
-    toolFeedbackModule,
-    toolsModule,
     validationModule
 };

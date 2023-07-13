@@ -15,7 +15,7 @@
  ********************************************************************************/
 
 import { Bounds, Point, PointToPointLine } from '~glsp-sprotty';
-import { DrawMarqueeAction } from '../tool-feedback/marquee-tool-feedback';
+import { DrawMarqueeAction } from './marquee-tool-feedback';
 
 export interface IMarqueeBehavior {
     readonly entireElement: boolean;
@@ -77,7 +77,7 @@ export class MarqueeUtil {
         return horizontallyIn && verticallyIn;
     }
 
-    private isEntireEdgeMarked(points: Point[]): boolean {
+    protected isEntireEdgeMarked(points: Point[]): boolean {
         for (let i = 0; i < points.length; i++) {
             if (!this.pointInRect(points[i])) {
                 return false;
@@ -86,7 +86,7 @@ export class MarqueeUtil {
         return true;
     }
 
-    private isPartOfEdgeMarked(points: Point[]): boolean {
+    protected isPartOfEdgeMarked(points: Point[]): boolean {
         for (let i = 0; i < points.length - 1; i++) {
             if (this.isLineMarked(points[i], points[i + 1])) {
                 return true;
@@ -95,7 +95,7 @@ export class MarqueeUtil {
         return false;
     }
 
-    private isLineMarked(point1: Point, point2: Point): boolean {
+    protected isLineMarked(point1: Point, point2: Point): boolean {
         const line = new PointToPointLine(point1, point2);
         return (
             this.pointInRect(point1) ||
@@ -107,11 +107,11 @@ export class MarqueeUtil {
         );
     }
 
-    private lineIntersect(line: PointToPointLine, p1: Point, p2: Point): boolean {
+    protected lineIntersect(line: PointToPointLine, p1: Point, p2: Point): boolean {
         return line.intersection(new PointToPointLine(p1, p2)) !== undefined;
     }
 
-    private pointInRect(point: Point): boolean {
+    protected pointInRect(point: Point): boolean {
         const boolX =
             this.startPoint.x <= this.currentPoint.x
                 ? this.isBetween(point.x, this.startPoint.x, this.currentPoint.x)
@@ -123,7 +123,7 @@ export class MarqueeUtil {
         return boolX && boolY;
     }
 
-    private isElementBetweenXAxis(elementBounds: Bounds, marqueeLeft: number, marqueeRight: number): boolean {
+    protected isElementBetweenXAxis(elementBounds: Bounds, marqueeLeft: number, marqueeRight: number): boolean {
         const leftEdge = this.isBetween(elementBounds.x, marqueeLeft, marqueeRight);
         const rightEdge = this.isBetween(elementBounds.x + elementBounds.width, marqueeLeft, marqueeRight);
         if (this.marqueeBehavior.entireElement) {
@@ -137,7 +137,7 @@ export class MarqueeUtil {
         );
     }
 
-    private isElementBetweenYAxis(elementBounds: Bounds, marqueeTop: number, marqueeBottom: number): boolean {
+    protected isElementBetweenYAxis(elementBounds: Bounds, marqueeTop: number, marqueeBottom: number): boolean {
         const topEdge = this.isBetween(elementBounds.y, marqueeTop, marqueeBottom);
         const bottomEdge = this.isBetween(elementBounds.y + elementBounds.height, marqueeTop, marqueeBottom);
         if (this.marqueeBehavior.entireElement) {
@@ -151,7 +151,7 @@ export class MarqueeUtil {
         );
     }
 
-    private isBetween(x: number, lower: number, upper: number): boolean {
+    protected isBetween(x: number, lower: number, upper: number): boolean {
         return lower <= x && x <= upper;
     }
 }

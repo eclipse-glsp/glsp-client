@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2023 EclipseSource and others.
+ * Copyright (c) 2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,19 +13,13 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { ContainerModule } from 'inversify';
-import { configureActionHandler } from '~glsp-sprotty';
-import {
-    AlignElementsAction,
-    AlignElementsActionHandler,
-    ResizeElementsAction,
-    ResizeElementsActionHandler
-} from './layout-elements-action';
+import { injectable } from 'inversify';
+import { Disposable, KeyListener, KeyTool } from '~glsp-sprotty';
 
-const layoutModule = new ContainerModule((bind, _unbind, isBound) => {
-    const context = { bind, isBound };
-    configureActionHandler(context, ResizeElementsAction.KIND, ResizeElementsActionHandler);
-    configureActionHandler(context, AlignElementsAction.KIND, AlignElementsActionHandler);
-});
-
-export default layoutModule;
+@injectable()
+export class GLSPKeyTool extends KeyTool {
+    registerListener(keyListener: KeyListener): Disposable {
+        super.register(keyListener);
+        return Disposable.create(() => this.deregister(keyListener));
+    }
+}

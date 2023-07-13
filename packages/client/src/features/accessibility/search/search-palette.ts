@@ -34,7 +34,7 @@ import {
 import { AutocompleteSuggestion, IAutocompleteSuggestionProvider } from '../../autocomplete-palette/autocomplete-suggestion-providers';
 import { BaseAutocompletePalette } from '../../autocomplete-palette/base-autocomplete-palette';
 
-import { applyCssClasses, deleteCssClasses } from '../../tool-feedback/css-feedback';
+import { applyCssClasses, deleteCssClasses } from '../../../base/feedback/css-feedback';
 
 const CSS_SEARCH_HIDDEN = 'search-hidden';
 const CSS_SEARCH_HIGHLIGHTED = 'search-highlighted';

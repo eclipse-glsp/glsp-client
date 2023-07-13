@@ -16,7 +16,6 @@
 import { inject, injectable } from 'inversify';
 import {
     Action,
-    ActionDispatcher,
     BoundsAware,
     CenterAction,
     IActionHandler,
@@ -38,6 +37,7 @@ import {
     isSelectable,
     matchesKeystroke
 } from '~glsp-sprotty';
+import { GLSPActionDispatcher } from '../../base/action-dispatcher';
 import { SelectionService } from '../../base/selection-service';
 import { MarkerPredicates, collectIssueMarkers } from '../../utils/marker';
 import { getElements, isSelectableAndBoundsAware } from '../../utils/smodel-util';
@@ -168,7 +168,7 @@ export class NavigateToMarkerActionHandler implements IActionHandler {
     protected selectionService: SelectionService;
 
     @inject(TYPES.IActionDispatcher)
-    protected actionDispatcher: ActionDispatcher;
+    protected actionDispatcher: GLSPActionDispatcher;
 
     handle(action: NavigateToMarkerAction): void {
         const selected = this.getSelectedElements(action);

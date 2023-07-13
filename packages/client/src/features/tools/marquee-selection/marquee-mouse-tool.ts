@@ -29,12 +29,12 @@ import {
     isSelectable,
     isSelected
 } from '~glsp-sprotty';
-import { DragAwareMouseListener } from '../../base/drag-aware-mouse-listener';
-import { getAbsolutePosition, toAbsoluteBounds } from '../../utils/viewpoint-util';
-import { CursorCSS, cursorFeedbackAction } from '../tool-feedback/css-feedback';
-import { RemoveMarqueeAction } from '../tool-feedback/marquee-tool-feedback';
-import { BaseGLSPTool } from './base-glsp-tool';
+import { DragAwareMouseListener } from '../../../base/drag-aware-mouse-listener';
+import { CursorCSS, cursorFeedbackAction } from '../../../base/feedback/css-feedback';
+import { getAbsolutePosition, toAbsoluteBounds } from '../../../utils/viewpoint-util';
+import { BaseGLSPTool } from '../base-glsp-tool';
 import { IMarqueeBehavior, MarqueeUtil } from './marquee-behavior';
+import { RemoveMarqueeAction } from './marquee-tool-feedback';
 
 @injectable()
 export class MarqueeMouseTool extends BaseGLSPTool {
@@ -43,7 +43,6 @@ export class MarqueeMouseTool extends BaseGLSPTool {
     @inject(TYPES.DOMHelper) protected domHelper: DOMHelper;
     @inject(TYPES.IMarqueeBehavior) @optional() protected marqueeBehavior: IMarqueeBehavior;
 
-    protected marqueeMouseListener: MarqueeMouseListener;
     protected shiftKeyListener: ShiftKeyListener = new ShiftKeyListener();
 
     get id(): string {
@@ -51,16 +50,11 @@ export class MarqueeMouseTool extends BaseGLSPTool {
     }
 
     enable(): void {
-        this.marqueeMouseListener = new MarqueeMouseListener(this.domHelper, this.editorContext.modelRoot, this.marqueeBehavior);
-        this.mouseTool.register(this.marqueeMouseListener);
-        this.keyTool.register(this.shiftKeyListener);
-        this.dispatchFeedback([cursorFeedbackAction(CursorCSS.MARQUEE)]);
-    }
-
-    disable(): void {
-        this.mouseTool.deregister(this.marqueeMouseListener);
-        this.keyTool.deregister(this.shiftKeyListener);
-        this.deregisterFeedback([cursorFeedbackAction()]);
+        this.toDisposeOnDisable.push(
+            this.mouseTool.registerListener(new MarqueeMouseListener(this.domHelper, this.editorContext.modelRoot, this.marqueeBehavior)),
+            this.keyTool.registerListener(this.shiftKeyListener),
+            this.registerFeedback([cursorFeedbackAction(CursorCSS.MARQUEE)], this, [cursorFeedbackAction()])
+        );
     }
 }
 
@@ -119,7 +113,7 @@ export class MarqueeMouseListener extends DragAwareMouseListener {
         return [];
     }
 
-    override mouseUp(target: SModelElement, event: MouseEvent): Action[] {
+    override mouseUp(_target: SModelElement, event: MouseEvent): Action[] {
         this.isActive = false;
         if (event.shiftKey) {
             return [RemoveMarqueeAction.create()];

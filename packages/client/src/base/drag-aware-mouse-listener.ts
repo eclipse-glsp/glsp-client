@@ -24,8 +24,8 @@ import { Action, MouseListener, SModelElement } from '~glsp-sprotty';
  * of mouse up events.
  */
 export class DragAwareMouseListener extends MouseListener {
-    private _isMouseDown = false;
-    private _isMouseDrag = false;
+    protected _isMouseDown = false;
+    protected _isMouseDrag = false;
 
     override mouseDown(target: SModelElement, event: MouseEvent): Action[] {
         this._isMouseDown = true;

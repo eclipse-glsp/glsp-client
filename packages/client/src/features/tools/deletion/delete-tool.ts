@@ -21,18 +21,16 @@ import {
     KeyListener,
     KeyTool,
     MouseListener,
-    MouseTool,
     SModelElement,
-    TYPES,
     findParentByFeature,
     isCtrlOrCmd,
     isDeletable,
     isSelectable,
     matchesKeystroke
 } from '~glsp-sprotty';
-import { IFeedbackActionDispatcher } from '../../base/feedback/feedback-action-dispatcher';
-import { GLSPTool } from '../../base/tool-manager/glsp-tool-manager';
-import { CursorCSS, cursorFeedbackAction } from '../tool-feedback/css-feedback';
+import { CursorCSS, cursorFeedbackAction } from '../../../base/feedback/css-feedback';
+import { GLSPTool } from '../../../base/tool-manager/glsp-tool-manager';
+import { BaseGLSPTool } from '../base-glsp-tool';
 
 /**
  * Deletes selected elements when hitting the `Del` key.
@@ -82,28 +80,20 @@ export class DeleteKeyListener extends KeyListener {
  * Deletes selected elements when clicking on them.
  */
 @injectable()
-export class MouseDeleteTool implements GLSPTool {
+export class MouseDeleteTool extends BaseGLSPTool {
     static ID = 'glsp.delete-mouse';
 
-    isEditTool = true;
-
     protected deleteToolMouseListener: DeleteToolMouseListener = new DeleteToolMouseListener();
-
-    @inject(MouseTool) protected mouseTool: MouseTool;
-    @inject(TYPES.IFeedbackActionDispatcher) protected readonly feedbackDispatcher: IFeedbackActionDispatcher;
 
     get id(): string {
         return MouseDeleteTool.ID;
     }
 
     enable(): void {
-        this.mouseTool.register(this.deleteToolMouseListener);
-        this.feedbackDispatcher.registerFeedback(this, [cursorFeedbackAction(CursorCSS.ELEMENT_DELETION)]);
-    }
-
-    disable(): void {
-        this.mouseTool.deregister(this.deleteToolMouseListener);
-        this.feedbackDispatcher.registerFeedback(this, [cursorFeedbackAction()]);
+        this.toDisposeOnDisable.push(
+            this.mouseTool.registerListener(this.deleteToolMouseListener),
+            this.registerFeedback([cursorFeedbackAction(CursorCSS.ELEMENT_DELETION)], this, [cursorFeedbackAction()])
+        );
     }
 }
 

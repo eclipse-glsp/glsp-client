@@ -36,8 +36,8 @@ import {
     editFeature,
     moveFeature
 } from '~glsp-sprotty';
-import { FeedbackCommand } from '../../base/feedback/feeback-command';
 import { IFeedbackActionDispatcher } from '../../base/feedback/feedback-action-dispatcher';
+import { FeedbackCommand } from '../../base/feedback/feedback-command';
 import { getElementTypeId, hasCompatibleType } from '../../utils/smodel-util';
 import { resizeFeature } from '../change-bounds/model';
 import { reconnectFeature } from '../reconnect/model';

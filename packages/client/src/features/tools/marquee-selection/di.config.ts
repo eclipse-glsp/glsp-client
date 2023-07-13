@@ -14,18 +14,22 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { ContainerModule } from 'inversify';
-import { configureActionHandler } from '~glsp-sprotty';
-import {
-    AlignElementsAction,
-    AlignElementsActionHandler,
-    ResizeElementsAction,
-    ResizeElementsActionHandler
-} from './layout-elements-action';
+import { TYPES, bindAsService, configureCommand, configureModelElement } from '~glsp-sprotty';
+import { MarqueeMouseTool } from './marquee-mouse-tool';
+import { MarqueeTool } from './marquee-tool';
+import { DrawMarqueeCommand, MARQUEE, RemoveMarqueeCommand } from './marquee-tool-feedback';
+import { MarqueeNode } from './model';
+import { MarqueeView } from './view';
 
-const layoutModule = new ContainerModule((bind, _unbind, isBound) => {
-    const context = { bind, isBound };
-    configureActionHandler(context, ResizeElementsAction.KIND, ResizeElementsActionHandler);
-    configureActionHandler(context, AlignElementsAction.KIND, AlignElementsActionHandler);
+const marqueeSelectionToolModule = new ContainerModule((bind, unbind, isBound, rebind) => {
+    const context = { bind, unbind, isBound, rebind };
+    bindAsService(context, TYPES.IDefaultTool, MarqueeTool);
+    bindAsService(context, TYPES.ITool, MarqueeMouseTool);
+
+    configureCommand(context, DrawMarqueeCommand);
+    configureCommand(context, RemoveMarqueeCommand);
+
+    configureModelElement(context, MARQUEE, MarqueeNode, MarqueeView);
 });
 
-export default layoutModule;
+export default marqueeSelectionToolModule;

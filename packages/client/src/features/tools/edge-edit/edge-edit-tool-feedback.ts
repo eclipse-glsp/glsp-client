@@ -21,6 +21,7 @@ import {
     Bounds,
     CommandExecutionContext,
     CommandReturn,
+    Disposable,
     EdgeRouterRegistry,
     ElementMove,
     ISnapper,
@@ -41,12 +42,14 @@ import {
     isConnectable,
     isSelected
 } from '~glsp-sprotty';
-import { FeedbackCommand } from '../../base/feedback/feeback-command';
-import { forEachElement, isRoutable, isRoutingHandle } from '../../utils/smodel-util';
-import { getAbsolutePosition, toAbsoluteBounds } from '../../utils/viewpoint-util';
-import { PointPositionUpdater } from '../change-bounds/snap';
-import { addReconnectHandles, removeReconnectHandles } from '../reconnect/model';
-import { FeedbackEdgeEnd, FeedbackEdgeEndMovingMouseListener, feedbackEdgeEndId, feedbackEdgeId } from './creation-tool-feedback';
+import { IFeedbackActionDispatcher } from '../../../base/feedback/feedback-action-dispatcher';
+import { FeedbackCommand } from '../../../base/feedback/feedback-command';
+import { forEachElement, isRoutable, isRoutingHandle } from '../../../utils/smodel-util';
+import { getAbsolutePosition, toAbsoluteBounds } from '../../../utils/viewpoint-util';
+import { PointPositionUpdater } from '../../change-bounds/snap';
+import { addReconnectHandles, removeReconnectHandles } from '../../reconnect/model';
+import { FeedbackEdgeEnd, feedbackEdgeEndId, feedbackEdgeId } from '../edge-creation/dangling-edge-feedback';
+import { FeedbackEdgeEndMovingMouseListener } from '../edge-creation/edge-creation-tool-feedback';
 
 /**
  * RECONNECT HANDLES FEEDBACK
@@ -67,6 +70,7 @@ export namespace ShowEdgeReconnectHandlesFeedbackAction {
         return { kind: KIND, elementId };
     }
 }
+
 export interface HideEdgeReconnectHandlesFeedbackAction extends Action {
     kind: typeof HideEdgeReconnectHandlesFeedbackAction.KIND;
 }
@@ -135,6 +139,7 @@ export namespace SwitchRoutingModeAction {
         };
     }
 }
+
 @injectable()
 export class SwitchRoutingModeCommand extends SwitchEditModeCommand {
     static override KIND = SwitchRoutingModeAction.KIND;
@@ -187,13 +192,13 @@ export class DrawFeedbackEdgeSourceCommand extends FeedbackCommand {
  */
 
 export class FeedbackEdgeTargetMovingMouseListener extends FeedbackEdgeEndMovingMouseListener {
-    constructor(protected override anchorRegistry: AnchorComputerRegistry) {
-        super(anchorRegistry);
+    constructor(anchorRegistry: AnchorComputerRegistry, feedbackDispatcher: IFeedbackActionDispatcher) {
+        super(anchorRegistry, feedbackDispatcher);
     }
 }
 
-export class FeedbackEdgeSourceMovingMouseListener extends MouseListener {
-    constructor(protected anchorRegistry: AnchorComputerRegistry) {
+export class FeedbackEdgeSourceMovingMouseListener extends MouseListener implements Disposable {
+    constructor(protected anchorRegistry: AnchorComputerRegistry, protected feedbackDispatcher: IFeedbackActionDispatcher) {
         super();
     }
 
@@ -207,16 +212,20 @@ export class FeedbackEdgeSourceMovingMouseListener extends MouseListener {
         const edge = edgeEnd.feedbackEdge;
         const position = getAbsolutePosition(edgeEnd, event);
         const endAtMousePosition = findChildrenAtPosition(target.root, position).find(
-            e => isConnectable(e) && e.canConnect(edge, 'source')
+            element => isConnectable(element) && element.canConnect(edge, 'source')
         );
 
         if (endAtMousePosition instanceof SConnectableElement && edge.target && isBoundsAware(edge.target)) {
             const anchor = this.computeAbsoluteAnchor(endAtMousePosition, Bounds.center(edge.target.bounds));
             if (Point.euclideanDistance(anchor, edgeEnd.position) > 1) {
-                return [MoveAction.create([{ elementId: edgeEnd.id, toPosition: anchor }], { animate: false })];
+                this.feedbackDispatcher.registerFeedback(this, [
+                    MoveAction.create([{ elementId: edgeEnd.id, toPosition: anchor }], { animate: false })
+                ]);
             }
         } else {
-            return [MoveAction.create([{ elementId: edgeEnd.id, toPosition: position }], { animate: false })];
+            this.feedbackDispatcher.registerFeedback(this, [
+                MoveAction.create([{ elementId: edgeEnd.id, toPosition: position }], { animate: false })
+            ]);
         }
 
         return [];
@@ -235,6 +244,10 @@ export class FeedbackEdgeSourceMovingMouseListener extends MouseListener {
             }
         }
         return anchor;
+    }
+
+    dispose(): void {
+        this.feedbackDispatcher.deregisterFeedback(this);
     }
 }
 
@@ -341,8 +354,7 @@ export class FeedbackEdgeRouteMovingMouseListener extends MouseListener {
 /**
  * UTILITY FUNCTIONS
  */
-
-function drawFeedbackEdgeSource(context: CommandExecutionContext, targetId: string, elementTypeId: string): void {
+export function drawFeedbackEdgeSource(context: CommandExecutionContext, targetId: string, elementTypeId: string): void {
     const root = context.root;
     const targetChild = root.index.getById(targetId);
     if (!targetChild) {

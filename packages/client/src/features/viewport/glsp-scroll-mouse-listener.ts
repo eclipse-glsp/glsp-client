@@ -23,7 +23,7 @@ import {
     ScrollMouseListener,
     SModelElement
 } from '~glsp-sprotty';
-import { MarqueeMouseTool } from '../tools/marquee-mouse-tool';
+import { MarqueeMouseTool } from '../tools/marquee-selection/marquee-mouse-tool';
 
 @injectable()
 export class GLSPScrollMouseListener extends ScrollMouseListener implements IActionHandler {

@@ -15,8 +15,8 @@
  ********************************************************************************/
 import { injectable } from 'inversify';
 import { BoundsAware, Point, SModelElement, SNode, SParentElement } from '~glsp-sprotty';
+import { ModifyCSSFeedbackAction } from '../../base/feedback/css-feedback';
 import { toAbsoluteBounds } from '../../utils/viewpoint-util';
-import { ModifyCSSFeedbackAction } from '../tool-feedback/css-feedback';
 import { SResizeHandle, isBoundsAwareMoveable } from './model';
 
 /**
