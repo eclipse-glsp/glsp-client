@@ -70,7 +70,7 @@ export class SourceModelChangedActionHandler implements IActionHandler {
         const severity = 'WARNING';
         this.dispatcher.dispatchAll([
             ServerStatusAction.create(message, { severity, timeout }),
-            ServerMessageAction.create(message, { severity, timeout })
+            ServerMessageAction.create(message, { severity })
         ]);
     }
 }
