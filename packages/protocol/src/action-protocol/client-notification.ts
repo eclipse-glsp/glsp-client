@@ -140,18 +140,9 @@ export namespace StartProgressAction {
         return Action.hasKind(object, KIND) && hasStringProp(object, 'progressId') && hasStringProp(object, 'title');
     }
 
-    export function create(
-        progressId: string,
-        title: string,
-        options: {
-            message?: string;
-            percentage?: number;
-        } = {}
-    ): StartProgressAction {
+    export function create(options: { progressId: string; title: string; message?: string; percentage?: number }): StartProgressAction {
         return {
             kind: KIND,
-            progressId,
-            title,
             ...options
         };
     }
@@ -222,16 +213,11 @@ export namespace EndProgressAction {
         return Action.hasKind(object, KIND) && hasStringProp(object, 'progressId');
     }
 
-    export function create(
-        progressId: string,
-        options: {
-            message?: string;
-        } = {}
-    ): EndProgressAction {
+    export function create(progressId: string, message?: string): EndProgressAction {
         return {
             kind: KIND,
             progressId,
-            ...options
+            message
         };
     }
 }

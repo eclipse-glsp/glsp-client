@@ -112,7 +112,7 @@ describe('Client notification actions', () => {
                 const progressId = '1';
                 const title = 'Progress title';
                 const expected: StartProgressAction = { kind: StartProgressAction.KIND, progressId, title };
-                expect(StartProgressAction.create(progressId, title)).to.deep.equals(expected);
+                expect(StartProgressAction.create({ progressId, title })).to.deep.equals(expected);
             });
             it('should return an object conforming to the interface with matching properties for the given required and optional arguments', () => {
                 const expected: StartProgressAction = {
@@ -123,7 +123,7 @@ describe('Client notification actions', () => {
                     percentage: 10
                 };
                 const { progressId, title, message, percentage } = expected;
-                expect(StartProgressAction.create(progressId, title, { message, percentage })).to.deep.equals(expected);
+                expect(StartProgressAction.create({ progressId, title, message, percentage })).to.deep.equals(expected);
             });
         });
     });
@@ -178,7 +178,7 @@ describe('Client notification actions', () => {
         describe('create', () => {
             it('should return an object conforming to the interface with matching properties for the given required arguments and default values for the optional arguments', () => {
                 const progressId = '1';
-                const expected: EndProgressAction = { kind: EndProgressAction.KIND, progressId };
+                const expected: EndProgressAction = { kind: EndProgressAction.KIND, progressId, message: undefined };
                 expect(EndProgressAction.create(progressId)).to.deep.equals(expected);
             });
             it('should return an object conforming to the interface with matching properties for the given required and optional arguments', () => {
@@ -188,7 +188,7 @@ describe('Client notification actions', () => {
                     message: 'Some message'
                 };
                 const { progressId, message } = expected;
-                expect(EndProgressAction.create(progressId, { message })).to.deep.equals(expected);
+                expect(EndProgressAction.create(progressId, message)).to.deep.equals(expected);
             });
         });
     });
