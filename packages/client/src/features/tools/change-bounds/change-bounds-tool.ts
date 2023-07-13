@@ -332,7 +332,8 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
     protected resetFeedback(resetBounds = false): void {
         const resetFeedback: Action[] = [];
         if (this.activeResizeElement && isResizable(this.activeResizeElement)) {
-            if (this.initialBounds && resetBounds) {
+            if (this.initialBounds && this.activeResizeHandle && resetBounds) {
+                // we only reset the bounds if an active resize operation was cancelled due to the tool being disabled
                 resetFeedback.push(
                     SetBoundsAction.create([
                         {
