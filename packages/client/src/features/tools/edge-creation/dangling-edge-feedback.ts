@@ -71,7 +71,7 @@ export class DrawFeedbackEdgeCommand extends FeedbackCommand {
     }
 
     execute(context: CommandExecutionContext): CommandReturn {
-        drawDanglingFeedbackEdge(context, this.action.sourceId, this.action.elementTypeId, this.action.edgeSchema);
+        drawFeedbackEdge(context, this.action.sourceId, this.action.elementTypeId, this.action.edgeSchema);
         return context.root;
     }
 }
@@ -127,7 +127,7 @@ export const defaultFeedbackEdgeSchema: Partial<SEdgeSchema> = {
     opacity: 0.3
 };
 
-export function drawDanglingFeedbackEdge(
+export function drawFeedbackEdge(
     context: CommandExecutionContext,
     sourceId: string,
     elementTypeId: string,

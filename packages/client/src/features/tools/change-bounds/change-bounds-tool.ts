@@ -193,6 +193,7 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
             actions.push(...this.handleMoveOnServer(target));
         }
         this.resetPosition();
+        this.tool.deregisterFeedback(this, [cursorFeedbackAction(CursorCSS.DEFAULT)]);
         return actions;
     }
 
@@ -292,7 +293,10 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
             // only allow one element to have the element resize handles
             this.activeResizeElement = moveableElement;
             if (isResizable(this.activeResizeElement)) {
-                this.tool.registerFeedback([ShowChangeBoundsToolResizeFeedbackAction.create(this.activeResizeElement.id)], this);
+                this.tool.registerFeedback(
+                    [ShowChangeBoundsToolResizeFeedbackAction.create(this.activeResizeElement.id)],
+                    this.activeResizeElement
+                );
             }
             return true;
         }
@@ -317,29 +321,32 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
     }
 
     dispose(): void {
-        this.reset();
+        this.reset(true);
     }
 
-    protected reset(): void {
-        this.resetFeedback();
+    protected reset(resetBounds = false): void {
+        this.resetFeedback(resetBounds);
         this.resetPosition();
     }
 
-    protected resetFeedback(): void {
+    protected resetFeedback(resetBounds = false): void {
+        const resetFeedback: Action[] = [];
         if (this.activeResizeElement && isResizable(this.activeResizeElement)) {
-            if (this.initialBounds) {
-                const resetResizeAction = SetBoundsAction.create([
-                    {
-                        elementId: this.activeResizeElement.id,
-                        newPosition: this.initialBounds,
-                        newSize: this.initialBounds
-                    }
-                ]);
-                this.tool.deregisterFeedback(this, [resetResizeAction]);
+            if (this.initialBounds && resetBounds) {
+                resetFeedback.push(
+                    SetBoundsAction.create([
+                        {
+                            elementId: this.activeResizeElement.id,
+                            newPosition: this.initialBounds,
+                            newSize: this.initialBounds
+                        }
+                    ])
+                );
             }
-            this.tool.deregisterFeedback(this, [HideChangeBoundsToolResizeFeedbackAction.create()]);
+            this.tool.deregisterFeedback(this.activeResizeElement, [HideChangeBoundsToolResizeFeedbackAction.create()]);
         }
-        this.tool.dispatchActions([cursorFeedbackAction(CursorCSS.DEFAULT)]);
+        resetFeedback.push(cursorFeedbackAction(CursorCSS.DEFAULT));
+        this.tool.deregisterFeedback(this, resetFeedback);
     }
 
     protected resetPosition(): void {

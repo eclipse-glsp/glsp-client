@@ -17,6 +17,11 @@
 -   [diagram] Augment diagram SVG with additional model metadata to enable easier integration tests and accessibility. [#239](https://github.com/eclipse-glsp/glsp-client/pull/239)
 -   [validation] Add and track reason for validation markers (e.g. batch and live validation) [#243](https://github.com/eclipse-glsp/glsp-client/pull/243)
 -   [protocol] Provide the common interfaces and type definitions for TS-based GLSP servers [#245](https://github.com/eclipse-glsp/glsp-client/pull/245) - Contributed on behalf of STMicroelectronics
+-   [API] Re-work tool and feedback structure [#261](https://github.com/eclipse-glsp/glsp-client/pull/264)
+    -   Introduce `registerListener` method on GLSP mouse and key tool to return a disposable for de-registration
+    -   Adapt `registerFeedback` method from feedback dispatcher to return a disposable for de-registration
+    -   Introduce dedicated `BaseGLSPCreationTool` for tools based on trigger actions
+    -   Introduce `toDisposeOnDisable` collection in `BaseGLSPTool` to register disable handling during enablement
 
 ### Breaking Changes
 
@@ -38,6 +43,10 @@
     -   Reworked `SelectionService`, `GlspCommandStack` & `EditorContextService` to make use of this new API
     -   Removed explicit (de)registration methods for listeners. Use the corresponding event property (e.g. `SelectionService.onSelectionChanged`) instead.
     -   Aligned naming of injectable interfaces & service identifiers to consistently use the `I` prefix.
+-   [API] Re-work tool and feedback structure [#261](https://github.com/eclipse-glsp/glsp-client/pull/264)
+    -   Remove generic `toolsModule` and `toolFeedbackModule` in favor of individual tool modules
+    -   Rename `dispatchFeedback` in `BaseGLSPTool` to `registerFeedback` to align with feedback dispatcher
+    -   Switch arguments in `deregisterFeedback` in `BaseGLSPTool` for easier de-registration and clean up actions
 
 ## [v1.0.0 - 30/06/2022](https://github.com/eclipse-glsp/glsp-client/releases/tag/v1.0.0)
 

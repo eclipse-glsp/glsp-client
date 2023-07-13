@@ -280,10 +280,12 @@ export class FeedbackMoveMouseListener extends MouseListener implements Disposab
             if (moveAction) {
                 result.push(moveAction);
             }
+            const resetFeedback: Action[] = [];
             if (this.tool.movementRestrictor) {
-                this.tool.deregisterFeedback(this, [removeMovementRestrictionFeedback(target, this.tool.movementRestrictor)]);
+                resetFeedback.push(removeMovementRestrictionFeedback(target, this.tool.movementRestrictor));
             }
-            result.push(cursorFeedbackAction(CursorCSS.DEFAULT));
+            resetFeedback.push(cursorFeedbackAction(CursorCSS.DEFAULT));
+            this.tool.deregisterFeedback(this, resetFeedback);
         }
         this.reset();
         return result;

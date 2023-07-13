@@ -27,7 +27,6 @@ import {
     labelEditUiModule,
     modelSourceModule,
     openModule,
-    routingModule,
     zorderModule
 } from '~glsp-sprotty';
 import defaultGLSPModule from './base/di.config';
@@ -83,7 +82,6 @@ export const DEFAULT_MODULES = [
     sourceModelWatcherModule,
     navigationModule,
     openModule,
-    routingModule,
     glspRoutingModule,
     toolPaletteModule,
     edgeCreationToolModule,
