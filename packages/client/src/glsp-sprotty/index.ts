@@ -326,7 +326,6 @@ export {
     edgeLayoutModule,
     expandModule,
     fadeModule,
-    viewportModule as glspViewportModule,
     graphModule,
     labelEditUiModule,
     modelSourceModule,
@@ -341,6 +340,7 @@ export {
     labelEditModule as sprottyLabelEditModule,
     routingModule as sprottyRoutingModule,
     selectModule as sprottySelectModule,
+    viewportModule as sprottyViewportModule,
     undoRedoModule,
     updateModule,
     zorderModule
