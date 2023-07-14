@@ -15,7 +15,7 @@
  ********************************************************************************/
 import { inject, injectable, optional } from 'inversify';
 import { Action, ContextMenuProviderRegistry, IContextMenuServiceProvider, MouseListener, SModelElement, TYPES } from '~glsp-sprotty';
-import { FocusStateChangedAction } from '../../base/actions/focus-change-action';
+import { FocusStateChangedAction } from '../../base/focus/focus-state-change-action';
 import { SelectionService } from '../../base/selection-service';
 
 @injectable()

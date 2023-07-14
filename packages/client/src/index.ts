@@ -13,52 +13,21 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import defaultGLSPModule from './base/di.config';
-import { glspAccessibilityModule } from './features/accessibility/di.config';
-import { glspMoveZoomModule } from './features/accessibility/move-zoom/di.config';
-import { glspResizeKeyModule } from './features/accessibility/resize-key-tool/di.config';
-import { glspSearchPaletteModule } from './features/accessibility/search/di.config';
-import { glspViewKeyToolsModule } from './features/accessibility/view-key-tools/di.config';
-import glspCommandPaletteModule from './features/command-palette/di.config';
-import glspContextMenuModule from './features/context-menu/di.config';
-import { copyPasteContextMenuModule, glspServerCopyPasteModule } from './features/copy-paste/di.config';
-import glspDecorationModule from './features/decoration/di.config';
-import glspEditLabelModule from './features/edit-label/di.config';
-import modelHintsModule from './features/hints/di.config';
-import glspHoverModule from './features/hover/di.config';
-import layoutModule from './features/layout/di.config';
-import navigationModule from './features/navigation/di.config';
-import glspRoutingModule from './features/routing/di.config';
-import saveModule from './features/save/di.config';
-import glspSelectModule from './features/select/di.config';
-import sourceModelWatcherModule from './features/source-model-watcher/di.config';
-import svgMetadataModule from './features/svg-metadata/di.config';
-import paletteModule from './features/tool-palette/di.config';
-import changeBoundsToolModule from './features/tools/change-bounds/di.config';
-import deletionToolModule from './features/tools/deletion/di.config';
-import edgeCreationToolModule from './features/tools/edge-creation/di.config';
-import edgeEditToolModule from './features/tools/edge-edit/di.config';
-import enableDefaultToolsOnFocusLossModule from './features/tools/enable-default-tools-on-focus-loss';
-import marqueeSelectionToolModule from './features/tools/marquee-selection/di.config';
-import nodeCreationToolModule from './features/tools/node-creation/di.config';
-import { markerNavigatorContextMenuModule, markerNavigatorModule, validationModule } from './features/validation/di.config';
-import glspViewportModule from './features/viewport/di.config';
 
 // ------------------ Base ------------------
 export * from './base/action-dispatcher';
-export * from './base/actions/focus-change-action';
 export * from './base/argumentable';
 export * from './base/auto-complete/auto-complete-actions';
 export * from './base/auto-complete/auto-complete-widget';
 export * from './base/auto-complete/validation-decorator';
 export * from './base/command-stack';
-export { configureServerActions } from './base/di.config';
 export * from './base/drag-aware-mouse-listener';
 export * from './base/editor-context-service';
 export * from './base/feedback/feedback-action-dispatcher';
 export * from './base/feedback/feedback-command';
 export * from './base/feedback/update-model-command';
-export * from './base/focus-tracker';
+export * from './base/focus/focus-state-change-action';
+export * from './base/focus/focus-tracker';
 export * from './base/model-initialization-constraint';
 export * from './base/model/model-registry';
 export * from './base/ranked';
@@ -94,12 +63,12 @@ export * from './features/context-menu/server-context-menu-provider';
 export * from './features/copy-paste/copy-paste-context-menu';
 export * from './features/copy-paste/copy-paste-handler';
 export * from './features/decoration/decoration-placer';
-export * from './features/edit-label/edit-label-tool';
-export * from './features/edit-label/edit-label-validator';
 export * from './features/export/glsp-svg-exporter';
 export * from './features/hints/model';
 export * from './features/hints/type-hints';
 export * from './features/hover/hover';
+export * from './features/label-edit/edit-label-tool';
+export * from './features/label-edit/edit-label-validator';
 export * from './features/layout/layout-elements-action';
 export * from './features/navigation/navigation-action-handler';
 export * from './features/navigation/navigation-target-resolver';
@@ -122,7 +91,6 @@ export * from './features/tools/edge-creation/edge-creation-tool-feedback';
 export * from './features/tools/edge-creation/view';
 export * from './features/tools/edge-edit/edge-edit-tool';
 export * from './features/tools/edge-edit/edge-edit-tool-feedback';
-export * from './features/tools/enable-default-tools-on-focus-loss';
 export * from './features/tools/marquee-selection/marquee-behavior';
 export * from './features/tools/marquee-selection/marquee-mouse-tool';
 export * from './features/tools/marquee-selection/marquee-tool';
@@ -148,38 +116,33 @@ export * from './utils/smodel-util';
 export * from './utils/viewpoint-util';
 export * from './views';
 // ------------------ DI Modules ------------------
-export {
-    changeBoundsToolModule,
-    copyPasteContextMenuModule,
-    defaultGLSPModule,
-    deletionToolModule,
-    edgeCreationToolModule,
-    edgeEditToolModule,
-    enableDefaultToolsOnFocusLossModule,
-    glspAccessibilityModule,
-    glspCommandPaletteModule,
-    glspContextMenuModule,
-    glspDecorationModule,
-    glspEditLabelModule,
-    glspHoverModule,
-    glspMoveZoomModule,
-    glspResizeKeyModule,
-    glspRoutingModule,
-    glspSearchPaletteModule,
-    glspSelectModule,
-    glspServerCopyPasteModule,
-    glspViewKeyToolsModule,
-    glspViewportModule,
-    layoutModule,
-    markerNavigatorContextMenuModule,
-    markerNavigatorModule,
-    marqueeSelectionToolModule,
-    modelHintsModule,
-    navigationModule,
-    nodeCreationToolModule,
-    paletteModule,
-    saveModule,
-    sourceModelWatcherModule,
-    svgMetadataModule,
-    validationModule
-};
+export * from './base/base-module';
+export * from './features/accessibility/accessibility-module';
+export * from './features/accessibility/move-zoom/move-zoom-module';
+export * from './features/accessibility/resize-key-tool/resize-key-module';
+export * from './features/accessibility/search/search-palette-module';
+export * from './features/accessibility/view-key-tools/view-key-tools-module';
+export * from './features/command-palette/command-palette-module';
+export * from './features/context-menu/context-menu-module';
+export * from './features/copy-paste/copy-paste-modules';
+export * from './features/decoration/decoration-module';
+export * from './features/hints/type-hints-module';
+export * from './features/hover/hover-module';
+export * from './features/label-edit/label-edit-module';
+export * from './features/layout/layout-module';
+export * from './features/navigation/navigation-module';
+export * from './features/routing/routing-module';
+export * from './features/save/save-module';
+export * from './features/select/select-module';
+export * from './features/source-model-watcher/source-model-wacher-module';
+export * from './features/svg-metadata/svg-metadata-module';
+export * from './features/tool-palette/tool-palette-module';
+export * from './features/tools/change-bounds/change-boounds-tool-module';
+export * from './features/tools/deletion/deletion-tool-module';
+export * from './features/tools/edge-creation/edege-creation-module';
+export * from './features/tools/edge-edit/edge-edit-module';
+export * from './features/tools/marquee-selection/marquee-selection-module';
+export * from './features/tools/node-creation/node-creation-module';
+export * from './features/tools/tool-focus-loss-module';
+export * from './features/validation/validation-module';
+export * from './features/viewport/viewport-module';

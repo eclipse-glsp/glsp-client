@@ -13,7 +13,12 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-export * from './direct-task-editing/direct-task-editor';
-export * from './model';
-export * from './workflow-diagram-module';
-export * from './workflow-views';
+import { ContainerModule } from 'inversify';
+import { TYPES, bindAsService } from '~glsp-sprotty';
+import { DelKeyDeleteTool, MouseDeleteTool } from './delete-tool';
+
+export const deletionToolModule = new ContainerModule((bind, unbind, isBound, rebind) => {
+    const context = { bind, unbind, isBound, rebind };
+    bindAsService(context, TYPES.IDefaultTool, DelKeyDeleteTool);
+    bindAsService(context, TYPES.ITool, MouseDeleteTool);
+});

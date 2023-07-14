@@ -145,13 +145,11 @@ export * from 'sprotty/lib/features/decoration/model';
 export * from 'sprotty/lib/features/decoration/views';
 export * from 'sprotty/lib/features/edge-intersection/intersection-finder';
 export * from 'sprotty/lib/features/edge-intersection/sweepline';
-export * from 'sprotty/lib/features/edge-layout/di.config';
 export * from 'sprotty/lib/features/edge-layout/edge-layout';
 export * from 'sprotty/lib/features/edge-layout/model';
 export * from 'sprotty/lib/features/edit/create';
 export * from 'sprotty/lib/features/edit/create-on-drag';
 export * from 'sprotty/lib/features/edit/delete';
-export * from 'sprotty/lib/features/edit/di.config';
 export * from 'sprotty/lib/features/edit/edit-label';
 export * from 'sprotty/lib/features/edit/edit-label-ui';
 export * from 'sprotty/lib/features/edit/edit-routing';
@@ -296,30 +294,6 @@ export * from './types';
 /**
  * Modules
  */
-export {
-    boundsModule,
-    buttonModule,
-    commandPaletteModule,
-    contextMenuModule,
-    decorationModule,
-    defaultModule,
-    edgeIntersectionModule,
-    edgeLayoutModule,
-    expandModule,
-    exportModule,
-    fadeModule,
-    graphModule,
-    hoverModule,
-    modelSourceModule,
-    moveModule,
-    openModule,
-    routingModule,
-    selectModule,
-    undoRedoModule,
-    updateModule,
-    viewportModule,
-    zorderModule
-};
 import defaultModule from 'sprotty/lib/base/di.config';
 import boundsModule from 'sprotty/lib/features/bounds/di.config';
 import buttonModule from 'sprotty/lib/features/button/di.config';
@@ -328,6 +302,7 @@ import contextMenuModule from 'sprotty/lib/features/context-menu/di.config';
 import decorationModule from 'sprotty/lib/features/decoration/di.config';
 import edgeIntersectionModule from 'sprotty/lib/features/edge-intersection/di.config';
 import edgeLayoutModule from 'sprotty/lib/features/edge-layout/di.config';
+import { edgeEditModule, labelEditModule, labelEditUiModule } from 'sprotty/lib/features/edit/di.config';
 import expandModule from 'sprotty/lib/features/expand/di.config';
 import exportModule from 'sprotty/lib/features/export/di.config';
 import fadeModule from 'sprotty/lib/features/fade/di.config';
@@ -342,3 +317,31 @@ import viewportModule from 'sprotty/lib/features/viewport/di.config';
 import zorderModule from 'sprotty/lib/features/zorder/di.config';
 import graphModule from 'sprotty/lib/graph/di.config';
 import modelSourceModule from 'sprotty/lib/model-source/di.config';
+
+export {
+    buttonModule,
+    defaultModule,
+    edgeEditModule,
+    edgeIntersectionModule,
+    edgeLayoutModule,
+    expandModule,
+    fadeModule,
+    viewportModule as glspViewportModule,
+    graphModule,
+    labelEditUiModule,
+    modelSourceModule,
+    moveModule,
+    openModule,
+    boundsModule as sprottyBoundsModule,
+    commandPaletteModule as sprottyCommandModule,
+    contextMenuModule as sprottyContextMenuModule,
+    decorationModule as sprottyDecorationModule,
+    exportModule as sprottyExportModule,
+    hoverModule as sprottyHoverModule,
+    labelEditModule as sprottyLabelEditModule,
+    routingModule as sprottyRoutingModule,
+    selectModule as sprottySelectModule,
+    undoRedoModule,
+    updateModule,
+    zorderModule
+};

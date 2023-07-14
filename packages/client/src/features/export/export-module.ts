@@ -13,7 +13,14 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-export * from './direct-task-editing/direct-task-editor';
-export * from './model';
-export * from './workflow-diagram-module';
-export * from './workflow-views';
+import { ContainerModule } from 'inversify';
+import { bindAsService, configureCommand, ExportSvgCommand, ExportSvgKeyListener, ExportSvgPostprocessor, TYPES } from '~glsp-sprotty';
+import { GLSPSvgExporter } from './glsp-svg-exporter';
+
+export const exportModule = new ContainerModule((bind, _unbind, isBound) => {
+    const context = { bind, isBound };
+    bindAsService(context, TYPES.KeyListener, ExportSvgKeyListener);
+    bindAsService(context, TYPES.HiddenVNodePostprocessor, ExportSvgPostprocessor);
+    configureCommand(context, ExportSvgCommand);
+    bind(TYPES.SvgExporter).to(GLSPSvgExporter).inSingletonScope();
+});

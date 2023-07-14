@@ -4,19 +4,19 @@ The features presented in the following are introduced for disability-aware conc
 
 ## Getting started
 
-In order to activate and use all of the currently provided keyboard only accessibility features, the module `glspAccessibilityModule` needs to be in use.
+In order to activate and use all of the currently provided keyboard only accessibility features, the module `accessibilityModule` needs to be in use.
 To activate and use only specific accessibility features, the respective module (see list below) needs to be in use.
 
 ## Features
 
 Below is a list of the keyboard only accessibility features:<br>
 
-| Feature |                                           Description                                            |                                             Shortcut                                              |          Module           |
-| ------- | :----------------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------------: | :-----------------------: |
-| Search  | Search for elements or edges using labels, types, etc. <br> with respective diagram highlighting |                                   <kbd>CTRL</kbd>+<kbd>F</kbd>                                    | `glspSearchPaletteModule` |
-| Move    |                       Move elements, edges or viewport into the directions                       |                <kbd>←</kbd> \|\| <kbd>↑</kbd> \|\| <kbd>→</kbd> \|\| <kbd>↓</kbd>                 |   `glspMoveZoomModule`    |
-| Zoom    |         Zoom in or out gradually to elements or viewport or reset to default zoom level.         |                 <kbd>+</kbd> \|\| <kbd>-</kbd> \|\| <kbd>CTRL</kbd>+<kbd>0</kbd>                  |   `glspMoveZoomModule`    |
-| Resize  |          Increase or decrease element sizes gradually or reset to default element size.          | <kbd>ALT</kbd>+<kbd>A</kbd> then <kbd>+</kbd> \|\| <kbd>-</kbd> \|\| <kbd>CTRL</kbd>+<kbd>0</kbd> |   `glspResizeKeyModule`   |
+| Feature |                                           Description                                            |                                             Shortcut                                              |        Module         |
+| ------- | :----------------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------------: | :-------------------: |
+| Search  | Search for elements or edges using labels, types, etc. <br> with respective diagram highlighting |                                   <kbd>CTRL</kbd>+<kbd>F</kbd>                                    | `searchPaletteModule` |
+| Move    |                       Move elements, edges or viewport into the directions                       |                <kbd>←</kbd> \|\| <kbd>↑</kbd> \|\| <kbd>→</kbd> \|\| <kbd>↓</kbd>                 |   `moveZoomModule`    |
+| Zoom    |         Zoom in or out gradually to elements or viewport or reset to default zoom level.         |                 <kbd>+</kbd> \|\| <kbd>-</kbd> \|\| <kbd>CTRL</kbd>+<kbd>0</kbd>                  |   `moveZoomModule`    |
+| Resize  |          Increase or decrease element sizes gradually or reset to default element size.          | <kbd>ALT</kbd>+<kbd>A</kbd> then <kbd>+</kbd> \|\| <kbd>-</kbd> \|\| <kbd>CTRL</kbd>+<kbd>0</kbd> |   `resizeKeyModule`   |
 
 ## Usage
 

@@ -13,7 +13,14 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-export * from './direct-task-editing/direct-task-editor';
-export * from './model';
-export * from './workflow-diagram-module';
-export * from './workflow-views';
+import { ContainerModule } from 'inversify';
+import { TYPES, bindAsService } from '~glsp-sprotty';
+import { SaveModelKeyboardListener } from './save-keylistener';
+
+/**
+ * This module is not required the diagram is deployed in Theia with the `GLSPDiagramWidget`
+ * but only intended to be used in a standalone deployment of GLSP.
+ */
+export const saveModule = new ContainerModule(bind => {
+    bindAsService(bind, TYPES.KeyListener, SaveModelKeyboardListener);
+});

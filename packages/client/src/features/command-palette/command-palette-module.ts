@@ -13,7 +13,15 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-export * from './direct-task-editing/direct-task-editor';
-export * from './model';
-export * from './workflow-diagram-module';
-export * from './workflow-views';
+import { ContainerModule } from 'inversify';
+import { CommandPalette, CommandPaletteActionProviderRegistry, TYPES, bindAsService } from '~glsp-sprotty';
+import '../../../css/command-palette.css';
+import { CommandPaletteTool } from './command-palette-tool';
+import { ServerCommandPaletteActionProvider } from './server-command-palette-provider';
+
+export const commandPaletteModule = new ContainerModule(bind => {
+    bindAsService(bind, TYPES.IUIExtension, CommandPalette);
+    bind(TYPES.ICommandPaletteActionProviderRegistry).to(CommandPaletteActionProviderRegistry).inSingletonScope();
+    bindAsService(bind, TYPES.ICommandPaletteActionProvider, ServerCommandPaletteActionProvider);
+    bindAsService(bind, TYPES.IDefaultTool, CommandPaletteTool);
+});

@@ -13,7 +13,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-export * from './direct-task-editing/direct-task-editor';
-export * from './model';
-export * from './workflow-diagram-module';
-export * from './workflow-views';
+import { ContainerModule } from 'inversify';
+import { SourceModelChangedAction, configureActionHandler } from '~glsp-sprotty';
+import { SourceModelChangedActionHandler } from './source-model-changed-action-handler';
+
+export const sourceModelWatcherModule = new ContainerModule((bind, _unbind, isBound) => {
+    configureActionHandler({ bind, isBound }, SourceModelChangedAction.KIND, SourceModelChangedActionHandler);
+});

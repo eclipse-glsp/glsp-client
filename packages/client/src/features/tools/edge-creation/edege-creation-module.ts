@@ -13,7 +13,14 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-export * from './direct-task-editing/direct-task-editor';
-export * from './model';
-export * from './workflow-diagram-module';
-export * from './workflow-views';
+import { ContainerModule } from 'inversify';
+import { TYPES, TriggerEdgeCreationAction, bindAsService, configureActionHandler } from '~glsp-sprotty';
+import { configureDanglingFeedbackEdge } from './dangling-edge-feedback';
+import { EdgeCreationTool } from './edge-creation-tool';
+
+export const edgeCreationToolModule = new ContainerModule((bind, unbind, isBound, rebind) => {
+    const context = { bind, unbind, isBound, rebind };
+    bindAsService(context, TYPES.ITool, EdgeCreationTool);
+    configureActionHandler(context, TriggerEdgeCreationAction.KIND, EdgeCreationTool);
+    configureDanglingFeedbackEdge(context);
+});
