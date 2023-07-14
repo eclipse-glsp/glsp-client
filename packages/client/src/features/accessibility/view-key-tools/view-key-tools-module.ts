@@ -13,7 +13,20 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-export * from './direct-task-editing/direct-task-editor';
-export * from './model';
-export * from './workflow-diagram-module';
-export * from './workflow-views';
+
+import { ContainerModule } from 'inversify';
+import { bindAsService, BindingContext, TYPES } from '~glsp-sprotty';
+import { DeselectKeyTool } from './deselect-key-tool';
+import { MovementKeyTool } from './movement-key-tool';
+import { ZoomKeyTool } from './zoom-key-tool';
+
+export const viewKeyToolsModule = new ContainerModule((bind, _unbind, isBound, rebind) => {
+    const context = { bind, isBound, rebind };
+    configureViewKeyTools(context);
+});
+
+export function configureViewKeyTools(context: Pick<BindingContext, 'bind'>): void {
+    bindAsService(context, TYPES.IDefaultTool, MovementKeyTool);
+    bindAsService(context, TYPES.IDefaultTool, ZoomKeyTool);
+    bindAsService(context, TYPES.IDefaultTool, DeselectKeyTool);
+}

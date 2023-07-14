@@ -13,7 +13,11 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-export * from './direct-task-editing/direct-task-editor';
-export * from './model';
-export * from './workflow-diagram-module';
-export * from './workflow-views';
+import { ContainerModule } from 'inversify';
+import { TYPES, bindAsService } from '~glsp-sprotty';
+import '../../../css/decoration.css';
+import { GlspDecorationPlacer } from './decoration-placer';
+
+export const decorationModule = new ContainerModule(bind => {
+    bindAsService(bind, TYPES.IVNodePostprocessor, GlspDecorationPlacer);
+});

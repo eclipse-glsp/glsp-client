@@ -35,7 +35,7 @@ import {
 } from '~glsp-sprotty';
 import { GLSPActionDispatcher } from '../../base/action-dispatcher';
 import { EditorContextService, IEditModeListener } from '../../base/editor-context-service';
-import { FocusTracker } from '../../base/focus-tracker';
+import { FocusTracker } from '../../base/focus/focus-tracker';
 import { MouseDeleteTool } from '../tools/deletion/delete-tool';
 import { MarqueeMouseTool } from '../tools/marquee-selection/marquee-mouse-tool';
 

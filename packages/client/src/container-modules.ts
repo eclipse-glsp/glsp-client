@@ -26,63 +26,61 @@ import {
     initializeContainer,
     labelEditUiModule,
     modelSourceModule,
-    openModule,
     zorderModule
 } from '~glsp-sprotty';
-import defaultGLSPModule from './base/di.config';
-import glspBoundsModule from './features/bounds/di.config';
-import glspCommandPaletteModule from './features/command-palette/di.config';
-import glspContextMenuModule from './features/context-menu/di.config';
-import { glspServerCopyPasteModule } from './features/copy-paste/di.config';
-import glspDecorationModule from './features/decoration/di.config';
-import glspEditLabelModule from './features/edit-label/di.config';
-import glspExportModule from './features/export/di.config';
-import modelHintsModule from './features/hints/di.config';
-import glspHoverModule from './features/hover/di.config';
-import layoutModule from './features/layout/di.config';
-import navigationModule from './features/navigation/di.config';
-import glspRoutingModule from './features/routing/di.config';
-import glspSelectModule from './features/select/di.config';
-import sourceModelWatcherModule from './features/source-model-watcher/di.config';
-import svgMetadataModule from './features/svg-metadata/di.config';
-import toolPaletteModule from './features/tool-palette/di.config';
-import changeBoundsToolModule from './features/tools/change-bounds/di.config';
-import deletionToolModule from './features/tools/deletion/di.config';
-import edgeCreationToolModule from './features/tools/edge-creation/di.config';
-import edgeEditToolModule from './features/tools/edge-edit/di.config';
-import enableDefaultToolsOnFocusLossModule from './features/tools/enable-default-tools-on-focus-loss';
-import marqueeSelectionToolModule from './features/tools/marquee-selection/di.config';
-import nodeCreationToolModule from './features/tools/node-creation/di.config';
-import { markerNavigatorModule, validationModule } from './features/validation/di.config';
-import glspViewportModule from './features/viewport/di.config';
+import { baseModule } from './base/base-module';
+import { boundsModule } from './features/bounds/bounds-module';
+import { commandPaletteModule } from './features/command-palette/command-palette-module';
+import { contextMenuModule } from './features/context-menu/context-menu-module';
+import { serverCopyPasteModule } from './features/copy-paste/copy-paste-modules';
+import { decorationModule } from './features/decoration/decoration-module';
+import { exportModule } from './features/export/export-module';
+import { typeHintsModule } from './features/hints/type-hints-module';
+import { hoverModule } from './features/hover/hover-module';
+import { labelEditModule } from './features/label-edit/label-edit-module';
+import { layoutModule } from './features/layout/layout-module';
+import { navigationModule } from './features/navigation/navigation-module';
+import { routingModule } from './features/routing/routing-module';
+import { selectModule } from './features/select/select-module';
+import { sourceModelWatcherModule } from './features/source-model-watcher/source-model-wacher-module';
+import { svgMetadataModule } from './features/svg-metadata/svg-metadata-module';
+import { toolPaletteModule } from './features/tool-palette/tool-palette-module';
+import { changeBoundsToolModule } from './features/tools/change-bounds/change-boounds-tool-module';
+import { deletionToolModule } from './features/tools/deletion/deletion-tool-module';
+import { edgeCreationToolModule } from './features/tools/edge-creation/edege-creation-module';
+import { edgeEditToolModule } from './features/tools/edge-edit/edge-edit-module';
+import { marqueeSelectionToolModule } from './features/tools/marquee-selection/marquee-selection-module';
+import { nodeCreationToolModule } from './features/tools/node-creation/node-creation-module';
+import { toolFocusLossModule } from './features/tools/tool-focus-loss-module';
+import { markerNavigatorModule, validationModule } from './features/validation/validation-module';
+import { viewportModule } from './features/viewport/viewport-module';
 
 export const DEFAULT_MODULES = [
     defaultModule,
-    defaultGLSPModule,
+    baseModule,
     buttonModule,
     edgeIntersectionModule,
     edgeLayoutModule,
     expandModule,
-    glspExportModule,
+    exportModule,
     fadeModule,
-    glspBoundsModule,
-    glspCommandPaletteModule,
-    glspContextMenuModule,
-    glspDecorationModule,
-    glspEditLabelModule,
-    glspHoverModule,
-    glspSelectModule,
-    glspServerCopyPasteModule,
-    glspViewportModule,
+    boundsModule,
+    commandPaletteModule,
+    contextMenuModule,
+    decorationModule,
+    labelEditModule,
+    hoverModule,
+    selectModule,
+    serverCopyPasteModule,
+    viewportModule,
     labelEditUiModule,
     layoutModule,
     markerNavigatorModule,
-    modelHintsModule,
+    typeHintsModule,
     modelSourceModule,
     sourceModelWatcherModule,
     navigationModule,
-    openModule,
-    glspRoutingModule,
+    routingModule,
     toolPaletteModule,
     edgeCreationToolModule,
     edgeEditToolModule,
@@ -90,7 +88,7 @@ export const DEFAULT_MODULES = [
     nodeCreationToolModule,
     changeBoundsToolModule,
     marqueeSelectionToolModule,
-    enableDefaultToolsOnFocusLossModule,
+    toolFocusLossModule,
     validationModule,
     zorderModule,
     svgMetadataModule

@@ -26,9 +26,9 @@ import {
     SGraph,
     SNode,
     SRoutableElement,
-    SRoutingHandle,
-    routingModule
+    SRoutingHandle
 } from '~glsp-sprotty';
+import { routingModule } from '../features/routing/routing-module';
 import { ALL_ROUTING_POINTS, ROUTE_KINDS, ROUTING_POINT_KINDS, calcRoute } from './smodel-util';
 
 class TestRouter extends AbstractEdgeRouter {

@@ -28,11 +28,11 @@ import {
     SNodeSchema,
     SParentElement,
     TYPES,
-    decorationModule,
     defaultModule
 } from '~glsp-sprotty';
-import { markerNavigatorModule } from './di.config';
+import { decorationModule } from '../decoration/decoration-module';
 import { MarkerNavigator } from './marker-navigator';
+import { markerNavigatorModule } from './validation-module';
 
 describe('MarkerNavigator', () => {
     const container = new Container();

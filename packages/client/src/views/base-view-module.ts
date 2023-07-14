@@ -54,7 +54,7 @@ import { GEdgeView } from './glsp-edge-view';
 import { GIssueMarkerView } from './issue-marker-view';
 import { RoundedCornerNodeView } from './rounded-corner-view';
 
-const baseViewModule = new ContainerModule((bind, unbind, isBound, rebind) => {
+export const baseViewModule = new ContainerModule((bind, unbind, isBound, rebind) => {
     const context = { bind, unbind, isBound, rebind };
     configureDefaultModelElements(context);
 });
@@ -93,5 +93,3 @@ export function configureDefaultModelElements(context: Pick<BindingContext, 'bin
     configureModelElement(context, DefaultTypes.NODE_DIAMOND, DiamondNode, DiamondNodeView);
     configureModelElement(context, DefaultTypes.NODE_RECTANGLE, RectangularNode, RectangularNodeView);
 }
-
-export default baseViewModule;

@@ -13,7 +13,14 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-export * from './direct-task-editing/direct-task-editor';
-export * from './model';
-export * from './workflow-diagram-module';
-export * from './workflow-views';
+import { ContainerModule } from 'inversify';
+import { ApplyLabelEditCommand, TYPES, bindAsService, configureCommand } from '~glsp-sprotty';
+import { DirectLabelEditTool } from './edit-label-tool';
+import { BalloonLabelValidationDecorator, ServerEditLabelValidator } from './edit-label-validator';
+
+export const labelEditModule = new ContainerModule((bind, _unbind, isBound, _rebind) => {
+    bind(TYPES.IEditLabelValidator).to(ServerEditLabelValidator);
+    bind(TYPES.IEditLabelValidationDecorator).to(BalloonLabelValidationDecorator);
+    bindAsService(bind, TYPES.IDefaultTool, DirectLabelEditTool);
+    configureCommand({ bind, isBound }, ApplyLabelEditCommand);
+});

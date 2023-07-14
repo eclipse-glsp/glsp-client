@@ -47,7 +47,14 @@
     -   Remove generic `toolsModule` and `toolFeedbackModule` in favor of individual tool modules
     -   Rename `dispatchFeedback` in `BaseGLSPTool` to `registerFeedback` to align with feedback dispatcher
     -   Switch arguments in `deregisterFeedback` in `BaseGLSPTool` for easier de-registration and clean up actions
--   [protocol] Add messages for server-side progress reporting and remove timeout in `ServerMessageAction`. [#265](https://github.com/eclipse-glsp/glsp-client/pull/265) 
+-   [protocol] Add messages for server-side progress reporting and remove timeout in `ServerMessageAction`. [#265](https://github.com/eclipse-glsp/glsp-client/pull/265)
+-   [DI] Renamed and aligned prefixes of DI modules. [#266](https://github.com/eclipse-glsp/glsp-client/pull/266)
+    -   Removed `glsp` prefix from all modules (e.g. `glspSelectModule`-> `selectModule`)
+    -   In addition, the following modules have been renamed
+        -   `defaultGLSPModule`-> `baseModule`
+        -   `modelHintsModule` -> `typeHintsModule`
+        -   `enableDefaultToolsOnFocusLossModule` -> `toolFocusLossModule`
+        -   `glspEditLabelModule` -> `labelEditModule`
 
 ## [v1.0.0 - 30/06/2022](https://github.com/eclipse-glsp/glsp-client/releases/tag/v1.0.0)
 

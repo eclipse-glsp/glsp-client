@@ -13,7 +13,16 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-export * from './direct-task-editing/direct-task-editor';
-export * from './model';
-export * from './workflow-diagram-module';
-export * from './workflow-views';
+import { ContainerModule } from 'inversify';
+import { TYPES, bindAsService, configureCommand } from '~glsp-sprotty';
+import { SelectAllCommand, SelectCommand } from '../../base/selection-service';
+import { SelectFeedbackCommand } from './select-feedback-command';
+import { RankedSelectMouseListener } from './select-mouse-listener';
+
+export const selectModule = new ContainerModule((bind, _unbind, isBound) => {
+    const context = { bind, isBound };
+    configureCommand(context, SelectCommand);
+    configureCommand(context, SelectAllCommand);
+    configureCommand(context, SelectFeedbackCommand);
+    bindAsService(context, TYPES.MouseListener, RankedSelectMouseListener);
+});
