@@ -13,12 +13,11 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { ContainerModule } from 'inversify';
-import { TYPES, TriggerEdgeCreationAction, bindAsService, configureActionHandler } from '~glsp-sprotty';
+import { FeatureModule, TYPES, TriggerEdgeCreationAction, bindAsService, configureActionHandler } from '~glsp-sprotty';
 import { configureDanglingFeedbackEdge } from './dangling-edge-feedback';
 import { EdgeCreationTool } from './edge-creation-tool';
 
-export const edgeCreationToolModule = new ContainerModule((bind, unbind, isBound, rebind) => {
+export const edgeCreationToolModule = new FeatureModule((bind, unbind, isBound, rebind) => {
     const context = { bind, unbind, isBound, rebind };
     bindAsService(context, TYPES.ITool, EdgeCreationTool);
     configureActionHandler(context, TriggerEdgeCreationAction.KIND, EdgeCreationTool);

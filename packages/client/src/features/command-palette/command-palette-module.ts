@@ -13,13 +13,12 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { ContainerModule } from 'inversify';
-import { CommandPalette, CommandPaletteActionProviderRegistry, TYPES, bindAsService } from '~glsp-sprotty';
+import { CommandPalette, CommandPaletteActionProviderRegistry, FeatureModule, TYPES, bindAsService } from '~glsp-sprotty';
 import '../../../css/command-palette.css';
 import { CommandPaletteTool } from './command-palette-tool';
 import { ServerCommandPaletteActionProvider } from './server-command-palette-provider';
 
-export const commandPaletteModule = new ContainerModule(bind => {
+export const commandPaletteModule = new FeatureModule(bind => {
     bindAsService(bind, TYPES.IUIExtension, CommandPalette);
     bind(TYPES.ICommandPaletteActionProviderRegistry).to(CommandPaletteActionProviderRegistry).inSingletonScope();
     bindAsService(bind, TYPES.ICommandPaletteActionProvider, ServerCommandPaletteActionProvider);

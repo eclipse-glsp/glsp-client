@@ -13,12 +13,12 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { ContainerModule } from 'inversify';
 import {
     CenterCommand,
     ClosePopupActionHandler,
     EnableDefaultToolsAction,
     EnableToolsAction,
+    FeatureModule,
     FitToScreenCommand,
     HoverFeedbackCommand,
     HoverKeyListener,
@@ -36,7 +36,7 @@ import {
 import { FocusStateChangedAction } from '../../base/focus/focus-state-change-action';
 import { GlspHoverMouseListener } from './hover';
 
-export const hoverModule = new ContainerModule((bind, _unbind, isBound) => {
+export const hoverModule = new FeatureModule((bind, _unbind, isBound) => {
     const context = { bind, isBound };
     bindAsService(context, TYPES.PopupVNodePostprocessor, PopupPositionUpdater);
     bindAsService(context, TYPES.MouseListener, GlspHoverMouseListener);

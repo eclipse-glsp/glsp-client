@@ -13,11 +13,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { ContainerModule } from 'inversify';
-import { TYPES, TriggerNodeCreationAction, bindAsService, configureActionHandler } from '~glsp-sprotty';
+import { FeatureModule, TYPES, TriggerNodeCreationAction, bindAsService, configureActionHandler } from '~glsp-sprotty';
 import { NodeCreationTool } from './node-creation-tool';
 
-export const nodeCreationToolModule = new ContainerModule((bind, unbind, isBound, rebind) => {
+export const nodeCreationToolModule = new FeatureModule((bind, unbind, isBound, rebind) => {
     const context = { bind, unbind, isBound, rebind };
     bindAsService(context, TYPES.ITool, NodeCreationTool);
     configureActionHandler(context, TriggerNodeCreationAction.KIND, NodeCreationTool);

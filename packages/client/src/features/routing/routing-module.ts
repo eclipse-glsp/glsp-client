@@ -13,7 +13,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { ContainerModule } from 'inversify';
 import {
     AddRemoveBezierSegmentCommand,
     AnchorComputerRegistry,
@@ -24,6 +23,7 @@ import {
     DiamondAnchor,
     EdgeRouterRegistry,
     EllipseAnchor,
+    FeatureModule,
     ManhattanDiamondAnchor,
     ManhattanEllipticAnchor,
     ManhattanRectangularAnchor,
@@ -35,7 +35,7 @@ import {
 } from '~glsp-sprotty';
 import { GLSPManhattanEdgeRouter } from './glsp-manhattan-edge-router';
 
-export const routingModule = new ContainerModule((bind, unbind, isBound, rebind) => {
+export const routingModule = new FeatureModule((bind, unbind, isBound, rebind) => {
     const context = { bind, unbind, isBound, rebind };
     bind(EdgeRouterRegistry).toSelf().inSingletonScope();
     bind(AnchorComputerRegistry).toSelf().inSingletonScope();

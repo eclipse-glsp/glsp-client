@@ -26,10 +26,9 @@ import {
     viewportFeature
 } from '~glsp-sprotty';
 import { Containable, containerFeature } from '../features/hints/model';
-import { Saveable, saveFeature } from '../features/save/model';
 
-export class GLSPGraph extends SGraph implements Saveable, Containable {
-    static override readonly DEFAULT_FEATURES = [viewportFeature, exportFeature, saveFeature, containerFeature];
+export class GLSPGraph extends SGraph implements Containable {
+    static override readonly DEFAULT_FEATURES = [viewportFeature, exportFeature, containerFeature];
     dirty = false;
     isContainableElement(input: string | SModelElement | SModelElementSchema): boolean {
         return true;

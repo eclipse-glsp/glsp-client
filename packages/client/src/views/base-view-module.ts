@@ -13,7 +13,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { ContainerModule } from 'inversify';
 import {
     BindingContext,
     CircularNode,
@@ -22,6 +21,7 @@ import {
     DiamondNode,
     DiamondNodeView,
     ExpandButtonView,
+    FeatureModule,
     ForeignObjectElement,
     ForeignObjectView,
     HtmlRoot,
@@ -54,7 +54,7 @@ import { GEdgeView } from './glsp-edge-view';
 import { GIssueMarkerView } from './issue-marker-view';
 import { RoundedCornerNodeView } from './rounded-corner-view';
 
-export const baseViewModule = new ContainerModule((bind, unbind, isBound, rebind) => {
+export const baseViewModule = new FeatureModule((bind, unbind, isBound, rebind) => {
     const context = { bind, unbind, isBound, rebind };
     configureDefaultModelElements(context);
 });

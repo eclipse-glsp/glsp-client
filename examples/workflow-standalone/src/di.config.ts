@@ -14,12 +14,20 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { createWorkflowDiagramContainer } from '@eclipse-glsp-examples/workflow-glsp';
-import { bindAsService, bindOrRebind, ConsoleLogger, GLSPDiagramServer, LogLevel, TYPES } from '@eclipse-glsp/client';
+import {
+    bindAsService,
+    bindOrRebind,
+    ConsoleLogger,
+    GLSPDiagramServer,
+    LogLevel,
+    STANDALONE_MODULE_CONFIG,
+    TYPES
+} from '@eclipse-glsp/client';
 import { Container } from 'inversify';
 import '../css/diagram.css';
 
 export default function createContainer(): Container {
-    const container = createWorkflowDiagramContainer('sprotty');
+    const container = createWorkflowDiagramContainer('sprotty', STANDALONE_MODULE_CONFIG);
     bindAsService(container, TYPES.ModelSource, GLSPDiagramServer);
     bindOrRebind(container, TYPES.ModelSource).toService(GLSPDiagramServer);
     bindOrRebind(container, TYPES.ILogger).to(ConsoleLogger).inSingletonScope();

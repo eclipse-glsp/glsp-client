@@ -38,9 +38,9 @@ import {
     SModelRoot,
     SetBoundsAction,
     SetBoundsCommand,
-    TYPES,
-    defaultModule
+    TYPES
 } from '~glsp-sprotty';
+import { defaultModule } from '../../base/default.module';
 import { SelectionService } from '../../base/selection-service';
 import { resizeFeature } from '../change-bounds/model';
 import {

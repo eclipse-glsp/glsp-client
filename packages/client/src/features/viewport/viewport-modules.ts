@@ -13,7 +13,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { ContainerModule } from 'inversify';
 import {
     bindAsService,
     CenterCommand,
@@ -22,6 +21,7 @@ import {
     configureCommand,
     EnableDefaultToolsAction,
     EnableToolsAction,
+    FeatureModule,
     FitToScreenCommand,
     GetViewportCommand,
     SetViewportCommand,
@@ -30,17 +30,29 @@ import {
 } from '~glsp-sprotty';
 import { GLSPScrollMouseListener } from './glsp-scroll-mouse-listener';
 
-export const viewportModule = new ContainerModule((bind, _unbind, isBound) => {
+export const viewportModule = new FeatureModule((bind, _unbind, isBound) => {
     const context = { bind, isBound };
     configureCommand(context, CenterCommand);
     configureCommand(context, FitToScreenCommand);
     configureCommand(context, GetViewportCommand);
     configureCommand(context, SetViewportCommand);
 
-    bindAsService(context, TYPES.KeyListener, CenterKeyboardListener);
     bindAsService(context, TYPES.MouseListener, ZoomMouseListener);
     bindAsService(context, TYPES.MouseListener, GLSPScrollMouseListener);
 
     configureActionHandler(context, EnableToolsAction.KIND, GLSPScrollMouseListener);
     configureActionHandler(context, EnableDefaultToolsAction.KIND, GLSPScrollMouseListener);
 });
+
+/**
+ * Feature module that is intended for the standalone deployment of GLSP (i.e. plain webapp)
+ * When integrated into an application frame (e.g Theia/VS Code) this module is typically omitted and/or replaced
+ * with an application native module.
+ */
+export const standaloneViewportModule = new FeatureModule(
+    (bind, _unbind, isBound) => {
+        const context = { bind, isBound };
+        bindAsService(context, TYPES.KeyListener, CenterKeyboardListener);
+    },
+    { requires: viewportModule }
+);

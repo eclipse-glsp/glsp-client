@@ -14,15 +14,14 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { ContainerModule } from 'inversify';
-import { bindAsService, BindingContext, configureActionHandler, TYPES } from '~glsp-sprotty';
+import { BindingContext, FeatureModule, TYPES, bindAsService, configureActionHandler } from '~glsp-sprotty';
 import { ResizeElementAction, ResizeElementHandler } from './resize-key-handler';
 import { ResizeKeyTool } from './resize-key-tool';
 
 /**
  * Handles resize actions.
  */
-export const resizeKeyModule = new ContainerModule((bind, unbind, isBound, rebind) => {
+export const resizeKeyModule = new FeatureModule((bind, unbind, isBound, rebind) => {
     const context = { bind, unbind, isBound, rebind };
     configureResizeTools(context);
 });

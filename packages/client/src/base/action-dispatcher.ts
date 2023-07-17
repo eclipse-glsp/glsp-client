@@ -40,6 +40,10 @@ export class GLSPActionDispatcher extends ActionDispatcher {
         return this.initializationConstraint.onInitialized();
     }
 
+    hasHandler(action: Action): boolean {
+        return this.actionHandlerRegistry.get(action.kind).length > 0;
+    }
+
     override dispatch(action: Action): Promise<void> {
         const result = super.dispatch(action);
         this.initializationConstraint.notifyDispatched(action);

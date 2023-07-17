@@ -14,11 +14,10 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { ContainerModule } from 'inversify';
-import { TYPES } from '~glsp-sprotty';
+import { FeatureModule, TYPES } from '~glsp-sprotty';
 import { MetadataPlacer } from './metadata-placer';
 
-export const svgMetadataModule = new ContainerModule(bind => {
+export const svgMetadataModule = new FeatureModule(bind => {
     bind(MetadataPlacer).toSelf().inSingletonScope();
     bind(TYPES.IVNodePostprocessor).toService(MetadataPlacer);
 });

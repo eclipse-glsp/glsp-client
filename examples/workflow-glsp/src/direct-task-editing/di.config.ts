@@ -13,10 +13,9 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { bindAsService, TYPES } from '@eclipse-glsp/client';
-import { ContainerModule } from 'inversify';
+import { bindAsService, FeatureModule, TYPES } from '@eclipse-glsp/client';
 import { TaskEditor } from './direct-task-editor';
 
-export const directTaskEditor = new ContainerModule((bind, _unbind, _isBound) => {
+export const directTaskEditor = new FeatureModule((bind, _unbind, _isBound) => {
     bindAsService(bind, TYPES.IUIExtension, TaskEditor);
 });

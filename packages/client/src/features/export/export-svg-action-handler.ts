@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2023 EclipseSource and others.
+ * Copyright (c) 2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,14 +13,20 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { ContainerModule } from 'inversify';
-import { bindAsService, configureCommand, ExportSvgCommand, ExportSvgKeyListener, ExportSvgPostprocessor, TYPES } from '~glsp-sprotty';
-import { GLSPSvgExporter } from './glsp-svg-exporter';
+import { saveAs } from 'file-saver';
+import { injectable } from 'inversify';
+import { ExportSvgAction, IActionHandler } from '~glsp-sprotty';
 
-export const exportModule = new ContainerModule((bind, _unbind, isBound) => {
-    const context = { bind, isBound };
-    bindAsService(context, TYPES.KeyListener, ExportSvgKeyListener);
-    bindAsService(context, TYPES.HiddenVNodePostprocessor, ExportSvgPostprocessor);
-    configureCommand(context, ExportSvgCommand);
-    bind(TYPES.SvgExporter).to(GLSPSvgExporter).inSingletonScope();
-});
+/**
+ * The default handler for {@link ExportSvgAction}s. This generic handler can be used in
+ * any GLSP project independent of the target platform. However, platform integration modules typically
+ *  * this handler is rebound to an application specific handler in platform integration modules
+ * (e.g. the Theia integration)
+ */
+@injectable()
+export class ExportSvgActionHandler implements IActionHandler {
+    handle(action: ExportSvgAction): void {
+        const blob = new Blob([action.svg], { type: 'text/plain;charset=utf-8' });
+        saveAs(blob, 'diagram.svg');
+    }
+}
