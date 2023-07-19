@@ -13,8 +13,8 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { ContainerModule } from 'inversify';
 import {
+    FeatureModule,
     HBoxLayouter,
     HiddenBoundsUpdater,
     LayoutRegistry,
@@ -32,7 +32,7 @@ import { GLSPHiddenBoundsUpdater } from './glsp-hidden-bounds-updater';
 import { HBoxLayouterExt } from './hbox-layout';
 import { VBoxLayouterExt } from './vbox-layout';
 
-export const boundsModule = new ContainerModule((bind, _unbind, isBound, _rebind) => {
+export const boundsModule = new FeatureModule((bind, _unbind, isBound, _rebind) => {
     const context = { bind, isBound };
     configureCommand(context, SetBoundsCommand);
     configureCommand(context, RequestBoundsCommand);

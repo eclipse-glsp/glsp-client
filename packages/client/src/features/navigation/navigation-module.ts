@@ -13,12 +13,11 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { ContainerModule } from 'inversify';
-import { NavigateToExternalTargetAction, NavigateToTargetAction, configureActionHandler } from '~glsp-sprotty';
+import { FeatureModule, NavigateToExternalTargetAction, NavigateToTargetAction, configureActionHandler } from '~glsp-sprotty';
 import { NavigateAction, NavigationActionHandler, ProcessNavigationArgumentsAction } from './navigation-action-handler';
 import { NavigationTargetResolver } from './navigation-target-resolver';
 
-export const navigationModule = new ContainerModule((bind, _unbind, isBound) => {
+export const navigationModule = new FeatureModule((bind, _unbind, isBound) => {
     bind(NavigationTargetResolver).toSelf().inSingletonScope();
     bind(NavigationActionHandler).toSelf().inSingletonScope();
     configureActionHandler({ bind, isBound }, NavigateAction.KIND, NavigationActionHandler);

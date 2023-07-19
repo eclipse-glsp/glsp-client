@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2023 EclipseSource and others.
+ * Copyright (c) 2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,14 +13,16 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { SModelElement, SModelExtension, SModelRoot } from '~glsp-sprotty';
 
-export const saveFeature = Symbol.for('saveFeature');
+import { ContainerModule } from 'inversify';
+import { bindAsService, TYPES } from '~glsp-sprotty';
+import { GLSPUndoRedoKeyListener } from './undo-redo-key-listener';
 
-export interface Saveable extends SModelExtension {
-    dirty: boolean;
-}
-
-export function isSaveable(element: SModelElement): element is SModelRoot & Saveable {
-    return element.hasFeature(saveFeature);
-}
+/**
+ * Feature module that is intended for the standalone deployment of GLSP (i.e. plain webapp)
+ * When integrated into an application frame (e.g Theia/VS Code) this module is typically omitted and/or replaced
+ * with an application native module.
+ */
+export const undoRedoModule = new ContainerModule((bind, unbind, isBound, rebind) => {
+    bindAsService(bind, TYPES.KeyListener, GLSPUndoRedoKeyListener);
+});

@@ -13,8 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { ContainerModule } from 'inversify';
-import { SetMarkersAction, TYPES, bindAsService, configureActionHandler, configureCommand } from '~glsp-sprotty';
+import { FeatureModule, SetMarkersAction, TYPES, bindAsService, configureActionHandler, configureCommand } from '~glsp-sprotty';
 import {
     LeftToRightTopToBottomComparator,
     MarkerNavigator,
@@ -26,7 +25,7 @@ import {
 } from './marker-navigator';
 import { ApplyMarkersCommand, DeleteMarkersCommand, SetMarkersActionHandler, ValidationFeedbackEmitter } from './validate';
 
-export const validationModule = new ContainerModule((bind, _unbind, isBound) => {
+export const validationModule = new FeatureModule((bind, _unbind, isBound) => {
     const context = { bind, isBound };
     configureActionHandler(context, SetMarkersAction.KIND, SetMarkersActionHandler);
     configureCommand(context, ApplyMarkersCommand);
@@ -34,18 +33,21 @@ export const validationModule = new ContainerModule((bind, _unbind, isBound) => 
     bind(ValidationFeedbackEmitter).toSelf().inSingletonScope();
 });
 
-export const markerNavigatorModule = new ContainerModule((bind, _unbind, isBound) => {
+export const markerNavigatorModule = new FeatureModule((bind, _unbind, isBound) => {
     bind(SModelElementComparator).to(LeftToRightTopToBottomComparator).inSingletonScope();
     bind(MarkerNavigator).toSelf().inSingletonScope();
     configureActionHandler({ bind, isBound }, NavigateToMarkerAction.KIND, NavigateToMarkerActionHandler);
 });
 
 /**
- * This module is not required if the diagram is deployed in Theia but only intended to be used
- * in a standalone deployment of GLSP. If the GLSP diagram is in Theia use the Theia-native
- * `registerMarkerNavigationCommands()` in `glsp-theia-integration` instead.
+ * Feature module that is intended for the standalone deployment of GLSP (i.e. plain webapp)
+ * When integrated into an application frame (e.g Theia/VS Code) this module is typically omitted and/or replaced
+ * with an application native module.
  */
-export const markerNavigatorContextMenuModule = new ContainerModule(bind => {
-    bindAsService(bind, TYPES.IContextMenuProvider, MarkerNavigatorContextMenuItemProvider);
-    bindAsService(bind, TYPES.KeyListener, MarkerNavigatorKeyListener);
-});
+export const standaloneMarkerNavigatorModule = new FeatureModule(
+    bind => {
+        bindAsService(bind, TYPES.IContextMenuProvider, MarkerNavigatorContextMenuItemProvider);
+        bindAsService(bind, TYPES.KeyListener, MarkerNavigatorKeyListener);
+    },
+    { requires: markerNavigatorModule }
+);

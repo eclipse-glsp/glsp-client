@@ -14,9 +14,10 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import '@vscode/codicons/dist/codicon.css';
-import { Container, ContainerModule } from 'inversify';
+import { Container } from 'inversify';
 import {
     ActionHandlerRegistry,
+    FeatureModule,
     InitializeResult,
     KeyTool,
     LocationPostprocessor,
@@ -28,7 +29,8 @@ import {
     bindAsService,
     bindOrRebind,
     configureActionHandler,
-    configureCommand
+    configureCommand,
+    sprottyDefaultModule
 } from '~glsp-sprotty';
 import '../../css/glsp-sprotty.css';
 import { GLSPActionDispatcher } from './action-dispatcher';
@@ -48,8 +50,15 @@ import { GLSPKeyTool } from './view/key-tool';
 import { GLSPMouseTool } from './view/mouse-tool';
 import { GLSPViewRegistry } from './view/view-registry';
 
-export const baseModule = new ContainerModule((bind, _unbind, isBound, rebind) => {
-    const context = { bind, _unbind, isBound, rebind };
+/**
+ * The default module provides all of GLSP's base functionality and services.
+ * It builds on top of sprotty's default module {@link `sprottyDefaultModule`}.
+ */
+export const defaultModule = new FeatureModule((bind, unbind, isBound, rebind, ...rest) => {
+    // load bindings from sprotty's default module to avoid code duplication
+    sprottyDefaultModule.registry(bind, unbind, isBound, rebind, ...rest);
+    const context = { bind, unbind, isBound, rebind };
+
     bind(EditorContextService).toSelf().inSingletonScope();
     bind(TYPES.IEditorContextServiceProvider).toProvider<EditorContextService>(
         ctx => () =>

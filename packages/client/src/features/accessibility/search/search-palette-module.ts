@@ -14,12 +14,11 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { ContainerModule } from 'inversify';
-import { bindAsService, BindingContext, TYPES } from '~glsp-sprotty';
+import { bindAsService, BindingContext, FeatureModule, TYPES } from '~glsp-sprotty';
 import { SearchAutocompletePalette } from './search-palette';
 import { SearchAutocompletePaletteTool } from './search-tool';
 
-export const searchPaletteModule = new ContainerModule((bind, _unbind, isBound, rebind) => {
+export const searchPaletteModule = new FeatureModule((bind, _unbind, isBound, rebind) => {
     const context = { bind, isBound, rebind };
     configureSearchPaletteModule(context);
 });

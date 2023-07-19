@@ -13,8 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { ContainerModule } from 'inversify';
-import { configureActionHandler } from '~glsp-sprotty';
+import { FeatureModule, configureActionHandler } from '~glsp-sprotty';
 import {
     AlignElementsAction,
     AlignElementsActionHandler,
@@ -22,7 +21,7 @@ import {
     ResizeElementsActionHandler
 } from './layout-elements-action';
 
-export const layoutModule = new ContainerModule((bind, _unbind, isBound) => {
+export const layoutModule = new FeatureModule((bind, _unbind, isBound) => {
     const context = { bind, isBound };
     configureActionHandler(context, ResizeElementsAction.KIND, ResizeElementsActionHandler);
     configureActionHandler(context, AlignElementsAction.KIND, AlignElementsActionHandler);

@@ -16,16 +16,8 @@
 import { AssertionError, expect } from 'chai';
 import { Container, injectable } from 'inversify';
 import * as sinon from 'sinon';
-import {
-    Action,
-    Disposable,
-    SGraphFactory,
-    SModelElementSchema,
-    SModelRoot,
-    TYPES,
-    defaultModule,
-    initializeContainer
-} from '~glsp-sprotty';
+import { Action, Disposable, SGraphFactory, SModelElementSchema, SModelRoot, TYPES, initializeContainer } from '~glsp-sprotty';
+import { defaultModule } from './default.module';
 import { IFeedbackActionDispatcher, IFeedbackEmitter } from './feedback/feedback-action-dispatcher';
 import { ISelectionListener, SelectFeedbackAction, SelectionService } from './selection-service';
 
@@ -64,8 +56,7 @@ function createContainer(): Container {
     const container = initializeContainer(new Container(), defaultModule);
     // eslint-disable-next-line deprecation/deprecation
     container.rebind(TYPES.IModelFactory).to(SGraphFactory).inSingletonScope();
-    container.bind(TYPES.IFeedbackActionDispatcher).to(MockFeedbackActionDispatcher).inSingletonScope();
-    container.bind(SelectionService).toSelf().inSingletonScope();
+    container.rebind(TYPES.IFeedbackActionDispatcher).to(MockFeedbackActionDispatcher).inSingletonScope();
     return container;
 }
 

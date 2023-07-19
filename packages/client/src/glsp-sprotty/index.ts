@@ -320,7 +320,6 @@ import modelSourceModule from 'sprotty/lib/model-source/di.config';
 
 export {
     buttonModule,
-    defaultModule,
     edgeEditModule,
     edgeIntersectionModule,
     edgeLayoutModule,
@@ -335,13 +334,14 @@ export {
     commandPaletteModule as sprottyCommandModule,
     contextMenuModule as sprottyContextMenuModule,
     decorationModule as sprottyDecorationModule,
+    defaultModule as sprottyDefaultModule,
     exportModule as sprottyExportModule,
     hoverModule as sprottyHoverModule,
     labelEditModule as sprottyLabelEditModule,
     routingModule as sprottyRoutingModule,
     selectModule as sprottySelectModule,
+    undoRedoModule as sprottyUndoRedoModule,
     viewportModule as sprottyViewportModule,
-    undoRedoModule,
     updateModule,
     zorderModule
 };

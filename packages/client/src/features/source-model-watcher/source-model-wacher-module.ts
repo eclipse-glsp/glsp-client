@@ -13,10 +13,9 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { ContainerModule } from 'inversify';
-import { SourceModelChangedAction, configureActionHandler } from '~glsp-sprotty';
+import { FeatureModule, SourceModelChangedAction, configureActionHandler } from '~glsp-sprotty';
 import { SourceModelChangedActionHandler } from './source-model-changed-action-handler';
 
-export const sourceModelWatcherModule = new ContainerModule((bind, _unbind, isBound) => {
+export const sourceModelWatcherModule = new FeatureModule((bind, _unbind, isBound) => {
     configureActionHandler({ bind, isBound }, SourceModelChangedAction.KIND, SourceModelChangedActionHandler);
 });

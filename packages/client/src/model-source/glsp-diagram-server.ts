@@ -85,6 +85,10 @@ export class GLSPDiagramServer extends DiagramServerProxy implements SourceUriAw
         return super.handleLocally(action);
     }
 
+    protected override handleExportSvgAction(action: ExportSvgAction): boolean {
+        return false;
+    }
+
     protected handleServerMessageAction(action: ServerMessageAction): boolean {
         this.logger.log('GLSPDiagramServer', `[${action.severity}] -${action.message}`);
         return false;

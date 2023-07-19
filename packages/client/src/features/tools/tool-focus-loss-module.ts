@@ -13,8 +13,8 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { ContainerModule, injectable } from 'inversify';
-import { Action, EnableDefaultToolsAction, IActionHandler, ICommand, configureActionHandler } from '~glsp-sprotty';
+import { injectable } from 'inversify';
+import { Action, EnableDefaultToolsAction, FeatureModule, IActionHandler, ICommand, configureActionHandler } from '~glsp-sprotty';
 import { FocusStateChangedAction } from '../../base/focus/focus-state-change-action';
 
 /**
@@ -33,6 +33,6 @@ export class EnableDefaultToolsOnFocusLossHandler implements IActionHandler {
 /**
  * Enables the default tools in the tool manager if the diagram looses focus.
  */
-export const toolFocusLossModule = new ContainerModule((bind, _unbind, isBound) => {
+export const toolFocusLossModule = new FeatureModule((bind, _unbind, isBound) => {
     configureActionHandler({ bind, isBound }, FocusStateChangedAction.KIND, EnableDefaultToolsOnFocusLossHandler);
 });

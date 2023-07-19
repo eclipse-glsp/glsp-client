@@ -37,7 +37,6 @@ export * from './base/source-uri-aware';
 export * from './base/tool-manager/glsp-tool-manager';
 export * from './base/view/mouse-tool';
 export * from './base/view/view-registry';
-export * from './container-modules';
 
 //
 // ------------------ Features ------------------
@@ -74,7 +73,6 @@ export * from './features/navigation/navigation-action-handler';
 export * from './features/navigation/navigation-target-resolver';
 export * from './features/reconnect/model';
 export * from './features/routing/glsp-manhattan-edge-router';
-export * from './features/save/model';
 export * from './features/save/save-keylistener';
 export * from './features/select/select-feedback-command';
 export * from './features/select/select-mouse-listener';
@@ -98,6 +96,7 @@ export * from './features/tools/marquee-selection/marquee-tool-feedback';
 export * from './features/tools/marquee-selection/model';
 export * from './features/tools/marquee-selection/view';
 export * from './features/tools/node-creation/node-creation-tool';
+export * from './features/undo-redo/undo-redo-key-listener';
 export * from './features/validation/issue-marker';
 export * from './features/validation/marker-navigator';
 export * from './features/validation/validate';
@@ -106,8 +105,10 @@ export * from './glsp-sprotty';
 export * from './glsp-sprotty/types';
 //
 // ------------------ Misc ------------------
+export * from './default-modules';
 export * from './lib/model';
 export * from './model-source/glsp-diagram-server';
+export * from './standalone-modules';
 export * from './utils/argument-utils';
 export * from './utils/html-utils';
 export * from './utils/layout-utils';
@@ -116,7 +117,7 @@ export * from './utils/smodel-util';
 export * from './utils/viewpoint-util';
 export * from './views';
 // ------------------ DI Modules ------------------
-export * from './base/base-module';
+export * from './base/default.module';
 export * from './features/accessibility/accessibility-module';
 export * from './features/accessibility/move-zoom/move-zoom-module';
 export * from './features/accessibility/resize-key-tool/resize-key-module';
@@ -126,6 +127,7 @@ export * from './features/command-palette/command-palette-module';
 export * from './features/context-menu/context-menu-module';
 export * from './features/copy-paste/copy-paste-modules';
 export * from './features/decoration/decoration-module';
+export * from './features/export/export-modules';
 export * from './features/hints/type-hints-module';
 export * from './features/hover/hover-module';
 export * from './features/label-edit/label-edit-module';
@@ -144,5 +146,6 @@ export * from './features/tools/edge-edit/edge-edit-module';
 export * from './features/tools/marquee-selection/marquee-selection-module';
 export * from './features/tools/node-creation/node-creation-module';
 export * from './features/tools/tool-focus-loss-module';
-export * from './features/validation/validation-module';
-export * from './features/viewport/viewport-module';
+export * from './features/undo-redo/undo-redo-module';
+export * from './features/validation/validation-modules';
+export * from './features/viewport/viewport-modules';

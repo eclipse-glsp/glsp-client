@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { ContainerModule } from 'inversify';
+import { FeatureModule } from '~glsp-sprotty';
 import { configureMoveZoom } from './move-zoom/move-zoom-module';
 import { configureResizeTools } from './resize-key-tool/resize-key-module';
 import { configureSearchPaletteModule } from './search/search-palette-module';
@@ -23,7 +23,7 @@ import { configureViewKeyTools } from './view-key-tools/view-key-tools-module';
 /**
  * Enables the accessibility tools for a keyboard-only-usage
  */
-export const accessibilityModule = new ContainerModule((bind, unbind, isBound, rebind) => {
+export const accessibilityModule = new FeatureModule((bind, unbind, isBound, rebind) => {
     const context = { bind, unbind, isBound, rebind };
     configureResizeTools(context);
     configureViewKeyTools(context);

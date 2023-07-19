@@ -17,24 +17,24 @@
 import { Container, ContainerModule } from 'inversify';
 import {
     ContainerConfiguration,
+    FeatureModule,
     buttonModule,
-    defaultModule,
     edgeIntersectionModule,
     edgeLayoutModule,
     expandModule,
     fadeModule,
-    initializeContainer,
     labelEditUiModule,
     modelSourceModule,
+    resolveContainerConfiguration,
     zorderModule
 } from '~glsp-sprotty';
-import { baseModule } from './base/base-module';
+import { defaultModule } from './base/default.module';
 import { boundsModule } from './features/bounds/bounds-module';
 import { commandPaletteModule } from './features/command-palette/command-palette-module';
 import { contextMenuModule } from './features/context-menu/context-menu-module';
-import { serverCopyPasteModule } from './features/copy-paste/copy-paste-modules';
+import { copyPasteModule } from './features/copy-paste/copy-paste-modules';
 import { decorationModule } from './features/decoration/decoration-module';
-import { exportModule } from './features/export/export-module';
+import { exportModule } from './features/export/export-modules';
 import { typeHintsModule } from './features/hints/type-hints-module';
 import { hoverModule } from './features/hover/hover-module';
 import { labelEditModule } from './features/label-edit/label-edit-module';
@@ -52,12 +52,11 @@ import { edgeEditToolModule } from './features/tools/edge-edit/edge-edit-module'
 import { marqueeSelectionToolModule } from './features/tools/marquee-selection/marquee-selection-module';
 import { nodeCreationToolModule } from './features/tools/node-creation/node-creation-module';
 import { toolFocusLossModule } from './features/tools/tool-focus-loss-module';
-import { markerNavigatorModule, validationModule } from './features/validation/validation-module';
-import { viewportModule } from './features/viewport/viewport-module';
+import { markerNavigatorModule, validationModule } from './features/validation/validation-modules';
+import { viewportModule } from './features/viewport/viewport-modules';
 
 export const DEFAULT_MODULES = [
     defaultModule,
-    baseModule,
     buttonModule,
     edgeIntersectionModule,
     edgeLayoutModule,
@@ -71,7 +70,7 @@ export const DEFAULT_MODULES = [
     labelEditModule,
     hoverModule,
     selectModule,
-    serverCopyPasteModule,
+    copyPasteModule,
     viewportModule,
     labelEditUiModule,
     layoutModule,
@@ -116,13 +115,24 @@ export const DEFAULT_MODULES = [
  * ```typescript
  * rebind(NavigationTargetResolver).to(MyNavigationTargetResolver);
  * ```
- *
- * @param containerConfiguration
+ * @param container The container that should be initialized
+ * @param containerConfigurations
  *          Custom modules to be loaded in addition to the default modules and/or default modules that should be excluded.
+ * @throws An error if the first module to load is not the `defaultModule` (or an equivalent custom replacement module)
  * @returns The initialized container.
  */
-export function initializeDiagramContainer(container: Container, ...containerConfiguration: ContainerConfiguration): Container {
-    return initializeContainer(container, ...DEFAULT_MODULES, ...containerConfiguration);
+export function initializeDiagramContainer(container: Container, ...containerConfigurations: ContainerConfiguration): Container {
+    const modules = resolveContainerConfiguration(...DEFAULT_MODULES, ...containerConfigurations);
+    // The `defaultModule` (or a custom replacement module with the same `featureId`) should be the first module that is
+    // loaded into the container
+    const firstModule = modules[0];
+    if (!firstModule || !(firstModule instanceof FeatureModule && firstModule.featureId === defaultModule.featureId)) {
+        throw new Error(
+            'Invalid module configuration. The first module to load should be the `defaultModule` (or an equivalent replacement module)'
+        );
+    }
+    container.load(...modules);
+    return container;
 }
 
 /**

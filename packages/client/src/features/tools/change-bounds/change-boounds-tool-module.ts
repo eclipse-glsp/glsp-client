@@ -13,14 +13,13 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { ContainerModule } from 'inversify';
-import { TYPES, bindAsService, configureCommand, configureView } from '~glsp-sprotty';
+import { FeatureModule, TYPES, bindAsService, configureCommand, configureView } from '~glsp-sprotty';
 import { SResizeHandle } from '../../change-bounds/model';
 import { ChangeBoundsTool } from './change-bounds-tool';
 import { HideChangeBoundsToolResizeFeedbackCommand, ShowChangeBoundsToolResizeFeedbackCommand } from './change-bounds-tool-feedback';
 import { SResizeHandleView } from './view';
 
-export const changeBoundsToolModule = new ContainerModule((bind, unbind, isBound, rebind) => {
+export const changeBoundsToolModule = new FeatureModule((bind, unbind, isBound, rebind) => {
     const context = { bind, unbind, isBound, rebind };
     bindAsService(context, TYPES.IDefaultTool, ChangeBoundsTool);
     configureCommand(context, ShowChangeBoundsToolResizeFeedbackCommand);

@@ -13,16 +13,27 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { ContainerModule } from 'inversify';
-import { TYPES, bindAsService, configureCommand } from '~glsp-sprotty';
+import { FeatureModule, SelectKeyboardListener, TYPES, bindAsService, configureCommand } from '~glsp-sprotty';
 import { SelectAllCommand, SelectCommand } from '../../base/selection-service';
 import { SelectFeedbackCommand } from './select-feedback-command';
 import { RankedSelectMouseListener } from './select-mouse-listener';
 
-export const selectModule = new ContainerModule((bind, _unbind, isBound) => {
+export const selectModule = new FeatureModule((bind, _unbind, isBound) => {
     const context = { bind, isBound };
     configureCommand(context, SelectCommand);
     configureCommand(context, SelectAllCommand);
     configureCommand(context, SelectFeedbackCommand);
     bindAsService(context, TYPES.MouseListener, RankedSelectMouseListener);
 });
+
+/**
+ * Feature module that is intended for the standalone deployment of GLSP (i.e. plain webapp)
+ * When integrated into an application frame (e.g Theia/VS Code) this module is typically omitted and/or replaced
+ * with an application native module.
+ */
+export const standaloneSelectModule = new FeatureModule(
+    bind => {
+        bindAsService(bind, TYPES.KeyListener, SelectKeyboardListener);
+    },
+    { requires: selectModule }
+);

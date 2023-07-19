@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2023 EclipseSource and others.
+ * Copyright (c) 2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,14 +13,20 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { FeatureModule, TYPES, bindAsService } from '~glsp-sprotty';
-import { SaveModelKeyboardListener } from './save-keylistener';
+
+import { Action, KeyListener, RedoAction, SModelElement, UndoAction, isMac, matchesKeystroke } from '~glsp-sprotty';
 
 /**
- * Feature module that is intended for the standalone deployment of GLSP (i.e. plain webapp)
- * When integrated into an application frame (e.g Theia/VS Code) this module is typically omitted and/or replaced
- * with an application native module.
+ * Key listener that listens to the typical keyboard shortcuts for undo/redo and dispatches the corresponding actions.
  */
-export const saveModule = new FeatureModule(bind => {
-    bindAsService(bind, TYPES.KeyListener, SaveModelKeyboardListener);
-});
+export class GLSPUndoRedoKeyListener extends KeyListener {
+    override keyDown(element: SModelElement, event: KeyboardEvent): Action[] {
+        if (matchesKeystroke(event, 'KeyZ', 'ctrlCmd')) {
+            return [UndoAction.create()];
+        }
+        if (matchesKeystroke(event, 'KeyZ', 'ctrlCmd', 'shift') || (!isMac() && matchesKeystroke(event, 'KeyY', 'ctrlCmd'))) {
+            return [RedoAction.create()];
+        }
+        return [];
+    }
+}

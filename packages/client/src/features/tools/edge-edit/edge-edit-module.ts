@@ -13,8 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { ContainerModule } from 'inversify';
-import { TYPES, bindAsService, configureCommand } from '~glsp-sprotty';
+import { FeatureModule, TYPES, bindAsService, configureCommand } from '~glsp-sprotty';
 import { configureDanglingFeedbackEdge } from '../edge-creation/dangling-edge-feedback';
 import { EdgeEditTool } from './edge-edit-tool';
 import {
@@ -24,7 +23,7 @@ import {
     SwitchRoutingModeCommand
 } from './edge-edit-tool-feedback';
 
-export const edgeEditToolModule = new ContainerModule((bind, unbind, isBound, rebind) => {
+export const edgeEditToolModule = new FeatureModule((bind, unbind, isBound, rebind) => {
     const context = { bind, unbind, isBound, rebind };
     bindAsService(context, TYPES.IDefaultTool, EdgeEditTool);
 

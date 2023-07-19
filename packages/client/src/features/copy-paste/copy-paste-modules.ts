@@ -13,23 +13,25 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { ContainerModule } from 'inversify';
-import { configureActionHandler, TYPES } from '~glsp-sprotty';
+import { configureActionHandler, FeatureModule, TYPES } from '~glsp-sprotty';
 import { CopyPasteContextMenuItemProvider, InvokeCopyPasteAction, InvokeCopyPasteActionHandler } from './copy-paste-context-menu';
 import { LocalClipboardService, ServerCopyPasteHandler } from './copy-paste-handler';
 
-export const serverCopyPasteModule = new ContainerModule((bind, _unbind, isBound) => {
+export const copyPasteModule = new FeatureModule((bind, _unbind, isBound) => {
     bind(TYPES.ICopyPasteHandler).to(ServerCopyPasteHandler);
     bind(TYPES.IAsyncClipboardService).to(LocalClipboardService).inSingletonScope();
 });
 
 /**
- * This module is not required if the diagram is deployed in Theia but only intended to be used
- * in a standalone deployment of GLSP. If the GLSP diagram in Theia use the Theia-native
- * `CopyPasteMenuContribution` in `glsp-theia-integration` instead.
+ * Feature module that is intended for the standalone deployment of GLSP (i.e. plain webapp)
+ * When integrated into an application frame (e.g Theia/VS Code) this module is typically omitted and/or replaced
+ * with an application native module.
  */
-export const pasteContextMenuModule = new ContainerModule((bind, _unbind, isBound) => {
-    bind(TYPES.IContextMenuProvider).to(CopyPasteContextMenuItemProvider).inSingletonScope();
-    bind(InvokeCopyPasteActionHandler).toSelf().inSingletonScope();
-    configureActionHandler({ bind, isBound }, InvokeCopyPasteAction.KIND, InvokeCopyPasteActionHandler);
-});
+export const standaloneCopyPasteModule = new FeatureModule(
+    (bind, _unbind, isBound) => {
+        bind(TYPES.IContextMenuProvider).to(CopyPasteContextMenuItemProvider).inSingletonScope();
+        bind(InvokeCopyPasteActionHandler).toSelf().inSingletonScope();
+        configureActionHandler({ bind, isBound }, InvokeCopyPasteAction.KIND, InvokeCopyPasteActionHandler);
+    },
+    { requires: copyPasteModule }
+);

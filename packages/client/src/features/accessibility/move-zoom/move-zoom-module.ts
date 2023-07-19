@@ -14,15 +14,14 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { ContainerModule } from 'inversify';
-import { BindingContext, configureActionHandler } from '~glsp-sprotty';
+import { BindingContext, FeatureModule, configureActionHandler } from '~glsp-sprotty';
 import { MoveElementAction, MoveElementHandler, MoveViewportAction, MoveViewportHandler } from './move-handler';
 import { ZoomElementAction, ZoomElementHandler, ZoomViewportAction, ZoomViewportHandler } from './zoom-handler';
 
 /**
  * Handles move and zoom actions.
  */
-export const moveZoomModule = new ContainerModule((bind, unbind, isBound, rebind) => {
+export const moveZoomModule = new FeatureModule((bind, unbind, isBound, rebind) => {
     const context = { bind, unbind, isBound, rebind };
     configureMoveZoom(context);
 });
