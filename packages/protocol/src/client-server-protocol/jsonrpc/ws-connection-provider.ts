@@ -79,19 +79,19 @@ export class GLSPWebSocketProvider {
                 const wsConnection = createWebSocketConnection(wrappedSocket, handler.logger);
 
                 this.webSocket.onclose = (): void => {
-                    const { reconnecting } = { ...this.options };
+                    const { reconnecting, reconnectAttempts, reconnectDelay } = this.options;
                     if (reconnecting) {
-                        if (this.reconnectAttempts >= this.options.reconnectAttempts!) {
+                        if (this.reconnectAttempts >= reconnectAttempts!) {
                             handler.logger?.error(
                                 'GLSPWebSocketProvider WebSocket reconnect failed - maximum number reconnect attempts ' +
-                                    `(${this.options.reconnectAttempts}) was exceeded!`
+                                    `(${reconnectAttempts}) was exceeded!`
                             );
                         } else {
                             this.reconnectTimer = setInterval(() => {
                                 handler.logger?.warn('GLSPWebSocketProvider reconnecting...');
                                 this.listen(handler, true);
                                 this.reconnectAttempts++;
-                            }, this.options.reconnectDelay!);
+                            }, reconnectDelay!);
                         }
                     } else {
                         handler.logger?.error('GLSPWebSocketProvider WebSocket will not reconnect - closing the connection now!');
@@ -100,10 +100,10 @@ export class GLSPWebSocketProvider {
 
                 if (isReconnecting) {
                     handler.logger?.warn('GLSPWebSocketProvider Reconnecting!');
-                    handler.onReconnect && handler.onReconnect(wsConnection);
+                    handler.onReconnect?.(wsConnection);
                 } else {
                     handler.logger?.warn('GLSPWebSocketProvider Initializing!');
-                    handler.onConnection && handler.onConnection(wsConnection);
+                    handler.onConnection?.(wsConnection);
                 }
                 resolve(wsConnection);
             };
