@@ -18,15 +18,17 @@ import 'reflect-metadata';
 import {
     ApplicationIdProvider,
     BaseJsonrpcGLSPClient,
-    configureServerActions,
     EnableToolPaletteAction,
     GLSPActionDispatcher,
     GLSPClient,
     GLSPDiagramServer,
-    listen,
+    GLSPWebSocketProvider,
     RequestModelAction,
     RequestTypeHintsAction,
-    TYPES
+    ServerMessageAction,
+    ServerStatusAction,
+    TYPES,
+    configureServerActions
 } from '@eclipse-glsp/client';
 import { join, resolve } from 'path';
 import { MessageConnection } from 'vscode-jsonrpc';
@@ -34,20 +36,22 @@ import createContainer from './di.config';
 const port = 8081;
 const id = 'workflow';
 const diagramType = 'workflow-diagram';
-const websocket = new WebSocket(`ws://localhost:${port}/${id}`);
 
 const loc = window.location.pathname;
 const currentDir = loc.substring(0, loc.lastIndexOf('/'));
 const examplePath = resolve(join(currentDir, '../app/example1.wf'));
 const clientId = ApplicationIdProvider.get() + '_' + examplePath;
 
-const container = createContainer();
-const diagramServer = container.get<GLSPDiagramServer>(TYPES.ModelSource);
+const webSocketUrl = `ws://localhost:${port}/${id}`;
+
+let container = createContainer();
+let diagramServer = container.get<GLSPDiagramServer>(TYPES.ModelSource);
 diagramServer.clientId = clientId;
 
-listen(websocket, connection => initialize(connection));
+const wsProvider = new GLSPWebSocketProvider(webSocketUrl);
+wsProvider.listen({ onConnection: initialize, onReconnect: reconnect, logger: console });
 
-async function initialize(connectionProvider: MessageConnection): Promise<void> {
+async function initialize(connectionProvider: MessageConnection, isReconnecting = false): Promise<void> {
     const client = new BaseJsonrpcGLSPClient({ id, connectionProvider });
 
     await diagramServer.connect(client);
@@ -57,20 +61,39 @@ async function initialize(connectionProvider: MessageConnection): Promise<void> 
     });
     await configureServerActions(result, diagramType, container);
 
-    const actionDispatcher = container.get(GLSPActionDispatcher);
+    const actionDispatcher: GLSPActionDispatcher = container.get(GLSPActionDispatcher);
 
     await client.initializeClientSession({ clientSessionId: diagramServer.clientId, diagramType });
+
     actionDispatcher.dispatch(
         RequestModelAction.create({
             options: {
                 sourceUri: `file://${examplePath}`,
-                diagramType
+                diagramType,
+                isReconnecting
             }
         })
     );
     actionDispatcher.dispatch(RequestTypeHintsAction.create());
     await actionDispatcher.onceModelInitialized();
     actionDispatcher.dispatch(EnableToolPaletteAction.create());
+
+    if (isReconnecting) {
+        const message = `Connection to the ${id} glsp server got closed. Connection was successfully re-established.`;
+        const timeout = 5000;
+        const severity = 'WARNING';
+        actionDispatcher.dispatchAll([
+            ServerStatusAction.create(message, { severity, timeout }),
+            ServerMessageAction.create(message, { severity })
+        ]);
+        return;
+    }
 }
 
-websocket.onerror = ev => alert('Connection to server errored. Please make sure that the server is running');
+async function reconnect(connectionProvider: MessageConnection): Promise<void> {
+    container = createContainer();
+    diagramServer = container.get<GLSPDiagramServer>(TYPES.ModelSource);
+    diagramServer.clientId = clientId;
+
+    initialize(connectionProvider, true /* isReconnecting */);
+}

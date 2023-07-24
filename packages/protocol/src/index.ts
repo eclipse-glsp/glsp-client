@@ -54,6 +54,7 @@ export * from './client-server-protocol/jsonrpc/base-jsonrpc-glsp-client';
 export * from './client-server-protocol/jsonrpc/glsp-jsonrpc-client';
 export * from './client-server-protocol/jsonrpc/glsp-jsonrpc-server';
 export * from './client-server-protocol/jsonrpc/websocket-connection';
+export * from './client-server-protocol/jsonrpc/ws-connection-provider';
 export * from './client-server-protocol/types';
 export * from './model/default-types';
 export * from './model/model-schema';
