@@ -203,11 +203,6 @@
   resolved "https://registry.yarnpkg.com/@discoveryjs%2fjson-ext/-/json-ext-0.5.7.tgz#1d572bfbbe14b7704e0ba0f39b74815b84870d70"
   integrity sha512-dBVuXR082gk3jsFp7Rd/JI4kytwGHecnCoTtXFb7DB6CNHp4rg5k1bhg0nWdLGLnOV71lmDzGQaLMy8iPLY0pw==
 
-"@eclipse-glsp-examples/workflow-server-bundled@next":
-  version "1.1.0-next.f692ea4.55"
-  resolved "https://registry.yarnpkg.com/@eclipse-glsp-examples/workflow-server-bundled/-/workflow-server-bundled-1.1.0-next.f692ea4.55.tgz#aeea1284bc0b4f5fadbac93be015006c3e4a35c1"
-  integrity sha512-sxC1rkdSuMfr2DUDNMAvWEEeIU3RQ0Bp+vPc8Y9YEveJSyn0vePyooK0ynshAOgGrIc2pAviCUxtQu+GDpZysQ==
-
 "@eclipse-glsp/cli@1.1.0-next.73d6685.138+73d6685":
   version "1.1.0-next.73d6685.138"
   resolved "https://registry.yarnpkg.com/@eclipse-glsp/cli/-/cli-1.1.0-next.73d6685.138.tgz#51ba9fa0837fac8d5ce17faf4f6d47becf55dc50"
@@ -929,6 +924,14 @@
   resolved "https://registry.yarnpkg.com/@types/file-saver/-/file-saver-2.0.5.tgz#9ee342a5d1314bb0928375424a2f162f97c310c7"
   integrity sha512-zv9kNf3keYegP5oThGLaPk8E081DFDuwfqjtiTzm6PoxChdJ1raSuADf2YGCVIyrSynLrgc8JWv296s7Q7pQSQ==
 
+"@types/glob@~7.2.0":
+  version "7.2.0"
+  resolved "https://registry.yarnpkg.com/@types/glob/-/glob-7.2.0.tgz#bc1b5bf3aa92f25bd5dd39f35c57361bdce5b2eb"
+  integrity sha512-ZUxbzKl0IfJILTS6t7ip5fQQM/J3TJYubDm3nMbgubNNYS62eXeUpoLUC8/7fJNiFYHTrGPQn7hspDUzIHX3UA==
+  dependencies:
+    "@types/minimatch" "*"
+    "@types/node" "*"
+
 "@types/json-schema@*", "@types/json-schema@^7.0.8", "@types/json-schema@^7.0.9":
   version "7.0.12"
   resolved "https://registry.yarnpkg.com/@types%2fjson-schema/-/json-schema-7.0.12.tgz#d70faba7039d5fca54c83c7dbab41051d2b6f6cb"
@@ -943,6 +946,11 @@
   version "4.14.191"
   resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.191.tgz#09511e7f7cba275acd8b419ddac8da9a6a79e2fa"
   integrity sha512-BdZ5BCCvho3EIXw6wUCXHe7rS53AIDPLE+JzwgT+OsJk53oBfbSmZZ7CX4VaRoN78N+TJpFi9QPlfIVNmJYWxQ==
+
+"@types/minimatch@*":
+  version "5.1.2"
+  resolved "https://registry.yarnpkg.com/@types/minimatch/-/minimatch-5.1.2.tgz#07508b45797cb81ec3f273011b054cd0755eddca"
+  integrity sha512-K0VQKziLUWkVKiRVrx4a40iPaxTUefQmjtkQofBkYRcoaaL/8rhwDWww9qWbrgicNOgnpIsMxyNIUM4+n6dUIA==
 
 "@types/minimatch@^3.0.3":
   version "3.0.5"
@@ -979,6 +987,14 @@
   resolved "https://registry.yarnpkg.com/@types%2fsemver/-/semver-7.5.0.tgz#591c1ce3a702c45ee15f47a42ade72c2fd78978a"
   integrity sha512-G8hZ6XJiHnuhQKR7ZmysCeJWE08o8T0AXtk5darsCaTVsYZhhgUrq53jizaR2FvsoeCwJhlmwTjkXBY5Pn/ZHw==
 
+"@types/shelljs@0.8.12":
+  version "0.8.12"
+  resolved "https://registry.yarnpkg.com/@types/shelljs/-/shelljs-0.8.12.tgz#79dc9632af7d5ca1b5afb65a6bfc1422d79b5fa0"
+  integrity sha512-ZA8U81/gldY+rR5zl/7HSHrG2KDfEb3lzG6uCUDhW1DTQE9yC/VBQ45fXnXq8f3CgInfhZmjtdu/WOUlrXRQUg==
+  dependencies:
+    "@types/glob" "~7.2.0"
+    "@types/node" "*"
+
 "@types/sinon@^10.0.13":
   version "10.0.15"
   resolved "https://registry.yarnpkg.com/@types%2fsinon/-/sinon-10.0.15.tgz#513fded9c3cf85e589bbfefbf02b2a0541186b48"
@@ -990,6 +1006,14 @@
   version "8.1.2"
   resolved "https://registry.yarnpkg.com/@types%2fsinonjs__fake-timers/-/sinonjs__fake-timers-8.1.2.tgz#bf2e02a3dbd4aecaf95942ecd99b7402e03fad5e"
   integrity sha512-9GcLXF0/v3t80caGs5p2rRfkB+a8VBGLJZVih6CNFkx8IZ994wiKKLSRs9nuFwk1HevWs/1mnUmkApGrSGsShA==
+
+"@types/tar@6.1.5":
+  version "6.1.5"
+  resolved "https://registry.yarnpkg.com/@types/tar/-/tar-6.1.5.tgz#90ccb3b6a35430e7427410d50eed564e85feaaff"
+  integrity sha512-qm2I/RlZij5RofuY7vohTpYNaYcrSQlN2MyjucQc7ZweDwaEWkdN/EeNh6e9zjK6uEm6PwjdMXkcj05BxZdX1Q==
+  dependencies:
+    "@types/node" "*"
+    minipass "^4.0.0"
 
 "@types/uuid@3.4.5":
   version "3.4.5"
@@ -4605,7 +4629,7 @@ minipass@^3.0.0, minipass@^3.1.1, minipass@^3.1.6:
   dependencies:
     yallist "^4.0.0"
 
-minipass@^4.2.4:
+minipass@^4.0.0, minipass@^4.2.4:
   version "4.2.8"
   resolved "https://registry.yarnpkg.com/minipass/-/minipass-4.2.8.tgz#f0010f64393ecfc1d1ccb5f582bcaf45f48e1a3a"
   integrity sha512-fNzuVyifolSLFL4NzpF+wEF4qrgqaaKX0haXPQEdQ7NKAN+WecoKMHV09YcuL/DHxrUsYQOK3MiuDf7Ip2OXfQ==
