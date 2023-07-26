@@ -17,10 +17,11 @@
 import { inject, injectable, optional } from 'inversify';
 import { matchesKeystroke } from 'sprotty/lib/utils/keyboard';
 import { Action, ISnapper, KeyListener, KeyTool, SModelElement, TYPES } from '~glsp-sprotty';
+import { GLSPActionDispatcher } from '../../../base/action-dispatcher';
+import { SelectionService } from '../../../base/selection-service';
 import { GLSPTool } from '../../../base/tool-manager/glsp-tool-manager';
 import { GridSnapper } from '../../change-bounds/snap';
-
-import { SelectionService } from '../../../base/selection-service';
+import { AccessibleKeyShortcutProvider, SetAccessibleKeyShortcutAction } from '../key-shortcut/accessible-key-shortcut';
 import { MoveElementAction, MoveViewportAction } from '../move-zoom/move-handler';
 
 /**
@@ -37,6 +38,7 @@ export class MovementKeyTool implements GLSPTool {
     @inject(KeyTool) protected readonly keytool: KeyTool;
     @inject(SelectionService) selectionService: SelectionService;
     @inject(TYPES.ISnapper) @optional() readonly snapper?: ISnapper;
+    @inject(TYPES.IActionDispatcher) readonly actionDispatcher: GLSPActionDispatcher;
 
     get id(): string {
         return MovementKeyTool.ID;
@@ -44,6 +46,7 @@ export class MovementKeyTool implements GLSPTool {
 
     enable(): void {
         this.keytool.register(this.movementKeyListener);
+        this.movementKeyListener.registerShortcutKey();
     }
 
     disable(): void {
@@ -51,12 +54,14 @@ export class MovementKeyTool implements GLSPTool {
     }
 }
 
-export class MoveKeyListener extends KeyListener {
+export class MoveKeyListener extends KeyListener implements AccessibleKeyShortcutProvider {
     // Default x distance used if GridSnapper is not provided
     static readonly defaultMoveX = 20;
 
     // Default y distance used if GridSnapper is not provided
     static readonly defaultMoveY = 20;
+
+    protected readonly token = MoveKeyListener.name;
 
     protected grid = { x: MoveKeyListener.defaultMoveX, y: MoveKeyListener.defaultMoveY };
 
@@ -66,6 +71,17 @@ export class MoveKeyListener extends KeyListener {
         if (this.tool.snapper instanceof GridSnapper) {
             this.grid = this.tool.snapper.grid;
         }
+    }
+
+    registerShortcutKey(): void {
+        this.tool.actionDispatcher.onceModelInitialized().then(() => {
+            this.tool.actionDispatcher.dispatchAll([
+                SetAccessibleKeyShortcutAction.create({
+                    token: this.token,
+                    keys: [{ shortcuts: ['⬅  ⬆  ➡  ⬇'], description: 'Move element or viewport', group: 'Move', position: 0 }]
+                })
+            ]);
+        });
     }
 
     override keyDown(element: SModelElement, event: KeyboardEvent): Action[] {

@@ -14,21 +14,22 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { FeatureModule } from '~glsp-sprotty';
-import { configureShortcutHelpTool } from './key-shortcut/di.config';
-import { configureMoveZoom } from './move-zoom/move-zoom-module';
-import { configureResizeTools } from './resize-key-tool/resize-key-module';
-import { configureSearchPaletteModule } from './search/search-palette-module';
-import { configureViewKeyTools } from './view-key-tools/view-key-tools-module';
+import { ContainerModule } from 'inversify';
+import { bindAsService, BindingContext, configureActionHandler, TYPES } from '~glsp-sprotty';
+import '../../../../css/key-shortcut.css';
+import { KeyShortcutUIExtension, SetAccessibleKeyShortcutAction } from './accessible-key-shortcut';
+import { AccessibleKeyShortcutTool } from './accessible-key-shortcut-tool';
 
 /**
- * Enables the accessibility tools for a keyboard-only-usage
+ * Handles actions for displaying help/information about keyboard shortcuts.
  */
-export const accessibilityModule = new FeatureModule((bind, unbind, isBound, rebind) => {
+export const glspShortcutHelpModule = new ContainerModule((bind, unbind, isBound, rebind) => {
     const context = { bind, unbind, isBound, rebind };
-    configureResizeTools(context);
-    configureViewKeyTools(context);
-    configureMoveZoom(context);
-    configureSearchPaletteModule(context);
     configureShortcutHelpTool(context);
 });
+
+export function configureShortcutHelpTool(context: BindingContext): void {
+    bindAsService(context, TYPES.IDefaultTool, AccessibleKeyShortcutTool);
+    bindAsService(context, TYPES.IUIExtension, KeyShortcutUIExtension);
+    configureActionHandler(context, SetAccessibleKeyShortcutAction.KIND, KeyShortcutUIExtension);
+}

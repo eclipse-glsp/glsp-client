@@ -16,9 +16,11 @@
 
 import { inject, injectable } from 'inversify';
 import { matchesKeystroke } from 'sprotty/lib/utils/keyboard';
-import { Action, CenterAction, KeyListener, KeyTool, SModelElement } from '~glsp-sprotty';
+import { Action, CenterAction, KeyListener, KeyTool, SModelElement, TYPES } from '~glsp-sprotty';
+import { GLSPActionDispatcher } from '../../../base/action-dispatcher';
 import { SelectionService } from '../../../base/selection-service';
 import { GLSPTool } from '../../../base/tool-manager/glsp-tool-manager';
+import { SetAccessibleKeyShortcutAction } from '../key-shortcut/accessible-key-shortcut';
 import { ZoomElementAction, ZoomViewportAction } from '../move-zoom/zoom-handler';
 
 /**
@@ -33,6 +35,7 @@ export class ZoomKeyTool implements GLSPTool {
     protected readonly zoomKeyListener = new ZoomKeyListener(this);
 
     @inject(KeyTool) protected readonly keytool: KeyTool;
+    @inject(TYPES.IActionDispatcher) readonly actionDispatcher: GLSPActionDispatcher;
     @inject(SelectionService) selectionService: SelectionService;
 
     get id(): string {
@@ -41,6 +44,7 @@ export class ZoomKeyTool implements GLSPTool {
 
     enable(): void {
         this.keytool.register(this.zoomKeyListener);
+        this.zoomKeyListener.registerShortcutKey();
     }
 
     disable(): void {
@@ -51,9 +55,26 @@ export class ZoomKeyTool implements GLSPTool {
 export class ZoomKeyListener extends KeyListener {
     static readonly defaultZoomInFactor = 1.1;
     static readonly defaultZoomOutFactor = 0.9;
+    protected readonly token = ZoomKeyListener.name;
 
     constructor(protected tool: ZoomKeyTool) {
         super();
+    }
+
+    registerShortcutKey(): void {
+        this.tool.actionDispatcher.onceModelInitialized().then(() => {
+            this.tool.actionDispatcher.dispatchAll([
+                SetAccessibleKeyShortcutAction.create({
+                    token: this.token,
+                    keys: [
+                        { shortcuts: ['+'], description: 'Zoom in to element or viewport', group: 'Zoom', position: 0 },
+                        { shortcuts: ['-'], description: 'Zoom out to element or viewport', group: 'Zoom', position: 1 },
+                        { shortcuts: ['CTRL', '0'], description: 'Reset zoom to default', group: 'Zoom', position: 2 },
+                        { shortcuts: ['CTRL', '+'], description: 'Zoom in via Grid', group: 'Zoom', position: 3 }
+                    ]
+                })
+            ]);
+        });
     }
 
     override keyDown(element: SModelElement, event: KeyboardEvent): Action[] {
