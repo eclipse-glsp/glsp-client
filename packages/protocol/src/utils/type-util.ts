@@ -82,7 +82,8 @@ export type SafeFunction<T = any> = (...args: any[]) => T;
  * @returns `true` if the object has property with matching key of type `string`.
  */
 export function hasStringProp(object: AnyObject, propertyKey: string, optional = false): boolean {
-    return propertyKey in object ? typeof (object as any)[propertyKey] === 'string' : optional;
+    const property = (object as any)[propertyKey];
+    return property !== undefined ? typeof property === 'string' : optional;
 }
 
 /**
@@ -93,7 +94,8 @@ export function hasStringProp(object: AnyObject, propertyKey: string, optional =
  * @returns `true` if the object has property with matching key of type `boolean`.
  */
 export function hasBooleanProp(object: AnyObject, propertyKey: string, optional = false): boolean {
-    return propertyKey in object ? typeof (object as any)[propertyKey] === 'boolean' : optional;
+    const property = (object as any)[propertyKey];
+    return property !== undefined ? typeof property === 'boolean' : optional;
 }
 
 /**
@@ -104,7 +106,8 @@ export function hasBooleanProp(object: AnyObject, propertyKey: string, optional 
  * @returns `true` if the object has property with matching key of type `number`.
  */
 export function hasNumberProp(object: AnyObject, propertyKey: string, optional = false): boolean {
-    return propertyKey in object ? typeof (object as any)[propertyKey] === 'number' : optional;
+    const property = (object as any)[propertyKey];
+    return property !== undefined ? typeof property === 'number' : optional;
 }
 
 /**
@@ -115,7 +118,8 @@ export function hasNumberProp(object: AnyObject, propertyKey: string, optional =
  * @returns `true` if the object has property with matching key of type `object`.
  */
 export function hasObjectProp(object: AnyObject, propertyKey: string, optional = false): boolean {
-    return propertyKey in object ? AnyObject.is((object as any)[propertyKey]) : optional;
+    const property = (object as any)[propertyKey];
+    return property !== undefined ? AnyObject.is(property) : optional;
 }
 
 /**
@@ -126,7 +130,8 @@ export function hasObjectProp(object: AnyObject, propertyKey: string, optional =
  * @returns `true` if the object has property with matching key of type `function`.
  */
 export function hasFunctionProp(object: AnyObject, propertyKey: string, optional = false): boolean {
-    return propertyKey in object ? typeof (object as any)[propertyKey] === 'function' : optional;
+    const property = (object as any)[propertyKey];
+    return property !== undefined ? typeof property === 'function' : optional;
 }
 
 /**
@@ -137,5 +142,6 @@ export function hasFunctionProp(object: AnyObject, propertyKey: string, optional
  * @returns `true` if the object has property with matching key of type `Array`.
  */
 export function hasArrayProp(object: AnyObject, propertyKey: string, optional = false): boolean {
-    return propertyKey in object ? Array.isArray((object as any)[propertyKey]) : optional;
+    const property = (object as any)[propertyKey];
+    return property !== undefined ? Array.isArray(property) : optional;
 }
