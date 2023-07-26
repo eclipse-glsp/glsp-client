@@ -17,9 +17,11 @@
 import { inject, injectable, optional } from 'inversify';
 import { matchesKeystroke } from 'sprotty/lib/utils/keyboard';
 import { Action, EnableDefaultToolsAction, EnableToolsAction, ISnapper, KeyListener, KeyTool, SModelElement, TYPES } from '~glsp-sprotty';
+import { GLSPActionDispatcher } from '../../../base/action-dispatcher';
 import { SelectionService } from '../../../base/selection-service';
 import { GLSPTool } from '../../../base/tool-manager/glsp-tool-manager';
 import { IMovementRestrictor } from '../../change-bounds/movement-restrictor';
+import { AccessibleKeyShortcutProvider, SetAccessibleKeyShortcutAction } from '../key-shortcut/accessible-key-shortcut';
 import { ResizeElementAction, ResizeType } from './resize-key-handler';
 
 @injectable()
@@ -31,6 +33,7 @@ export class ResizeKeyTool implements GLSPTool {
     @inject(KeyTool) protected readonly keytool: KeyTool;
     @inject(TYPES.IMovementRestrictor) @optional() readonly movementRestrictor?: IMovementRestrictor;
     @inject(TYPES.ISnapper) @optional() readonly snapper?: ISnapper;
+    @inject(TYPES.IActionDispatcher) readonly actionDispatcher: GLSPActionDispatcher;
     @inject(SelectionService) readonly selectionService: SelectionService;
 
     protected resizeKeyListener: ResizeKeyListener = new ResizeKeyListener(this);
@@ -41,6 +44,7 @@ export class ResizeKeyTool implements GLSPTool {
 
     enable(): void {
         this.keytool.register(this.resizeKeyListener);
+        this.resizeKeyListener.registerShortcutKey();
     }
 
     disable(): void {
@@ -48,11 +52,28 @@ export class ResizeKeyTool implements GLSPTool {
     }
 }
 @injectable()
-export class ResizeKeyListener extends KeyListener {
+export class ResizeKeyListener extends KeyListener implements AccessibleKeyShortcutProvider {
     protected isEditMode = false;
+    protected readonly token = ResizeKeyListener.name;
 
     constructor(protected readonly tool: ResizeKeyTool) {
         super();
+    }
+
+    registerShortcutKey(): void {
+        this.tool.actionDispatcher.onceModelInitialized().then(() => {
+            this.tool.actionDispatcher.dispatchAll([
+                SetAccessibleKeyShortcutAction.create({
+                    token: this.token,
+                    keys: [
+                        { shortcuts: ['ALT', 'A'], description: 'Activate resize mode for selected element', group: 'Resize', position: 0 },
+                        { shortcuts: ['+'], description: 'Increase size of element', group: 'Resize', position: 1 },
+                        { shortcuts: ['-'], description: 'Increase size of element', group: 'Resize', position: 2 },
+                        { shortcuts: ['CTRL', '0'], description: 'Set element size to default', group: 'Resize', position: 3 }
+                    ]
+                })
+            ]);
+        });
     }
 
     override keyDown(element: SModelElement, event: KeyboardEvent): Action[] {

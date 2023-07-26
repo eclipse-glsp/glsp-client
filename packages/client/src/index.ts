@@ -46,6 +46,7 @@ export * from './features/accessibility/resize-key-tool/resize-key-tool';
 export * from './features/accessibility/view-key-tools/deselect-key-tool';
 export * from './features/accessibility/view-key-tools/movement-key-tool';
 export * from './features/accessibility/view-key-tools/zoom-key-tool';
+export * from './features/accessibility/key-shortcut/accessible-key-shortcut-tool';
 export * from './features/bounds/freeform-layout';
 export * from './features/bounds/glsp-hidden-bounds-updater';
 export * from './features/bounds/hbox-layout';
