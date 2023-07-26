@@ -27,6 +27,7 @@
     "lint": "eslint --ext .ts,.tsx ./src",
     "lint:ci": "yarn lint -o eslint.xml -f checkstyle",
     "prepare": "yarn clean && yarn build",
+    "start:exampleServer": "yarn ts-node ./scripts/start-example-server.ts",
     "watch": "tsc -w -p ./tsconfig.json"
   },
   "dependencies": {
@@ -34,7 +35,8 @@
     "@eclipse-glsp/client": "1.1.0-next"
   },
   "devDependencies": {
-    "@eclipse-glsp-examples/workflow-server-bundled": "next",
+    "@types/shelljs": "0.8.12",
+    "@types/tar": "6.1.5",
     "circular-dependency-plugin": "^5.2.2",
     "css-loader": "^6.7.1",
     "inversify": "^6.0.1",

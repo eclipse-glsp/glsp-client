@@ -28,7 +28,7 @@ Clone this repository and build the glsp-client packages:
 yarn install
 ```
 
-Next, start a pre-built version of the Workflow Example Node Diagram Server:
+Next, download and start a pre-built version of the Workflow Example Node Diagram Server with:
 
 ```bash
 yarn start:exampleServer
