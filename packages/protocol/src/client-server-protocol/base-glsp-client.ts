@@ -22,6 +22,7 @@ import { ActionMessageHandler, ClientState, GLSPClient } from './glsp-client';
 import { GLSPClientProxy, GLSPServer } from './glsp-server';
 import { DisposeClientSessionParameters, InitializeClientSessionParameters, InitializeParameters, InitializeResult } from './types';
 
+export const GLOBAL_HANDLER_ID = '*';
 /**
  * A simple {@link GLSPClient} implementation for use cases where the client & server are running
  * in the same context/process without a communication layer (like json-rpc) between. The client
@@ -35,7 +36,8 @@ export class BaseGLSPClient implements GLSPClient {
     protected onStopDeferred = new Deferred<void>();
     readonly proxy: GLSPClientProxy;
     protected startupTimeout = 1500;
-    protected actionMessageHandlers: ActionMessageHandler[] = [];
+    protected actionMessageHandlers: Map<string, ActionMessageHandler[]> = new Map([[GLOBAL_HANDLER_ID, []]]);
+    protected _initializeResult: InitializeResult;
 
     constructor(protected options: GLSPClient.Options) {
         this.state = ClientState.Initial;
@@ -45,11 +47,12 @@ export class BaseGLSPClient implements GLSPClient {
     protected createProxy(): GLSPClientProxy {
         return {
             process: message => {
-                if (this.actionMessageHandlers.length === 0) {
+                const handlers = this.actionMessageHandlers.get(message.clientId) ?? this.actionMessageHandlers.get(GLOBAL_HANDLER_ID);
+                if (!handlers) {
                     console.warn('No ActionMessageHandler is configured- Cannot process server message', message);
                     return;
                 }
-                [...this.actionMessageHandlers].forEach(handler => handler(message));
+                handlers.forEach(handler => handler(message));
             }
         };
     }
@@ -62,7 +65,7 @@ export class BaseGLSPClient implements GLSPClient {
     }
 
     start(): Promise<void> {
-        if (this.state !== ClientState.Initial) {
+        if (this.state === ClientState.Running) {
             return this.onStartDeferred.promise;
         }
 
@@ -86,8 +89,15 @@ export class BaseGLSPClient implements GLSPClient {
         return this.onStartDeferred.promise;
     }
 
-    initializeServer(params: InitializeParameters): Promise<InitializeResult> {
-        return this.checkedServer.initialize(params);
+    async initializeServer(params: InitializeParameters): Promise<InitializeResult> {
+        if (!this._initializeResult) {
+            this._initializeResult = await this.checkedServer.initialize(params);
+        }
+        return this._initializeResult;
+    }
+
+    get initializeResult(): InitializeResult | undefined {
+        return this._initializeResult;
     }
 
     initializeClientSession(params: InitializeClientSessionParameters): Promise<void> {
@@ -122,9 +132,17 @@ export class BaseGLSPClient implements GLSPClient {
         this.checkedServer.process(message);
     }
 
-    onActionMessage(handler: ActionMessageHandler): Disposable {
-        distinctAdd(this.actionMessageHandlers, handler);
-        return Disposable.create(() => remove(this.actionMessageHandlers, handler));
+    onActionMessage(handler: ActionMessageHandler, clientId?: string): Disposable {
+        if (!clientId) {
+            distinctAdd(this.actionMessageHandlers.get(GLOBAL_HANDLER_ID)!, handler);
+            return Disposable.create(() => remove(this.actionMessageHandlers.get(GLOBAL_HANDLER_ID)!, handler));
+        }
+        if (!this.actionMessageHandlers.has(clientId)) {
+            this.actionMessageHandlers.set(clientId, [handler]);
+        } else {
+            distinctAdd(this.actionMessageHandlers.get(clientId)!, handler);
+        }
+        return Disposable.create(() => remove(this.actionMessageHandlers.get(clientId)!, handler));
     }
 
     get currentState(): ClientState {

@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { ContextMenuProviderRegistry, FeatureModule, IContextMenuService, TYPES, bindAsService } from '~glsp-sprotty';
-import { SelectionServiceAwareContextMenuMouseListener } from './selection-service-aware-context-menu-mouse-listener';
+import { GLSPContextMenuMouseListener } from './selection-service-aware-context-menu-mouse-listener';
 import { ServerContextMenuItemProvider } from './server-context-menu-provider';
 
 export const contextMenuModule = new FeatureModule(bind => {
@@ -28,7 +28,7 @@ export const contextMenuModule = new FeatureModule(bind => {
                 }
             })
     );
-    bindAsService(bind, TYPES.MouseListener, SelectionServiceAwareContextMenuMouseListener);
+    bindAsService(bind, TYPES.MouseListener, GLSPContextMenuMouseListener);
     bind(TYPES.IContextMenuProviderRegistry).to(ContextMenuProviderRegistry);
     bindAsService(bind, TYPES.IContextMenuItemProvider, ServerContextMenuItemProvider);
 });

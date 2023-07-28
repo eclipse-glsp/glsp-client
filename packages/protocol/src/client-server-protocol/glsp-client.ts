@@ -75,7 +75,8 @@ export interface GLSPClient {
 
     /**
      * Initializes the client and the server connection. During the start procedure the client is in the
-     * `Starting` state and will transition to either `Running` or `StartFailed`.
+     * `Starting` state and will transition to either `Running` or `StartFailed`. Calling this method
+     *  if the client is already running has no effect.
      *
      * @returns A promise that resolves if the startup was successful.
      */
@@ -83,12 +84,21 @@ export interface GLSPClient {
 
     /**
      * Send an `initialize` request to the server. The server needs to be initialized in order to accept and
-     * process other requests and notifications.
+     * process other requests and notifications. The {@link InitializeResult} ist cached and can be retrieved
+     * via the {@link GLSPClient.initializeResult} property.
+     * Only the first method invocation actually sends a request to the server. Subsequent invocations simply
+     * return the cached result.
      *
      * @param params Initialize parameters
      * @returns A promise of the {@link InitializeResult}.
      */
     initializeServer(params: InitializeParameters): Promise<InitializeResult>;
+
+    /**
+     * The cached {@link {InitializeResult}. Is `undefined` if the server has not been initialized yet via
+     * the {@link GLSPClient.initializeServer} method.
+     */
+    readonly initializeResult: InitializeResult | undefined;
 
     /**
      * Send an `initializeClientSession` request to the server. One client application may open several session.
@@ -131,11 +141,13 @@ export interface GLSPClient {
 
     /**
      * Sets a handler/listener for action messages received from the server.
+     * Can be scoped to a particular client session by passing the corresponding `clientId`.
      *
      * @param handler The action message handler
+     * @param clientId If passed given action message handler will only be invoked for action messages with this client id.
      * @returns A {@link Disposable} that can be used to unregister the handler
      */
-    onActionMessage(handler: ActionMessageHandler): Disposable;
+    onActionMessage(handler: ActionMessageHandler, clientId?: string): Disposable;
 }
 export namespace GLSPClient {
     export interface Options {

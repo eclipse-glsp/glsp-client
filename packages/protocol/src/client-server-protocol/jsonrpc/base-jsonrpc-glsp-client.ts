@@ -28,6 +28,7 @@ export class BaseJsonrpcGLSPClient implements GLSPClient {
     protected resolvedConnection?: MessageConnection;
     protected state: ClientState;
     protected onStop?: Promise<void>;
+    protected _initializeResult: InitializeResult | undefined;
 
     constructor(options: JsonrpcGLSPClient.Options) {
         Object.assign(this, options);
@@ -38,8 +39,15 @@ export class BaseJsonrpcGLSPClient implements GLSPClient {
         this.checkedConnection.sendNotification(JsonrpcGLSPClient.ShutdownNotification);
     }
 
-    initializeServer(params: InitializeParameters): Promise<InitializeResult> {
-        return this.checkedConnection.sendRequest(JsonrpcGLSPClient.InitializeRequest, params);
+    async initializeServer(params: InitializeParameters): Promise<InitializeResult> {
+        if (!this._initializeResult) {
+            this._initializeResult = await this.checkedConnection.sendRequest(JsonrpcGLSPClient.InitializeRequest, params);
+        }
+        return this._initializeResult;
+    }
+
+    get initializeResult(): InitializeResult | undefined {
+        return this._initializeResult;
     }
 
     initializeClientSession(params: InitializeClientSessionParameters): Promise<void> {
@@ -50,8 +58,12 @@ export class BaseJsonrpcGLSPClient implements GLSPClient {
         return this.checkedConnection.sendRequest(JsonrpcGLSPClient.DisposeClientSessionRequest, params);
     }
 
-    onActionMessage(handler: ActionMessageHandler): Disposable {
-        return this.checkedConnection.onNotification(JsonrpcGLSPClient.ActionMessageNotification, handler);
+    onActionMessage(handler: ActionMessageHandler, clientId?: string): Disposable {
+        return this.checkedConnection.onNotification(JsonrpcGLSPClient.ActionMessageNotification, msg => {
+            if (!clientId || msg.clientId === clientId) {
+                handler(msg);
+            }
+        });
     }
 
     sendActionMessage(message: ActionMessage): void {
@@ -73,6 +85,9 @@ export class BaseJsonrpcGLSPClient implements GLSPClient {
     }
 
     async start(): Promise<void> {
+        if (this.state === ClientState.Running) {
+            return;
+        }
         try {
             this.state = ClientState.Starting;
             const connection = await this.resolveConnection();

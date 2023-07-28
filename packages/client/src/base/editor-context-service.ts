@@ -28,17 +28,19 @@ import {
     MousePositionTracker,
     SModelElement,
     SModelRoot,
+    SetDirtyStateAction,
     SetEditModeAction,
     TYPES,
     ValueChange
 } from '~glsp-sprotty';
+import { GLSPModelSource } from './model/glsp-model-source';
 import { SelectionService } from './selection-service';
-import { isSourceUriAware } from './source-uri-aware';
 
 export interface IEditModeListener {
     editModeChanged(newValue: string, oldValue: string): void;
 }
 
+export type DirtyStateChange = Pick<SetDirtyStateAction, 'isDirty' | 'reason'>;
 /**
  * The `EditorContextService` is a central injectable component that gives read-only access to
  * certain aspects of the diagram, such as the currently selected elements, the model root,
@@ -67,17 +69,22 @@ export class EditorContextService implements IActionHandler, Disposable {
     protected modelSourceProvider: () => Promise<ModelSource>;
 
     protected _editMode: string;
-
     protected onEditModeChangedEmitter = new Emitter<ValueChange<string>>();
     get onEditModeChanged(): Event<ValueChange<string>> {
         return this.onEditModeChangedEmitter.event;
+    }
+
+    protected _isDirty: boolean;
+    protected onDirtyStateChangedEmitter = new Emitter<DirtyStateChange>();
+    get onDirtyStateChanged(): Event<DirtyStateChange> {
+        return this.onDirtyStateChangedEmitter.event;
     }
 
     protected toDispose = new DisposableCollection();
 
     @postConstruct()
     protected initialize(): void {
-        this.toDispose.push(this.onEditModeChangedEmitter);
+        this.toDispose.push(this.onEditModeChangedEmitter, this.onDirtyStateChangedEmitter);
         this.editModeListeners.forEach(listener =>
             this.onEditModeChanged(change => listener.editModeChanged(change.newValue, change.oldValue))
         );
@@ -106,20 +113,29 @@ export class EditorContextService implements IActionHandler, Disposable {
 
     handle(action: Action): void {
         if (SetEditModeAction.is(action)) {
-            const oldValue = this._editMode;
-            this._editMode = action.editMode;
-            this.notifyEditModeListeners(oldValue);
+            this.handleSetEditModeAction(action);
+        } else if (SetDirtyStateAction.is(action)) {
+            this.handleSetDirtyStateAction(action);
         }
     }
 
-    protected notifyEditModeListeners(oldValue: string): void {
+    protected handleSetEditModeAction(action: SetEditModeAction): void {
+        const oldValue = this._editMode;
+        this._editMode = action.editMode;
         this.onEditModeChangedEmitter.fire({ newValue: this.editMode, oldValue });
+    }
+
+    protected handleSetDirtyStateAction(action: SetDirtyStateAction): void {
+        if (action.isDirty !== this._isDirty) {
+            this._isDirty = action.isDirty;
+            this.onDirtyStateChangedEmitter.fire(action);
+        }
     }
 
     async getSourceUri(): Promise<string | undefined> {
         const modelSource = await this.modelSourceProvider();
-        if (isSourceUriAware(modelSource)) {
-            return modelSource.sourceURI;
+        if (modelSource instanceof GLSPModelSource) {
+            return modelSource.sourceUri;
         }
         return undefined;
     }
@@ -138,6 +154,10 @@ export class EditorContextService implements IActionHandler, Disposable {
 
     get isReadonly(): boolean {
         return this.editMode === EditMode.READONLY;
+    }
+
+    get isDirty(): boolean {
+        return this._isDirty;
     }
 }
 

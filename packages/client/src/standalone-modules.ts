@@ -14,7 +14,21 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { ModuleConfiguration } from '~glsp-sprotty';
+import { inject, injectable } from 'inversify';
+import {
+    Action,
+    EndProgressAction,
+    FeatureModule,
+    IActionHandler,
+    ICommand,
+    ILogger,
+    ModuleConfiguration,
+    ServerMessageAction,
+    StartProgressAction,
+    TYPES,
+    UpdateProgressAction,
+    configureActionHandler
+} from '~glsp-sprotty';
 import { standaloneCopyPasteModule } from './features/copy-paste/copy-paste-modules';
 import { standaloneExportModule } from './features/export/export-modules';
 import { saveModule } from './features/save/save-module';
@@ -22,6 +36,30 @@ import { standaloneSelectModule } from './features/select/select-module';
 import { undoRedoModule } from './features/undo-redo/undo-redo-module';
 import { standaloneMarkerNavigatorModule } from './features/validation/validation-modules';
 import { standaloneViewportModule } from './features/viewport/viewport-modules';
+
+export const standaloneFallbackModule = new FeatureModule((bind, unbind, isBound, rebind) => {
+    const context = { bind, unbind, isBound, rebind };
+    bind(FallbackActionHandler).toSelf().inSingletonScope();
+    configureActionHandler(context, ServerMessageAction.KIND, FallbackActionHandler);
+    configureActionHandler(context, StartProgressAction.KIND, FallbackActionHandler);
+    configureActionHandler(context, UpdateProgressAction.KIND, FallbackActionHandler);
+    configureActionHandler(context, EndProgressAction.KIND, FallbackActionHandler);
+});
+
+/**
+ * A fallback action handler for actions sent by features that are currently not supported by
+ * default in the standalone context. Unhandled actions will be simply forwarded to the {@link ILogger}.
+ */
+@injectable()
+export class FallbackActionHandler implements IActionHandler {
+    @inject(TYPES.ILogger)
+    protected logger: ILogger;
+
+    handle(action: Action): void | Action | ICommand {
+        this.logger.log(this, 'Unhandled action received:', action);
+    }
+}
+
 /**
  * Configuration of all `standalone` modules.
  *
@@ -39,6 +77,7 @@ export const STANDALONE_MODULES = [
     standaloneMarkerNavigatorModule,
     standaloneSelectModule,
     standaloneExportModule,
+    standaloneFallbackModule,
     saveModule,
     undoRedoModule
 ] as const;

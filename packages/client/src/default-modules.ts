@@ -43,6 +43,7 @@ import { navigationModule } from './features/navigation/navigation-module';
 import { routingModule } from './features/routing/routing-module';
 import { selectModule } from './features/select/select-module';
 import { sourceModelWatcherModule } from './features/source-model-watcher/source-model-wacher-module';
+import { statusModule } from './features/status/status-module';
 import { svgMetadataModule } from './features/svg-metadata/svg-metadata-module';
 import { toolPaletteModule } from './features/tool-palette/tool-palette-module';
 import { changeBoundsToolModule } from './features/tools/change-bounds/change-boounds-tool-module';
@@ -90,7 +91,8 @@ export const DEFAULT_MODULES = [
     toolFocusLossModule,
     validationModule,
     zorderModule,
-    svgMetadataModule
+    svgMetadataModule,
+    statusModule
 ] as const;
 
 /**
