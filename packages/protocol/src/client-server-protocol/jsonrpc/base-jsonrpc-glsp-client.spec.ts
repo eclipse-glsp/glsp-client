@@ -116,15 +116,28 @@ describe('Base JSON-RPC GLSP Client', () => {
             await expectToThrowAsync(() => client.initializeServer({ applicationId: '', protocolVersion: '' }));
             expect(connection.sendRequest.called).to.be.false;
         });
-        it('should forward the corresponding initialize request', async () => {
+        it('should forward the corresponding initialize request and cache result', async () => {
             await resetClient();
             const expectedResult = { protocolVersion: '1.0.0', serverActions: {} };
             const params = { applicationId: 'id', protocolVersion: '1.0.0' };
             const initializeMock = connection.sendRequest.withArgs(JsonrpcGLSPClient.InitializeRequest, params);
             initializeMock.returns(expectedResult);
+            expect(client.initializeResult).to.be.undefined;
             const result = await client.initializeServer({ applicationId: 'id', protocolVersion: '1.0.0' });
             expect(result).to.deep.equals(expectedResult);
             expect(initializeMock.calledOnce).to.be.true;
+            expect(client.initializeResult).to.be.equal(result);
+        });
+        it('should return cached result on consecutive invocation', async () => {
+            await resetClient();
+            const expectedResult = { protocolVersion: '1.0.0', serverActions: {} };
+            const params = { applicationId: 'id', protocolVersion: '1.0.0' };
+            const initializeMock = connection.sendRequest.withArgs(JsonrpcGLSPClient.InitializeRequest, params);
+            initializeMock.returns(expectedResult);
+            client['_initializeResult'] = expectedResult;
+            const result = await client.initializeServer({ applicationId: 'id', protocolVersion: '1.0.0' });
+            expect(result).to.be.deep.equal(client.initializeResult);
+            expect(initializeMock.called).to.be.false;
         });
     });
 
@@ -202,8 +215,8 @@ describe('Base JSON-RPC GLSP Client', () => {
 
         it('should invoked the corresponding connection method', async () => {
             await resetClient();
-            client.onActionMessage(handler);
-            expect(connection.onNotification.withArgs(JsonrpcGLSPClient.ActionMessageNotification, handler).calledOnce).to.be.true;
+            client.onActionMessage(handler, 'someId');
+            expect(connection.onNotification.withArgs(JsonrpcGLSPClient.ActionMessageNotification).calledOnce).to.be.true;
         });
     });
 

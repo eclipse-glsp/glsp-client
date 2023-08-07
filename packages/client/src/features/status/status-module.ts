@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020-2023 EclipseSource and others.
+ * Copyright (c) 2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,11 +13,13 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { AnyObject, hasStringProp } from '~glsp-sprotty';
-export interface SourceUriAware {
-    sourceURI: string;
-}
 
-export function isSourceUriAware(obj: any): obj is SourceUriAware {
-    return AnyObject.is(obj) && hasStringProp(obj, 'sourceURI');
-}
+import { FeatureModule, ServerStatusAction, TYPES, bindAsService, configureActionHandler } from '~glsp-sprotty';
+import '../../../css/status-overlay.css';
+import { StatusOverlay } from './status-overlay';
+
+export const statusModule = new FeatureModule((bind, unbind, isBound, rebind) => {
+    const context = { bind, unbind, isBound, rebind };
+    bindAsService(context, TYPES.IUIExtension, StatusOverlay);
+    configureActionHandler(context, ServerStatusAction.KIND, StatusOverlay);
+});

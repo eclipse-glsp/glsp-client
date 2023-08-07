@@ -19,7 +19,7 @@ import * as sinon from 'sinon';
 import * as util from 'util';
 import { Action, ActionMessage } from '../action-protocol';
 import { expectToThrowAsync } from '../utils/test-util';
-import { BaseGLSPClient } from './base-glsp-client';
+import { BaseGLSPClient, GLOBAL_HANDLER_ID } from './base-glsp-client';
 import { ClientState } from './glsp-client';
 import { GLSPServer, GLSPServerListener } from './glsp-server';
 import { DisposeClientSessionParameters, InitializeClientSessionParameters, InitializeParameters, InitializeResult } from './types';
@@ -115,10 +115,21 @@ describe('Node GLSP Client', () => {
             resetClient();
             const expectedResult = { protocolVersion: '1.0.0', serverActions: {} };
             server.initialize.returns(Promise.resolve(expectedResult));
-
+            expect(client.initializeResult).to.be.undefined;
             const result = await client.initializeServer({ applicationId: 'id', protocolVersion: '1.0.0' });
             expect(result).to.deep.equals(expectedResult);
             expect(server.initialize.calledOnce).to.be.true;
+            expect(client.initializeResult).to.be.equal(result);
+        });
+        it('should return cached result on consecutive invocation', async () => {
+            await resetClient();
+            const expectedResult = { protocolVersion: '1.0.0', serverActions: {} };
+            const params = { applicationId: 'id', protocolVersion: '1.0.0' };
+            server.initialize.returns(Promise.resolve(expectedResult));
+            client['_initializeResult'] = expectedResult;
+            const result = await client.initializeServer(params);
+            expect(result).to.be.deep.equal(client.initializeResult);
+            expect(server.initialize.called).to.be.false;
         });
     });
 
@@ -207,29 +218,48 @@ describe('Node GLSP Client', () => {
         it('should be properly registered if server is not configured', () => {
             resetClient(false);
             client.onActionMessage(handler);
-            expect(client['actionMessageHandlers'].length).to.be.equal(1);
+            expect(client['actionMessageHandlers'].get(GLOBAL_HANDLER_ID)?.length).to.be.equal(1);
             expect(handler.called).to.be.false;
         });
         it('should be properly registered if client is not running', () => {
             resetClient(false);
             client.configureServer(server);
             client.onActionMessage(handler);
-            expect(client['actionMessageHandlers'].length).to.be.equal(1);
+            expect(client['actionMessageHandlers'].get(GLOBAL_HANDLER_ID)?.length).to.be.equal(1);
             expect(handler.called).to.be.false;
         });
-        it('should be unregistered if dispose is invoked', () => {
+        it('should unregister global handler if dispose is invoked', () => {
             resetClient(false);
             const toDispose = client.onActionMessage(handler);
 
-            expect(client['actionMessageHandlers'].length).to.be.equal(1);
+            expect(client['actionMessageHandlers'].get(GLOBAL_HANDLER_ID)?.length).to.be.equal(1);
             toDispose.dispose();
-            expect(client['actionMessageHandlers'].length).to.be.equal(0);
+            expect(client['actionMessageHandlers'].get(GLOBAL_HANDLER_ID)?.length).to.be.equal(0);
         });
-        it('handler should be invoked when the an action message is sent via proxy', () => {
+        it('should unregister client id handler if dispose is invoked', () => {
+            resetClient(false);
+            const clientId = 'clientId';
+            const toDispose = client.onActionMessage(handler, clientId);
+
+            expect(client['actionMessageHandlers'].size).to.be.equal(2);
+            toDispose.dispose();
+            expect(client['actionMessageHandlers'].get(clientId)?.length).to.be.equal(0);
+        });
+        it('should invoke global handler when the an action message is sent via proxy', () => {
             resetClient();
             client.onActionMessage(handler);
             const expectedMessage = { action: { kind: 'someAction' }, clientId: 'someClientId' };
             client.proxy.process(expectedMessage);
+            expect(handler.calledOnce).to.be.true;
+            expect(handler.firstCall.args[0]).to.deep.equals(expectedMessage);
+        });
+        it('should invoke client id handler when the an action message is sent via proxy', () => {
+            resetClient();
+            const clientId = 'clientId';
+            client.onActionMessage(handler, clientId);
+            const expectedMessage = { action: { kind: 'someAction' }, clientId };
+            client.proxy.process(expectedMessage);
+            client.proxy.process({ clientId: 'someOtherId', action: { kind: 'someAction' } });
             expect(handler.calledOnce).to.be.true;
             expect(handler.firstCall.args[0]).to.deep.equals(expectedMessage);
         });

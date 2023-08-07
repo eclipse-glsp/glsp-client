@@ -14,13 +14,6 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-:root {
-    --glsp-error-foreground: red;
-    --glsp-warning-foreground: yellow;
-    --glsp-info-foreground: lightblue;
-    --glsp-issue-background: rgb(255 255 255 / 85%);
-}
-
 .sprotty-issue-background {
     fill: var(--glsp-issue-background);
     background-color: var(--glsp-issue-background);

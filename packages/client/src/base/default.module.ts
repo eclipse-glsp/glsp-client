@@ -24,6 +24,7 @@ import {
     ModelSource,
     MouseTool,
     MoveCommand,
+    SetDirtyStateAction,
     SetEditModeAction,
     TYPES,
     bindAsService,
@@ -42,6 +43,7 @@ import { FeedbackAwareUpdateModelCommand } from './feedback/update-model-command
 import { FocusStateChangedAction } from './focus/focus-state-change-action';
 import { FocusTracker } from './focus/focus-tracker';
 import { DefaultModelInitializationConstraint, ModelInitializationConstraint } from './model-initialization-constraint';
+import { GLSPModelSource } from './model/glsp-model-source';
 import { GLSPModelRegistry } from './model/model-registry';
 import { SelectionClearingMouseListener } from './selection-clearing-mouse-listener';
 import { SelectionService } from './selection-service';
@@ -72,6 +74,7 @@ export const defaultModule = new FeatureModule((bind, unbind, isBound, rebind, .
     );
 
     configureActionHandler(context, SetEditModeAction.KIND, EditorContextService);
+    configureActionHandler(context, SetDirtyStateAction.KIND, EditorContextService);
 
     bind(FocusTracker).toSelf().inSingletonScope();
     configureActionHandler(context, FocusStateChangedAction.KIND, FocusTracker);
@@ -93,6 +96,7 @@ export const defaultModule = new FeatureModule((bind, unbind, isBound, rebind, .
     bind(GLSPActionDispatcher).toSelf().inSingletonScope();
     bindOrRebind(context, TYPES.IActionDispatcher).toService(GLSPActionDispatcher);
 
+    bindAsService(context, TYPES.ModelSource, GLSPModelSource);
     bind(ModelInitializationConstraint).to(DefaultModelInitializationConstraint).inSingletonScope();
 
     // support re-registration of model elements and views

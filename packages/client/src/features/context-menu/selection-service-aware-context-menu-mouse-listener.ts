@@ -16,10 +16,9 @@
 import { inject, injectable, optional } from 'inversify';
 import { Action, ContextMenuProviderRegistry, IContextMenuServiceProvider, MouseListener, SModelElement, TYPES } from '~glsp-sprotty';
 import { FocusStateChangedAction } from '../../base/focus/focus-state-change-action';
-import { SelectionService } from '../../base/selection-service';
 
 @injectable()
-export class SelectionServiceAwareContextMenuMouseListener extends MouseListener {
+export class GLSPContextMenuMouseListener extends MouseListener {
     @inject(TYPES.IContextMenuServiceProvider)
     @optional()
     protected readonly contextMenuService?: IContextMenuServiceProvider;
@@ -27,9 +26,6 @@ export class SelectionServiceAwareContextMenuMouseListener extends MouseListener
     @inject(TYPES.IContextMenuProviderRegistry)
     @optional()
     protected readonly menuProvider?: ContextMenuProviderRegistry;
-
-    @inject(SelectionService)
-    protected selectionService: SelectionService;
 
     /**
      * Opens the context menu.

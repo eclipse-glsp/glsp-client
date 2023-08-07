@@ -21,13 +21,14 @@ import {
     EnableToolPaletteAction,
     GLSPActionDispatcher,
     GLSPClient,
-    GLSPDiagramServer,
+    GLSPModelSource,
     GLSPWebSocketProvider,
     RequestModelAction,
     RequestTypeHintsAction,
     ServerMessageAction,
     ServerStatusAction,
-    TYPES,
+    SetUIExtensionVisibilityAction,
+    StatusOverlay,
     configureServerActions
 } from '@eclipse-glsp/client';
 import { join, resolve } from 'path';
@@ -45,26 +46,30 @@ const clientId = ApplicationIdProvider.get() + '_' + examplePath;
 const webSocketUrl = `ws://localhost:${port}/${id}`;
 
 let container = createContainer();
-let diagramServer = container.get<GLSPDiagramServer>(TYPES.ModelSource);
-diagramServer.clientId = clientId;
+let diagramServer = container.get(GLSPModelSource);
 
 const wsProvider = new GLSPWebSocketProvider(webSocketUrl);
 wsProvider.listen({ onConnection: initialize, onReconnect: reconnect, logger: console });
 
 async function initialize(connectionProvider: MessageConnection, isReconnecting = false): Promise<void> {
+    const actionDispatcher: GLSPActionDispatcher = container.get(GLSPActionDispatcher);
+
+    await actionDispatcher.dispatch(SetUIExtensionVisibilityAction.create({ extensionId: StatusOverlay.ID, visible: true }));
+    await actionDispatcher.dispatch(ServerStatusAction.create('Initializing...', { severity: 'INFO' }));
     const client = new BaseJsonrpcGLSPClient({ id, connectionProvider });
 
-    await diagramServer.connect(client);
+    await diagramServer.connect(client, clientId);
     const result = await client.initializeServer({
         applicationId: ApplicationIdProvider.get(),
         protocolVersion: GLSPClient.protocolVersion
     });
+    actionDispatcher.dispatch(ServerStatusAction.create('', { severity: 'NONE' }));
     await configureServerActions(result, diagramType, container);
-
-    const actionDispatcher: GLSPActionDispatcher = container.get(GLSPActionDispatcher);
 
     await client.initializeClientSession({ clientSessionId: diagramServer.clientId, diagramType });
 
+    actionDispatcher.dispatch(SetUIExtensionVisibilityAction.create({ extensionId: StatusOverlay.ID, visible: true }));
+    actionDispatcher.dispatch(EnableToolPaletteAction.create());
     actionDispatcher.dispatch(
         RequestModelAction.create({
             options: {
@@ -75,8 +80,6 @@ async function initialize(connectionProvider: MessageConnection, isReconnecting 
         })
     );
     actionDispatcher.dispatch(RequestTypeHintsAction.create());
-    await actionDispatcher.onceModelInitialized();
-    actionDispatcher.dispatch(EnableToolPaletteAction.create());
 
     if (isReconnecting) {
         const message = `Connection to the ${id} glsp server got closed. Connection was successfully re-established.`;
@@ -92,7 +95,7 @@ async function initialize(connectionProvider: MessageConnection, isReconnecting 
 
 async function reconnect(connectionProvider: MessageConnection): Promise<void> {
     container = createContainer();
-    diagramServer = container.get<GLSPDiagramServer>(TYPES.ModelSource);
+    diagramServer = container.get(GLSPModelSource);
     diagramServer.clientId = clientId;
 
     initialize(connectionProvider, true /* isReconnecting */);

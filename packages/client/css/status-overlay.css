@@ -1,0 +1,75 @@
+/********************************************************************************
+ * Copyright (c) 2023 EclipseSource and others.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v. 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is available at
+ * https://www.gnu.org/software/classpath/license.html.
+ *
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ ********************************************************************************/
+
+.sprotty-status {
+    position: absolute;
+    top: 5px;
+    left: 10px;
+    display: flex;
+    align-items: center;
+}
+
+.sprotty-status .fatal {
+    color: var(--glsp-error-foreground);
+}
+
+.sprotty-status .error {
+    color: var(--glsp-error-foreground);
+}
+
+.sprotty-status .warning {
+    color: var(--glsp-warning-foreground);
+}
+
+.sprotty-status .info {
+    color: var(--glsp-info-foreground);
+}
+
+.sprotty-error {
+    fill: var(--glsp-issue-background);
+    color: var(--glsp-error-foreground);
+}
+
+.sprotty-warning {
+    fill: var(--glsp-issue-background);
+    color: var(--glsp-warning-foreground);
+}
+
+.sprotty-info {
+    fill: var(--glsp-issue-background);
+    color: var();
+}
+
+.sprotty-infoRow .codicon {
+    margin-right: 8px;
+}
+.sprotty-status .ok {
+    visibility: hidden;
+}
+
+.sprotty-status-message {
+    visibility: hidden;
+    padding-left: 10px;
+}
+
+.sprotty-status-message.fatal {
+    visibility: visible;
+    padding-left: 10px;
+}
+
+.sprotty-status:hover .sprotty-status-message {
+    visibility: visible;
+}
