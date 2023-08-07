@@ -78,7 +78,7 @@ export * from './features/save/save-keylistener';
 export * from './features/select/select-feedback-command';
 export * from './features/select/select-mouse-listener';
 export * from './features/source-model-watcher/source-model-changed-action-handler';
-export * from './features/status/glsp-status-overlay';
+export * from './features/status/status-overlay';
 export * from './features/svg-metadata/metadata-placer';
 export * from './features/tool-palette/tool-palette';
 export * from './features/tools/base-glsp-tool';

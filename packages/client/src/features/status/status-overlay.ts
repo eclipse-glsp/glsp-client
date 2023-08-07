@@ -16,8 +16,11 @@
 import { injectable } from 'inversify';
 import { AbstractUIExtension, IActionHandler, ServerStatusAction, codiconCSSClasses } from '~glsp-sprotty';
 
+/**
+ * A reusable status overlay for rendering (icon + message) and handling of {@link ServerStatusAction}'s.
+ */
 @injectable()
-export class GLSPStatusOverlay extends AbstractUIExtension implements IActionHandler {
+export class StatusOverlay extends AbstractUIExtension implements IActionHandler {
     static readonly ID = 'glsp.server.status.overlay';
 
     protected statusIconDiv?: HTMLDivElement;
@@ -25,7 +28,7 @@ export class GLSPStatusOverlay extends AbstractUIExtension implements IActionHan
     protected pendingTimeout?: number;
 
     override id(): string {
-        return GLSPStatusOverlay.ID;
+        return StatusOverlay.ID;
     }
 
     override containerClass(): string {

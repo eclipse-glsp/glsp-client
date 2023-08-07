@@ -16,10 +16,10 @@
 
 import { FeatureModule, ServerStatusAction, TYPES, bindAsService, configureActionHandler } from '~glsp-sprotty';
 import '../../../css/status-overlay.css';
-import { GLSPStatusOverlay } from './glsp-status-overlay';
+import { StatusOverlay } from './status-overlay';
 
 export const statusModule = new FeatureModule((bind, unbind, isBound, rebind) => {
     const context = { bind, unbind, isBound, rebind };
-    bindAsService(context, TYPES.IUIExtension, GLSPStatusOverlay);
-    configureActionHandler(context, ServerStatusAction.KIND, GLSPStatusOverlay);
+    bindAsService(context, TYPES.IUIExtension, StatusOverlay);
+    configureActionHandler(context, ServerStatusAction.KIND, StatusOverlay);
 });

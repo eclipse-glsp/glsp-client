@@ -22,13 +22,13 @@ import {
     GLSPActionDispatcher,
     GLSPClient,
     GLSPModelSource,
-    GLSPStatusOverlay,
     GLSPWebSocketProvider,
     RequestModelAction,
     RequestTypeHintsAction,
     ServerMessageAction,
     ServerStatusAction,
     SetUIExtensionVisibilityAction,
+    StatusOverlay,
     configureServerActions
 } from '@eclipse-glsp/client';
 import { join, resolve } from 'path';
@@ -54,7 +54,7 @@ wsProvider.listen({ onConnection: initialize, onReconnect: reconnect, logger: co
 async function initialize(connectionProvider: MessageConnection, isReconnecting = false): Promise<void> {
     const actionDispatcher: GLSPActionDispatcher = container.get(GLSPActionDispatcher);
 
-    await actionDispatcher.dispatch(SetUIExtensionVisibilityAction.create({ extensionId: GLSPStatusOverlay.ID, visible: true }));
+    await actionDispatcher.dispatch(SetUIExtensionVisibilityAction.create({ extensionId: StatusOverlay.ID, visible: true }));
     await actionDispatcher.dispatch(ServerStatusAction.create('Initializing...', { severity: 'INFO' }));
     const client = new BaseJsonrpcGLSPClient({ id, connectionProvider });
 
@@ -68,7 +68,7 @@ async function initialize(connectionProvider: MessageConnection, isReconnecting 
 
     await client.initializeClientSession({ clientSessionId: diagramServer.clientId, diagramType });
 
-    actionDispatcher.dispatch(SetUIExtensionVisibilityAction.create({ extensionId: GLSPStatusOverlay.ID, visible: true }));
+    actionDispatcher.dispatch(SetUIExtensionVisibilityAction.create({ extensionId: StatusOverlay.ID, visible: true }));
     actionDispatcher.dispatch(EnableToolPaletteAction.create());
     actionDispatcher.dispatch(
         RequestModelAction.create({
