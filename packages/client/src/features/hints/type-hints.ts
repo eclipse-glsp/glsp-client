@@ -23,6 +23,8 @@ import {
     FeatureSet,
     IActionHandler,
     ICommand,
+    MaybePromise,
+    RequestTypeHintsAction,
     SEdge,
     SModelElement,
     SModelRoot,
@@ -36,8 +38,10 @@ import {
     editFeature,
     moveFeature
 } from '~glsp-sprotty';
+import { GLSPActionDispatcher } from '../../base/action-dispatcher';
 import { IFeedbackActionDispatcher } from '../../base/feedback/feedback-action-dispatcher';
 import { FeedbackCommand } from '../../base/feedback/feedback-command';
+import { IDiagramStartup } from '../../base/model/diagram-loader';
 import { getElementTypeId, hasCompatibleType } from '../../utils/smodel-util';
 import { resizeFeature } from '../change-bounds/model';
 import { reconnectFeature } from '../reconnect/model';
@@ -149,9 +153,12 @@ export interface ITypeHintProvider {
 }
 
 @injectable()
-export class TypeHintProvider implements IActionHandler, ITypeHintProvider {
+export class TypeHintProvider implements IActionHandler, ITypeHintProvider, IDiagramStartup {
     @inject(TYPES.IFeedbackActionDispatcher)
     protected feedbackActionDispatcher: IFeedbackActionDispatcher;
+
+    @inject(GLSPActionDispatcher)
+    protected actionDispatcher: GLSPActionDispatcher;
 
     protected shapeHints: Map<string, ShapeTypeHint> = new Map();
     protected edgeHints: Map<string, EdgeTypeHint> = new Map();
@@ -191,6 +198,10 @@ export class TypeHintProvider implements IActionHandler, ITypeHintProvider {
 
     getEdgeTypeHint(input: SModelElement | SModelElement | string): EdgeTypeHint | undefined {
         return getTypeHint(input, this.edgeHints);
+    }
+
+    preModelLoading(): MaybePromise<void> {
+        this.actionDispatcher.dispatch(RequestTypeHintsAction.create());
     }
 }
 

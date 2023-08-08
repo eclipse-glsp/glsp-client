@@ -110,7 +110,7 @@ export class SetMarkersActionHandler implements IActionHandler {
     }
 
     async setMarkers(markers: Marker[], reason: string | undefined): Promise<void> {
-        const uri = await this.editorContextService.getSourceUri();
+        const uri = this.editorContextService.sourceUri;
         this.externalMarkerManager?.setMarkers(markers, reason, uri);
         const applyMarkersAction = ApplyMarkersAction.create(markers);
         this.validationFeedbackEmitter.registerValidationFeedbackAction(applyMarkersAction, reason);

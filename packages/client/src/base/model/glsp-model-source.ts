@@ -23,11 +23,12 @@ import {
     DisposableCollection,
     GLSPClient,
     ILogger,
+    InitializeResult,
     ModelSource,
-    RequestModelAction,
     SModelRootSchema,
     TYPES
 } from '~glsp-sprotty';
+import { IDiagramOptions } from './diagram-loader';
 /**
  * A helper interface that allows the client to mark actions that have been received from the server.
  */
@@ -64,28 +65,28 @@ export class GLSPModelSource extends ModelSource implements Disposable {
     @inject(TYPES.ILogger)
     protected logger: ILogger;
 
-    protected _sourceUri?: string;
-    protected _glspClient?: GLSPClient;
     protected toDispose = new DisposableCollection();
-
     clientId: string;
+    readonly glspClient: GLSPClient;
+    readonly sourceUri?: string;
+    readonly diagramType: string;
 
-    get glspClient(): GLSPClient | undefined {
-        return this._glspClient;
+    constructor(@inject(TYPES.IDiagramOptions) options: IDiagramOptions) {
+        super();
+        this.glspClient = options.glspClient;
+        this.clientId = options.clientId ?? this.viewerOptions.baseDiv;
+        this.diagramType = options.diagramType;
+        this.sourceUri = options.sourceUri;
     }
 
-    get sourceUri(): string | undefined {
-        return this._sourceUri;
-    }
-
-    async connect(client: GLSPClient, clientId?: string): Promise<GLSPClient> {
-        if (clientId) {
-            this.clientId = clientId;
+    configure(registry: ActionHandlerRegistry, initializeResult: InitializeResult): Promise<void> {
+        const serverActions = initializeResult.serverActions[this.diagramType];
+        if (!serverActions || serverActions.length === 0) {
+            throw new Error(`No server-handled actions could be derived from the initialize result for diagramType: ${this.diagramType}!`);
         }
-        await client.start();
-        this.toDispose.push(client.onActionMessage(message => this.messageReceived(message), this.clientId));
-        this._glspClient = client;
-        return this._glspClient;
+        serverActions.forEach(action => registry.register(action, this));
+        this.toDispose.push(this.glspClient.onActionMessage(message => this.messageReceived(message), this.clientId));
+        return this.glspClient.initializeClientSession({ clientSessionId: this.clientId, diagramType: this.diagramType });
     }
 
     protected messageReceived(message: ActionMessage): void {
@@ -104,14 +105,16 @@ export class GLSPModelSource extends ModelSource implements Disposable {
         if (!this.clientId) {
             this.clientId = this.viewerOptions.baseDiv;
         }
+        if (this.glspClient.initializeResult) {
+            this.configure(registry, this.glspClient.initializeResult);
+        } else {
+            this.glspClient.onServerInitialized(result => this.configure(registry, result));
+        }
     }
 
     handle(action: Action): void {
         // Handling additional actions here is discouraged and it's recommended
         // to implemented dedicated action handlers.
-        if (RequestModelAction.is(action)) {
-            this._sourceUri = action.options?.sourceUri.toString();
-        }
         if (this.shouldForwardToServer(action)) {
             this.forwardToServer(action);
         }

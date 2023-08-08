@@ -16,6 +16,7 @@
 import { injectable } from 'inversify';
 import { Disposable, Message, MessageConnection } from 'vscode-jsonrpc';
 import { ActionMessage } from '../../action-protocol';
+import { Emitter, Event } from '../../utils/event';
 import { ActionMessageHandler, ClientState, GLSPClient } from '../glsp-client';
 import { GLSPClientProxy } from '../glsp-server';
 import { DisposeClientSessionParameters, InitializeClientSessionParameters, InitializeParameters, InitializeResult } from '../types';
@@ -30,6 +31,11 @@ export class BaseJsonrpcGLSPClient implements GLSPClient {
     protected onStop?: Promise<void>;
     protected _initializeResult: InitializeResult | undefined;
 
+    protected onServerInitializedEmitter = new Emitter<InitializeResult>();
+    get onServerInitialized(): Event<InitializeResult> {
+        return this.onServerInitializedEmitter.event;
+    }
+
     constructor(options: JsonrpcGLSPClient.Options) {
         Object.assign(this, options);
         this.state = ClientState.Initial;
@@ -42,6 +48,7 @@ export class BaseJsonrpcGLSPClient implements GLSPClient {
     async initializeServer(params: InitializeParameters): Promise<InitializeResult> {
         if (!this._initializeResult) {
             this._initializeResult = await this.checkedConnection.sendRequest(JsonrpcGLSPClient.InitializeRequest, params);
+            this.onServerInitializedEmitter.fire(this._initializeResult);
         }
         return this._initializeResult;
     }

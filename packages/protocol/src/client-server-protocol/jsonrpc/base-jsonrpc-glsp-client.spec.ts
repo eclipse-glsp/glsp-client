@@ -21,6 +21,7 @@ import { ActionMessage } from '../../action-protocol/base-protocol';
 import { remove } from '../../utils/array-util';
 import { expectToThrowAsync } from '../../utils/test-util';
 import { ClientState } from '../glsp-client';
+import { InitializeResult } from '../types';
 import { BaseJsonrpcGLSPClient } from './base-jsonrpc-glsp-client';
 import { JsonrpcGLSPClient } from './glsp-jsonrpc-client';
 
@@ -138,6 +139,19 @@ describe('Base JSON-RPC GLSP Client', () => {
             const result = await client.initializeServer({ applicationId: 'id', protocolVersion: '1.0.0' });
             expect(result).to.be.deep.equal(client.initializeResult);
             expect(initializeMock.called).to.be.false;
+        });
+        it('should fire event on first invocation', async () => {
+            await resetClient();
+            const expectedResult = { protocolVersion: '1.0.0', serverActions: {} };
+            const params = { applicationId: 'id', protocolVersion: '1.0.0' };
+            const initializeMock = connection.sendRequest.withArgs(JsonrpcGLSPClient.InitializeRequest, params);
+            initializeMock.returns(expectedResult);
+            const eventHandler = (result: InitializeResult): void => {};
+            const eventHandlerSpy = sinon.spy(eventHandler);
+            client.onServerInitialized(eventHandlerSpy);
+            await client.initializeServer(params);
+            await client.initializeServer(params);
+            expect(eventHandlerSpy.calledOnceWith(expectedResult)).to.be.true;
         });
     });
 

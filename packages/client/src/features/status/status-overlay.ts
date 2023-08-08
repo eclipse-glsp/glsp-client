@@ -13,15 +13,24 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { injectable } from 'inversify';
+import { inject, injectable } from 'inversify';
 import { AbstractUIExtension, IActionHandler, ServerStatusAction, codiconCSSClasses } from '~glsp-sprotty';
+import { GLSPActionDispatcher } from '../../base/action-dispatcher';
+import { EditorContextService } from '../../base/editor-context-service';
+import { IDiagramStartup } from '../../base/model/diagram-loader';
 
 /**
  * A reusable status overlay for rendering (icon + message) and handling of {@link ServerStatusAction}'s.
  */
 @injectable()
-export class StatusOverlay extends AbstractUIExtension implements IActionHandler {
+export class StatusOverlay extends AbstractUIExtension implements IActionHandler, IDiagramStartup {
     static readonly ID = 'glsp.server.status.overlay';
+
+    @inject(GLSPActionDispatcher)
+    protected actionDispatcher: GLSPActionDispatcher;
+
+    @inject(EditorContextService)
+    protected editorContext: EditorContextService;
 
     protected statusIconDiv?: HTMLDivElement;
     protected statusMessageDiv?: HTMLDivElement;
@@ -104,5 +113,9 @@ export class StatusOverlay extends AbstractUIExtension implements IActionHandler
         if (statusTimeout > 0) {
             this.pendingTimeout = window.setTimeout(() => this.clearStatus(), statusTimeout);
         }
+    }
+
+    preInitialize(): void {
+        this.show(this.editorContext.modelRoot);
     }
 }

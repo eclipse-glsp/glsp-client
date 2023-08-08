@@ -36,6 +36,7 @@ import {
 import { GLSPActionDispatcher } from '../../base/action-dispatcher';
 import { EditorContextService, IEditModeListener } from '../../base/editor-context-service';
 import { FocusTracker } from '../../base/focus/focus-tracker';
+import { IDiagramStartup } from '../../base/model/diagram-loader';
 import { MouseDeleteTool } from '../tools/deletion/delete-tool';
 import { MarqueeMouseTool } from '../tools/marquee-selection/marquee-mouse-tool';
 
@@ -61,7 +62,7 @@ export namespace EnableToolPaletteAction {
     }
 }
 @injectable()
-export class ToolPalette extends AbstractUIExtension implements IActionHandler, IEditModeListener {
+export class ToolPalette extends AbstractUIExtension implements IActionHandler, IEditModeListener, IDiagramStartup {
     static readonly ID = 'tool-palette';
 
     @inject(TYPES.IActionDispatcher) protected readonly actionDispatcher: GLSPActionDispatcher;
@@ -319,28 +320,11 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
         }
     }
 
-    handle(action: Action): ICommand | Action | void {
-        if (action.kind === EnableToolPaletteAction.KIND) {
-            const requestAction = RequestContextActions.create({
-                contextId: ToolPalette.ID,
-                editorContext: {
-                    selectedElementIds: []
-                }
-            });
-            this.actionDispatcher.requestUntil(requestAction).then(response => {
-                if (SetContextActions.is(response)) {
-                    this.paletteItems = response.actions.map(e => e as PaletteItem);
-                    this.actionDispatcher.dispatch(
-                        SetUIExtensionVisibilityAction.create({ extensionId: ToolPalette.ID, visible: !this.editorContext.isReadonly })
-                    );
-                }
-            });
-        } else if (action.kind === EnableDefaultToolsAction.KIND) {
-            this.changeActiveButton();
-            if (this.focusTracker.hasFocus) {
-                // if focus was deliberately taken do not restore focus to the palette
-                this.restoreFocus();
-            }
+    handle(action: EnableDefaultToolsAction): ICommand | Action | void {
+        this.changeActiveButton();
+        if (this.focusTracker.hasFocus) {
+            // if focus was deliberately taken do not restore focus to the palette
+            this.restoreFocus();
         }
     }
 
@@ -395,6 +379,20 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
         }
         this.paletteItems = filteredPaletteItems;
         this.createBody();
+    }
+
+    async preModelLoading(): Promise<void> {
+        const requestAction = RequestContextActions.create({
+            contextId: ToolPalette.ID,
+            editorContext: {
+                selectedElementIds: []
+            }
+        });
+        const response = await this.actionDispatcher.request<SetContextActions>(requestAction);
+        this.paletteItems = response.actions.map(e => e as PaletteItem);
+        if (!this.editorContext.isReadonly) {
+            this.show(this.editorContext.modelRoot);
+        }
     }
 }
 

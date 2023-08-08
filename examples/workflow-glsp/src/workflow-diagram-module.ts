@@ -39,8 +39,7 @@ import {
     configureDefaultModelElements,
     configureModelElement,
     editLabelFeature,
-    initializeDiagramContainer,
-    overrideViewerOptions
+    initializeDiagramContainer
 } from '@eclipse-glsp/client';
 import 'balloon-css/balloon.min.css';
 import { Container, ContainerModule } from 'inversify';
@@ -78,19 +77,10 @@ export const workflowDiagramModule = new ContainerModule((bind, unbind, isBound,
     configureModelElement(context, 'struct', SCompartment, StructureCompartmentView);
 });
 
-export function createWorkflowDiagramContainer(widgetId: string, ...containerConfiguration: ContainerConfiguration): Container {
-    return initializeWorkflowDiagramContainer(new Container(), widgetId, ...containerConfiguration);
+export function createWorkflowDiagramContainer(...containerConfiguration: ContainerConfiguration): Container {
+    return initializeWorkflowDiagramContainer(new Container(), ...containerConfiguration);
 }
 
-export function initializeWorkflowDiagramContainer(
-    container: Container,
-    widgetId: string,
-    ...containerConfiguration: ContainerConfiguration
-): Container {
-    initializeDiagramContainer(container, workflowDiagramModule, directTaskEditor, accessibilityModule, ...containerConfiguration);
-    overrideViewerOptions(container, {
-        baseDiv: widgetId,
-        hiddenDiv: widgetId + '_hidden'
-    });
-    return container;
+export function initializeWorkflowDiagramContainer(container: Container, ...containerConfiguration: ContainerConfiguration): Container {
+    return initializeDiagramContainer(container, workflowDiagramModule, directTaskEditor, accessibilityModule, ...containerConfiguration);
 }

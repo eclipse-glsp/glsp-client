@@ -21,5 +21,6 @@ import { StatusOverlay } from './status-overlay';
 export const statusModule = new FeatureModule((bind, unbind, isBound, rebind) => {
     const context = { bind, unbind, isBound, rebind };
     bindAsService(context, TYPES.IUIExtension, StatusOverlay);
+    bind(TYPES.IDiagramStartup).toService(StatusOverlay);
     configureActionHandler(context, ServerStatusAction.KIND, StatusOverlay);
 });
