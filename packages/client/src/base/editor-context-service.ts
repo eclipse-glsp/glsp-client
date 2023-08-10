@@ -174,7 +174,7 @@ export class EditorContextService implements IActionHandler, Disposable, IDiagra
         return this._isDirty;
     }
 
-    postModelLoading(): MaybePromise<void> {
+    postRequestModel(): MaybePromise<void> {
         this.actionDispatcher.dispatch(SetEditModeAction.create(this.editMode));
     }
 }

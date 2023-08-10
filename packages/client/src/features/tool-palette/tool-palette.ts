@@ -381,7 +381,7 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
         this.createBody();
     }
 
-    async preModelLoading(): Promise<void> {
+    async preRequestModel(): Promise<void> {
         const requestAction = RequestContextActions.create({
             contextId: ToolPalette.ID,
             editorContext: {

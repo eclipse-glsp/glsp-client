@@ -103,7 +103,7 @@ export const DEFAULT_MODULES = [
 /**
  * Wraps the {@link configureDiagramOptions} utility function in a module. Adopters can either include this
  * module into the container {@link ModuleConfiguration} or configure the container after its creation
- * (e.g. using the {@link configureDiagramOptions} utility function)
+ * (e.g. using the {@link configureDiagramOptions} utility function).
  * @param options The diagram instance specific configuration options
  * @returns The corresponding {@link FeatureModule}
  */

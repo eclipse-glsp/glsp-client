@@ -16,6 +16,7 @@
 
 import { inject, injectable, multiInject, optional, postConstruct } from 'inversify';
 import {
+    AnyObject,
     ApplicationIdProvider,
     Args,
     EMPTY_ROOT,
@@ -26,13 +27,14 @@ import {
     ServerStatusAction,
     SetModelAction,
     StartProgressAction,
-    TYPES
+    TYPES,
+    hasNumberProp
 } from '~glsp-sprotty';
 import { GLSPActionDispatcher } from '../action-dispatcher';
 import { Ranked } from '../ranked';
 
 /**
- * Instance specific configuration options for a GLSP diagram
+ * Configuration options for a specific GLSP diagram instance.
  */
 export interface IDiagramOptions {
     /**
@@ -52,9 +54,8 @@ export interface IDiagramOptions {
      * The file source URI associated with this diagram.
      */
     sourceUri?: string;
-
     /**
-     * The initial edit mode of diagram. If no defined the default `editable` edit mode will be used
+     * The initial edit mode of diagram. Defaults to `editable`.
      */
     editMode?: string;
 }
@@ -63,7 +64,6 @@ export interface IDiagramOptions {
  * Services that implement startup hooks which are invoked during the {@link DiagramLoader.load} process.
  * Typically used to dispatch additional initial actions and/or activate UI extensions on startup.
  * Execution order is derived by the `rank` property of the service. If not present, the {@link Ranked.DEFAULT_RANK} will be assumed.
- *
  */
 export interface IDiagramStartup extends Partial<Ranked> {
     /**
@@ -74,19 +74,23 @@ export interface IDiagramStartup extends Partial<Ranked> {
      * Hook for services that should be executed before the initial model loading request (i.e. `RequestModelAction`) but
      * after the underlying GLSP client has been configured and the server is initialized.
      */
-    preModelLoading?(): MaybePromise<void>;
+    preRequestModel?(): MaybePromise<void>;
     /**
      * Hook for services that should be executed after the initial model loading request (i.e. `RequestModelAction`).
      * Note that this hook is invoked directly after the `RequestModelAction` has been dispatched. It does not necessarily wait
      * until the client-server update roundtrip is completed. If you need to wait until the diagram is fully initialized use the
      * {@link GLSPActionDispatcher.onceModelInitialized} constraint.
      */
-    postModelLoading?(): MaybePromise<void>;
+    postRequestModel?(): MaybePromise<void>;
 }
 
 export namespace IDiagramStartup {
     export function is(object: unknown): object is IDiagramStartup {
-        return Ranked.is(object) && ('preInitialize' in object || 'preModelLoading' in object || 'postModelLoading' in object);
+        return (
+            AnyObject.is(object) &&
+            hasNumberProp(object, 'rank', true) &&
+            ('preInitialize' in object || 'preRequestModel' in object || 'postRequestModel' in object)
+        );
     }
 }
 
@@ -94,7 +98,7 @@ export namespace IDiagramStartup {
  * The central component responsible for initializing the diagram and loading the graphical model
  * from the GLSP server.
  * Invoking the {@link DiagramLoader.load} method is typically the first operation that is executed after
- * a diagram DI container has been created
+ * a diagram DI container has been created.
  */
 @injectable()
 export class DiagramLoader {
@@ -120,9 +124,9 @@ export class DiagramLoader {
         await this.actionDispatcher.dispatch(SetModelAction.create(EMPTY_ROOT));
         await this.invokeStartupHook('preInitialize');
         await this.configureGLSPClient();
-        await this.invokeStartupHook('preModelLoading');
+        await this.invokeStartupHook('preRequestModel');
         await this.requestModel(requestModelOptions);
-        await this.invokeStartupHook('postModelLoading');
+        await this.invokeStartupHook('postRequestModel');
     }
 
     protected async invokeStartupHook(hook: keyof Omit<IDiagramStartup, 'rank'>): Promise<void> {
