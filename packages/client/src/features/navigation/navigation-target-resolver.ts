@@ -23,7 +23,7 @@ import {
     SetResolvedNavigationTargetAction,
     TYPES
 } from '~glsp-sprotty';
-import { EditorContextServiceProvider } from '../../base/editor-context-service';
+import { IDiagramOptions } from '../../base/model/diagram-loader';
 
 /**
  * Resolves `NavigationTargets` to element ids.
@@ -33,14 +33,17 @@ import { EditorContextServiceProvider } from '../../base/editor-context-service'
  */
 @injectable()
 export class NavigationTargetResolver {
-    @inject(TYPES.IEditorContextServiceProvider) protected editorContextService: EditorContextServiceProvider;
-    @inject(TYPES.IActionDispatcher) protected dispatcher: IActionDispatcher;
-    @inject(TYPES.ILogger) protected readonly logger: ILogger;
+    @inject(TYPES.IActionDispatcher)
+    protected dispatcher: IActionDispatcher;
+
+    @inject(TYPES.ILogger)
+    protected logger: ILogger;
+
+    @inject(TYPES.IDiagramOptions)
+    protected diagramOptions: IDiagramOptions;
 
     async resolve(navigationTarget: NavigationTarget): Promise<SetResolvedNavigationTargetAction | undefined> {
-        const contextService = await this.editorContextService();
-        const sourceUri = await contextService.getSourceUri();
-        return this.resolveWithSourceUri(sourceUri, navigationTarget);
+        return this.resolveWithSourceUri(this.diagramOptions.sourceUri, navigationTarget);
     }
 
     async resolveWithSourceUri(

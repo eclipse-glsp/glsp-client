@@ -15,10 +15,10 @@
  ********************************************************************************/
 import { bindAsService, configureActionHandler, EnableDefaultToolsAction, FeatureModule, TYPES } from '~glsp-sprotty';
 import '../../../css/tool-palette.css';
-import { EnableToolPaletteAction, ToolPalette } from './tool-palette';
+import { ToolPalette } from './tool-palette';
 
 export const toolPaletteModule = new FeatureModule((bind, _unbind, isBound, _rebind) => {
     bindAsService(bind, TYPES.IUIExtension, ToolPalette);
-    configureActionHandler({ bind, isBound }, EnableToolPaletteAction.KIND, ToolPalette);
+    bind(TYPES.IDiagramStartup).toService(ToolPalette);
     configureActionHandler({ bind, isBound }, EnableDefaultToolsAction.KIND, ToolPalette);
 });

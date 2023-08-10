@@ -29,6 +29,7 @@ export * from './base/feedback/update-model-command';
 export * from './base/focus/focus-state-change-action';
 export * from './base/focus/focus-tracker';
 export * from './base/model-initialization-constraint';
+export * from './base/model/diagram-loader';
 export * from './base/model/glsp-model-source';
 export * from './base/model/model-registry';
 export * from './base/ranked';

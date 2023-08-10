@@ -131,6 +131,19 @@ describe('Node GLSP Client', () => {
             expect(result).to.be.deep.equal(client.initializeResult);
             expect(server.initialize.called).to.be.false;
         });
+        it('should fire event on first invocation', async () => {
+            await resetClient();
+            const expectedResult = { protocolVersion: '1.0.0', serverActions: {} };
+            const params = { applicationId: 'id', protocolVersion: '1.0.0' };
+            server.initialize.returns(Promise.resolve(expectedResult));
+            // eslint-disable-next-line @typescript-eslint/no-empty-function
+            const eventHandler = (result: InitializeResult): void => {};
+            const eventHandlerSpy = sinon.spy(eventHandler);
+            client.onServerInitialized(eventHandlerSpy);
+            await client.initializeServer(params);
+            await client.initializeServer(params);
+            expect(eventHandlerSpy.calledOnceWith(expectedResult)).to.be.true;
+        });
     });
 
     describe('initializeClientSession', () => {

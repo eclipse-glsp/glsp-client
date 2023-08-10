@@ -14,11 +14,19 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { createWorkflowDiagramContainer } from '@eclipse-glsp-examples/workflow-glsp';
-import { bindOrRebind, ConsoleLogger, LogLevel, STANDALONE_MODULE_CONFIG, TYPES } from '@eclipse-glsp/client';
+import {
+    bindOrRebind,
+    ConsoleLogger,
+    createDiagramOptionsModule,
+    IDiagramOptions,
+    LogLevel,
+    STANDALONE_MODULE_CONFIG,
+    TYPES
+} from '@eclipse-glsp/client';
 import { Container } from 'inversify';
 import '../css/diagram.css';
-export default function createContainer(): Container {
-    const container = createWorkflowDiagramContainer('sprotty', STANDALONE_MODULE_CONFIG);
+export default function createContainer(options: IDiagramOptions): Container {
+    const container = createWorkflowDiagramContainer(createDiagramOptionsModule(options), STANDALONE_MODULE_CONFIG);
     bindOrRebind(container, TYPES.ILogger).to(ConsoleLogger).inSingletonScope();
     bindOrRebind(container, TYPES.LogLevel).toConstantValue(LogLevel.warn);
     container.bind(TYPES.IMarqueeBehavior).toConstantValue({ entireEdge: true, entireElement: true });

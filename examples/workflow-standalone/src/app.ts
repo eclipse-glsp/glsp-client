@@ -16,21 +16,15 @@
 import 'reflect-metadata';
 
 import {
-    ApplicationIdProvider,
     BaseJsonrpcGLSPClient,
-    EnableToolPaletteAction,
+    DiagramLoader,
     GLSPActionDispatcher,
     GLSPClient,
-    GLSPModelSource,
     GLSPWebSocketProvider,
-    RequestModelAction,
-    RequestTypeHintsAction,
     ServerMessageAction,
-    ServerStatusAction,
-    SetUIExtensionVisibilityAction,
-    StatusOverlay,
-    configureServerActions
+    ServerStatusAction
 } from '@eclipse-glsp/client';
+import { Container } from 'inversify';
 import { join, resolve } from 'path';
 import { MessageConnection } from 'vscode-jsonrpc';
 import createContainer from './di.config';
@@ -41,45 +35,21 @@ const diagramType = 'workflow-diagram';
 const loc = window.location.pathname;
 const currentDir = loc.substring(0, loc.lastIndexOf('/'));
 const examplePath = resolve(join(currentDir, '../app/example1.wf'));
-const clientId = ApplicationIdProvider.get() + '_' + examplePath;
+const clientId = 'sprotty';
 
 const webSocketUrl = `ws://localhost:${port}/${id}`;
 
-let container = createContainer();
-let diagramServer = container.get(GLSPModelSource);
-
+let glspClient: GLSPClient;
+let container: Container;
 const wsProvider = new GLSPWebSocketProvider(webSocketUrl);
 wsProvider.listen({ onConnection: initialize, onReconnect: reconnect, logger: console });
 
 async function initialize(connectionProvider: MessageConnection, isReconnecting = false): Promise<void> {
-    const actionDispatcher: GLSPActionDispatcher = container.get(GLSPActionDispatcher);
-
-    await actionDispatcher.dispatch(SetUIExtensionVisibilityAction.create({ extensionId: StatusOverlay.ID, visible: true }));
-    await actionDispatcher.dispatch(ServerStatusAction.create('Initializing...', { severity: 'INFO' }));
-    const client = new BaseJsonrpcGLSPClient({ id, connectionProvider });
-
-    await diagramServer.connect(client, clientId);
-    const result = await client.initializeServer({
-        applicationId: ApplicationIdProvider.get(),
-        protocolVersion: GLSPClient.protocolVersion
-    });
-    actionDispatcher.dispatch(ServerStatusAction.create('', { severity: 'NONE' }));
-    await configureServerActions(result, diagramType, container);
-
-    await client.initializeClientSession({ clientSessionId: diagramServer.clientId, diagramType });
-
-    actionDispatcher.dispatch(SetUIExtensionVisibilityAction.create({ extensionId: StatusOverlay.ID, visible: true }));
-    actionDispatcher.dispatch(EnableToolPaletteAction.create());
-    actionDispatcher.dispatch(
-        RequestModelAction.create({
-            options: {
-                sourceUri: `file://${examplePath}`,
-                diagramType,
-                isReconnecting
-            }
-        })
-    );
-    actionDispatcher.dispatch(RequestTypeHintsAction.create());
+    glspClient = new BaseJsonrpcGLSPClient({ id, connectionProvider });
+    container = createContainer({ clientId, diagramType, glspClient, sourceUri: examplePath });
+    const actionDispatcher = container.get(GLSPActionDispatcher);
+    const diagramLoader = container.get(DiagramLoader);
+    await diagramLoader.load({ isReconnecting });
 
     if (isReconnecting) {
         const message = `Connection to the ${id} glsp server got closed. Connection was successfully re-established.`;
@@ -94,9 +64,6 @@ async function initialize(connectionProvider: MessageConnection, isReconnecting 
 }
 
 async function reconnect(connectionProvider: MessageConnection): Promise<void> {
-    container = createContainer();
-    diagramServer = container.get(GLSPModelSource);
-    diagramServer.clientId = clientId;
-
+    glspClient.stop();
     initialize(connectionProvider, true /* isReconnecting */);
 }

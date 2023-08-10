@@ -18,6 +18,7 @@ import { Deferred } from 'sprotty-protocol';
 import { Disposable } from 'vscode-jsonrpc';
 import { Action, ActionMessage } from '../action-protocol';
 import { distinctAdd, remove } from '../utils/array-util';
+import { Emitter, Event } from '../utils/event';
 import { ActionMessageHandler, ClientState, GLSPClient } from './glsp-client';
 import { GLSPClientProxy, GLSPServer } from './glsp-server';
 import { DisposeClientSessionParameters, InitializeClientSessionParameters, InitializeParameters, InitializeResult } from './types';
@@ -38,6 +39,11 @@ export class BaseGLSPClient implements GLSPClient {
     protected startupTimeout = 1500;
     protected actionMessageHandlers: Map<string, ActionMessageHandler[]> = new Map([[GLOBAL_HANDLER_ID, []]]);
     protected _initializeResult: InitializeResult;
+
+    protected onServerInitializedEmitter = new Emitter<InitializeResult>();
+    get onServerInitialized(): Event<InitializeResult> {
+        return this.onServerInitializedEmitter.event;
+    }
 
     constructor(protected options: GLSPClient.Options) {
         this.state = ClientState.Initial;
@@ -92,6 +98,7 @@ export class BaseGLSPClient implements GLSPClient {
     async initializeServer(params: InitializeParameters): Promise<InitializeResult> {
         if (!this._initializeResult) {
             this._initializeResult = await this.checkedServer.initialize(params);
+            this.onServerInitializedEmitter.fire(this._initializeResult);
         }
         return this._initializeResult;
     }

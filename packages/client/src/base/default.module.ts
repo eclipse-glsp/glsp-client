@@ -14,14 +14,10 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import '@vscode/codicons/dist/codicon.css';
-import { Container } from 'inversify';
 import {
-    ActionHandlerRegistry,
     FeatureModule,
-    InitializeResult,
     KeyTool,
     LocationPostprocessor,
-    ModelSource,
     MouseTool,
     MoveCommand,
     SetDirtyStateAction,
@@ -43,6 +39,7 @@ import { FeedbackAwareUpdateModelCommand } from './feedback/update-model-command
 import { FocusStateChangedAction } from './focus/focus-state-change-action';
 import { FocusTracker } from './focus/focus-tracker';
 import { DefaultModelInitializationConstraint, ModelInitializationConstraint } from './model-initialization-constraint';
+import { DiagramLoader } from './model/diagram-loader';
 import { GLSPModelSource } from './model/glsp-model-source';
 import { GLSPModelRegistry } from './model/model-registry';
 import { SelectionClearingMouseListener } from './selection-clearing-mouse-listener';
@@ -97,6 +94,7 @@ export const defaultModule = new FeatureModule((bind, unbind, isBound, rebind, .
     bindOrRebind(context, TYPES.IActionDispatcher).toService(GLSPActionDispatcher);
 
     bindAsService(context, TYPES.ModelSource, GLSPModelSource);
+    bind(DiagramLoader).toSelf().inSingletonScope();
     bind(ModelInitializationConstraint).to(DefaultModelInitializationConstraint).inSingletonScope();
 
     // support re-registration of model elements and views
@@ -115,20 +113,3 @@ export const defaultModule = new FeatureModule((bind, unbind, isBound, rebind, .
     bindAsService(context, TYPES.IVNodePostprocessor, LocationPostprocessor);
     bind(TYPES.HiddenVNodePostprocessor).toService(LocationPostprocessor);
 });
-
-/**
- * Utility function to configure the {@link ModelSource}, i.e. the `DiagramServer`, as action handler for all server actions for the given
- * diagramType.
- * @param result A promise that resolves after all server actions have been registered.
- * @param diagramType The diagram type.
- * @param container The di container.
- */
-export async function configureServerActions(result: InitializeResult, diagramType: string, container: Container): Promise<void> {
-    const modelSource = container.get<ModelSource>(TYPES.ModelSource);
-    const actionHandlerRegistry = container.get<ActionHandlerRegistry>(ActionHandlerRegistry);
-    const serverActions = result.serverActions[diagramType];
-    if (serverActions.length === 0) {
-        throw new Error(`No server-handled actions could be derived from the initialize result for diagramType: ${diagramType}!`);
-    }
-    serverActions.forEach(actionKind => actionHandlerRegistry.register(actionKind, modelSource));
-}

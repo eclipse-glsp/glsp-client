@@ -17,6 +17,7 @@ import * as uuid from 'uuid';
 
 import { ActionMessage } from '../action-protocol';
 import { Disposable } from '../utils/disposable';
+import { Event } from '../utils/event';
 import { DisposeClientSessionParameters, InitializeClientSessionParameters, InitializeParameters, InitializeResult } from './types';
 
 export class ApplicationIdProvider {
@@ -99,6 +100,11 @@ export interface GLSPClient {
      * the {@link GLSPClient.initializeServer} method.
      */
     readonly initializeResult: InitializeResult | undefined;
+
+    /**
+     * Event that is fired once the first invocation of {@link GLSPClient.initializeServer} has been completed.
+     */
+    readonly onServerInitialized: Event<InitializeResult>;
 
     /**
      * Send an `initializeClientSession` request to the server. One client application may open several session.

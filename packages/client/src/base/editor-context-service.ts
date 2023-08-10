@@ -23,8 +23,9 @@ import {
     EditorContext,
     Emitter,
     Event,
+    GLSPClient,
     IActionHandler,
-    ModelSource,
+    MaybePromise,
     MousePositionTracker,
     SModelElement,
     SModelRoot,
@@ -33,7 +34,8 @@ import {
     TYPES,
     ValueChange
 } from '~glsp-sprotty';
-import { GLSPModelSource } from './model/glsp-model-source';
+import { GLSPActionDispatcher } from './action-dispatcher';
+import { IDiagramOptions, IDiagramStartup } from './model/diagram-loader';
 import { SelectionService } from './selection-service';
 
 export interface IEditModeListener {
@@ -54,19 +56,22 @@ export type DirtyStateChange = Pick<SetDirtyStateAction, 'isDirty' | 'reason'>;
  *    position, etc.).
  */
 @injectable()
-export class EditorContextService implements IActionHandler, Disposable {
+export class EditorContextService implements IActionHandler, Disposable, IDiagramStartup {
     @inject(SelectionService)
     protected selectionService: SelectionService;
 
     @inject(MousePositionTracker)
     protected mousePositionTracker: MousePositionTracker;
 
+    @inject(TYPES.IDiagramOptions)
+    protected diagramOptions: IDiagramOptions;
+
     @multiInject(TYPES.IEditModeListener)
     @optional()
     protected editModeListeners: IEditModeListener[] = [];
 
-    @inject(TYPES.ModelSourceProvider)
-    protected modelSourceProvider: () => Promise<ModelSource>;
+    @inject(GLSPActionDispatcher)
+    protected actionDispatcher: GLSPActionDispatcher;
 
     protected _editMode: string;
     protected onEditModeChangedEmitter = new Emitter<ValueChange<string>>();
@@ -84,6 +89,7 @@ export class EditorContextService implements IActionHandler, Disposable {
 
     @postConstruct()
     protected initialize(): void {
+        this._editMode = this.diagramOptions.editMode ?? EditMode.EDITABLE;
         this.toDispose.push(this.onEditModeChangedEmitter, this.onDirtyStateChangedEmitter);
         this.editModeListeners.forEach(listener =>
             this.onEditModeChanged(change => listener.editModeChanged(change.newValue, change.oldValue))
@@ -132,16 +138,24 @@ export class EditorContextService implements IActionHandler, Disposable {
         }
     }
 
-    async getSourceUri(): Promise<string | undefined> {
-        const modelSource = await this.modelSourceProvider();
-        if (modelSource instanceof GLSPModelSource) {
-            return modelSource.sourceUri;
-        }
-        return undefined;
+    get sourceUri(): string | undefined {
+        return this.diagramOptions.sourceUri;
     }
 
     get editMode(): string {
         return this._editMode;
+    }
+
+    get diagramType(): string {
+        return this.diagramOptions.diagramType;
+    }
+
+    get clientId(): string {
+        return this.diagramOptions.clientId;
+    }
+
+    get glspClient(): GLSPClient {
+        return this.diagramOptions.glspClient;
     }
 
     get modelRoot(): Readonly<SModelRoot> {
@@ -158,6 +172,10 @@ export class EditorContextService implements IActionHandler, Disposable {
 
     get isDirty(): boolean {
         return this._isDirty;
+    }
+
+    postRequestModel(): MaybePromise<void> {
+        this.actionDispatcher.dispatch(SetEditModeAction.create(this.editMode));
     }
 }
 

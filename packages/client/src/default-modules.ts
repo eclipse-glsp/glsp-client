@@ -16,9 +16,13 @@
 
 import { Container, ContainerModule } from 'inversify';
 import {
+    BindingContext,
     ContainerConfiguration,
     FeatureModule,
+    TYPES,
+    ViewerOptions,
     buttonModule,
+    configureViewerOptions,
     edgeIntersectionModule,
     edgeLayoutModule,
     expandModule,
@@ -29,6 +33,7 @@ import {
     zorderModule
 } from '~glsp-sprotty';
 import { defaultModule } from './base/default.module';
+import { IDiagramOptions } from './base/model/diagram-loader';
 import { boundsModule } from './features/bounds/bounds-module';
 import { commandPaletteModule } from './features/command-palette/command-palette-module';
 import { contextMenuModule } from './features/context-menu/context-menu-module';
@@ -94,6 +99,34 @@ export const DEFAULT_MODULES = [
     svgMetadataModule,
     statusModule
 ] as const;
+
+/**
+ * Wraps the {@link configureDiagramOptions} utility function in a module. Adopters can either include this
+ * module into the container {@link ModuleConfiguration} or configure the container after its creation
+ * (e.g. using the {@link configureDiagramOptions} utility function).
+ * @param options The diagram instance specific configuration options
+ * @returns The corresponding {@link FeatureModule}
+ */
+export function createDiagramOptionsModule(options: IDiagramOptions): FeatureModule {
+    return new FeatureModule((bind, unbind, isBound, rebind) => configureDiagramOptions({ bind, unbind, isBound, rebind }, options));
+}
+
+/**
+ * Utility function to bind the diagram instance specific configuration options.
+ * In addition to binding the {@link IDiagramOptions} this function also overrides the
+ * {@link ViewerOptions} to match the given client id.
+ * @param context The binding context
+ * @param options The {@link IDiagramOptions} that should be bound
+ */
+export function configureDiagramOptions(context: BindingContext, options: IDiagramOptions): void {
+    const viewerOptions: Partial<ViewerOptions> = {
+        baseDiv: options.clientId,
+        hiddenDiv: options.clientId + '_hidden'
+    };
+    configureViewerOptions(context, viewerOptions);
+
+    context.bind(TYPES.IDiagramOptions).toConstantValue(options);
+}
 
 /**
  *  Initializes a GLSP Diagram container with the GLSP default modules and the specified custom `modules`.
