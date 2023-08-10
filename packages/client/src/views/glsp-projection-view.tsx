@@ -14,19 +14,20 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { injectable } from 'inversify';
-import { h, VNode, VNodeStyle } from 'snabbdom';
+import { inject, injectable } from 'inversify';
+import { VNode, VNodeStyle, h } from 'snabbdom';
 import {
     Bounds,
-    html,
+    EdgeRouterRegistry,
     IViewArgs,
     ProjectedViewportView,
     ProjectionParams,
     RenderingContext,
-    setAttr,
-    setClass,
+    ViewProjection,
     ViewportRootElement,
-    ViewProjection
+    html,
+    setAttr,
+    setClass
 } from '~glsp-sprotty';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -37,6 +38,8 @@ const JSX = { createElement: html };
  */
 @injectable()
 export class GLSPProjectionView extends ProjectedViewportView {
+    @inject(EdgeRouterRegistry) edgeRouterRegistry: EdgeRouterRegistry;
+
     override render(model: Readonly<ViewportRootElement>, context: RenderingContext, args?: IViewArgs): VNode {
         const svgElem = this.renderSvg(model, context, args);
         if (svgElem.data) {
@@ -53,9 +56,14 @@ export class GLSPProjectionView extends ProjectedViewportView {
     }
 
     protected override renderSvg(model: Readonly<ViewportRootElement>, context: RenderingContext, args?: IViewArgs): VNode {
+        const edgeRouting = this.edgeRouterRegistry.routeAllChildren(model);
         const transform = `scale(${model.zoom}) translate(${-model.scroll.x},${-model.scroll.y})`;
         const ns = 'http://www.w3.org/2000/svg';
-        const svg = h('svg', { ns, style: { height: '100%' } }, h('g', { ns, attrs: { transform } }, context.renderChildren(model)));
+        const svg = h(
+            'svg',
+            { ns, style: { height: '100%' } },
+            h('g', { ns, attrs: { transform } }, context.renderChildren(model, { edgeRouting }))
+        );
         return svg;
     }
 
