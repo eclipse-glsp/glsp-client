@@ -14,39 +14,37 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import {
-    Action,
-    SelectAction,
-    findParentByFeature,
-    isBoundsAware,
-    isSelectable,
-    isSelected,
-    KeyListener,
-    KeyTool,
-    SEdge,
-    Selectable,
-    SModelElement,
-    SModelRoot,
-    TYPES,
-    EnableToolsAction,
-    EnableDefaultToolsAction
-} from '~glsp-sprotty';
 import { inject, injectable } from 'inversify';
 import { toArray } from 'sprotty/lib/utils/iterable';
 import { matchesKeystroke } from 'sprotty/lib/utils/keyboard';
-import { SelectableBoundsAware } from '../../../utils/smodel-util';
+import {
+    Action,
+    KeyListener,
+    KeyTool,
+    SEdge,
+    SModelElement,
+    SModelRoot,
+    SelectAction,
+    Selectable,
+    TYPES,
+    findParentByFeature,
+    isBoundsAware,
+    isSelectable,
+    isSelected
+} from '~glsp-sprotty';
 import { GLSPActionDispatcher } from '../../../base/action-dispatcher';
-import { GLSPTool } from '../../../base/tool-manager/glsp-tool-manager';
+import { EnableDefaultToolsAction, EnableToolsAction, Tool } from '../../../base/tool-manager/tool';
+import { SelectableBoundsAware } from '../../../utils/smodel-util';
+import { RepositionAction } from '../../viewport/reposition';
+import { SetAccessibleKeyShortcutAction } from '../key-shortcut/accessible-key-shortcut';
+import { AccessibleKeyShortcutTool } from '../key-shortcut/accessible-key-shortcut-tool';
+import { SearchAutocompletePaletteTool } from '../search/search-tool';
 import * as messages from '../toast/messages.json';
 import { ShowToastMessageAction } from '../toast/toast-handler';
-import { RepositionAction } from '../../viewport/reposition';
 import { ElementNavigator } from './element-navigator';
-import { SetAccessibleKeyShortcutAction } from '../key-shortcut/accessible-key-shortcut';
-import { SearchAutocompletePaletteTool } from '../search/search-tool';
-import { AccessibleKeyShortcutTool } from '../key-shortcut/accessible-key-shortcut-tool';
 
 @injectable()
-export class ElementNavigatorTool implements GLSPTool {
+export class ElementNavigatorTool implements Tool {
     static ID = 'glsp.diagram-navigation';
 
     isEditTool = false;

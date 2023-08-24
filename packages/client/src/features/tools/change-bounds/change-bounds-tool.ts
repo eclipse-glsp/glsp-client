@@ -58,7 +58,7 @@ import {
     createMovementRestrictionFeedback,
     removeMovementRestrictionFeedback
 } from '../../change-bounds/movement-restrictor';
-import { BaseGLSPTool } from '../base-glsp-tool';
+import { BaseEditTool } from '../base-tools';
 import {
     FeedbackMoveMouseListener,
     HideChangeBoundsToolResizeFeedbackAction,
@@ -79,7 +79,7 @@ import {
  * resize and send the server updates we install the `ChangeBoundsListener`.
  */
 @injectable()
-export class ChangeBoundsTool extends BaseGLSPTool {
+export class ChangeBoundsTool extends BaseEditTool {
     static ID = 'glsp.change-bounds-tool';
 
     @inject(SelectionService) protected selectionService: SelectionService;

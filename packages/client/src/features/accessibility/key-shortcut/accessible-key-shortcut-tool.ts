@@ -15,12 +15,12 @@
  ********************************************************************************/
 
 import { inject, injectable } from 'inversify';
-import { Action, KeyListener, KeyTool, matchesKeystroke, SetUIExtensionVisibilityAction, SModelElement } from '~glsp-sprotty';
-import { BaseGLSPTool } from '../../tools/base-glsp-tool';
+import { Action, KeyListener, KeyTool, SModelElement, SetUIExtensionVisibilityAction, matchesKeystroke } from '~glsp-sprotty';
+import { BaseEditTool } from '../../tools/base-tools';
 import { KeyShortcutUIExtension } from './accessible-key-shortcut';
 
 @injectable()
-export class AccessibleKeyShortcutTool extends BaseGLSPTool {
+export class AccessibleKeyShortcutTool extends BaseEditTool {
     static ID = 'accessible-key-shortcut-tool';
 
     @inject(KeyTool) protected readonly keytool: KeyTool;

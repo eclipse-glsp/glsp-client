@@ -38,7 +38,8 @@ export const TYPES = {
     IElementNavigator: Symbol('IElementNavigator'),
     ILocalElementNavigator: Symbol('ILocalElementNavigator'),
     IDiagramOptions: Symbol('IDiagramOptions'),
-    IDiagramStartup: Symbol('IDiagramStartup')
+    IDiagramStartup: Symbol('IDiagramStartup'),
+    IToolManager: Symbol('IToolManager')
 };
 
 /**

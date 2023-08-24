@@ -16,8 +16,9 @@
 
 import { inject, injectable } from 'inversify';
 import { matchesKeystroke } from 'sprotty/lib/utils/keyboard';
-import { Action, KeyListener, KeyTool, SetUIExtensionVisibilityAction, SModelElement, Tool, TYPES } from '~glsp-sprotty';
+import { Action, KeyListener, KeyTool, SModelElement, SetUIExtensionVisibilityAction, TYPES } from '~glsp-sprotty';
 import { GLSPActionDispatcher } from '../../../base/action-dispatcher';
+import { Tool } from '../../../base/tool-manager/tool';
 import { AccessibleKeyShortcutProvider, SetAccessibleKeyShortcutAction } from '../key-shortcut/accessible-key-shortcut';
 import { SearchAutocompletePalette } from './search-palette';
 @injectable()

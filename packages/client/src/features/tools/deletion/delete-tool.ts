@@ -17,7 +17,6 @@ import { inject, injectable } from 'inversify';
 import {
     Action,
     DeleteElementOperation,
-    EnableDefaultToolsAction,
     KeyListener,
     KeyTool,
     MouseListener,
@@ -29,14 +28,14 @@ import {
     matchesKeystroke
 } from '~glsp-sprotty';
 import { CursorCSS, cursorFeedbackAction } from '../../../base/feedback/css-feedback';
-import { GLSPTool } from '../../../base/tool-manager/glsp-tool-manager';
-import { BaseGLSPTool } from '../base-glsp-tool';
+import { EnableDefaultToolsAction, Tool } from '../../../base/tool-manager/tool';
+import { BaseEditTool } from '../base-tools';
 
 /**
  * Deletes selected elements when hitting the `Del` key.
  */
 @injectable()
-export class DelKeyDeleteTool implements GLSPTool {
+export class DelKeyDeleteTool implements Tool {
     static ID = 'glsp.delete-keyboard';
 
     isEditTool = true;
@@ -80,7 +79,7 @@ export class DeleteKeyListener extends KeyListener {
  * Deletes selected elements when clicking on them.
  */
 @injectable()
-export class MouseDeleteTool extends BaseGLSPTool {
+export class MouseDeleteTool extends BaseEditTool {
     static ID = 'glsp.delete-mouse';
 
     protected deleteToolMouseListener: DeleteToolMouseListener = new DeleteToolMouseListener();

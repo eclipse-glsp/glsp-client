@@ -19,8 +19,6 @@ import {
     CenterKeyboardListener,
     configureActionHandler,
     configureCommand,
-    EnableDefaultToolsAction,
-    EnableToolsAction,
     FeatureModule,
     FitToScreenCommand,
     GetViewportCommand,
@@ -28,6 +26,7 @@ import {
     TYPES,
     ZoomMouseListener
 } from '~glsp-sprotty';
+import { EnableDefaultToolsAction, EnableToolsAction } from '../../base/tool-manager/tool';
 import { GLSPScrollMouseListener } from './glsp-scroll-mouse-listener';
 import { RepositionCommand } from './reposition';
 

@@ -18,7 +18,6 @@ import {
     Action,
     AnchorComputerRegistry,
     CreateEdgeOperation,
-    EnableDefaultToolsAction,
     SEdge,
     SModelElement,
     TriggerEdgeCreationAction,
@@ -29,7 +28,8 @@ import {
 import { DragAwareMouseListener } from '../../../base/drag-aware-mouse-listener';
 
 import { CursorCSS, cursorFeedbackAction } from '../../../base/feedback/css-feedback';
-import { BaseGLSPCreationTool } from '../base-glsp-creation-tool';
+import { EnableDefaultToolsAction } from '../../../base/tool-manager/tool';
+import { BaseCreationTool } from '../base-tools';
 import { DrawFeedbackEdgeAction, RemoveFeedbackEdgeAction } from './dangling-edge-feedback';
 import { FeedbackEdgeEndMovingMouseListener } from './edge-creation-tool-feedback';
 
@@ -37,7 +37,7 @@ import { FeedbackEdgeEndMovingMouseListener } from './edge-creation-tool-feedbac
  * Tool to create connections in a Diagram, by selecting a source and target node.
  */
 @injectable()
-export class EdgeCreationTool extends BaseGLSPCreationTool<TriggerEdgeCreationAction> {
+export class EdgeCreationTool extends BaseCreationTool<TriggerEdgeCreationAction> {
     static ID = 'tool_create_edge';
 
     @inject(AnchorComputerRegistry) protected anchorRegistry: AnchorComputerRegistry;

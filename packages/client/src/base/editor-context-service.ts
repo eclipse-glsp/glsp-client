@@ -23,7 +23,6 @@ import {
     EditorContext,
     Emitter,
     Event,
-    GLSPClient,
     IActionHandler,
     MaybePromise,
     MousePositionTracker,
@@ -152,10 +151,6 @@ export class EditorContextService implements IActionHandler, Disposable, IDiagra
 
     get clientId(): string {
         return this.diagramOptions.clientId;
-    }
-
-    get glspClient(): GLSPClient {
-        return this.diagramOptions.glspClient;
     }
 
     get modelRoot(): Readonly<SModelRoot> {

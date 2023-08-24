@@ -38,7 +38,7 @@ import { CursorCSS, cursorFeedbackAction } from '../../../base/feedback/css-feed
 import { ISelectionListener, SelectionService } from '../../../base/selection-service';
 import { calcElementAndRoutingPoints, isRoutable, isRoutingHandle } from '../../../utils/smodel-util';
 import { SReconnectHandle, isReconnectHandle, isReconnectable, isSourceRoutingHandle, isTargetRoutingHandle } from '../../reconnect/model';
-import { BaseGLSPTool } from '../base-glsp-tool';
+import { BaseEditTool } from '../base-tools';
 import { DrawFeedbackEdgeAction, RemoveFeedbackEdgeAction, feedbackEdgeId } from '../edge-creation/dangling-edge-feedback';
 import {
     DrawFeedbackEdgeSourceAction,
@@ -51,7 +51,7 @@ import {
 } from './edge-edit-tool-feedback';
 
 @injectable()
-export class EdgeEditTool extends BaseGLSPTool {
+export class EdgeEditTool extends BaseEditTool {
     static ID = 'glsp.edge-edit-tool';
 
     @inject(SelectionService) protected selectionService: SelectionService;

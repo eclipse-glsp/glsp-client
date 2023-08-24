@@ -35,7 +35,8 @@ export * from './base/model/model-registry';
 export * from './base/ranked';
 export * from './base/selection-clearing-mouse-listener';
 export * from './base/selection-service';
-export * from './base/tool-manager/glsp-tool-manager';
+export * from './base/tool-manager/tool';
+export * from './base/tool-manager/tool-manager';
 export * from './base/view/mouse-tool';
 export * from './base/view/view-registry';
 
@@ -85,7 +86,7 @@ export * from './features/source-model-watcher/source-model-changed-action-handl
 export * from './features/status/status-overlay';
 export * from './features/svg-metadata/metadata-placer';
 export * from './features/tool-palette/tool-palette';
-export * from './features/tools/base-glsp-tool';
+export * from './features/tools/base-tools';
 export * from './features/tools/change-bounds/change-bounds-tool';
 export * from './features/tools/change-bounds/change-bounds-tool-feedback';
 export * from './features/tools/change-bounds/view';

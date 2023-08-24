@@ -16,8 +16,6 @@
 import {
     CenterCommand,
     ClosePopupActionHandler,
-    EnableDefaultToolsAction,
-    EnableToolsAction,
     FeatureModule,
     FitToScreenCommand,
     HoverFeedbackCommand,
@@ -34,6 +32,7 @@ import {
     configureCommand
 } from '~glsp-sprotty';
 import { FocusStateChangedAction } from '../../base/focus/focus-state-change-action';
+import { EnableDefaultToolsAction, EnableToolsAction } from '../../base/tool-manager/tool';
 import { GlspHoverMouseListener } from './hover';
 
 export const hoverModule = new FeatureModule((bind, _unbind, isBound) => {
