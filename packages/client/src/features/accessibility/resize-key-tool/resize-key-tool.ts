@@ -23,6 +23,8 @@ import { GLSPTool } from '../../../base/tool-manager/glsp-tool-manager';
 import { IMovementRestrictor } from '../../change-bounds/movement-restrictor';
 import { AccessibleKeyShortcutProvider, SetAccessibleKeyShortcutAction } from '../key-shortcut/accessible-key-shortcut';
 import { ResizeElementAction, ResizeType } from './resize-key-handler';
+import { ShowToastMessageAction } from '../toast/toast-handler';
+import * as messages from '../toast/messages.json';
 
 @injectable()
 export class ResizeKeyTool implements GLSPTool {
@@ -82,12 +84,26 @@ export class ResizeKeyListener extends KeyListener implements AccessibleKeyShort
 
         if (this.isEditMode && this.matchesDeactivateResizeModeKeystroke(event)) {
             this.isEditMode = false;
+
+            this.tool.actionDispatcher.dispatch(
+                ShowToastMessageAction.createWithTimeout({
+                    id: Symbol.for(ResizeKeyListener.name),
+                    message: messages.resize.resize_mode_deactivated
+                })
+            );
+
             actions.push(EnableDefaultToolsAction.create());
         }
 
         if (selectedElementsIds.length > 0) {
             if (!this.isEditMode && this.matchesActivateResizeModeKeystroke(event)) {
                 this.isEditMode = true;
+                this.tool.actionDispatcher.dispatch(
+                    ShowToastMessageAction.create({
+                        id: Symbol.for(ResizeKeyListener.name),
+                        message: messages.resize.resize_mode_activated
+                    })
+                );
                 actions.push(EnableToolsAction.create([ResizeKeyTool.ID]));
             }
 

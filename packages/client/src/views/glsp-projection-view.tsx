@@ -51,7 +51,9 @@ export class GLSPProjectionView extends ProjectedViewportView {
                 {this.renderProjections(model, context, args)}
             </div>
         );
-        setAttr(rootNode, 'tabindex', 0);
+        setAttr(rootNode, 'tabindex', 1);
+        setAttr(rootNode, 'aria-label', 'Diagram');
+
         return rootNode;
     }
 

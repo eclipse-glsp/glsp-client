@@ -97,10 +97,11 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
         return super.initialize();
     }
 
-    protected initializeContents(_containerElement: HTMLElement): void {
+    protected initializeContents(containerElement: HTMLElement): void {
         this.createHeader();
         this.createBody();
         this.lastActiveButton = this.defaultToolsButton;
+        containerElement.setAttribute('aria-label', 'Tool-Palette');
     }
 
     protected override onBeforeShow(_containerElement: HTMLElement, root: Readonly<SModelRoot>): void {
@@ -207,7 +208,9 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
         const button = createIcon('inspect');
         button.id = 'btn_default_tools';
         button.title = 'Enable selection tool';
-        button.onclick = this.onClickStaticToolButton(this.defaultToolsButton);
+        button.onclick = this.onClickStaticToolButton(button);
+        button.ariaLabel = button.title;
+        button.tabIndex = 1;
         return button;
     }
 
@@ -215,6 +218,8 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
         const deleteToolButton = createIcon('chrome-close');
         deleteToolButton.title = 'Enable deletion tool';
         deleteToolButton.onclick = this.onClickStaticToolButton(deleteToolButton, MouseDeleteTool.ID);
+        deleteToolButton.ariaLabel = deleteToolButton.title;
+        deleteToolButton.tabIndex = 1;
         return deleteToolButton;
     }
 
@@ -222,6 +227,8 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
         const marqueeToolButton = createIcon('screen-full');
         marqueeToolButton.title = 'Enable marquee tool';
         marqueeToolButton.onclick = this.onClickStaticToolButton(marqueeToolButton, MarqueeMouseTool.ID);
+        marqueeToolButton.ariaLabel = marqueeToolButton.title;
+        marqueeToolButton.tabIndex = 1;
         return marqueeToolButton;
     }
 
@@ -231,7 +238,10 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
         validateActionButton.onclick = _event => {
             const modelIds: string[] = [this.modelRootId];
             this.actionDispatcher.dispatch(RequestMarkersAction.create(modelIds, { reason: MarkersReason.BATCH }));
+            validateActionButton.focus();
         };
+        validateActionButton.ariaLabel = validateActionButton.title;
+        validateActionButton.tabIndex = 1;
         return validateActionButton;
     }
 
@@ -250,6 +260,8 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
         };
         searchIcon.classList.add('search-icon');
         searchIcon.title = 'Filter palette entries';
+        searchIcon.ariaLabel = searchIcon.title;
+        searchIcon.tabIndex = 1;
         return searchIcon;
     }
 

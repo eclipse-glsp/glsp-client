@@ -29,6 +29,7 @@ import {
     ZoomMouseListener
 } from '~glsp-sprotty';
 import { GLSPScrollMouseListener } from './glsp-scroll-mouse-listener';
+import { RepositionCommand } from './reposition';
 
 export const viewportModule = new FeatureModule((bind, _unbind, isBound) => {
     const context = { bind, isBound };
@@ -36,6 +37,7 @@ export const viewportModule = new FeatureModule((bind, _unbind, isBound) => {
     configureCommand(context, FitToScreenCommand);
     configureCommand(context, GetViewportCommand);
     configureCommand(context, SetViewportCommand);
+    configureCommand(context, RepositionCommand);
 
     bindAsService(context, TYPES.MouseListener, ZoomMouseListener);
     bindAsService(context, TYPES.MouseListener, GLSPScrollMouseListener);
