@@ -337,7 +337,7 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
         this.changeActiveButton();
         if (this.focusTracker.hasFocus) {
             // if focus was deliberately taken do not restore focus to the palette
-            this.restoreFocus();
+            this.focusTracker.diagramElement?.focus();
         }
     }
 
