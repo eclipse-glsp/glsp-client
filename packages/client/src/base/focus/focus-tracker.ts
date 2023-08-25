@@ -21,6 +21,8 @@ import { FocusStateChangedAction } from './focus-state-change-action';
 export class FocusTracker implements IActionHandler {
     protected inActiveCssClass = 'inactive';
     protected _hasFocus = true;
+    protected _focusElement: HTMLOrSVGElement | null;
+    protected _diagramElement: HTMLElement | null;
 
     @inject(TYPES.ViewerOptions) protected options: ViewerOptions;
 
@@ -28,19 +30,28 @@ export class FocusTracker implements IActionHandler {
         return this._hasFocus;
     }
 
+    get focusElement(): HTMLOrSVGElement | null {
+        return this._focusElement;
+    }
+
+    get diagramElement(): HTMLElement | null {
+        return this._diagramElement;
+    }
+
     handle(action: Action): void | Action | ICommand {
         if (FocusStateChangedAction.is(action)) {
             this._hasFocus = action.hasFocus;
-            const placeholder = document.getElementById(this.options.baseDiv);
-            if (!placeholder) {
+            this._focusElement = document.activeElement as HTMLOrSVGElement | null;
+            this._diagramElement = document.getElementById(this.options.baseDiv);
+            if (!this._diagramElement) {
                 return;
             }
             if (this.hasFocus) {
-                if (placeholder.classList.contains(this.inActiveCssClass)) {
-                    placeholder.classList.remove(this.inActiveCssClass);
+                if (this._diagramElement.classList.contains(this.inActiveCssClass)) {
+                    this._diagramElement.classList.remove(this.inActiveCssClass);
                 }
             } else {
-                placeholder.classList.add(this.inActiveCssClass);
+                this._diagramElement.classList.add(this.inActiveCssClass);
             }
         }
     }
