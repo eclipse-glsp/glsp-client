@@ -18,8 +18,6 @@ import {
     Action,
     Bounds,
     EMPTY_ROOT,
-    EnableDefaultToolsAction,
-    EnableToolsAction,
     HoverFeedbackAction,
     HoverMouseListener,
     IActionHandler,
@@ -32,6 +30,7 @@ import {
     SetPopupModelAction
 } from '~glsp-sprotty';
 import { FocusStateChangedAction } from '../../base/focus/focus-state-change-action';
+import { EnableDefaultToolsAction, EnableToolsAction } from '../../base/tool-manager/tool';
 import { EdgeCreationTool } from '../tools/edge-creation/edge-creation-tool';
 import { GIssueMarker, getSeverity } from '../validation/issue-marker';
 

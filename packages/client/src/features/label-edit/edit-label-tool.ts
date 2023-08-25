@@ -15,10 +15,10 @@
  ********************************************************************************/
 import { injectable } from 'inversify';
 import { EditLabelKeyListener, EditLabelMouseListener, KeyListener, MouseListener } from '~glsp-sprotty';
-import { BaseGLSPTool } from '../tools/base-glsp-tool';
+import { BaseEditTool } from '../tools/base-tools';
 
 @injectable()
-export class DirectLabelEditTool extends BaseGLSPTool {
+export class DirectLabelEditTool extends BaseEditTool {
     static readonly ID = 'glsp.direct-label-edit-tool';
 
     get id(): string {

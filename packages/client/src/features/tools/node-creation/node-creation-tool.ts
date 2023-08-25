@@ -17,7 +17,6 @@ import { inject, injectable, optional } from 'inversify';
 import {
     Action,
     CreateNodeOperation,
-    EnableDefaultToolsAction,
     ISnapper,
     SModelElement,
     SNode,
@@ -28,12 +27,13 @@ import {
 } from '~glsp-sprotty';
 import { DragAwareMouseListener } from '../../../base/drag-aware-mouse-listener';
 import { CursorCSS, cursorFeedbackAction } from '../../../base/feedback/css-feedback';
+import { EnableDefaultToolsAction } from '../../../base/tool-manager/tool';
 import { getAbsolutePosition } from '../../../utils/viewpoint-util';
 import { Containable, isContainable } from '../../hints/model';
-import { BaseGLSPCreationTool } from '../base-glsp-creation-tool';
+import { BaseCreationTool } from '../base-tools';
 
 @injectable()
-export class NodeCreationTool extends BaseGLSPCreationTool<TriggerNodeCreationAction> {
+export class NodeCreationTool extends BaseCreationTool<TriggerNodeCreationAction> {
     static ID = 'tool_create_node';
 
     protected isTriggerAction = TriggerNodeCreationAction.is;

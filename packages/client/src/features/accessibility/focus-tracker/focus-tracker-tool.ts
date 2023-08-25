@@ -14,15 +14,15 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { injectable, inject } from 'inversify';
-import { GLSPTool } from '../../../base/tool-manager/glsp-tool-manager';
-import { ShowToastMessageAction } from '../toast/toast-handler';
-import * as messages from '../toast/messages.json';
+import { inject, injectable } from 'inversify';
+import { TYPES, ViewerOptions } from '~glsp-sprotty';
 import { GLSPActionDispatcher } from '../../../base/action-dispatcher';
-import { ViewerOptions, TYPES } from '~glsp-sprotty';
+import { Tool } from '../../../base/tool-manager/tool';
+import * as messages from '../toast/messages.json';
+import { ShowToastMessageAction } from '../toast/toast-handler';
 
 @injectable()
-export class FocusTrackerTool implements GLSPTool {
+export class FocusTrackerTool implements Tool {
     static ID = 'glsp.focus-tracker';
 
     isEditTool = false;

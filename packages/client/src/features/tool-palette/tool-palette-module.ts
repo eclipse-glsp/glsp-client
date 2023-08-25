@@ -13,8 +13,9 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { bindAsService, configureActionHandler, EnableDefaultToolsAction, FeatureModule, TYPES } from '~glsp-sprotty';
+import { bindAsService, configureActionHandler, FeatureModule, TYPES } from '~glsp-sprotty';
 import '../../../css/tool-palette.css';
+import { EnableDefaultToolsAction } from '../../base/tool-manager/tool';
 import { ToolPalette } from './tool-palette';
 
 export const toolPaletteModule = new FeatureModule((bind, _unbind, isBound, _rebind) => {

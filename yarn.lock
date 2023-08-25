@@ -6194,20 +6194,25 @@ sprintf-js@~1.0.2:
   resolved "https://registry.yarnpkg.com/sprintf-js/-/sprintf-js-1.0.3.tgz#04e6926f662895354f3dd015203633b857297e2c"
   integrity sha512-D9cPgkvLlV3t3IzL0D0YLvGA9Ahk4PcvVwUbN0dSGr1aP0Nrt4AEnTUbuGvquEC0mA64Gqt1fzirlRs5ibXx8g==
 
-sprotty-protocol@0.14.0-next.02bbac0.26, sprotty-protocol@0.14.0-next.02bbac0.26+02bbac0:
+sprotty-protocol@0.14.0-next.02bbac0.26:
   version "0.14.0-next.02bbac0.26"
   resolved "https://registry.yarnpkg.com/sprotty-protocol/-/sprotty-protocol-0.14.0-next.02bbac0.26.tgz#e9bf147aa8e5c8e05f4392339573ee03fa0b3d7f"
   integrity sha512-a8gbAKjRAIhCV+kM5+E96na7WgWwlqWU/jxhv23w4aLbkurs1gNR6uAF4sm0ahyhXnFxSl7KMUyYJG5km7Iyug==
 
-sprotty@0.14.0-next.02bbac0.26:
-  version "0.14.0-next.02bbac0.26"
-  resolved "https://registry.yarnpkg.com/sprotty/-/sprotty-0.14.0-next.02bbac0.26.tgz#0177e9c31e129fba5a61a358145c7f1861cee28a"
-  integrity sha512-xNheZO66EOrqh6Hh6wt2HB8KvDv5s34hNR6hhQmrE2A+ZziRmDdW116Q/67ZK4mJ0UEsScaLmfNbzjZnwo+mWg==
+sprotty-protocol@^0.14.0:
+  version "0.14.0"
+  resolved "https://registry.yarnpkg.com/sprotty-protocol/-/sprotty-protocol-0.14.0.tgz#6adccbd10a5d17f945967c12f07b8cd0b92fe9b3"
+  integrity sha512-MQ7iozBEFcOVZK3WGcpo6/6sXeCZmHoFv+mSQLDW5epVWu93les8Cqcvp/TgIeZksUugPp77j6MWJEBZwcxx7w==
+
+sprotty@~0.14.0:
+  version "0.14.0"
+  resolved "https://registry.yarnpkg.com/sprotty/-/sprotty-0.14.0.tgz#4691a57b90eceb0e1317580518d65587280acfc3"
+  integrity sha512-hSnkZ0qVE2zqbbFd1TVUjXiSE6HIyCsdDHC4F0/BDH8RPYtxTjztTQu1EjFPuCAVDB7whHwyTIEiM1AR5QbMaw==
   dependencies:
     autocompleter "^7.0.1"
     file-saver "^2.0.5"
     snabbdom "^3.5.1"
-    sprotty-protocol "0.14.0-next.02bbac0.26+02bbac0"
+    sprotty-protocol "^0.14.0"
     tinyqueue "^2.0.3"
 
 ssri@^10.0.0, ssri@^10.0.1:

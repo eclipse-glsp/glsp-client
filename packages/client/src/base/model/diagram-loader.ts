@@ -20,13 +20,11 @@ import {
     ApplicationIdProvider,
     Args,
     EMPTY_ROOT,
-    EndProgressAction,
     GLSPClient,
     MaybePromise,
     RequestModelAction,
     ServerStatusAction,
     SetModelAction,
-    StartProgressAction,
     TYPES,
     hasNumberProp
 } from '~glsp-sprotty';
@@ -47,9 +45,9 @@ export interface IDiagramOptions {
      */
     diagramType: string;
     /**
-     * The GLSP client used by this diagram to communicate with the server.
+     * The provider function to retrieve the GLSP client used by this diagram to communicate with the server.
      */
-    glspClient: GLSPClient;
+    glspClientProvider: () => Promise<GLSPClient>;
     /**
      * The file source URI associated with this diagram.
      */
@@ -140,17 +138,15 @@ export class DiagramLoader {
         const result = this.actionDispatcher.dispatch(RequestModelAction.create({ options }));
         if (this.enableLoadingNotifications) {
             this.actionDispatcher.dispatch(ServerStatusAction.create('', { severity: 'NONE' }));
-            this.actionDispatcher.dispatch(EndProgressAction.create('initializeClient'));
         }
         return result;
     }
 
     protected async configureGLSPClient(): Promise<void> {
-        const glspClient = this.options.glspClient;
+        const glspClient = await this.options.glspClientProvider();
 
         if (this.enableLoadingNotifications) {
             this.actionDispatcher.dispatch(ServerStatusAction.create('Initializing...', { severity: 'INFO' }));
-            this.actionDispatcher.dispatch(StartProgressAction.create({ progressId: 'initializeClient', title: 'Initializing' }));
         }
 
         await glspClient.start();

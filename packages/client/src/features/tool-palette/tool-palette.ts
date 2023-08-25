@@ -17,11 +17,8 @@ import { inject, injectable, postConstruct } from 'inversify';
 import {
     AbstractUIExtension,
     Action,
-    EnableDefaultToolsAction,
-    EnableToolsAction,
     IActionHandler,
     ICommand,
-    IToolManager,
     MarkersReason,
     PaletteItem,
     RequestContextActions,
@@ -29,7 +26,6 @@ import {
     SModelRoot,
     SetContextActions,
     SetUIExtensionVisibilityAction,
-    TYPES,
     codiconCSSClasses,
     matchesKeystroke
 } from '~glsp-sprotty';
@@ -37,6 +33,7 @@ import { GLSPActionDispatcher } from '../../base/action-dispatcher';
 import { EditorContextService, IEditModeListener } from '../../base/editor-context-service';
 import { FocusTracker } from '../../base/focus/focus-tracker';
 import { IDiagramStartup } from '../../base/model/diagram-loader';
+import { EnableDefaultToolsAction, EnableToolsAction } from '../../base/tool-manager/tool';
 import { MouseDeleteTool } from '../tools/deletion/delete-tool';
 import { MarqueeMouseTool } from '../tools/marquee-selection/marquee-mouse-tool';
 
@@ -65,10 +62,14 @@ export namespace EnableToolPaletteAction {
 export class ToolPalette extends AbstractUIExtension implements IActionHandler, IEditModeListener, IDiagramStartup {
     static readonly ID = 'tool-palette';
 
-    @inject(TYPES.IActionDispatcher) protected readonly actionDispatcher: GLSPActionDispatcher;
-    @inject(TYPES.IToolManager) protected readonly toolManager: IToolManager;
-    @inject(EditorContextService) protected readonly editorContext: EditorContextService;
-    @inject(FocusTracker) protected readonly focusTracker: FocusTracker;
+    @inject(GLSPActionDispatcher)
+    protected actionDispatcher: GLSPActionDispatcher;
+
+    @inject(EditorContextService)
+    protected editorContext: EditorContextService;
+
+    @inject(FocusTracker)
+    protected focusTracker: FocusTracker;
 
     protected paletteItems: PaletteItem[];
     protected paletteItemsCopy: PaletteItem[] = [];

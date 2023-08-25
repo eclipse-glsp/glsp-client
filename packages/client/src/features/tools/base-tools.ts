@@ -14,15 +14,18 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { inject, injectable } from 'inversify';
-import { Action, Disposable, DisposableCollection, IActionDispatcher, TYPES } from '~glsp-sprotty';
+import { Action, Disposable, DisposableCollection, IActionDispatcher, IActionHandler, TYPES } from '~glsp-sprotty';
 import { EditorContextService } from '../../base/editor-context-service';
 import { IFeedbackActionDispatcher, IFeedbackEmitter } from '../../base/feedback/feedback-action-dispatcher';
-import { GLSPTool } from '../../base/tool-manager/glsp-tool-manager';
+import { EnableToolsAction, Tool } from '../../base/tool-manager/tool';
 import { GLSPKeyTool } from '../../base/view/key-tool';
 import { GLSPMouseTool } from '../../base/view/mouse-tool';
 
+/**
+ *  A reusable base implementation for edit {@link Tool}s.
+ */
 @injectable()
-export abstract class BaseGLSPTool implements GLSPTool {
+export abstract class BaseEditTool implements Tool {
     @inject(TYPES.IFeedbackActionDispatcher) protected feedbackDispatcher: IFeedbackActionDispatcher;
     @inject(TYPES.IActionDispatcher) protected actionDispatcher: IActionDispatcher;
     @inject(GLSPMouseTool) protected mouseTool: GLSPMouseTool;
@@ -70,4 +73,26 @@ export abstract class BaseGLSPTool implements GLSPTool {
     deregisterFeedback(feedbackEmitter?: IFeedbackEmitter, cleanupActions?: Action[]): void {
         this.feedbackDispatcher.deregisterFeedback(feedbackEmitter ?? this, cleanupActions);
     }
+}
+
+@injectable()
+export abstract class BaseCreationTool<T extends Action> extends BaseEditTool implements IActionHandler {
+    protected abstract isTriggerAction: (obj: any) => obj is T;
+    protected triggerAction: T;
+
+    handle(action: Action): Action | void {
+        if (this.isTriggerAction(action)) {
+            this.triggerAction = action;
+            return EnableToolsAction.create([this.id]);
+        }
+    }
+
+    override enable(): void {
+        if (this.triggerAction === undefined) {
+            throw new TypeError(`Could not enable tool ${this.id}. The triggerAction cannot be undefined.`);
+        }
+        this.doEnable();
+    }
+
+    protected abstract doEnable(): void;
 }

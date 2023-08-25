@@ -19,7 +19,7 @@ import { matchesKeystroke } from 'sprotty/lib/utils/keyboard';
 import { Action, CenterAction, KeyListener, KeyTool, SModelElement, TYPES } from '~glsp-sprotty';
 import { GLSPActionDispatcher } from '../../../base/action-dispatcher';
 import { SelectionService } from '../../../base/selection-service';
-import { GLSPTool } from '../../../base/tool-manager/glsp-tool-manager';
+import { Tool } from '../../../base/tool-manager/tool';
 import { SetAccessibleKeyShortcutAction } from '../key-shortcut/accessible-key-shortcut';
 import { ZoomElementAction, ZoomViewportAction } from '../move-zoom/zoom-handler';
 
@@ -27,7 +27,7 @@ import { ZoomElementAction, ZoomViewportAction } from '../move-zoom/zoom-handler
  * Zoom viewport and elements when its focused and arrow keys are hit.
  */
 @injectable()
-export class ZoomKeyTool implements GLSPTool {
+export class ZoomKeyTool implements Tool {
     static ID = 'glsp.zoom-key-tool';
 
     isEditTool = false;

@@ -19,7 +19,7 @@ import { matchesKeystroke } from 'sprotty/lib/utils/keyboard';
 import { Action, ISnapper, KeyListener, KeyTool, SModelElement, TYPES } from '~glsp-sprotty';
 import { GLSPActionDispatcher } from '../../../base/action-dispatcher';
 import { SelectionService } from '../../../base/selection-service';
-import { GLSPTool } from '../../../base/tool-manager/glsp-tool-manager';
+import { Tool } from '../../../base/tool-manager/tool';
 import { GridSnapper } from '../../change-bounds/snap';
 import { AccessibleKeyShortcutProvider, SetAccessibleKeyShortcutAction } from '../key-shortcut/accessible-key-shortcut';
 import { MoveElementAction, MoveViewportAction } from '../move-zoom/move-handler';
@@ -28,7 +28,7 @@ import { MoveElementAction, MoveViewportAction } from '../move-zoom/move-handler
  * Moves viewport and elements when its focused and arrow keys are hit.
  */
 @injectable()
-export class MovementKeyTool implements GLSPTool {
+export class MovementKeyTool implements Tool {
     static ID = 'glsp.movement-key-tool';
 
     isEditTool = true;

@@ -44,7 +44,8 @@ import { GLSPModelSource } from './model/glsp-model-source';
 import { GLSPModelRegistry } from './model/model-registry';
 import { SelectionClearingMouseListener } from './selection-clearing-mouse-listener';
 import { SelectionService } from './selection-service';
-import { GLSPToolManager } from './tool-manager/glsp-tool-manager';
+import { EnableDefaultToolsAction, EnableToolsAction } from './tool-manager/tool';
+import { DefaultToolsEnablingKeyListener, ToolManager, ToolManagerActionHandler } from './tool-manager/tool-manager';
 import { GLSPKeyTool } from './view/key-tool';
 import { GLSPMouseTool } from './view/mouse-tool';
 import { GLSPViewRegistry } from './view/view-registry';
@@ -88,8 +89,6 @@ export const defaultModule = new FeatureModule((bind, unbind, isBound, rebind, .
     bindAsService(context, TYPES.MouseListener, SelectionClearingMouseListener);
 
     bindOrRebind(context, TYPES.ICommandStack).to(GLSPCommandStack).inSingletonScope();
-    bind(GLSPToolManager).toSelf().inSingletonScope();
-    bindOrRebind(context, TYPES.IToolManager).toService(GLSPToolManager);
     bind(GLSPActionDispatcher).toSelf().inSingletonScope();
     bindOrRebind(context, TYPES.IActionDispatcher).toService(GLSPActionDispatcher);
 
@@ -112,4 +111,12 @@ export const defaultModule = new FeatureModule((bind, unbind, isBound, rebind, .
 
     bindAsService(context, TYPES.IVNodePostprocessor, LocationPostprocessor);
     bind(TYPES.HiddenVNodePostprocessor).toService(LocationPostprocessor);
+
+    // Tool manager initialization ------------------------------------
+    bind(TYPES.IToolManager).to(ToolManager).inSingletonScope();
+    bind(DefaultToolsEnablingKeyListener).toSelf().inSingletonScope();
+    bind(TYPES.KeyListener).toService(DefaultToolsEnablingKeyListener);
+    bind(ToolManagerActionHandler).toSelf().inSingletonScope();
+    configureActionHandler(context, EnableDefaultToolsAction.KIND, ToolManagerActionHandler);
+    configureActionHandler(context, EnableToolsAction.KIND, ToolManagerActionHandler);
 });

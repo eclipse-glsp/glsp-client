@@ -18,7 +18,6 @@ import {
     Action,
     BoundsAware,
     DOMHelper,
-    EnableDefaultToolsAction,
     KeyListener,
     SEdge,
     SModelElement,
@@ -31,13 +30,14 @@ import {
 } from '~glsp-sprotty';
 import { DragAwareMouseListener } from '../../../base/drag-aware-mouse-listener';
 import { CursorCSS, cursorFeedbackAction } from '../../../base/feedback/css-feedback';
+import { EnableDefaultToolsAction } from '../../../base/tool-manager/tool';
 import { getAbsolutePosition, toAbsoluteBounds } from '../../../utils/viewpoint-util';
-import { BaseGLSPTool } from '../base-glsp-tool';
+import { BaseEditTool } from '../base-tools';
 import { IMarqueeBehavior, MarqueeUtil } from './marquee-behavior';
 import { RemoveMarqueeAction } from './marquee-tool-feedback';
 
 @injectable()
-export class MarqueeMouseTool extends BaseGLSPTool {
+export class MarqueeMouseTool extends BaseEditTool {
     static ID = 'glsp.marquee-mouse-tool';
 
     @inject(TYPES.DOMHelper) protected domHelper: DOMHelper;

@@ -14,12 +14,13 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { injectable } from 'inversify';
-import { Action, EnableToolsAction, KeyListener, SModelElement } from '~glsp-sprotty';
-import { BaseGLSPTool } from '../base-glsp-tool';
+import { Action, KeyListener, SModelElement } from '~glsp-sprotty';
+import { EnableToolsAction } from '../../../base/tool-manager/tool';
+import { BaseEditTool } from '../base-tools';
 import { MarqueeMouseTool } from './marquee-mouse-tool';
 
 @injectable()
-export class MarqueeTool extends BaseGLSPTool {
+export class MarqueeTool extends BaseEditTool {
     static ID = 'glsp.marquee-tool';
 
     protected marqueeKeyListener: MarqueeKeyListener = new MarqueeKeyListener();

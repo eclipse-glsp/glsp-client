@@ -16,10 +16,10 @@
 
 import { inject, injectable, optional } from 'inversify';
 import { matchesKeystroke } from 'sprotty/lib/utils/keyboard';
-import { Action, EnableDefaultToolsAction, EnableToolsAction, ISnapper, KeyListener, KeyTool, SModelElement, TYPES } from '~glsp-sprotty';
+import { Action, ISnapper, KeyListener, KeyTool, SModelElement, TYPES } from '~glsp-sprotty';
 import { GLSPActionDispatcher } from '../../../base/action-dispatcher';
 import { SelectionService } from '../../../base/selection-service';
-import { GLSPTool } from '../../../base/tool-manager/glsp-tool-manager';
+import { EnableDefaultToolsAction, EnableToolsAction, Tool } from '../../../base/tool-manager/tool';
 import { IMovementRestrictor } from '../../change-bounds/movement-restrictor';
 import { AccessibleKeyShortcutProvider, SetAccessibleKeyShortcutAction } from '../key-shortcut/accessible-key-shortcut';
 import { ResizeElementAction, ResizeType } from './resize-key-handler';
@@ -27,7 +27,7 @@ import { ShowToastMessageAction } from '../toast/toast-handler';
 import * as messages from '../toast/messages.json';
 
 @injectable()
-export class ResizeKeyTool implements GLSPTool {
+export class ResizeKeyTool implements Tool {
     static ID = 'glsp.resize-key-tool';
 
     isEditTool = true;

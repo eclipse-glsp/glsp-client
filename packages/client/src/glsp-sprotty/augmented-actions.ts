@@ -17,7 +17,6 @@
 /* eslint-disable-next-line no-restricted-imports*/
 import { Action, hasArrayProp } from '@eclipse-glsp/protocol';
 import { SetBoundsAction } from 'sprotty-protocol/lib/actions';
-import { EnableDefaultToolsAction, EnableToolsAction } from 'sprotty/lib/base/tool-manager/tool';
 
 /**
  * Use module augmentation to add namespaces and  the `is` utility function to sprotty actions that directly reused by GLSP
@@ -31,18 +30,4 @@ declare module 'sprotty-protocol/lib/actions' {
 SetBoundsAction.is = (object: any): object is SetBoundsAction =>
     Action.hasKind(object, SetBoundsAction.KIND) && hasArrayProp(object, 'bounds');
 
-declare module 'sprotty/lib/base/tool-manager/tool' {
-    export namespace EnableDefaultToolsAction {
-        export function is(object: any): object is EnableDefaultToolsAction;
-    }
-    export namespace EnableToolsAction {
-        export function is(object: any): object is EnableToolsAction;
-    }
-}
-
-EnableDefaultToolsAction.is = (object: any): object is EnableDefaultToolsAction => Action.hasKind(object, EnableDefaultToolsAction.KIND);
-
-EnableToolsAction.is = (object: any): object is EnableToolsAction =>
-    Action.hasKind(object, EnableToolsAction.KIND) && hasArrayProp(object, 'toolIds');
-
-export { EnableDefaultToolsAction, EnableToolsAction };
+export { SetBoundsAction };

@@ -27,14 +27,14 @@ import {
     SwitchEditModeAction,
     isSelectable
 } from '~glsp-sprotty';
-import { GLSPTool } from '../../../base/tool-manager/glsp-tool-manager';
+import { Tool } from '../../../base/tool-manager/tool';
 import { SResizeHandle } from '../../change-bounds/model';
 
 /**
  * Deselects the element if there is no interaction possible with element.
  */
 @injectable()
-export class DeselectKeyTool implements GLSPTool {
+export class DeselectKeyTool implements Tool {
     static ID = 'glsp.deselect-key-tool';
 
     isEditTool = true;
