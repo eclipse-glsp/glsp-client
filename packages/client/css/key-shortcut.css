@@ -92,7 +92,7 @@
     cursor: pointer;
 }
 
-.columnTitle {
+.column-title {
     text-align: left;
 }
 
@@ -104,4 +104,8 @@
     align-items: center;
     justify-content: space-between;
     flex-wrap: wrap;
+}
+
+.shortcut-table thead th {
+    border-bottom: 2px solid #000;
 }

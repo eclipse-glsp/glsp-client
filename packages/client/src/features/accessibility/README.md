@@ -63,3 +63,21 @@ The resize functionality helps to set the size of the nodes, by either increasin
 3. <kbd>+</kbd> or <kbd>-</kbd> to increase or decrease the size of the element(s) gradually.
 4. <kbd>CTRL</kbd>+<kbd>0</kbd>: Set the size of the element(s) to default.
 5. <kbd>ESC</kbd>: Deactivate the resize mode.
+
+### Model Navigation
+
+#### Default Navigation (following directions of relations)
+
+1. Select element as starting point.
+2. <kbd>N</kbd>: Activate default navigation.
+3. Use arrow keys to iterate through model according to the directions of the given relations.
+
+#### Position-based Navigation (following x and y coordinates)
+
+1. Select element as starting point.
+2. <kbd>ALT</kbd>+<kbd>N</kbd>: Activate position based navigation.
+3. Use arrow keys (<kbd>←</kbd> || <kbd>↑</kbd> || <kbd>→</kbd> || <kbd>↓</kbd>) to iterate through model according to the positions of the elements, i.e. depending on the order of the elements' x and y coordinates.
+
+### Help
+
+1. <kbd>ALT</kbd>+<kbd>H</kbd>: Display list of keyboard shortcuts.

@@ -35,6 +35,7 @@ import { AutocompleteSuggestion, IAutocompleteSuggestionProvider } from '../../a
 import { BaseAutocompletePalette } from '../../autocomplete-palette/base-autocomplete-palette';
 
 import { applyCssClasses, deleteCssClasses } from '../../../base/feedback/css-feedback';
+import { RepositionAction } from '../../../features/viewport/reposition';
 
 const CSS_SEARCH_HIDDEN = 'search-hidden';
 const CSS_SEARCH_HIGHLIGHTED = 'search-highlighted';
@@ -103,6 +104,7 @@ export class SearchAutocompletePalette extends BaseAutocompletePalette {
         super.initializeContents(containerElement);
 
         this.autocompleteWidget.inputField.placeholder = 'Search for elements';
+        containerElement.setAttribute('aria-label', 'Search Field');
     }
     protected getSuggestionProviders(root: Readonly<SModelRoot>, input: string): IAutocompleteSuggestionProvider[] {
         return [new RevealNamedElementAutocompleteSuggestionProvider(), new RevealEdgeElementAutocompleteSuggestionProvider()];
@@ -132,8 +134,8 @@ export class SearchAutocompletePalette extends BaseAutocompletePalette {
         if (labeledAction !== undefined) {
             const suggestions = this.getSuggestionsFromLabeledActions([labeledAction]);
 
-            const actions: CenterAction[] = [];
-            suggestions.map(currElem => actions.push(CenterAction.create([currElem.element.id], { animate: true, retainZoom: true })));
+            const actions: RepositionAction[] = [];
+            suggestions.map(currElem => actions.push(RepositionAction.create([currElem.element.id])));
 
             this.actionDispatcher.dispatchAll(actions);
             await this.applyCSS(

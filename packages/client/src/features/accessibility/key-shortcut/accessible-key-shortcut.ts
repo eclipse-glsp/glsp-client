@@ -93,6 +93,7 @@ export class KeyShortcutUIExtension extends AbstractUIExtension implements IActi
         const grouped = groupBy(registrations, k => k.group);
 
         const groupTable = document.createElement('table');
+        groupTable.classList.add('shortcut-table');
         const tableHead = document.createElement('thead');
         const tableBody = document.createElement('tbody');
 
@@ -100,8 +101,7 @@ export class KeyShortcutUIExtension extends AbstractUIExtension implements IActi
         const commandCell = document.createElement('th');
         const keybindingCell = document.createElement('th');
 
-        commandCell.classList.add('columnTitle');
-        commandCell.classList.add('columnTitle');
+        commandCell.classList.add('column-title');
 
         commandCell.innerText = 'Command';
         keybindingCell.innerText = 'Keybinding';
@@ -110,7 +110,8 @@ export class KeyShortcutUIExtension extends AbstractUIExtension implements IActi
         headerRow.appendChild(keybindingCell);
         tableHead.appendChild(headerRow);
 
-        for (const [, shortcuts] of Object.entries(grouped)) {
+        for (const [group, shortcuts] of Object.entries(grouped)) {
+            tableBody.appendChild(this.createGroupHeader(group));
             shortcuts.forEach(s => {
                 tableBody.appendChild(this.createEntry(s));
             });
@@ -120,6 +121,20 @@ export class KeyShortcutUIExtension extends AbstractUIExtension implements IActi
         groupTable.appendChild(tableBody);
 
         this.shortcutsContainer.append(groupTable);
+    }
+
+    protected createGroupHeader(group: string): HTMLElement {
+        const entryRow = document.createElement('tr');
+        const groupElement = document.createElement('td');
+        const text = document.createElement('strong');
+        const emptyElement = document.createElement('td');
+
+        text.innerText = group;
+        groupElement.appendChild(text);
+        entryRow.appendChild(groupElement);
+        entryRow.appendChild(emptyElement);
+
+        return entryRow;
     }
 
     protected getShortcutHTML(shortcuts: string[]): HTMLElement {
