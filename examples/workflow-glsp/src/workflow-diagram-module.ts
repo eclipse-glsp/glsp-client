@@ -33,7 +33,6 @@ import {
     SLabelView,
     StructureCompartmentView,
     TYPES,
-    accessibilityModule,
     bindAsService,
     bindOrRebind,
     configureDefaultModelElements,
@@ -82,5 +81,5 @@ export function createWorkflowDiagramContainer(...containerConfiguration: Contai
 }
 
 export function initializeWorkflowDiagramContainer(container: Container, ...containerConfiguration: ContainerConfiguration): Container {
-    return initializeDiagramContainer(container, workflowDiagramModule, directTaskEditor, accessibilityModule, ...containerConfiguration);
+    return initializeDiagramContainer(container, workflowDiagramModule, directTaskEditor, ...containerConfiguration);
 }
