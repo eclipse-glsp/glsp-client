@@ -15,6 +15,7 @@
  ********************************************************************************/
 import { createWorkflowDiagramContainer } from '@eclipse-glsp-examples/workflow-glsp';
 import {
+    accessibilityModule,
     bindOrRebind,
     ConsoleLogger,
     createDiagramOptionsModule,
@@ -26,7 +27,7 @@ import {
 import { Container } from 'inversify';
 import '../css/diagram.css';
 export default function createContainer(options: IDiagramOptions): Container {
-    const container = createWorkflowDiagramContainer(createDiagramOptionsModule(options), STANDALONE_MODULE_CONFIG);
+    const container = createWorkflowDiagramContainer(createDiagramOptionsModule(options), accessibilityModule, STANDALONE_MODULE_CONFIG);
     bindOrRebind(container, TYPES.ILogger).to(ConsoleLogger).inSingletonScope();
     bindOrRebind(container, TYPES.LogLevel).toConstantValue(LogLevel.warn);
     container.bind(TYPES.IMarqueeBehavior).toConstantValue({ entireEdge: true, entireElement: true });
