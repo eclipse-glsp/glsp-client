@@ -35,7 +35,6 @@ import {
     SCompartmentView,
     SEdge,
     SGraphView,
-    SIssueMarker,
     SLabel,
     SLabelView,
     SNode,
@@ -49,6 +48,7 @@ import {
     moveFeature,
     selectFeature
 } from '~glsp-sprotty';
+import { GIssueMarker } from '../features/validation/issue-marker';
 import { GLSPGraph } from '../lib/model';
 import { GEdgeView } from './glsp-edge-view';
 import { GIssueMarkerView } from './issue-marker-view';
@@ -86,7 +86,7 @@ export function configureDefaultModelElements(context: Pick<BindingContext, 'bin
 
     // UI elements
     configureModelElement(context, DefaultTypes.BUTTON_EXPAND, SButton, ExpandButtonView);
-    configureModelElement(context, DefaultTypes.ISSUE_MARKER, SIssueMarker, GIssueMarkerView);
+    configureModelElement(context, DefaultTypes.ISSUE_MARKER, GIssueMarker, GIssueMarkerView);
 
     // shapes
     configureModelElement(context, DefaultTypes.NODE_CIRCLE, CircularNode, CircularNodeView);

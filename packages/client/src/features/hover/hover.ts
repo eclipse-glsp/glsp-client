@@ -74,7 +74,7 @@ export class GlspHoverMouseListener extends HoverMouseListener implements IActio
             this.state.mouseOverTimer = window.setTimeout(() => {
                 const popupBounds = this.computePopupBounds(target, { x: event.pageX, y: event.pageY });
                 if (target instanceof GIssueMarker) {
-                    resolve(SetPopupModelAction.create(this.createPopupModel(target as GIssueMarker, popupBounds)));
+                    resolve(SetPopupModelAction.create(this.createPopupModel(target, popupBounds)));
                 } else {
                     resolve(RequestPopupModelAction.create({ elementId: target.id, bounds: popupBounds }));
                 }
