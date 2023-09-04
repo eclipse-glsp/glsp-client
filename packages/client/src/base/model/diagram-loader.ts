@@ -21,6 +21,7 @@ import {
     Args,
     EMPTY_ROOT,
     GLSPClient,
+    InitializeParameters,
     MaybePromise,
     RequestModelAction,
     ServerStatusAction,
@@ -30,6 +31,7 @@ import {
 } from '~glsp-sprotty';
 import { GLSPActionDispatcher } from '../action-dispatcher';
 import { Ranked } from '../ranked';
+import { GLSPModelSource } from './glsp-model-source';
 
 /**
  * Configuration options for a specific GLSP diagram instance.
@@ -92,6 +94,33 @@ export namespace IDiagramStartup {
     }
 }
 
+export interface DiagramLoadingOptions {
+    /**
+     * Optional custom options that should be used the initial {@link RequestModelAction}.
+     * These options will be merged with the default options (`diagramType` and `sourceUri`).
+     * Defaults to an empty object if not defined.
+     */
+    requestModelOptions?: Args;
+
+    /**
+     * Optional partial {@link InitializeParameters} that should be used for `initializeServer` request if the underlying
+     * {@link GLSPClient} has not been initialized yet.
+     */
+    initializeParameters?: Partial<InitializeParameters>;
+
+    /**
+     * Flag to enable/disable client side notifications during the loading process.
+     * Defaults to `true` if not defined
+     */
+    enableNotifications?: boolean;
+}
+
+export interface ResolvedDiagramLoadingOptions {
+    requestModelOptions: Args;
+    initializeParameters: InitializeParameters;
+    enableNotifications: boolean;
+}
+
 /**
  * The central component responsible for initializing the diagram and loading the graphical model
  * from the GLSP server.
@@ -110,20 +139,34 @@ export class DiagramLoader {
     @optional()
     protected diagramStartups: IDiagramStartup[] = [];
 
-    protected enableLoadingNotifications = true;
+    @inject(GLSPModelSource)
+    protected modelSource: GLSPModelSource;
 
     @postConstruct()
     protected postConstruct(): void {
         this.diagramStartups.sort((a, b) => Ranked.getRank(a) - Ranked.getRank(b));
     }
 
-    async load(requestModelOptions: Args = {}): Promise<void> {
+    async load(options: DiagramLoadingOptions = {}): Promise<void> {
+        const resolvedOptions: ResolvedDiagramLoadingOptions = {
+            requestModelOptions: {
+                sourceUri: this.options.sourceUri ?? '',
+                diagramType: this.options.diagramType,
+                ...options.requestModelOptions
+            },
+            initializeParameters: {
+                applicationId: ApplicationIdProvider.get(),
+                protocolVersion: GLSPClient.protocolVersion,
+                ...options.initializeParameters
+            },
+            enableNotifications: options.enableNotifications ?? true
+        };
         // Set placeholder model until real model from server is available
         await this.actionDispatcher.dispatch(SetModelAction.create(EMPTY_ROOT));
         await this.invokeStartupHook('preInitialize');
-        await this.configureGLSPClient();
+        await this.initialize(resolvedOptions);
         await this.invokeStartupHook('preRequestModel');
-        await this.requestModel(requestModelOptions);
+        await this.requestModel(resolvedOptions);
         await this.invokeStartupHook('postRequestModel');
     }
 
@@ -133,29 +176,26 @@ export class DiagramLoader {
         }
     }
 
-    protected requestModel(requestModelOptions: Args = {}): Promise<void> {
-        const options = { sourceUri: this.options.sourceUri, diagramType: this.options.diagramType, ...requestModelOptions } as Args;
-        const result = this.actionDispatcher.dispatch(RequestModelAction.create({ options }));
-        if (this.enableLoadingNotifications) {
+    protected requestModel(options: ResolvedDiagramLoadingOptions): Promise<void> {
+        const result = this.actionDispatcher.dispatch(RequestModelAction.create({ options: options.requestModelOptions }));
+        if (options.enableNotifications) {
             this.actionDispatcher.dispatch(ServerStatusAction.create('', { severity: 'NONE' }));
         }
         return result;
     }
 
-    protected async configureGLSPClient(): Promise<void> {
-        const glspClient = await this.options.glspClientProvider();
-
-        if (this.enableLoadingNotifications) {
+    protected async initialize(options: ResolvedDiagramLoadingOptions): Promise<void> {
+        await this.actionDispatcher.initialize();
+        if (options.enableNotifications) {
             this.actionDispatcher.dispatch(ServerStatusAction.create('Initializing...', { severity: 'INFO' }));
         }
+
+        const glspClient = await this.options.glspClientProvider();
 
         await glspClient.start();
 
         if (!glspClient.initializeResult) {
-            await glspClient.initializeServer({
-                applicationId: ApplicationIdProvider.get(),
-                protocolVersion: GLSPClient.protocolVersion
-            });
+            await glspClient.initializeServer(options.initializeParameters);
         }
     }
 }

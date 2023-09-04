@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { inject, injectable, postConstruct } from 'inversify';
+import { inject, injectable, postConstruct, preDestroy } from 'inversify';
 import {
     Action,
     ActionHandlerRegistry,
@@ -26,20 +26,19 @@ import {
     InitializeResult,
     ModelSource,
     SModelRootSchema,
-    TYPES,
-    Writable
+    TYPES
 } from '~glsp-sprotty';
 import { IDiagramOptions } from './diagram-loader';
 /**
  * A helper interface that allows the client to mark actions that have been received from the server.
  */
 export interface ServerAction extends Action {
-    _receivedFromServer: true;
+    __receivedFromServer: true;
 }
 
 export namespace ServerAction {
     export function is(object: unknown): object is ServerAction {
-        return Action.is(object) && '_receivedFromServer' in object && object._receivedFromServer === true;
+        return Action.is(object) && '__receivedFromServer' in object && object.__receivedFromServer === true;
     }
 
     /**
@@ -47,7 +46,7 @@ export namespace ServerAction {
      * @param action The action that should be marked as server action
      */
     export function mark(action: Action): void {
-        (action as ServerAction)._receivedFromServer = true;
+        (action as ServerAction).__receivedFromServer = true;
     }
 }
 
@@ -71,7 +70,8 @@ export class GLSPModelSource extends ModelSource implements Disposable {
 
     protected toDispose = new DisposableCollection();
     clientId: string;
-    readonly glspClient: GLSPClient | undefined;
+
+    protected _glspClient: GLSPClient | undefined;
     protected _currentRoot: SModelRootSchema;
 
     get diagramType(): string {
@@ -80,6 +80,10 @@ export class GLSPModelSource extends ModelSource implements Disposable {
 
     get sourceUri(): string | undefined {
         return this.options.sourceUri;
+    }
+
+    get glspClient(): GLSPClient | undefined {
+        return this._glspClient;
     }
 
     @postConstruct()
@@ -115,11 +119,14 @@ export class GLSPModelSource extends ModelSource implements Disposable {
         }
 
         this.options.glspClientProvider().then(glspClient => {
-            (this as Writable<GLSPModelSource>).glspClient = glspClient;
+            this._glspClient = glspClient;
             if (glspClient.initializeResult) {
                 this.configure(registry, glspClient.initializeResult);
             } else {
-                glspClient.onServerInitialized(result => this.configure(registry, result));
+                const initializeListener = glspClient.onServerInitialized(result => {
+                    this.configure(registry, result);
+                    initializeListener.dispose();
+                });
             }
         });
     }
@@ -163,6 +170,7 @@ export class GLSPModelSource extends ModelSource implements Disposable {
         return this._currentRoot;
     }
 
+    @preDestroy()
     dispose(): void {
         this.toDispose.dispose();
     }
