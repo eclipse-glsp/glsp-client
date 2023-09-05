@@ -44,7 +44,8 @@ async function downloadIfNecessary(): Promise<string> {
 
     console.log('Server executable with correct version not found.  Download from npm.');
     if (existingServer) {
-        fs.rmSync(existingServer);
+        fs.rmSync(path.resolve(serverDirPath, existingServer));
+        fs.rmSync(path.resolve(serverDirPath, existingServer.replace('.js', '.js.map')));
     }
     sh.cd(serverDirPath);
     const packResultJson = sh
