@@ -18,7 +18,6 @@ import {
     HBoxLayouter,
     HiddenBoundsUpdater,
     LayoutRegistry,
-    Layouter,
     RequestBoundsCommand,
     SetBoundsCommand,
     TYPES,
@@ -30,6 +29,7 @@ import {
 import { FreeFormLayouter } from './freeform-layout';
 import { GLSPHiddenBoundsUpdater } from './glsp-hidden-bounds-updater';
 import { HBoxLayouterExt } from './hbox-layout';
+import { LayouterExt } from './layouter';
 import { VBoxLayouterExt } from './vbox-layout';
 
 export const boundsModule = new FeatureModule((bind, _unbind, isBound, _rebind) => {
@@ -38,7 +38,7 @@ export const boundsModule = new FeatureModule((bind, _unbind, isBound, _rebind) 
     configureCommand(context, RequestBoundsCommand);
     bind(HiddenBoundsUpdater).toSelf().inSingletonScope();
     bindAsService(context, TYPES.HiddenVNodePostprocessor, GLSPHiddenBoundsUpdater);
-    bind(TYPES.Layouter).to(Layouter).inSingletonScope();
+    bind(TYPES.Layouter).to(LayouterExt).inSingletonScope();
     bind(TYPES.LayoutRegistry).to(LayoutRegistry).inSingletonScope();
 
     configureLayout(context, VBoxLayouter.KIND, VBoxLayouterExt);
