@@ -74,14 +74,12 @@ export class MoveKeyListener extends KeyListener implements AccessibleKeyShortcu
     }
 
     registerShortcutKey(): void {
-        this.tool.actionDispatcher.onceModelInitialized().then(() => {
-            this.tool.actionDispatcher.dispatchAll([
-                SetAccessibleKeyShortcutAction.create({
-                    token: this.token,
-                    keys: [{ shortcuts: ['⬅  ⬆  ➡  ⬇'], description: 'Move element or viewport', group: 'Move', position: 0 }]
-                })
-            ]);
-        });
+        this.tool.actionDispatcher.dispatchOnceModelInitialized(
+            SetAccessibleKeyShortcutAction.create({
+                token: this.token,
+                keys: [{ shortcuts: ['⬅  ⬆  ➡  ⬇'], description: 'Move element or viewport', group: 'Move', position: 0 }]
+            })
+        );
     }
 
     override keyDown(element: SModelElement, event: KeyboardEvent): Action[] {

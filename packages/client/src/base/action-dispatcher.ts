@@ -15,14 +15,15 @@
  ********************************************************************************/
 import { inject, injectable } from 'inversify';
 import { Action, ActionDispatcher, RequestAction, ResponseAction } from '~glsp-sprotty';
-import { ModelInitializationConstraint } from './model-initialization-constraint';
+import { ModelInitializationConstraint } from './model/model-initialization-constraint';
 
 @injectable()
 export class GLSPActionDispatcher extends ActionDispatcher {
     protected readonly timeouts: Map<string, NodeJS.Timeout> = new Map();
     protected initializedConstraint = false;
 
-    @inject(ModelInitializationConstraint) protected initializationConstraint: ModelInitializationConstraint;
+    @inject(ModelInitializationConstraint)
+    protected initializationConstraint: ModelInitializationConstraint;
 
     override initialize(): Promise<void> {
         return super.initialize().then(() => this.startModelInitialization());
@@ -31,7 +32,7 @@ export class GLSPActionDispatcher extends ActionDispatcher {
     startModelInitialization(): void {
         if (!this.initializedConstraint) {
             this.logger.log(this, 'Starting model initialization mode');
-            this.initializationConstraint.onInitialized().then(() => this.logger.log(this, 'Model initialization completed'));
+            this.initializationConstraint.onInitialized(() => this.logger.log(this, 'Model initialization completed'));
             this.initializedConstraint = true;
         }
     }
@@ -42,6 +43,15 @@ export class GLSPActionDispatcher extends ActionDispatcher {
 
     hasHandler(action: Action): boolean {
         return this.actionHandlerRegistry.get(action.kind).length > 0;
+    }
+
+    /**
+     * Processes all given actions, by dispatching them to the corresponding handlers, after the model initialization is completed.
+     *
+     * @param actions The actions that should be dispatched after the model initialization
+     */
+    dispatchOnceModelInitialized(...actions: Action[]): void {
+        this.initializationConstraint.onInitialized(() => this.dispatchAll(actions));
     }
 
     override dispatch(action: Action): Promise<void> {

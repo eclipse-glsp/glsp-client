@@ -13,7 +13,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { JsonPrimitive } from 'sprotty-protocol';
 import * as sprotty from 'sprotty-protocol/lib/actions';
 import { AnyObject, hasArrayProp, hasStringProp, TypeGuard } from '../utils/type-util';
 
@@ -150,7 +149,7 @@ export interface RejectAction extends ResponseAction, sprotty.RejectAction {
     /**
      * Optional additional details.
      */
-    detail?: JsonPrimitive;
+    detail?: string;
 }
 
 export namespace RejectAction {
@@ -160,7 +159,7 @@ export namespace RejectAction {
         return Action.hasKind(object, RejectAction.KIND) && hasStringProp(object, 'message');
     }
 
-    export function create(message: string, options: { detail?: JsonPrimitive; responseId?: string } = {}): RejectAction {
+    export function create(message: string, options: { detail?: string; responseId?: string } = {}): RejectAction {
         return {
             kind: KIND,
             responseId: '',

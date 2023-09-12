@@ -38,9 +38,9 @@ import { FeedbackActionDispatcher } from './feedback/feedback-action-dispatcher'
 import { FeedbackAwareUpdateModelCommand } from './feedback/update-model-command';
 import { FocusStateChangedAction } from './focus/focus-state-change-action';
 import { FocusTracker } from './focus/focus-tracker';
-import { DefaultModelInitializationConstraint, ModelInitializationConstraint } from './model-initialization-constraint';
 import { DiagramLoader } from './model/diagram-loader';
 import { GLSPModelSource } from './model/glsp-model-source';
+import { DefaultModelInitializationConstraint, ModelInitializationConstraint } from './model/model-initialization-constraint';
 import { GLSPModelRegistry } from './model/model-registry';
 import { SelectionClearingMouseListener } from './selection-clearing-mouse-listener';
 import { SelectionService } from './selection-service';
