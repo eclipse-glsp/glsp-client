@@ -19,11 +19,13 @@ import {
     AnyObject,
     ApplicationIdProvider,
     Args,
+    EMPTY_ROOT,
     GLSPClient,
     InitializeParameters,
     MaybePromise,
     RequestModelAction,
-    ServerStatusAction,
+    SetModelAction,
+    StatusAction,
     TYPES,
     hasNumberProp
 } from '~glsp-sprotty';
@@ -171,6 +173,8 @@ export class DiagramLoader {
             enableNotifications: options.enableNotifications ?? true
         };
         await this.actionDispatcher.initialize();
+        // Set placeholder model until real model from server is available
+        await this.actionDispatcher.dispatch(SetModelAction.create(EMPTY_ROOT));
         await this.invokeStartupHook('preInitialize');
         await this.initialize(resolvedOptions);
         await this.invokeStartupHook('preRequestModel');
@@ -191,7 +195,7 @@ export class DiagramLoader {
 
     protected async initialize(options: ResolvedDiagramLoadingOptions): Promise<void> {
         if (options.enableNotifications) {
-            this.actionDispatcher.dispatch(ServerStatusAction.create('Initializing...', { severity: 'INFO' }));
+            this.actionDispatcher.dispatch(StatusAction.create('Initializing...', { severity: 'INFO' }));
         }
 
         const glspClient = await this.options.glspClientProvider();
@@ -203,7 +207,7 @@ export class DiagramLoader {
         }
 
         if (options.enableNotifications) {
-            this.actionDispatcher.dispatch(ServerStatusAction.create('', { severity: 'NONE' }));
+            this.actionDispatcher.dispatch(StatusAction.create('', { severity: 'NONE' }));
         }
     }
 }

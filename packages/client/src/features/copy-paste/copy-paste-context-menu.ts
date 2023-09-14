@@ -23,8 +23,8 @@ import {
     MenuItem,
     Point,
     SModelRoot,
-    ServerMessageAction,
-    ServerStatusAction,
+    MessageAction,
+    StatusAction,
     TYPES,
     hasStringProp,
     isSelected
@@ -83,10 +83,7 @@ export class InvokeCopyPasteActionHandler implements IActionHandler {
         const message = `Please use the browser's ${operation} command or shortcut.`;
         const timeout = 10000;
         const severity = 'WARNING';
-        this.dispatcher.dispatchAll([
-            ServerStatusAction.create(message, { severity, timeout }),
-            ServerMessageAction.create(message, { severity })
-        ]);
+        this.dispatcher.dispatchAll([StatusAction.create(message, { severity, timeout }), MessageAction.create(message, { severity })]);
     }
 }
 

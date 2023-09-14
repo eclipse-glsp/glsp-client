@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { FeatureModule, ServerStatusAction, TYPES, bindAsService, configureActionHandler } from '~glsp-sprotty';
+import { FeatureModule, StatusAction, TYPES, bindAsService, configureActionHandler } from '~glsp-sprotty';
 import '../../../css/status-overlay.css';
 import { StatusOverlay } from './status-overlay';
 
@@ -22,5 +22,5 @@ export const statusModule = new FeatureModule((bind, unbind, isBound, rebind) =>
     const context = { bind, unbind, isBound, rebind };
     bindAsService(context, TYPES.IUIExtension, StatusOverlay);
     bind(TYPES.IDiagramStartup).toService(StatusOverlay);
-    configureActionHandler(context, ServerStatusAction.KIND, StatusOverlay);
+    configureActionHandler(context, StatusAction.KIND, StatusOverlay);
 });

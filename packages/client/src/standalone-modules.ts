@@ -23,7 +23,7 @@ import {
     ICommand,
     ILogger,
     ModuleConfiguration,
-    ServerMessageAction,
+    MessageAction,
     StartProgressAction,
     TYPES,
     UpdateProgressAction,
@@ -40,7 +40,7 @@ import { standaloneViewportModule } from './features/viewport/viewport-modules';
 export const standaloneFallbackModule = new FeatureModule((bind, unbind, isBound, rebind) => {
     const context = { bind, unbind, isBound, rebind };
     bind(FallbackActionHandler).toSelf().inSingletonScope();
-    configureActionHandler(context, ServerMessageAction.KIND, FallbackActionHandler);
+    configureActionHandler(context, MessageAction.KIND, FallbackActionHandler);
     configureActionHandler(context, StartProgressAction.KIND, FallbackActionHandler);
     configureActionHandler(context, UpdateProgressAction.KIND, FallbackActionHandler);
     configureActionHandler(context, EndProgressAction.KIND, FallbackActionHandler);
