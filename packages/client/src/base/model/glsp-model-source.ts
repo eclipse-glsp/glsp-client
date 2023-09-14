@@ -17,7 +17,6 @@
 import { inject, injectable, postConstruct, preDestroy } from 'inversify';
 import {
     Action,
-    ActionHandlerRegistry,
     ActionMessage,
     Disposable,
     DisposableCollection,
@@ -28,6 +27,7 @@ import {
     SModelRootSchema,
     TYPES
 } from '~glsp-sprotty';
+import { GLSPActionHandlerRegistry } from '../action-handler-registry';
 import { IDiagramOptions } from './diagram-loader';
 /**
  * A helper interface that allows the client to mark actions that have been received from the server.
@@ -91,14 +91,23 @@ export class GLSPModelSource extends ModelSource implements Disposable {
         this.clientId = this.options.clientId ?? this.viewerOptions.baseDiv;
     }
 
-    configure(registry: ActionHandlerRegistry, initializeResult: InitializeResult): Promise<void> {
+    configure(registry: GLSPActionHandlerRegistry, initializeResult: InitializeResult): Promise<void> {
         const serverActions = initializeResult.serverActions[this.diagramType];
         if (!serverActions || serverActions.length === 0) {
             throw new Error(`No server-handled actions could be derived from the initialize result for diagramType: ${this.diagramType}!`);
         }
+        // Retrieve all currently handled action kinds. We do this before registering the server actions
+        // to ensure that the array will only contain client-side handled actions
+        const clientActionKinds = registry.getHandledActionKinds();
+
         serverActions.forEach(action => registry.register(action, this));
         this.toDispose.push(this.glspClient!.onActionMessage(message => this.messageReceived(message), this.clientId));
-        return this.glspClient!.initializeClientSession({ clientSessionId: this.clientId, diagramType: this.diagramType });
+
+        return this.glspClient!.initializeClientSession({
+            clientSessionId: this.clientId,
+            clientActionKinds,
+            diagramType: this.diagramType
+        });
     }
 
     protected messageReceived(message: ActionMessage): void {
@@ -111,7 +120,7 @@ export class GLSPModelSource extends ModelSource implements Disposable {
         this.actionDispatcher.dispatch(action);
     }
 
-    override initialize(registry: ActionHandlerRegistry): void {
+    override initialize(registry: GLSPActionHandlerRegistry): void {
         // Registering actions here is discouraged and it's recommended
         // to implemented dedicated action handlers.
         if (!this.clientId) {

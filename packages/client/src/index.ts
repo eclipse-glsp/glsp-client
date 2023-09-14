@@ -16,6 +16,7 @@
 
 // ------------------ Base ------------------
 export * from './base/action-dispatcher';
+export * from './base/action-handler-registry';
 export * from './base/argumentable';
 export * from './base/auto-complete/auto-complete-actions';
 export * from './base/auto-complete/auto-complete-widget';

@@ -67,6 +67,12 @@ export interface InitializeClientSessionParameters {
     diagramType: string;
 
     /**
+     * The set of action kinds that can be handled by the client.
+     * Used by the server to know which dispatched actions should be forwarded to the client.
+     */
+    clientActionKinds: string[];
+
+    /**
      * Additional custom arguments.
      */
     args?: Args;

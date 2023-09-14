@@ -15,6 +15,7 @@
  ********************************************************************************/
 import '@vscode/codicons/dist/codicon.css';
 import {
+    ActionHandlerRegistry,
     FeatureModule,
     KeyTool,
     LocationPostprocessor,
@@ -31,6 +32,7 @@ import {
 } from '~glsp-sprotty';
 import '../../css/glsp-sprotty.css';
 import { GLSPActionDispatcher } from './action-dispatcher';
+import { GLSPActionHandlerRegistry } from './action-handler-registry';
 import { GLSPCommandStack } from './command-stack';
 import { EditorContextService } from './editor-context-service';
 import { ModifyCssFeedbackCommand } from './feedback/css-feedback';
@@ -91,6 +93,8 @@ export const defaultModule = new FeatureModule((bind, unbind, isBound, rebind, .
     bindOrRebind(context, TYPES.ICommandStack).to(GLSPCommandStack).inSingletonScope();
     bind(GLSPActionDispatcher).toSelf().inSingletonScope();
     bindOrRebind(context, TYPES.IActionDispatcher).toService(GLSPActionDispatcher);
+    bind(GLSPActionHandlerRegistry).toSelf().inSingletonScope();
+    bindOrRebind(context, ActionHandlerRegistry).toService(GLSPActionHandlerRegistry);
 
     bindAsService(context, TYPES.ModelSource, GLSPModelSource);
     bind(DiagramLoader).toSelf().inSingletonScope();
