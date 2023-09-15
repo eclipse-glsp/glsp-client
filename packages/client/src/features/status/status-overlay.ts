@@ -14,13 +14,13 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { inject, injectable } from 'inversify';
-import { AbstractUIExtension, IActionHandler, ServerStatusAction, codiconCSSClasses } from '~glsp-sprotty';
+import { AbstractUIExtension, IActionHandler, StatusAction, codiconCSSClasses } from '~glsp-sprotty';
 import { GLSPActionDispatcher } from '../../base/action-dispatcher';
 import { EditorContextService } from '../../base/editor-context-service';
 import { IDiagramStartup } from '../../base/model/diagram-loader';
 
 /**
- * A reusable status overlay for rendering (icon + message) and handling of {@link ServerStatusAction}'s.
+ * A reusable status overlay for rendering (icon + message) and handling of {@link StatusAction}'s.
  */
 @injectable()
 export class StatusOverlay extends AbstractUIExtension implements IActionHandler, IDiagramStartup {
@@ -52,7 +52,7 @@ export class StatusOverlay extends AbstractUIExtension implements IActionHandler
         containerElement.appendChild(this.statusMessageDiv);
     }
 
-    protected setStatus(status: ServerStatusAction): void {
+    protected setStatus(status: StatusAction): void {
         if (this.statusMessageDiv) {
             this.statusMessageDiv.textContent = status.message;
             this.removeClasses(this.statusMessageDiv, 1);
@@ -80,7 +80,7 @@ export class StatusOverlay extends AbstractUIExtension implements IActionHandler
     }
 
     protected clearStatus(): void {
-        this.setStatus(ServerStatusAction.create('', { severity: 'NONE' }));
+        this.setStatus(StatusAction.create('', { severity: 'NONE' }));
     }
 
     protected clearTimeout(): void {
@@ -100,7 +100,7 @@ export class StatusOverlay extends AbstractUIExtension implements IActionHandler
         }
     }
 
-    handle(action: ServerStatusAction): void {
+    handle(action: StatusAction): void {
         this.clearTimeout();
         if (action.severity === 'NONE') {
             this.clearStatus();

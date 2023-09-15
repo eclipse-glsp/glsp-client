@@ -24,14 +24,15 @@ import {
     InitializeParameters,
     MaybePromise,
     RequestModelAction,
-    ServerStatusAction,
     SetModelAction,
+    StatusAction,
     TYPES,
     hasNumberProp
 } from '~glsp-sprotty';
 import { GLSPActionDispatcher } from '../action-dispatcher';
 import { Ranked } from '../ranked';
 import { GLSPModelSource } from './glsp-model-source';
+import { ModelInitializationConstraint } from './model-initialization-constraint';
 
 /**
  * Configuration options for a specific GLSP diagram instance.
@@ -79,9 +80,13 @@ export interface IDiagramStartup extends Partial<Ranked> {
      * Hook for services that should be executed after the initial model loading request (i.e. `RequestModelAction`).
      * Note that this hook is invoked directly after the `RequestModelAction` has been dispatched. It does not necessarily wait
      * until the client-server update roundtrip is completed. If you need to wait until the diagram is fully initialized use the
-     * {@link GLSPActionDispatcher.onceModelInitialized} constraint.
+     * {@link postModelInitialization} hook.
      */
     postRequestModel?(): MaybePromise<void>;
+    /* Hook for services that should be executed after the diagram model is fully initialized
+     * (i.e. `ModelInitializationConstraint` is completed).
+     */
+    postModelInitialization?(): MaybePromise<void>;
 }
 
 export namespace IDiagramStartup {
@@ -89,7 +94,10 @@ export namespace IDiagramStartup {
         return (
             AnyObject.is(object) &&
             hasNumberProp(object, 'rank', true) &&
-            ('preInitialize' in object || 'preRequestModel' in object || 'postRequestModel' in object)
+            ('preInitialize' in object ||
+                'preRequestModel' in object ||
+                'postRequestModel' in object ||
+                'postModelInitialization' in object)
         );
     }
 }
@@ -142,6 +150,9 @@ export class DiagramLoader {
     @inject(GLSPModelSource)
     protected modelSource: GLSPModelSource;
 
+    @inject(ModelInitializationConstraint)
+    protected modelInitializationConstraint: ModelInitializationConstraint;
+
     @postConstruct()
     protected postConstruct(): void {
         this.diagramStartups.sort((a, b) => Ranked.getRank(a) - Ranked.getRank(b));
@@ -161,6 +172,7 @@ export class DiagramLoader {
             },
             enableNotifications: options.enableNotifications ?? true
         };
+        await this.actionDispatcher.initialize();
         // Set placeholder model until real model from server is available
         await this.actionDispatcher.dispatch(SetModelAction.create(EMPTY_ROOT));
         await this.invokeStartupHook('preInitialize');
@@ -168,6 +180,7 @@ export class DiagramLoader {
         await this.invokeStartupHook('preRequestModel');
         await this.requestModel(resolvedOptions);
         await this.invokeStartupHook('postRequestModel');
+        this.modelInitializationConstraint.onInitialized(() => this.invokeStartupHook('postModelInitialization'));
     }
 
     protected async invokeStartupHook(hook: keyof Omit<IDiagramStartup, 'rank'>): Promise<void> {
@@ -176,18 +189,13 @@ export class DiagramLoader {
         }
     }
 
-    protected requestModel(options: ResolvedDiagramLoadingOptions): Promise<void> {
-        const result = this.actionDispatcher.dispatch(RequestModelAction.create({ options: options.requestModelOptions }));
-        if (options.enableNotifications) {
-            this.actionDispatcher.dispatch(ServerStatusAction.create('', { severity: 'NONE' }));
-        }
-        return result;
+    protected async requestModel(options: ResolvedDiagramLoadingOptions): Promise<void> {
+        return this.actionDispatcher.dispatch(RequestModelAction.create({ options: options.requestModelOptions }));
     }
 
     protected async initialize(options: ResolvedDiagramLoadingOptions): Promise<void> {
-        await this.actionDispatcher.initialize();
         if (options.enableNotifications) {
-            this.actionDispatcher.dispatch(ServerStatusAction.create('Initializing...', { severity: 'INFO' }));
+            this.actionDispatcher.dispatch(StatusAction.create('Initializing...', { severity: 'INFO' }));
         }
 
         const glspClient = await this.options.glspClientProvider();
@@ -196,6 +204,10 @@ export class DiagramLoader {
 
         if (!glspClient.initializeResult) {
             await glspClient.initializeServer(options.initializeParameters);
+        }
+
+        if (options.enableNotifications) {
+            this.actionDispatcher.dispatch(StatusAction.create('', { severity: 'NONE' }));
         }
     }
 }

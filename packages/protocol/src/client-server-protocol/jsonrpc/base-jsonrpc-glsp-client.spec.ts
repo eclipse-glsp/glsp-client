@@ -158,12 +158,12 @@ describe('Base JSON-RPC GLSP Client', () => {
     describe('initializeClientSession', () => {
         it('should fail if client is not running', async () => {
             await resetClient(false);
-            await expectToThrowAsync(() => client.initializeClientSession({ clientSessionId: '', diagramType: '' }));
+            await expectToThrowAsync(() => client.initializeClientSession({ clientSessionId: '', diagramType: '', clientActionKinds: [] }));
             expect(connection.sendRequest.called).to.be.false;
         });
         it('should invoke the corresponding server method', async () => {
             await resetClient();
-            const params = { clientSessionId: '', diagramType: '' };
+            const params = { clientSessionId: '', diagramType: '', clientActionKinds: [] };
             const initializeSessionMock = connection.sendRequest.withArgs(JsonrpcGLSPClient.InitializeClientSessionRequest, params);
             const result = await client.initializeClientSession(params);
             expect(result).to.be.undefined;

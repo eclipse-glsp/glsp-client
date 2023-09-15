@@ -200,7 +200,7 @@ export class TypeHintProvider implements IActionHandler, ITypeHintProvider, IDia
         return getTypeHint(input, this.edgeHints);
     }
 
-    preRequestModel(): MaybePromise<void> {
+    postModelInitialization(): MaybePromise<void> {
         this.actionDispatcher.dispatch(RequestTypeHintsAction.create());
     }
 }

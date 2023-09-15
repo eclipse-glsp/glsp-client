@@ -34,11 +34,11 @@ export namespace LabelEditValidation {
 
     export function toEditLabelValidationResult(status: ValidationStatus): EditLabelValidationResult {
         const message = status.message;
-        let severity = 'ok' as Severity;
+        let severity: Severity = 'ok';
         if (ValidationStatus.isError(status)) {
-            severity = 'error' as Severity;
+            severity = 'error';
         } else if (ValidationStatus.isWarning(status)) {
-            severity = 'warning' as Severity;
+            severity = 'warning';
         }
         return { message, severity };
     }
@@ -61,7 +61,7 @@ export class ServerEditLabelValidator implements IEditLabelValidator {
         if (SetEditValidationResultAction.is(action)) {
             return LabelEditValidation.toEditLabelValidationResult(action.status);
         }
-        return { severity: 'ok' as Severity };
+        return { severity: 'ok' };
     }
 }
 

@@ -62,19 +62,17 @@ export class ZoomKeyListener extends KeyListener {
     }
 
     registerShortcutKey(): void {
-        this.tool.actionDispatcher.onceModelInitialized().then(() => {
-            this.tool.actionDispatcher.dispatchAll([
-                SetAccessibleKeyShortcutAction.create({
-                    token: this.token,
-                    keys: [
-                        { shortcuts: ['+'], description: 'Zoom in to element or viewport', group: 'Zoom', position: 0 },
-                        { shortcuts: ['-'], description: 'Zoom out to element or viewport', group: 'Zoom', position: 1 },
-                        { shortcuts: ['CTRL', '0'], description: 'Reset zoom to default', group: 'Zoom', position: 2 },
-                        { shortcuts: ['CTRL', '+'], description: 'Zoom in via Grid', group: 'Zoom', position: 3 }
-                    ]
-                })
-            ]);
-        });
+        this.tool.actionDispatcher.dispatchOnceModelInitialized(
+            SetAccessibleKeyShortcutAction.create({
+                token: this.token,
+                keys: [
+                    { shortcuts: ['+'], description: 'Zoom in to element or viewport', group: 'Zoom', position: 0 },
+                    { shortcuts: ['-'], description: 'Zoom out to element or viewport', group: 'Zoom', position: 1 },
+                    { shortcuts: ['CTRL', '0'], description: 'Reset zoom to default', group: 'Zoom', position: 2 },
+                    { shortcuts: ['CTRL', '+'], description: 'Zoom in via Grid', group: 'Zoom', position: 3 }
+                ]
+            })
+        );
     }
 
     override keyDown(element: SModelElement, event: KeyboardEvent): Action[] {

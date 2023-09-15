@@ -18,9 +18,9 @@ import {
     Action,
     IActionDispatcher,
     IActionHandler,
-    ServerMessageAction,
-    ServerStatusAction,
+    MessageAction,
     SourceModelChangedAction,
+    StatusAction,
     TYPES,
     ViewerOptions
 } from '~glsp-sprotty';
@@ -68,9 +68,6 @@ export class SourceModelChangedActionHandler implements IActionHandler {
         const message = `The source model ${action.sourceModelName} has changed. You might want to consider reloading.`;
         const timeout = 0;
         const severity = 'WARNING';
-        this.dispatcher.dispatchAll([
-            ServerStatusAction.create(message, { severity, timeout }),
-            ServerMessageAction.create(message, { severity })
-        ]);
+        this.dispatcher.dispatchAll([StatusAction.create(message, { severity, timeout }), MessageAction.create(message, { severity })]);
     }
 }

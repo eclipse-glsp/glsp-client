@@ -15,80 +15,74 @@
  ********************************************************************************/
 /* eslint-disable max-len */
 import { expect } from 'chai';
-import {
-    EndProgressAction,
-    ServerMessageAction,
-    ServerStatusAction,
-    StartProgressAction,
-    UpdateProgressAction
-} from './client-notification';
+import { EndProgressAction, MessageAction, StartProgressAction, StatusAction, UpdateProgressAction } from './client-notification';
 /**
  * Tests for the utility functions declared in the namespaces of the protocol
  * action definitions.
  */
 describe('Client notification actions', () => {
-    describe('ServerStatusAction', () => {
+    describe('StatusAction', () => {
         describe('is', () => {
             it('should return true for an object having the correct type and a value for all required interface properties', () => {
-                const statusAction: ServerStatusAction = { kind: 'serverStatus', message: 'Some', severity: 'INFO' };
-                expect(ServerStatusAction.is(statusAction)).to.be.true;
+                const statusAction: StatusAction = { kind: StatusAction.KIND, message: 'Some', severity: 'INFO' };
+                expect(StatusAction.is(statusAction)).to.be.true;
             });
             it('should return false for `undefined`', () => {
-                expect(ServerStatusAction.is(undefined)).to.be.false;
+                expect(StatusAction.is(undefined)).to.be.false;
             });
             it('should return false for an object that does not have all required interface properties', () => {
-                expect(ServerStatusAction.is({ kind: 'notTheRightOne' })).to.be.false;
+                expect(StatusAction.is({ kind: 'notTheRightOne' })).to.be.false;
             });
         });
 
         describe('create', () => {
             it('should return an object conforming to the interface with matching properties for the given required arguments and default values for the optional arguments', () => {
                 const message = 'someMessage';
-                const expected: ServerStatusAction = { kind: ServerStatusAction.KIND, message, severity: 'INFO' };
-                expect(ServerStatusAction.create(message)).to.deep.equals(expected);
+                const expected: StatusAction = { kind: StatusAction.KIND, message, severity: 'INFO' };
+                expect(StatusAction.create(message)).to.deep.equals(expected);
             });
             it('should return an object conforming to the interface with matching properties for the given required and optional arguments', () => {
-                const expected: ServerStatusAction = {
-                    kind: ServerStatusAction.KIND,
+                const expected: StatusAction = {
+                    kind: StatusAction.KIND,
                     message: 'someMessage',
                     severity: 'ERROR',
                     timeout: 5
                 };
                 const { message, severity, timeout } = expected;
-                expect(ServerStatusAction.create(message, { severity, timeout })).to.deep.equals(expected);
+                expect(StatusAction.create(message, { severity, timeout })).to.deep.equals(expected);
             });
         });
     });
 
-    describe('ServerMessageAction', () => {
+    describe('MessageAction', () => {
         describe('is', () => {
             it('should return true for an object having the correct type and a value for all required interface properties', () => {
-                const messageAction: ServerMessageAction = { kind: 'serverMessage', message: '', severity: 'INFO' };
-                expect(ServerMessageAction.is(messageAction)).to.be.true;
+                const messageAction: MessageAction = { kind: MessageAction.KIND, message: '', severity: 'INFO' };
+                expect(MessageAction.is(messageAction)).to.be.true;
             });
             it('should return false for `undefined`', () => {
-                expect(ServerMessageAction.is(undefined)).to.be.false;
+                expect(MessageAction.is(undefined)).to.be.false;
             });
             it('should return false for an object that does not have all required interface properties', () => {
-                expect(ServerMessageAction.is({ kind: 'notTheRightOne' })).to.be.false;
+                expect(MessageAction.is({ kind: 'notTheRightOne' })).to.be.false;
             });
         });
 
         describe('create', () => {
             it('should return an object conforming to the interface with matching properties for the given required arguments and default values for the optional arguments', () => {
                 const message = 'someMessage';
-                const expected: ServerMessageAction = { kind: ServerMessageAction.KIND, message, severity: 'INFO' };
-                expect(ServerMessageAction.create(message)).to.deep.equals(expected);
+                const expected: MessageAction = { kind: MessageAction.KIND, message, severity: 'INFO' };
+                expect(MessageAction.create(message)).to.deep.equals(expected);
             });
             it('should return an object conforming to the interface with matching properties for the given required and optional arguments', () => {
-                const expected: ServerMessageAction = {
-                    kind: ServerMessageAction.KIND,
+                const expected: MessageAction = {
+                    kind: MessageAction.KIND,
                     message: 'someMessage',
                     details: 'details',
                     severity: 'ERROR'
                 };
                 const { message, severity, details } = expected;
-                expect(ServerMessageAction.create(message, { severity, details })).to.deep.equals(expected);
+                expect(MessageAction.create(message, { severity, details })).to.deep.equals(expected);
             });
         });
     });

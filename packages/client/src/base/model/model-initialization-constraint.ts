@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { injectable } from 'inversify';
-import { Action, Deferred, InitializeCanvasBoundsAction, SetModelAction, UpdateModelAction } from '~glsp-sprotty';
+import { Action, Deferred, Disposable, Emitter, InitializeCanvasBoundsAction, SetModelAction, UpdateModelAction } from '~glsp-sprotty';
 
 /**
  * The constraint defining when the initialization of the GLSP model is completed.
@@ -37,21 +37,46 @@ import { Action, Deferred, InitializeCanvasBoundsAction, SetModelAction, UpdateM
 @injectable()
 export abstract class ModelInitializationConstraint {
     protected completion: Deferred<void> = new Deferred();
-    protected completed = false;
 
+    protected _isCompleted = false;
     get isCompleted(): boolean {
-        return this.completed;
+        return this._isCompleted;
     }
 
-    protected setCompleted(isCompleted: boolean): void {
-        this.completed = isCompleted;
-        if (isCompleted) {
-            this.completion.resolve();
+    protected onInitializedEmitter = new Emitter<void>();
+
+    /**
+     * Register a listener that will be invoked once the initialization process
+     * has been completed. If the initialization is already completed on registration
+     * the given listener will be invoked right away
+     * @param listener
+     */
+    onInitialized(listener: () => void): Disposable;
+
+    /**
+     * Retrieve a promise that resolves once the initialization process
+     * has been completed.
+     * @returns the initialization promise
+     */
+    onInitialized(): Promise<void>;
+    onInitialized(listener?: () => void): Promise<void> | Disposable {
+        if (!listener) {
+            return this.completion.promise;
         }
+        if (this.isCompleted) {
+            listener();
+            return Disposable.empty();
+        }
+        return this.onInitializedEmitter.event(listener);
     }
 
-    onInitialized(): Promise<void> {
-        return this.completion.promise;
+    protected setCompleted(): void {
+        if (!this.isCompleted) {
+            this._isCompleted = true;
+            this.completion.resolve();
+            this.onInitializedEmitter.fire();
+            this.onInitializedEmitter.dispose();
+        }
     }
 
     notifyDispatched(action: Action): void {
@@ -59,10 +84,18 @@ export abstract class ModelInitializationConstraint {
             return;
         }
         if (this.isInitializedAfter(action)) {
-            this.setCompleted(true);
+            this.setCompleted();
         }
     }
 
+    /**
+     * Central method to check the initialization state. Is invoked
+     * for every action dispatched by the `ActionDispatcher` (until the initialization has completed).
+     *  Should
+     * return `true` once the action has been passed which marks the end
+     * of the initialization process.
+     * @param action The last dispatched action
+     */
     abstract isInitializedAfter(action: Action): boolean;
 }
 

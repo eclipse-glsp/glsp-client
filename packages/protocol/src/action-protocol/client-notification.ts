@@ -17,17 +17,17 @@ import { hasStringProp } from '../utils/type-util';
 import { Action } from './base-protocol';
 
 /**
- * Sent by the server to signal a state change.
+ * Sent by the server (or the client) to signal a status change.
  * If a timeout is given the respective status should disappear after the timeout is reached.
  * The corresponding namespace declares the action kind as constant and offers helper functions for type guard checks
- * and creating new `ServerStatusActions`.
+ * and creating new `StatusAction`s.
  */
-export interface ServerStatusAction extends Action {
-    kind: typeof ServerStatusAction.KIND;
+export interface StatusAction extends Action {
+    kind: typeof StatusAction.KIND;
     /**
      * The severity of the status.
      */
-    severity: ServerSeverity;
+    severity: SeverityLevel;
 
     /**
      * The user-facing message describing the status.
@@ -40,14 +40,14 @@ export interface ServerStatusAction extends Action {
     timeout?: number;
 }
 
-export namespace ServerStatusAction {
-    export const KIND = 'serverStatus';
+export namespace StatusAction {
+    export const KIND = 'status';
 
-    export function is(object: any): object is ServerStatusAction {
+    export function is(object: any): object is StatusAction {
         return Action.hasKind(object, KIND) && hasStringProp(object, 'severity') && hasStringProp(object, 'message');
     }
 
-    export function create(message: string, options: { severity?: ServerSeverity; timeout?: number } = {}): ServerStatusAction {
+    export function create(message: string, options: { severity?: SeverityLevel; timeout?: number } = {}): StatusAction {
         return {
             kind: KIND,
             severity: 'INFO',
@@ -61,19 +61,19 @@ export namespace ServerStatusAction {
  * The possible server status severity levels.
  */
 
-export type ServerSeverity = 'NONE' | 'INFO' | 'WARNING' | 'ERROR' | 'FATAL' | 'OK';
+export type SeverityLevel = 'NONE' | 'INFO' | 'WARNING' | 'ERROR' | 'FATAL' | 'OK';
 
 /**
- * Sent by the server to notify the user about something of interest. Typically this message is handled by
+ * Sent by the server (or the client) to notify the user about something of interest. Typically this message is handled by
  * the client by showing a message to the user with the application's message service.
  * If a timeout is given the respective message should disappear after the timeout is reached.
  * The corresponding namespace declares the action kind as constant and offers helper functions for type guard checks
- * and creating new `ServerMessageActions`.
+ * and creating new `MessageAction`s.
  */
-export interface ServerMessageAction extends Action {
-    kind: typeof ServerMessageAction.KIND;
+export interface MessageAction extends Action {
+    kind: typeof MessageAction.KIND;
 
-    severity: ServerSeverity;
+    severity: SeverityLevel;
 
     /**
      * The message that shall be shown to the user.
@@ -86,20 +86,20 @@ export interface ServerMessageAction extends Action {
     details?: string;
 }
 
-export namespace ServerMessageAction {
-    export const KIND = 'serverMessage';
+export namespace MessageAction {
+    export const KIND = 'message';
 
-    export function is(object: any): object is ServerMessageAction {
+    export function is(object: any): object is MessageAction {
         return Action.hasKind(object, KIND) && hasStringProp(object, 'message') && hasStringProp(object, 'severity');
     }
 
     export function create(
         message: string,
         options: {
-            severity?: ServerSeverity;
+            severity?: SeverityLevel;
             details?: string;
         } = {}
-    ): ServerMessageAction {
+    ): MessageAction {
         return {
             kind: KIND,
             message,
@@ -110,7 +110,7 @@ export namespace ServerMessageAction {
 }
 
 /**
- * Sent by the server to the client to request presenting the progress of a long running process in the UI.
+ * Sent to request presenting the progress of a long running process in the UI.
  */
 export interface StartProgressAction extends Action {
     kind: typeof StartProgressAction.KIND;
@@ -149,7 +149,7 @@ export namespace StartProgressAction {
 }
 
 /**
- * Sent by the server to the client to presenting an update of the progress of a long running process in the UI.
+ * Sent to presenting an update of the progress of a long running process in the UI.
  */
 export interface UpdateProgressAction extends Action {
     kind: typeof UpdateProgressAction.KIND;
@@ -191,7 +191,7 @@ export namespace UpdateProgressAction {
 }
 
 /**
- * Sent by the server to the client to end the reporting of a progress.
+ * Sent to end the reporting of a progress.
  */
 export interface EndProgressAction extends Action {
     kind: typeof EndProgressAction.KIND;

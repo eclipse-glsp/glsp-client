@@ -23,17 +23,17 @@ import {
     IActionHandler,
     ICommand,
     ILogger,
+    MessageAction,
     NavigateToExternalTargetAction,
     NavigateToTargetAction,
     NavigationTarget,
     RequestNavigationTargetsAction,
     SelectAction,
     SelectAllAction,
-    ServerMessageAction,
-    ServerSeverity,
-    ServerStatusAction,
     SetNavigationTargetsAction,
     SetResolvedNavigationTargetAction,
+    SeverityLevel,
+    StatusAction,
     TYPES,
     hasObjectProp,
     hasStringProp
@@ -264,11 +264,8 @@ export class NavigationActionHandler implements IActionHandler {
         this.notify('WARNING', message);
     }
 
-    private notify(severity: ServerSeverity, message: string): void {
+    private notify(severity: SeverityLevel, message: string): void {
         const timeout = this.notificationTimeout;
-        this.dispatcher.dispatchAll([
-            ServerStatusAction.create(message, { severity, timeout }),
-            ServerMessageAction.create(message, { severity })
-        ]);
+        this.dispatcher.dispatchAll([StatusAction.create(message, { severity, timeout }), MessageAction.create(message, { severity })]);
     }
 }

@@ -22,9 +22,9 @@ import { SelectionService } from '../../../base/selection-service';
 import { EnableDefaultToolsAction, EnableToolsAction, Tool } from '../../../base/tool-manager/tool';
 import { IMovementRestrictor } from '../../change-bounds/movement-restrictor';
 import { AccessibleKeyShortcutProvider, SetAccessibleKeyShortcutAction } from '../key-shortcut/accessible-key-shortcut';
-import { ResizeElementAction, ResizeType } from './resize-key-handler';
-import { ShowToastMessageAction } from '../toast/toast-handler';
 import * as messages from '../toast/messages.json';
+import { ShowToastMessageAction } from '../toast/toast-handler';
+import { ResizeElementAction, ResizeType } from './resize-key-handler';
 
 @injectable()
 export class ResizeKeyTool implements Tool {
@@ -63,19 +63,17 @@ export class ResizeKeyListener extends KeyListener implements AccessibleKeyShort
     }
 
     registerShortcutKey(): void {
-        this.tool.actionDispatcher.onceModelInitialized().then(() => {
-            this.tool.actionDispatcher.dispatchAll([
-                SetAccessibleKeyShortcutAction.create({
-                    token: this.token,
-                    keys: [
-                        { shortcuts: ['ALT', 'A'], description: 'Activate resize mode for selected element', group: 'Resize', position: 0 },
-                        { shortcuts: ['+'], description: 'Increase size of element', group: 'Resize', position: 1 },
-                        { shortcuts: ['-'], description: 'Increase size of element', group: 'Resize', position: 2 },
-                        { shortcuts: ['CTRL', '0'], description: 'Set element size to default', group: 'Resize', position: 3 }
-                    ]
-                })
-            ]);
-        });
+        this.tool.actionDispatcher.dispatchOnceModelInitialized(
+            SetAccessibleKeyShortcutAction.create({
+                token: this.token,
+                keys: [
+                    { shortcuts: ['ALT', 'A'], description: 'Activate resize mode for selected element', group: 'Resize', position: 0 },
+                    { shortcuts: ['+'], description: 'Increase size of element', group: 'Resize', position: 1 },
+                    { shortcuts: ['-'], description: 'Increase size of element', group: 'Resize', position: 2 },
+                    { shortcuts: ['CTRL', '0'], description: 'Set element size to default', group: 'Resize', position: 3 }
+                ]
+            })
+        );
     }
 
     override keyDown(element: SModelElement, event: KeyboardEvent): Action[] {

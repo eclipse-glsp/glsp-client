@@ -15,6 +15,7 @@
  ********************************************************************************/
 import '@vscode/codicons/dist/codicon.css';
 import {
+    ActionHandlerRegistry,
     FeatureModule,
     KeyTool,
     LocationPostprocessor,
@@ -31,6 +32,7 @@ import {
 } from '~glsp-sprotty';
 import '../../css/glsp-sprotty.css';
 import { GLSPActionDispatcher } from './action-dispatcher';
+import { GLSPActionHandlerRegistry } from './action-handler-registry';
 import { GLSPCommandStack } from './command-stack';
 import { EditorContextService } from './editor-context-service';
 import { ModifyCssFeedbackCommand } from './feedback/css-feedback';
@@ -38,9 +40,9 @@ import { FeedbackActionDispatcher } from './feedback/feedback-action-dispatcher'
 import { FeedbackAwareUpdateModelCommand } from './feedback/update-model-command';
 import { FocusStateChangedAction } from './focus/focus-state-change-action';
 import { FocusTracker } from './focus/focus-tracker';
-import { DefaultModelInitializationConstraint, ModelInitializationConstraint } from './model-initialization-constraint';
 import { DiagramLoader } from './model/diagram-loader';
 import { GLSPModelSource } from './model/glsp-model-source';
+import { DefaultModelInitializationConstraint, ModelInitializationConstraint } from './model/model-initialization-constraint';
 import { GLSPModelRegistry } from './model/model-registry';
 import { SelectionClearingMouseListener } from './selection-clearing-mouse-listener';
 import { SelectionService } from './selection-service';
@@ -91,6 +93,8 @@ export const defaultModule = new FeatureModule((bind, unbind, isBound, rebind, .
     bindOrRebind(context, TYPES.ICommandStack).to(GLSPCommandStack).inSingletonScope();
     bind(GLSPActionDispatcher).toSelf().inSingletonScope();
     bindOrRebind(context, TYPES.IActionDispatcher).toService(GLSPActionDispatcher);
+    bind(GLSPActionHandlerRegistry).toSelf().inSingletonScope();
+    bindOrRebind(context, ActionHandlerRegistry).toService(GLSPActionHandlerRegistry);
 
     bindAsService(context, TYPES.ModelSource, GLSPModelSource);
     bind(DiagramLoader).toSelf().inSingletonScope();

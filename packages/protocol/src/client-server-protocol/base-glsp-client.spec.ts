@@ -149,18 +149,18 @@ describe('Node GLSP Client', () => {
     describe('initializeClientSession', () => {
         it('should fail if server is not configured', async () => {
             resetClient(false);
-            await expectToThrowAsync(() => client.initializeClientSession({ clientSessionId: '', diagramType: '' }));
+            await expectToThrowAsync(() => client.initializeClientSession({ clientSessionId: '', diagramType: '', clientActionKinds: [] }));
             expect(server.initializeClientSession.called).to.be.false;
         });
         it('should fail if client is not running', async () => {
             resetClient(false);
             client.configureServer(server);
-            await expectToThrowAsync(() => client.initializeClientSession({ clientSessionId: '', diagramType: '' }));
+            await expectToThrowAsync(() => client.initializeClientSession({ clientSessionId: '', diagramType: '', clientActionKinds: [] }));
             expect(server.initializeClientSession.called).to.be.false;
         });
         it('should invoke the corresponding server method', async () => {
             resetClient();
-            const result = await client.initializeClientSession({ clientSessionId: '', diagramType: '' });
+            const result = await client.initializeClientSession({ clientSessionId: '', diagramType: '', clientActionKinds: [] });
             expect(result).to.be.undefined;
             expect(server.initializeClientSession.calledOnce).to.be.true;
         });

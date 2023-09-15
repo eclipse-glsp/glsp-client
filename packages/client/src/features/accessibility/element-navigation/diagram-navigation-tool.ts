@@ -86,28 +86,26 @@ export class ElementNavigatorKeyListener extends KeyListener {
     }
 
     registerShortcutKey(): void {
-        this.tool.actionDispatcher.onceModelInitialized().then(() => {
-            this.tool.actionDispatcher.dispatchAll([
-                SetAccessibleKeyShortcutAction.create({
-                    token: this.token,
-                    keys: [
-                        { shortcuts: ['N'], description: 'Activate default navigation', group: 'Navigation', position: 0 },
-                        {
-                            shortcuts: ['ALT', 'N'],
-                            description: 'Activate position based navigation',
-                            group: 'Navigation',
-                            position: 1
-                        },
-                        {
-                            shortcuts: ['⬅  ⬆  ➡  ⬇'],
-                            description: 'Navigate by relation or neighbors according to navigation mode',
-                            group: 'Navigation',
-                            position: 2
-                        }
-                    ]
-                })
-            ]);
-        });
+        this.tool.actionDispatcher.dispatchOnceModelInitialized(
+            SetAccessibleKeyShortcutAction.create({
+                token: this.token,
+                keys: [
+                    { shortcuts: ['N'], description: 'Activate default navigation', group: 'Navigation', position: 0 },
+                    {
+                        shortcuts: ['ALT', 'N'],
+                        description: 'Activate position based navigation',
+                        group: 'Navigation',
+                        position: 1
+                    },
+                    {
+                        shortcuts: ['⬅  ⬆  ➡  ⬇'],
+                        description: 'Navigate by relation or neighbors according to navigation mode',
+                        group: 'Navigation',
+                        position: 2
+                    }
+                ]
+            })
+        );
     }
 
     override keyDown(element: SModelElement, event: KeyboardEvent): Action[] {

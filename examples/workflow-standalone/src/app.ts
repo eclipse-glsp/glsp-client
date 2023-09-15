@@ -21,8 +21,8 @@ import {
     GLSPActionDispatcher,
     GLSPClient,
     GLSPWebSocketProvider,
-    ServerMessageAction,
-    ServerStatusAction
+    MessageAction,
+    StatusAction
 } from '@eclipse-glsp/client';
 import { Container } from 'inversify';
 import { join, resolve } from 'path';
@@ -55,10 +55,7 @@ async function initialize(connectionProvider: MessageConnection, isReconnecting 
         const message = `Connection to the ${id} glsp server got closed. Connection was successfully re-established.`;
         const timeout = 5000;
         const severity = 'WARNING';
-        actionDispatcher.dispatchAll([
-            ServerStatusAction.create(message, { severity, timeout }),
-            ServerMessageAction.create(message, { severity })
-        ]);
+        actionDispatcher.dispatchAll([StatusAction.create(message, { severity, timeout }), MessageAction.create(message, { severity })]);
         return;
     }
 }

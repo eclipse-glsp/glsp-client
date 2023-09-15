@@ -14,13 +14,17 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { FeatureModule, StatusAction, TYPES, bindAsService, configureActionHandler } from '~glsp-sprotty';
-import '../../../css/status-overlay.css';
-import { StatusOverlay } from './status-overlay';
+import { injectable } from 'inversify';
+import { ActionHandlerRegistry } from '~glsp-sprotty';
 
-export const statusModule = new FeatureModule((bind, unbind, isBound, rebind) => {
-    const context = { bind, unbind, isBound, rebind };
-    bindAsService(context, TYPES.IUIExtension, StatusOverlay);
-    bind(TYPES.IDiagramStartup).toService(StatusOverlay);
-    configureActionHandler(context, StatusAction.KIND, StatusOverlay);
-});
+@injectable()
+export class GLSPActionHandlerRegistry extends ActionHandlerRegistry {
+    /**
+     * Retrieve a set of all action kinds for which (at least) one
+     * handler is registered
+     * @returns the set of handled action kinds
+     */
+    getHandledActionKinds(): string[] {
+        return Array.from(this.elements.keys());
+    }
+}
