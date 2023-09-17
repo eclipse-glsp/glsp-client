@@ -70,6 +70,10 @@ export class NodeCreationToolMouseListener extends DragAwareMouseListener {
 
     override nonDraggingMouseUp(target: SModelElement, event: MouseEvent): Action[] {
         const result: Action[] = [];
+        if (this.container === undefined) {
+            this.mouseOver(target, event);
+        }
+
         if (this.creationAllowed(this.elementTypeId)) {
             const containerId = this.container ? this.container.id : undefined;
             let location = getAbsolutePosition(target, event);

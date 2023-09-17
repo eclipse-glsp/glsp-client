@@ -16,12 +16,30 @@
 
 import { inject, injectable } from 'inversify';
 import { matchesKeystroke } from 'sprotty/lib/utils/keyboard';
-import { Action, CenterAction, KeyListener, KeyTool, SModelElement, TYPES } from '~glsp-sprotty';
+import {
+    Action,
+    CenterAction,
+    KeyListener,
+    KeyTool,
+    Point,
+    SModelElement,
+    SModelRoot,
+    SetViewportAction,
+    TYPES,
+    Viewport,
+    isViewport
+} from '~glsp-sprotty';
 import { GLSPActionDispatcher } from '../../../base/action-dispatcher';
 import { SelectionService } from '../../../base/selection-service';
 import { Tool } from '../../../base/tool-manager/tool';
 import { SetAccessibleKeyShortcutAction } from '../key-shortcut/accessible-key-shortcut';
 import { ZoomElementAction, ZoomViewportAction } from '../move-zoom/zoom-handler';
+import { EnableKeyboardGridAction, KeyboardGridCellSelectedAction, KeyboardGridKeyboardEventAction } from '../keyboard-grid/action';
+import { getAbsolutePositionByPoint } from '../../../utils/viewpoint-util';
+import { EditorContextService } from '../../../base/editor-context-service';
+import { HideToastAction, ShowToastMessageAction } from '../toast/toast-handler';
+import { ElementNavigatorKeyListener } from '../element-navigation/diagram-navigation-tool';
+import * as messages from '../toast/messages.json';
 
 /**
  * Zoom viewport and elements when its focused and arrow keys are hit.
@@ -37,6 +55,8 @@ export class ZoomKeyTool implements Tool {
     @inject(KeyTool) protected readonly keytool: KeyTool;
     @inject(TYPES.IActionDispatcher) readonly actionDispatcher: GLSPActionDispatcher;
     @inject(SelectionService) selectionService: SelectionService;
+    @inject(EditorContextService)
+    protected editorContextService: EditorContextService;
 
     get id(): string {
         return ZoomKeyTool.ID;
@@ -49,6 +69,36 @@ export class ZoomKeyTool implements Tool {
 
     disable(): void {
         this.keytool.deregister(this.zoomKeyListener);
+    }
+
+    handle(action: Action): Action | void {
+        if (isViewport(this.editorContextService.modelRoot)) {
+            let viewportAction: Action | undefined = undefined;
+
+            if (KeyboardGridCellSelectedAction.is(action) && action.options.originId === ZoomKeyTool.ID) {
+                viewportAction = this.zoomKeyListener.setNewZoomFactor(
+                    this.editorContextService.modelRoot,
+                    ZoomKeyListener.defaultZoomInFactor,
+                    getAbsolutePositionByPoint(this.editorContextService.modelRoot, action.options.centerCellPosition)
+                );
+            } else if (KeyboardGridKeyboardEventAction.is(action) && action.options.originId === ZoomKeyTool.ID) {
+                if (matchesKeystroke(action.options.event, 'Minus')) {
+                    viewportAction = this.zoomKeyListener.setNewZoomFactor(
+                        this.editorContextService.modelRoot,
+                        ZoomKeyListener.defaultZoomOutFactor
+                    );
+                } else if (matchesKeystroke(action.options.event, 'Digit0', 'ctrl')) {
+                    viewportAction = CenterAction.create([]);
+                }
+            }
+
+            if (viewportAction) {
+                this.actionDispatcher.dispatchAll([
+                    viewportAction,
+                    HideToastAction.create({ id: Symbol.for(ElementNavigatorKeyListener.name) })
+                ]);
+            }
+        }
     }
 }
 
@@ -75,10 +125,43 @@ export class ZoomKeyListener extends KeyListener {
         );
     }
 
+    setNewZoomFactor(viewport: SModelElement & SModelRoot & Viewport, zoomFactor: number, point?: Point): SetViewportAction {
+        let newViewport: Viewport;
+        const newZoom = viewport.zoom * zoomFactor;
+
+        if (point) {
+            newViewport = {
+                scroll: {
+                    x: point.x - (0.5 * viewport.canvasBounds.width) / newZoom,
+                    y: point.y - (0.5 * viewport.canvasBounds.height) / newZoom
+                },
+                zoom: newZoom
+            };
+        } else {
+            newViewport = {
+                scroll: viewport.scroll,
+                zoom: newZoom
+            };
+        }
+        return SetViewportAction.create(viewport.id, newViewport, { animate: true });
+    }
+
     override keyDown(element: SModelElement, event: KeyboardEvent): Action[] {
         const selectedElementIds = this.tool.selectionService.getSelectedElementIDs();
 
-        if (this.matchesZoomOutKeystroke(event)) {
+        if (this.matchesZoomViaGrid(event)) {
+            return [
+                EnableKeyboardGridAction.create({
+                    originId: ZoomKeyTool.ID,
+                    triggerActions: []
+                }),
+
+                ShowToastMessageAction.createWithTimeout({
+                    id: Symbol.for(ElementNavigatorKeyListener.name),
+                    message: messages.grid.zoom_in_grid
+                })
+            ];
+        } else if (this.matchesZoomOutKeystroke(event)) {
             if (selectedElementIds.length > 0) {
                 return [ZoomElementAction.create(selectedElementIds, ZoomKeyListener.defaultZoomOutFactor)];
             } else {
@@ -101,6 +184,9 @@ export class ZoomKeyListener extends KeyListener {
         return event.key === '+' || matchesKeystroke(event, 'NumpadAdd');
     }
 
+    protected matchesZoomViaGrid(event: KeyboardEvent): boolean {
+        return event.key === '+' && event.ctrlKey;
+    }
     protected matchesMinZoomLevelKeystroke(event: KeyboardEvent): boolean {
         return matchesKeystroke(event, 'Digit0', 'ctrl') || matchesKeystroke(event, 'Numpad0', 'ctrl');
     }
