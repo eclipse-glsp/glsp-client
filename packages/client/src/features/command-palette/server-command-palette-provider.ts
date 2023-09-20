@@ -38,7 +38,7 @@ export class ServerCommandPaletteActionProvider implements ICommandPaletteAction
     @inject(TYPES.IActionDispatcher) protected actionDispatcher: GLSPActionDispatcher;
     @inject(EditorContextService) protected editorContext: EditorContextService;
 
-    getActions(_root: Readonly<SModelElement>, text: string, _lastMousePosition?: Point, index?: number): Promise<LabeledAction[]> {
+    async getActions(_root: Readonly<SModelElement>, text: string, _lastMousePosition?: Point, index?: number): Promise<LabeledAction[]> {
         const requestAction = RequestContextActions.create({
             contextId: ServerCommandPalette.CONTEXT_ID,
             editorContext: this.editorContext.get({
@@ -46,7 +46,8 @@ export class ServerCommandPaletteActionProvider implements ICommandPaletteAction
                 [ServerCommandPalette.INDEX]: index ? index : 0
             })
         });
-        return this.actionDispatcher.requestUntil(requestAction).then(response => this.getPaletteActionsFromResponse(response));
+        const response = await this.actionDispatcher.requestUntil(requestAction);
+        return response ? this.getPaletteActionsFromResponse(response) : [];
     }
 
     getPaletteActionsFromResponse(action: Action): LabeledAction[] {

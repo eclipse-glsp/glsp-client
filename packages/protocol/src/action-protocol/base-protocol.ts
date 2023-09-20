@@ -81,6 +81,10 @@ export interface RequestAction<Res extends ResponseAction> extends Action, sprot
      * Unique id for this request. In order to match a response to this request, the response needs to have the same id.
      */
     requestId: string;
+    /**
+     * Used to ensure correct typing. Clients must not use this property
+     */
+    readonly _?: Res;
 }
 
 export namespace RequestAction {

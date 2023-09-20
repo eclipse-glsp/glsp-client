@@ -41,10 +41,3 @@ export const TYPES = {
     IDiagramStartup: Symbol('IDiagramStartup'),
     IToolManager: Symbol('IToolManager')
 };
-
-/**
- * Keep a reexport under the old deprecated namespace to avoid hard API breaks.
- * This gives adopters a grace period but all deprecated API will be removed before the 1.0.0 release.
- * @deprecated Please use `TYPES` from `@eclipse-glsp/client` instead
- */
-export const GLSP_TYPES = TYPES;

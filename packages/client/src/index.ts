@@ -64,7 +64,7 @@ export * from './features/change-bounds/snap';
 export * from './features/command-palette/command-palette-tool';
 export * from './features/command-palette/server-command-palette-provider';
 export * from './features/context-menu/delete-element-context-menu';
-export * from './features/context-menu/selection-service-aware-context-menu-mouse-listener';
+export * from './features/context-menu/glsp-context-menu-mouse-listener';
 export * from './features/context-menu/server-context-menu-provider';
 export * from './features/copy-paste/copy-paste-context-menu';
 export * from './features/copy-paste/copy-paste-handler';

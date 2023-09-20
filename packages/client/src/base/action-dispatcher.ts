@@ -54,8 +54,8 @@ export class GLSPActionDispatcher extends ActionDispatcher {
         this.initializationConstraint.onInitialized(() => this.dispatchAll(actions));
     }
 
-    override dispatch(action: Action): Promise<void> {
-        const result = super.dispatch(action);
+    override async dispatch(action: Action): Promise<void> {
+        const result = await super.dispatch(action);
         this.initializationConstraint.notifyDispatched(action);
         return result;
     }
@@ -69,11 +69,11 @@ export class GLSPActionDispatcher extends ActionDispatcher {
                 this.timeouts.delete(action.responseId);
             }
 
-            // we might have reached a timeout, so we simply drop the response
+            // Check if we have a pending request for the response.
+            // If not the  we clear the responseId => action will be dispatched normally
             const deferred = this.requests.get(action.responseId);
             if (deferred === undefined) {
-                this.logger.log(this, 'No matching request for response', action);
-                return Promise.resolve();
+                action.responseId = '';
             }
         }
         return super.handleAction(action);
@@ -97,7 +97,11 @@ export class GLSPActionDispatcher extends ActionDispatcher {
      * If `rejectOnTimeout` is set to false (default) the returned promise will be resolved with
      * no value, otherwise it will be rejected.
      */
-    requestUntil<Res extends ResponseAction>(action: RequestAction<Res>, timeoutMs = 2000, rejectOnTimeout = false): Promise<Res> {
+    requestUntil<Res extends ResponseAction>(
+        action: RequestAction<Res>,
+        timeoutMs = 2000,
+        rejectOnTimeout = false
+    ): Promise<Res | undefined> {
         if (!action.requestId && action.requestId === '') {
             // No request id has been specified. So we use a generated one.
             action.requestId = RequestAction.generateRequestId();
@@ -122,6 +126,6 @@ export class GLSPActionDispatcher extends ActionDispatcher {
         }, timeoutMs);
         this.timeouts.set(requestId, timeout);
 
-        return super.request(action);
+        return super.request<Res>(action);
     }
 }
