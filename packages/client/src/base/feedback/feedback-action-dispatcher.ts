@@ -67,14 +67,16 @@ export class FeedbackActionDispatcher implements IFeedbackActionDispatcher {
     @inject(TYPES.ILogger) protected logger: ILogger;
 
     registerFeedback(feedbackEmitter: IFeedbackEmitter, feedbackActions: Action[], cleanupActions?: Action[] | undefined): Disposable {
-        this.registeredFeedback.set(feedbackEmitter, feedbackActions);
-        this.dispatchFeedback(feedbackActions, feedbackEmitter);
+        if (feedbackActions.length > 0) {
+            this.registeredFeedback.set(feedbackEmitter, feedbackActions);
+            this.dispatchFeedback(feedbackActions, feedbackEmitter);
+        }
         return Disposable.create(() => this.deregisterFeedback(feedbackEmitter, cleanupActions));
     }
 
     deregisterFeedback(feedbackEmitter: IFeedbackEmitter, cleanupActions?: Action[] | undefined): void {
         this.registeredFeedback.delete(feedbackEmitter);
-        if (cleanupActions) {
+        if (cleanupActions && cleanupActions.length > 0) {
             this.dispatchFeedback(cleanupActions, feedbackEmitter);
         }
     }
