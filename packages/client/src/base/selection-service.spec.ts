@@ -16,7 +16,7 @@
 import { AssertionError, expect } from 'chai';
 import { Container, injectable } from 'inversify';
 import * as sinon from 'sinon';
-import { Action, Disposable, SGraphFactory, SModelElementSchema, SModelRoot, TYPES, initializeContainer } from '~glsp-sprotty';
+import { Action, Disposable, SGraphFactory, SModelRoot, SNode, TYPES, initializeContainer } from '~glsp-sprotty';
 import { defaultModule } from './default.module';
 import { IFeedbackActionDispatcher, IFeedbackEmitter } from './feedback/feedback-action-dispatcher';
 import { ISelectionListener, SelectFeedbackAction, SelectionService } from './selection-service';
@@ -62,7 +62,6 @@ function createContainer(): Container {
 
 describe('SelectionService', () => {
     // eslint-disable-next-line deprecation/deprecation
-    let graphFactory: SGraphFactory;
     let root: SModelRoot;
     let selectionService: SelectionService;
     let feedbackDispatcher: MockFeedbackActionDispatcher;
@@ -70,7 +69,6 @@ describe('SelectionService', () => {
     beforeEach(() => {
         const container = createContainer();
         // eslint-disable-next-line deprecation/deprecation
-        graphFactory = container.get<SGraphFactory>(TYPES.IModelFactory);
         root = createRoot('node1', 'node2', 'node3', 'node4', 'node5');
         selectionService = container.get<SelectionService>(SelectionService);
         feedbackDispatcher = container.get<MockFeedbackActionDispatcher>(TYPES.IFeedbackActionDispatcher);
@@ -243,13 +241,16 @@ describe('SelectionService', () => {
     });
 
     function createRoot(...nodes: string[]): SModelRoot {
-        const children: SModelElementSchema[] = [];
-        nodes.forEach(node => children.push({ id: node, type: 'node:circle' }));
-        return graphFactory.createRoot({
-            id: 'selection-service-spec',
-            type: 'graph',
-            children: children
+        const model = new SModelRoot();
+        model.id = 'selection-service-spec';
+        model.type = 'graph';
+        nodes.forEach(id => {
+            const node = new SNode();
+            node.type = 'node:circle';
+            node.id = id;
+            model.add(node);
         });
+        return model;
     }
 
     function assertSelectionAndFeedback(expectedSelection: string[], expectedDeselection: string[]): void {

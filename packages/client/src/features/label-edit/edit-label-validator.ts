@@ -52,9 +52,10 @@ export namespace LabelEditValidation {
 export class ServerEditLabelValidator implements IEditLabelValidator {
     @inject(TYPES.IActionDispatcher) protected actionDispatcher: GLSPActionDispatcher;
 
-    validate(value: string, label: EditableLabel & SModelElement): Promise<EditLabelValidationResult> {
+    async validate(value: string, label: EditableLabel & SModelElement): Promise<EditLabelValidationResult> {
         const action = LabelEditValidation.createValidationRequestAction(value, label.id);
-        return this.actionDispatcher.requestUntil(action).then(response => this.getValidationResultFromResponse(response));
+        const response = await this.actionDispatcher.requestUntil(action);
+        return response ? this.getValidationResultFromResponse(response) : { severity: 'ok' };
     }
 
     getValidationResultFromResponse(action: Action): EditLabelValidationResult {

@@ -49,6 +49,7 @@ export interface IDiagramOptions {
     diagramType: string;
     /**
      * The provider function to retrieve the GLSP client used by this diagram to communicate with the server.
+     * Multiple invocations of the provder function should always return the same `GLSPClient` instance.
      */
     glspClientProvider: () => Promise<GLSPClient>;
     /**
@@ -172,8 +173,7 @@ export class DiagramLoader {
             },
             enableNotifications: options.enableNotifications ?? true
         };
-        await this.actionDispatcher.initialize();
-        // Set placeholder model until real model from server is available
+        // Set empty place holder model until actual model from server is available
         await this.actionDispatcher.dispatch(SetModelAction.create(EMPTY_ROOT));
         await this.invokeStartupHook('preInitialize');
         await this.initialize(resolvedOptions);
@@ -190,21 +190,23 @@ export class DiagramLoader {
     }
 
     protected async requestModel(options: ResolvedDiagramLoadingOptions): Promise<void> {
-        return this.actionDispatcher.dispatch(RequestModelAction.create({ options: options.requestModelOptions }));
+        const response = await this.actionDispatcher.request<SetModelAction>(
+            RequestModelAction.create({ options: options.requestModelOptions })
+        );
+        return this.actionDispatcher.dispatch(response);
     }
 
     protected async initialize(options: ResolvedDiagramLoadingOptions): Promise<void> {
         if (options.enableNotifications) {
-            this.actionDispatcher.dispatch(StatusAction.create('Initializing...', { severity: 'INFO' }));
+            await this.actionDispatcher.dispatch(StatusAction.create('Initializing...', { severity: 'INFO' }));
         }
 
         const glspClient = await this.options.glspClientProvider();
-
         await glspClient.start();
-
         if (!glspClient.initializeResult) {
             await glspClient.initializeServer(options.initializeParameters);
         }
+        this.modelSource.configure(glspClient);
 
         if (options.enableNotifications) {
             this.actionDispatcher.dispatch(StatusAction.create('', { severity: 'NONE' }));

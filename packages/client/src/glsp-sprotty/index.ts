@@ -13,13 +13,12 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-/**
- * Sprotty still keeps the old class based action definitions as deprecated API.
- * This causes name clashes with the GLSP protocol actions when reexport sprotty.
- * The deprecated definitions are planned to be removed with Sprotty 1.0.0.
- * Until then we have to manually reexport the sprotty main index and exclude the clashing types.
- */
 /* eslint-disable no-restricted-imports */
+/**
+ * Selective custom reexport of the sprotty API. Also provides augmentations/adaptions
+ * of certain type definitions for GLSP. Using this custom reexport allows us to gracefully
+ * update to newer sprotty versions without hard API breaks.
+ */
 
 /**
  * @eclipse-glsp/protocol

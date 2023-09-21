@@ -37,7 +37,7 @@ export class ServerContextMenuItemProvider implements IContextMenuItemProvider {
     @inject(TYPES.IActionDispatcher) protected actionDispatcher: GLSPActionDispatcher;
     @inject(EditorContextService) protected editorContext: EditorContextService;
 
-    getItems(root: Readonly<SModelElement>, lastMousePosition?: Point): Promise<LabeledAction[]> {
+    async getItems(root: Readonly<SModelElement>, _lastMousePosition?: Point): Promise<LabeledAction[]> {
         const selectedElementIds = Array.from(
             root.index
                 .all()
@@ -46,7 +46,8 @@ export class ServerContextMenuItemProvider implements IContextMenuItemProvider {
         );
         const editorContext = this.editorContext.getWithSelection(selectedElementIds);
         const requestAction = RequestContextActions.create({ contextId: ServerContextMenu.CONTEXT_ID, editorContext });
-        return this.actionDispatcher.requestUntil(requestAction).then(response => this.getContextActionsFromResponse(response));
+        const response = await this.actionDispatcher.requestUntil(requestAction);
+        return response ? this.getContextActionsFromResponse(response) : [];
     }
 
     getContextActionsFromResponse(action: Action): LabeledAction[] {

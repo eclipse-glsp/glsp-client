@@ -121,7 +121,7 @@ export interface ExportSvgAction extends ResponseAction {
 export namespace ExportSvgAction {
     export const KIND = 'exportSvg';
 
-    export function is(object: any): object is RequestExportSvgAction {
+    export function is(object: any): object is ExportSvgAction {
         return Action.hasKind(object, KIND) && hasStringProp(object, 'svg');
     }
 

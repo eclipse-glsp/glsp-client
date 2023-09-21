@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { Container, ContainerModule } from 'inversify';
+import { Container } from 'inversify';
 import {
     BindingContext,
     ContainerConfiguration,
@@ -168,30 +168,4 @@ export function initializeDiagramContainer(container: Container, ...containerCon
     }
     container.load(...modules);
     return container;
-}
-
-/**
- * Creates a GLSP Client container with the GLSP default modules and the specified custom `modules`.
- *
- * You can still customize the default modules in two ways.
- *
- * First, you can unload default modules and load them again with your custom code.
- *
- * ```typescript
- * const container = createClientContainer(myModule1, myModule2);
- * container.unload(modelSourceWatcherModule);
- * container.load(myModelSourceWatcherModule);
- * ```
- *
- * Second, you can unbind or rebind implementations that are originally bound in one of the default modules.
- *
- * ```typescript
- * rebind(NavigationTargetResolver).to(MyNavigationTargetResolver);
- * ```
- * @param modules Custom modules to be loaded in addition to the default modules.
- * @returns The created container.
- * @deprecated Please use `initializeDiagramContainer` from `@eclipse-glsp/client` instead
- */
-export function createClientContainer(...modules: ContainerModule[]): Container {
-    return initializeDiagramContainer(new Container(), ...modules);
 }

@@ -62,16 +62,7 @@ export const defaultModule = new FeatureModule((bind, unbind, isBound, rebind, .
     const context = { bind, unbind, isBound, rebind };
 
     bind(EditorContextService).toSelf().inSingletonScope();
-    bind(TYPES.IEditorContextServiceProvider).toProvider<EditorContextService>(
-        ctx => () =>
-            new Promise<EditorContextService>((resolve, reject) => {
-                if (ctx.container.isBound(EditorContextService)) {
-                    resolve(ctx.container.get<EditorContextService>(EditorContextService));
-                } else {
-                    reject();
-                }
-            })
-    );
+    bind(TYPES.IEditorContextServiceProvider).toProvider<EditorContextService>(ctx => async () => ctx.container.get(EditorContextService));
 
     configureActionHandler(context, SetEditModeAction.KIND, EditorContextService);
     configureActionHandler(context, SetDirtyStateAction.KIND, EditorContextService);
