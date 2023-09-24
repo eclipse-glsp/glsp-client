@@ -71,7 +71,7 @@ export * from './features/copy-paste/copy-paste-handler';
 export * from './features/decoration/decoration-placer';
 export * from './features/export/glsp-svg-exporter';
 export * from './features/hints/model';
-export * from './features/hints/type-hints';
+export * from './features/hints/type-hint-provider';
 export * from './features/hover/hover';
 export * from './features/label-edit/edit-label-tool';
 export * from './features/label-edit/edit-label-validator';

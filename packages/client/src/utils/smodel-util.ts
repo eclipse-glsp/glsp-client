@@ -307,15 +307,6 @@ export function calcRoute(
 }
 
 /**
- * Checks if the model is compatible with the passed type string.
- * (either has the same type or a subtype of this type)
- */
-export function hasCompatibleType(input: SModelElement | SModelElementSchema | string, type: string): boolean {
-    const inputType = getElementTypeId(input);
-    return inputType === type ? true : inputType.split(':').includes(type);
-}
-
-/**
  * Convenience function to retrieve the model element type from a given input. The input
  * can either be a {@link SModelElement}, {@link SModelElementSchema} or a string.
  * @param input The type input.
@@ -323,8 +314,8 @@ export function hasCompatibleType(input: SModelElement | SModelElementSchema | s
  */
 export function getElementTypeId(input: SModelElement | SModelElementSchema | string): string {
     if (typeof input === 'string') {
-        return input as string;
+        return input;
     } else {
-        return (input as any)['type'] as string;
+        return input.type;
     }
 }
