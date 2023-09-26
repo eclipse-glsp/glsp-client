@@ -15,7 +15,7 @@
  ********************************************************************************/
 /* eslint-disable max-len */
 import { expect } from 'chai';
-import { RequestTypeHintsAction, SetTypeHintsAction } from './element-type-hints';
+import { CheckEdgeResultAction, RequestCheckEdgeAction, RequestTypeHintsAction, SetTypeHintsAction } from './element-type-hints';
 /**
  * Tests for the utility functions declared in the namespaces of the protocol
  * action definitions.
@@ -133,6 +133,133 @@ describe('Element type hints actions', () => {
                 };
                 const { edgeHints, shapeHints, responseId } = expected;
                 expect(SetTypeHintsAction.create({ edgeHints, shapeHints, responseId })).to.deep.equals(expected);
+            });
+        });
+    });
+    describe('RequestCheckEdgeAction', () => {
+        describe('is', () => {
+            it('should return true for an object having the correct type and a value for all required interface properties', () => {
+                const action: RequestCheckEdgeAction = {
+                    kind: 'requestCheckEdge',
+                    edgeType: 'edge',
+                    sourceElementId: 'source',
+                    requestId: ''
+                };
+                expect(RequestCheckEdgeAction.is(action)).to.be.true;
+            });
+            it('should return true for an object having the correct type and a value for all required interface & optional properties', () => {
+                const action: RequestCheckEdgeAction = {
+                    kind: 'requestCheckEdge',
+                    edgeType: 'edge',
+                    sourceElementId: 'source',
+                    targetElementId: 'target',
+                    requestId: ''
+                };
+                expect(RequestCheckEdgeAction.is(action)).to.be.true;
+            });
+            it('should return false for `undefined`', () => {
+                expect(RequestCheckEdgeAction.is(undefined)).to.be.false;
+            });
+            it('should return false for an object that does not have all required interface properties', () => {
+                expect(RequestCheckEdgeAction.is({ kind: 'notTheRightOne' })).to.be.false;
+            });
+        });
+
+        describe('create', () => {
+            it('should return an object conforming to the interface with matching properties for the given required arguments and default values for the optional arguments', () => {
+                const expected: RequestCheckEdgeAction = {
+                    kind: 'requestCheckEdge',
+                    edgeType: 'edge',
+                    sourceElementId: 'source',
+                    requestId: '',
+                    targetElementId: undefined
+                };
+
+                expect(RequestCheckEdgeAction.create({ edgeType: 'edge', sourceElement: 'source' })).to.deep.equals(expected);
+            });
+            it('should return an object conforming to the interface with matching properties for the given required and optional arguments', () => {
+                const expected: RequestCheckEdgeAction = {
+                    kind: 'requestCheckEdge',
+                    edgeType: 'edge',
+                    sourceElementId: 'source',
+                    targetElementId: 'target',
+                    requestId: 'myRequest'
+                };
+
+                expect(
+                    RequestCheckEdgeAction.create({
+                        edgeType: 'edge',
+                        sourceElement: 'source',
+                        targetElement: 'target',
+                        requestId: 'myRequest'
+                    })
+                ).to.deep.equals(expected);
+            });
+        });
+    });
+    describe('CheckEdgeResultAction', () => {
+        describe('is', () => {
+            it('should return true for an object having the correct type and a value for all required interface properties', () => {
+                const action: CheckEdgeResultAction = {
+                    isValid: true,
+                    kind: 'checkEdgeTargetResult',
+                    edgeType: 'edge',
+                    sourceElementId: 'source',
+                    responseId: ''
+                };
+                expect(CheckEdgeResultAction.is(action)).to.be.true;
+            });
+            it('should return true for an object having the correct type and a value for all required interface & optional properties', () => {
+                const action: CheckEdgeResultAction = {
+                    isValid: true,
+                    kind: 'checkEdgeTargetResult',
+                    edgeType: 'edge',
+                    sourceElementId: 'source',
+                    targetElementId: 'target',
+                    responseId: 'myResponse'
+                };
+                expect(CheckEdgeResultAction.is(action)).to.be.true;
+            });
+            it('should return false for `undefined`', () => {
+                expect(CheckEdgeResultAction.is(undefined)).to.be.false;
+            });
+            it('should return false for an object that does not have all required interface properties', () => {
+                expect(CheckEdgeResultAction.is({ kind: 'notTheRightOne' })).to.be.false;
+            });
+        });
+
+        describe('create', () => {
+            it('should return an object conforming to the interface with matching properties for the given required arguments and default values for the optional arguments', () => {
+                const expected: CheckEdgeResultAction = {
+                    isValid: true,
+                    kind: 'checkEdgeTargetResult',
+                    edgeType: 'edge',
+                    sourceElementId: 'source',
+                    responseId: ''
+                };
+                expect(CheckEdgeResultAction.create({ edgeType: 'edge', isValid: true, sourceElementId: 'source' })).to.deep.equals(
+                    expected
+                );
+            });
+            it('should return an object conforming to the interface with matching properties for the given required and optional arguments', () => {
+                const expected: CheckEdgeResultAction = {
+                    isValid: true,
+                    kind: 'checkEdgeTargetResult',
+                    edgeType: 'edge',
+                    sourceElementId: 'source',
+                    targetElementId: 'target',
+                    responseId: 'myResponse'
+                };
+
+                expect(
+                    CheckEdgeResultAction.create({
+                        edgeType: 'edge',
+                        isValid: true,
+                        sourceElementId: 'source',
+                        targetElementId: 'target',
+                        responseId: 'myResponse'
+                    })
+                ).to.deep.equals(expected);
             });
         });
     });

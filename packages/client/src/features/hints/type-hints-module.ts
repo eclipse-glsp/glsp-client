@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { FeatureModule, SetTypeHintsAction, TYPES, bindAsService, configureActionHandler, configureCommand } from '~glsp-sprotty';
-import { ApplyTypeHintsCommand, TypeHintProvider } from './type-hints';
+import { ApplyTypeHintsCommand, TypeHintProvider } from './type-hint-provider';
 
 export const typeHintsModule = new FeatureModule((bind, unbind, isBound) => {
     const context = { bind, unbind, isBound };

@@ -98,9 +98,6 @@
 .sprotty-edge.selected {
     stroke: #1d80d1;
     stroke-width: 1.5px;
-    stroke-dashoffset: 5;
-    stroke-dasharray: 5, 5;
-    stroke-linecap: round;
 }
 
 .sprotty-edge.mouseover:not(.selected) .arrow,
@@ -132,6 +129,10 @@
 .sprotty .edge-creation-select-target-mode,
 .sprotty .edge-reconnect-select-target-mode {
     cursor: crosshair;
+}
+
+.sprotty .edge-check-pending-mode {
+    cursor: wait;
 }
 
 .sprotty .move-mode {
