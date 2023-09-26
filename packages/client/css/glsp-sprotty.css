@@ -131,6 +131,10 @@
     cursor: crosshair;
 }
 
+.sprotty .edge-check-pending-mode {
+    cursor: wait;
+}
+
 .sprotty .move-mode {
     cursor: move;
 }

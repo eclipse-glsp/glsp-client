@@ -76,6 +76,7 @@ export enum CursorCSS {
     EDGE_CREATION_SOURCE = 'edge-creation-select-source-mode',
     EDGE_CREATION_TARGET = 'edge-creation-select-target-mode',
     EDGE_RECONNECT = 'edge-reconnect-select-target-mode',
+    EDGE_CHECK_PENDING = 'edge-check-pending-mode',
     OPERATION_NOT_ALLOWED = 'edge-modification-not-allowed-mode',
     ELEMENT_DELETION = 'element-deletion-mode',
     RESIZE_NESW = 'resize-nesw-mode',

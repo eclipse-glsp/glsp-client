@@ -149,10 +149,10 @@ export namespace SetTypeHintsAction {
 }
 
 /**
- * Send a Request to the server to check if an element is a valid target
- * when creating a new Edge. Typically dispatched twice, once for checking
- * the source element (with a dynamic hint) and a second time when trying to connect to a
- * target (with a dynamic hint).
+ * Sent from the client to the server to check wether the provided edge context information is valid i.e.
+ * creation of an edge with the given edge type and source/target element is allowed by the server.
+ * Typically this action is dispatched by edge creation tools in the creation phase of an edge that's associated
+ * with a dynamic {@link EdgeTypeHint}.
  */
 export interface RequestCheckEdgeAction extends RequestAction<CheckEdgeResultAction> {
     kind: typeof RequestCheckEdgeAction.KIND;
@@ -194,14 +194,14 @@ export namespace RequestCheckEdgeAction {
         return {
             kind: KIND,
             edgeType: options.edgeType,
-            sourceElementId: getElementId(options.sourceElement),
-            targetElementId: options.targetElement ? getElementId(options.targetElement) : undefined,
+            sourceElementId: getElementTypeId(options.sourceElement),
+            targetElementId: options.targetElement ? getElementTypeId(options.targetElement) : undefined,
             requestId: options.requestId ?? ''
         };
     }
 }
 
-function getElementId(element: SModelElement | string): string {
+function getElementTypeId(element: SModelElement | string): string {
     if (typeof element === 'string') {
         return element;
     }
@@ -209,9 +209,9 @@ function getElementId(element: SModelElement | string): string {
 }
 
 /**
- * Response Action for a {@link RequestCheckEdgeAction}. It provides
- * a boolean indicating whether the requested element is a valid target
- * for the edge being created and the context edge context information (type, source, target).
+ * Send from the server to the client as a response for a {@link RequestCheckEdgeAction}. It provides
+ * a boolean indicating whether the edge context information provided by the corresponding request action is valid
+ * i.e. creation of an  edge with the given edge type and source/target element is allowed.
  */
 export interface CheckEdgeResultAction extends ResponseAction {
     kind: typeof CheckEdgeResultAction.KIND;

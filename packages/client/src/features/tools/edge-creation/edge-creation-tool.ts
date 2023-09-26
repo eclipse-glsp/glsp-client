@@ -151,6 +151,9 @@ export class EdgeCreationToolMouseListener extends DragAwareMouseListener {
                 } else if (!this.isTargetSelected()) {
                     this.allowedTarget = this.canConnect(newCurrentTarget, 'target');
                 }
+                if (this.pendingDynamicCheck) {
+                    return [cursorFeedbackAction(CursorCSS.EDGE_CHECK_PENDING)];
+                }
             } else {
                 this.allowedTarget = false;
             }
