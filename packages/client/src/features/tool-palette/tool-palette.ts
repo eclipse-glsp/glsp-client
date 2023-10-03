@@ -182,7 +182,7 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
         this.containerElement.appendChild(headerCompartment);
     }
 
-    private createHeaderTools(): HTMLElement {
+    protected createHeaderTools(): HTMLElement {
         const headerTools = document.createElement('div');
         headerTools.classList.add('header-tools');
 

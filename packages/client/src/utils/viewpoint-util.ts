@@ -44,8 +44,11 @@ import { BoundsAwareModelElement } from './smodel-util';
  *  A mouseEvent
  */
 export function getAbsolutePosition(target: SModelElement, mouseEvent: MouseEvent): Point {
-    let xPos = mouseEvent.pageX;
-    let yPos = mouseEvent.pageY;
+    return getAbsolutePositionByPoint(target, { x: mouseEvent.pageX, y: mouseEvent.pageY });
+}
+export function getAbsolutePositionByPoint(target: SModelElement, point: Point): Point {
+    let xPos = point.x;
+    let yPos = point.y;
     const canvasBounds = target.root.canvasBounds;
     xPos -= canvasBounds.x;
     yPos -= canvasBounds.y;

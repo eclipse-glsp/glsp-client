@@ -57,6 +57,23 @@ export class RevealNamedElementAutocompleteSuggestionProvider implements IAutoco
         return [SelectAction.create({ selectedElementsIDs: [nameable.id] }), CenterAction.create([nameable.id], { retainZoom: true })];
     }
 }
+export class RevealNodesWithoutNameAutocompleteSuggestionProvider implements IAutocompleteSuggestionProvider {
+    async retrieveSuggestions(root: Readonly<SModelRoot>, text: string): Promise<AutocompleteSuggestion[]> {
+        const nodes = toArray(root.index.all().filter(element => !isNameable(element) && element instanceof SNode));
+        return nodes.map(node => ({
+            element: node,
+            action: {
+                label: `[${node.type}]`,
+                actions: this.getActions(node),
+                icon: codiconCSSString('symbol-namespace')
+            }
+        }));
+    }
+
+    protected getActions(nameable: SModelElement): Action[] {
+        return [SelectAction.create({ selectedElementsIDs: [nameable.id] }), CenterAction.create([nameable.id], { retainZoom: true })];
+    }
+}
 
 export class RevealEdgeElementAutocompleteSuggestionProvider implements IAutocompleteSuggestionProvider {
     async retrieveSuggestions(root: Readonly<SModelRoot>, text: string): Promise<AutocompleteSuggestion[]> {
@@ -70,6 +87,7 @@ export class RevealEdgeElementAutocompleteSuggestionProvider implements IAutocom
             }
         }));
     }
+
     protected getActions(edge: SEdge): Action[] {
         return [SelectAction.create({ selectedElementsIDs: [edge.id] }), CenterAction.create([edge.sourceId, edge.targetId])];
     }
@@ -107,7 +125,11 @@ export class SearchAutocompletePalette extends BaseAutocompletePalette {
         containerElement.setAttribute('aria-label', 'Search Field');
     }
     protected getSuggestionProviders(root: Readonly<SModelRoot>, input: string): IAutocompleteSuggestionProvider[] {
-        return [new RevealNamedElementAutocompleteSuggestionProvider(), new RevealEdgeElementAutocompleteSuggestionProvider()];
+        return [
+            new RevealNamedElementAutocompleteSuggestionProvider(),
+            new RevealEdgeElementAutocompleteSuggestionProvider(),
+            new RevealNodesWithoutNameAutocompleteSuggestionProvider()
+        ];
     }
     protected async retrieveSuggestions(root: Readonly<SModelRoot>, input: string): Promise<LabeledAction[]> {
         const providers = this.getSuggestionProviders(root, input);

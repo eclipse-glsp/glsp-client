@@ -12,5 +12,7 @@
   "resize": {
     "resize_mode_activated": "Resize On: Use plus(+) and minus(-) to resize, 'CTRL'+'0' for default size. Press 'ESC' to exit.",
     "resize_mode_deactivated": "Resize Off: Press 'ALT'+'A' for resize mode."
-  }
+  },
+  "grid": { "zoom_in_grid": "Select a digit from 1-9 to zoom in on the respective box." },
+  "tool_palette": { "marqueeTool": "Currently marquee tool is only usable with mouse." }
 }
