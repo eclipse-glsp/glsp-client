@@ -21,11 +21,11 @@ import {
     IActionHandler,
     ICommand,
     KeyListener,
-    SModelElement,
+    GModelElement,
     TYPES,
     distinctAdd,
     matchesKeystroke
-} from '~glsp-sprotty';
+} from '@eclipse-glsp/sprotty';
 import { EditorContextService, EditorContextServiceProvider } from '../editor-context-service';
 import { EnableDefaultToolsAction, EnableToolsAction, Tool } from './tool';
 /**
@@ -174,7 +174,7 @@ export class ToolManagerActionHandler implements IActionHandler {
 
 @injectable()
 export class DefaultToolsEnablingKeyListener extends KeyListener {
-    override keyDown(element: SModelElement, event: KeyboardEvent): Action[] {
+    override keyDown(element: GModelElement, event: KeyboardEvent): Action[] {
         if (matchesKeystroke(event, 'Escape')) {
             return [EnableDefaultToolsAction.create()];
         }

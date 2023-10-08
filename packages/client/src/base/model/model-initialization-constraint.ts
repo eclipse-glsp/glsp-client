@@ -14,7 +14,15 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { injectable } from 'inversify';
-import { Action, Deferred, Disposable, Emitter, InitializeCanvasBoundsAction, SetModelAction, UpdateModelAction } from '~glsp-sprotty';
+import {
+    Action,
+    Deferred,
+    Disposable,
+    Emitter,
+    InitializeCanvasBoundsAction,
+    SetModelAction,
+    UpdateModelAction
+} from '@eclipse-glsp/sprotty';
 
 /**
  * The constraint defining when the initialization of the GLSP model is completed.

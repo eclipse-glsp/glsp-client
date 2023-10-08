@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { ContextMenuProviderRegistry, FeatureModule, IContextMenuService, TYPES, bindAsService } from '~glsp-sprotty';
+import { ContextMenuProviderRegistry, FeatureModule, IContextMenuService, TYPES, bindAsService } from '@eclipse-glsp/sprotty';
 import { GLSPContextMenuMouseListener } from './glsp-context-menu-mouse-listener';
 import { ServerContextMenuItemProvider } from './server-context-menu-provider';
 

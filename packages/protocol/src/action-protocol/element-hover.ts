@@ -15,9 +15,9 @@
  ********************************************************************************/
 import { Bounds } from 'sprotty-protocol';
 import * as sprotty from 'sprotty-protocol/lib/actions';
+import { GModelRootSchema } from '../model/model-schema';
 import { hasObjectProp, hasStringProp } from '../utils/type-util';
 import { Action, RequestAction, ResponseAction } from './base-protocol';
-import { SModelRootSchema } from './model-structure';
 
 /**
  * Triggered when the user hovers the mouse pointer over an element to get a popup with details on that element.
@@ -42,7 +42,7 @@ export interface RequestPopupModelAction extends RequestAction<SetPopupModelActi
 export namespace RequestPopupModelAction {
     export const KIND = 'requestPopupModel';
 
-    export function is(object: any): object is RequestPopupModelAction {
+    export function is(object: unknown): object is RequestPopupModelAction {
         return RequestAction.hasKind(object, KIND) && hasStringProp(object, 'elementId') && hasObjectProp(object, 'bounds');
     }
 
@@ -57,24 +57,24 @@ export namespace RequestPopupModelAction {
 
 /**
  * Sent from the server to the client to display a popup in response to a RequestPopupModelAction. This action can also be used to remove
- * any existing popup by choosing EMPTY_ROOT as root element.
+ * unknown existing popup by choosing EMPTY_ROOT as root element.
  * The corresponding namespace declares the action kind as constant and offers helper functions for type guard checks
  * and creating new `SetPopupModelActions`.
  */
 export interface SetPopupModelAction extends ResponseAction, sprotty.SetPopupModelAction {
     kind: typeof SetPopupModelAction.KIND;
 
-    newRoot: SModelRootSchema;
+    newRoot: GModelRootSchema;
 }
 
 export namespace SetPopupModelAction {
     export const KIND = 'setPopupModel';
 
-    export function is(object: any): object is SetPopupModelAction {
+    export function is(object: unknown): object is SetPopupModelAction {
         return Action.hasKind(object, KIND) && hasObjectProp(object, 'newRoot');
     }
 
-    export function create(newRoot: SModelRootSchema, options: { responseId?: string } = {}): SetPopupModelAction {
+    export function create(newRoot: GModelRootSchema, options: { responseId?: string } = {}): SetPopupModelAction {
         return {
             kind: KIND,
             responseId: '',

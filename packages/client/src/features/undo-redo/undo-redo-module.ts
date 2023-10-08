@@ -15,7 +15,7 @@
  ********************************************************************************/
 
 import { ContainerModule } from 'inversify';
-import { bindAsService, TYPES } from '~glsp-sprotty';
+import { bindAsService, TYPES } from '@eclipse-glsp/sprotty';
 import { GLSPUndoRedoKeyListener } from './undo-redo-key-listener';
 
 /**

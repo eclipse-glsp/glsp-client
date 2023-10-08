@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, BringToFrontAction, SModelElement, SelectAction, SelectMouseListener, Selectable } from '~glsp-sprotty';
+import { Action, BringToFrontAction, GModelElement, SelectAction, SelectMouseListener, Selectable } from '@eclipse-glsp/sprotty';
 import { Ranked } from '../../base/ranked';
 
 /**
@@ -24,8 +24,8 @@ export class RankedSelectMouseListener extends SelectMouseListener implements Ra
     rank: number = Ranked.DEFAULT_RANK - 100; /* we want to be executed before all default mouse listeners */
 
     protected override handleSelectTarget(
-        selectableTarget: SModelElement & Selectable,
-        deselectedElements: SModelElement[],
+        selectableTarget: GModelElement & Selectable,
+        deselectedElements: GModelElement[],
         event: MouseEvent
     ): (Action | Promise<Action>)[] {
         const result: Action[] = [];
@@ -40,13 +40,13 @@ export class RankedSelectMouseListener extends SelectMouseListener implements Ra
         return result;
     }
 
-    protected override handleDeselectTarget(selectableTarget: SModelElement & Selectable, event: MouseEvent): (Action | Promise<Action>)[] {
+    protected override handleDeselectTarget(selectableTarget: GModelElement & Selectable, event: MouseEvent): (Action | Promise<Action>)[] {
         const result: Action[] = [];
         result.push(SelectAction.create({ selectedElementsIDs: [], deselectedElementsIDs: [selectableTarget.id] }));
         return result;
     }
 
-    protected override handleDeselectAll(deselectedElements: SModelElement[], event: MouseEvent): (Action | Promise<Action>)[] {
+    protected override handleDeselectAll(deselectedElements: GModelElement[], event: MouseEvent): (Action | Promise<Action>)[] {
         const result: Action[] = [];
         result.push(SelectAction.create({ selectedElementsIDs: [], deselectedElementsIDs: deselectedElements.map(e => e.id) }));
         return result;

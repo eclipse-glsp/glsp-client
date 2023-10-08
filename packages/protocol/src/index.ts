@@ -13,31 +13,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { SetBoundsAction, SetViewportAction } from 'sprotty-protocol/lib/actions';
-import { Action } from './action-protocol';
-import { hasBooleanProp, hasObjectProp, hasStringProp } from './utils/type-util';
-
-// Add the is() function to the namespace declarations of sprotty-protocol actions
-declare module 'sprotty-protocol/lib/actions' {
-    // eslint-disable-next-line @typescript-eslint/no-shadow
-    namespace SetViewportAction {
-        export function is(object: any): object is SetViewportAction;
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-shadow
-    namespace SetBoundsAction {
-        export function is(object: any): object is SetBoundsAction;
-    }
-}
-
-SetViewportAction.is = (object: any): object is SetViewportAction =>
-    Action.hasKind(object, SetViewportAction.KIND) &&
-    hasStringProp(object, 'elementId') &&
-    hasObjectProp(object, 'newViewport') &&
-    hasBooleanProp(object, 'animate');
-
-SetBoundsAction.is = (object: any): object is SetBoundsAction =>
-    Action.hasKind(object, SetBoundsAction.KIND) && hasObjectProp(object, 'bounds');
 
 // Partial reexport of sprotty-protocol
 export { Viewport } from 'sprotty-protocol/lib/model';
@@ -58,9 +33,9 @@ export * from './client-server-protocol/jsonrpc/ws-connection-provider';
 export * from './client-server-protocol/types';
 export * from './model/default-types';
 export * from './model/model-schema';
+export * from './sprotty-actions';
 export * from './utils/array-util';
 export * from './utils/di-util';
 export * from './utils/disposable';
 export * from './utils/event';
 export * from './utils/type-util';
-export { SetBoundsAction, SetViewportAction };

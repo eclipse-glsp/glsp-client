@@ -26,10 +26,10 @@ import {
     IActionDispatcher,
     RequestAction,
     ResponseAction,
-    SModelElement,
-    SRoutableElement
-} from '~glsp-sprotty';
-import { calcElementAndRoute, isRoutable } from '../../utils/smodel-util';
+    GModelElement,
+    GRoutableElement
+} from '@eclipse-glsp/sprotty';
+import { calcElementAndRoute, isRoutable } from '../../utils/gmodel-util';
 
 /**
  * Grabs the bounds from hidden SVG DOM elements, applies layouts, collects routes and fires {@link ComputedBoundsAction}s.
@@ -41,10 +41,10 @@ export class GLSPHiddenBoundsUpdater extends HiddenBoundsUpdater {
     @inject(EdgeRouterRegistry) @optional() protected readonly edgeRouterRegistry?: EdgeRouterRegistry;
 
     protected element2route: ElementAndRoutingPoints[] = [];
-    protected edges: SRoutableElement[] = [];
+    protected edges: GRoutableElement[] = [];
     protected nodes: VNode[] = [];
 
-    override decorate(vnode: VNode, element: SModelElement): VNode {
+    override decorate(vnode: VNode, element: GModelElement): VNode {
         super.decorate(vnode, element);
         if (isRoutable(element)) {
             this.element2route.push(calcElementAndRoute(element, this.edgeRouterRegistry));

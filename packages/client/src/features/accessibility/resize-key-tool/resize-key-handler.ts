@@ -24,13 +24,13 @@ import {
     ICommand,
     ISnapper,
     Point,
-    SModelElement,
-    SParentElement,
+    GModelElement,
+    GParentElement,
     TYPES
-} from '~glsp-sprotty';
+} from '@eclipse-glsp/sprotty';
 import { EditorContextService } from '../../../base/editor-context-service';
 import { isValidMove, isValidSize, minHeight, minWidth } from '../../../utils/layout-utils';
-import { SelectableBoundsAware, getElements, isSelectableAndBoundsAware, toElementAndBounds } from '../../../utils/smodel-util';
+import { SelectableBoundsAware, getElements, isSelectableAndBoundsAware, toElementAndBounds } from '../../../utils/gmodel-util';
 import { Resizable } from '../../change-bounds/model';
 import { GridSnapper } from '../../change-bounds/snap';
 
@@ -115,7 +115,7 @@ export class ResizeElementHandler implements IActionHandler {
             }
 
             if (this.isValidBoundChange(element, { x, y }, { width, height })) {
-                const resizeElement = { id: element.id, bounds: { x, y, width, height } } as SModelElement & SParentElement & Resizable;
+                const resizeElement = { id: element.id, bounds: { x, y, width, height } } as GModelElement & GParentElement & Resizable;
                 actions.push(ChangeBoundsOperation.create([toElementAndBounds(resizeElement)]));
             }
         });

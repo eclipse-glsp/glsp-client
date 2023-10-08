@@ -37,7 +37,7 @@ import {
     TYPES,
     hasObjectProp,
     hasStringProp
-} from '~glsp-sprotty';
+} from '@eclipse-glsp/sprotty';
 import { EditorContextServiceProvider } from '../../base/editor-context-service';
 import { NavigationTargetResolver } from './navigation-target-resolver';
 

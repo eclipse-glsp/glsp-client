@@ -23,7 +23,7 @@ import {
     SetClipboardDataAction,
     TYPES,
     ViewerOptions
-} from '~glsp-sprotty';
+} from '@eclipse-glsp/sprotty';
 import { GLSPActionDispatcher } from '../../base/action-dispatcher';
 import { EditorContextService } from '../../base/editor-context-service';
 

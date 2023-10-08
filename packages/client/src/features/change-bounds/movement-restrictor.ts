@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { injectable } from 'inversify';
-import { BoundsAware, Point, SModelElement, SNode, SParentElement } from '~glsp-sprotty';
+import { BoundsAware, Point, GModelElement, GNode, GParentElement } from '@eclipse-glsp/sprotty';
 import { ModifyCSSFeedbackAction } from '../../base/feedback/css-feedback';
 import { toAbsoluteBounds } from '../../utils/viewpoint-util';
 import { SResizeHandle, isBoundsAwareMoveable } from './model';
@@ -31,7 +31,7 @@ export interface IMovementRestrictor {
      * @returns `true` if the the element is movable and moving to the given location is allowed, `false` otherwise.
      *          Should also return `false` if the newLocation is `undefined`:
      */
-    validate(element: SModelElement, newLocation?: Point): boolean;
+    validate(element: GModelElement, newLocation?: Point): boolean;
     /**
      * Feedback css-classes. Can be applied to elements that did fail the validation.
      */
@@ -46,12 +46,12 @@ export interface IMovementRestrictor {
 export class NoOverlapMovementRestrictor implements IMovementRestrictor {
     cssClasses = ['movement-not-allowed'];
 
-    validate(element: SModelElement, newLocation?: Point): boolean {
+    validate(element: GModelElement, newLocation?: Point): boolean {
         if (!isBoundsAwareMoveable(element) || !newLocation) {
             return false;
         }
         // Create ghost element at the newLocation
-        const ghostElement = Object.create(element) as SModelElement & BoundsAware;
+        const ghostElement = Object.create(element) as GModelElement & BoundsAware;
         ghostElement.bounds = {
             x: newLocation.x,
             y: newLocation.y,
@@ -63,12 +63,12 @@ export class NoOverlapMovementRestrictor implements IMovementRestrictor {
         return !Array.from(
             element.root.index
                 .all()
-                .filter(e => e.id !== ghostElement.id && e !== ghostElement.root && e instanceof SNode)
-                .map(e => e as SModelElement & BoundsAware)
+                .filter(e => e.id !== ghostElement.id && e !== ghostElement.root && e instanceof GNode)
+                .map(e => e as GModelElement & BoundsAware)
         ).some(e => this.areOverlapping(e, ghostElement));
     }
 
-    protected areOverlapping(element1: SModelElement & BoundsAware, element2: SModelElement & BoundsAware): boolean {
+    protected areOverlapping(element1: GModelElement & BoundsAware, element2: GModelElement & BoundsAware): boolean {
         const b1 = toAbsoluteBounds(element1);
         const b2 = toAbsoluteBounds(element2);
         const r1TopLeft: Point = b1;
@@ -97,11 +97,11 @@ export class NoOverlapMovementRestrictor implements IMovementRestrictor {
  * @returns The corresponding {@link ModifyCSSFeedbackAction}
  */
 export function createMovementRestrictionFeedback(
-    element: SModelElement,
+    element: GModelElement,
     movementRestrictor: IMovementRestrictor
 ): ModifyCSSFeedbackAction {
-    const elements: SModelElement[] = [element];
-    if (element instanceof SParentElement) {
+    const elements: GModelElement[] = [element];
+    if (element instanceof GParentElement) {
         element.children.filter(child => child instanceof SResizeHandle).forEach(e => elements.push(e));
     }
     return ModifyCSSFeedbackAction.create({ elements, add: movementRestrictor.cssClasses });
@@ -114,11 +114,11 @@ export function createMovementRestrictionFeedback(
  * @returns The corresponding {@link ModifyCSSFeedbackAction}
  */
 export function removeMovementRestrictionFeedback(
-    element: SModelElement,
+    element: GModelElement,
     movementRestrictor: IMovementRestrictor
 ): ModifyCSSFeedbackAction {
-    const elements: SModelElement[] = [element];
-    if (element instanceof SParentElement) {
+    const elements: GModelElement[] = [element];
+    if (element instanceof GParentElement) {
         element.children.filter(child => child instanceof SResizeHandle).forEach(e => elements.push(e));
     }
 

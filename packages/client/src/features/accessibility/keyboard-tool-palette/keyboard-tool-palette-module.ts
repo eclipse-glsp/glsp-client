@@ -15,7 +15,7 @@
  ********************************************************************************/
 import '../../../../css/keyboard-tool-palette.css';
 
-import { configureActionHandler, TYPES, bindAsService, BindingContext, FeatureModule } from '~glsp-sprotty';
+import { configureActionHandler, TYPES, bindAsService, BindingContext, FeatureModule } from '@eclipse-glsp/sprotty';
 import { EnableToolPaletteAction } from '../../tool-palette/tool-palette';
 import { KeyboardToolPalette } from './keyboard-tool-palette';
 import { FocusDomAction } from '../actions';

@@ -28,7 +28,7 @@ import {
     TYPES,
     UpdateProgressAction,
     configureActionHandler
-} from '~glsp-sprotty';
+} from '@eclipse-glsp/sprotty';
 import { standaloneCopyPasteModule } from './features/copy-paste/copy-paste-modules';
 import { standaloneExportModule } from './features/export/export-modules';
 import { saveModule } from './features/save/save-module';

@@ -28,7 +28,7 @@ export interface UndoAction extends Omit<sprotty.UndoAction, 'kind'> {
 export namespace UndoAction {
     export const KIND = 'glspUndo';
 
-    export function is(object: any): object is UndoAction {
+    export function is(object: unknown): object is UndoAction {
         return Action.hasKind(object, KIND);
     }
 
@@ -51,7 +51,7 @@ export interface RedoAction extends Omit<sprotty.RedoAction, 'kind'> {
 export namespace RedoAction {
     export const KIND = 'glspRedo';
 
-    export function is(object: any): object is RedoAction {
+    export function is(object: unknown): object is RedoAction {
         return Action.hasKind(object, KIND);
     }
 

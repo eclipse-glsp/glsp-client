@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { IActionHandler, ViewerOptions, TYPES, Action } from '~glsp-sprotty';
+import { IActionHandler, ViewerOptions, TYPES, Action } from '@eclipse-glsp/sprotty';
 import { EnableDefaultToolsAction } from '../../base/tool-manager/tool';
 import { injectable, inject } from 'inversify';
 import { FocusDomAction } from '../accessibility/actions';

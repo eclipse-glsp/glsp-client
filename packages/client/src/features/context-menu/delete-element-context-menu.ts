@@ -14,14 +14,14 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { inject, injectable } from 'inversify';
-import { DeleteElementOperation, IContextMenuItemProvider, MenuItem, Point, SModelRoot, TYPES } from '~glsp-sprotty';
+import { DeleteElementOperation, IContextMenuItemProvider, MenuItem, Point, GModelRoot, TYPES } from '@eclipse-glsp/sprotty';
 import { EditorContextService, EditorContextServiceProvider } from '../../base/editor-context-service';
 
 @injectable()
 export class DeleteElementContextMenuItemProvider implements IContextMenuItemProvider {
     @inject(TYPES.IEditorContextServiceProvider) editorContextServiceProvider: EditorContextServiceProvider;
 
-    async getItems(_root: Readonly<SModelRoot>, _lastMousePosition?: Point): Promise<MenuItem[]> {
+    async getItems(_root: Readonly<GModelRoot>, _lastMousePosition?: Point): Promise<MenuItem[]> {
         const editorContextService = await this.editorContextServiceProvider();
         return [this.createDeleteMenuItem(editorContextService)];
     }

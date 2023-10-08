@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { inject, injectable } from 'inversify';
-import { KeyTool, KeyListener, SetUIExtensionVisibilityAction, SModelElement, Action } from '~glsp-sprotty';
+import { KeyTool, KeyListener, SetUIExtensionVisibilityAction, GModelElement, Action } from '@eclipse-glsp/sprotty';
 import { Tool } from '../../../base/tool-manager/tool';
 import { matchesKeystroke } from 'sprotty/lib/utils/keyboard';
 import { EdgeAutocompletePaletteMetadata } from './edge-autocomplete-palette';
@@ -41,7 +41,7 @@ export class EdgeAutocompletePaletteTool implements Tool {
 }
 
 export class EdgeAutocompletePaletteKeyListener extends KeyListener {
-    override keyDown(element: SModelElement, event: KeyboardEvent): Action[] {
+    override keyDown(element: GModelElement, event: KeyboardEvent): Action[] {
         if (matchesKeystroke(event, 'Escape')) {
             return [
                 SetUIExtensionVisibilityAction.create({

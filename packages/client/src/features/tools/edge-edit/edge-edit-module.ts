@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { FeatureModule, TYPES, bindAsService, configureCommand } from '~glsp-sprotty';
+import { FeatureModule, TYPES, bindAsService, configureCommand } from '@eclipse-glsp/sprotty';
 import { configureDanglingFeedbackEdge } from '../edge-creation/dangling-edge-feedback';
 import { EdgeEditTool } from './edge-edit-tool';
 import {

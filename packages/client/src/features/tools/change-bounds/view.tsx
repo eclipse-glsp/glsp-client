@@ -15,7 +15,7 @@
  ********************************************************************************/
 import { injectable } from 'inversify';
 import { VNode } from 'snabbdom';
-import { IView, Point, RenderingContext, setAttr, svg } from '~glsp-sprotty';
+import { IView, Point, RenderingContext, setAttr, svg } from '@eclipse-glsp/sprotty';
 import { ResizeHandleLocation, SResizeHandle, isResizable } from '../../change-bounds/model';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

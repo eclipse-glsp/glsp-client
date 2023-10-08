@@ -14,22 +14,23 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { EdgeRouterRegistry, findParentByFeature, SEdge, SModelElement, SModelRoot, Point } from '~glsp-sprotty';
-import { toArray } from 'sprotty/lib/utils/iterable';
-import { calcElementAndRoute, isRoutable, isSelectableAndBoundsAware, SelectableBoundsAware } from '../../../utils/smodel-util';
-import { ElementNavigator } from './element-navigator';
+import { EdgeRouterRegistry, findParentByFeature, GModelElement, GModelRoot, Point } from '@eclipse-glsp/sprotty';
 import { inject, injectable, optional } from 'inversify';
+import { toArray } from 'sprotty/lib/utils/iterable';
+import { calcElementAndRoute, isRoutable, isSelectableAndBoundsAware, SelectableBoundsAware } from '../../../utils/gmodel-util';
+import { ElementNavigator } from './element-navigator';
+import { GEdge } from '../../../model';
 
 @injectable()
 export class LeftToRightTopToBottomElementNavigator implements ElementNavigator {
     @inject(EdgeRouterRegistry) @optional() readonly edgeRouterRegistry?: EdgeRouterRegistry;
 
     previous(
-        root: Readonly<SModelRoot>,
+        root: Readonly<GModelRoot>,
         current?: SelectableBoundsAware,
         previousCurrent?: SelectableBoundsAware,
-        predicate: (element: SModelElement) => boolean = () => true
-    ): SModelElement | undefined {
+        predicate: (element: GModelElement) => boolean = () => true
+    ): GModelElement | undefined {
         const elements = this.getElements(root, predicate);
 
         if (current === undefined) {
@@ -39,11 +40,11 @@ export class LeftToRightTopToBottomElementNavigator implements ElementNavigator 
     }
 
     next(
-        root: Readonly<SModelRoot>,
+        root: Readonly<GModelRoot>,
         current?: SelectableBoundsAware,
         previousCurrent?: SelectableBoundsAware,
-        predicate: (element: SModelElement) => boolean = () => true
-    ): SModelElement | undefined {
+        predicate: (element: GModelElement) => boolean = () => true
+    ): GModelElement | undefined {
         const elements = this.getElements(root, predicate);
         if (current === undefined) {
             return elements.length > 0 ? elements[0] : undefined;
@@ -51,12 +52,12 @@ export class LeftToRightTopToBottomElementNavigator implements ElementNavigator 
         return elements[this.getNextIndex(current, elements) % elements.length];
     }
 
-    protected getElements(root: Readonly<SModelRoot>, predicate: (element: SModelElement) => boolean): SModelElement[] {
+    protected getElements(root: Readonly<GModelRoot>, predicate: (element: GModelElement) => boolean): GModelElement[] {
         const elements = toArray(root.index.all().filter(e => isSelectableAndBoundsAware(e))) as SelectableBoundsAware[];
         return elements.sort((a, b) => this.compare(a, b)).filter(predicate);
     }
 
-    protected getNextIndex(current: SelectableBoundsAware, elements: SModelElement[]): number {
+    protected getNextIndex(current: SelectableBoundsAware, elements: GModelElement[]): number {
         for (let index = 0; index < elements.length; index++) {
             if (this.compare(elements[index], current) > 0) {
                 return index;
@@ -66,7 +67,7 @@ export class LeftToRightTopToBottomElementNavigator implements ElementNavigator 
         return 0;
     }
 
-    protected getPreviousIndex(current: SelectableBoundsAware, elements: SModelElement[]): number {
+    protected getPreviousIndex(current: SelectableBoundsAware, elements: GModelElement[]): number {
         for (let index = elements.length - 1; index >= 0; index--) {
             if (this.compare(elements[index], current) < 0) {
                 return index;
@@ -76,15 +77,15 @@ export class LeftToRightTopToBottomElementNavigator implements ElementNavigator 
         return elements.length - 1;
     }
 
-    protected compare(one: SModelElement, other: SModelElement): number {
+    protected compare(one: GModelElement, other: GModelElement): number {
         let positionOne: Point | undefined = undefined;
         let positionOther: Point | undefined = undefined;
 
-        if (one instanceof SEdge && isRoutable(one)) {
+        if (one instanceof GEdge && isRoutable(one)) {
             positionOne = calcElementAndRoute(one, this.edgeRouterRegistry).newRoutingPoints?.[0];
         }
 
-        if (other instanceof SEdge && isRoutable(other)) {
+        if (other instanceof GEdge && isRoutable(other)) {
             positionOther = calcElementAndRoute(other, this.edgeRouterRegistry).newRoutingPoints?.[0];
         }
 

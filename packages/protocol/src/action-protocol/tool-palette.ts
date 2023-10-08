@@ -41,7 +41,7 @@ export interface TriggerNodeCreationAction extends Action {
 export namespace TriggerNodeCreationAction {
     export const KIND = 'triggerNodeCreation';
 
-    export function is(object: any): object is TriggerNodeCreationAction {
+    export function is(object: unknown): object is TriggerNodeCreationAction {
         return Action.hasKind(object, KIND) && hasStringProp(object, 'elementTypeId');
     }
 
@@ -78,7 +78,7 @@ export interface TriggerEdgeCreationAction extends Action {
 export namespace TriggerEdgeCreationAction {
     export const KIND = 'triggerEdgeCreation';
 
-    export function is(object: any): object is TriggerEdgeCreationAction {
+    export function is(object: unknown): object is TriggerEdgeCreationAction {
         return Action.hasKind(object, KIND) && hasStringProp(object, 'elementTypeId');
     }
 

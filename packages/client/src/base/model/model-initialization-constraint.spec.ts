@@ -17,7 +17,7 @@ import { expect } from 'chai';
 import { Container } from 'inversify';
 import 'reflect-metadata';
 import * as sinon from 'sinon';
-import { Deferred, EMPTY_ROOT, InitializeCanvasBoundsAction, SetModelAction, UpdateModelAction } from '~glsp-sprotty';
+import { Deferred, EMPTY_ROOT, InitializeCanvasBoundsAction, SetModelAction, UpdateModelAction } from '@eclipse-glsp/sprotty';
 import { DefaultModelInitializationConstraint, ModelInitializationConstraint } from './model-initialization-constraint';
 const sandbox = sinon.createSandbox();
 const container = new Container();

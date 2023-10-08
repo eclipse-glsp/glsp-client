@@ -14,16 +14,12 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { inject, injectable } from 'inversify';
-import { toArray } from 'sprotty/lib/utils/iterable';
-import { matchesKeystroke } from 'sprotty/lib/utils/keyboard';
 import {
     Action,
+    GModelElement,
+    GModelRoot,
     KeyListener,
     KeyTool,
-    SEdge,
-    SModelElement,
-    SModelRoot,
     SelectAction,
     Selectable,
     TYPES,
@@ -31,10 +27,13 @@ import {
     isBoundsAware,
     isSelectable,
     isSelected
-} from '~glsp-sprotty';
+} from '@eclipse-glsp/sprotty';
+import { inject, injectable } from 'inversify';
+import { toArray } from 'sprotty/lib/utils/iterable';
+import { matchesKeystroke } from 'sprotty/lib/utils/keyboard';
 import { GLSPActionDispatcher } from '../../../base/action-dispatcher';
 import { EnableDefaultToolsAction, EnableToolsAction, Tool } from '../../../base/tool-manager/tool';
-import { SelectableBoundsAware } from '../../../utils/smodel-util';
+import { SelectableBoundsAware } from '../../../utils/gmodel-util';
 import { RepositionAction } from '../../viewport/reposition';
 import { SetAccessibleKeyShortcutAction } from '../key-shortcut/accessible-key-shortcut';
 import { AccessibleKeyShortcutTool } from '../key-shortcut/accessible-key-shortcut-tool';
@@ -42,6 +41,7 @@ import { SearchAutocompletePaletteTool } from '../search/search-tool';
 import * as messages from '../toast/messages.json';
 import { ShowToastMessageAction } from '../toast/toast-handler';
 import { ElementNavigator } from './element-navigator';
+import { GEdge } from '../../../model';
 
 @injectable()
 export class ElementNavigatorTool implements Tool {
@@ -108,7 +108,7 @@ export class ElementNavigatorKeyListener extends KeyListener {
         );
     }
 
-    override keyDown(element: SModelElement, event: KeyboardEvent): Action[] {
+    override keyDown(element: GModelElement, event: KeyboardEvent): Action[] {
         this.resetOnEscape(event, element);
 
         if (this.getSelectedElements(element.root).length > 0) {
@@ -124,7 +124,7 @@ export class ElementNavigatorKeyListener extends KeyListener {
 
         return [];
     }
-    protected resetOnEscape(event: KeyboardEvent, element: SModelElement): void {
+    protected resetOnEscape(event: KeyboardEvent, element: GModelElement): void {
         if (this.mode !== NavigationMode.NONE && this.matchesDeactivateNavigationMode(event)) {
             this.navigator?.clean?.(element.root);
             this.clean();
@@ -151,7 +151,7 @@ export class ElementNavigatorKeyListener extends KeyListener {
         }
     }
 
-    protected triggerPositionNavigationOnEvent(event: KeyboardEvent, element: SModelElement): boolean {
+    protected triggerPositionNavigationOnEvent(event: KeyboardEvent, element: GModelElement): boolean {
         if (this.matchesActivatePositionNavigation(event)) {
             if (this.mode !== NavigationMode.POSITION) {
                 this.clean();
@@ -174,7 +174,7 @@ export class ElementNavigatorKeyListener extends KeyListener {
         return false;
     }
 
-    protected resetPositionNavigationOnEvent(event: KeyboardEvent, element: SModelElement): void {
+    protected resetPositionNavigationOnEvent(event: KeyboardEvent, element: GModelElement): void {
         if (this.mode === NavigationMode.POSITION && this.matchesActivatePositionNavigation(event)) {
             this.navigator?.clean?.(element.root);
             this.clean();
@@ -188,7 +188,7 @@ export class ElementNavigatorKeyListener extends KeyListener {
             ]);
         }
     }
-    protected triggerDefaultNavigationOnEvent(event: KeyboardEvent, element: SModelElement): boolean {
+    protected triggerDefaultNavigationOnEvent(event: KeyboardEvent, element: GModelElement): boolean {
         if (this.matchesActivateDefaultNavigation(event)) {
             if (this.mode !== NavigationMode.DEFAULT) {
                 this.clean();
@@ -211,7 +211,7 @@ export class ElementNavigatorKeyListener extends KeyListener {
         return false;
     }
 
-    protected resetDefaultNavigationOnEvent(event: KeyboardEvent, element: SModelElement): void {
+    protected resetDefaultNavigationOnEvent(event: KeyboardEvent, element: GModelElement): void {
         if (this.mode === NavigationMode.DEFAULT && this.matchesActivateDefaultNavigation(event)) {
             this.navigator?.clean?.(element.root);
             this.clean();
@@ -226,7 +226,7 @@ export class ElementNavigatorKeyListener extends KeyListener {
         }
     }
 
-    protected navigate(element: SModelElement, event: KeyboardEvent): Action[] {
+    protected navigate(element: GModelElement, event: KeyboardEvent): Action[] {
         const selected = this.getSelectedElements(element.root);
         const current = selected.length > 0 ? selected[0] : undefined;
 
@@ -241,7 +241,7 @@ export class ElementNavigatorKeyListener extends KeyListener {
             const selectableTarget = target ? findParentByFeature(target, isSelectable) : undefined;
 
             if (selectableTarget) {
-                if (!(current instanceof SEdge)) {
+                if (!(current instanceof GEdge)) {
                     this.previousNode = current;
                 }
                 const deselectedElementsIDs = selected.map(e => e.id).filter(id => id !== selectableTarget.id);
@@ -260,7 +260,7 @@ export class ElementNavigatorKeyListener extends KeyListener {
         event: KeyboardEvent,
         navigator: ElementNavigator,
         current: SelectableBoundsAware
-    ): SModelElement | undefined {
+    ): GModelElement | undefined {
         if (this.matchesNavigatePrevious(event)) {
             return navigator.previous(current.root, current);
         } else if (this.matchesNavigateNext(event)) {
@@ -279,8 +279,8 @@ export class ElementNavigatorKeyListener extends KeyListener {
         this.navigator = undefined;
     }
 
-    protected getSelectedElements(root: SModelRoot): (SModelElement & Selectable)[] {
-        return toArray(root.index.all().filter(e => isSelected(e))) as (SModelElement & Selectable)[];
+    protected getSelectedElements(root: GModelRoot): (GModelElement & Selectable)[] {
+        return toArray(root.index.all().filter(e => isSelected(e))) as (GModelElement & Selectable)[];
     }
 
     protected matchesDeactivateNavigationMode(event: KeyboardEvent): boolean {

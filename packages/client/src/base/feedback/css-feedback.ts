@@ -14,8 +14,8 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { inject, injectable } from 'inversify';
-import { Action, CommandExecutionContext, SModelElement, SModelRoot, TYPES, hasArrayProp } from '~glsp-sprotty';
-import { addCssClasses, getElements, removeCssClasses } from '../../utils/smodel-util';
+import { Action, CommandExecutionContext, GModelElement, GModelRoot, TYPES, hasArrayProp } from '@eclipse-glsp/sprotty';
+import { addCssClasses, getElements, removeCssClasses } from '../../utils/gmodel-util';
 import { FeedbackCommand } from './feedback-command';
 
 export interface ModifyCSSFeedbackAction extends Action {
@@ -33,7 +33,7 @@ export namespace ModifyCSSFeedbackAction {
         return Action.hasKind(object, KIND) && hasArrayProp(object, 'elementIds');
     }
 
-    export function create(options: { elements?: (string | SModelElement)[]; add?: string[]; remove?: string[] }): ModifyCSSFeedbackAction {
+    export function create(options: { elements?: (string | GModelElement)[]; add?: string[]; remove?: string[] }): ModifyCSSFeedbackAction {
         const { elements, ...rest } = options;
         const elementIds = elements ? elements.map(element => (typeof element === 'string' ? element : element.id)) : undefined;
         return {
@@ -52,7 +52,7 @@ export class ModifyCssFeedbackCommand extends FeedbackCommand {
         super();
     }
 
-    execute(context: CommandExecutionContext): SModelRoot {
+    execute(context: CommandExecutionContext): GModelRoot {
         const elements = this.action.elementIds ? getElements(context.root.index, this.action.elementIds) : [context.root];
 
         elements.forEach(e => {
@@ -93,10 +93,10 @@ export function cursorFeedbackAction(cursorCss?: CursorCSS): ModifyCSSFeedbackAc
     return ModifyCSSFeedbackAction.create({ add, remove: Object.values(CursorCSS) });
 }
 
-export function applyCssClasses(element: SModelElement, ...add: string[]): ModifyCSSFeedbackAction {
+export function applyCssClasses(element: GModelElement, ...add: string[]): ModifyCSSFeedbackAction {
     return ModifyCSSFeedbackAction.create({ elements: [element], add });
 }
 
-export function deleteCssClasses(element: SModelElement, ...remove: string[]): ModifyCSSFeedbackAction {
+export function deleteCssClasses(element: GModelElement, ...remove: string[]): ModifyCSSFeedbackAction {
     return ModifyCSSFeedbackAction.create({ elements: [element], remove });
 }

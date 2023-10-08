@@ -22,32 +22,32 @@ import {
     Dimension,
     LayoutRegistry,
     Point,
-    SCompartment,
-    SLabel,
-    SModelElement,
-    SNode,
-    SParentElement,
+    GCompartment,
+    GLabel,
+    GModelElement,
+    GNode,
+    GParentElement,
     TYPES,
     createFeatureSet,
     layoutableChildFeature
-} from '~glsp-sprotty';
+} from '@eclipse-glsp/sprotty';
 import { initializeDiagramContainer } from '../../default-modules';
-import { GLSPGraph } from '../../lib/model';
 import { StatefulLayouterExt } from './layouter';
+import { GGraph } from '../../model';
 
-export function gModel(): GLSPGraph {
-    return new GLSPGraph();
+export function createGraph(): GGraph {
+    return new GGraph();
 }
 
-export function sNode(
+export function createNode(
     type: string,
     nodeLayout?: string,
     size?: Dimension,
     position?: Point,
     layoutOptions?: { [key: string]: string | number | boolean }
-): SNode {
-    const node = new SNode();
-    node.features = createFeatureSet(SNode.DEFAULT_FEATURES, { enable: [layoutableChildFeature] });
+): GNode {
+    const node = new GNode();
+    node.features = createFeatureSet(GNode.DEFAULT_FEATURES, { enable: [layoutableChildFeature] });
     node.position = position || {
         x: 0,
         y: 0
@@ -63,23 +63,27 @@ export function sNode(
     return node;
 }
 
-export function sComp(type: string, compLayout: string, layoutOptions?: { [key: string]: string | number | boolean }): SCompartment {
-    const comp = new SCompartment();
-    comp.features = createFeatureSet(SCompartment.DEFAULT_FEATURES);
+export function createCompartment(
+    type: string,
+    compLayout: string,
+    layoutOptions?: { [key: string]: string | number | boolean }
+): GCompartment {
+    const comp = new GCompartment();
+    comp.features = createFeatureSet(GCompartment.DEFAULT_FEATURES);
     comp.type = type;
     comp.layout = compLayout;
     comp.layoutOptions = layoutOptions;
     return comp;
 }
 
-export function sLabel(
+export function createLabel(
     labelText: string,
     layoutOptions?: { [key: string]: string | number | boolean },
     position?: Point,
     size?: Dimension
-): SLabel {
-    const label = new SLabel();
-    label.features = createFeatureSet(SLabel.DEFAULT_FEATURES);
+): GLabel {
+    const label = new GLabel();
+    label.features = createFeatureSet(GLabel.DEFAULT_FEATURES);
     if (position) {
         label.position = position;
     }
@@ -92,13 +96,13 @@ export function sLabel(
     return label;
 }
 
-export function addToMap(map: Map<SModelElement, BoundsData>, element: SModelElement): void {
+export function addToMap(map: Map<GModelElement, BoundsData>, element: GModelElement): void {
     map.set(element, {
         bounds: (element as any).bounds,
         boundsChanged: true,
         alignmentChanged: true
     });
-    if (element instanceof SParentElement) {
+    if (element instanceof GParentElement) {
         element.children.forEach(c => addToMap(map, c));
     }
 }
@@ -106,8 +110,8 @@ export function addToMap(map: Map<SModelElement, BoundsData>, element: SModelEle
 export function layout(
     layoutRegistry: LayoutRegistry,
     log: ConsoleLogger,
-    map: Map<SModelElement, BoundsData>,
-    model: SNode | GLSPGraph
+    map: Map<GModelElement, BoundsData>,
+    model: GNode | GGraph
 ): void {
     map.clear();
     addToMap(map, model);

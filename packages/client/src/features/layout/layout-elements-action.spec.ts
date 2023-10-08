@@ -18,6 +18,7 @@ import { expect } from 'chai';
 import { Container } from 'inversify';
 import 'mocha';
 import 'reflect-metadata';
+import * as sinon from 'sinon';
 import {
     Action,
     AnimationFrameSyncer,
@@ -28,18 +29,19 @@ import {
     ElementAndBounds,
     ElementMove,
     FeatureSet,
+    GChildElement,
+    GModelRoot,
+    GNode,
+    GNodeSchema,
     IActionDispatcher,
     MoveAction,
     MoveCommand,
     RequestAction,
     ResponseAction,
-    SChildElement,
-    SGraphFactory,
-    SModelRoot,
+    SModelFactory,
     SetBoundsAction,
-    SetBoundsCommand,
-    TYPES
-} from '~glsp-sprotty';
+    SetBoundsCommand
+} from '@eclipse-glsp/sprotty';
 import { defaultModule } from '../../base/default.module';
 import { SelectionService } from '../../base/selection-service';
 import { resizeFeature } from '../change-bounds/model';
@@ -51,6 +53,7 @@ import {
     ResizeElementsAction,
     ResizeElementsActionHandler
 } from './layout-elements-action';
+import { GGraph } from '../../model';
 
 class MockActionDispatcher implements IActionDispatcher {
     constructor(public dispatchedActions: Action[] = []) {}
@@ -68,10 +71,10 @@ class MockActionDispatcher implements IActionDispatcher {
 }
 
 class MockSelectionService extends SelectionService {
-    constructor(public modelRoot: SModelRoot) {
+    constructor(public modelRoot: GModelRoot) {
         super();
     }
-    override getModelRoot(): Readonly<SModelRoot> {
+    override getModelRoot(): Readonly<GModelRoot> {
         return this.modelRoot;
     }
 }
@@ -79,8 +82,6 @@ class MockSelectionService extends SelectionService {
 // Generic Test setup
 const container = new Container();
 container.load(defaultModule);
-container.rebind(TYPES.IModelFactory).to(SGraphFactory).inSingletonScope();
-const graphFactory = container.get<SGraphFactory>(TYPES.IModelFactory);
 
 const actionDispatcher = new MockActionDispatcher();
 
@@ -101,23 +102,32 @@ const node3 = {
 };
 const model = createModel();
 
-function createModel(): SModelRoot {
-    const root = graphFactory.createRoot({
-        id: 'model1',
-        type: 'graph',
-        children: [node1, node2, node3]
-    });
+function createNode(schema: GNodeSchema): GNode {
+    const node = new GNode();
+    const features = new Set<symbol>(GNode.DEFAULT_FEATURES);
+    node.features = features;
+    Object.assign(node, schema);
+    return node;
+}
+
+function createModel(): GModelRoot {
+    const root = new GGraph();
+    root.features = new Set<symbol>(GGraph.DEFAULT_FEATURES);
+    root.add(createNode(node1));
+    root.add(createNode(node2));
+    root.add(createNode(node3));
+
     root.children.forEach(child => applyFeature(child, resizeFeature));
     return root;
 }
 
-function applyFeature(element: SChildElement, feature: symbol): void {
+function applyFeature(element: GChildElement, feature: symbol): void {
     (element.features as FeatureSet & Set<symbol>).add(feature);
 }
 
 const context: CommandExecutionContext = {
     root: model,
-    modelFactory: graphFactory,
+    modelFactory: sinon.createStubInstance(SModelFactory),
     duration: 0,
     modelChanged: undefined!,
     logger: new ConsoleLogger(),
@@ -128,7 +138,7 @@ const defaultSize = { height: 10, width: 10 };
 
 describe('AlignElementsCommand', () => {
     let handler: AlignElementsActionHandler;
-    const setModel = (newModel: SModelRoot): void => {
+    const setModel = (newModel: GModelRoot): void => {
         handler['selectionService'] = new MockSelectionService(newModel);
     };
 
@@ -255,7 +265,7 @@ describe('AlignElementsCommand', () => {
 
 describe('ResizeElementsCommand', () => {
     let handler: ResizeElementsActionHandler;
-    const setModel = (newModel: SModelRoot): void => {
+    const setModel = (newModel: GModelRoot): void => {
         handler['selectionService'] = new MockSelectionService(newModel);
     };
 
@@ -338,10 +348,10 @@ describe('ResizeElementsCommand', () => {
     });
 });
 
-function initModel(elementAndBounds: ElementAndBounds[]): SModelRoot {
+function initModel(elementAndBounds: ElementAndBounds[]): GModelRoot {
     const mySetBoundsAction = SetBoundsAction.create(elementAndBounds);
     const setBoundsCommand = new SetBoundsCommand(mySetBoundsAction);
-    return setBoundsCommand.execute(context) as SModelRoot;
+    return setBoundsCommand.execute(context) as GModelRoot;
 }
 
 function assertAllBounds(allBounds: Map<string, Bounds>): void {

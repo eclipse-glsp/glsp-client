@@ -20,17 +20,17 @@ import {
     DeleteElementContextMenuItemProvider,
     DiamondNodeView,
     GEdge,
-    GLSPGraph,
+    GGraph,
     GLSPProjectionView,
     GridSnapper,
     LogLevel,
     RectangularNodeView,
     RevealNamedElementActionProvider,
     RoundedCornerNodeView,
-    SCompartment,
-    SCompartmentView,
-    SLabel,
-    SLabelView,
+    GCompartment,
+    GCompartmentView,
+    GLabel,
+    GLabelView,
     StructureCompartmentView,
     TYPES,
     bindAsService,
@@ -60,10 +60,10 @@ export const workflowDiagramModule = new ContainerModule((bind, unbind, isBound,
     configureDefaultModelElements(context);
     configureModelElement(context, 'task:automated', TaskNode, RoundedCornerNodeView);
     configureModelElement(context, 'task:manual', TaskNode, RoundedCornerNodeView);
-    configureModelElement(context, 'label:heading', SLabel, SLabelView, { enable: [editLabelFeature] });
-    configureModelElement(context, 'comp:comp', SCompartment, SCompartmentView);
-    configureModelElement(context, 'comp:header', SCompartment, SCompartmentView);
-    configureModelElement(context, 'label:icon', SLabel, SLabelView);
+    configureModelElement(context, 'label:heading', GLabel, GLabelView, { enable: [editLabelFeature] });
+    configureModelElement(context, 'comp:comp', GCompartment, GCompartmentView);
+    configureModelElement(context, 'comp:header', GCompartment, GCompartmentView);
+    configureModelElement(context, 'label:icon', GLabel, GLabelView);
     configureModelElement(context, DefaultTypes.EDGE, GEdge, WorkflowEdgeView);
     configureModelElement(context, 'edge:weighted', WeightedEdge, WorkflowEdgeView);
     configureModelElement(context, 'icon', Icon, IconView);
@@ -71,9 +71,9 @@ export const workflowDiagramModule = new ContainerModule((bind, unbind, isBound,
     configureModelElement(context, 'activityNode:decision', ActivityNode, DiamondNodeView);
     configureModelElement(context, 'activityNode:fork', ActivityNode, RectangularNodeView);
     configureModelElement(context, 'activityNode:join', ActivityNode, RectangularNodeView);
-    configureModelElement(context, DefaultTypes.GRAPH, GLSPGraph, GLSPProjectionView);
+    configureModelElement(context, DefaultTypes.GRAPH, GGraph, GLSPProjectionView);
     configureModelElement(context, 'category', CategoryNode, RoundedCornerNodeView);
-    configureModelElement(context, 'struct', SCompartment, StructureCompartmentView);
+    configureModelElement(context, 'struct', GCompartment, StructureCompartmentView);
 });
 
 export function createWorkflowDiagramContainer(...containerConfiguration: ContainerConfiguration): Container {

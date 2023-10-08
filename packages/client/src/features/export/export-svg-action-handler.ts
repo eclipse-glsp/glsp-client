@@ -15,7 +15,7 @@
  ********************************************************************************/
 import { saveAs } from 'file-saver';
 import { injectable } from 'inversify';
-import { ExportSvgAction, IActionHandler } from '~glsp-sprotty';
+import { ExportSvgAction, IActionHandler } from '@eclipse-glsp/sprotty';
 
 /**
  * The default handler for {@link ExportSvgAction}s. This generic handler can be used in

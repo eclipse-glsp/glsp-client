@@ -13,12 +13,13 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { BoundsAware, EdgeRouterRegistry, SConnectableElement, SEdge, SModelElement, SModelRoot, TYPES } from '~glsp-sprotty';
-import { ElementNavigator } from './element-navigator';
+import { BoundsAware, EdgeRouterRegistry, GConnectableElement, GModelElement, GModelRoot, TYPES } from '@eclipse-glsp/sprotty';
 import { inject, injectable, optional } from 'inversify';
 import { GLSPActionDispatcher } from '../../../base/action-dispatcher';
 import { applyCssClasses, deleteCssClasses } from '../../../base/feedback/css-feedback';
-import { SelectableBoundsAware } from '../../../utils/smodel-util';
+import { SelectableBoundsAware } from '../../../utils/gmodel-util';
+import { ElementNavigator } from './element-navigator';
+import { GEdge } from '../../../model';
 
 @injectable()
 export class LocalElementNavigator implements ElementNavigator {
@@ -27,54 +28,54 @@ export class LocalElementNavigator implements ElementNavigator {
     @inject(TYPES.IActionDispatcher) protected readonly actionDispatcher: GLSPActionDispatcher;
 
     previous(
-        root: Readonly<SModelRoot>,
+        root: Readonly<GModelRoot>,
         current: SelectableBoundsAware,
         previousCurrent?: SelectableBoundsAware,
-        predicate?: (element: SModelElement) => boolean
-    ): SModelElement | undefined {
+        predicate?: (element: GModelElement) => boolean
+    ): GModelElement | undefined {
         return this.getPreviousElement(current, predicate);
     }
 
     next(
-        root: Readonly<SModelRoot>,
+        root: Readonly<GModelRoot>,
         current: SelectableBoundsAware,
         previousCurrent?: SelectableBoundsAware,
-        predicate?: (element: SModelElement) => boolean
-    ): SModelElement | undefined {
+        predicate?: (element: GModelElement) => boolean
+    ): GModelElement | undefined {
         return this.getNextElement(current, predicate);
     }
 
     up(
-        root: Readonly<SModelRoot>,
+        root: Readonly<GModelRoot>,
         current: SelectableBoundsAware,
         previousCurrent?: SelectableBoundsAware,
-        predicate?: (element: SModelElement) => boolean
-    ): SModelElement | undefined {
+        predicate?: (element: GModelElement) => boolean
+    ): GModelElement | undefined {
         return this.getIterable(current, previousCurrent, predicate);
     }
 
     down(
-        root: Readonly<SModelRoot>,
+        root: Readonly<GModelRoot>,
         current: SelectableBoundsAware,
         previousCurrent?: SelectableBoundsAware,
-        predicate?: (element: SModelElement) => boolean
-    ): SModelElement | undefined {
+        predicate?: (element: GModelElement) => boolean
+    ): GModelElement | undefined {
         return this.getIterable(current, previousCurrent, predicate);
     }
 
     process(
-        root: Readonly<SModelRoot>,
+        root: Readonly<GModelRoot>,
         current: SelectableBoundsAware,
         target: SelectableBoundsAware,
         previousCurrent?: SelectableBoundsAware,
-        predicate?: (element: SModelElement) => boolean
+        predicate?: (element: GModelElement) => boolean
     ): void {
-        let elements: SModelElement[] = [];
+        let elements: GModelElement[] = [];
 
         // Mark only edges
-        if (target instanceof SEdge) {
+        if (target instanceof GEdge) {
             // If current is a edge, we have to check the source and target
-            if (current instanceof SEdge) {
+            if (current instanceof GEdge) {
                 elements = this.getIterables(target, current.source === target.source ? current.source : current.target, predicate);
             } else {
                 // Otherwise take the current as it is
@@ -84,18 +85,18 @@ export class LocalElementNavigator implements ElementNavigator {
         elements.filter(e => e.id !== target.id).forEach(e => this.actionDispatcher.dispatch(applyCssClasses(e, this.navigableElementCSS)));
     }
 
-    clean(root: Readonly<SModelRoot>, current?: SelectableBoundsAware, previousCurrent?: SelectableBoundsAware): void {
+    clean(root: Readonly<GModelRoot>, current?: SelectableBoundsAware, previousCurrent?: SelectableBoundsAware): void {
         root.index.all().forEach(e => this.actionDispatcher.dispatch(deleteCssClasses(e, this.navigableElementCSS)));
     }
 
     protected getIterables(
         current: SelectableBoundsAware,
-        previousCurrent?: SModelElement & BoundsAware,
-        predicate: (element: SModelElement) => boolean = () => true
-    ): SModelElement[] {
-        const elements: SModelElement[] = [];
+        previousCurrent?: GModelElement & BoundsAware,
+        predicate: (element: GModelElement) => boolean = () => true
+    ): GModelElement[] {
+        const elements: GModelElement[] = [];
 
-        if (current instanceof SEdge) {
+        if (current instanceof GEdge) {
             if (current.target === previousCurrent) {
                 current.target?.incomingEdges.forEach(e => elements.push(e));
             } else {
@@ -109,20 +110,20 @@ export class LocalElementNavigator implements ElementNavigator {
     protected getIterable(
         current: SelectableBoundsAware,
         previousCurrent?: SelectableBoundsAware,
-        predicate: (element: SModelElement) => boolean = () => true
-    ): SModelElement | undefined {
+        predicate: (element: GModelElement) => boolean = () => true
+    ): GModelElement | undefined {
         return this.getIterables(current, previousCurrent, predicate).filter(e => e.id !== current.id)[0];
     }
     protected getNextElement(
         current: SelectableBoundsAware,
-        predicate: (element: SModelElement) => boolean = () => true
-    ): SModelElement | undefined {
-        const elements: SModelElement[] = [];
+        predicate: (element: GModelElement) => boolean = () => true
+    ): GModelElement | undefined {
+        const elements: GModelElement[] = [];
 
-        if (current instanceof SConnectableElement) {
+        if (current instanceof GConnectableElement) {
             current.outgoingEdges.forEach(e => elements.push(e));
-        } else if (current instanceof SEdge) {
-            const target = current.target as SModelElement;
+        } else if (current instanceof GEdge) {
+            const target = current.target as GModelElement;
             elements.push(target);
         }
 
@@ -131,14 +132,14 @@ export class LocalElementNavigator implements ElementNavigator {
 
     protected getPreviousElement(
         current: SelectableBoundsAware,
-        predicate: (element: SModelElement) => boolean = () => true
-    ): SModelElement | undefined {
-        const elements: SModelElement[] = [];
+        predicate: (element: GModelElement) => boolean = () => true
+    ): GModelElement | undefined {
+        const elements: GModelElement[] = [];
 
-        if (current instanceof SConnectableElement) {
+        if (current instanceof GConnectableElement) {
             current.incomingEdges.forEach(e => elements.push(e));
-        } else if (current instanceof SEdge) {
-            const source = current.source as SModelElement;
+        } else if (current instanceof GEdge) {
+            const source = current.source as GModelElement;
             elements.push(source);
         }
 

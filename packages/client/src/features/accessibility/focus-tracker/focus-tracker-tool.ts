@@ -15,7 +15,7 @@
  ********************************************************************************/
 
 import { inject, injectable } from 'inversify';
-import { TYPES, ViewerOptions } from '~glsp-sprotty';
+import { TYPES, ViewerOptions } from '@eclipse-glsp/sprotty';
 import { GLSPActionDispatcher } from '../../../base/action-dispatcher';
 import { Tool } from '../../../base/tool-manager/tool';
 import * as messages from '../toast/messages.json';

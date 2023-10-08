@@ -20,10 +20,10 @@ import {
     LabeledAction,
     Point,
     RequestContextActions,
-    SModelElement,
+    GModelElement,
     SetContextActions,
     TYPES
-} from '~glsp-sprotty';
+} from '@eclipse-glsp/sprotty';
 import { GLSPActionDispatcher } from '../../base/action-dispatcher';
 import { EditorContextService } from '../../base/editor-context-service';
 
@@ -38,7 +38,7 @@ export class ServerCommandPaletteActionProvider implements ICommandPaletteAction
     @inject(TYPES.IActionDispatcher) protected actionDispatcher: GLSPActionDispatcher;
     @inject(EditorContextService) protected editorContext: EditorContextService;
 
-    async getActions(_root: Readonly<SModelElement>, text: string, _lastMousePosition?: Point, index?: number): Promise<LabeledAction[]> {
+    async getActions(_root: Readonly<GModelElement>, text: string, _lastMousePosition?: Point, index?: number): Promise<LabeledAction[]> {
         const requestAction = RequestContextActions.create({
             contextId: ServerCommandPalette.CONTEXT_ID,
             editorContext: this.editorContext.get({

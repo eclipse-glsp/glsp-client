@@ -28,7 +28,7 @@ import {
     StatusAction,
     TYPES,
     hasNumberProp
-} from '~glsp-sprotty';
+} from '@eclipse-glsp/sprotty';
 import { GLSPActionDispatcher } from '../action-dispatcher';
 import { Ranked } from '../ranked';
 import { GLSPModelSource } from './glsp-model-source';

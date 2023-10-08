@@ -14,8 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { SModelElement } from 'sprotty-protocol';
-import { SModelElementSchema } from '.';
+import { GModelElementSchema } from '../model/model-schema';
 import { hasArrayProp, hasBooleanProp, hasStringProp } from '../utils/type-util';
 import { Action, RequestAction, ResponseAction } from './base-protocol';
 
@@ -55,7 +54,7 @@ export interface ShapeTypeHint extends TypeHint {
     readonly reparentable: boolean;
 
     /**
-     * The types of elements that can be contained by this element (if any)
+     * The types of elements that can be contained by this element (if unknown)
      */
     readonly containableElementTypeIds?: string[];
 }
@@ -72,13 +71,13 @@ export interface EdgeTypeHint extends TypeHint {
 
     /**
      * Allowed source element types for this edge type.
-     * If not defined any element can be used as source element for this edge.
+     * If not defined unknown element can be used as source element for this edge.
      */
     readonly sourceElementTypeIds?: string[];
 
     /**
      * Allowed target element types for this edge type
-     *  If not defined any element can be used as target element for this edge.
+     *  If not defined unknown element can be used as target element for this edge.
      */
     readonly targetElementTypeIds?: string[];
 
@@ -106,7 +105,7 @@ export interface RequestTypeHintsAction extends RequestAction<SetTypeHintsAction
 export namespace RequestTypeHintsAction {
     export const KIND = 'requestTypeHints';
 
-    export function is(object: any): object is RequestTypeHintsAction {
+    export function is(object: unknown): object is RequestTypeHintsAction {
         return RequestAction.hasKind(object, KIND);
     }
 
@@ -135,7 +134,7 @@ export interface SetTypeHintsAction extends ResponseAction {
 export namespace SetTypeHintsAction {
     export const KIND = 'setTypeHints';
 
-    export function is(object: any): object is SetTypeHintsAction {
+    export function is(object: unknown): object is SetTypeHintsAction {
         return Action.hasKind(object, KIND) && hasArrayProp(object, 'shapeHints') && hasArrayProp(object, 'edgeHints');
     }
 
@@ -186,8 +185,8 @@ export namespace RequestCheckEdgeAction {
     }
 
     export function create(options: {
-        sourceElement: SModelElement | SModelElementSchema | string;
-        targetElement?: SModelElement | SModelElementSchema | string;
+        sourceElement: GModelElementSchema | string;
+        targetElement?: GModelElementSchema | string;
         edgeType: string;
         requestId?: string;
     }): RequestCheckEdgeAction {
@@ -201,7 +200,7 @@ export namespace RequestCheckEdgeAction {
     }
 }
 
-function getElementTypeId(element: SModelElement | string): string {
+function getElementTypeId(element: GModelElementSchema | string): string {
     if (typeof element === 'string') {
         return element;
     }

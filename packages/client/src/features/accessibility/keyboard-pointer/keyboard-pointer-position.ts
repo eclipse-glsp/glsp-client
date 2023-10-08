@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { findChildrenAtPosition, findParentByFeature, SModelElement, Point } from '~glsp-sprotty';
+import { findChildrenAtPosition, findParentByFeature, GModelElement, Point } from '@eclipse-glsp/sprotty';
 import { Containable, isContainable } from '../../hints/model';
 import { getAbsolutePositionByPoint } from '../../../utils/viewpoint-util';
 import { KeyboardPointerMetadata } from './constants';
@@ -36,7 +36,7 @@ export class KeyboardPointerPosition {
         return getAbsolutePositionByPoint(this.keyboardPointer.editorContextService.modelRoot, this.centerizedRenderPosition);
     }
 
-    childrenAtDiagramPosition(): SModelElement[] {
+    childrenAtDiagramPosition(): GModelElement[] {
         const position = this.diagramPosition;
 
         return [
@@ -46,7 +46,7 @@ export class KeyboardPointerPosition {
     }
 
     containableParentAtDiagramPosition(elementTypeId: string): {
-        container: (SModelElement & Containable) | undefined;
+        container: (GModelElement & Containable) | undefined;
         status: CursorCSS;
     } {
         const children = this.childrenAtDiagramPosition();
@@ -62,9 +62,9 @@ export class KeyboardPointerPosition {
     }
 
     private containableParentOf(
-        target: SModelElement,
+        target: GModelElement,
         elementTypeId: string
-    ): { container: (SModelElement & Containable) | undefined; status: CursorCSS } {
+    ): { container: (GModelElement & Containable) | undefined; status: CursorCSS } {
         const container = findParentByFeature(target, isContainable);
         return {
             container,
@@ -72,7 +72,7 @@ export class KeyboardPointerPosition {
         };
     }
 
-    private isCreationAllowed(container: (SModelElement & Containable) | undefined, elementTypeId: string): boolean | undefined {
+    private isCreationAllowed(container: (GModelElement & Containable) | undefined, elementTypeId: string): boolean | undefined {
         return container && container.isContainableElement(elementTypeId);
     }
 }

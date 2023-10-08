@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { inject, injectable } from 'inversify';
-import { AbstractUIExtension, IActionHandler, StatusAction, codiconCSSClasses } from '~glsp-sprotty';
+import { AbstractUIExtension, IActionHandler, StatusAction, codiconCSSClasses } from '@eclipse-glsp/sprotty';
 import { GLSPActionDispatcher } from '../../base/action-dispatcher';
 import { EditorContextService } from '../../base/editor-context-service';
 import { IDiagramStartup } from '../../base/model/diagram-loader';

@@ -27,20 +27,20 @@ import {
     EdgeRouterRegistry,
     ElementAndBounds,
     ElementAndRoutingPoints,
+    GChildElement,
     ISnapper,
     MouseListener,
     Operation,
     Point,
-    SChildElement,
-    SConnectableElement,
-    SModelElement,
-    SModelRoot,
-    SParentElement,
+    GConnectableElement,
+    GModelElement,
+    GModelRoot,
+    GParentElement,
     SetBoundsAction,
     TYPES,
     findParentByFeature,
     isSelected
-} from '~glsp-sprotty';
+} from '@eclipse-glsp/sprotty';
 import { DragAwareMouseListener } from '../../../base/drag-aware-mouse-listener';
 import { CursorCSS, applyCssClasses, cursorFeedbackAction, deleteCssClasses } from '../../../base/feedback/css-feedback';
 import { ISelectionListener, SelectionService } from '../../../base/selection-service';
@@ -51,7 +51,7 @@ import {
     forEachElement,
     isNonRoutableSelectedMovableBoundsAware,
     toElementAndBounds
-} from '../../../utils/smodel-util';
+} from '../../../utils/gmodel-util';
 import { Resizable, ResizeHandleLocation, SResizeHandle, isBoundsAwareMoveable, isResizable } from '../../change-bounds/model';
 import {
     IMovementRestrictor,
@@ -130,7 +130,7 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
     protected pointPositionUpdater: PointPositionUpdater;
 
     // members for resize mode
-    protected activeResizeElement?: SModelElement;
+    protected activeResizeElement?: GModelElement;
     protected activeResizeHandle?: SResizeHandle;
 
     constructor(protected tool: ChangeBoundsTool) {
@@ -138,11 +138,11 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
         this.pointPositionUpdater = new PointPositionUpdater(tool.snapper);
     }
 
-    override mouseDown(target: SModelElement, event: MouseEvent): Action[] {
+    override mouseDown(target: GModelElement, event: MouseEvent): Action[] {
         super.mouseDown(target, event);
         // If another button than the left mouse button was clicked or we are
         // still on the root element we don't need to execute the tool behavior
-        if (event.button !== 0 || target instanceof SModelRoot) {
+        if (event.button !== 0 || target instanceof GModelRoot) {
             return [];
         }
         // check if we have a resize handle (only single-selection)
@@ -159,7 +159,7 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
         return [];
     }
 
-    override mouseMove(target: SModelElement, event: MouseEvent): Action[] {
+    override mouseMove(target: GModelElement, event: MouseEvent): Action[] {
         super.mouseMove(target, event);
         if (this.isMouseDrag && this.activeResizeHandle) {
             // rely on the FeedbackMoveMouseListener to update the element bounds of selected elements
@@ -178,7 +178,7 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
         return [];
     }
 
-    override draggingMouseUp(target: SModelElement, _event: MouseEvent): Action[] {
+    override draggingMouseUp(target: GModelElement, _event: MouseEvent): Action[] {
         if (this.pointPositionUpdater.isLastDragPositionUndefined()) {
             this.resetPosition();
             return [];
@@ -197,7 +197,7 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
         return actions;
     }
 
-    protected handleMoveOnServer(target: SModelElement): Action[] {
+    protected handleMoveOnServer(target: GModelElement): Action[] {
         const operations: Operation[] = [];
 
         operations.push(...this.handleMoveElementsOnServer(target));
@@ -208,15 +208,15 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
         return operations;
     }
 
-    protected handleMoveElementsOnServer(target: SModelElement): Operation[] {
+    protected handleMoveElementsOnServer(target: GModelElement): Operation[] {
         const result: Operation[] = [];
         const newBounds: ElementAndBounds[] = [];
-        const selectedElements: (SModelElement & BoundsAware)[] = [];
+        const selectedElements: (GModelElement & BoundsAware)[] = [];
         forEachElement(target.index, isNonRoutableSelectedMovableBoundsAware, element => {
             selectedElements.push(element);
         });
 
-        const selectionSet: Set<SModelElement & BoundsAware> = new Set(selectedElements);
+        const selectionSet: Set<GModelElement & BoundsAware> = new Set(selectedElements);
         selectedElements
             .filter(element => !this.isChildOfSelected(selectionSet, element))
             .map(element => this.createElementAndBounds(element))
@@ -228,8 +228,8 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
         return result;
     }
 
-    protected isChildOfSelected(selectedElements: Set<SModelElement>, element: SModelElement): boolean {
-        while (element instanceof SChildElement) {
+    protected isChildOfSelected(selectedElements: Set<GModelElement>, element: GModelElement): boolean {
+        while (element instanceof GChildElement) {
             element = element.parent;
             if (selectedElements.has(element)) {
                 return true;
@@ -238,13 +238,13 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
         return false;
     }
 
-    protected handleMoveRoutingPointsOnServer(target: SModelElement): Operation[] {
+    protected handleMoveRoutingPointsOnServer(target: GModelElement): Operation[] {
         const newRoutingPoints: ElementAndRoutingPoints[] = [];
         const routerRegistry = this.tool.edgeRouterRegistry;
         if (routerRegistry) {
             //  If client routing is enabled -> delegate routingpoints of connected edges to server
             forEachElement(target.index, isNonRoutableSelectedMovableBoundsAware, element => {
-                if (element instanceof SConnectableElement) {
+                if (element instanceof GConnectableElement) {
                     element.incomingEdges
                         .map(connectable => calcElementAndRoutingPoints(connectable, routerRegistry))
                         .forEach(ear => newRoutingPoints.push(ear));
@@ -268,7 +268,7 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
         return actions;
     }
 
-    selectionChanged(root: SModelRoot, selectedElements: string[]): void {
+    selectionChanged(root: GModelRoot, selectedElements: string[]): void {
         if (this.activeResizeElement) {
             if (selectedElements.includes(this.activeResizeElement.id)) {
                 // our active element is still selected, nothing to do
@@ -286,7 +286,7 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
         }
     }
 
-    protected setActiveResizeElement(target: SModelElement): boolean {
+    protected setActiveResizeElement(target: GModelElement): boolean {
         // check if we have a selected, moveable element (multi-selection allowed)
         const moveableElement = findParentByFeature(target, isBoundsAwareMoveable);
         if (isSelected(moveableElement)) {
@@ -303,7 +303,7 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
         return false;
     }
 
-    protected isActiveResizeElement(element?: SModelElement): element is SParentElement & BoundsAware {
+    protected isActiveResizeElement(element?: GModelElement): element is GParentElement & BoundsAware {
         return element !== undefined && this.activeResizeElement !== undefined && element.id === this.activeResizeElement.id;
     }
 
@@ -376,7 +376,7 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
         return [];
     }
 
-    protected handleTopLeftResize(resizeElement: SParentElement & Resizable, positionUpdate: Point): Action[] {
+    protected handleTopLeftResize(resizeElement: GParentElement & Resizable, positionUpdate: Point): Action[] {
         return this.createSetBoundsAction(
             resizeElement,
             resizeElement.bounds.x + positionUpdate.x,
@@ -386,7 +386,7 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
         );
     }
 
-    protected handleTopRightResize(resizeElement: SParentElement & Resizable, positionUpdate: Point): Action[] {
+    protected handleTopRightResize(resizeElement: GParentElement & Resizable, positionUpdate: Point): Action[] {
         return this.createSetBoundsAction(
             resizeElement,
             resizeElement.bounds.x,
@@ -396,7 +396,7 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
         );
     }
 
-    protected handleBottomLeftResize(resizeElement: SParentElement & Resizable, positionUpdate: Point): Action[] {
+    protected handleBottomLeftResize(resizeElement: GParentElement & Resizable, positionUpdate: Point): Action[] {
         return this.createSetBoundsAction(
             resizeElement,
             resizeElement.bounds.x + positionUpdate.x,
@@ -406,7 +406,7 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
         );
     }
 
-    protected handleBottomRightResize(resizeElement: SParentElement & Resizable, positionUpdate: Point): Action[] {
+    protected handleBottomRightResize(resizeElement: GParentElement & Resizable, positionUpdate: Point): Action[] {
         return this.createSetBoundsAction(
             resizeElement,
             resizeElement.bounds.x,
@@ -416,7 +416,7 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
         );
     }
 
-    protected createChangeBoundsAction(element: SModelElement & BoundsAware): Action[] {
+    protected createChangeBoundsAction(element: GModelElement & BoundsAware): Action[] {
         if (this.isValidBoundChange(element, element.bounds, element.bounds)) {
             return [ChangeBoundsOperation.create([toElementAndBounds(element)])];
         } else if (this.initialBounds) {
@@ -430,14 +430,14 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
         return [];
     }
 
-    protected createElementAndBounds(element: SModelElement & BoundsAware): ElementAndBounds[] {
+    protected createElementAndBounds(element: GModelElement & BoundsAware): ElementAndBounds[] {
         if (this.isValidBoundChange(element, element.bounds, element.bounds)) {
             return [toElementAndBounds(element)];
         }
         return [];
     }
 
-    protected createSetBoundsAction(element: SModelElement & BoundsAware, x: number, y: number, width: number, height: number): Action[] {
+    protected createSetBoundsAction(element: GModelElement & BoundsAware, x: number, y: number, width: number, height: number): Action[] {
         const newPosition = { x, y };
         const newSize = { width, height };
         const result: Action[] = [];
@@ -457,19 +457,19 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
         return result;
     }
 
-    protected snap(position: Point, element: SModelElement, isSnap: boolean): Point {
+    protected snap(position: Point, element: GModelElement, isSnap: boolean): Point {
         return isSnap && this.tool.snapper ? this.tool.snapper.snap(position, element) : { x: position.x, y: position.y };
     }
 
-    protected isValidBoundChange(element: SModelElement & BoundsAware, newPosition: Point, newSize: Dimension): boolean {
+    protected isValidBoundChange(element: GModelElement & BoundsAware, newPosition: Point, newSize: Dimension): boolean {
         return this.isValidSize(element, newSize) && this.isValidMove(element, newPosition);
     }
 
-    protected isValidSize(element: SModelElement & BoundsAware, size: Dimension): boolean {
+    protected isValidSize(element: GModelElement & BoundsAware, size: Dimension): boolean {
         return isValidSize(element, size);
     }
 
-    protected isValidMove(element: SModelElement & BoundsAware, newPosition: Point): boolean {
+    protected isValidMove(element: GModelElement & BoundsAware, newPosition: Point): boolean {
         return isValidMove(element, newPosition, this.tool.movementRestrictor);
     }
 }

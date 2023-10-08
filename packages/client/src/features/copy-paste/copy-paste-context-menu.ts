@@ -22,13 +22,13 @@ import {
     IContextMenuItemProvider,
     MenuItem,
     Point,
-    SModelRoot,
+    GModelRoot,
     MessageAction,
     StatusAction,
     TYPES,
     hasStringProp,
     isSelected
-} from '~glsp-sprotty';
+} from '@eclipse-glsp/sprotty';
 
 /**
  * An `InvokeCopyPasteAction` is dispatched by the client to initiate a cut, copy or paste operation.
@@ -89,7 +89,7 @@ export class InvokeCopyPasteActionHandler implements IActionHandler {
 
 @injectable()
 export class CopyPasteContextMenuItemProvider implements IContextMenuItemProvider {
-    getItems(root: Readonly<SModelRoot>, _lastMousePosition?: Point): Promise<MenuItem[]> {
+    getItems(root: Readonly<GModelRoot>, _lastMousePosition?: Point): Promise<MenuItem[]> {
         const hasSelectedElements = Array.from(root.index.all().filter(isSelected)).length > 0;
         return Promise.resolve([
             this.createCopyMenuItem(hasSelectedElements),

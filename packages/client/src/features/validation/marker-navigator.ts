@@ -23,10 +23,9 @@ import {
     KeyListener,
     MenuItem,
     Point,
-    SIssueMarker,
-    SIssueSeverity,
-    SModelElement,
-    SModelRoot,
+    GIssueSeverity,
+    GModelElement,
+    GModelRoot,
     SelectAction,
     Selectable,
     TYPES,
@@ -36,18 +35,19 @@ import {
     isBoundsAware,
     isSelectable,
     matchesKeystroke
-} from '~glsp-sprotty';
+} from '@eclipse-glsp/sprotty';
 import { GLSPActionDispatcher } from '../../base/action-dispatcher';
 import { SelectionService } from '../../base/selection-service';
 import { MarkerPredicates, collectIssueMarkers } from '../../utils/marker';
-import { getElements, isSelectableAndBoundsAware } from '../../utils/smodel-util';
+import { getElements, isSelectableAndBoundsAware } from '../../utils/gmodel-util';
+import { GIssueMarker } from './issue-marker';
 
 export interface NavigateToMarkerAction extends Action {
     kind: typeof NavigateToMarkerAction.KIND;
 
     direction: MarkerNavigationDirection;
     selectedElementIds?: string[];
-    severities: SIssueSeverity[];
+    severities: GIssueSeverity[];
 }
 
 export type MarkerNavigationDirection = 'next' | 'previous';
@@ -62,7 +62,7 @@ export namespace NavigateToMarkerAction {
     export function create(options: {
         direction?: MarkerNavigationDirection;
         selectedElementIds?: string[];
-        severities?: SIssueSeverity[];
+        severities?: GIssueSeverity[];
     }): NavigateToMarkerAction {
         return {
             kind: KIND,
@@ -73,7 +73,7 @@ export namespace NavigateToMarkerAction {
     }
 }
 export class SModelElementComparator {
-    compare(_one: SModelElement, _other: SModelElement): number {
+    compare(_one: GModelElement, _other: GModelElement): number {
         return 0;
     }
 }
@@ -81,7 +81,7 @@ export class SModelElementComparator {
 /** Specifies the order of two selectable and bounds-aware elements left-to-right and top-to-bottom. */
 @injectable()
 export class LeftToRightTopToBottomComparator {
-    compare(one: SModelElement, other: SModelElement): number {
+    compare(one: GModelElement, other: GModelElement): number {
         const boundsOne = findParentByFeature(one, isSelectableAndBoundsAware);
         const boundsOther = findParentByFeature(other, isSelectableAndBoundsAware);
         if (boundsOne && boundsOther) {
@@ -103,16 +103,16 @@ export class LeftToRightTopToBottomComparator {
  */
 @injectable()
 export class MarkerNavigator {
-    static readonly ALL_SEVERITIES: SIssueSeverity[] = ['error', 'warning', 'info'];
+    static readonly ALL_SEVERITIES: GIssueSeverity[] = ['error', 'warning', 'info'];
 
     @inject(SModelElementComparator)
     protected markerComparator: SModelElementComparator;
 
     next(
-        root: Readonly<SModelRoot>,
-        current?: SModelElement & BoundsAware,
-        predicate: (marker: SIssueMarker) => boolean = MarkerPredicates.ALL
-    ): SIssueMarker | undefined {
+        root: Readonly<GModelRoot>,
+        current?: GModelElement & BoundsAware,
+        predicate: (marker: GIssueMarker) => boolean = MarkerPredicates.ALL
+    ): GIssueMarker | undefined {
         const markers = this.getMarkers(root, predicate);
         if (current === undefined) {
             return markers.length > 0 ? markers[0] : undefined;
@@ -121,10 +121,10 @@ export class MarkerNavigator {
     }
 
     previous(
-        root: Readonly<SModelRoot>,
-        current?: SModelElement & BoundsAware,
-        predicate: (marker: SIssueMarker) => boolean = MarkerPredicates.ALL
-    ): SIssueMarker | undefined {
+        root: Readonly<GModelRoot>,
+        current?: GModelElement & BoundsAware,
+        predicate: (marker: GIssueMarker) => boolean = MarkerPredicates.ALL
+    ): GIssueMarker | undefined {
         const markers = this.getMarkers(root, predicate);
         if (current === undefined) {
             return markers.length > 0 ? markers[0] : undefined;
@@ -132,12 +132,12 @@ export class MarkerNavigator {
         return markers[this.getPreviousIndex(current, markers) % markers.length];
     }
 
-    protected getMarkers(root: Readonly<SModelRoot>, predicate: (marker: SIssueMarker) => boolean): SIssueMarker[] {
+    protected getMarkers(root: Readonly<GModelRoot>, predicate: (marker: GIssueMarker) => boolean): GIssueMarker[] {
         const markers = collectIssueMarkers(root);
         return markers.filter(predicate).sort(this.markerComparator.compare);
     }
 
-    protected getNextIndex(current: SModelElement & BoundsAware, markers: SIssueMarker[]): number {
+    protected getNextIndex(current: GModelElement & BoundsAware, markers: GIssueMarker[]): number {
         for (let index = 0; index < markers.length; index++) {
             if (this.markerComparator.compare(markers[index], current) > 0) {
                 return index;
@@ -146,7 +146,7 @@ export class MarkerNavigator {
         return 0;
     }
 
-    protected getPreviousIndex(current: SModelElement & BoundsAware, markers: SIssueMarker[]): number {
+    protected getPreviousIndex(current: GModelElement & BoundsAware, markers: GIssueMarker[]): number {
         for (let index = markers.length - 1; index >= 0; index--) {
             if (this.markerComparator.compare(markers[index], current) < 0) {
                 return index;
@@ -182,14 +182,14 @@ export class NavigateToMarkerActionHandler implements IActionHandler {
         }
     }
 
-    protected getSelectedElements(action: NavigateToMarkerAction): (SModelElement & Selectable)[] {
+    protected getSelectedElements(action: NavigateToMarkerAction): (GModelElement & Selectable)[] {
         if (action.selectedElementIds && action.selectedElementIds.length > 0) {
             return getElements(this.selectionService.getModelRoot().index, action.selectedElementIds, isSelectable);
         }
         return this.selectionService.getSelectedElements();
     }
 
-    protected getTarget(action: NavigateToMarkerAction, selected: SModelElement[]): SIssueMarker | undefined {
+    protected getTarget(action: NavigateToMarkerAction, selected: GModelElement[]): GIssueMarker | undefined {
         const root = this.selectionService.getModelRoot();
         const target = selected.sort(this.markerComparator.compare).find(isBoundsAware);
         if (action.direction === 'previous') {
@@ -199,7 +199,7 @@ export class NavigateToMarkerActionHandler implements IActionHandler {
         }
     }
 
-    protected matchesSeverities(action: NavigateToMarkerAction, marker: SIssueMarker): boolean {
+    protected matchesSeverities(action: NavigateToMarkerAction, marker: GIssueMarker): boolean {
         return marker.issues.find(issue => action.severities.includes(issue.severity)) !== undefined;
     }
 }
@@ -208,7 +208,7 @@ export class NavigateToMarkerActionHandler implements IActionHandler {
 export class MarkerNavigatorContextMenuItemProvider implements IContextMenuItemProvider {
     @inject(SelectionService) protected selectionService: SelectionService;
 
-    getItems(root: Readonly<SModelRoot>, lastMousePosition?: Point): Promise<MenuItem[]> {
+    getItems(root: Readonly<GModelRoot>, lastMousePosition?: Point): Promise<MenuItem[]> {
         const selectedElementIds = Array.from(this.selectionService.getSelectedElementIDs());
         const hasMarkers = collectIssueMarkers(root).length > 0;
         return Promise.resolve([
@@ -240,7 +240,7 @@ export class MarkerNavigatorContextMenuItemProvider implements IContextMenuItemP
 
 @injectable()
 export class MarkerNavigatorKeyListener extends KeyListener {
-    override keyDown(_element: SModelElement, event: KeyboardEvent): Action[] {
+    override keyDown(_element: GModelElement, event: KeyboardEvent): Action[] {
         if (matchesKeystroke(event, 'Period', 'ctrl')) {
             return [NavigateToMarkerAction.create({ direction: 'next' })];
         } else if (matchesKeystroke(event, 'Comma', 'ctrl')) {

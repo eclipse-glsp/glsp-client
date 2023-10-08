@@ -37,14 +37,15 @@ export async function delay(timeout: number): Promise<void> {
  * @param  message - Optional message to match with error message
  */
 export async function expectToThrowAsync(toEvaluate: () => MaybePromise<unknown>, message?: string): Promise<void> {
-    let err: Error | undefined = undefined;
+    let err: unknown | undefined = undefined;
     try {
         await toEvaluate();
-    } catch (error: any) {
+    } catch (error) {
         err = error;
     }
     if (message) {
-        expect(err?.message).to.be.equal(message);
+        expect(err instanceof Error, 'The error cause should be an instance of Error').to.be.true;
+        expect((err as Error)?.message).to.be.equal(message);
     } else {
         expect(err).to.be.an('Error');
     }

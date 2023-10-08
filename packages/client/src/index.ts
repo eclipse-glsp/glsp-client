@@ -14,10 +14,12 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
+export * from '@eclipse-glsp/sprotty';
+
 // ------------------ Base ------------------
 export * from './base/action-dispatcher';
 export * from './base/action-handler-registry';
-export * from './base/argumentable';
+export * from './base/args-feature';
 export * from './base/auto-complete/auto-complete-actions';
 export * from './base/auto-complete/auto-complete-widget';
 export * from './base/auto-complete/validation-decorator';
@@ -41,7 +43,6 @@ export * from './base/tool-manager/tool-manager';
 export * from './base/view/mouse-tool';
 export * from './base/view/view-registry';
 
-//
 // ------------------ Features ------------------
 export * from './base/feedback/css-feedback';
 export * from './base/view/mouse-tool';
@@ -109,20 +110,18 @@ export * from './features/validation/issue-marker';
 export * from './features/validation/marker-navigator';
 export * from './features/validation/validate';
 export * from './features/viewport/glsp-scroll-mouse-listener';
-export * from './glsp-sprotty';
-export * from './glsp-sprotty/types';
-//
+
 // ------------------ Misc ------------------
 export * from './default-modules';
-export * from './lib/model';
 export * from './standalone-modules';
 export * from './utils/argument-utils';
 export * from './utils/html-utils';
 export * from './utils/layout-utils';
 export * from './utils/marker';
-export * from './utils/smodel-util';
+export * from './utils/gmodel-util';
 export * from './utils/viewpoint-util';
 export * from './views';
+export * from './model';
 // ------------------ DI Modules ------------------
 export * from './base/default.module';
 export * from './features/accessibility/accessibility-module';

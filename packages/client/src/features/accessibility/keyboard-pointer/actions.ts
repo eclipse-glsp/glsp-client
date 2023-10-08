@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, hasNumberProp } from '~glsp-sprotty';
+import { Action, hasNumberProp } from '@eclipse-glsp/sprotty';
 
 export interface SetKeyboardPointerRenderPositionAction extends Action {
     kind: typeof SetKeyboardPointerRenderPositionAction.KIND;

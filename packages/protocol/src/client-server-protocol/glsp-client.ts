@@ -19,6 +19,7 @@ import { ActionMessage } from '../action-protocol';
 import { Disposable } from '../utils/disposable';
 import { Event } from '../utils/event';
 import { DisposeClientSessionParameters, InitializeClientSessionParameters, InitializeParameters, InitializeResult } from './types';
+import { AnyObject, hasStringProp } from '../utils/type-util';
 
 export class ApplicationIdProvider {
     private static _applicationId?: string;
@@ -131,7 +132,7 @@ export interface GLSPClient {
     shutdownServer(): void;
 
     /**
-     * Stops the client and disposes any resources. During the stop procedure the client is in the `Stopping` state and will
+     * Stops the client and disposes unknown resources. During the stop procedure the client is in the `Stopping` state and will
      * transition to either `Stopped` or `ServerError`.
      *
      * @returns A promise that resolves after the server was stopped and disposed.
@@ -161,8 +162,8 @@ export namespace GLSPClient {
     }
 
     // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-    export function isOptions(object: any): object is Options {
-        return typeof object === 'object' && 'id' in object && typeof object['id'] === 'string';
+    export function isOptions(object: unknown): object is Options {
+        return AnyObject.is(object) && hasStringProp(object, 'id');
     }
 
     export const protocolVersion = '1.0.0';

@@ -13,17 +13,18 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { Point, PolylineEdgeView, RenderingContext, svg } from '@eclipse-glsp/sprotty';
 import { injectable } from 'inversify';
 import { Classes, VNode } from 'snabbdom';
-import { Point, PolylineEdgeView, RenderingContext, SEdge, svg } from '~glsp-sprotty';
 import { EdgePadding } from '../utils/argument-utils';
+import { GEdge } from '../model';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const JSX = { createElement: svg };
 
 @injectable()
 export class GEdgeView extends PolylineEdgeView {
-    override render(edge: Readonly<SEdge>, context: RenderingContext): VNode {
+    override render(edge: Readonly<GEdge>, context: RenderingContext): VNode {
         const router = this.edgeRouterRegistry.get(edge.routerKind);
         const route = router.route(edge);
         if (route.length === 0) {
@@ -39,15 +40,15 @@ export class GEdgeView extends PolylineEdgeView {
         );
     }
 
-    protected additionalClasses(_edge: Readonly<SEdge>, _context: RenderingContext): Classes {
+    protected additionalClasses(_edge: Readonly<GEdge>, _context: RenderingContext): Classes {
         return {};
     }
 
-    protected override renderLine(_edge: SEdge, segments: Point[], _context: RenderingContext): VNode {
+    protected override renderLine(_edge: GEdge, segments: Point[], _context: RenderingContext): VNode {
         return <path d={this.createPathForSegments(segments)} />;
     }
 
-    protected override renderAdditionals(edge: SEdge, segments: Point[], _context: RenderingContext): VNode[] {
+    protected override renderAdditionals(edge: GEdge, segments: Point[], _context: RenderingContext): VNode[] {
         // for additional padding we draw another transparent path with larger stroke width
         const edgePadding = EdgePadding.from(edge);
         return edgePadding ? [this.renderMouseHandle(segments, edgePadding)] : [];

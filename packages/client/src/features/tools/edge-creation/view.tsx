@@ -15,7 +15,7 @@
  ********************************************************************************/
 import { injectable } from 'inversify';
 import { VNode } from 'snabbdom';
-import { IView, Point, RenderingContext, SModelElement, svg } from '~glsp-sprotty';
+import { IView, Point, RenderingContext, GModelElement, svg } from '@eclipse-glsp/sprotty';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const JSX = { createElement: svg };
@@ -26,7 +26,7 @@ const JSX = { createElement: svg };
  */
 @injectable()
 export class FeedbackEdgeEndView implements IView {
-    render(model: Readonly<SModelElement>, context: RenderingContext): VNode {
+    render(model: Readonly<GModelElement>, context: RenderingContext): VNode {
         const position: Point = (model as any).position ?? Point.ORIGIN;
         return <g x={position.x} y={position.y} />;
     }

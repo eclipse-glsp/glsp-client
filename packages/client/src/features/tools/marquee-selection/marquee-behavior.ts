@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { Bounds, Point, PointToPointLine } from '~glsp-sprotty';
+import { Bounds, Point, PointToPointLine } from '@eclipse-glsp/sprotty';
 import { DrawMarqueeAction } from './marquee-tool-feedback';
 
 export interface IMarqueeBehavior {

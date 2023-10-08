@@ -18,11 +18,11 @@ import {
     AbstractUIExtension,
     IActionDispatcher,
     IActionHandler,
-    SModelRoot,
+    GModelRoot,
     TYPES,
     Action,
     TriggerNodeCreationAction
-} from '~glsp-sprotty';
+} from '@eclipse-glsp/sprotty';
 import { SetKeyboardPointerRenderPositionAction } from './actions';
 import { KeyboardPointerMetadata } from './constants';
 import { KeyboardPointerKeyboardListener } from './keyboard-pointer-listener';
@@ -79,7 +79,7 @@ export class KeyboardPointer extends AbstractUIExtension implements IActionHandl
         containerElement.style.borderRadius = '100%';
     }
 
-    protected override onBeforeShow(containerElement: HTMLElement, root: Readonly<SModelRoot>, ...selectedElementIds: string[]): void {
+    protected override onBeforeShow(containerElement: HTMLElement, root: Readonly<GModelRoot>, ...selectedElementIds: string[]): void {
         this.render();
     }
 

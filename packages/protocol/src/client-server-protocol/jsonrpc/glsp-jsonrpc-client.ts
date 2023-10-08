@@ -27,7 +27,7 @@ export namespace JsonrpcGLSPClient {
     }
 
     // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-    export function isOptions(object: any): object is Options {
+    export function isOptions(object: unknown): object is Options {
         return GLSPClient.isOptions(object) && 'connectionProvider' in object;
     }
 
@@ -39,7 +39,7 @@ export namespace JsonrpcGLSPClient {
     export const ShutdownNotification = new NotificationType0('shutdown');
     export const ClientNotReadyMsg = 'JsonrpcGLSPClient is not ready yet';
 
-    export function error(message: string, ...optionalParams: any[]): void {
+    export function error(message: string, ...optionalParams: unknown[]): void {
         console.error(`[JsonrpcGLSPClient] ${message}`, optionalParams);
     }
 }

@@ -20,12 +20,12 @@ import {
     Bounds,
     BoundsData,
     Dimension,
+    GChildElement,
     LayoutContainer,
     Point,
-    SChildElement,
-    SParentElement,
+    GParentElement,
     StatefulLayouter
-} from '~glsp-sprotty';
+} from '@eclipse-glsp/sprotty';
 
 /**
  * Layouts children of a container with explicit X/Y positions
@@ -34,7 +34,7 @@ import {
 export class FreeFormLayouter extends AbstractLayout<AbstractLayoutOptions> {
     static KIND = 'freeform';
 
-    override layout(container: SParentElement & LayoutContainer, layouter: StatefulLayouter): void {
+    override layout(container: GParentElement & LayoutContainer, layouter: StatefulLayouter): void {
         const boundsData = layouter.getBoundsData(container);
         const options = this.getLayoutOptions(container);
         const childrenSize = this.getChildrenSize(container, options, layouter);
@@ -55,7 +55,7 @@ export class FreeFormLayouter extends AbstractLayout<AbstractLayoutOptions> {
     }
 
     protected getChildrenSize(
-        container: SParentElement & LayoutContainer,
+        container: GParentElement & LayoutContainer,
         containerOptions: AbstractLayoutOptions,
         layouter: StatefulLayouter
     ): Dimension {
@@ -77,7 +77,7 @@ export class FreeFormLayouter extends AbstractLayout<AbstractLayoutOptions> {
     }
 
     protected layoutChild(
-        child: SChildElement,
+        child: GChildElement,
         boundsData: BoundsData,
         bounds: Bounds,
         childOptions: AbstractLayoutOptions,
@@ -97,7 +97,7 @@ export class FreeFormLayouter extends AbstractLayout<AbstractLayoutOptions> {
     }
 
     protected override getFinalContainerBounds(
-        container: SParentElement & LayoutContainer,
+        container: GParentElement & LayoutContainer,
         lastOffset: Point,
         options: AbstractLayoutOptions,
         maxWidth: number,

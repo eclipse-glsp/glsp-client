@@ -13,11 +13,11 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-// eslint-disable-next-line no-restricted-imports
 import { TYPES as SprottyTYPES } from 'sprotty';
 /**
  * Reexport of the TYPES namespace of sprotty augments with additional GLSP specific service
  * identifiers.
+ *
  */
 export const TYPES = {
     ...SprottyTYPES,

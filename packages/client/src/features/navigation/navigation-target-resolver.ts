@@ -22,7 +22,7 @@ import {
     ResponseAction,
     SetResolvedNavigationTargetAction,
     TYPES
-} from '~glsp-sprotty';
+} from '@eclipse-glsp/sprotty';
 import { IDiagramOptions } from '../../base/model/diagram-loader';
 
 /**

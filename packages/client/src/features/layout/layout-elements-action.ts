@@ -23,17 +23,17 @@ import {
     IActionHandler,
     ICommand,
     MoveAction,
-    SModelElement,
+    GModelElement,
     SetBoundsAction,
     TYPES,
     Writable,
     hasArrayProp,
     hasNumberProp,
     hasStringProp
-} from '~glsp-sprotty';
+} from '@eclipse-glsp/sprotty';
 import { SelectionService } from '../../base/selection-service';
 import { toValidElementAndBounds, toValidElementMove } from '../../utils/layout-utils';
-import { BoundsAwareModelElement, getElements } from '../../utils/smodel-util';
+import { BoundsAwareModelElement, getElements } from '../../utils/gmodel-util';
 import { isBoundsAwareMoveable, isResizable } from '../change-bounds/model';
 import { IMovementRestrictor } from '../change-bounds/movement-restrictor';
 
@@ -176,7 +176,7 @@ export abstract class LayoutElementsActionHandler implements IActionHandler {
         return getElements(index, selectedElements, this.isActionElement);
     }
 
-    protected abstract isActionElement(element: SModelElement): element is BoundsAwareModelElement;
+    protected abstract isActionElement(element: GModelElement): element is BoundsAwareModelElement;
 
     dispatchAction(action: Action): void {
         this.actionDispatcher.dispatch(action);
@@ -270,7 +270,7 @@ export class ResizeElementsActionHandler extends LayoutElementsActionHandler {
         change(element, bounds);
         return toValidElementAndBounds(element, bounds, this.movementRestrictor);
     }
-    protected isActionElement(element: SModelElement): element is BoundsAwareModelElement {
+    protected isActionElement(element: GModelElement): element is BoundsAwareModelElement {
         return isResizable(element);
     }
 }
@@ -483,7 +483,7 @@ export class AlignElementsActionHandler extends LayoutElementsActionHandler {
             }
         };
     }
-    protected isActionElement(element: SModelElement): element is BoundsAwareModelElement {
+    protected isActionElement(element: GModelElement): element is BoundsAwareModelElement {
         return isBoundsAwareMoveable(element);
     }
 }

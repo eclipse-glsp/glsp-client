@@ -19,14 +19,13 @@ import {
     AnchorComputerRegistry,
     CreateEdgeOperation,
     RequestCheckEdgeAction,
-    SEdge,
-    SModelElement,
+    GModelElement,
     TYPES,
     TriggerEdgeCreationAction,
     findParentByFeature,
     isConnectable,
     isCtrlOrCmd
-} from '~glsp-sprotty';
+} from '@eclipse-glsp/sprotty';
 import { GLSPActionDispatcher } from '../../../base/action-dispatcher';
 import { DragAwareMouseListener } from '../../../base/drag-aware-mouse-listener';
 import { CursorCSS, cursorFeedbackAction } from '../../../base/feedback/css-feedback';
@@ -35,6 +34,7 @@ import { ITypeHintProvider } from '../../hints/type-hint-provider';
 import { BaseCreationTool } from '../base-tools';
 import { DrawFeedbackEdgeAction, RemoveFeedbackEdgeAction } from './dangling-edge-feedback';
 import { FeedbackEdgeEndMovingMouseListener } from './edge-creation-tool-feedback';
+import { GEdge } from '../../../model';
 
 /**
  * Tool to create connections in a Diagram, by selecting a source and target node.
@@ -73,9 +73,9 @@ export class EdgeCreationTool extends BaseCreationTool<TriggerEdgeCreationAction
 export class EdgeCreationToolMouseListener extends DragAwareMouseListener {
     protected source?: string;
     protected target?: string;
-    protected currentTarget?: SModelElement;
+    protected currentTarget?: GModelElement;
     protected allowedTarget = false;
-    protected proxyEdge: SEdge;
+    protected proxyEdge: GEdge;
     protected pendingDynamicCheck = false;
 
     constructor(
@@ -85,7 +85,7 @@ export class EdgeCreationToolMouseListener extends DragAwareMouseListener {
         protected tool: EdgeCreationTool
     ) {
         super();
-        this.proxyEdge = new SEdge();
+        this.proxyEdge = new GEdge();
         this.proxyEdge.type = triggerAction.elementTypeId;
     }
 
@@ -97,7 +97,7 @@ export class EdgeCreationToolMouseListener extends DragAwareMouseListener {
         this.tool.registerFeedback([RemoveFeedbackEdgeAction.create()]);
     }
 
-    override nonDraggingMouseUp(_element: SModelElement, event: MouseEvent): Action[] {
+    override nonDraggingMouseUp(_element: GModelElement, event: MouseEvent): Action[] {
         const result: Action[] = [];
         if (event.button === 0) {
             if (!this.isSourceSelected()) {
@@ -140,7 +140,7 @@ export class EdgeCreationToolMouseListener extends DragAwareMouseListener {
         return this.target !== undefined;
     }
 
-    override mouseOver(target: SModelElement, event: MouseEvent): Action[] {
+    override mouseOver(target: GModelElement, event: MouseEvent): Action[] {
         const newCurrentTarget = findParentByFeature(target, isConnectable);
         if (newCurrentTarget !== this.currentTarget) {
             this.pendingDynamicCheck = false;
@@ -172,7 +172,7 @@ export class EdgeCreationToolMouseListener extends DragAwareMouseListener {
         return cursorFeedbackAction(CursorCSS.OPERATION_NOT_ALLOWED);
     }
 
-    protected canConnect(element: SModelElement | undefined, role: 'source' | 'target'): boolean {
+    protected canConnect(element: GModelElement | undefined, role: 'source' | 'target'): boolean {
         if (!element || !isConnectable(element) || !element.canConnect(this.proxyEdge, role)) {
             return false;
         }

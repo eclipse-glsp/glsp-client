@@ -14,23 +14,23 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
+import { inject, injectable } from 'inversify';
 import {
     Action,
     Bounds,
-    Dimension,
-    hasArrayProp,
-    Viewport,
     BoundsAwareViewportCommand,
+    Dimension,
+    GChildElement,
+    GModelElement,
+    GModelRoot,
+    TYPES,
+    Viewport,
     getRouteBounds,
-    isViewport,
-    SChildElement,
-    SEdge,
-    SModelElement,
-    SModelRoot,
-    TYPES
-} from '~glsp-sprotty';
-import { inject, injectable } from 'inversify';
-import { calcElementAndRoute } from '../../utils/smodel-util';
+    hasArrayProp,
+    isViewport
+} from '@eclipse-glsp/sprotty';
+import { calcElementAndRoute } from '../../utils/gmodel-util';
+import { GEdge } from '../../model';
 
 export interface RepositionAction extends Action {
     kind: typeof RepositionAction.KIND;
@@ -63,13 +63,13 @@ export class RepositionCommand extends BoundsAwareViewportCommand {
         super(true);
     }
 
-    protected override boundsInViewport(element: SModelElement, bounds: Bounds, viewport: SModelRoot & Viewport): Bounds {
-        if (element instanceof SChildElement && element.parent !== viewport) {
+    protected override boundsInViewport(element: GModelElement, bounds: Bounds, viewport: GModelRoot & Viewport): Bounds {
+        if (element instanceof GChildElement && element.parent !== viewport) {
             return this.boundsInViewport(element.parent, element.parent.localToParent(bounds) as Bounds, viewport);
-        } else if (element instanceof SEdge) {
+        } else if (element instanceof GEdge) {
             const edgeBounds = getRouteBounds(calcElementAndRoute(element).newRoutingPoints ?? []);
 
-            if (element instanceof SChildElement && element.parent !== viewport) {
+            if (element instanceof GChildElement && element.parent !== viewport) {
                 return this.boundsInViewport(element.parent, element.parent.localToParent(edgeBounds), viewport);
             }
 
@@ -83,7 +83,7 @@ export class RepositionCommand extends BoundsAwareViewportCommand {
         return this.action.elementIDs;
     }
 
-    getNewViewport(bounds: Bounds, model: SModelRoot): Viewport | undefined {
+    getNewViewport(bounds: Bounds, model: GModelRoot): Viewport | undefined {
         if (!Dimension.isValid(model.canvasBounds)) {
             return undefined;
         }
@@ -108,7 +108,7 @@ export class RepositionCommand extends BoundsAwareViewportCommand {
         return undefined;
     }
 
-    protected isFullyVisible(bounds: Bounds, viewport: SModelRoot & Viewport): boolean {
+    protected isFullyVisible(bounds: Bounds, viewport: GModelRoot & Viewport): boolean {
         return (
             bounds.x >= viewport.scroll.x &&
             bounds.x + bounds.width <= viewport.scroll.x + viewport.canvasBounds.width / viewport.zoom &&

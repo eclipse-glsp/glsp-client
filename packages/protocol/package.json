@@ -46,7 +46,7 @@
     "watch": "tsc -w"
   },
   "dependencies": {
-    "sprotty-protocol": "0.14.0-next.02bbac0.26",
+    "sprotty-protocol": "0.15.0-next.044bba2.13",
     "uuid": "7.0.3",
     "vscode-jsonrpc": "^8.0.2"
   },
@@ -54,7 +54,7 @@
     "@types/uuid": "3.4.5"
   },
   "peerDependencies": {
-    "inversify": "^5.1.1"
+    "inversify": "^6.0.1"
   },
   "publishConfig": {
     "access": "public"

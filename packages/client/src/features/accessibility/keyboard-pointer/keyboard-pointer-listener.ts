@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { IActionDispatcher, SetUIExtensionVisibilityAction, CreateNodeOperation } from '~glsp-sprotty';
+import { IActionDispatcher, SetUIExtensionVisibilityAction, CreateNodeOperation } from '@eclipse-glsp/sprotty';
 import { matchesKeystroke } from 'sprotty/lib/utils/keyboard';
 import { KeyboardNodeGridMetadata } from '../keyboard-grid/constants';
 import { KeyboardPointerMetadata } from './constants';

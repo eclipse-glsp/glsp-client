@@ -13,8 +13,8 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { SModelElement } from '~glsp-sprotty';
-import { hasArguments } from '../base/argumentable';
+import { GModelElement } from '@eclipse-glsp/sprotty';
+import { hasArgs } from '../base/args-feature';
 
 export namespace GArgument {
     export function asNumber(argValue: string | number | boolean): number | undefined {
@@ -41,24 +41,24 @@ export namespace GArgument {
         return argValues.map(asBoolean);
     }
 
-    export function getArgument(element: SModelElement | undefined, key: string): string | number | boolean | undefined {
-        return hasArguments(element) ? element.args[key] : undefined;
+    export function getArgument(element: GModelElement | undefined, key: string): string | number | boolean | undefined {
+        return hasArgs(element) ? element.args[key] : undefined;
     }
 
-    export function getNumber(element: SModelElement | undefined, key: string): number | undefined {
-        return hasArguments(element) ? asNumber(element.args[key]) : undefined;
+    export function getNumber(element: GModelElement | undefined, key: string): number | undefined {
+        return hasArgs(element) ? asNumber(element.args[key]) : undefined;
     }
 
-    export function getString(element: SModelElement | undefined, key: string): string | undefined {
-        return hasArguments(element) ? asString(element.args[key]) : undefined;
+    export function getString(element: GModelElement | undefined, key: string): string | undefined {
+        return hasArgs(element) ? asString(element.args[key]) : undefined;
     }
 
-    export function getBoolean(element: SModelElement | undefined, key: string): boolean | undefined {
-        return hasArguments(element) ? asBoolean(element.args[key]) : undefined;
+    export function getBoolean(element: GModelElement | undefined, key: string): boolean | undefined {
+        return hasArgs(element) ? asBoolean(element.args[key]) : undefined;
     }
 
-    export function getArguments(element: SModelElement | undefined, ...keys: string[]): (number | boolean | string)[] | undefined {
-        if (!hasArguments(element)) {
+    export function getArguments(element: GModelElement | undefined, ...keys: string[]): (number | boolean | string)[] | undefined {
+        if (!hasArgs(element)) {
             return undefined;
         }
         const values = [];
@@ -71,17 +71,17 @@ export namespace GArgument {
         return values;
     }
 
-    export function getNumbers(element: SModelElement | undefined, ...keys: string[]): (number | undefined)[] | undefined {
+    export function getNumbers(element: GModelElement | undefined, ...keys: string[]): (number | undefined)[] | undefined {
         const values = getArguments(element, ...keys);
         return values ? asNumbers(values) : undefined;
     }
 
-    export function getStrings(element: SModelElement | undefined, ...keys: string[]): (string | undefined)[] | undefined {
+    export function getStrings(element: GModelElement | undefined, ...keys: string[]): (string | undefined)[] | undefined {
         const values = getArguments(element, ...keys);
         return values ? asStrings(values) : undefined;
     }
 
-    export function getBooleans(element: SModelElement | undefined, ...keys: string[]): (boolean | undefined)[] | undefined {
+    export function getBooleans(element: GModelElement | undefined, ...keys: string[]): (boolean | undefined)[] | undefined {
         const values = getArguments(element, ...keys);
         return values ? asBooleans(values) : undefined;
     }
@@ -94,7 +94,7 @@ export namespace GArgument {
 export namespace EdgePadding {
     const KEY = 'edgePadding';
 
-    export function from(element: SModelElement | undefined): number | undefined {
+    export function from(element: GModelElement | undefined): number | undefined {
         return GArgument.getNumber(element, KEY);
     }
 }
@@ -114,7 +114,7 @@ export class CornerRadius {
         public readonly bottomLeft: number = topRight
     ) {}
 
-    static from(element: SModelElement | undefined): CornerRadius | undefined {
+    static from(element: GModelElement | undefined): CornerRadius | undefined {
         const radius = GArgument.getNumbers(
             element,
             this.KEY_RADIUS_TOP_LEFT,

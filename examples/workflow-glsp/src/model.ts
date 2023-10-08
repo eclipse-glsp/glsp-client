@@ -31,10 +31,10 @@ import {
     nameFeature,
     popupFeature,
     RectangularNode,
-    SChildElement,
+    GChildElement,
     selectFeature,
-    SModelElement,
-    SShapeElement,
+    GModelElement,
+    GShapeElement,
     WithEditableLabel,
     withEditLabelFeature
 } from '@eclipse-glsp/client';
@@ -57,7 +57,7 @@ export class TaskNode extends RectangularNode implements Nameable, WithEditableL
     taskType?: string;
     reference?: string;
 
-    get editableLabel(): (SChildElement & EditableLabel) | undefined {
+    get editableLabel(): (GChildElement & EditableLabel) | undefined {
         const label = this.children.find(element => element.type === 'label:heading');
         if (label && isEditableLabel(label)) {
             return label;
@@ -71,7 +71,7 @@ export class TaskNode extends RectangularNode implements Nameable, WithEditableL
     }
 }
 
-export function isTaskNode(element: SModelElement): element is TaskNode {
+export function isTaskNode(element: GModelElement): element is TaskNode {
     return element instanceof TaskNode || false;
 }
 
@@ -100,7 +100,7 @@ export namespace ActivityNode {
     }
 }
 
-export class Icon extends SShapeElement implements LayoutContainer {
+export class Icon extends GShapeElement implements LayoutContainer {
     static readonly DEFAULT_FEATURES = [boundsFeature, layoutContainerFeature, layoutableChildFeature, fadeFeature];
 
     layout: string;
@@ -127,7 +127,7 @@ export class CategoryNode extends RectangularNode implements Nameable, WithEdita
 
     name = '';
 
-    get editableLabel(): (SChildElement & EditableLabel) | undefined {
+    get editableLabel(): (GChildElement & EditableLabel) | undefined {
         const label = this.children.find(element => element.type === 'label:heading');
         if (label && isEditableLabel(label)) {
             return label;

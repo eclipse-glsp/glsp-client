@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { FeatureModule } from '~glsp-sprotty';
+import { FeatureModule } from '@eclipse-glsp/sprotty';
 import { configureShortcutHelpTool } from './key-shortcut/di.config';
 import { configureMoveZoom } from './move-zoom/move-zoom-module';
 import { configureResizeTools } from './resize-key-tool/resize-key-module';

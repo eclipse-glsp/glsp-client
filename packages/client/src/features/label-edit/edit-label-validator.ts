@@ -21,12 +21,12 @@ import {
     IEditLabelValidationDecorator,
     IEditLabelValidator,
     RequestEditValidationAction,
-    SModelElement,
+    GModelElement,
     SetEditValidationResultAction,
     Severity,
     TYPES,
     ValidationStatus
-} from '~glsp-sprotty';
+} from '@eclipse-glsp/sprotty';
 import { GLSPActionDispatcher } from '../../base/action-dispatcher';
 
 export namespace LabelEditValidation {
@@ -52,7 +52,7 @@ export namespace LabelEditValidation {
 export class ServerEditLabelValidator implements IEditLabelValidator {
     @inject(TYPES.IActionDispatcher) protected actionDispatcher: GLSPActionDispatcher;
 
-    async validate(value: string, label: EditableLabel & SModelElement): Promise<EditLabelValidationResult> {
+    async validate(value: string, label: EditableLabel & GModelElement): Promise<EditLabelValidationResult> {
         const action = LabelEditValidation.createValidationRequestAction(value, label.id);
         const response = await this.actionDispatcher.requestUntil(action);
         return response ? this.getValidationResultFromResponse(response) : { severity: 'ok' };

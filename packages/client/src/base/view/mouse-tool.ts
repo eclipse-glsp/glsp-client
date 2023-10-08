@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { injectable, multiInject, optional } from 'inversify';
-import { Action, Disposable, MouseListener, MouseTool, SModelElement, SModelRoot, TYPES } from '~glsp-sprotty';
+import { Action, Disposable, MouseListener, MouseTool, GModelElement, GModelRoot, TYPES } from '@eclipse-glsp/sprotty';
 import { Ranked } from '../ranked';
 
 /**
@@ -47,7 +47,7 @@ export class GLSPMouseTool extends MouseTool {
         this.rankedMouseListeners = groupBy(this.mouseListeners, listener => Ranked.getRank(listener));
     }
 
-    protected override handleEvent<K extends MouseListenerMethods>(methodName: K, model: SModelRoot, event: MouseEvent): void {
+    protected override handleEvent<K extends MouseListenerMethods>(methodName: K, model: GModelRoot, event: MouseEvent): void {
         this.focusOnMouseEvent(methodName, model);
         const element = this.getTargetElement(model, event);
         if (!element) {
@@ -57,7 +57,7 @@ export class GLSPMouseTool extends MouseTool {
     }
 
     protected async notifyListenersByRank<K extends MouseListenerMethods>(
-        element: SModelElement,
+        element: GModelElement,
         methodName: K,
         event: MouseEvent
     ): Promise<void> {
@@ -69,7 +69,7 @@ export class GLSPMouseTool extends MouseTool {
     protected async dispatchActions<K extends MouseListenerMethods>(
         mouseListeners: MouseListener[],
         methodName: K,
-        element: SModelElement,
+        element: GModelElement,
         event: MouseEvent
     ): Promise<void> {
         const actions = mouseListeners.map(listener => listener[methodName](element, event as WheelEvent)).reduce((a, b) => a.concat(b));

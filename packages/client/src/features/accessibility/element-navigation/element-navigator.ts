@@ -14,44 +14,44 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { SModelElement, SModelRoot } from '~glsp-sprotty';
-import { SelectableBoundsAware } from '../../../utils/smodel-util';
+import { GModelElement, GModelRoot } from '@eclipse-glsp/sprotty';
+import { SelectableBoundsAware } from '../../../utils/gmodel-util';
 
 export interface ElementNavigator {
     previous(
-        root: Readonly<SModelRoot>,
+        root: Readonly<GModelRoot>,
         current: SelectableBoundsAware,
         previousCurrent?: SelectableBoundsAware,
-        predicate?: (element: SModelElement) => boolean
-    ): SModelElement | undefined;
+        predicate?: (element: GModelElement) => boolean
+    ): GModelElement | undefined;
 
     next(
-        root: Readonly<SModelRoot>,
+        root: Readonly<GModelRoot>,
         current: SelectableBoundsAware,
         previousCurrent?: SelectableBoundsAware,
-        predicate?: (element: SModelElement) => boolean
-    ): SModelElement | undefined;
+        predicate?: (element: GModelElement) => boolean
+    ): GModelElement | undefined;
 
     up?(
-        root: Readonly<SModelRoot>,
+        root: Readonly<GModelRoot>,
         current: SelectableBoundsAware,
         previousCurrent?: SelectableBoundsAware,
-        predicate?: (element: SModelElement) => boolean
-    ): SModelElement | undefined;
+        predicate?: (element: GModelElement) => boolean
+    ): GModelElement | undefined;
 
     down?(
-        root: Readonly<SModelRoot>,
+        root: Readonly<GModelRoot>,
         current: SelectableBoundsAware,
         previousCurrent?: SelectableBoundsAware,
-        predicate?: (element: SModelElement) => boolean
-    ): SModelElement | undefined;
+        predicate?: (element: GModelElement) => boolean
+    ): GModelElement | undefined;
 
     process?(
-        root: Readonly<SModelRoot>,
+        root: Readonly<GModelRoot>,
         current: SelectableBoundsAware,
         target: SelectableBoundsAware,
         previousCurrent?: SelectableBoundsAware,
-        predicate?: (element: SModelElement) => boolean
+        predicate?: (element: GModelElement) => boolean
     ): void;
-    clean?(root: Readonly<SModelRoot>, current?: SelectableBoundsAware, previousCurrent?: SelectableBoundsAware): void;
+    clean?(root: Readonly<GModelRoot>, current?: SelectableBoundsAware, previousCurrent?: SelectableBoundsAware): void;
 }

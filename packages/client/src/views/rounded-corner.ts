@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Dimension, Hoverable, Selectable, SShapeElement } from '~glsp-sprotty';
+import { Dimension, Hoverable, Selectable, GShapeElement } from '@eclipse-glsp/sprotty';
 import { CornerRadius } from '../utils/argument-utils';
 
 export interface RoundedCorner {
@@ -27,7 +27,7 @@ export class RoundedCornerWrapper {
     protected _bottomRightCorner: RoundedCorner;
     protected _bottomLeftCorner: RoundedCorner;
 
-    constructor(public readonly element: SShapeElement & Hoverable & Selectable, public readonly cornerRadius: CornerRadius) {}
+    constructor(public readonly element: GShapeElement & Hoverable & Selectable, public readonly cornerRadius: CornerRadius) {}
 
     get size(): Dimension {
         return this.element.size;

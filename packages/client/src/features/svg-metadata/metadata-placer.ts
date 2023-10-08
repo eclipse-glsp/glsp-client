@@ -14,25 +14,26 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
+import { DOMHelper, GChildElement, GModelElement, GModelRoot, IVNodePostprocessor, TYPES, setAttr } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
 import { VNode } from 'snabbdom';
-import { DOMHelper, IVNodePostprocessor, SChildElement, SEdge, SModelElement, SModelRoot, TYPES, setAttr } from '~glsp-sprotty';
+import { GEdge } from '../../model';
 
 @injectable()
 export class MetadataPlacer implements IVNodePostprocessor {
     @inject(TYPES.DOMHelper) protected domHelper: DOMHelper;
 
-    decorate(vnode: VNode, element: SModelElement): VNode {
-        if (element instanceof SModelRoot) {
+    decorate(vnode: VNode, element: GModelElement): VNode {
+        if (element instanceof GModelRoot) {
             setAttr(vnode, 'data-svg-metadata-api', true);
         }
 
         setAttr(vnode, 'data-svg-metadata-type', element.type);
 
-        if (element instanceof SChildElement) {
+        if (element instanceof GChildElement) {
             setAttr(vnode, 'data-svg-metadata-parent-id', this.domHelper.createUniqueDOMElementId(element.parent));
         }
-        if (element instanceof SEdge) {
+        if (element instanceof GEdge) {
             if (element.source !== undefined) {
                 setAttr(vnode, 'data-svg-metadata-edge-source-id', this.domHelper.createUniqueDOMElementId(element.source));
             }

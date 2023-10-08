@@ -13,23 +13,24 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { MarkerKind, SIssueMarker, SParentElement } from '~glsp-sprotty';
+import { GParentElement, MarkerKind } from '@eclipse-glsp/sprotty';
+import { GIssueMarker } from '../features/validation/issue-marker';
 
 export namespace MarkerPredicates {
     export const ALL = (): boolean => true;
-    export const ERRORS = (marker: SIssueMarker): boolean => hasIssueWithSeverity(marker, MarkerKind.ERROR);
-    export const WARNINGS = (marker: SIssueMarker): boolean => hasIssueWithSeverity(marker, MarkerKind.WARNING);
-    export const INFOS = (marker: SIssueMarker): boolean => hasIssueWithSeverity(marker, MarkerKind.INFO);
+    export const ERRORS = (marker: GIssueMarker): boolean => hasIssueWithSeverity(marker, MarkerKind.ERROR);
+    export const WARNINGS = (marker: GIssueMarker): boolean => hasIssueWithSeverity(marker, MarkerKind.WARNING);
+    export const INFOS = (marker: GIssueMarker): boolean => hasIssueWithSeverity(marker, MarkerKind.INFO);
 
-    export function hasIssueWithSeverity(marker: SIssueMarker, severity: 'info' | 'warning' | 'error'): boolean {
+    export function hasIssueWithSeverity(marker: GIssueMarker, severity: 'info' | 'warning' | 'error'): boolean {
         return marker.issues.find(issue => issue.severity === severity) !== undefined;
     }
 }
 
-export function collectIssueMarkers(root: SParentElement): SIssueMarker[] {
+export function collectIssueMarkers(root: GParentElement): GIssueMarker[] {
     const markers = [];
     for (const child of root.children) {
-        if (child instanceof SIssueMarker) {
+        if (child instanceof GIssueMarker) {
             markers.push(child);
         }
         markers.push(...collectIssueMarkers(child));

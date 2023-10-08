@@ -23,15 +23,15 @@ import {
     IActionHandler,
     ICommand,
     Point,
-    SModelRoot,
+    GModelRoot,
     SetViewportAction,
     TYPES,
     Viewport,
     findParentByFeature,
     isViewport
-} from '~glsp-sprotty';
+} from '@eclipse-glsp/sprotty';
 import { EditorContextService } from '../../../base/editor-context-service';
-import { SelectableBoundsAware, getElements, isSelectableAndBoundsAware } from '../../../utils/smodel-util';
+import { SelectableBoundsAware, getElements, isSelectableAndBoundsAware } from '../../../utils/gmodel-util';
 
 /**
  * Action for triggering moving of the viewport.
@@ -115,7 +115,7 @@ export class MoveViewportHandler implements IActionHandler {
         this.dispatcher.dispatch(this.moveViewport(viewport, action.moveX, action.moveY));
     }
 
-    protected moveViewport(viewport: SModelRoot & Viewport, offsetX: number, offSetY: number): SetViewportAction {
+    protected moveViewport(viewport: GModelRoot & Viewport, offsetX: number, offSetY: number): SetViewportAction {
         const newViewport: Viewport = {
             scroll: {
                 x: viewport.scroll.x + offsetX,
@@ -159,7 +159,7 @@ export class MoveElementHandler implements IActionHandler {
     }
 
     protected adaptViewport(
-        viewport: SModelRoot & Viewport,
+        viewport: GModelRoot & Viewport,
         newPoint: Point,
         moveX: number,
         moveY: number
@@ -191,7 +191,7 @@ export class MoveElementHandler implements IActionHandler {
         ]);
     }
 
-    protected move(viewport: SModelRoot & Viewport, selectedElements: SelectableBoundsAware[], deltaX: number, deltaY: number): Action[] {
+    protected move(viewport: GModelRoot & Viewport, selectedElements: SelectableBoundsAware[], deltaX: number, deltaY: number): Action[] {
         const results: Action[] = [];
 
         if (selectedElements.length !== 0) {

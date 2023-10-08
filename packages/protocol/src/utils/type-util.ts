@@ -14,6 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
+/** Helper type to describe any defined object*/
 export type AnyObject = object;
 
 export namespace AnyObject {
@@ -36,14 +37,14 @@ export type Primitive = string | number | boolean | bigint | symbol | undefined 
 /**
  * Utility type to describe objects that have a constructor function i.e. classes.
  */
-export interface Constructor<T> {
-    new (...args: any[]): T;
+export interface Constructor<T, A extends any[] = any[]> {
+    new (...args: A): T;
 }
 
 /**
  * Utility type to declare a given type `T` as writable. Essentially this removes
  * all readonly modifiers of the type`s properties. Please use with care and only in instances
- * where you know that overwriting a readonly property is safe and doesn't cause any unintended side effects.
+ * where you know that overwriting a readonly property is safe and doesn't cause unknown unintended side effects.
  */
 // eslint-disable-next-line @typescript-eslint/ban-types
 export type Writable<T> = { -readonly [P in keyof T]: Writable<T[P]> };
@@ -65,7 +66,7 @@ export type TypeGuard<T> = (element: any) => element is T;
  * @returns The typeguard for this class.
  */
 export function toTypeGuard<G>(constructor: Constructor<G>): TypeGuard<G> {
-    return (element: unknown): element is G => element instanceof constructor;
+    return (element: any): element is G => element instanceof constructor;
 }
 
 /**
@@ -117,7 +118,7 @@ export function hasNumberProp(object: AnyObject, propertyKey: string, optional =
  * @param optional Flag to indicate wether the property can be optional i.e. also return true if the given key is undefined
  * @returns `true` if the object has property with matching key of type `object`.
  */
-export function hasObjectProp(object: AnyObject, propertyKey: string, optional = false): boolean {
+export function hasObjectProp<T extends string>(object: AnyObject, propertyKey: T, optional = false): boolean {
     const property = (object as any)[propertyKey];
     return property !== undefined ? AnyObject.is(property) : optional;
 }

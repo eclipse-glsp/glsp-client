@@ -23,7 +23,7 @@ import {
     RequestMarkersAction,
     SetContextActions,
     TriggerNodeCreationAction
-} from '~glsp-sprotty';
+} from '@eclipse-glsp/sprotty';
 import { KeyCode, matchesKeystroke } from 'sprotty/lib/utils/keyboard';
 import { MouseDeleteTool } from '../../tools/deletion/delete-tool';
 import { MarqueeMouseTool } from '../../tools/marquee-selection/marquee-mouse-tool';

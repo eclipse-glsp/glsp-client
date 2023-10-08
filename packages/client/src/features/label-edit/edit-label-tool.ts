@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { injectable } from 'inversify';
-import { EditLabelKeyListener, EditLabelMouseListener, KeyListener, MouseListener } from '~glsp-sprotty';
+import { EditLabelKeyListener, EditLabelMouseListener, KeyListener, MouseListener } from '@eclipse-glsp/sprotty';
 import { BaseEditTool } from '../tools/base-tools';
 
 @injectable()

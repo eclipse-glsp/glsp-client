@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { configureActionHandler, FeatureModule, TYPES } from '~glsp-sprotty';
+import { configureActionHandler, FeatureModule, TYPES } from '@eclipse-glsp/sprotty';
 import { CopyPasteContextMenuItemProvider, InvokeCopyPasteAction, InvokeCopyPasteActionHandler } from './copy-paste-context-menu';
 import { LocalClipboardService, ServerCopyPasteHandler } from './copy-paste-handler';
 

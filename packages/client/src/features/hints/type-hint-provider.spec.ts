@@ -13,19 +13,15 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { expect } from 'chai';
-import { Container } from 'inversify';
-import * as sinon from 'sinon';
 import {
     AnimationFrameSyncer,
     CommandExecutionContext,
     ConsoleLogger,
     EdgeTypeHint,
-    SChildElement,
-    SEdge,
+    GChildElement,
+    GModelRoot,
+    GNode,
     SModelFactory,
-    SModelRoot,
-    SNode,
     SetTypeHintsAction,
     ShapeTypeHint,
     TYPES,
@@ -35,13 +31,17 @@ import {
     editFeature,
     isDeletable,
     isMoveable
-} from '~glsp-sprotty';
+} from '@eclipse-glsp/sprotty';
+import { expect } from 'chai';
+import { Container } from 'inversify';
+import * as sinon from 'sinon';
 import { GLSPActionDispatcher } from '../../base/action-dispatcher';
 import { FeedbackActionDispatcher } from '../../base/feedback/feedback-action-dispatcher';
 import { isResizable } from '../change-bounds/model';
 import { isReconnectable } from '../reconnect/model';
 import { Containable, isContainable, isReparentable } from './model';
 import { ApplyTypeHintsAction, ApplyTypeHintsCommand, ITypeHintProvider, TypeHintProvider } from './type-hint-provider';
+import { GEdge } from '../../model';
 
 describe('TypeHintProvider', () => {
     const container = new Container();
@@ -122,8 +122,8 @@ describe('TypeHintProvider', () => {
     });
 });
 describe('ApplyTypeHintCommand', () => {
-    function createCommandExecutionContext(child: SChildElement): CommandExecutionContext {
-        const root = new SModelRoot();
+    function createCommandExecutionContext(child: GChildElement): CommandExecutionContext {
+        const root = new GModelRoot();
         root.id = 'root';
         root.type = 'root';
         root.add(child);
@@ -137,19 +137,19 @@ describe('ApplyTypeHintCommand', () => {
         };
     }
 
-    function createNode(type?: string): SNode {
-        const node = new SNode();
+    function createNode(type?: string): GNode {
+        const node = new GNode();
         node.type = type ?? 'node';
         node.id = 'node';
-        node.features = createFeatureSet(SNode.DEFAULT_FEATURES);
+        node.features = createFeatureSet(GNode.DEFAULT_FEATURES);
         return node;
     }
 
-    function createEdge(type?: string): SEdge {
-        const edge = new SEdge();
+    function createEdge(type?: string): GEdge {
+        const edge = new GEdge();
         edge.type = type ?? 'edge';
         edge.id = 'edge';
-        edge.features = createFeatureSet(SEdge.DEFAULT_FEATURES);
+        edge.features = createFeatureSet(GEdge.DEFAULT_FEATURES);
         return edge;
     }
 
@@ -192,7 +192,7 @@ describe('ApplyTypeHintCommand', () => {
                 typeHintProviderMock.getShapeTypeHint.returns(undefined);
                 const result = command.execute(createCommandExecutionContext(createNode()));
                 const element = result.children[0];
-                expect(SNode.DEFAULT_FEATURES, 'Element should have default feature set').to.have.same.members([
+                expect(GNode.DEFAULT_FEATURES, 'Element should have default feature set').to.have.same.members([
                     ...(element.features as Set<symbol>)
                 ]);
             });
@@ -233,7 +233,7 @@ describe('ApplyTypeHintCommand', () => {
                     typeHintProviderMock.getShapeTypeHint.returns(shapeHint);
                     typeHintProviderMock.getEdgeTypeHint.returns(edgeHint);
                     const result = command.execute(createCommandExecutionContext(createNode()));
-                    const element = result.children[0] as SNode;
+                    const element = result.children[0] as GNode;
                     const edge = createEdge();
                     expect(element.canConnect(edge, 'source')).to.be.true;
                     expect(element.canConnect(edge, 'target')).to.be.true;
@@ -244,7 +244,7 @@ describe('ApplyTypeHintCommand', () => {
                     edgeHint.sourceElementTypeIds = [];
                     edgeHint.targetElementTypeIds = [];
                     const result = command.execute(createCommandExecutionContext(createNode()));
-                    const element = result.children[0] as SNode;
+                    const element = result.children[0] as GNode;
                     const edge = createEdge();
                     expect(element.canConnect(edge, 'source')).to.be.false;
                     expect(element.canConnect(edge, 'target')).to.be.false;
@@ -255,7 +255,7 @@ describe('ApplyTypeHintCommand', () => {
                     edgeHint.sourceElementTypeIds = ['node'];
                     edgeHint.targetElementTypeIds = ['node'];
                     const result = command.execute(createCommandExecutionContext(createNode()));
-                    const element = result.children[0] as SNode;
+                    const element = result.children[0] as GNode;
                     const edge = createEdge();
                     expect(element.canConnect(edge, 'source')).to.be.true;
                     expect(element.canConnect(edge, 'target')).to.be.true;
@@ -266,7 +266,7 @@ describe('ApplyTypeHintCommand', () => {
                     edgeHint.sourceElementTypeIds = ['node'];
                     edgeHint.targetElementTypeIds = ['node'];
                     const result = command.execute(createCommandExecutionContext(createNode('node:task:automated')));
-                    const element = result.children[0] as SNode;
+                    const element = result.children[0] as GNode;
                     const edge = createEdge();
                     expect(element.canConnect(edge, 'source')).to.be.true;
                     expect(element.canConnect(edge, 'target')).to.be.true;
@@ -277,7 +277,7 @@ describe('ApplyTypeHintCommand', () => {
                     const node = createNode();
                     const originalCanConnectSpy = sinon.spy(node, 'canConnect');
                     const result = command.execute(createCommandExecutionContext(node));
-                    const element = result.children[0] as SNode;
+                    const element = result.children[0] as GNode;
                     const edge = createEdge();
                     expect(element.canConnect(edge, 'source')).to.be.true;
                     expect(element.canConnect(edge, 'target')).to.be.true;
@@ -295,21 +295,21 @@ describe('ApplyTypeHintCommand', () => {
                 it('should return `false` if corresponding hint has no containable elements defined', () => {
                     typeHintProviderMock.getShapeTypeHint.returns(shapeHint);
                     const result = command.execute(createCommandExecutionContext(createNode('node')));
-                    const element = result.children[0] as SNode & Containable;
+                    const element = result.children[0] as GNode & Containable;
                     expect(element.isContainableElement('other')).to.be.false;
                 });
                 it('should return `true` if corresponding hint has containable element with matching type', () => {
                     typeHintProviderMock.getShapeTypeHint.returns(shapeHint);
                     shapeHint.containableElementTypeIds = ['node'];
                     const result = command.execute(createCommandExecutionContext(createNode('node')));
-                    const element = result.children[0] as SNode & Containable;
+                    const element = result.children[0] as GNode & Containable;
                     expect(element.isContainableElement('node')).to.be.true;
                 });
                 it('should return `true` if corresponding hint as has containable element with matching super type', () => {
                     typeHintProviderMock.getShapeTypeHint.returns(shapeHint);
                     shapeHint.containableElementTypeIds = ['node'];
                     const result = command.execute(createCommandExecutionContext(createNode('node')));
-                    const element = result.children[0] as SNode & Containable;
+                    const element = result.children[0] as GNode & Containable;
                     expect(element.isContainableElement('node:task:automated')).to.be.true;
                 });
             });
@@ -331,7 +331,7 @@ describe('ApplyTypeHintCommand', () => {
                 typeHintProviderMock.getEdgeTypeHint.returns(undefined);
                 const result = command.execute(createCommandExecutionContext(createEdge()));
                 const element = result.children[0];
-                expect(SEdge.DEFAULT_FEATURES, 'Element should have default feature set').to.have.same.members([
+                expect(GEdge.DEFAULT_FEATURES, 'Element should have default feature set').to.have.same.members([
                     ...(element.features as Set<symbol>)
                 ]);
             });

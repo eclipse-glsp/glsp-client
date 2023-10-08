@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020-2023 EclipseSource and others.
+ * Copyright (c) 2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,12 +13,17 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Args, SModelElement } from '~glsp-sprotty';
 
-export interface SArgumentable {
-    args: Args;
-}
+import { Command, CommandExecutionContext, CommandReturn } from '@eclipse-glsp/sprotty';
 
-export function hasArguments(element?: SModelElement): element is SModelElement & SArgumentable {
-    return element !== undefined && 'args' in element;
+export class C extends Command {
+    override execute(context: CommandExecutionContext): CommandReturn {
+        throw new Error('Method not implemented.');
+    }
+    override undo(context: CommandExecutionContext): CommandReturn {
+        throw new Error('Method not implemented.');
+    }
+    override redo(context: CommandExecutionContext): CommandReturn {
+        throw new Error('Method not implemented.');
+    }
 }

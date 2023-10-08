@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { bindAsService, BindingContext, configureActionHandler, FeatureModule, TYPES } from '~glsp-sprotty';
+import { bindAsService, BindingContext, configureActionHandler, FeatureModule, TYPES } from '@eclipse-glsp/sprotty';
 import { DeselectKeyTool } from './deselect-key-tool';
 import { MovementKeyTool } from './movement-key-tool';
 import { ZoomKeyTool } from './zoom-key-tool';
