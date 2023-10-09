@@ -20,13 +20,13 @@ import {
     KeyListener,
     KeyTool,
     MouseListener,
-    SModelElement,
+    GModelElement,
     findParentByFeature,
     isCtrlOrCmd,
     isDeletable,
     isSelectable,
     matchesKeystroke
-} from '~glsp-sprotty';
+} from '@eclipse-glsp/sprotty';
 import { CursorCSS, cursorFeedbackAction } from '../../../base/feedback/css-feedback';
 import { EnableDefaultToolsAction, Tool } from '../../../base/tool-manager/tool';
 import { BaseEditTool } from '../base-tools';
@@ -58,7 +58,7 @@ export class DelKeyDeleteTool implements Tool {
 
 @injectable()
 export class DeleteKeyListener extends KeyListener {
-    override keyDown(element: SModelElement, event: KeyboardEvent): Action[] {
+    override keyDown(element: GModelElement, event: KeyboardEvent): Action[] {
         if (matchesKeystroke(event, 'Delete')) {
             const deleteElementIds = Array.from(
                 element.root.index
@@ -98,7 +98,7 @@ export class MouseDeleteTool extends BaseEditTool {
 
 @injectable()
 export class DeleteToolMouseListener extends MouseListener {
-    override mouseUp(target: SModelElement, event: MouseEvent): Action[] {
+    override mouseUp(target: GModelElement, event: MouseEvent): Action[] {
         const deletableParent = findParentByFeature(target, isDeletable);
         if (deletableParent === undefined) {
             return [];

@@ -21,7 +21,7 @@ import {
     FeatureModule,
     BindingContext,
     TriggerEdgeCreationAction
-} from '~glsp-sprotty';
+} from '@eclipse-glsp/sprotty';
 import { GlobalKeyListenerTool } from '../global-keylistener-tool';
 import { KeyboardPointer } from './keyboard-pointer';
 import { KeyboardGrid } from '../keyboard-grid/keyboard-grid';

@@ -16,7 +16,7 @@
 import '../../../../css/keyboard.css';
 
 import { inject, injectable } from 'inversify';
-import { ICommand, SetUIExtensionVisibilityAction, Action } from '~glsp-sprotty';
+import { ICommand, SetUIExtensionVisibilityAction, Action } from '@eclipse-glsp/sprotty';
 import { matchesKeystroke } from 'sprotty/lib/utils/keyboard';
 import { KeyboardPointer } from '../keyboard-pointer/keyboard-pointer';
 import { KeyboardPointerMetadata } from '../keyboard-pointer/constants';

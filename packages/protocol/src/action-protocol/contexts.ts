@@ -37,7 +37,7 @@ export interface RequestContextActions extends RequestAction<SetContextActions> 
 export namespace RequestContextActions {
     export const KIND = 'requestContextActions';
 
-    export function is(object: any): object is RequestContextActions {
+    export function is(object: unknown): object is RequestContextActions {
         return RequestAction.hasKind(object, KIND) && hasStringProp(object, 'contextId') && hasObjectProp(object, 'editorContext');
     }
 
@@ -72,7 +72,7 @@ export interface SetContextActions extends ResponseAction {
 export namespace SetContextActions {
     export const KIND = 'setContextActions';
 
-    export function is(object: any): object is SetContextActions {
+    export function is(object: unknown): object is SetContextActions {
         return Action.hasKind(object, KIND) && hasArrayProp(object, 'actions');
     }
 

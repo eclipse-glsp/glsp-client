@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { FeatureModule, TYPES, TriggerNodeCreationAction, bindAsService, configureActionHandler } from '~glsp-sprotty';
+import { FeatureModule, TYPES, TriggerNodeCreationAction, bindAsService, configureActionHandler } from '@eclipse-glsp/sprotty';
 import { NodeCreationTool } from './node-creation-tool';
 
 export const nodeCreationToolModule = new FeatureModule((bind, unbind, isBound, rebind) => {

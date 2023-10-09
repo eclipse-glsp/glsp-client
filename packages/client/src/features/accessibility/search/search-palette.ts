@@ -21,27 +21,27 @@ import {
     Action,
     CenterAction,
     LabeledAction,
-    SEdge,
-    SModelElement,
-    SModelRoot,
-    SNode,
+    GModelElement,
+    GModelRoot,
+    GNode,
     SelectAction,
     SelectAllAction,
     codiconCSSString,
     isNameable,
     name
-} from '~glsp-sprotty';
-import { AutocompleteSuggestion, IAutocompleteSuggestionProvider } from '../../autocomplete-palette/autocomplete-suggestion-providers';
-import { BaseAutocompletePalette } from '../../autocomplete-palette/base-autocomplete-palette';
+} from '@eclipse-glsp/sprotty';
+import { BaseAutocompletePalette } from '../../../base/auto-complete/base-autocomplete-palette';
 
 import { applyCssClasses, deleteCssClasses } from '../../../base/feedback/css-feedback';
 import { RepositionAction } from '../../../features/viewport/reposition';
+import { AutocompleteSuggestion, IAutocompleteSuggestionProvider } from '../../../base/auto-complete/autocomplete-suggestion-providers';
+import { GEdge } from '../../../model';
 
 const CSS_SEARCH_HIDDEN = 'search-hidden';
 const CSS_SEARCH_HIGHLIGHTED = 'search-highlighted';
 
 export class RevealNamedElementAutocompleteSuggestionProvider implements IAutocompleteSuggestionProvider {
-    async retrieveSuggestions(root: Readonly<SModelRoot>, text: string): Promise<AutocompleteSuggestion[]> {
+    async retrieveSuggestions(root: Readonly<GModelRoot>, text: string): Promise<AutocompleteSuggestion[]> {
         const nameables = toArray(root.index.all().filter(element => isNameable(element)));
         return nameables.map(nameable => ({
             element: nameable,
@@ -53,13 +53,13 @@ export class RevealNamedElementAutocompleteSuggestionProvider implements IAutoco
         }));
     }
 
-    protected getActions(nameable: SModelElement): Action[] {
+    protected getActions(nameable: GModelElement): Action[] {
         return [SelectAction.create({ selectedElementsIDs: [nameable.id] }), CenterAction.create([nameable.id], { retainZoom: true })];
     }
 }
 export class RevealNodesWithoutNameAutocompleteSuggestionProvider implements IAutocompleteSuggestionProvider {
-    async retrieveSuggestions(root: Readonly<SModelRoot>, text: string): Promise<AutocompleteSuggestion[]> {
-        const nodes = toArray(root.index.all().filter(element => !isNameable(element) && element instanceof SNode));
+    async retrieveSuggestions(root: Readonly<GModelRoot>, text: string): Promise<AutocompleteSuggestion[]> {
+        const nodes = toArray(root.index.all().filter(element => !isNameable(element) && element instanceof GNode));
         return nodes.map(node => ({
             element: node,
             action: {
@@ -70,14 +70,14 @@ export class RevealNodesWithoutNameAutocompleteSuggestionProvider implements IAu
         }));
     }
 
-    protected getActions(nameable: SModelElement): Action[] {
+    protected getActions(nameable: GModelElement): Action[] {
         return [SelectAction.create({ selectedElementsIDs: [nameable.id] }), CenterAction.create([nameable.id], { retainZoom: true })];
     }
 }
 
 export class RevealEdgeElementAutocompleteSuggestionProvider implements IAutocompleteSuggestionProvider {
-    async retrieveSuggestions(root: Readonly<SModelRoot>, text: string): Promise<AutocompleteSuggestion[]> {
-        const edges = toArray(root.index.all().filter(element => element instanceof SEdge)) as SEdge[];
+    async retrieveSuggestions(root: Readonly<GModelRoot>, text: string): Promise<AutocompleteSuggestion[]> {
+        const edges = toArray(root.index.all().filter(element => element instanceof GEdge)) as GEdge[];
         return edges.map(edge => ({
             element: edge,
             action: {
@@ -88,10 +88,10 @@ export class RevealEdgeElementAutocompleteSuggestionProvider implements IAutocom
         }));
     }
 
-    protected getActions(edge: SEdge): Action[] {
+    protected getActions(edge: GEdge): Action[] {
         return [SelectAction.create({ selectedElementsIDs: [edge.id] }), CenterAction.create([edge.sourceId, edge.targetId])];
     }
-    protected getEdgeLabel(root: Readonly<SModelRoot>, edge: SEdge): string {
+    protected getEdgeLabel(root: Readonly<GModelRoot>, edge: GEdge): string {
         let sourceName = '';
         let targetName = '';
 
@@ -124,14 +124,14 @@ export class SearchAutocompletePalette extends BaseAutocompletePalette {
         this.autocompleteWidget.inputField.placeholder = 'Search for elements';
         containerElement.setAttribute('aria-label', 'Search Field');
     }
-    protected getSuggestionProviders(root: Readonly<SModelRoot>, input: string): IAutocompleteSuggestionProvider[] {
+    protected getSuggestionProviders(root: Readonly<GModelRoot>, input: string): IAutocompleteSuggestionProvider[] {
         return [
             new RevealNamedElementAutocompleteSuggestionProvider(),
             new RevealEdgeElementAutocompleteSuggestionProvider(),
             new RevealNodesWithoutNameAutocompleteSuggestionProvider()
         ];
     }
-    protected async retrieveSuggestions(root: Readonly<SModelRoot>, input: string): Promise<LabeledAction[]> {
+    protected async retrieveSuggestions(root: Readonly<GModelRoot>, input: string): Promise<LabeledAction[]> {
         const providers = this.getSuggestionProviders(root, input);
         const suggestions = (await Promise.all(providers.map(provider => provider.retrieveSuggestions(root, input)))).flat(1);
 
@@ -140,7 +140,7 @@ export class SearchAutocompletePalette extends BaseAutocompletePalette {
         return suggestions.map(s => s.action);
     }
 
-    protected override async visibleSuggestionsChanged(root: Readonly<SModelRoot>, labeledActions: LabeledAction[]): Promise<void> {
+    protected override async visibleSuggestionsChanged(root: Readonly<GModelRoot>, labeledActions: LabeledAction[]): Promise<void> {
         await this.applyCSS(this.getHiddenElements(root, this.getSuggestionsFromLabeledActions(labeledActions)), CSS_SEARCH_HIDDEN);
         await this.deleteCSS(
             this.getSuggestionsFromLabeledActions(labeledActions).map(s => s.element),
@@ -149,7 +149,7 @@ export class SearchAutocompletePalette extends BaseAutocompletePalette {
     }
 
     protected override async selectedSuggestionChanged(
-        root: Readonly<SModelRoot>,
+        root: Readonly<GModelRoot>,
         labeledAction?: LabeledAction | undefined
     ): Promise<void> {
         await this.deleteAllCSS(root, CSS_SEARCH_HIGHLIGHTED);
@@ -167,7 +167,7 @@ export class SearchAutocompletePalette extends BaseAutocompletePalette {
         }
     }
 
-    public override show(root: Readonly<SModelRoot>, ...contextElementIds: string[]): void {
+    public override show(root: Readonly<GModelRoot>, ...contextElementIds: string[]): void {
         this.actionDispatcher.dispatch(SelectAllAction.create(false));
 
         super.show(root, ...contextElementIds);
@@ -183,17 +183,17 @@ export class SearchAutocompletePalette extends BaseAutocompletePalette {
         super.hide();
     }
 
-    protected applyCSS(elements: SModelElement[], cssClass: string): Promise<void> {
+    protected applyCSS(elements: GModelElement[], cssClass: string): Promise<void> {
         const actions = elements.map(element => applyCssClasses(element, cssClass));
         return this.actionDispatcher.dispatchAll(actions);
     }
 
-    protected deleteCSS(elements: SModelElement[], cssClass: string): Promise<void> {
+    protected deleteCSS(elements: GModelElement[], cssClass: string): Promise<void> {
         const actions = elements.map(element => deleteCssClasses(element, cssClass));
         return this.actionDispatcher.dispatchAll(actions);
     }
 
-    protected deleteAllCSS(root: Readonly<SModelRoot>, cssClass: string): Promise<void> {
+    protected deleteAllCSS(root: Readonly<GModelRoot>, cssClass: string): Promise<void> {
         const actions = toArray(root.index.all().map(element => deleteCssClasses(element, cssClass)));
         return this.actionDispatcher.dispatchAll(actions);
     }
@@ -206,11 +206,11 @@ export class SearchAutocompletePalette extends BaseAutocompletePalette {
         return this.cachedSuggestions.filter(c => !labeledActions.find(s => isEqual(s, c.action)));
     }
 
-    protected getHiddenElements(root: Readonly<SModelRoot>, suggestions: AutocompleteSuggestion[]): SModelElement[] {
+    protected getHiddenElements(root: Readonly<GModelRoot>, suggestions: AutocompleteSuggestion[]): GModelElement[] {
         return toArray(
             root.index
                 .all()
-                .filter(element => element instanceof SNode || element instanceof SEdge)
+                .filter(element => element instanceof GNode || element instanceof GEdge)
                 .filter(element => suggestions.find(suggestion => suggestion.element.id === element.id) === undefined)
         );
     }

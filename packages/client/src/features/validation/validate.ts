@@ -23,17 +23,16 @@ import {
     IActionHandler,
     ICommand,
     Marker,
-    SIssueMarker,
-    SParentElement,
+    GParentElement,
     SetMarkersAction,
     TYPES,
     hasArrayProp
-} from '~glsp-sprotty';
+} from '@eclipse-glsp/sprotty';
 import { EditorContextService } from '../../base/editor-context-service';
 import { IFeedbackActionDispatcher, IFeedbackEmitter } from '../../base/feedback/feedback-action-dispatcher';
 import { FeedbackCommand } from '../../base/feedback/feedback-command';
-import { removeCssClasses } from '../../utils/smodel-util';
-import { GIssueMarker, createSIssue, getOrCreateSIssueMarker, getSIssueMarker, getSeverity } from './issue-marker';
+import { removeCssClasses } from '../../utils/gmodel-util';
+import { GIssueMarker, createGIssue, getOrCreateGIssueMarker, getGIssueMarker, getSeverity } from './issue-marker';
 
 /**
  * Feedback emitter sending actions for visualizing model validation feedback and
@@ -141,7 +140,7 @@ export namespace ApplyMarkersAction {
 }
 
 /**
- * Handles {@link ApplyMarkersAction}s by creating the corresponding {@link SIssueMarker}s and
+ * Handles {@link ApplyMarkersAction}s by creating the corresponding {@link GIssueMarker}s and
  * adding them to the graphical model.
  */
 @injectable()
@@ -155,9 +154,9 @@ export class ApplyMarkersCommand extends FeedbackCommand {
     execute(context: CommandExecutionContext): CommandReturn {
         this.action.markers.forEach(marker => {
             const modelElement = context.root.index.getById(marker.elementId);
-            if (modelElement instanceof SParentElement) {
-                const issueMarker = getOrCreateSIssueMarker(modelElement);
-                const issue = createSIssue(marker);
+            if (modelElement instanceof GParentElement) {
+                const issueMarker = getOrCreateGIssueMarker(modelElement);
+                const issue = createGIssue(marker);
                 issueMarker.issues.push(issue);
                 if (issueMarker instanceof GIssueMarker) {
                     issueMarker.computeProjectionCssClasses();
@@ -169,7 +168,7 @@ export class ApplyMarkersCommand extends FeedbackCommand {
     }
 }
 
-function addMaxSeverityCSSClassToIssueParent(modelElement: SParentElement, issueMarker: SIssueMarker): void {
+function addMaxSeverityCSSClassToIssueParent(modelElement: GParentElement, issueMarker: GIssueMarker): void {
     const maxSeverityCSSClass = getSeverity(issueMarker);
     if (!modelElement.cssClasses) {
         modelElement.cssClasses = [maxSeverityCSSClass];
@@ -179,7 +178,7 @@ function addMaxSeverityCSSClassToIssueParent(modelElement: SParentElement, issue
     }
 }
 
-function removeCSSClassFromIssueParent(modelElement: SParentElement, issueMarker: SIssueMarker): void {
+function removeCSSClassFromIssueParent(modelElement: GParentElement, issueMarker: GIssueMarker): void {
     const severity = getSeverity(issueMarker);
     removeCssClasses(modelElement, [severity]);
 }
@@ -198,8 +197,8 @@ export class DeleteMarkersCommand extends FeedbackCommand {
     execute(context: CommandExecutionContext): CommandReturn {
         this.action.markers.forEach(marker => {
             const modelElement = context.root.index.getById(marker.elementId);
-            if (modelElement instanceof SParentElement) {
-                const issueMarker = getSIssueMarker(modelElement);
+            if (modelElement instanceof GParentElement) {
+                const issueMarker = getGIssueMarker(modelElement);
                 if (issueMarker) {
                     removeCSSClassFromIssueParent(modelElement, issueMarker);
                     for (let index = 0; index < issueMarker.issues.length; ++index) {

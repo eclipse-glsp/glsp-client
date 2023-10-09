@@ -22,13 +22,13 @@ import {
     KeyListener,
     KeyTool,
     Point,
-    SModelElement,
-    SModelRoot,
+    GModelElement,
+    GModelRoot,
     SetViewportAction,
     TYPES,
     Viewport,
     isViewport
-} from '~glsp-sprotty';
+} from '@eclipse-glsp/sprotty';
 import { GLSPActionDispatcher } from '../../../base/action-dispatcher';
 import { SelectionService } from '../../../base/selection-service';
 import { Tool } from '../../../base/tool-manager/tool';
@@ -125,7 +125,7 @@ export class ZoomKeyListener extends KeyListener {
         );
     }
 
-    setNewZoomFactor(viewport: SModelElement & SModelRoot & Viewport, zoomFactor: number, point?: Point): SetViewportAction {
+    setNewZoomFactor(viewport: GModelElement & GModelRoot & Viewport, zoomFactor: number, point?: Point): SetViewportAction {
         let newViewport: Viewport;
         const newZoom = viewport.zoom * zoomFactor;
 
@@ -146,7 +146,7 @@ export class ZoomKeyListener extends KeyListener {
         return SetViewportAction.create(viewport.id, newViewport, { animate: true });
     }
 
-    override keyDown(element: SModelElement, event: KeyboardEvent): Action[] {
+    override keyDown(element: GModelElement, event: KeyboardEvent): Action[] {
         const selectedElementIds = this.tool.selectionService.getSelectedElementIDs();
 
         if (this.matchesZoomViaGrid(event)) {

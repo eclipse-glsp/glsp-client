@@ -16,7 +16,7 @@
 
 import { inject, injectable, optional } from 'inversify';
 import { matchesKeystroke } from 'sprotty/lib/utils/keyboard';
-import { Action, ISnapper, KeyListener, KeyTool, SModelElement, TYPES } from '~glsp-sprotty';
+import { Action, ISnapper, KeyListener, KeyTool, GModelElement, TYPES } from '@eclipse-glsp/sprotty';
 import { GLSPActionDispatcher } from '../../../base/action-dispatcher';
 import { SelectionService } from '../../../base/selection-service';
 import { EnableDefaultToolsAction, EnableToolsAction, Tool } from '../../../base/tool-manager/tool';
@@ -76,7 +76,7 @@ export class ResizeKeyListener extends KeyListener implements AccessibleKeyShort
         );
     }
 
-    override keyDown(element: SModelElement, event: KeyboardEvent): Action[] {
+    override keyDown(element: GModelElement, event: KeyboardEvent): Action[] {
         const actions = [];
         const selectedElementsIds = this.tool.selectionService.getSelectedElementIDs();
 

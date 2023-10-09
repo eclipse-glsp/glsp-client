@@ -23,7 +23,7 @@ describe('Disposable', () => {
         it('should return false for a primitive', () => {
             expect(Disposable.is('A')).to.be.false;
         });
-        it('should return false for any function', () => {
+        it('should return false for unknown function', () => {
             expect(Disposable.is('A'.toString)).to.be.false;
         });
         it('should return true for the return value of Disposable.create()', () => {

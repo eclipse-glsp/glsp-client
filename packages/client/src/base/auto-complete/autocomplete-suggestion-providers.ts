@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2023 EclipseSource and others.
+ * Copyright (c) 2023 Business Informatics Group (TU Wien) and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,21 +13,25 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-/* eslint-disable @typescript-eslint/no-shadow */
-/* eslint-disable-next-line no-restricted-imports*/
-import { Action, hasArrayProp } from '@eclipse-glsp/protocol';
-import { SetBoundsAction } from 'sprotty-protocol/lib/actions';
+
+import { GModelElement, GModelRoot, LabeledAction } from '@eclipse-glsp/sprotty';
 
 /**
- * Use module augmentation to add namespaces and  the `is` utility function to sprotty actions that directly reused by GLSP
+ * Interface for a provider that provides suggestions that can be used to fill the autocomplete
  */
-declare module 'sprotty-protocol/lib/actions' {
-    namespace SetBoundsAction {
-        export function is(object: any): object is SetBoundsAction;
-    }
+export interface IAutocompleteSuggestionProvider {
+    /**
+     * Returns the suggestions based on the provided parameters.
+     * @param root: The root model
+     * @param text: The text input provided by the user.
+     */
+    retrieveSuggestions(root: Readonly<GModelRoot>, text: string): Promise<AutocompleteSuggestion[]>;
 }
 
-SetBoundsAction.is = (object: any): object is SetBoundsAction =>
-    Action.hasKind(object, SetBoundsAction.KIND) && hasArrayProp(object, 'bounds');
-
-export { SetBoundsAction };
+/**
+ * Interface for autocomplete suggestions.
+ */
+export interface AutocompleteSuggestion {
+    element: GModelElement;
+    action: LabeledAction;
+}

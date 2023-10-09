@@ -29,9 +29,9 @@ import {
     MoveAction,
     Point,
     PolylineEdgeRouter,
-    SConnectableElement,
-    SModelElement,
-    SRoutingHandle,
+    GConnectableElement,
+    GModelElement,
+    GRoutingHandle,
     SwitchEditModeAction,
     SwitchEditModeCommand,
     TYPES,
@@ -41,10 +41,10 @@ import {
     isBoundsAware,
     isConnectable,
     isSelected
-} from '~glsp-sprotty';
+} from '@eclipse-glsp/sprotty';
 import { IFeedbackActionDispatcher } from '../../../base/feedback/feedback-action-dispatcher';
 import { FeedbackCommand } from '../../../base/feedback/feedback-command';
-import { forEachElement, isRoutable, isRoutingHandle } from '../../../utils/smodel-util';
+import { forEachElement, isRoutable, isRoutingHandle } from '../../../utils/gmodel-util';
 import { getAbsolutePosition, toAbsoluteBounds } from '../../../utils/viewpoint-util';
 import { PointPositionUpdater } from '../../change-bounds/snap';
 import { addReconnectHandles, removeReconnectHandles } from '../../reconnect/model';
@@ -202,7 +202,7 @@ export class FeedbackEdgeSourceMovingMouseListener extends MouseListener impleme
         super();
     }
 
-    override mouseMove(target: SModelElement, event: MouseEvent): Action[] {
+    override mouseMove(target: GModelElement, event: MouseEvent): Action[] {
         const root = target.root;
         const edgeEnd = root.index.getById(feedbackEdgeEndId(root));
         if (!(edgeEnd instanceof FeedbackEdgeEnd) || !edgeEnd.feedbackEdge) {
@@ -215,7 +215,7 @@ export class FeedbackEdgeSourceMovingMouseListener extends MouseListener impleme
             element => isConnectable(element) && element.canConnect(edge, 'source')
         );
 
-        if (endAtMousePosition instanceof SConnectableElement && edge.target && isBoundsAware(edge.target)) {
+        if (endAtMousePosition instanceof GConnectableElement && edge.target && isBoundsAware(edge.target)) {
             const anchor = this.computeAbsoluteAnchor(endAtMousePosition, Bounds.center(edge.target.bounds));
             if (Point.euclideanDistance(anchor, edgeEnd.position) > 1) {
                 this.feedbackDispatcher.registerFeedback(this, [
@@ -231,7 +231,7 @@ export class FeedbackEdgeSourceMovingMouseListener extends MouseListener impleme
         return [];
     }
 
-    protected computeAbsoluteAnchor(element: SConnectableElement, referencePoint: Point, offset?: number): Point {
+    protected computeAbsoluteAnchor(element: GConnectableElement, referencePoint: Point, offset?: number): Point {
         const anchorComputer = this.anchorRegistry.get(PolylineEdgeRouter.KIND, element.anchorKind);
         let anchor = anchorComputer.getAnchor(element, referencePoint, offset);
         // The anchor is computed in the local coordinate system of the element.
@@ -259,7 +259,7 @@ export class FeedbackEdgeRouteMovingMouseListener extends MouseListener {
         this.pointPositionUpdater = new PointPositionUpdater(snapper);
     }
 
-    override mouseDown(target: SModelElement, event: MouseEvent): Action[] {
+    override mouseDown(target: GModelElement, event: MouseEvent): Action[] {
         const result: Action[] = [];
         if (event.button === 0) {
             const routingHandle = findParentByFeature(target, isRoutingHandle);
@@ -273,7 +273,7 @@ export class FeedbackEdgeRouteMovingMouseListener extends MouseListener {
         return result;
     }
 
-    override mouseMove(target: SModelElement, event: MouseEvent): Action[] {
+    override mouseMove(target: GModelElement, event: MouseEvent): Action[] {
         const result: Action[] = [];
         if (event.buttons === 0) {
             return this.mouseUp(target, event);
@@ -286,7 +286,7 @@ export class FeedbackEdgeRouteMovingMouseListener extends MouseListener {
         return result;
     }
 
-    protected handleMoveOnClient(target: SModelElement, positionUpdate: Point, isSnap: boolean): Action[] {
+    protected handleMoveOnClient(target: GModelElement, positionUpdate: Point, isSnap: boolean): Action[] {
         const handleMoves: ElementMove[] = [];
         target.root.index
             .all()
@@ -305,7 +305,7 @@ export class FeedbackEdgeRouteMovingMouseListener extends MouseListener {
         return [];
     }
 
-    protected toElementMove(element: SRoutingHandle, positionDelta: Point, isSnap: boolean): ElementMove | undefined {
+    protected toElementMove(element: GRoutingHandle, positionDelta: Point, isSnap: boolean): ElementMove | undefined {
         const point = this.getHandlePosition(element);
         if (point !== undefined) {
             const snappedPoint = this.getSnappedHandlePosition(element, point, isSnap);
@@ -321,14 +321,14 @@ export class FeedbackEdgeRouteMovingMouseListener extends MouseListener {
         return undefined;
     }
 
-    protected getSnappedHandlePosition(element: SRoutingHandle, point: Point, isSnap: boolean): Point {
+    protected getSnappedHandlePosition(element: GRoutingHandle, point: Point, isSnap: boolean): Point {
         if (this.snapper && isSnap) {
             return this.snapper.snap(point, element);
         }
         return point;
     }
 
-    protected getHandlePosition(handle: SRoutingHandle): Point | undefined {
+    protected getHandlePosition(handle: GRoutingHandle): Point | undefined {
         if (this.edgeRouterRegistry) {
             const parent = handle.parent;
             if (!isRoutable(parent)) {
@@ -341,12 +341,12 @@ export class FeedbackEdgeRouteMovingMouseListener extends MouseListener {
         return undefined;
     }
 
-    override mouseUp(_target: SModelElement, _event: MouseEvent): Action[] {
+    override mouseUp(_target: GModelElement, _event: MouseEvent): Action[] {
         this.pointPositionUpdater.resetPosition();
         return [];
     }
 
-    override decorate(vnode: VNode, _element: SModelElement): VNode {
+    override decorate(vnode: VNode, _element: GModelElement): VNode {
         return vnode;
     }
 }

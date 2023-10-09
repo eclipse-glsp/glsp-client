@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { Action, hasObjectProp, Point } from '~glsp-sprotty';
+import { Action, hasObjectProp, Point } from '@eclipse-glsp/sprotty';
 
 export interface EnableKeyboardGridAction extends Action {
     kind: typeof EnableKeyboardGridAction.KIND;

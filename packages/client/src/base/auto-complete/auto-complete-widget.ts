@@ -14,7 +14,16 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { AutocompleteResult, AutocompleteSettings } from 'autocompleter';
-import { Action, ILogger, LabeledAction, SModelRoot, ValidationStatus, codiconCSSClasses, matchesKeystroke, toArray } from '~glsp-sprotty';
+import {
+    Action,
+    ILogger,
+    LabeledAction,
+    GModelRoot,
+    ValidationStatus,
+    codiconCSSClasses,
+    matchesKeystroke,
+    toArray
+} from '@eclipse-glsp/sprotty';
 import { AutoCompleteValue } from './auto-complete-actions';
 import { IValidationDecorator } from './validation-decorator';
 
@@ -35,7 +44,7 @@ export interface SuggestionProvider {
 }
 
 export interface InputValueInitializer {
-    initializeValue(containerElement: HTMLElement, root: Readonly<SModelRoot>, ...contextElementIds: string[]): string;
+    initializeValue(containerElement: HTMLElement, root: Readonly<GModelRoot>, ...contextElementIds: string[]): string;
 }
 
 export interface SuggestionSubmitHandler {
@@ -110,7 +119,7 @@ export class AutoCompleteWidget {
         inputElement.style.position = 'absolute';
         inputElement.spellcheck = false;
         inputElement.autocapitalize = 'false';
-        inputElement.autocomplete = 'false';
+        inputElement.autocomplete = 'off';
         inputElement.style.width = '100%';
         inputElement.addEventListener('keydown', event => this.handleKeyDown(event));
         inputElement.addEventListener('blur', () => {
@@ -155,7 +164,7 @@ export class AutoCompleteWidget {
         this.validationDecorator.invalidate();
     }
 
-    open(root: Readonly<SModelRoot>, ...contextElementIds: string[]): void {
+    open(root: Readonly<GModelRoot>, ...contextElementIds: string[]): void {
         this.contextActions = undefined;
         this.autoCompleteResult = configureAutocomplete(this.autocompleteSettings(root));
         this.previousContent = this.inputElement.value;
@@ -163,7 +172,7 @@ export class AutoCompleteWidget {
         this.inputElement.focus();
     }
 
-    protected autocompleteSettings(root: Readonly<SModelRoot>): AutocompleteSettings<LabeledAction> {
+    protected autocompleteSettings(root: Readonly<GModelRoot>): AutocompleteSettings<LabeledAction> {
         return {
             input: this.inputElement,
             emptyMsg: this.autoSuggestionSettings.noSuggestionsMessage,
@@ -174,13 +183,18 @@ export class AutoCompleteWidget {
             fetch: (text: string, update: (items: LabeledAction[]) => void) => this.updateSuggestions(update, text, root),
             onSelect: (item: LabeledAction) => this.onSelect(item),
             render: (item: LabeledAction, currentValue: string): HTMLDivElement | undefined => this.renderSuggestions(item, currentValue),
-            customize: (input: HTMLInputElement, inputRect: DOMRect, container: HTMLDivElement, maxHeight: number) => {
+            customize: (input, inputRect, container, maxHeight) => {
                 this.customizeInputElement(input, inputRect, container, maxHeight);
             }
         };
     }
 
-    protected customizeInputElement(input: HTMLInputElement, inputRect: DOMRect, container: HTMLDivElement, maxHeight: number): void {
+    protected customizeInputElement(
+        input: HTMLInputElement | HTMLTextAreaElement,
+        inputRect: DOMRect,
+        container: HTMLDivElement,
+        maxHeight: number
+    ): void {
         // move container into our UIExtension container as this is already positioned correctly
         if (this.containerElement) {
             this.containerElement.appendChild(container);
@@ -201,7 +215,7 @@ export class AutoCompleteWidget {
     protected updateSuggestions(
         update: (items: LabeledAction[]) => void,
         text: string,
-        root: Readonly<SModelRoot>,
+        root: Readonly<GModelRoot>,
         ...contextElementIds: string[]
     ): void {
         this.onLoading();
@@ -229,7 +243,7 @@ export class AutoCompleteWidget {
         this.containerElement.appendChild(this.loadingIndicator);
     }
 
-    protected doUpdateSuggestions(text: string, root: Readonly<SModelRoot>, ...contextElementIds: string[]): Promise<LabeledAction[]> {
+    protected doUpdateSuggestions(text: string, root: Readonly<GModelRoot>, ...contextElementIds: string[]): Promise<LabeledAction[]> {
         return this.suggestionProvider.provideSuggestions(text);
     }
 

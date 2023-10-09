@@ -19,16 +19,16 @@ import { VNode, VNodeStyle, h } from 'snabbdom';
 import {
     Bounds,
     EdgeRouterRegistry,
+    GViewportRootElement,
     IViewArgs,
     ProjectedViewportView,
     ProjectionParams,
     RenderingContext,
     ViewProjection,
-    ViewportRootElement,
     html,
     setAttr,
     setClass
-} from '~glsp-sprotty';
+} from '@eclipse-glsp/sprotty';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const JSX = { createElement: html };
@@ -40,7 +40,7 @@ const JSX = { createElement: html };
 export class GLSPProjectionView extends ProjectedViewportView {
     @inject(EdgeRouterRegistry) edgeRouterRegistry: EdgeRouterRegistry;
 
-    override render(model: Readonly<ViewportRootElement>, context: RenderingContext, args?: IViewArgs): VNode {
+    override render(model: Readonly<GViewportRootElement>, context: RenderingContext, args?: IViewArgs): VNode {
         const svgElem = this.renderSvg(model, context, args);
         if (svgElem.data) {
             svgElem.data!.class = { 'sprotty-graph': true };
@@ -57,7 +57,7 @@ export class GLSPProjectionView extends ProjectedViewportView {
         return rootNode;
     }
 
-    protected override renderSvg(model: Readonly<ViewportRootElement>, context: RenderingContext, args?: IViewArgs): VNode {
+    protected override renderSvg(model: Readonly<GViewportRootElement>, context: RenderingContext, args?: IViewArgs): VNode {
         const edgeRouting = this.edgeRouterRegistry.routeAllChildren(model);
         const transform = `scale(${model.zoom}) translate(${-model.scroll.x},${-model.scroll.y})`;
         const ns = 'http://www.w3.org/2000/svg';
@@ -71,7 +71,7 @@ export class GLSPProjectionView extends ProjectedViewportView {
 
     protected override renderProjectionBar(
         projections: ViewProjection[],
-        model: Readonly<ViewportRootElement>,
+        model: Readonly<GViewportRootElement>,
         modelBounds: Bounds,
         orientation: 'horizontal' | 'vertical'
     ): VNode {
@@ -94,7 +94,7 @@ export class GLSPProjectionView extends ProjectedViewportView {
         );
     }
 
-    protected override renderViewport(model: Readonly<ViewportRootElement>, params: ProjectionParams): VNode {
+    protected override renderViewport(model: Readonly<GViewportRootElement>, params: ProjectionParams): VNode {
         let canvasSize;
         let viewportPos: number;
         if (params.orientation === 'horizontal') {
@@ -134,7 +134,11 @@ export class GLSPProjectionView extends ProjectedViewportView {
         return <div class-sprotty-viewport={viewportSize !== 0} class-projection-scroll-bar={true} style={style} />;
     }
 
-    protected override renderProjection(projection: ViewProjection, model: Readonly<ViewportRootElement>, params: ProjectionParams): VNode {
+    protected override renderProjection(
+        projection: ViewProjection,
+        model: Readonly<GViewportRootElement>,
+        params: ProjectionParams
+    ): VNode {
         let canvasSize;
         let projPos;
         let projSize: number;

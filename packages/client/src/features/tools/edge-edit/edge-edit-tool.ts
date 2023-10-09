@@ -23,21 +23,21 @@ import {
     EdgeRouterRegistry,
     ISnapper,
     ReconnectEdgeOperation,
-    SModelElement,
-    SModelRoot,
-    SRoutableElement,
-    SRoutingHandle,
+    GModelElement,
+    GModelRoot,
+    GRoutableElement,
+    GRoutingHandle,
     TYPES,
     canEditRouting,
     findParentByFeature,
     isConnectable,
     isSelected
-} from '~glsp-sprotty';
+} from '@eclipse-glsp/sprotty';
 import { DragAwareMouseListener } from '../../../base/drag-aware-mouse-listener';
 import { CursorCSS, cursorFeedbackAction } from '../../../base/feedback/css-feedback';
 import { ISelectionListener, SelectionService } from '../../../base/selection-service';
-import { calcElementAndRoutingPoints, isRoutable, isRoutingHandle } from '../../../utils/smodel-util';
-import { SReconnectHandle, isReconnectHandle, isReconnectable, isSourceRoutingHandle, isTargetRoutingHandle } from '../../reconnect/model';
+import { calcElementAndRoutingPoints, isRoutable, isRoutingHandle } from '../../../utils/gmodel-util';
+import { GReconnectHandle, isReconnectHandle, isReconnectable, isSourceRoutingHandle, isTargetRoutingHandle } from '../../reconnect/model';
 import { BaseEditTool } from '../base-tools';
 import { DrawFeedbackEdgeAction, RemoveFeedbackEdgeAction, feedbackEdgeId } from '../edge-creation/dangling-edge-feedback';
 import {
@@ -102,11 +102,11 @@ export class EdgeEditTool extends BaseEditTool {
 
 export class EdgeEditListener extends DragAwareMouseListener implements ISelectionListener {
     // active selection data
-    protected edge?: SRoutableElement;
-    protected routingHandle?: SRoutingHandle;
+    protected edge?: GRoutableElement;
+    protected routingHandle?: GRoutingHandle;
 
     // new connectable (source or target) for edge
-    protected newConnectable?: SModelElement & Connectable;
+    protected newConnectable?: GModelElement & Connectable;
 
     // active reconnect handle data
     protected reconnectMode?: 'NEW_SOURCE' | 'NEW_TARGET';
@@ -115,11 +115,11 @@ export class EdgeEditListener extends DragAwareMouseListener implements ISelecti
         super();
     }
 
-    protected isValidEdge(edge?: SRoutableElement): edge is SRoutableElement {
+    protected isValidEdge(edge?: GRoutableElement): edge is GRoutableElement {
         return edge !== undefined && edge.id !== feedbackEdgeId(edge.root) && isSelected(edge);
     }
 
-    protected setEdgeSelected(edge: SRoutableElement): void {
+    protected setEdgeSelected(edge: GRoutableElement): void {
         if (this.edge && this.edge.id !== edge.id) {
             // reset from a previously selected edge
             this.reset();
@@ -141,7 +141,7 @@ export class EdgeEditListener extends DragAwareMouseListener implements ISelecti
         return this.edge !== undefined && isSelected(this.edge);
     }
 
-    protected setReconnectHandleSelected(edge: SRoutableElement, reconnectHandle: SReconnectHandle): void {
+    protected setReconnectHandleSelected(edge: GRoutableElement, reconnectHandle: GReconnectHandle): void {
         if (this.edge && this.edge.target && this.edge.source) {
             if (isSourceRoutingHandle(edge, reconnectHandle)) {
                 this.tool.registerFeedback([
@@ -169,7 +169,7 @@ export class EdgeEditListener extends DragAwareMouseListener implements ISelecti
         return this.reconnectMode === 'NEW_SOURCE';
     }
 
-    protected setRoutingHandleSelected(edge: SRoutableElement, routingHandle: SRoutingHandle): void {
+    protected setRoutingHandleSelected(edge: GRoutableElement, routingHandle: GRoutingHandle): void {
         if (this.edge && this.edge.target && this.edge.source) {
             this.routingHandle = routingHandle;
         }
@@ -179,7 +179,7 @@ export class EdgeEditListener extends DragAwareMouseListener implements ISelecti
         return this.edge !== undefined && (this.edge.sourceId !== sourceId || this.edge.targetId !== targetId);
     }
 
-    protected setNewConnectable(connectable?: SModelElement & Connectable): void {
+    protected setNewConnectable(connectable?: GModelElement & Connectable): void {
         this.newConnectable = connectable;
     }
 
@@ -191,7 +191,7 @@ export class EdgeEditListener extends DragAwareMouseListener implements ISelecti
         return this.routingHandle !== undefined;
     }
 
-    override mouseDown(target: SModelElement, event: MouseEvent): Action[] {
+    override mouseDown(target: GModelElement, event: MouseEvent): Action[] {
         const result: Action[] = super.mouseDown(target, event);
         if (event.button === 0) {
             const reconnectHandle = findParentByFeature(target, isReconnectHandle);
@@ -214,7 +214,7 @@ export class EdgeEditListener extends DragAwareMouseListener implements ISelecti
         return result;
     }
 
-    override mouseMove(target: SModelElement, event: MouseEvent): Action[] {
+    override mouseMove(target: GModelElement, event: MouseEvent): Action[] {
         const result = super.mouseMove(target, event);
         if (this.isMouseDrag) {
             // reset any selected connectables when we are dragging, maybe the user is just panning
@@ -223,7 +223,7 @@ export class EdgeEditListener extends DragAwareMouseListener implements ISelecti
         return result;
     }
 
-    override mouseUp(target: SModelElement, event: MouseEvent): Action[] {
+    override mouseUp(target: GModelElement, event: MouseEvent): Action[] {
         const result = super.mouseUp(target, event);
         if (!this.isReadyToReconnect() && !this.isReadyToReroute()) {
             return result;
@@ -249,7 +249,7 @@ export class EdgeEditListener extends DragAwareMouseListener implements ISelecti
         return result;
     }
 
-    override mouseOver(target: SModelElement, _event: MouseEvent): Action[] {
+    override mouseOver(target: GModelElement, _event: MouseEvent): Action[] {
         if (this.edge && this.isReconnecting()) {
             const currentTarget = findParentByFeature(target, isConnectable);
             if (!this.newConnectable || currentTarget !== this.newConnectable) {
@@ -269,7 +269,7 @@ export class EdgeEditListener extends DragAwareMouseListener implements ISelecti
         return [];
     }
 
-    selectionChanged(root: Readonly<SModelRoot>, selectedElements: string[]): void {
+    selectionChanged(root: Readonly<GModelRoot>, selectedElements: string[]): void {
         if (this.edge) {
             if (selectedElements.indexOf(this.edge.id) > -1) {
                 // our active edge is still selected, nothing to do

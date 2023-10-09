@@ -26,13 +26,13 @@ import {
     IActionHandler,
     MaybePromise,
     MousePositionTracker,
-    SModelElement,
-    SModelRoot,
+    GModelElement,
+    GModelRoot,
     SetDirtyStateAction,
     SetEditModeAction,
     TYPES,
     ValueChange
-} from '~glsp-sprotty';
+} from '@eclipse-glsp/sprotty';
 import { GLSPActionDispatcher } from './action-dispatcher';
 import { IDiagramOptions, IDiagramStartup } from './model/diagram-loader';
 import { SelectionService } from './selection-service';
@@ -153,11 +153,11 @@ export class EditorContextService implements IActionHandler, Disposable, IDiagra
         return this.diagramOptions.clientId;
     }
 
-    get modelRoot(): Readonly<SModelRoot> {
+    get modelRoot(): Readonly<GModelRoot> {
         return this.selectionService.getModelRoot();
     }
 
-    get selectedElements(): Readonly<SModelElement>[] {
+    get selectedElements(): Readonly<GModelElement>[] {
         return this.selectionService.getSelectedElements();
     }
 

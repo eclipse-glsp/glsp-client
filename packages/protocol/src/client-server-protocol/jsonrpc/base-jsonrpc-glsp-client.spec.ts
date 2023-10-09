@@ -33,17 +33,17 @@ class StubMessageConnection implements MessageConnection {
         throw new Error('Method not implemented.');
     }
 
-    onRequest(...args: any[]): Disposable {
+    onRequest(...args: unknown[]): Disposable {
         return Disposable.create(() => {});
     }
     hasPendingResponse(): boolean {
         return false;
     }
-    sendNotification(...args: any[]): Promise<void> {
+    sendNotification(...args: unknown[]): Promise<void> {
         return Promise.resolve();
     }
 
-    onNotification(...args: any[]): Disposable {
+    onNotification(...args: unknown[]): Disposable {
         return Disposable.create(() => {});
     }
 
@@ -55,7 +55,7 @@ class StubMessageConnection implements MessageConnection {
     }
     onUnhandledProgress = this.mockEvent;
 
-    trace(...args: any[]): Promise<void> {
+    trace(...args: unknown[]): Promise<void> {
         return Promise.resolve();
     }
     onError = this.mockEvent;
@@ -238,7 +238,7 @@ describe('Base JSON-RPC GLSP Client', () => {
         it('Should be in error state after connection error', async () => {
             // mock setup
             resetClient(false);
-            const listeners: ((e: any) => any)[] = [];
+            const listeners: ((e: unknown) => unknown)[] = [];
             connection.onError.callsFake(listener => {
                 listeners.push(listener);
                 return Disposable.create(() => remove(listeners, listener));
@@ -251,7 +251,7 @@ describe('Base JSON-RPC GLSP Client', () => {
         it('Should be in error state after connection close while running', async () => {
             // mock setup
             resetClient(false);
-            const listeners: ((e: any) => any)[] = [];
+            const listeners: ((e: unknown) => unknown)[] = [];
             connection.onClose.callsFake(listener => {
                 listeners.push(listener);
                 return Disposable.create(() => remove(listeners, listener));

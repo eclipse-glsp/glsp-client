@@ -17,9 +17,8 @@ import { injectable } from 'inversify';
 import {
     codiconCSSString,
     isConnectable,
-    SEdge,
-    SModelElement,
-    SModelRoot,
+    GModelElement,
+    GModelRoot,
     LabeledAction,
     name,
     SetUIExtensionVisibilityAction,
@@ -27,14 +26,15 @@ import {
     Action,
     CreateEdgeOperation,
     TriggerEdgeCreationAction
-} from '~glsp-sprotty';
+} from '@eclipse-glsp/sprotty';
 import { EnableDefaultToolsAction } from '../../../base/tool-manager/tool';
 import { toArray } from 'sprotty/lib/utils/iterable';
 import { EdgeAutocompleteContext } from './edge-autocomplete-context';
 import { SearchAutocompletePalette } from '../search/search-palette';
-import { AutocompleteSuggestion, IAutocompleteSuggestionProvider } from '../../autocomplete-palette/autocomplete-suggestion-providers';
 import { SetEdgeTargetSelectionAction } from './action';
 import { CloseReason, toActionArray } from '../../../base/auto-complete/auto-complete-widget';
+import { AutocompleteSuggestion, IAutocompleteSuggestionProvider } from '../../../base/auto-complete/autocomplete-suggestion-providers';
+import { GEdge } from '../../../model';
 
 export namespace EdgeAutocompletePaletteMetadata {
     export const ID = 'edge-autocomplete-palette';
@@ -60,13 +60,13 @@ export class EdgeAutocompletePalette extends SearchAutocompletePalette implement
         }
     }
 
-    protected override onBeforeShow(containerElement: HTMLElement, root: Readonly<SModelRoot>, ...contextElementIds: string[]): void {
+    protected override onBeforeShow(containerElement: HTMLElement, root: Readonly<GModelRoot>, ...contextElementIds: string[]): void {
         super.onBeforeShow(containerElement, root, ...contextElementIds);
 
         this.autocompleteWidget.inputField.placeholder = `Search for ${this.context?.role} elements`;
     }
 
-    protected override getSuggestionProviders(root: Readonly<SModelRoot>, input: string): IAutocompleteSuggestionProvider[] {
+    protected override getSuggestionProviders(root: Readonly<GModelRoot>, input: string): IAutocompleteSuggestionProvider[] {
         return [this.targetSuggestionProvider];
     }
 
@@ -115,26 +115,26 @@ export class EdgeAutocompletePalette extends SearchAutocompletePalette implement
 
 @injectable()
 export class PossibleEdgeTargetAutocompleteSuggestionProvider implements IAutocompleteSuggestionProvider {
-    protected proxyEdge?: SEdge;
+    protected proxyEdge?: GEdge;
     protected context?: EdgeAutocompleteContext;
 
     setContext(triggerAction: TriggerEdgeCreationAction, edgeAutocompleteContext: EdgeAutocompleteContext): void {
-        this.proxyEdge = new SEdge();
+        this.proxyEdge = new GEdge();
         this.proxyEdge.type = triggerAction.elementTypeId;
         this.context = edgeAutocompleteContext;
     }
 
-    isAllowedSource(element: SModelElement | undefined, role: 'source' | 'target'): boolean {
+    isAllowedSource(element: GModelElement | undefined, role: 'source' | 'target'): boolean {
         return element !== undefined && this.proxyEdge !== undefined && isConnectable(element) && element.canConnect(this.proxyEdge, role);
     }
 
-    async retrieveSuggestions(root: Readonly<SModelRoot>, text: string): Promise<AutocompleteSuggestion[]> {
+    async retrieveSuggestions(root: Readonly<GModelRoot>, text: string): Promise<AutocompleteSuggestion[]> {
         const context = this.context;
         if (this.context === undefined) {
             return [];
         }
 
-        const nodes = toArray(root.index.all().filter(element => this.isAllowedSource(element, context!.role))) as SEdge[];
+        const nodes = toArray(root.index.all().filter(element => this.isAllowedSource(element, context!.role))) as GEdge[];
         return nodes.map(node => ({
             element: node,
             action: {

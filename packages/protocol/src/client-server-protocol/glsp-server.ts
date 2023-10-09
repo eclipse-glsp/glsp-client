@@ -81,7 +81,7 @@ export interface GLSPServer {
     /**
      * The `shutdown` notification is sent from the client to the server if the client disconnects from the server (e.g.
      * the client application has been closed).
-     * This gives the server a chance to clean up and dispose any resources dedicated to the client and its sessions.
+     * This gives the server a chance to clean up and dispose unknown resources dedicated to the client and its sessions.
      * All {@link GLSPServerListener}s are notified via the {@link GLSPServerListener.serverShutDown} method.
      * Afterwards the server instance is considered to be disposed and can no longer be used for handling requests.
      *

@@ -13,21 +13,20 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { inject, injectable, optional } from 'inversify';
 import {
     Action,
     BoundsAware,
     DOMHelper,
+    GModelElement,
+    GModelRoot,
+    GNode,
     KeyListener,
-    SEdge,
-    SModelElement,
-    SModelRoot,
-    SNode,
     SelectAction,
     TYPES,
     isSelectable,
     isSelected
-} from '~glsp-sprotty';
+} from '@eclipse-glsp/sprotty';
+import { inject, injectable, optional } from 'inversify';
 import { DragAwareMouseListener } from '../../../base/drag-aware-mouse-listener';
 import { CursorCSS, cursorFeedbackAction } from '../../../base/feedback/css-feedback';
 import { EnableDefaultToolsAction } from '../../../base/tool-manager/tool';
@@ -35,6 +34,7 @@ import { getAbsolutePosition, toAbsoluteBounds } from '../../../utils/viewpoint-
 import { BaseEditTool } from '../base-tools';
 import { IMarqueeBehavior, MarqueeUtil } from './marquee-behavior';
 import { RemoveMarqueeAction } from './marquee-tool-feedback';
+import { GEdge } from '../../../model';
 
 @injectable()
 export class MarqueeMouseTool extends BaseEditTool {
@@ -61,40 +61,40 @@ export class MarqueeMouseTool extends BaseEditTool {
 export class MarqueeMouseListener extends DragAwareMouseListener {
     protected domHelper: DOMHelper;
     protected marqueeUtil: MarqueeUtil;
-    protected nodes: (SModelElement & BoundsAware)[];
+    protected nodes: (GModelElement & BoundsAware)[];
     protected edges: SVGGElement[];
     protected previouslySelected: string[];
     protected isActive = false;
 
-    constructor(domHelper: DOMHelper, root: SModelRoot, marqueeBehavior: IMarqueeBehavior | undefined) {
+    constructor(domHelper: DOMHelper, root: GModelRoot, marqueeBehavior: IMarqueeBehavior | undefined) {
         super();
         this.domHelper = domHelper;
         this.marqueeUtil = new MarqueeUtil(marqueeBehavior);
         this.nodes = Array.from(
             root.index
                 .all()
-                .map(e => e as SModelElement & BoundsAware)
+                .map(e => e as GModelElement & BoundsAware)
                 .filter(e => isSelectable(e))
-                .filter(e => e instanceof SNode)
+                .filter(e => e instanceof GNode)
         );
         const sEdges = Array.from(
             root.index
                 .all()
-                .filter(e => e instanceof SEdge)
+                .filter(e => e instanceof GEdge)
                 .filter(e => isSelectable(e))
                 .map(e => e.id)
         );
         this.edges = Array.from(document.querySelectorAll('g')).filter(e => sEdges.includes(this.domHelper.findSModelIdByDOMElement(e)));
     }
 
-    override mouseDown(target: SModelElement, event: MouseEvent): Action[] {
+    override mouseDown(target: GModelElement, event: MouseEvent): Action[] {
         this.isActive = true;
         this.marqueeUtil.updateStartPoint(getAbsolutePosition(target, event));
         if (event.ctrlKey) {
             this.previouslySelected = Array.from(
                 target.root.index
                     .all()
-                    .map(e => e as SModelElement & BoundsAware)
+                    .map(e => e as GModelElement & BoundsAware)
                     .filter(e => isSelected(e))
                     .map(e => e.id)
             );
@@ -102,7 +102,7 @@ export class MarqueeMouseListener extends DragAwareMouseListener {
         return [];
     }
 
-    override mouseMove(target: SModelElement, event: MouseEvent): Action[] {
+    override mouseMove(target: GModelElement, event: MouseEvent): Action[] {
         this.marqueeUtil.updateCurrentPoint(getAbsolutePosition(target, event));
         if (this.isActive) {
             const nodeIdsSelected = this.nodes.filter(e => this.marqueeUtil.isNodeMarked(toAbsoluteBounds(e))).map(e => e.id);
@@ -113,7 +113,7 @@ export class MarqueeMouseListener extends DragAwareMouseListener {
         return [];
     }
 
-    override mouseUp(_target: SModelElement, event: MouseEvent): Action[] {
+    override mouseUp(_target: GModelElement, event: MouseEvent): Action[] {
         this.isActive = false;
         if (event.shiftKey) {
             return [RemoveMarqueeAction.create()];
@@ -134,7 +134,7 @@ export class MarqueeMouseListener extends DragAwareMouseListener {
 
 @injectable()
 export class ShiftKeyListener extends KeyListener {
-    override keyUp(element: SModelElement, event: KeyboardEvent): Action[] {
+    override keyUp(element: GModelElement, event: KeyboardEvent): Action[] {
         if (event.shiftKey) {
             return [];
         }

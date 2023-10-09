@@ -32,7 +32,7 @@ export interface RequestClipboardDataAction extends RequestAction<SetClipboardDa
 export namespace RequestClipboardDataAction {
     export const KIND = 'requestClipboardData';
 
-    export function is(object: any): object is RequestClipboardDataAction {
+    export function is(object: unknown): object is RequestClipboardDataAction {
         return RequestAction.hasKind(object, KIND) && hasObjectProp(object, 'editorContext');
     }
 
@@ -63,7 +63,7 @@ export interface SetClipboardDataAction extends ResponseAction {
 export namespace SetClipboardDataAction {
     export const KIND = 'setClipboardData';
 
-    export function is(object: any): object is SetClipboardDataAction {
+    export function is(object: unknown): object is SetClipboardDataAction {
         return Action.hasKind(object, KIND) && hasObjectProp(object, 'clipboardData');
     }
 
@@ -92,7 +92,7 @@ export interface CutOperation extends Operation {
 export namespace CutOperation {
     export const KIND = 'cut';
 
-    export function is(object: any): object is CutOperation {
+    export function is(object: unknown): object is CutOperation {
         return Operation.hasKind(object, KIND) && hasObjectProp(object, 'editorContext');
     }
 
@@ -125,7 +125,7 @@ export interface PasteOperation extends Operation {
 export namespace PasteOperation {
     export const KIND = 'paste';
 
-    export function is(object: any): object is PasteOperation {
+    export function is(object: unknown): object is PasteOperation {
         return Operation.hasKind(object, KIND) && hasObjectProp(object, 'clipboardData') && hasObjectProp(object, 'editorContext');
     }
 

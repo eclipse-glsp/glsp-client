@@ -21,12 +21,12 @@ import {
     ActionDispatcher,
     IActionHandler,
     SetUIExtensionVisibilityAction,
-    SModelRoot,
+    GModelRoot,
     TYPES,
     Action,
     ICommand,
     Point
-} from '~glsp-sprotty';
+} from '@eclipse-glsp/sprotty';
 import { KeyCode, matchesKeystroke } from 'sprotty/lib/utils/keyboard';
 import { KeyboardGridMetadata } from './constants';
 import { EnableKeyboardGridAction, KeyboardGridCellSelectedAction, KeyboardGridKeyboardEventAction } from './action';
@@ -105,7 +105,7 @@ export class KeyboardGrid extends AbstractUIExtension implements IActionHandler 
         }
     }
 
-    override show(root: Readonly<SModelRoot>, ...contextElementIds: string[]): void {
+    override show(root: Readonly<GModelRoot>, ...contextElementIds: string[]): void {
         super.show(root, ...contextElementIds);
         this.containerElement.focus();
     }

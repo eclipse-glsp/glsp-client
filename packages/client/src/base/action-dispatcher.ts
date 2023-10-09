@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { inject, injectable } from 'inversify';
-import { Action, ActionDispatcher, RequestAction, ResponseAction } from '~glsp-sprotty';
+import { Action, ActionDispatcher, RequestAction, ResponseAction } from '@eclipse-glsp/sprotty';
 import { ModelInitializationConstraint } from './model/model-initialization-constraint';
 
 @injectable()

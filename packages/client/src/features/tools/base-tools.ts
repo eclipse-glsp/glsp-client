@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { inject, injectable } from 'inversify';
-import { Action, Disposable, DisposableCollection, IActionHandler, TYPES } from '~glsp-sprotty';
+import { Action, Disposable, DisposableCollection, IActionHandler, TYPES } from '@eclipse-glsp/sprotty';
 import { GLSPActionDispatcher } from '../../base/action-dispatcher';
 import { EditorContextService } from '../../base/editor-context-service';
 import { IFeedbackActionDispatcher, IFeedbackEmitter } from '../../base/feedback/feedback-action-dispatcher';
@@ -52,7 +52,7 @@ export abstract class BaseEditTool implements Tool {
     }
 
     /**
-     * Registers `actions` to be sent out as feedback, i.e., changes that are re-established whenever the `SModelRoot`
+     * Registers `actions` to be sent out as feedback, i.e., changes that are re-established whenever the `GModelRoot`
      * has been set or updated.
      *
      * @param feedbackActions the actions to be sent out.

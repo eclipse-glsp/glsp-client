@@ -15,7 +15,7 @@
  ********************************************************************************/
 
 import { ContainerModule } from 'inversify';
-import { bindAsService, BindingContext, configureActionHandler, TYPES } from '~glsp-sprotty';
+import { bindAsService, BindingContext, configureActionHandler, TYPES } from '@eclipse-glsp/sprotty';
 import '../../../../css/key-shortcut.css';
 import { KeyShortcutUIExtension, SetAccessibleKeyShortcutAction } from './accessible-key-shortcut';
 import { AccessibleKeyShortcutTool } from './accessible-key-shortcut-tool';

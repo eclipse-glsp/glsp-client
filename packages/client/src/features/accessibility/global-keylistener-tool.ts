@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { inject, injectable } from 'inversify';
-import { SetUIExtensionVisibilityAction, Action } from '~glsp-sprotty';
+import { SetUIExtensionVisibilityAction, Action } from '@eclipse-glsp/sprotty';
 import { Tool } from '../../base/tool-manager/tool';
 import { matchesKeystroke } from 'sprotty/lib/utils/keyboard';
 import { ToolPalette } from '../tool-palette/tool-palette';

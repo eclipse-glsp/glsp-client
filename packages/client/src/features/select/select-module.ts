@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { FeatureModule, SelectKeyboardListener, TYPES, bindAsService, configureCommand } from '~glsp-sprotty';
+import { FeatureModule, SelectKeyboardListener, TYPES, bindAsService, configureCommand } from '@eclipse-glsp/sprotty';
 import { SelectAllCommand, SelectCommand } from '../../base/selection-service';
 import { SelectFeedbackCommand } from './select-feedback-command';
 import { RankedSelectMouseListener } from './select-mouse-listener';

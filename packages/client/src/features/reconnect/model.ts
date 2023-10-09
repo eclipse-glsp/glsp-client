@@ -14,50 +14,52 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import {
+    GModelElement,
+    GRoutableElement,
+    GRoutingHandle,
+    RoutingHandleKind,
     edgeInProgressID,
     edgeInProgressTargetHandleID,
-    RoutingHandleKind,
-    selectFeature,
-    SModelElement,
-    SModelExtension,
-    SRoutableElement,
-    SRoutingHandle
-} from '~glsp-sprotty';
+    selectFeature
+} from '@eclipse-glsp/sprotty';
 
 export const reconnectFeature = Symbol('reconnectFeature');
 
-export interface Reconnectable extends SModelExtension {}
+/**
+ * Feature extension interface for {@link reconnectFeature}.
+ */
+export interface Reconnectable {}
 
-export function isReconnectable(element: SModelElement): element is SRoutableElement & Reconnectable {
-    return element instanceof SRoutableElement && element.hasFeature(reconnectFeature);
+export function isReconnectable(element: GModelElement): element is GRoutableElement & Reconnectable {
+    return element instanceof GRoutableElement && element.hasFeature(reconnectFeature);
 }
 
 const ROUTING_HANDLE_SOURCE_INDEX = -2;
 
-export function isReconnectHandle(element: SModelElement | undefined): element is SReconnectHandle {
-    return element !== undefined && element instanceof SReconnectHandle;
+export function isReconnectHandle(element: GModelElement | undefined): element is GReconnectHandle {
+    return element !== undefined && element instanceof GReconnectHandle;
 }
 
-export function addReconnectHandles(element: SRoutableElement): void {
+export function addReconnectHandles(element: GRoutableElement): void {
     removeReconnectHandles(element);
     createReconnectHandle(element, 'source', ROUTING_HANDLE_SOURCE_INDEX);
     createReconnectHandle(element, 'target', element.routingPoints.length);
 }
 
-export function removeReconnectHandles(element: SRoutableElement): void {
-    element.removeAll(child => child instanceof SReconnectHandle);
+export function removeReconnectHandles(element: GRoutableElement): void {
+    element.removeAll(child => child instanceof GReconnectHandle);
 }
 
-export function isSourceRoutingHandle(edge: SRoutableElement, routingHandle: SReconnectHandle): boolean {
+export function isSourceRoutingHandle(edge: GRoutableElement, routingHandle: GReconnectHandle): boolean {
     return routingHandle.pointIndex === ROUTING_HANDLE_SOURCE_INDEX;
 }
 
-export function isTargetRoutingHandle(edge: SRoutableElement, routingHandle: SReconnectHandle): boolean {
+export function isTargetRoutingHandle(edge: GRoutableElement, routingHandle: GReconnectHandle): boolean {
     return routingHandle.pointIndex === edge.routingPoints.length;
 }
 
-export function createReconnectHandle(edge: SRoutableElement, kind: RoutingHandleKind, routingPointIndex: number): SReconnectHandle {
-    const handle = new SReconnectHandle();
+export function createReconnectHandle(edge: GRoutableElement, kind: RoutingHandleKind, routingPointIndex: number): GReconnectHandle {
+    const handle = new GReconnectHandle();
     handle.kind = kind;
     handle.pointIndex = routingPointIndex;
     handle.type = 'routing-point';
@@ -68,7 +70,7 @@ export function createReconnectHandle(edge: SRoutableElement, kind: RoutingHandl
     return handle;
 }
 
-export class SReconnectHandle extends SRoutingHandle {
+export class GReconnectHandle extends GRoutingHandle {
     override hasFeature(feature: symbol): boolean {
         return feature !== selectFeature && super.hasFeature(feature);
     }

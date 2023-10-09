@@ -29,7 +29,7 @@ import {
     configureActionHandler,
     configureCommand,
     sprottyDefaultModule
-} from '~glsp-sprotty';
+} from '@eclipse-glsp/sprotty';
 import '../../css/glsp-sprotty.css';
 import { GLSPActionDispatcher } from './action-dispatcher';
 import { GLSPActionHandlerRegistry } from './action-handler-registry';
@@ -43,14 +43,14 @@ import { FocusTracker } from './focus/focus-tracker';
 import { DiagramLoader } from './model/diagram-loader';
 import { GLSPModelSource } from './model/glsp-model-source';
 import { DefaultModelInitializationConstraint, ModelInitializationConstraint } from './model/model-initialization-constraint';
-import { GLSPModelRegistry } from './model/model-registry';
+import { GModelRegistry } from './model/model-registry';
 import { SelectionClearingMouseListener } from './selection-clearing-mouse-listener';
 import { SelectionService } from './selection-service';
 import { EnableDefaultToolsAction, EnableToolsAction } from './tool-manager/tool';
 import { DefaultToolsEnablingKeyListener, ToolManager, ToolManagerActionHandler } from './tool-manager/tool-manager';
 import { GLSPKeyTool } from './view/key-tool';
 import { GLSPMouseTool } from './view/mouse-tool';
-import { GLSPViewRegistry } from './view/view-registry';
+import { GViewRegistry } from './view/view-registry';
 
 /**
  * The default module provides all of GLSP's base functionality and services.
@@ -92,8 +92,8 @@ export const defaultModule = new FeatureModule((bind, unbind, isBound, rebind, .
     bind(ModelInitializationConstraint).to(DefaultModelInitializationConstraint).inSingletonScope();
 
     // support re-registration of model elements and views
-    bindOrRebind(context, TYPES.SModelRegistry).to(GLSPModelRegistry).inSingletonScope();
-    bindOrRebind(context, TYPES.ViewRegistry).to(GLSPViewRegistry).inSingletonScope();
+    bindOrRebind(context, TYPES.SModelRegistry).to(GModelRegistry).inSingletonScope();
+    bindOrRebind(context, TYPES.ViewRegistry).to(GViewRegistry).inSingletonScope();
 
     bind(SelectionService).toSelf().inSingletonScope();
     bind(TYPES.ISModelRootListener).toService(SelectionService);

@@ -21,12 +21,12 @@ import {
     Action,
     KeyListener,
     KeyTool,
-    SModelElement,
-    SRoutableElement,
+    GModelElement,
+    GRoutableElement,
     SelectAction,
     SwitchEditModeAction,
     isSelectable
-} from '~glsp-sprotty';
+} from '@eclipse-glsp/sprotty';
 import { Tool } from '../../../base/tool-manager/tool';
 import { SResizeHandle } from '../../change-bounds/model';
 
@@ -57,7 +57,7 @@ export class DeselectKeyTool implements Tool {
 }
 
 export class DeselectKeyListener extends KeyListener {
-    override keyDown(target: SModelElement, event: KeyboardEvent): Action[] {
+    override keyDown(target: GModelElement, event: KeyboardEvent): Action[] {
         if (this.matchesDeselectKeystroke(event)) {
             const isResizeHandleActive = toArray(target.root.index.all().filter(el => el instanceof SResizeHandle)).length > 0;
 
@@ -72,7 +72,7 @@ export class DeselectKeyListener extends KeyListener {
                 actions.push(SelectAction.create({ deselectedElementsIDs: deselect.map(e => e.id) }));
             }
 
-            const routableDeselect = deselect.filter(e => e instanceof SRoutableElement).map(e => e.id);
+            const routableDeselect = deselect.filter(e => e instanceof GRoutableElement).map(e => e.id);
             if (routableDeselect.length > 0) {
                 actions.push(SwitchEditModeAction.create({ elementsToDeactivate: routableDeselect }));
             }

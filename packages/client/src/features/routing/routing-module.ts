@@ -32,7 +32,7 @@ import {
     TYPES,
     bindAsService,
     configureCommand
-} from '~glsp-sprotty';
+} from '@eclipse-glsp/sprotty';
 import { GLSPManhattanEdgeRouter } from './glsp-manhattan-edge-router';
 
 export const routingModule = new FeatureModule((bind, unbind, isBound, rebind) => {

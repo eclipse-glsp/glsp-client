@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { FeatureModule, TYPES, bindAsService, configureCommand, configureModelElement } from '~glsp-sprotty';
+import { FeatureModule, TYPES, bindAsService, configureCommand, configureModelElement } from '@eclipse-glsp/sprotty';
 import { MarqueeMouseTool } from './marquee-mouse-tool';
 import { MarqueeTool } from './marquee-tool';
 import { DrawMarqueeCommand, MARQUEE, RemoveMarqueeCommand } from './marquee-tool-feedback';

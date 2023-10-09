@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { injectable } from 'inversify';
-import { Action, KeyListener, SModelElement } from '~glsp-sprotty';
+import { Action, KeyListener, GModelElement } from '@eclipse-glsp/sprotty';
 import { EnableToolsAction } from '../../../base/tool-manager/tool';
 import { BaseEditTool } from '../base-tools';
 import { MarqueeMouseTool } from './marquee-mouse-tool';
@@ -36,7 +36,7 @@ export class MarqueeTool extends BaseEditTool {
 
 @injectable()
 export class MarqueeKeyListener extends KeyListener {
-    override keyDown(_element: SModelElement, event: KeyboardEvent): Action[] {
+    override keyDown(_element: GModelElement, event: KeyboardEvent): Action[] {
         if (event.shiftKey) {
             return [EnableToolsAction.create([MarqueeMouseTool.ID])];
         }

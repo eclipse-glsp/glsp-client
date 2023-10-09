@@ -13,15 +13,15 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { FeatureModule, SetMarkersAction, TYPES, bindAsService, configureActionHandler, configureCommand } from '~glsp-sprotty';
+import { FeatureModule, SetMarkersAction, TYPES, bindAsService, configureActionHandler, configureCommand } from '@eclipse-glsp/sprotty';
 import {
+    GModelElementComparator,
     LeftToRightTopToBottomComparator,
     MarkerNavigator,
     MarkerNavigatorContextMenuItemProvider,
     MarkerNavigatorKeyListener,
     NavigateToMarkerAction,
-    NavigateToMarkerActionHandler,
-    SModelElementComparator
+    NavigateToMarkerActionHandler
 } from './marker-navigator';
 import { ApplyMarkersCommand, DeleteMarkersCommand, SetMarkersActionHandler, ValidationFeedbackEmitter } from './validate';
 
@@ -34,7 +34,7 @@ export const validationModule = new FeatureModule((bind, _unbind, isBound) => {
 });
 
 export const markerNavigatorModule = new FeatureModule((bind, _unbind, isBound) => {
-    bind(SModelElementComparator).to(LeftToRightTopToBottomComparator).inSingletonScope();
+    bind(GModelElementComparator).to(LeftToRightTopToBottomComparator).inSingletonScope();
     bind(MarkerNavigator).toSelf().inSingletonScope();
     configureActionHandler({ bind, isBound }, NavigateToMarkerAction.KIND, NavigateToMarkerActionHandler);
 });

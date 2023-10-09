@@ -33,7 +33,7 @@ export interface SaveModelAction extends Action {
 export namespace SaveModelAction {
     export const KIND = 'saveModel';
 
-    export function is(object: any): object is SaveModelAction {
+    export function is(object: unknown): object is SaveModelAction {
         return Action.hasKind(object, KIND);
     }
 
@@ -69,7 +69,7 @@ export type DirtyStateChangeReason = 'operation' | 'undo' | 'redo' | 'save' | 'e
 export namespace SetDirtyStateAction {
     export const KIND = 'setDirtyState';
 
-    export function is(object: any): object is SetDirtyStateAction {
+    export function is(object: unknown): object is SetDirtyStateAction {
         return Action.hasKind(object, KIND) && hasBooleanProp(object, 'isDirty');
     }
 
@@ -93,7 +93,7 @@ export interface RequestExportSvgAction extends RequestAction<ExportSvgAction> {
 export namespace RequestExportSvgAction {
     export const KIND = 'requestExportSvg';
 
-    export function is(object: any): object is RequestExportSvgAction {
+    export function is(object: unknown): object is RequestExportSvgAction {
         return RequestAction.hasKind(object, KIND);
     }
 
@@ -121,7 +121,7 @@ export interface ExportSvgAction extends ResponseAction {
 export namespace ExportSvgAction {
     export const KIND = 'exportSvg';
 
-    export function is(object: any): object is ExportSvgAction {
+    export function is(object: unknown): object is ExportSvgAction {
         return Action.hasKind(object, KIND) && hasStringProp(object, 'svg');
     }
 

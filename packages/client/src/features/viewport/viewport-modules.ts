@@ -25,7 +25,7 @@ import {
     SetViewportCommand,
     TYPES,
     ZoomMouseListener
-} from '~glsp-sprotty';
+} from '@eclipse-glsp/sprotty';
 import { EnableDefaultToolsAction, EnableToolsAction } from '../../base/tool-manager/tool';
 import { GLSPScrollMouseListener } from './glsp-scroll-mouse-listener';
 import { RestoreViewportHandler } from './viewport-handler';

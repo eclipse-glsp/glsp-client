@@ -22,13 +22,13 @@ import {
     DisposableCollection,
     DisposeClientSessionParameters,
     GLSPClient,
+    GModelRootSchema,
     ILogger,
     InitializeClientSessionParameters,
     InitializeResult,
     ModelSource,
-    SModelRootSchema,
     TYPES
-} from '~glsp-sprotty';
+} from '@eclipse-glsp/sprotty';
 import { GLSPActionHandlerRegistry } from '../action-handler-registry';
 import { IDiagramOptions } from './diagram-loader';
 /**
@@ -73,7 +73,7 @@ export class GLSPModelSource extends ModelSource implements Disposable {
     protected toDispose = new DisposableCollection();
     clientId: string;
 
-    protected _currentRoot: SModelRootSchema;
+    protected _currentRoot: GModelRootSchema;
     protected registry: GLSPActionHandlerRegistry;
     protected glspClient?: GLSPClient;
 
@@ -178,7 +178,7 @@ export class GLSPModelSource extends ModelSource implements Disposable {
         return !ServerAction.is(action);
     }
 
-    commitModel(newRoot: SModelRootSchema): SModelRootSchema {
+    commitModel(newRoot: GModelRootSchema): GModelRootSchema {
         /* In GLSP the model update flow is server-driven. i.e. changes to the graphical model are applied
          * on server-side an only the server can issue a model update.
          * The internal/local model should never be committed back to the model source i.e. GLSP server.
@@ -188,7 +188,7 @@ export class GLSPModelSource extends ModelSource implements Disposable {
         return newRoot;
     }
 
-    override get model(): SModelRootSchema {
+    override get model(): GModelRootSchema {
         return this._currentRoot;
     }
 

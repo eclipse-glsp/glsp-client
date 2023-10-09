@@ -17,7 +17,7 @@
 import { expect } from 'chai';
 import * as sinon from 'sinon';
 import * as util from 'util';
-import { Action, ActionMessage } from '../action-protocol';
+import { Action, ActionMessage } from '../action-protocol/base-protocol';
 import { expectToThrowAsync } from '../utils/test-util';
 import { BaseGLSPClient, GLOBAL_HANDLER_ID } from './base-glsp-client';
 import { ClientState } from './glsp-client';

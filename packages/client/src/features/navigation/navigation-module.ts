@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { FeatureModule, NavigateToExternalTargetAction, NavigateToTargetAction, configureActionHandler } from '~glsp-sprotty';
+import { FeatureModule, NavigateToExternalTargetAction, NavigateToTargetAction, configureActionHandler } from '@eclipse-glsp/sprotty';
 import { NavigateAction, NavigationActionHandler, ProcessNavigationArgumentsAction } from './navigation-action-handler';
 import { NavigationTargetResolver } from './navigation-target-resolver';
 

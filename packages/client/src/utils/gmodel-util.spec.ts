@@ -13,28 +13,27 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { expect } from 'chai';
-import { Container } from 'inversify';
 import {
     AbstractEdgeRouter,
     EdgeRouterRegistry,
+    GNode,
+    GRoutableElement,
+    GRoutingHandle,
     LinearRouteOptions,
     Point,
     ResolvedHandleMove,
-    RoutedPoint,
-    SEdge,
-    SGraph,
-    SNode,
-    SRoutableElement,
-    SRoutingHandle
-} from '~glsp-sprotty';
+    RoutedPoint
+} from '@eclipse-glsp/sprotty';
+import { expect } from 'chai';
+import { Container } from 'inversify';
 import { routingModule } from '../features/routing/routing-module';
-import { ALL_ROUTING_POINTS, ROUTE_KINDS, ROUTING_POINT_KINDS, calcRoute } from './smodel-util';
+import { ALL_ROUTING_POINTS, ROUTE_KINDS, ROUTING_POINT_KINDS, calcRoute } from './gmodel-util';
+import { GEdge, GGraph } from '../model';
 
 class TestRouter extends AbstractEdgeRouter {
     kind = 'test-router';
 
-    route(edge: SRoutableElement): RoutedPoint[] {
+    route(edge: GRoutableElement): RoutedPoint[] {
         const pureRoute = edge.routingPoints.map(
             (point, idx) =>
                 <RoutedPoint>{
@@ -51,11 +50,11 @@ class TestRouter extends AbstractEdgeRouter {
         ];
     }
 
-    createRoutingHandles(edge: SRoutableElement): void {
+    createRoutingHandles(edge: GRoutableElement): void {
         // do nothing
     }
 
-    protected getOptions(edge: SRoutableElement): LinearRouteOptions {
+    protected getOptions(edge: GRoutableElement): LinearRouteOptions {
         return {
             minimalPointDistance: 0,
             selfEdgeOffset: 0,
@@ -63,32 +62,32 @@ class TestRouter extends AbstractEdgeRouter {
         };
     }
 
-    protected getInnerHandlePosition(edge: SRoutableElement, route: RoutedPoint[], handle: SRoutingHandle): Point | undefined {
+    protected getInnerHandlePosition(edge: GRoutableElement, route: RoutedPoint[], handle: GRoutingHandle): Point | undefined {
         return undefined;
     }
 
-    protected applyInnerHandleMoves(edge: SRoutableElement, moves: ResolvedHandleMove[]): void {
+    protected applyInnerHandleMoves(edge: GRoutableElement, moves: ResolvedHandleMove[]): void {
         // do nothing
     }
 }
 
 describe('SModel Util', () => {
     describe('calcRoute', () => {
-        const graph = new SGraph();
+        const graph = new GGraph();
 
-        const source = new SNode();
+        const source = new GNode();
         source.id = 'node0';
         source.position = { x: 0, y: 0 };
         source.size = { width: 0, height: 0 };
         graph.add(source);
 
-        const target = new SNode();
+        const target = new GNode();
         target.id = 'node1';
         target.position = { x: 100, y: 100 };
         target.size = { width: 0, height: 0 };
         graph.add(target);
 
-        const edge = new SEdge();
+        const edge = new GEdge();
         edge.id = 'edge0';
         edge.sourceId = 'node0';
         edge.targetId = 'node1';

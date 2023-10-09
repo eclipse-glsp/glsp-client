@@ -47,7 +47,7 @@ export interface SelectAction extends Action, sprotty.SelectAction {
 export namespace SelectAction {
     export const KIND = 'elementSelected';
 
-    export function is(object: any): object is SelectAction {
+    export function is(object: unknown): object is SelectAction {
         return Action.hasKind(object, KIND) && hasArrayProp(object, 'selectedElementsIDs') && hasArrayProp(object, 'deselectedElementsIDs');
     }
 
@@ -91,7 +91,7 @@ export interface SelectAllAction extends Action, sprotty.SelectAllAction {
 export namespace SelectAllAction {
     export const KIND = 'allSelected';
 
-    export function is(object: any): object is SelectAllAction {
+    export function is(object: unknown): object is SelectAllAction {
         return Action.hasKind(object, KIND) && hasBooleanProp(object, 'select');
     }
 

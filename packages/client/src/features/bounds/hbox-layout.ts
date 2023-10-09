@@ -18,17 +18,17 @@ import {
     Bounds,
     BoundsData,
     Dimension,
+    GChildElement,
     HBoxLayoutOptions,
     HBoxLayouter,
     LayoutContainer,
     Point,
-    SChildElement,
-    SModelElement,
-    SParentElement,
+    GModelElement,
+    GParentElement,
     StatefulLayouter,
     isBoundsAware,
     isLayoutableChild
-} from '~glsp-sprotty';
+} from '@eclipse-glsp/sprotty';
 
 export interface HBoxLayoutOptionsExt extends HBoxLayoutOptions {
     hGrab: boolean;
@@ -44,7 +44,7 @@ export interface HBoxLayoutOptionsExt extends HBoxLayoutOptions {
 export class HBoxLayouterExt extends HBoxLayouter {
     static override KIND = HBoxLayouter.KIND;
 
-    override layout(container: SParentElement & LayoutContainer, layouter: StatefulLayouter): void {
+    override layout(container: GParentElement & LayoutContainer, layouter: StatefulLayouter): void {
         const boundsData = layouter.getBoundsData(container);
         const options = this.getLayoutOptions(container);
         const childrenSize = this.getChildrenSize(container, options, layouter);
@@ -85,7 +85,7 @@ export class HBoxLayouterExt extends HBoxLayouter {
     }
 
     protected override getChildrenSize(
-        container: SParentElement & LayoutContainer,
+        container: GParentElement & LayoutContainer,
         containerOptions: HBoxLayoutOptionsExt,
         layouter: StatefulLayouter
     ): Dimension {
@@ -114,7 +114,7 @@ export class HBoxLayouterExt extends HBoxLayouter {
     }
 
     protected override layoutChildren(
-        container: SParentElement & LayoutContainer,
+        container: GParentElement & LayoutContainer,
         layouter: StatefulLayouter,
         containerOptions: HBoxLayoutOptionsExt,
         maxWidth: number,
@@ -152,7 +152,7 @@ export class HBoxLayouterExt extends HBoxLayouter {
     }
 
     protected override layoutChild(
-        child: SChildElement,
+        child: GChildElement,
         boundsData: BoundsData,
         bounds: Bounds,
         childOptions: HBoxLayoutOptionsExt,
@@ -195,7 +195,7 @@ export class HBoxLayouterExt extends HBoxLayouter {
     }
 
     protected override getFixedContainerBounds(
-        container: SModelElement,
+        container: GModelElement,
         layoutOptions: HBoxLayoutOptionsExt,
         layouter: StatefulLayouter
     ): Bounds {
@@ -211,20 +211,20 @@ export class HBoxLayouterExt extends HBoxLayouter {
         return Bounds.EMPTY;
     }
 
-    protected override getChildLayoutOptions(child: SChildElement, containerOptions: HBoxLayoutOptionsExt): HBoxLayoutOptionsExt {
+    protected override getChildLayoutOptions(child: GChildElement, containerOptions: HBoxLayoutOptionsExt): HBoxLayoutOptionsExt {
         return super.getChildLayoutOptions(child, this.filterContainerOptions(containerOptions)) as HBoxLayoutOptionsExt;
     }
 
-    protected override getLayoutOptions(element: SModelElement): HBoxLayoutOptionsExt {
+    protected override getLayoutOptions(element: GModelElement): HBoxLayoutOptionsExt {
         return super.getLayoutOptions(element) as HBoxLayoutOptionsExt;
     }
 
-    protected getElementLayoutOptions(element: SModelElement): HBoxLayoutOptionsExt | undefined {
+    protected getElementLayoutOptions(element: GModelElement): HBoxLayoutOptionsExt | undefined {
         return (element as any).layoutOptions;
     }
 
     protected override getFinalContainerBounds(
-        container: SParentElement & LayoutContainer,
+        container: GParentElement & LayoutContainer,
         lastOffset: Point,
         options: HBoxLayoutOptionsExt,
         maxWidth: number,

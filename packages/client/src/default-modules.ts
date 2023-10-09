@@ -31,7 +31,7 @@ import {
     modelSourceModule,
     resolveContainerConfiguration,
     zorderModule
-} from '~glsp-sprotty';
+} from '@eclipse-glsp/sprotty';
 import { defaultModule } from './base/default.module';
 import { IDiagramOptions } from './base/model/diagram-loader';
 import { boundsModule } from './features/bounds/bounds-module';

@@ -21,12 +21,11 @@ import {
     EdgeTypeHint,
     IActionHandler,
     RequestTypeHintsAction,
-    SEdge,
-    SModelElement,
-    SModelElementSchema,
-    SModelRoot,
-    SRoutableElement,
-    SShapeElement,
+    GModelElement,
+    GModelElementSchema,
+    GModelRoot,
+    GRoutableElement,
+    GShapeElement,
     SetTypeHintsAction,
     ShapeTypeHint,
     TYPES,
@@ -36,15 +35,17 @@ import {
     editFeature,
     isConnectable,
     moveFeature
-} from '~glsp-sprotty';
+} from '@eclipse-glsp/sprotty';
+
 import { GLSPActionDispatcher } from '../../base/action-dispatcher';
 import { IFeedbackActionDispatcher } from '../../base/feedback/feedback-action-dispatcher';
 import { FeedbackCommand } from '../../base/feedback/feedback-command';
 import { IDiagramStartup } from '../../base/model/diagram-loader';
-import { getElementTypeId } from '../../utils/smodel-util';
+import { getElementTypeId } from '../../utils/gmodel-util';
 import { resizeFeature } from '../change-bounds/model';
 import { reconnectFeature } from '../reconnect/model';
 import { containerFeature, isContainable, reparentFeature } from './model';
+import { GEdge } from '../../model';
 
 /**
  * Is dispatched by the {@link TypeHintProvider} to apply the type hints received from the server
@@ -86,19 +87,19 @@ export class ApplyTypeHintsCommand extends FeedbackCommand {
         super();
     }
 
-    execute(context: CommandExecutionContext): SModelRoot {
+    execute(context: CommandExecutionContext): GModelRoot {
         context.root.index.all().forEach(element => {
-            if (element instanceof SShapeElement || element instanceof SModelRoot) {
+            if (element instanceof GShapeElement || element instanceof GModelRoot) {
                 return this.applyShapeTypeHint(element);
             }
-            if (element instanceof SEdge) {
+            if (element instanceof GEdge) {
                 this.applyEdgeTypeHint(element);
             }
         });
         return context.root;
     }
 
-    protected applyEdgeTypeHint(element: SModelElement): void {
+    protected applyEdgeTypeHint(element: GModelElement): void {
         const hint = this.typeHintProvider.getEdgeTypeHint(element);
 
         if (hint && element.features instanceof Set) {
@@ -108,7 +109,7 @@ export class ApplyTypeHintsCommand extends FeedbackCommand {
         }
     }
 
-    protected applyShapeTypeHint(element: SModelElement): void {
+    protected applyShapeTypeHint(element: GModelElement): void {
         const hint = this.typeHintProvider.getShapeTypeHint(element);
         if (hint && element.features instanceof Set) {
             addOrRemove(element.features, deletableFeature, hint.deletable);
@@ -134,9 +135,9 @@ export class ApplyTypeHintsCommand extends FeedbackCommand {
      * the `canConnect` implementation of `connectable` model elements  (with a matching hint) will forward to this method.
      */
     protected canConnect(
-        routable: SRoutableElement,
+        routable: GRoutableElement,
         role: 'source' | 'target',
-        element: SModelElement,
+        element: GModelElement,
         fallbackCanConnect?: CanConnectFn
     ): boolean {
         const edgeHint = this.typeHintProvider.getEdgeTypeHint(routable.type);
@@ -156,7 +157,7 @@ export class ApplyTypeHintsCommand extends FeedbackCommand {
      * Type hints aware wrapper function for  `Containable.isContainableElement`. After type hints have been applied
      * the `isContainableElement` implementation of `containable` model elements (with a matching hint) will forward to this method.
      */
-    protected isContainableElement(input: SModelElement | SModelElementSchema | string, hint: ShapeTypeHint): boolean {
+    protected isContainableElement(input: GModelElement | GModelElementSchema | string, hint: ShapeTypeHint): boolean {
         const elemenType = getElementTypeId(input) + ':';
         return hint.containableElementTypeIds?.some(type => elemenType.startsWith(type)) ?? false;
     }
@@ -185,14 +186,14 @@ export interface ITypeHintProvider {
      * @param input The model element whose type hint should be retrieved
      * @returns The most applicable hint of the given element or `undefined` if no matching hint is registered.
      */
-    getShapeTypeHint(input: SModelElement | SModelElementSchema | string): ShapeTypeHint | undefined;
+    getShapeTypeHint(input: GModelElement | GModelElementSchema | string): ShapeTypeHint | undefined;
     /**
      * Retrieve the most applicable {@link EdgeTypeHint} for the given model element.
      *
      * @param input The model element whose type hint should be retrieved
      * @returns The most applicable hint of the given element or `undefined` if no matching hint is registered.
      */
-    getEdgeTypeHint(input: SModelElement | SModelElementSchema | string): EdgeTypeHint | undefined;
+    getEdgeTypeHint(input: GModelElement | GModelElementSchema | string): EdgeTypeHint | undefined;
 }
 
 @injectable()
@@ -214,15 +215,15 @@ export class TypeHintProvider implements IActionHandler, ITypeHintProvider, IDia
         this.feedbackActionDispatcher.registerFeedback(this, [ApplyTypeHintsAction.create()]);
     }
 
-    getShapeTypeHint(input: SModelElement | SModelElementSchema | string): ShapeTypeHint | undefined {
+    getShapeTypeHint(input: GModelElement | GModelElementSchema | string): ShapeTypeHint | undefined {
         return this.getTypeHint(input, this.shapeHints);
     }
 
-    getEdgeTypeHint(input: SModelElement | SModelElementSchema | string): EdgeTypeHint | undefined {
+    getEdgeTypeHint(input: GModelElement | GModelElementSchema | string): EdgeTypeHint | undefined {
         return this.getTypeHint(input, this.edgeHints);
     }
 
-    protected getTypeHint<T extends TypeHint>(input: SModelElement | SModelElementSchema | string, hints: Map<string, T>): T | undefined {
+    protected getTypeHint<T extends TypeHint>(input: GModelElement | GModelElementSchema | string, hints: Map<string, T>): T | undefined {
         const type = getElementTypeId(input);
         let hint = hints.get(type);
         // Check subtypes

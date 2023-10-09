@@ -16,7 +16,7 @@
 
 import { Deferred } from 'sprotty-protocol';
 import { Disposable } from 'vscode-jsonrpc';
-import { Action, ActionMessage } from '../action-protocol';
+import { Action, ActionMessage } from '../action-protocol/base-protocol';
 import { distinctAdd, remove } from '../utils/array-util';
 import { Emitter, Event } from '../utils/event';
 import { ActionMessageHandler, ClientState, GLSPClient } from './glsp-client';

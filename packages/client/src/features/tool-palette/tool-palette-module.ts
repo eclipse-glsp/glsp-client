@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { bindAsService, configureActionHandler, FeatureModule, TYPES } from '~glsp-sprotty';
+import { bindAsService, configureActionHandler, FeatureModule, TYPES } from '@eclipse-glsp/sprotty';
 import '../../../css/tool-palette.css';
 import { EnableDefaultToolsAction } from '../../base/tool-manager/tool';
 import { ToolPalette } from './tool-palette';

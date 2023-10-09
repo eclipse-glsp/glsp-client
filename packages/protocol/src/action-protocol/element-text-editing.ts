@@ -45,7 +45,7 @@ export interface RequestEditValidationAction extends RequestAction<SetEditValida
 export namespace RequestEditValidationAction {
     export const KIND = 'requestEditValidation';
 
-    export function is(object: any): object is RequestEditValidationAction {
+    export function is(object: unknown): object is RequestEditValidationAction {
         return (
             RequestAction.hasKind(object, KIND) &&
             hasStringProp(object, 'contextId') &&
@@ -87,7 +87,7 @@ export interface SetEditValidationResultAction extends ResponseAction {
 export namespace SetEditValidationResultAction {
     export const KIND = 'setEditValidationResult';
 
-    export function is(object: any): object is SetEditValidationResultAction {
+    export function is(object: unknown): object is SetEditValidationResultAction {
         return Action.hasKind(object, KIND) && hasObjectProp(object, 'status');
     }
 
@@ -125,7 +125,7 @@ export interface ApplyLabelEditOperation extends Operation, sprotty.ApplyLabelEd
 export namespace ApplyLabelEditOperation {
     export const KIND = 'applyLabelEdit';
 
-    export function is(object: any): object is ApplyLabelEditOperation {
+    export function is(object: unknown): object is ApplyLabelEditOperation {
         return Operation.hasKind(object, KIND) && hasStringProp(object, 'labelId') && hasStringProp(object, 'text');
     }
 
@@ -234,5 +234,5 @@ export interface ResponseError {
     /**
      * Additional custom data, e.g., a serialized stacktrace.
      */
-    readonly data: Record<string, any>;
+    readonly data: Record<string, unknown>;
 }

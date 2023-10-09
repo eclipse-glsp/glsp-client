@@ -15,7 +15,7 @@
  ********************************************************************************/
 
 import { inject, injectable } from 'inversify';
-import { Action, KeyListener, KeyTool, SModelElement, SetUIExtensionVisibilityAction, matchesKeystroke } from '~glsp-sprotty';
+import { Action, KeyListener, KeyTool, GModelElement, SetUIExtensionVisibilityAction, matchesKeystroke } from '@eclipse-glsp/sprotty';
 import { BaseEditTool } from '../../tools/base-tools';
 import { KeyShortcutUIExtension } from './accessible-key-shortcut';
 
@@ -42,7 +42,7 @@ export class AccessibleKeyShortcutTool extends BaseEditTool {
 
 export class AccessibleShortcutKeyListener extends KeyListener {
     protected readonly token = Symbol(AccessibleShortcutKeyListener.name);
-    override keyDown(element: SModelElement, event: KeyboardEvent): Action[] {
+    override keyDown(element: GModelElement, event: KeyboardEvent): Action[] {
         if (this.matchesActivateShortcutHelpKeystroke(event)) {
             return [SetUIExtensionVisibilityAction.create({ extensionId: KeyShortcutUIExtension.ID, visible: true })];
         }

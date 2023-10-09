@@ -18,17 +18,17 @@ import {
     Bounds,
     BoundsData,
     Dimension,
+    GChildElement,
     LayoutContainer,
     Point,
-    SChildElement,
-    SModelElement,
-    SParentElement,
+    GModelElement,
+    GParentElement,
     StatefulLayouter,
     VBoxLayoutOptions,
     VBoxLayouter,
     isBoundsAware,
     isLayoutableChild
-} from '~glsp-sprotty';
+} from '@eclipse-glsp/sprotty';
 
 export interface VBoxLayoutOptionsExt extends VBoxLayoutOptions {
     hGrab: boolean;
@@ -44,7 +44,7 @@ export interface VBoxLayoutOptionsExt extends VBoxLayoutOptions {
 export class VBoxLayouterExt extends VBoxLayouter {
     static override KIND = VBoxLayouter.KIND;
 
-    override layout(container: SParentElement & LayoutContainer, layouter: StatefulLayouter): void {
+    override layout(container: GParentElement & LayoutContainer, layouter: StatefulLayouter): void {
         const boundsData = layouter.getBoundsData(container);
         const options = this.getLayoutOptions(container);
         const childrenSize = this.getChildrenSize(container, options, layouter);
@@ -85,7 +85,7 @@ export class VBoxLayouterExt extends VBoxLayouter {
     }
 
     protected override getChildrenSize(
-        container: SParentElement & LayoutContainer,
+        container: GParentElement & LayoutContainer,
         containerOptions: VBoxLayoutOptionsExt,
         layouter: StatefulLayouter
     ): Dimension {
@@ -114,7 +114,7 @@ export class VBoxLayouterExt extends VBoxLayouter {
     }
 
     protected override layoutChildren(
-        container: SParentElement & LayoutContainer,
+        container: GParentElement & LayoutContainer,
         layouter: StatefulLayouter,
         containerOptions: VBoxLayoutOptionsExt,
         maxWidth: number,
@@ -152,7 +152,7 @@ export class VBoxLayouterExt extends VBoxLayouter {
     }
 
     protected override layoutChild(
-        child: SChildElement,
+        child: GChildElement,
         boundsData: BoundsData,
         bounds: Bounds,
         childOptions: VBoxLayoutOptionsExt,
@@ -195,7 +195,7 @@ export class VBoxLayouterExt extends VBoxLayouter {
     }
 
     protected override getFixedContainerBounds(
-        container: SModelElement,
+        container: GModelElement,
         layoutOptions: VBoxLayoutOptionsExt,
         layouter: StatefulLayouter
     ): Bounds {
@@ -211,20 +211,20 @@ export class VBoxLayouterExt extends VBoxLayouter {
         return Bounds.EMPTY;
     }
 
-    protected override getChildLayoutOptions(child: SChildElement, containerOptions: VBoxLayoutOptionsExt): VBoxLayoutOptionsExt {
+    protected override getChildLayoutOptions(child: GChildElement, containerOptions: VBoxLayoutOptionsExt): VBoxLayoutOptionsExt {
         return super.getChildLayoutOptions(child, this.filterContainerOptions(containerOptions)) as VBoxLayoutOptionsExt;
     }
 
-    protected override getLayoutOptions(element: SModelElement): VBoxLayoutOptionsExt {
+    protected override getLayoutOptions(element: GModelElement): VBoxLayoutOptionsExt {
         return super.getLayoutOptions(element) as VBoxLayoutOptionsExt;
     }
 
-    protected getElementLayoutOptions(element: SModelElement): VBoxLayoutOptionsExt | undefined {
+    protected getElementLayoutOptions(element: GModelElement): VBoxLayoutOptionsExt | undefined {
         return (element as any).layoutOptions;
     }
 
     protected override getFinalContainerBounds(
-        container: SParentElement & LayoutContainer,
+        container: GParentElement & LayoutContainer,
         lastOffset: Point,
         options: VBoxLayoutOptionsExt,
         maxWidth: number,

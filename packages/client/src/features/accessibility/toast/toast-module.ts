@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { ContainerModule } from 'inversify';
-import { bindAsService, BindingContext, configureActionHandler, TYPES } from '~glsp-sprotty';
+import { bindAsService, BindingContext, configureActionHandler, TYPES } from '@eclipse-glsp/sprotty';
 import '../../../../css/toast.css';
 import { HideToastAction, ShowToastMessageAction } from './toast-handler';
 import { Toast } from './toast-tool';

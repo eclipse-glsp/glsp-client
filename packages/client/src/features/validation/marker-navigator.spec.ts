@@ -13,77 +13,48 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { BoundsAware, GChildElement, GIssue, GModelElement, GModelRoot, GNode, GParentElement } from '@eclipse-glsp/sprotty';
 import { expect } from 'chai';
 import { Container } from 'inversify';
 import 'mocha';
 import 'reflect-metadata';
-import {
-    BoundsAware,
-    SChildElement,
-    SGraphFactory,
-    SIssue,
-    SIssueMarker,
-    SModelElement,
-    SModelRoot,
-    SNodeSchema,
-    SParentElement,
-    TYPES
-} from '~glsp-sprotty';
 import { defaultModule } from '../../base/default.module';
+import { GGraph } from '../../model';
 import { decorationModule } from '../decoration/decoration-module';
+import { GIssueMarker } from './issue-marker';
 import { MarkerNavigator } from './marker-navigator';
 import { markerNavigatorModule } from './validation-modules';
 
 describe('MarkerNavigator', () => {
     const container = new Container();
     container.load(defaultModule, decorationModule, markerNavigatorModule);
-    // eslint-disable-next-line deprecation/deprecation
-    container.rebind(TYPES.IModelFactory).to(SGraphFactory).inSingletonScope();
-    // eslint-disable-next-line deprecation/deprecation
-    const graphFactory = container.get<SGraphFactory>(TYPES.IModelFactory);
     const markerNavigator = container.get<MarkerNavigator>(MarkerNavigator);
+    function createRoot(...nodeIds: string[]): GModelRoot {
+        const root = new GGraph();
+        root.features = new Set<symbol>(GGraph.DEFAULT_FEATURES);
+        root.id = 'root';
+        root.type = 'graph';
+        nodeIds.forEach(id => {
+            const node = new GNode();
+            node.id = id;
+            node.type = 'node';
+            node.features = new Set<symbol>(GNode.DEFAULT_FEATURES);
+            root.add(node);
+        });
+        return root;
+    }
 
-    const rootWithoutAnyMarkers = graphFactory.createRoot({
-        id: 'root',
-        type: 'graph',
-        children: [
-            {
-                id: '1',
-                type: 'node'
-            } as SNodeSchema
-        ]
-    }) as SModelRoot;
+    const rootWithoutAnyMarkers = createRoot('1');
 
-    const rootWithMarkers = graphFactory.createRoot({
-        id: 'root',
-        type: 'graph',
-        children: [
-            {
-                id: 'bottom-right',
-                type: 'node'
-            } as SNodeSchema,
-            {
-                id: 'top-right',
-                type: 'node'
-            } as SNodeSchema,
-            {
-                id: 'top-left',
-                type: 'node'
-            } as SNodeSchema,
-            {
-                id: 'bottom-left',
-                type: 'node'
-            } as SNodeSchema
-        ]
-    }) as SModelRoot;
+    const rootWithMarkers = createRoot('bottom-right', 'top-right', 'top-left', 'bottom-left');
 
-    const elementTopLeft = rootWithMarkers.children[2] as BoundsAware & SChildElement;
+    const elementTopLeft = rootWithMarkers.children[2] as BoundsAware & GChildElement;
     elementTopLeft.bounds = { width: 10, height: 10, x: 100, y: 100 };
-    const elementTopRight = rootWithMarkers.children[1] as BoundsAware & SChildElement;
+    const elementTopRight = rootWithMarkers.children[1] as BoundsAware & GChildElement;
     elementTopRight.bounds = { width: 10, height: 10, x: 200, y: 100 };
-    const elementBottomLeft = rootWithMarkers.children[3] as BoundsAware & SChildElement;
+    const elementBottomLeft = rootWithMarkers.children[3] as BoundsAware & GChildElement;
     elementBottomLeft.bounds = { width: 10, height: 10, x: 100, y: 200 };
-    const elementBottomRight = rootWithMarkers.children[0] as BoundsAware & SChildElement;
+    const elementBottomRight = rootWithMarkers.children[0] as BoundsAware & GChildElement;
     elementBottomRight.bounds = { width: 10, height: 10, x: 200, y: 200 };
 
     beforeEach('clear issue marker', () => {
@@ -177,34 +148,34 @@ describe('MarkerNavigator', () => {
     });
 });
 
-function clearMarker(elem: SParentElement): void {
+function clearMarker(elem: GParentElement): void {
     elem.children.filter(isMarker).forEach(marker => elem.remove(marker));
 }
 
-function setIssues(elem: SParentElement, issues: SIssue[]): SIssueMarker {
+function setIssues(elem: GParentElement, issues: GIssue[]): GIssueMarker {
     const marker = getOrCreateMarker(elem);
     marker.issues = issues;
     return marker;
 }
 
-function getOrCreateMarker(elem: SParentElement): SIssueMarker {
+function getOrCreateMarker(elem: GParentElement): GIssueMarker {
     const marker = findMarker(elem);
-    if (marker instanceof SIssueMarker) {
+    if (marker instanceof GIssueMarker) {
         return marker;
     }
-    return createMarker(elem as SParentElement);
+    return createMarker(elem as GParentElement);
 }
 
-function findMarker(elem: SParentElement): SIssueMarker | undefined {
+function findMarker(elem: GParentElement): GIssueMarker | undefined {
     return elem.children.find(isMarker);
 }
 
-function isMarker(element: SModelElement): element is SIssueMarker {
-    return element instanceof SIssueMarker;
+function isMarker(element: GModelElement): element is GIssueMarker {
+    return element instanceof GIssueMarker;
 }
 
-function createMarker(elem: SParentElement): SIssueMarker {
-    const newMarker = new SIssueMarker();
+function createMarker(elem: GParentElement): GIssueMarker {
+    const newMarker = new GIssueMarker();
     newMarker.type = 'marker';
     newMarker.id = `${elem.id}_marker`;
     elem.add(newMarker);

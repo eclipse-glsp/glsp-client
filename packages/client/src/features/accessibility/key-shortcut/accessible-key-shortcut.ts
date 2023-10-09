@@ -16,7 +16,7 @@
 
 import { injectable } from 'inversify';
 import { groupBy } from 'lodash';
-import { AbstractUIExtension, Action, IActionHandler, ICommand, matchesKeystroke, SModelRoot } from '~glsp-sprotty';
+import { AbstractUIExtension, Action, IActionHandler, ICommand, matchesKeystroke, GModelRoot } from '@eclipse-glsp/sprotty';
 
 export interface AccessibleKeyShortcutProvider {
     registerShortcutKey(): void;
@@ -70,7 +70,7 @@ export class KeyShortcutUIExtension extends AbstractUIExtension implements IActi
         return KeyShortcutUIExtension.ID;
     }
 
-    override show(root: Readonly<SModelRoot>, ...contextElementIds: string[]): void {
+    override show(root: Readonly<GModelRoot>, ...contextElementIds: string[]): void {
         super.show(root, ...contextElementIds);
         this.shortcutsContainer.focus();
     }

@@ -15,7 +15,7 @@
  ********************************************************************************/
 import { expect } from 'chai';
 import { Container } from 'inversify';
-import { ActionHandlerRegistry, IActionHandler, RequestAction, ResponseAction, TYPES } from '~glsp-sprotty';
+import { ActionHandlerRegistry, IActionHandler, RequestAction, ResponseAction, TYPES } from '@eclipse-glsp/sprotty';
 import { IDiagramOptions } from '..';
 import { GLSPActionDispatcher } from './action-dispatcher';
 import { defaultModule } from './default.module';

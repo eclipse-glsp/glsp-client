@@ -131,7 +131,7 @@ export function distinctAdd<T>(array: T[], ...values: T[]): void {
  * @param supportEmpty A flag to determine wether empty arrays should pass the typeguard check.
  * @returns A type predicate indicating wether the given object has passed the type guard check.
  */
-export function isArrayOfType<T>(object: any, typeGuard: (elem: any) => elem is T, supportEmpty = false): object is T[] {
+export function isArrayOfType<T>(object: unknown, typeGuard: (elem: unknown) => elem is T, supportEmpty = false): object is T[] {
     return isArrayMatching(object, element => typeGuard(element), supportEmpty);
 }
 
@@ -143,7 +143,7 @@ export function isArrayOfType<T>(object: any, typeGuard: (elem: any) => elem is 
  * @param supportEmpty A flag to determine wether empty arrays should pass the typeguard check.
  * @returns A type predicate indicating wether the given object has passed the type guard check.
  */
-export function isArrayOfClass<T>(object: any, constructor: Constructor<T>, supportEmpty = false): object is T[] {
+export function isArrayOfClass<T>(object: unknown, constructor: Constructor<T>, supportEmpty = false): object is T[] {
     return isArrayMatching(object, element => element instanceof constructor, supportEmpty);
 }
 
@@ -155,7 +155,7 @@ export function isArrayOfClass<T>(object: any, constructor: Constructor<T>, supp
  * @param supportEmpty A flag to determine wether empty arrays should pass the typeguard check.
  * @returns A type predicate indicating wether the given object has passed the type guard check.
  */
-export function isArrayOfPrimitive<T>(object: any, primitiveType: Primitive, supportEmpty = false): object is T[] {
+export function isArrayOfPrimitive<T>(object: unknown, primitiveType: Primitive, supportEmpty = false): object is T[] {
     return isArrayMatching(object, element => typeof element === primitiveType, supportEmpty);
 }
 
@@ -166,7 +166,7 @@ export function isArrayOfPrimitive<T>(object: any, primitiveType: Primitive, sup
  * @param supportEmpty A flag to determine wether empty arrays should pass the typeguard check.
  * @returns A type predicate indicating wether the given object has passed the type guard check.
  */
-export function isStringArray(object: any, supportEmpty = false): object is string[] {
+export function isStringArray(object: unknown, supportEmpty = false): object is string[] {
     return isArrayOfPrimitive(object, 'string', supportEmpty);
 }
 
@@ -177,6 +177,6 @@ export function isStringArray(object: any, supportEmpty = false): object is stri
  * @param supportEmpty A flag to determine wether empty arrays be matched by the predicate..
  * @returns `true` if the given object is an array and all elements match the given predicate. `false` otherwise.
  */
-export function isArrayMatching(object: any, predicate: (elem: any) => boolean, supportEmpty = false): boolean {
+export function isArrayMatching(object: unknown, predicate: (elem: unknown) => boolean, supportEmpty = false): boolean {
     return Array.isArray(object) && object.every(predicate) && (supportEmpty || object.length > 0);
 }

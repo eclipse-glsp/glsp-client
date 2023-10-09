@@ -14,14 +14,14 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { injectable } from 'inversify';
-import { Decoration, DecorationPlacer, isSizeable, Point, SChildElement, SModelElement, SRoutableElement } from '~glsp-sprotty';
+import { Decoration, DecorationPlacer, GChildElement, Point, GModelElement, GRoutableElement, isSizeable } from '@eclipse-glsp/sprotty';
 
 @injectable()
 export class GlspDecorationPlacer extends DecorationPlacer {
     protected static readonly DECORATION_OFFSET: Point = { x: 12, y: 10 };
 
-    protected override getPosition(element: SModelElement & Decoration): Point {
-        if (element instanceof SChildElement && element.parent instanceof SRoutableElement) {
+    protected override getPosition(element: GModelElement & Decoration): Point {
+        if (element instanceof GChildElement && element.parent instanceof GRoutableElement) {
             return super.getPosition(element);
         }
         if (isSizeable(element)) {

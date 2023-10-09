@@ -20,11 +20,11 @@ import {
     LabeledAction,
     Point,
     RequestContextActions,
-    SModelElement,
+    GModelElement,
     SetContextActions,
     TYPES,
     isSelected
-} from '~glsp-sprotty';
+} from '@eclipse-glsp/sprotty';
 import { GLSPActionDispatcher } from '../../base/action-dispatcher';
 import { EditorContextService } from '../../base/editor-context-service';
 
@@ -37,7 +37,7 @@ export class ServerContextMenuItemProvider implements IContextMenuItemProvider {
     @inject(TYPES.IActionDispatcher) protected actionDispatcher: GLSPActionDispatcher;
     @inject(EditorContextService) protected editorContext: EditorContextService;
 
-    async getItems(root: Readonly<SModelElement>, _lastMousePosition?: Point): Promise<LabeledAction[]> {
+    async getItems(root: Readonly<GModelElement>, _lastMousePosition?: Point): Promise<LabeledAction[]> {
         const selectedElementIds = Array.from(
             root.index
                 .all()

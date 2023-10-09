@@ -21,18 +21,18 @@ import {
     Emitter,
     Event,
     ICommand,
-    SModelRoot,
+    GModelRoot,
     SetModelCommand,
     TYPES,
     UpdateModelCommand
-} from '~glsp-sprotty';
+} from '@eclipse-glsp/sprotty';
 
 /**
  * A hook to listen for model root changes. Will be called after a server update
  * has been processed
  */
 export interface ISModelRootListener {
-    modelRootChanged(root: Readonly<SModelRoot>): void;
+    modelRootChanged(root: Readonly<GModelRoot>): void;
 }
 
 @injectable()
@@ -53,12 +53,12 @@ export class GLSPCommandStack extends CommandStack implements Disposable {
         this.toDispose.dispose();
     }
 
-    protected onModelRootChangedEmitter = new Emitter<Readonly<SModelRoot>>();
-    get onModelRootChanged(): Event<Readonly<SModelRoot>> {
+    protected onModelRootChangedEmitter = new Emitter<Readonly<GModelRoot>>();
+    get onModelRootChanged(): Event<Readonly<GModelRoot>> {
         return this.onModelRootChangedEmitter.event;
     }
 
-    override undo(): Promise<SModelRoot> {
+    override undo(): Promise<GModelRoot> {
         this.logger.warn(
             this,
             'GLSPCommandStack.undo() was called. This should never happen as the GLSP server is responsible for handling undo requests'
@@ -66,7 +66,7 @@ export class GLSPCommandStack extends CommandStack implements Disposable {
         return this.currentModel;
     }
 
-    override redo(): Promise<SModelRoot> {
+    override redo(): Promise<GModelRoot> {
         this.logger.warn(
             this,
             'GLSPCommandStack.redo() was called. This should never happen as the GLSP server is responsible for handling redo requests'
@@ -74,7 +74,7 @@ export class GLSPCommandStack extends CommandStack implements Disposable {
         return this.currentModel;
     }
 
-    override execute(command: ICommand): Promise<SModelRoot> {
+    override execute(command: ICommand): Promise<GModelRoot> {
         const result = super.execute(command);
         if (command instanceof SetModelCommand || command instanceof UpdateModelCommand) {
             result.then(root => this.notifyListeners(root));
@@ -82,7 +82,7 @@ export class GLSPCommandStack extends CommandStack implements Disposable {
         return result;
     }
 
-    protected notifyListeners(root: Readonly<SModelRoot>): void {
+    protected notifyListeners(root: Readonly<GModelRoot>): void {
         this.onModelRootChangedEmitter.fire(root);
     }
 }

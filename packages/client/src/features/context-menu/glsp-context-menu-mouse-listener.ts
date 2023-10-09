@@ -14,7 +14,14 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { inject, injectable, optional } from 'inversify';
-import { Action, ContextMenuProviderRegistry, IContextMenuServiceProvider, MouseListener, SModelElement, TYPES } from '~glsp-sprotty';
+import {
+    Action,
+    ContextMenuProviderRegistry,
+    IContextMenuServiceProvider,
+    MouseListener,
+    GModelElement,
+    TYPES
+} from '@eclipse-glsp/sprotty';
 import { FocusStateChangedAction } from '../../base/focus/focus-state-change-action';
 
 @injectable()
@@ -30,7 +37,7 @@ export class GLSPContextMenuMouseListener extends MouseListener {
     /**
      * Opens the context menu.
      */
-    override contextMenu(target: SModelElement, event: MouseEvent): (Action | Promise<Action>)[] {
+    override contextMenu(target: GModelElement, event: MouseEvent): (Action | Promise<Action>)[] {
         return this.openContextMenu(target, event);
     }
 
@@ -43,7 +50,7 @@ export class GLSPContextMenuMouseListener extends MouseListener {
      *
      * When the context menu is closed, we focus the diagram element again.
      */
-    protected openContextMenu(target: SModelElement, event: MouseEvent): Promise<Action>[] {
+    protected openContextMenu(target: GModelElement, event: MouseEvent): Promise<Action>[] {
         if (!this.contextMenuService || !this.menuProvider) {
             return [];
         }

@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { ContainerModule } from 'inversify';
-import { BindingContext, TYPES, bindAsService } from '~glsp-sprotty';
+import { BindingContext, TYPES, bindAsService } from '@eclipse-glsp/sprotty';
 import { PositionNavigator } from './position-navigator';
 import { LocalElementNavigator } from './local-element-navigator';
 import { ElementNavigatorTool } from './diagram-navigation-tool';

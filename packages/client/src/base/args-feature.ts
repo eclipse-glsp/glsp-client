@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2023 Business Informatics Group (TU Wien) and others.
+ * Copyright (c) 2020-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,25 +13,25 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { Args, GModelElement } from '@eclipse-glsp/sprotty';
 
-import { LabeledAction, SModelElement, SModelRoot } from '~glsp-sprotty';
+export const argsFeature = Symbol('argsFeature');
 
 /**
- * Interface for a provider that provides suggestions that can be used to fill the autocomplete
+ * Adds an optional `args` property to a {@link GModelElement}. This allows
+ * to add arbitrary arguments to the element (on client or server side) without having
+ * to extend the model class.
+ *
+ * Feature extension interface for {@link argsFeature}.
  */
-export interface IAutocompleteSuggestionProvider {
-    /**
-     * Returns the suggestions based on the provided parameters.
-     * @param root: The root model
-     * @param text: The text input provided by the user.
-     */
-    retrieveSuggestions(root: Readonly<SModelRoot>, text: string): Promise<AutocompleteSuggestion[]>;
+export interface ArgsAware {
+    args?: Args;
 }
 
-/**
- * Interface for autocomplete suggestions.
- */
-export interface AutocompleteSuggestion {
-    element: SModelElement;
-    action: LabeledAction;
+export function isArgsAware(element: GModelElement): element is GModelElement & ArgsAware {
+    return element.hasFeature(argsFeature);
+}
+
+export function hasArgs(element?: GModelElement): element is GModelElement & Required<ArgsAware> {
+    return element !== undefined && isArgsAware(element) && element.args !== undefined;
 }

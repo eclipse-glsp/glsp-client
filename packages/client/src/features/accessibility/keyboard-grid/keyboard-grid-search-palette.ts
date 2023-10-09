@@ -15,15 +15,16 @@
  ********************************************************************************/
 import '../../../../css/keyboard.css';
 
+import { Action, GModelElement, GModelRoot, SetUIExtensionVisibilityAction } from '@eclipse-glsp/sprotty';
 import { injectable } from 'inversify';
-import { SEdge, SetUIExtensionVisibilityAction, SModelElement, SModelRoot, Action } from '~glsp-sprotty';
-import { KeyboardGridMetadata } from './constants';
+import { IAutocompleteSuggestionProvider } from '../../../base/auto-complete/autocomplete-suggestion-providers';
 import {
     RevealEdgeElementAutocompleteSuggestionProvider,
     RevealNamedElementAutocompleteSuggestionProvider,
     SearchAutocompletePalette
 } from '../search/search-palette';
-import { IAutocompleteSuggestionProvider } from '../../../features/autocomplete-palette/autocomplete-suggestion-providers';
+import { KeyboardGridMetadata } from './constants';
+import { GEdge } from '../../../model';
 
 export namespace GridSearchPaletteMetadata {
     export const ID = 'grid-search-palette';
@@ -35,13 +36,13 @@ export class GridSearchPalette extends SearchAutocompletePalette {
         return GridSearchPaletteMetadata.ID;
     }
 
-    protected override getSuggestionProviders(root: Readonly<SModelRoot>, input: string): IAutocompleteSuggestionProvider[] {
+    protected override getSuggestionProviders(root: Readonly<GModelRoot>, input: string): IAutocompleteSuggestionProvider[] {
         return [new GridRevealNamedElementSuggestionProvider(), new GridRevealEdgeSuggestionProvider()];
     }
 }
 
 export class GridRevealEdgeSuggestionProvider extends RevealEdgeElementAutocompleteSuggestionProvider {
-    protected override getActions(edge: SEdge): Action[] {
+    protected override getActions(edge: GEdge): Action[] {
         return [
             ...super.getActions(edge),
             SetUIExtensionVisibilityAction.create({
@@ -52,7 +53,7 @@ export class GridRevealEdgeSuggestionProvider extends RevealEdgeElementAutocompl
     }
 }
 export class GridRevealNamedElementSuggestionProvider extends RevealNamedElementAutocompleteSuggestionProvider {
-    protected override getActions(nameable: SModelElement): Action[] {
+    protected override getActions(nameable: GModelElement): Action[] {
         return [
             ...super.getActions(nameable),
             SetUIExtensionVisibilityAction.create({

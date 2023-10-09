@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { AnyObject, hasNumberProp } from '~glsp-sprotty';
+import { AnyObject, hasNumberProp } from '@eclipse-glsp/sprotty';
 
 /**
  * A common interface for services/listeners that should be

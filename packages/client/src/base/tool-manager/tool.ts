@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { Action, AnyObject, hasArrayProp, hasBooleanProp, hasFunctionProp, hasStringProp } from '~glsp-sprotty';
+import { Action, AnyObject, hasArrayProp, hasBooleanProp, hasFunctionProp, hasStringProp } from '@eclipse-glsp/sprotty';
 
 /**
  * Action to enable the tools of the specified `toolIds`.

@@ -79,7 +79,7 @@ export interface RequestMarkersAction extends RequestAction<SetMarkersAction> {
 export namespace RequestMarkersAction {
     export const KIND = 'requestMarkers';
 
-    export function is(object: any): object is RequestMarkersAction {
+    export function is(object: unknown): object is RequestMarkersAction {
         return RequestAction.hasKind(object, KIND) && hasArrayProp(object, 'elementsIDs');
     }
 
@@ -97,7 +97,7 @@ export namespace RequestMarkersAction {
 /**
  * Instructs the client to add markers to the diagram.
  * Typically, this is a response to the {@link RequestMarkersAction} containing all validation markers, but can be sent by the server at
- * any time.
+ * unknown time.
  * The corresponding namespace declares the action kind as constant and offers helper functions for type guard checks
  * and creating new `SetMarkersActions`.
  */
@@ -118,7 +118,7 @@ export interface SetMarkersAction extends ResponseAction {
 export namespace SetMarkersAction {
     export const KIND = 'setMarkers';
 
-    export function is(object: any): object is SetMarkersAction {
+    export function is(object: unknown): object is SetMarkersAction {
         return Action.hasKind(object, KIND) && hasArrayProp(object, 'markers');
     }
 
@@ -150,7 +150,7 @@ export interface DeleteMarkersAction extends Action {
 export namespace DeleteMarkersAction {
     export const KIND = 'deleteMarkers';
 
-    export function is(object: any): object is DeleteMarkersAction {
+    export function is(object: unknown): object is DeleteMarkersAction {
         return Action.hasKind(object, KIND) && hasArrayProp(object, 'markers');
     }
 

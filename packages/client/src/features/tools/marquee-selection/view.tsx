@@ -15,7 +15,7 @@
  ********************************************************************************/
 import { injectable } from 'inversify';
 import { VNode } from 'snabbdom';
-import { RectangularNodeView, RenderingContext, svg } from '~glsp-sprotty';
+import { RectangularNodeView, RenderingContext, svg } from '@eclipse-glsp/sprotty';
 import { MarqueeNode } from './model';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

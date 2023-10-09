@@ -36,7 +36,7 @@ export interface CreateOperation extends Operation {
 }
 
 export namespace CreateOperation {
-    export function is(object: any): object is CreateOperation {
+    export function is(object: unknown): object is CreateOperation {
         return Operation.is(object) && hasStringProp(object, 'elementTypeId');
     }
 
@@ -46,7 +46,7 @@ export namespace CreateOperation {
      * @param kind  The expected operation kind.
      * @returns A type literal indicating wether the given object is a create operation with the given kind.
      */
-    export function hasKind(object: any, kind: string): object is CreateOperation {
+    export function hasKind(object: unknown, kind: string): object is CreateOperation {
         return CreateOperation.is(object) && object.kind === kind;
     }
 }
@@ -75,7 +75,7 @@ export interface CreateNodeOperation extends CreateOperation {
 export namespace CreateNodeOperation {
     export const KIND = 'createNode';
 
-    export function is(object: any): object is CreateNodeOperation {
+    export function is(object: unknown): object is CreateNodeOperation {
         return CreateOperation.hasKind(object, KIND);
     }
 
@@ -108,7 +108,7 @@ export interface CreateEdgeOperation extends CreateOperation {
 export namespace CreateEdgeOperation {
     export const KIND = 'createEdge';
 
-    export function is(object: any): object is CreateEdgeOperation {
+    export function is(object: unknown): object is CreateEdgeOperation {
         return (
             CreateOperation.hasKind(object, KIND) && hasStringProp(object, 'sourceElementId') && hasStringProp(object, 'targetElementId')
         );
@@ -144,7 +144,7 @@ export interface DeleteElementOperation extends Operation, Omit<sprotty.DeleteEl
 export namespace DeleteElementOperation {
     export const KIND = 'deleteElement';
 
-    export function is(object: any): object is DeleteElementOperation {
+    export function is(object: unknown): object is DeleteElementOperation {
         return Operation.hasKind(object, KIND) && hasArrayProp(object, 'elementIds');
     }
 

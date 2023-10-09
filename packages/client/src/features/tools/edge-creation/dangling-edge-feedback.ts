@@ -19,20 +19,20 @@ import {
     BindingContext,
     CommandExecutionContext,
     CommandReturn,
-    SChildElement,
-    SDanglingAnchor,
-    SEdgeSchema,
-    SModelRoot,
-    SRoutableElement,
+    GChildElement,
+    GModelRoot,
+    GRoutableElement,
     TYPES,
     configureCommand,
     configureView,
     findParentByFeature,
     isBoundsAware,
-    isConnectable
-} from '~glsp-sprotty';
+    isConnectable,
+    GDanglingAnchor,
+    GEdgeSchema
+} from '@eclipse-glsp/sprotty';
 import { FeedbackCommand } from '../../../base/feedback/feedback-command';
-import { isRoutable } from '../../../utils/smodel-util';
+import { isRoutable } from '../../../utils/gmodel-util';
 import { toAbsolutePosition } from '../../../utils/viewpoint-util';
 import { FeedbackEdgeEndView } from './view';
 
@@ -40,7 +40,7 @@ export interface DrawFeedbackEdgeAction extends Action {
     kind: typeof DrawFeedbackEdgeAction.KIND;
     elementTypeId: string;
     sourceId: string;
-    edgeSchema?: Partial<SEdgeSchema>;
+    edgeSchema?: Partial<GEdgeSchema>;
 }
 
 export namespace DrawFeedbackEdgeAction {
@@ -53,7 +53,7 @@ export namespace DrawFeedbackEdgeAction {
     export function create(options: {
         elementTypeId: string;
         sourceId: string;
-        edgeSchema?: Partial<SEdgeSchema>;
+        edgeSchema?: Partial<GEdgeSchema>;
     }): DrawFeedbackEdgeAction {
         return {
             kind: KIND,
@@ -102,27 +102,27 @@ export class RemoveFeedbackEdgeCommand extends FeedbackCommand {
     }
 }
 
-export class FeedbackEdgeEnd extends SDanglingAnchor {
+export class FeedbackEdgeEnd extends GDanglingAnchor {
     static readonly TYPE = 'feedback-edge-end';
     constructor(
         readonly sourceId: string,
         readonly elementTypeId: string,
-        public feedbackEdge: SRoutableElement | undefined = undefined,
+        public feedbackEdge: GRoutableElement | undefined = undefined,
         override readonly type: string = FeedbackEdgeEnd.TYPE
     ) {
         super();
     }
 }
 
-export function feedbackEdgeId(root: SModelRoot): string {
+export function feedbackEdgeId(root: GModelRoot): string {
     return root.id + '_feedback_edge';
 }
 
-export function feedbackEdgeEndId(root: SModelRoot): string {
+export function feedbackEdgeEndId(root: GModelRoot): string {
     return root.id + '_feedback_anchor';
 }
 
-export const defaultFeedbackEdgeSchema: Partial<SEdgeSchema> = {
+export const defaultFeedbackEdgeSchema: Partial<GEdgeSchema> = {
     cssClasses: ['feedback-edge'],
     opacity: 0.3
 };
@@ -131,7 +131,7 @@ export function drawFeedbackEdge(
     context: CommandExecutionContext,
     sourceId: string,
     elementTypeId: string,
-    edgeTemplate?: Partial<SEdgeSchema>
+    edgeTemplate?: Partial<GEdgeSchema>
 ): void {
     const root = context.root;
     const sourceChild = root.index.getById(sourceId);
@@ -148,7 +148,7 @@ export function drawFeedbackEdge(
     edgeEnd.id = feedbackEdgeEndId(root);
     edgeEnd.position = toAbsolutePosition(source);
 
-    const edgeSchema: SEdgeSchema = {
+    const edgeSchema: GEdgeSchema = {
         id: feedbackEdgeId(root),
         type: elementTypeId,
         sourceId: source.id,
@@ -165,13 +165,13 @@ export function drawFeedbackEdge(
     }
 }
 
-export function removeDanglingFeedbackEdge(root: SModelRoot): void {
+export function removeDanglingFeedbackEdge(root: GModelRoot): void {
     const feedbackEdge = root.index.getById(feedbackEdgeId(root));
     const feedbackEdgeEnd = root.index.getById(feedbackEdgeEndId(root));
-    if (feedbackEdge instanceof SChildElement) {
+    if (feedbackEdge instanceof GChildElement) {
         root.remove(feedbackEdge);
     }
-    if (feedbackEdgeEnd instanceof SChildElement) {
+    if (feedbackEdgeEnd instanceof GChildElement) {
         root.remove(feedbackEdgeEnd);
     }
 }
