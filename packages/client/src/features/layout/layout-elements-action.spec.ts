@@ -14,11 +14,6 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 /* eslint-disable deprecation/deprecation */
-import { expect } from 'chai';
-import { Container } from 'inversify';
-import 'mocha';
-import 'reflect-metadata';
-import * as sinon from 'sinon';
 import {
     Action,
     AnimationFrameSyncer,
@@ -30,6 +25,7 @@ import {
     ElementMove,
     FeatureSet,
     GChildElement,
+    GModelFactory,
     GModelRoot,
     GNode,
     GNodeSchema,
@@ -38,12 +34,17 @@ import {
     MoveCommand,
     RequestAction,
     ResponseAction,
-    SModelFactory,
     SetBoundsAction,
     SetBoundsCommand
 } from '@eclipse-glsp/sprotty';
+import { expect } from 'chai';
+import { Container } from 'inversify';
+import 'mocha';
+import 'reflect-metadata';
+import * as sinon from 'sinon';
 import { defaultModule } from '../../base/default.module';
 import { SelectionService } from '../../base/selection-service';
+import { GGraph } from '../../model';
 import { resizeFeature } from '../change-bounds/model';
 import {
     AlignElementsAction,
@@ -53,7 +54,6 @@ import {
     ResizeElementsAction,
     ResizeElementsActionHandler
 } from './layout-elements-action';
-import { GGraph } from '../../model';
 
 class MockActionDispatcher implements IActionDispatcher {
     constructor(public dispatchedActions: Action[] = []) {}
@@ -127,7 +127,7 @@ function applyFeature(element: GChildElement, feature: symbol): void {
 
 const context: CommandExecutionContext = {
     root: model,
-    modelFactory: sinon.createStubInstance(SModelFactory),
+    modelFactory: sinon.createStubInstance(GModelFactory),
     duration: 0,
     modelChanged: undefined!,
     logger: new ConsoleLogger(),

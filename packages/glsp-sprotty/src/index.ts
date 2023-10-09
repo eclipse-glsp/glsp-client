@@ -72,9 +72,8 @@ export {
     EMPTY_ROOT,
     SModelElementConstructor as GModelElementConstructor,
     SModelElementRegistration as GModelElementRegistration,
+    SModelFactory as GModelFactory,
     IModelFactory,
-    // exported without alias we extend it in glsp-client to `SModelFactory`
-    SModelFactory,
     // exported without alias we extend it in glsp-client to `GModelRegistry`
     SModelRegistry,
     createFeatureSet

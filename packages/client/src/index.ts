@@ -113,15 +113,15 @@ export * from './features/viewport/glsp-scroll-mouse-listener';
 
 // ------------------ Misc ------------------
 export * from './default-modules';
+export * from './model';
 export * from './standalone-modules';
 export * from './utils/argument-utils';
+export * from './utils/gmodel-util';
 export * from './utils/html-utils';
 export * from './utils/layout-utils';
 export * from './utils/marker';
-export * from './utils/gmodel-util';
 export * from './utils/viewpoint-util';
 export * from './views';
-export * from './model';
 // ------------------ DI Modules ------------------
 export * from './base/default.module';
 export * from './features/accessibility/accessibility-module';

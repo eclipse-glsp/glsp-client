@@ -19,9 +19,9 @@ import {
     ConsoleLogger,
     EdgeTypeHint,
     GChildElement,
+    GModelFactory,
     GModelRoot,
     GNode,
-    SModelFactory,
     SetTypeHintsAction,
     ShapeTypeHint,
     TYPES,
@@ -37,12 +37,11 @@ import { Container } from 'inversify';
 import * as sinon from 'sinon';
 import { GLSPActionDispatcher } from '../../base/action-dispatcher';
 import { FeedbackActionDispatcher } from '../../base/feedback/feedback-action-dispatcher';
+import { GEdge } from '../../model';
 import { isResizable } from '../change-bounds/model';
 import { isReconnectable } from '../reconnect/model';
 import { Containable, isContainable, isReparentable } from './model';
 import { ApplyTypeHintsAction, ApplyTypeHintsCommand, ITypeHintProvider, TypeHintProvider } from './type-hint-provider';
-import { GEdge } from '../../model';
-
 describe('TypeHintProvider', () => {
     const container = new Container();
     container.bind(GLSPActionDispatcher).toConstantValue(sinon.createStubInstance(GLSPActionDispatcher));
@@ -155,7 +154,7 @@ describe('ApplyTypeHintCommand', () => {
 
     const sandbox = sinon.createSandbox();
     const container = new Container();
-    const modelFactory = sinon.createStubInstance(SModelFactory);
+    const modelFactory = sinon.createStubInstance(GModelFactory);
     const typeHintProviderMock = sandbox.stub<ITypeHintProvider>({
         getEdgeTypeHint: () => undefined,
         getShapeTypeHint: () => undefined
