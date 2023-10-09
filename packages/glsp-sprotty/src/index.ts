@@ -38,6 +38,7 @@ export * from 'sprotty/lib/base/actions/action-dispatcher';
 export {
     ActionHandlerRegistration,
     ActionHandlerRegistry,
+    IActionHandlerInitializer,
     configureActionHandler,
     onAction
 } from 'sprotty/lib/base/actions/action-handler';
