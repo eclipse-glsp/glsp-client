@@ -19,7 +19,7 @@ export { Viewport } from 'sprotty-protocol/lib/model';
 export * from 'sprotty-protocol/lib/utils/async';
 export * from 'sprotty-protocol/lib/utils/geometry';
 export * from 'sprotty-protocol/lib/utils/json';
-export * from 'sprotty-protocol/lib/utils/model-utils';
+export { applyBounds, cloneModel, findElement, getBasicType, getSubType } from 'sprotty-protocol/lib/utils/model-utils';
 // Default export of @eclipse-glsp/protocol
 export * from './action-protocol';
 export * from './client-server-protocol/base-glsp-client';

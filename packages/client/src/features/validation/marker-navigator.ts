@@ -13,19 +13,18 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { inject, injectable } from 'inversify';
 import {
     Action,
     BoundsAware,
     CenterAction,
+    GIssueSeverity,
+    GModelElement,
+    GModelRoot,
     IActionHandler,
     IContextMenuItemProvider,
     KeyListener,
     MenuItem,
     Point,
-    GIssueSeverity,
-    GModelElement,
-    GModelRoot,
     SelectAction,
     Selectable,
     TYPES,
@@ -36,10 +35,11 @@ import {
     isSelectable,
     matchesKeystroke
 } from '@eclipse-glsp/sprotty';
+import { inject, injectable } from 'inversify';
 import { GLSPActionDispatcher } from '../../base/action-dispatcher';
 import { SelectionService } from '../../base/selection-service';
-import { MarkerPredicates, collectIssueMarkers } from '../../utils/marker';
 import { getElements, isSelectableAndBoundsAware } from '../../utils/gmodel-util';
+import { MarkerPredicates, collectIssueMarkers } from '../../utils/marker';
 import { GIssueMarker } from './issue-marker';
 
 export interface NavigateToMarkerAction extends Action {
@@ -72,7 +72,7 @@ export namespace NavigateToMarkerAction {
         };
     }
 }
-export class SModelElementComparator {
+export class GModelElementComparator {
     compare(_one: GModelElement, _other: GModelElement): number {
         return 0;
     }
@@ -105,8 +105,8 @@ export class LeftToRightTopToBottomComparator {
 export class MarkerNavigator {
     static readonly ALL_SEVERITIES: GIssueSeverity[] = ['error', 'warning', 'info'];
 
-    @inject(SModelElementComparator)
-    protected markerComparator: SModelElementComparator;
+    @inject(GModelElementComparator)
+    protected markerComparator: GModelElementComparator;
 
     next(
         root: Readonly<GModelRoot>,
@@ -158,8 +158,8 @@ export class MarkerNavigator {
 
 @injectable()
 export class NavigateToMarkerActionHandler implements IActionHandler {
-    @inject(SModelElementComparator)
-    protected markerComparator: SModelElementComparator;
+    @inject(GModelElementComparator)
+    protected markerComparator: GModelElementComparator;
 
     @inject(MarkerNavigator)
     protected markerNavigator: MarkerNavigator;

@@ -73,7 +73,9 @@ export {
     SModelElementConstructor as GModelElementConstructor,
     SModelElementRegistration as GModelElementRegistration,
     IModelFactory,
+    // exported without alias we extend it in glsp-client to `SModelFactory`
     SModelFactory,
+    // exported without alias we extend it in glsp-client to `GModelRegistry`
     SModelRegistry,
     createFeatureSet
 } from 'sprotty/lib/base/model/smodel-factory';
@@ -178,6 +180,7 @@ export {
     SDecoration as GDecoration,
     SIssue as GIssue,
     SIssueSeverity as GIssueSeverity,
+    // Export as is, we extend it glsp-client to `GIssueMarker`
     SIssueMarker
 } from 'sprotty/lib/features/decoration/model';
 export * from 'sprotty/lib/features/decoration/views';
@@ -257,7 +260,9 @@ export {
     SLabelImpl as GLabel,
     SNodeImpl as GNode,
     SPortImpl as GPort,
+    // Exported as is, we extend it in glsp-client to GEdge
     SEdgeImpl,
+    // Exported as is, we extend it in glsp-client to GGraph
     SGraphImpl
 } from 'sprotty/lib/graph/sgraph';
 // Alias SModel types
