@@ -13,26 +13,41 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { inject, injectable, optional } from 'inversify';
 import {
     Action,
     ContextMenuProviderRegistry,
+    GModelElement,
+    IContextMenuService,
     IContextMenuServiceProvider,
     MouseListener,
-    GModelElement,
-    TYPES
+    SelectAction,
+    TYPES,
+    findParentByFeature,
+    isSelectable
 } from '@eclipse-glsp/sprotty';
+import { inject, injectable, optional, postConstruct } from 'inversify';
+import { GLSPActionDispatcher } from '../../base/action-dispatcher';
 import { FocusStateChangedAction } from '../../base/focus/focus-state-change-action';
 
 @injectable()
 export class GLSPContextMenuMouseListener extends MouseListener {
     @inject(TYPES.IContextMenuServiceProvider)
     @optional()
-    protected readonly contextMenuService?: IContextMenuServiceProvider;
+    protected contextMenuServiceProvider?: IContextMenuServiceProvider;
 
     @inject(TYPES.IContextMenuProviderRegistry)
     @optional()
-    protected readonly menuProvider?: ContextMenuProviderRegistry;
+    protected menuProvider?: ContextMenuProviderRegistry;
+
+    @inject(GLSPActionDispatcher)
+    protected actionDispatcher: GLSPActionDispatcher;
+
+    protected menuService?: IContextMenuService;
+
+    @postConstruct()
+    protected initialize(): void {
+        this.contextMenuServiceProvider?.().then(menuService => (this.menuService = menuService));
+    }
 
     /**
      * Opens the context menu.
@@ -44,6 +59,7 @@ export class GLSPContextMenuMouseListener extends MouseListener {
     /**
      * Opens the context menu.
      *
+     *   - update selection state (if context menu target is selectable)
      *   - query the context menu service and the context menu elements
      *   - show the context menu
      *   - send a focus state change to indicate that the diagram becomes inactive, once the context menu is shown
@@ -51,17 +67,33 @@ export class GLSPContextMenuMouseListener extends MouseListener {
      * When the context menu is closed, we focus the diagram element again.
      */
     protected openContextMenu(target: GModelElement, event: MouseEvent): Promise<Action>[] {
-        if (!this.contextMenuService || !this.menuProvider) {
+        if (!this.menuService || !this.menuProvider) {
             return [];
         }
 
+        return [this.showContextMenuItems(target, event)];
+    }
+
+    protected async showContextMenuItems(target: GModelElement, event: MouseEvent): Promise<Action> {
+        await this.handleContextElementSelection(target, event);
         const mousePosition = { x: event.x, y: event.y };
 
-        const result = Promise.all([this.contextMenuService(), this.menuProvider.getItems(target.root, mousePosition)])
-            .then(([menuService, menuItems]) => menuService.show(menuItems, mousePosition, () => this.focusEventTarget(event)))
-            .then((): Action => FocusStateChangedAction.create(false));
+        const menuItems = await this.menuProvider!.getItems(target.root, mousePosition);
+        this.menuService!.show(menuItems, mousePosition, () => this.focusEventTarget(event));
+        return FocusStateChangedAction.create(false);
+    }
 
-        return [result];
+    // Clear selection the context menu target is not selectable
+    // Otherwise either maintain current selection if target is already selected or single select the current target.
+    protected async handleContextElementSelection(target: GModelElement, event: MouseEvent): Promise<void> {
+        const selectableTarget = findParentByFeature(target, isSelectable);
+        if (!selectableTarget) {
+            return this.actionDispatcher.dispatch(SelectAction.setSelection([]));
+        }
+        if (!selectableTarget.selected) {
+            return this.actionDispatcher.dispatch(SelectAction.setSelection([selectableTarget.id]));
+        }
+        return;
     }
 
     protected focusEventTarget(event: MouseEvent): void {
