@@ -14,21 +14,26 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { inject, injectable } from 'inversify';
 import {
     Action,
     EndProgressAction,
     FeatureModule,
+    GModelElement,
     IActionHandler,
     ICommand,
     ILogger,
-    ModuleConfiguration,
+    KeyListener,
+    LayoutOperation,
     MessageAction,
+    ModuleConfiguration,
     StartProgressAction,
     TYPES,
     UpdateProgressAction,
-    configureActionHandler
+    bindAsService,
+    configureActionHandler,
+    matchesKeystroke
 } from '@eclipse-glsp/sprotty';
+import { inject, injectable } from 'inversify';
 import { standaloneCopyPasteModule } from './features/copy-paste/copy-paste-modules';
 import { standaloneExportModule } from './features/export/export-modules';
 import { saveModule } from './features/save/save-module';
@@ -37,13 +42,14 @@ import { undoRedoModule } from './features/undo-redo/undo-redo-module';
 import { standaloneMarkerNavigatorModule } from './features/validation/validation-modules';
 import { standaloneViewportModule } from './features/viewport/viewport-modules';
 
-export const standaloneFallbackModule = new FeatureModule((bind, unbind, isBound, rebind) => {
+export const standaloneDefaultModule = new FeatureModule((bind, unbind, isBound, rebind) => {
     const context = { bind, unbind, isBound, rebind };
     bind(FallbackActionHandler).toSelf().inSingletonScope();
     configureActionHandler(context, MessageAction.KIND, FallbackActionHandler);
     configureActionHandler(context, StartProgressAction.KIND, FallbackActionHandler);
     configureActionHandler(context, UpdateProgressAction.KIND, FallbackActionHandler);
     configureActionHandler(context, EndProgressAction.KIND, FallbackActionHandler);
+    bindAsService(context, TYPES.KeyListener, LayoutKeyListener);
 });
 
 /**
@@ -57,6 +63,16 @@ export class FallbackActionHandler implements IActionHandler {
 
     handle(action: Action): void | Action | ICommand {
         this.logger.log(this, 'Unhandled action received:', action);
+    }
+}
+
+@injectable()
+export class LayoutKeyListener extends KeyListener {
+    override keyDown(_element: GModelElement, event: KeyboardEvent): Action[] {
+        if (matchesKeystroke(event, 'KeyL', 'ctrlCmd', 'shift')) {
+            return [LayoutOperation.create()];
+        }
+        return [];
     }
 }
 
@@ -77,7 +93,7 @@ export const STANDALONE_MODULES = [
     standaloneMarkerNavigatorModule,
     standaloneSelectModule,
     standaloneExportModule,
-    standaloneFallbackModule,
+    standaloneDefaultModule,
     saveModule,
     undoRedoModule
 ] as const;

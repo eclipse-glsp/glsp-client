@@ -13,11 +13,12 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { IActionHandler, ViewerOptions, TYPES, Action } from '@eclipse-glsp/sprotty';
-import { EnableDefaultToolsAction } from '../../base/tool-manager/tool';
-import { injectable, inject } from 'inversify';
-import { FocusDomAction } from '../accessibility/actions';
+import { Action, IActionHandler, TYPES, ViewerOptions } from '@eclipse-glsp/sprotty';
+import { inject, injectable } from 'inversify';
+import { FocusTracker } from '../../base/focus/focus-tracker';
 import { IDiagramStartup } from '../../base/model/diagram-loader';
+import { EnableDefaultToolsAction } from '../../base/tool-manager/tool';
+import { FocusDomAction } from '../accessibility/actions';
 
 /**
  * Focuses the graph on different actions.
@@ -26,7 +27,11 @@ import { IDiagramStartup } from '../../base/model/diagram-loader';
 export class RestoreViewportHandler implements IActionHandler, IDiagramStartup {
     protected readonly graphSelector = '[data-svg-metadata-type="graph"]';
 
-    @inject(TYPES.ViewerOptions) protected options: ViewerOptions;
+    @inject(TYPES.ViewerOptions)
+    protected options: ViewerOptions;
+
+    @inject(FocusTracker)
+    protected focusTracker: FocusTracker;
 
     handle(action: Action): void | Action {
         if (EnableDefaultToolsAction.is(action) || (FocusDomAction.is(action) && action.id === 'graph')) {
@@ -40,8 +45,10 @@ export class RestoreViewportHandler implements IActionHandler, IDiagramStartup {
     }
 
     protected focusGraph(): void {
-        const container = document.getElementById(this.options.baseDiv)?.querySelector(this.graphSelector) as HTMLElement | null;
-        container?.focus();
+        if (this.focusTracker.hasFocus) {
+            const container = this.focusTracker.diagramElement?.querySelector<HTMLElement>(this.graphSelector);
+            container?.focus();
+        }
     }
 
     // https://stackoverflow.com/questions/5525071/how-to-wait-until-an-element-exists

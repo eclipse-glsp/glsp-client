@@ -13,9 +13,9 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { configureActionHandler, FeatureModule, TYPES } from '@eclipse-glsp/sprotty';
-import { CopyPasteContextMenuItemProvider, InvokeCopyPasteAction, InvokeCopyPasteActionHandler } from './copy-paste-context-menu';
+import { bindAsService, FeatureModule, TYPES } from '@eclipse-glsp/sprotty';
 import { LocalClipboardService, ServerCopyPasteHandler } from './copy-paste-handler';
+import { CopyPasteStartup } from './copy-paste-standalone';
 
 export const copyPasteModule = new FeatureModule((bind, _unbind, isBound) => {
     bind(TYPES.ICopyPasteHandler).to(ServerCopyPasteHandler);
@@ -29,9 +29,7 @@ export const copyPasteModule = new FeatureModule((bind, _unbind, isBound) => {
  */
 export const standaloneCopyPasteModule = new FeatureModule(
     (bind, _unbind, isBound) => {
-        bind(TYPES.IContextMenuProvider).to(CopyPasteContextMenuItemProvider).inSingletonScope();
-        bind(InvokeCopyPasteActionHandler).toSelf().inSingletonScope();
-        configureActionHandler({ bind, isBound }, InvokeCopyPasteAction.KIND, InvokeCopyPasteActionHandler);
+        bindAsService(bind, TYPES.IDiagramStartup, CopyPasteStartup);
     },
     { requires: copyPasteModule }
 );
