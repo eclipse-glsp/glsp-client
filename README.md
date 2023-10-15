@@ -18,7 +18,7 @@ The example can be used to try out different GLSP features, as well as several a
 As the example is fully open source, you can also use it as a blueprint for a custom implementation of a GLSP diagram editor.
 See [our project website](https://www.eclipse.org/glsp/documentation/#workflowoverview) for an overview of the workflow example and all components implementing it.
 
-![Workflow Diagram](/documentation/standalone-diagram.gif)
+https://github.com/eclipse-glsp/glsp-client/assets/2311075/7436ab37-a68d-448a-8c44-a312760376c3
 
 ### How to start the Workflow Diagram example?
 
