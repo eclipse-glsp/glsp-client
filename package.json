@@ -1,6 +1,6 @@
 {
   "name": "parent",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
   "workspaces": [
     "packages/*",
@@ -27,7 +27,7 @@
     "watch": "lerna run --parallel watch"
   },
   "devDependencies": {
-    "@eclipse-glsp/dev": "1.1.0-next.3b7f01d.144",
+    "@eclipse-glsp/dev": "~2.0.0",
     "@types/lodash": "4.14.191",
     "@types/node": "16.x",
     "lerna": "^7.1.1",
