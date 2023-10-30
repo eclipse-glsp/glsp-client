@@ -1,0 +1,39 @@
+
+.smart-connector {
+    display: flex;
+    min-width: 200px;
+    max-width: 800px;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: center;
+    position: absolute;
+    pointer-events: none;
+}
+
+.smart-connector-button-container {
+    border-left: 1px solid black;
+    border-right: 1px solid black;
+    background-color:rgba(1, 1, 1, 0.6);
+    overflow-y: scroll;
+    max-height: 150px;
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+
+.smart-connector-button-container::-webkit-scrollbar {
+    display: none;
+}
+
+.smart-connector-button {
+    border-top: 1px solid black;
+    margin: 0 5px;
+    padding: 8px 0;
+    z-index: 9999;
+    pointer-events: auto;
+    cursor: pointer;
+}
+
+.smart-connector-button-container div:first-child {
+    border-top: 0;
+}
+

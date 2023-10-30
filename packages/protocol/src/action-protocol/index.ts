@@ -31,6 +31,7 @@ export * from './model-layout';
 export * from './model-saving';
 export * from './model-structure';
 export * from './node-modification';
+export * from './smart-connector';
 export * from './tool-palette';
 export * from './types';
 export * from './undo-redo';
