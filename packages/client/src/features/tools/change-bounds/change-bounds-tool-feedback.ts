@@ -13,8 +13,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { inject, injectable } from 'inversify';
-import { VNode } from 'snabbdom';
 import {
     Action,
     CommandExecutionContext,
@@ -22,11 +20,11 @@ import {
     Disposable,
     ElementMove,
     GChildElement,
+    GModelElement,
+    GModelRoot,
     MouseListener,
     MoveAction,
     Point,
-    GModelElement,
-    GModelRoot,
     TYPES,
     findParentByFeature,
     hasStringProp,
@@ -34,6 +32,8 @@ import {
     isSelectable,
     isViewport
 } from '@eclipse-glsp/sprotty';
+import { inject, injectable } from 'inversify';
+import { VNode } from 'snabbdom';
 
 import { CursorCSS, cursorFeedbackAction } from '../../../base/feedback/css-feedback';
 import { FeedbackCommand } from '../../../base/feedback/feedback-command';
@@ -197,7 +197,7 @@ export class FeedbackMoveMouseListener extends MouseListener implements Disposab
             y: (event.pageY - this.startDragPosition.y) / zoom
         };
 
-        const elementMoves: ElementMove[] = this.getElementMovesForDelta(target, delta, !event.shiftKey, finished);
+        const elementMoves: ElementMove[] = this.getElementMovesForDelta(target, delta, !event.altKey, finished);
         if (elementMoves.length > 0) {
             return MoveAction.create(elementMoves, { animate: false, finished });
         } else {

@@ -14,27 +14,27 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { injectable } from 'inversify';
-import { isEqual } from 'lodash';
-import { toArray } from 'sprotty/lib/utils/iterable';
 import {
     Action,
     CenterAction,
-    LabeledAction,
     GModelElement,
     GModelRoot,
     GNode,
+    LabeledAction,
     SelectAction,
     SelectAllAction,
     codiconCSSString,
     isNameable,
     name
 } from '@eclipse-glsp/sprotty';
+import { injectable } from 'inversify';
+import { isEqual } from 'lodash';
+import { toArray } from 'sprotty/lib/utils/iterable';
 import { BaseAutocompletePalette } from '../../../base/auto-complete/base-autocomplete-palette';
 
+import { AutocompleteSuggestion, IAutocompleteSuggestionProvider } from '../../../base/auto-complete/autocomplete-suggestion-providers';
 import { applyCssClasses, deleteCssClasses } from '../../../base/feedback/css-feedback';
 import { RepositionAction } from '../../../features/viewport/reposition';
-import { AutocompleteSuggestion, IAutocompleteSuggestionProvider } from '../../../base/auto-complete/autocomplete-suggestion-providers';
 import { GEdge } from '../../../model';
 
 const CSS_SEARCH_HIDDEN = 'search-hidden';

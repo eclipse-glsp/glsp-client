@@ -19,8 +19,9 @@ import {
     BoundsAware,
     Dimension,
     GChildElement,
-    Point,
     GModelElement,
+    GModelRoot,
+    Point,
     Viewport,
     findParentByFeature,
     isAlignable,
@@ -132,4 +133,19 @@ export function absoluteToParent(element: BoundsAwareModelElement & GChildElemen
 export function absoluteToLocal(element: BoundsAwareModelElement, absolutePoint: Point): Point {
     const absoluteElementBounds = toAbsoluteBounds(element);
     return { x: absolutePoint.x - absoluteElementBounds.x, y: absolutePoint.y - absoluteElementBounds.y };
+}
+
+/**
+ * Returns `true` if `point` is outside of the `viewport`.
+ * @param point The point to check.
+ * @param viewport The viewport.
+ * @returns `true` if `point` is outside, `false` otherwise.
+ */
+export function outsideOfViewport(point: Point, viewport: GModelRoot & Viewport): boolean {
+    return (
+        point.x < viewport.scroll.x ||
+        point.x > viewport.scroll.x + viewport.canvasBounds.width ||
+        point.y < viewport.scroll.y ||
+        point.y > viewport.scroll.y + viewport.canvasBounds.height
+    );
 }
