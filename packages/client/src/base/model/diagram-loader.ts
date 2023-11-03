@@ -14,7 +14,6 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { inject, injectable, multiInject, optional, postConstruct } from 'inversify';
 import {
     AnyObject,
     ApplicationIdProvider,
@@ -29,6 +28,7 @@ import {
     TYPES,
     hasNumberProp
 } from '@eclipse-glsp/sprotty';
+import { inject, injectable, multiInject, optional, postConstruct } from 'inversify';
 import { GLSPActionDispatcher } from '../action-dispatcher';
 import { Ranked } from '../ranked';
 import { GLSPModelSource } from './glsp-model-source';
