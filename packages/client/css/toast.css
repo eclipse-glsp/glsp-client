@@ -15,12 +15,11 @@
  ********************************************************************************/
 .toast {
     position: absolute;
-    bottom: 1rem;
-    width: 100%;
+    bottom: 48px; /* same as top of toolbar by default */
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     grid-column-gap: 1rem;
-    margin: 0 1rem;
+    left: 40px; /* same as right of toolbar by default */
 }
 
 .toast-column-left {
