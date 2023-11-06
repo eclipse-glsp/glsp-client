@@ -14,8 +14,6 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { inject, injectable } from 'inversify';
-import { VNode, VNodeStyle, h } from 'snabbdom';
 import {
     Bounds,
     EdgeRouterRegistry,
@@ -29,6 +27,8 @@ import {
     setAttr,
     setClass
 } from '@eclipse-glsp/sprotty';
+import { inject, injectable } from 'inversify';
+import { VNode, VNodeStyle, h } from 'snabbdom';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const JSX = { createElement: html };
@@ -123,13 +123,11 @@ export class GLSPProjectionView extends ProjectedViewportView {
             params.orientation === 'horizontal'
                 ? {
                       left: `${viewportPos}px`,
-                      width: `${viewportSize}px`,
-                      border: 'none'
+                      width: `${viewportSize}px`
                   }
                 : {
                       top: `${viewportPos}px`,
-                      height: `${viewportSize}px`,
-                      border: 'none'
+                      height: `${viewportSize}px`
                   };
         return <div class-sprotty-viewport={viewportSize !== 0} class-projection-scroll-bar={true} style={style} />;
     }
