@@ -14,24 +14,34 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { inject, injectable } from 'inversify';
-import { throttle } from 'lodash';
 import {
     Action,
     ChangeBoundsOperation,
+    DisposableCollection,
+    ElementAndBounds,
+    ElementMove,
+    GModelRoot,
     IActionDispatcher,
     IActionHandler,
     ICommand,
+    ISnapper,
+    MoveAction,
     Point,
-    GModelRoot,
     SetViewportAction,
     TYPES,
     Viewport,
     findParentByFeature,
+    isBoundsAware,
     isViewport
 } from '@eclipse-glsp/sprotty';
+import { inject, injectable, optional } from 'inversify';
+import { DebouncedFunc, debounce } from 'lodash';
 import { EditorContextService } from '../../../base/editor-context-service';
+import { IFeedbackActionDispatcher } from '../../../base/feedback/feedback-action-dispatcher';
 import { SelectableBoundsAware, getElements, isSelectableAndBoundsAware } from '../../../utils/gmodel-util';
+import { isValidMove } from '../../../utils/layout-utils';
+import { outsideOfViewport } from '../../../utils/viewpoint-util';
+import { IMovementRestrictor } from '../../change-bounds/movement-restrictor';
 
 /**
  * Action for triggering moving of the viewport.
@@ -77,6 +87,10 @@ export interface MoveElementAction extends Action {
      * used to specify the amount to be moved in the y-axis
      */
     moveY: number;
+    /**
+     * used to specify whether we should snap to the grid
+     */
+    snap: boolean;
 }
 
 export namespace MoveElementAction {
@@ -86,24 +100,24 @@ export namespace MoveElementAction {
         return Action.hasKind(object, KIND);
     }
 
-    export function create(elementIds: string[], moveX: number, moveY: number): MoveElementAction {
-        return { kind: KIND, elementIds, moveX, moveY };
+    export function create(elementIds: string[], moveX: number, moveY: number, snap: boolean = true): MoveElementAction {
+        return { kind: KIND, elementIds, moveX, moveY, snap };
     }
 }
 
-/* The MoveViewportHandler class is an implementation of the IActionHandler interface that handles
-moving of the viewport. */
+/**
+ * Action handler for moving of the viewport.
+ */
 @injectable()
 export class MoveViewportHandler implements IActionHandler {
     @inject(EditorContextService)
     protected editorContextService: EditorContextService;
-
-    @inject(TYPES.IActionDispatcher) protected dispatcher: IActionDispatcher;
-    protected readonly throttledHandleViewportMove = throttle((action: MoveViewportAction) => this.handleMoveViewport(action), 150);
+    @inject(TYPES.IActionDispatcher)
+    protected dispatcher: IActionDispatcher;
 
     handle(action: Action): void | Action | ICommand {
         if (MoveViewportAction.is(action)) {
-            this.throttledHandleViewportMove(action);
+            this.handleMoveViewport(action);
         }
     }
 
@@ -123,87 +137,113 @@ export class MoveViewportHandler implements IActionHandler {
             },
             zoom: viewport.zoom
         };
-
-        return SetViewportAction.create(viewport.id, newViewport, { animate: true });
+        return SetViewportAction.create(viewport.id, newViewport, { animate: false });
     }
 }
 
-/* The MoveElementHandler class is an implementation of the IActionHandler interface that handles
-moving elements. */
+/**
+ * Action handler for moving elements.
+ */
 @injectable()
 export class MoveElementHandler implements IActionHandler {
     @inject(EditorContextService)
     protected editorContextService: EditorContextService;
-    @inject(TYPES.IActionDispatcher) protected dispatcher: IActionDispatcher;
-    protected readonly throttledHandleElementMove = throttle((action: MoveElementAction) => this.handleMoveElement(action), 150);
+
+    @inject(TYPES.IActionDispatcher)
+    protected dispatcher: IActionDispatcher;
+
+    @inject(TYPES.IFeedbackActionDispatcher)
+    protected feedbackDispatcher: IFeedbackActionDispatcher;
+
+    @inject(TYPES.ISnapper)
+    @optional()
+    readonly snapper?: ISnapper;
+
+    @inject(TYPES.IMovementRestrictor)
+    @optional()
+    readonly movementRestrictor?: IMovementRestrictor;
+
+    protected debouncedChangeBounds?: DebouncedFunc<() => void>;
+    protected disposableFeedback = new DisposableCollection();
 
     handle(action: Action): void | Action | ICommand {
         if (MoveElementAction.is(action)) {
-            this.throttledHandleElementMove(action);
+            this.handleMoveElement(action);
         }
     }
 
     handleMoveElement(action: MoveElementAction): void {
-        const viewport = findParentByFeature(this.editorContextService.modelRoot, isViewport);
+        const modelRoot = this.editorContextService.modelRoot;
+        const viewport = findParentByFeature(modelRoot, isViewport);
         if (!viewport) {
             return;
         }
 
-        const elements = getElements(this.editorContextService.modelRoot.index, action.elementIds, isSelectableAndBoundsAware);
-
-        this.dispatcher.dispatchAll(this.move(viewport, elements, action.moveX, action.moveY));
-    }
-
-    protected getBounds(element: SelectableBoundsAware, offSetX: number, offSetY: number): Point {
-        return { x: element.bounds.x + offSetX, y: element.bounds.y + offSetY };
-    }
-
-    protected adaptViewport(
-        viewport: GModelRoot & Viewport,
-        newPoint: Point,
-        moveX: number,
-        moveY: number
-    ): MoveViewportAction | undefined {
-        if (
-            newPoint.x < viewport.scroll.x ||
-            newPoint.x > viewport.scroll.x + viewport.canvasBounds.width ||
-            newPoint.y < viewport.scroll.y ||
-            newPoint.y > viewport.scroll.y + viewport.canvasBounds.height
-        ) {
-            return MoveViewportAction.create(moveX, moveY);
-        }
-        return;
-    }
-
-    protected moveElement(element: SelectableBoundsAware, offSetX: number, offSetY: number): ChangeBoundsOperation {
-        return ChangeBoundsOperation.create([
-            {
+        const viewportActions: Action[] = [];
+        const elementMoves: ElementMove[] = [];
+        const elements = getElements(modelRoot.index, action.elementIds, isSelectableAndBoundsAware);
+        for (const element of elements) {
+            const newPosition = this.getTargetBounds(element, action);
+            elementMoves.push({
                 elementId: element.id,
-                newSize: {
-                    width: element.bounds.width,
-                    height: element.bounds.height
+                fromPosition: {
+                    x: element.bounds.x,
+                    y: element.bounds.y
                 },
-                newPosition: {
-                    x: element.bounds.x + offSetX,
-                    y: element.bounds.y + offSetY
-                }
+                toPosition: newPosition
+            });
+            if (outsideOfViewport(newPosition, viewport)) {
+                viewportActions.push(MoveViewportAction.create(action.moveX, action.moveY));
             }
-        ]);
+        }
+
+        this.dispatcher.dispatchAll(viewportActions);
+        const moveAction = MoveAction.create(elementMoves, { animate: false });
+        this.disposableFeedback.push(this.feedbackDispatcher.registerFeedback(this, [moveAction]));
+
+        this.scheduleChangeBounds(this.toElementAndBounds(elementMoves));
     }
 
-    protected move(viewport: GModelRoot & Viewport, selectedElements: SelectableBoundsAware[], deltaX: number, deltaY: number): Action[] {
-        const results: Action[] = [];
-
-        if (selectedElements.length !== 0) {
-            selectedElements.forEach(currentElement => {
-                results.push(this.moveElement(currentElement, deltaX, deltaY));
-                const newPosition = this.getBounds(currentElement, deltaX, deltaY);
-                const viewportAction = this.adaptViewport(viewport, newPosition, deltaX, deltaY);
-                if (viewportAction) {
-                    results.push(viewportAction);
-                }
-            });
+    protected getTargetBounds(element: SelectableBoundsAware, action: MoveElementAction): Point {
+        let position = { x: element.bounds.x + action.moveX, y: element.bounds.y + action.moveY };
+        if (this.snapper && action.snap) {
+            position = this.snapper.snap(position, element);
         }
-        return results;
+        if (!isValidMove(element, position, this.movementRestrictor)) {
+            // reset to position before the move, if not valid
+            position = { x: element.bounds.x, y: element.bounds.y };
+        }
+        return position;
+    }
+
+    protected scheduleChangeBounds(elementAndBounds: ElementAndBounds[]): void {
+        this.debouncedChangeBounds?.cancel();
+        this.debouncedChangeBounds = debounce(() => {
+            this.disposableFeedback.dispose();
+            this.dispatcher.dispatchAll([ChangeBoundsOperation.create(elementAndBounds)]);
+            this.debouncedChangeBounds = undefined;
+        }, 300);
+        this.debouncedChangeBounds();
+    }
+
+    protected toElementAndBounds(elementMoves: ElementMove[]): ElementAndBounds[] {
+        const elementBounds: ElementAndBounds[] = [];
+        for (const elementMove of elementMoves) {
+            const element = this.editorContextService.modelRoot.index.getById(elementMove.elementId);
+            if (element && isBoundsAware(element)) {
+                elementBounds.push({
+                    elementId: elementMove.elementId,
+                    newSize: {
+                        height: element.bounds.height,
+                        width: element.bounds.width
+                    },
+                    newPosition: {
+                        x: elementMove.toPosition.x,
+                        y: elementMove.toPosition.y
+                    }
+                });
+            }
+        }
+        return elementBounds;
     }
 }
