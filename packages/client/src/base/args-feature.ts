@@ -35,3 +35,13 @@ export function isArgsAware(element: GModelElement): element is GModelElement & 
 export function hasArgs(element?: GModelElement): element is GModelElement & Required<ArgsAware> {
     return element !== undefined && isArgsAware(element) && element.args !== undefined;
 }
+
+export function ensureArgs(element?: GModelElement): element is GModelElement & Required<ArgsAware> {
+    if (element === undefined || !isArgsAware(element)) {
+        return false;
+    }
+    if (element.args === undefined) {
+        element.args = {};
+    }
+    return true;
+}

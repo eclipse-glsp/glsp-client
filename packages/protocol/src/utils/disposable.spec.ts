@@ -66,6 +66,13 @@ describe('Disposable', () => {
                 toRemove.dispose();
                 expect(disposableCollection['disposables'].length).to.be.equal(0);
             });
+            it('should add one disposable function to the collection and remove it again', () => {
+                const disposable = (): void => {};
+                const toRemove = disposableCollection.push(disposable);
+                expect(disposableCollection['disposables'].length).to.be.equal(1);
+                toRemove.dispose();
+                expect(disposableCollection['disposables'].length).to.be.equal(0);
+            });
         });
         describe('dispose', () => {
             describe('should invoke dispose on all elements of the collection exactly once', () => {

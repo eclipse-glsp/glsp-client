@@ -15,11 +15,19 @@
  ********************************************************************************/
 import '../../../../css/keyboard-tool-palette.css';
 
-import { configureActionHandler, TYPES, bindAsService, BindingContext, FeatureModule } from '@eclipse-glsp/sprotty';
-import { EnableToolPaletteAction } from '../../tool-palette/tool-palette';
-import { KeyboardToolPalette } from './keyboard-tool-palette';
-import { FocusDomAction } from '../actions';
+import {
+    BindingContext,
+    FeatureModule,
+    SetModelAction,
+    TYPES,
+    UpdateModelAction,
+    bindAsService,
+    configureActionHandler
+} from '@eclipse-glsp/sprotty';
 import { EnableDefaultToolsAction } from '../../../base/tool-manager/tool';
+import { EnableToolPaletteAction } from '../../tool-palette/tool-palette';
+import { FocusDomAction } from '../actions';
+import { KeyboardToolPalette } from './keyboard-tool-palette';
 
 export const keyboardToolPaletteModule = new FeatureModule((bind, unbind, isBound, rebind) => {
     const context = { bind, unbind, isBound, rebind };
@@ -32,4 +40,6 @@ export function configureKeyboardToolPaletteTool(context: BindingContext): void 
     configureActionHandler(context, EnableDefaultToolsAction.KIND, KeyboardToolPalette);
     configureActionHandler(context, FocusDomAction.KIND, KeyboardToolPalette);
     configureActionHandler(context, EnableToolPaletteAction.KIND, KeyboardToolPalette);
+    configureActionHandler(context, UpdateModelAction.KIND, KeyboardToolPalette);
+    configureActionHandler(context, SetModelAction.KIND, KeyboardToolPalette);
 }

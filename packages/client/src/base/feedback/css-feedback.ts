@@ -13,8 +13,8 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { inject, injectable } from 'inversify';
 import { Action, CommandExecutionContext, GModelElement, GModelRoot, TYPES, hasArrayProp } from '@eclipse-glsp/sprotty';
+import { inject, injectable } from 'inversify';
 import { addCssClasses, getElements, removeCssClasses } from '../../utils/gmodel-util';
 import { FeedbackCommand } from './feedback-command';
 
@@ -68,6 +68,9 @@ export class ModifyCssFeedbackCommand extends FeedbackCommand {
         return context.root;
     }
 }
+
+export const CSS_GHOST_ELEMENT = 'ghost-element';
+export const CSS_HIDDEN = 'hidden';
 
 export enum CursorCSS {
     DEFAULT = 'default-mode',

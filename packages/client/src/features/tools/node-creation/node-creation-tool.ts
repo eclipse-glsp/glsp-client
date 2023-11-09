@@ -13,22 +13,28 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { inject, injectable, optional } from 'inversify';
 import {
     Action,
     CreateNodeOperation,
-    ISnapper,
     GModelElement,
     GNode,
+    ISnapper,
+    Point,
     TYPES,
     TriggerNodeCreationAction,
     findParentByFeature,
     isCtrlOrCmd
 } from '@eclipse-glsp/sprotty';
+import { inject, injectable, optional } from 'inversify';
+import '../../../../css/ghost-element.css';
 import { DragAwareMouseListener } from '../../../base/drag-aware-mouse-listener';
-import { CursorCSS, cursorFeedbackAction } from '../../../base/feedback/css-feedback';
+import { CSS_GHOST_ELEMENT, CSS_HIDDEN, CursorCSS, cursorFeedbackAction } from '../../../base/feedback/css-feedback';
 import { EnableDefaultToolsAction } from '../../../base/tool-manager/tool';
 import { getAbsolutePosition } from '../../../utils/viewpoint-util';
+import { IMovementRestrictor } from '../../change-bounds/movement-restrictor';
+import { AddTemplateElementsAction, getTemplateElementId } from '../../element-template/add-template-element';
+import { MouseTrackingElementPositionListener } from '../../element-template/mouse-tracking-element-position-listener';
+import { RemoveTemplateElementsAction } from '../../element-template/remove-template-element';
 import { Containable, isContainable } from '../../hints/model';
 import { BaseCreationTool } from '../base-tools';
 
@@ -39,14 +45,29 @@ export class NodeCreationTool extends BaseCreationTool<TriggerNodeCreationAction
     protected isTriggerAction = TriggerNodeCreationAction.is;
 
     @inject(TYPES.ISnapper) @optional() readonly snapper?: ISnapper;
+    @inject(TYPES.IMovementRestrictor) @optional() readonly movementRestrictor?: IMovementRestrictor;
 
     get id(): string {
         return NodeCreationTool.ID;
     }
 
     doEnable(): void {
+        let trackingListener: MouseTrackingElementPositionListener | undefined;
+        const ghostElement = this.triggerAction.ghostElement;
+        if (ghostElement) {
+            trackingListener = new MouseTrackingElementPositionListener(getTemplateElementId(ghostElement.template), this, 'middle');
+            this.toDisposeOnDisable.push(
+                this.registerFeedback(
+                    [AddTemplateElementsAction.create({ templates: [ghostElement.template], addClasses: [CSS_HIDDEN, CSS_GHOST_ELEMENT] })],
+                    this,
+                    [RemoveTemplateElementsAction.create({ templates: [ghostElement.template] })]
+                ),
+                this.mouseTool.registerListener(trackingListener)
+            );
+        }
+
         this.toDisposeOnDisable.push(
-            this.mouseTool.registerListener(new NodeCreationToolMouseListener(this.triggerAction, this)),
+            this.mouseTool.registerListener(new NodeCreationToolMouseListener(this.triggerAction, this, trackingListener)),
             this.registerFeedback([cursorFeedbackAction(CursorCSS.NODE_CREATION)], this, [cursorFeedbackAction()])
         );
     }
@@ -56,7 +77,11 @@ export class NodeCreationTool extends BaseCreationTool<TriggerNodeCreationAction
 export class NodeCreationToolMouseListener extends DragAwareMouseListener {
     protected container?: GModelElement & Containable;
 
-    constructor(protected triggerAction: TriggerNodeCreationAction, protected tool: NodeCreationTool) {
+    constructor(
+        protected triggerAction: TriggerNodeCreationAction,
+        protected tool: NodeCreationTool,
+        protected trackingListener?: MouseTrackingElementPositionListener
+    ) {
         super();
     }
 
@@ -76,19 +101,30 @@ export class NodeCreationToolMouseListener extends DragAwareMouseListener {
 
         if (this.creationAllowed(this.elementTypeId)) {
             const containerId = this.container ? this.container.id : undefined;
-            let location = getAbsolutePosition(target, event);
-            if (this.tool.snapper) {
-                // Create a 0-bounds proxy element for snapping
-                const elementProxy = new GNode();
-                elementProxy.size = { width: 0, height: 0 };
-                location = this.tool.snapper.snap(location, elementProxy);
-            }
+            const location = this.getInsertPosition(target, event);
             result.push(CreateNodeOperation.create(this.elementTypeId, { location, containerId, args: this.triggerAction.args }));
             if (!isCtrlOrCmd(event)) {
                 result.push(EnableDefaultToolsAction.create());
             }
         }
         return result;
+    }
+
+    protected getInsertPosition(target: GModelElement, event: MouseEvent): Point {
+        if (this.trackingListener) {
+            const trackedPosition = this.trackingListener.currentPosition;
+            if (trackedPosition) {
+                return trackedPosition;
+            }
+        }
+        let location = getAbsolutePosition(target, event);
+        if (this.tool.snapper) {
+            // Create a 0-bounds proxy element for snapping
+            const elementProxy = new GNode();
+            elementProxy.size = { width: 0, height: 0 };
+            location = this.tool.snapper.snap(location, elementProxy);
+        }
+        return location;
     }
 
     override mouseOver(target: GModelElement, event: MouseEvent): Action[] {

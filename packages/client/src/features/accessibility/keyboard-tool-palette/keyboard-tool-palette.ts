@@ -13,35 +13,35 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { injectable } from 'inversify';
 import {
-    ICommand,
-    SetUIExtensionVisibilityAction,
     Action,
+    ICommand,
     PaletteItem,
     RequestContextActions,
     RequestMarkersAction,
     SetContextActions,
+    SetUIExtensionVisibilityAction,
     TriggerNodeCreationAction
 } from '@eclipse-glsp/sprotty';
+import { injectable } from 'inversify';
 import { KeyCode, matchesKeystroke } from 'sprotty/lib/utils/keyboard';
+import { EnableDefaultToolsAction, EnableToolsAction } from '../../../base/tool-manager/tool';
+import {
+    EnableToolPaletteAction,
+    ToolPalette,
+    changeCodiconClass,
+    compare,
+    createIcon,
+    createToolGroup
+} from '../../tool-palette/tool-palette';
 import { MouseDeleteTool } from '../../tools/deletion/delete-tool';
 import { MarqueeMouseTool } from '../../tools/marquee-selection/marquee-mouse-tool';
-import {
-    createIcon,
-    changeCodiconClass,
-    createToolGroup,
-    ToolPalette,
-    compare,
-    EnableToolPaletteAction
-} from '../../tool-palette/tool-palette';
-import { KeyboardNodeGridMetadata } from '../keyboard-grid/constants';
 import { FocusDomAction } from '../actions';
 import { EdgeAutocompletePaletteMetadata } from '../edge-autocomplete/edge-autocomplete-palette';
-import { EnableDefaultToolsAction, EnableToolsAction } from '../../../base/tool-manager/tool';
-import { ShowToastMessageAction } from '../toast/toast-handler';
 import { ElementNavigatorKeyListener } from '../element-navigation/diagram-navigation-tool';
+import { KeyboardNodeGridMetadata } from '../keyboard-grid/constants';
 import * as messages from '../toast/messages.json';
+import { ShowToastMessageAction } from '../toast/toast-handler';
 
 const SEARCH_ICON_ID = 'search';
 const PALETTE_ICON_ID = 'symbol-color';
@@ -144,6 +144,8 @@ export class KeyboardToolPalette extends ToolPalette {
                 this.showShortcuts();
             }
             this.containerElement.focus();
+        } else {
+            super.handle(action);
         }
     }
 

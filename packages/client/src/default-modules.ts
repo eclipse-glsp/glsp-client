@@ -39,6 +39,7 @@ import { commandPaletteModule } from './features/command-palette/command-palette
 import { contextMenuModule } from './features/context-menu/context-menu-module';
 import { copyPasteModule } from './features/copy-paste/copy-paste-modules';
 import { decorationModule } from './features/decoration/decoration-module';
+import { elementTemplateModule } from './features/element-template/element-template-module';
 import { exportModule } from './features/export/export-modules';
 import { typeHintsModule } from './features/hints/type-hints-module';
 import { hoverModule } from './features/hover/hover-module';
@@ -90,6 +91,7 @@ export const DEFAULT_MODULES = [
     edgeCreationToolModule,
     edgeEditToolModule,
     deletionToolModule,
+    elementTemplateModule,
     nodeCreationToolModule,
     changeBoundsToolModule,
     marqueeSelectionToolModule,

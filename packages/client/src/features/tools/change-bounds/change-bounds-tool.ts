@@ -28,15 +28,14 @@ import {
     ElementAndBounds,
     ElementAndRoutingPoints,
     GChildElement,
-    ISnapper,
-    MouseListener,
-    Operation,
-    Point,
     GConnectableElement,
     GModelElement,
     GModelRoot,
     GParentElement,
-    SetBoundsAction,
+    ISnapper,
+    MouseListener,
+    Operation,
+    Point,
     TYPES,
     findParentByFeature,
     isSelected
@@ -45,13 +44,14 @@ import { DragAwareMouseListener } from '../../../base/drag-aware-mouse-listener'
 import { CursorCSS, applyCssClasses, cursorFeedbackAction, deleteCssClasses } from '../../../base/feedback/css-feedback';
 import { ISelectionListener, SelectionService } from '../../../base/selection-service';
 import { PointPositionUpdater } from '../../../features/change-bounds/snap';
-import { isValidMove, isValidSize } from '../../../utils/layout-utils';
 import {
     calcElementAndRoutingPoints,
     forEachElement,
     isNonRoutableSelectedMovableBoundsAware,
     toElementAndBounds
 } from '../../../utils/gmodel-util';
+import { isValidMove, isValidSize } from '../../../utils/layout-utils';
+import { SetBoundsFeedbackAction } from '../../bounds/set-bounds-feedback-command';
 import { Resizable, ResizeHandleLocation, SResizeHandle, isBoundsAwareMoveable, isResizable } from '../../change-bounds/model';
 import {
     IMovementRestrictor,
@@ -335,7 +335,7 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
             if (this.initialBounds && this.activeResizeHandle && resetBounds) {
                 // we only reset the bounds if an active resize operation was cancelled due to the tool being disabled
                 resetFeedback.push(
-                    SetBoundsAction.create([
+                    SetBoundsFeedbackAction.create([
                         {
                             elementId: this.activeResizeElement.id,
                             newPosition: this.initialBounds,
@@ -424,7 +424,9 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
             if (this.tool.movementRestrictor) {
                 actions.push(removeMovementRestrictionFeedback(element, this.tool.movementRestrictor));
             }
-            actions.push(SetBoundsAction.create([{ elementId: element.id, newPosition: this.initialBounds, newSize: this.initialBounds }]));
+            actions.push(
+                SetBoundsFeedbackAction.create([{ elementId: element.id, newPosition: this.initialBounds, newSize: this.initialBounds }])
+            );
             return actions;
         }
         return [];
@@ -446,12 +448,12 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
             if (this.tool.movementRestrictor) {
                 result.push(removeMovementRestrictionFeedback(element, this.tool.movementRestrictor));
             }
-            result.push(SetBoundsAction.create([{ elementId: element.id, newPosition, newSize }]));
+            result.push(SetBoundsFeedbackAction.create([{ elementId: element.id, newPosition, newSize }]));
         } else if (this.isValidSize(element, newSize)) {
             if (this.tool.movementRestrictor) {
                 result.push(createMovementRestrictionFeedback(element, this.tool.movementRestrictor));
             }
-            result.push(SetBoundsAction.create([{ elementId: element.id, newPosition, newSize }]));
+            result.push(SetBoundsFeedbackAction.create([{ elementId: element.id, newPosition, newSize }]));
         }
 
         return result;
