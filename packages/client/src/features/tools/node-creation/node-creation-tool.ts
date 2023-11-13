@@ -59,7 +59,7 @@ export class NodeCreationTool extends BaseCreationTool<TriggerNodeCreationAction
             this.toDisposeOnDisable.push(
                 this.registerFeedback(
                     [AddTemplateElementsAction.create({ templates: [ghostElement.template], addClasses: [CSS_HIDDEN, CSS_GHOST_ELEMENT] })],
-                    this,
+                    ghostElement,
                     [RemoveTemplateElementsAction.create({ templates: [ghostElement.template] })]
                 ),
                 this.mouseTool.registerListener(trackingListener)
@@ -105,6 +105,8 @@ export class NodeCreationToolMouseListener extends DragAwareMouseListener {
             result.push(CreateNodeOperation.create(this.elementTypeId, { location, containerId, args: this.triggerAction.args }));
             if (!isCtrlOrCmd(event)) {
                 result.push(EnableDefaultToolsAction.create());
+            } else {
+                this.tool.deregisterFeedback(this);
             }
         }
         return result;

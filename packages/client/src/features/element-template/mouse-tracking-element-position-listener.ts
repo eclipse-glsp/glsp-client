@@ -76,11 +76,10 @@ export class MouseTrackingElementPositionListener extends DragAwareMouseListener
             ],
             { animate: false, finished }
         );
-        this.tool.registerFeedback(
-            [moveGhostElement, ModifyCSSFeedbackAction.create({ elements: [element.id], remove: [CSS_HIDDEN] })],
-            this.tool
-        );
-        return [];
+        this.tool.registerFeedback([moveGhostElement], this);
+        return element.cssClasses?.includes(CSS_HIDDEN)
+            ? [ModifyCSSFeedbackAction.create({ elements: [element.id], remove: [CSS_HIDDEN] })]
+            : [];
     }
 
     protected snap(position: Point, element: GModelElement, isSnap = true): Point {
@@ -104,7 +103,7 @@ export class MouseTrackingElementPositionListener extends DragAwareMouseListener
             } else {
                 action = removeMovementRestrictionFeedback(element, this.tool.movementRestrictor);
             }
-            this.tool.registerFeedback([action], this.tool, [removeMovementRestrictionFeedback(element, this.tool.movementRestrictor)]);
+            this.tool.registerFeedback([action], this, [removeMovementRestrictionFeedback(element, this.tool.movementRestrictor)]);
         }
         return newPosition;
     }
