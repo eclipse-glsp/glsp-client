@@ -28,8 +28,8 @@ export interface ArgsAware {
     args?: Args;
 }
 
-export function isArgsAware(element: GModelElement): element is GModelElement & ArgsAware {
-    return element.hasFeature(argsFeature);
+export function isArgsAware(element?: GModelElement): element is GModelElement & ArgsAware {
+    return element !== undefined && element.hasFeature(argsFeature);
 }
 
 export function hasArgs(element?: GModelElement): element is GModelElement & Required<ArgsAware> {
@@ -37,7 +37,7 @@ export function hasArgs(element?: GModelElement): element is GModelElement & Req
 }
 
 export function ensureArgs(element?: GModelElement): element is GModelElement & Required<ArgsAware> {
-    if (element === undefined || !isArgsAware(element)) {
+    if (!isArgsAware(element)) {
         return false;
     }
     if (element.args === undefined) {

@@ -15,14 +15,9 @@
  ********************************************************************************/
 
 import {
-    ATTR_BBOX_ELEMENT,
     Action,
-    Bounds,
-    BoundsAware,
     ComputedBoundsAction,
     Deferred,
-    Disposable,
-    DisposableCollection,
     EdgeRouterRegistry,
     ElementAndRoutingPoints,
     GModelElement,
@@ -30,12 +25,10 @@ import {
     HiddenBoundsUpdater,
     IActionDispatcher,
     RequestAction,
-    ResponseAction,
-    isSVGGraphicsElement
+    ResponseAction
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable, optional } from 'inversify';
 import { VNode } from 'snabbdom';
-import { GArgument } from '../../utils/argument-utils';
 import { calcElementAndRoute, isRoutable } from '../../utils/gmodel-util';
 import { LocalComputedBoundsAction, LocalRequestBoundsAction } from './local-bounds';
 
@@ -87,52 +80,6 @@ export class GLSPHiddenBoundsUpdater extends HiddenBoundsUpdater {
         action.routes = this.element2route.length === 0 ? undefined : this.element2route;
         return action;
     }
-
-    protected override getBounds(elm: Node, element: GModelElement & BoundsAware): Bounds {
-        if (!isSVGGraphicsElement(elm)) {
-            this.logger.error(this, 'Not an SVG element:', elm);
-            return Bounds.EMPTY;
-        }
-        if (elm.tagName === 'g') {
-            for (const child of Array.from(elm.children)) {
-                // eslint-disable-next-line no-null/no-null
-                if (child.getAttribute(ATTR_BBOX_ELEMENT) !== null) {
-                    return this.getBounds(child, element);
-                }
-            }
-        }
-        const bounds = this.getBBounds(elm, element);
-        return {
-            x: bounds.x,
-            y: bounds.y,
-            width: bounds.width,
-            height: bounds.height
-        };
-    }
-
-    protected getBBounds(elm: SVGGraphicsElement, element: GModelElement & BoundsAware): DOMRect {
-        // CUSTOMIZATION: Hide certain elements during bbox calculation
-        if (GArgument.getBoolean(element, ARG_HAS_HIDDEN_BBOX_ELEMENT)) {
-            const restore = this.ignoreHiddenBBoxElements(elm);
-            const bounds = elm.getBBox();
-            restore.dispose();
-            return bounds;
-        }
-        // END CUSTOMIZATION
-        return elm.getBBox();
-    }
-
-    protected ignoreHiddenBBoxElements(elm: Element): Disposable {
-        const revert = new DisposableCollection();
-        // eslint-disable-next-line no-null/no-null
-        if (isSVGGraphicsElement(elm) && elm.getAttribute(ATTR_HIDDEN_BBOX_ELEMENT) !== null) {
-            const prevStyle = elm.style.display;
-            elm.style.display = 'none';
-            revert.push(() => (elm.style.display = prevStyle));
-        }
-        revert.push(...Array.from(elm.children).map(child => this.ignoreHiddenBBoxElements(child)));
-        return revert;
-    }
 }
 
 class CapturingActionDispatcher implements IActionDispatcher {
@@ -151,12 +98,3 @@ class CapturingActionDispatcher implements IActionDispatcher {
         return new Deferred<Res>().promise;
     }
 }
-
-/** If the this attribute is present on an element, it will be ignored during the bounding box calculation of it's parent. */
-export const ATTR_HIDDEN_BBOX_ELEMENT = 'hiddenBboxElement';
-
-/**
- * If this argument is set to true this elements requires special handling during bounding box calculation as it has children
- * whose size should not be considered.
- */
-export const ARG_HAS_HIDDEN_BBOX_ELEMENT = 'hasHiddenBboxElement';

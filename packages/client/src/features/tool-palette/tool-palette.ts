@@ -341,7 +341,7 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
         this.changeActiveButton();
         if (UpdateModelAction.is(action) || SetModelAction.is(action)) {
             this.reloadPaletteBody();
-        } else {
+        } else if (EnableDefaultToolsAction.is(action)) {
             if (this.focusTracker.hasFocus) {
                 // if focus was deliberately taken do not restore focus to the palette
                 this.focusTracker.diagramElement?.focus();
@@ -417,7 +417,7 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
         });
         const response = await this.actionDispatcher.request<SetContextActions>(requestAction);
         this.paletteItems = response.actions.map(action => action as PaletteItem);
-        this.dynamic = !!this.paletteItems.find(item => this.hasDynamicAction(item));
+        this.dynamic = this.paletteItems.some(item => this.hasDynamicAction(item));
     }
 
     protected hasDynamicAction(item: PaletteItem): boolean {
@@ -425,7 +425,7 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
         if (dynamic) {
             return dynamic;
         }
-        return !!item.children?.find(child => this.hasDynamicAction(child));
+        return item.children?.some(child => this.hasDynamicAction(child)) || false;
     }
 
     protected async reloadPaletteBody(): Promise<void> {

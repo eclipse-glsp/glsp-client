@@ -119,7 +119,7 @@ export class KeyboardToolPalette extends ToolPalette {
     }
 
     override handle(action: Action): ICommand | Action | void {
-        if (action.kind === EnableToolPaletteAction.KIND) {
+        if (EnableToolPaletteAction.is(action)) {
             const requestAction = RequestContextActions.create({
                 contextId: ToolPalette.ID,
                 editorContext: {
@@ -134,9 +134,6 @@ export class KeyboardToolPalette extends ToolPalette {
                     ]);
                 }
             });
-        } else if (action.kind === EnableDefaultToolsAction.KIND) {
-            this.changeActiveButton();
-            this.restoreFocus();
         } else if (FocusDomAction.is(action) && action.id === ToolPalette.ID) {
             if (this.containerElement.contains(document.activeElement)) {
                 this.toggleShortcutVisibility();

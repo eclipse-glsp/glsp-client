@@ -16,7 +16,6 @@
 import { IView, Point, RenderingContext, setAttr, svg } from '@eclipse-glsp/sprotty';
 import { injectable } from 'inversify';
 import { VNode } from 'snabbdom';
-import { ATTR_HIDDEN_BBOX_ELEMENT } from '../../bounds/glsp-hidden-bounds-updater';
 import { ResizeHandleLocation, SResizeHandle, isResizable } from '../../change-bounds/model';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -37,7 +36,6 @@ export class SResizeHandleView implements IView {
                 />
             );
             setAttr(node, 'data-kind', handle.location);
-            setAttr(node, ATTR_HIDDEN_BBOX_ELEMENT, true);
             return node;
         }
         // Fallback: Create an empty group

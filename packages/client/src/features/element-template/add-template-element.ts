@@ -80,7 +80,7 @@ export class AddTemplateElementsFeedbackCommand extends FeedbackCommand {
     }
 
     protected applyRootCssClasses(element: GChildElement, addClasses?: string[], removeClasses?: string[]): GChildElement {
-        element.cssClasses = applyCssClasses(element.cssClasses, addClasses, removeClasses);
+        element.cssClasses = modifyCssClasses(element.cssClasses, addClasses, removeClasses);
         return element;
     }
 }
@@ -105,7 +105,7 @@ export function toElementSchema(element: GModelElement): GModelElementSchema | G
     };
 }
 
-export function applyCssClasses(source?: string[], toAdd?: string[], toRemove?: string[]): string[] {
+function modifyCssClasses(source?: string[], toAdd?: string[], toRemove?: string[]): string[] {
     const classes = source ?? [];
     if (toAdd) {
         distinctAdd(classes, ...toAdd);

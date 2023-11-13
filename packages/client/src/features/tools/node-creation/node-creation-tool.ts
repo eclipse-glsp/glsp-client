@@ -33,13 +33,13 @@ import { EnableDefaultToolsAction } from '../../../base/tool-manager/tool';
 import { getAbsolutePosition } from '../../../utils/viewpoint-util';
 import { IMovementRestrictor } from '../../change-bounds/movement-restrictor';
 import { AddTemplateElementsAction, getTemplateElementId } from '../../element-template/add-template-element';
-import { MouseTrackingElementPositionListener } from '../../element-template/mouse-tracking-element-position-listener';
+import { MouseTrackingElementPositionListener, PositioningTool } from '../../element-template/mouse-tracking-element-position-listener';
 import { RemoveTemplateElementsAction } from '../../element-template/remove-template-element';
 import { Containable, isContainable } from '../../hints/model';
 import { BaseCreationTool } from '../base-tools';
 
 @injectable()
-export class NodeCreationTool extends BaseCreationTool<TriggerNodeCreationAction> {
+export class NodeCreationTool extends BaseCreationTool<TriggerNodeCreationAction> implements PositioningTool {
     static ID = 'tool_create_node';
 
     protected isTriggerAction = TriggerNodeCreationAction.is;

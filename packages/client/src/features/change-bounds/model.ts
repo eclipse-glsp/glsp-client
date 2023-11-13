@@ -26,8 +26,6 @@ import {
     isMoveable,
     isSelectable
 } from '@eclipse-glsp/sprotty';
-import { ensureArgs, hasArgs } from '../../base/args-feature';
-import { ARG_HAS_HIDDEN_BBOX_ELEMENT } from '../bounds/glsp-hidden-bounds-updater';
 
 export const resizeFeature = Symbol('resizeFeature');
 
@@ -74,10 +72,6 @@ export class SResizeHandle extends GChildElement implements Hoverable {
 }
 
 export function addResizeHandles(element: GParentElement): void {
-    removeResizeHandles(element);
-    if (ensureArgs(element)) {
-        element.args[ARG_HAS_HIDDEN_BBOX_ELEMENT] = true;
-    }
     element.add(new SResizeHandle(ResizeHandleLocation.TopLeft));
     element.add(new SResizeHandle(ResizeHandleLocation.TopRight));
     element.add(new SResizeHandle(ResizeHandleLocation.BottomLeft));
@@ -85,8 +79,5 @@ export function addResizeHandles(element: GParentElement): void {
 }
 
 export function removeResizeHandles(element: GParentElement): void {
-    if (hasArgs(element)) {
-        delete element.args[ARG_HAS_HIDDEN_BBOX_ELEMENT];
-    }
     element.removeAll(child => child instanceof SResizeHandle);
 }

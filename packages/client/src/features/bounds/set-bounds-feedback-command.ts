@@ -28,6 +28,10 @@ import { GLSPActionDispatcher } from '../../base/action-dispatcher';
 import { FeedbackCommand } from '../../base/feedback/feedback-command';
 import { LocalRequestBoundsAction } from './local-bounds';
 
+export interface SetBoundsFeedbackAction extends Omit<SetBoundsAction, 'kind'> {
+    kind: typeof SetBoundsFeedbackAction.KIND;
+}
+
 export namespace SetBoundsFeedbackAction {
     export const KIND = 'setBoundsFeedback';
 
@@ -38,10 +42,6 @@ export namespace SetBoundsFeedbackAction {
     export function create(bounds: ElementAndBounds[]): SetBoundsFeedbackAction {
         return { kind: KIND, bounds };
     }
-}
-
-export interface SetBoundsFeedbackAction extends Omit<SetBoundsAction, 'kind'> {
-    kind: typeof SetBoundsFeedbackAction.KIND;
 }
 
 @injectable()

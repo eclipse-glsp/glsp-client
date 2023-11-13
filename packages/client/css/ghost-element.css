@@ -17,6 +17,7 @@
 .ghost-element {
     /* we are a true ghost so we do not want to be used as a target for any mouse event */
     pointer-events: none;
+    opacity: 0.8;
 }
 
 .ghost-element.hidden {
