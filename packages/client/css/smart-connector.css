@@ -1,13 +1,11 @@
 
 .smart-connector {
-    display: flex;
-    min-width: 200px;
-    max-width: 800px;
-    flex-wrap: nowrap;
-    justify-content: space-between;
-    align-items: center;
     position: absolute;
-    pointer-events: none;
+    z-index: 1;
+}
+
+.smart-connector-container {
+    position: absolute;
 }
 
 .smart-connector-button-container {
@@ -16,8 +14,10 @@
     background-color:rgba(1, 1, 1, 0.6);
     overflow-y: scroll;
     max-height: 150px;
+    max-width: 400px;
     -ms-overflow-style: none;  /* IE and Edge */
     scrollbar-width: none;  /* Firefox */
+    /* display: flex; */
 }
 
 .smart-connector-button-container::-webkit-scrollbar {
@@ -26,7 +26,7 @@
 
 .smart-connector-button {
     border-top: 1px solid black;
-    margin: 0 5px;
+    margin: 0 2px;
     padding: 8px 0;
     z-index: 9999;
     pointer-events: auto;
@@ -34,6 +34,19 @@
 }
 
 .smart-connector-button-container div:first-child {
+    background-color:rgba(1, 1, 1, 0.6);
     border-top: 0;
 }
 
+.smart-connector-expand-button {
+    height: 32px;
+    width: 32px;
+    border-radius: 50%;
+    border: 1px solid black;
+    z-index: 9999;
+    display: flex; /* or inline-flex */
+    align-items: center; 
+    justify-content: center;
+    position: absolute;
+    background: #cccccc;
+}

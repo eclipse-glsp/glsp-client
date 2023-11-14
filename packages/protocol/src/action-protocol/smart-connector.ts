@@ -1,5 +1,4 @@
 import { hasStringProp } from '../utils/type-util';
-import { Bounds } from 'sprotty-protocol';
 import { Action } from './base-protocol';
 
 /**
@@ -12,10 +11,6 @@ export interface OpenSmartConnectorAction extends Action {
      * The identifier of the element where the smart connector is to be opened.
      */
     selectedElementID: string;
-    /**
-     * Bounds of the node where the smart connector is to be opened.
-     */
-    bounds: Bounds;
 }
 
 export namespace OpenSmartConnectorAction {
@@ -25,11 +20,10 @@ export namespace OpenSmartConnectorAction {
         return Action.hasKind(object, KIND) && hasStringProp(object, 'selectedElementID');
     }
 
-    export function create(selectedElementID: string, bounds: Bounds): OpenSmartConnectorAction {
+    export function create(selectedElementID: string): OpenSmartConnectorAction {
         return {
             kind: KIND,
             selectedElementID,
-            bounds
         };
     }
 }

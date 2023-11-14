@@ -15,7 +15,7 @@
  ********************************************************************************/
 import * as sprotty from 'sprotty-protocol';
 import { Dimension, Point } from 'sprotty-protocol';
-import { AnyObject, hasArrayProp, hasStringProp } from '../utils/type-util';
+import { AnyObject, hasArrayProp, hasBooleanProp, hasObjectProp, hasStringProp } from '../utils/type-util';
 import { Action } from './base-protocol';
 import { TriggerEdgeCreationAction, TriggerNodeCreationAction } from './tool-palette';
 // A collection of convenience and utility types that are used in the GLSP action protocol.
@@ -170,6 +170,39 @@ export namespace PaletteItem {
 
     export function isTriggerElementCreationAction(object: any): object is TriggerElementCreationAction {
         return TriggerNodeCreationAction.is(object) || TriggerEdgeCreationAction.is(object);
+    }
+}
+
+export enum SmartConnectorGroupUIType {
+    Icons,
+    Labels
+}
+
+export enum SmartConnectorPosition {
+    Left,
+    Right,
+    Top,
+    Bottom
+}
+
+/**
+ * TODO
+ */
+export interface SmartConnectorGroupItem extends PaletteItem {
+    /** Show the title of a group */
+    readonly showTitle: boolean;
+    /** Show a group as a collapsed submenu if true, open if false */
+    readonly submenu: boolean;
+    /** Position of the group */
+    readonly position: SmartConnectorPosition;
+    /** Show either only icons or labels. Show both when not given*/
+    readonly showOnlyForChildren?: SmartConnectorGroupUIType;
+    
+}
+
+export namespace SmartConnectorGroupItem {
+    export function is(object: any): object is SmartConnectorGroupItem {
+        return PaletteItem.is(object) && hasBooleanProp(object, 'showTitle') && hasBooleanProp(object, 'submenu') && hasObjectProp(object, 'position');
     }
 }
 
