@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { injectable } from 'inversify';
-import { MouseListener, SModelElement } from '~glsp-sprotty';
+import { MouseListener, GModelElement } from '@eclipse-glsp/sprotty';
 
 /**
  * A mouse listener that clears the document selection on click
@@ -30,7 +30,7 @@ import { MouseListener, SModelElement } from '~glsp-sprotty';
  */
 @injectable()
 export class SelectionClearingMouseListener extends MouseListener {
-    override mouseDown(_target: SModelElement, event: MouseEvent): never[] {
+    override mouseDown(_target: GModelElement, event: MouseEvent): never[] {
         const selection = document.getSelection();
         // eslint-disable-next-line no-null/no-null
         if (selection === null) {

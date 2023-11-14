@@ -43,7 +43,7 @@ export interface StatusAction extends Action {
 export namespace StatusAction {
     export const KIND = 'status';
 
-    export function is(object: any): object is StatusAction {
+    export function is(object: unknown): object is StatusAction {
         return Action.hasKind(object, KIND) && hasStringProp(object, 'severity') && hasStringProp(object, 'message');
     }
 
@@ -89,7 +89,7 @@ export interface MessageAction extends Action {
 export namespace MessageAction {
     export const KIND = 'message';
 
-    export function is(object: any): object is MessageAction {
+    export function is(object: unknown): object is MessageAction {
         return Action.hasKind(object, KIND) && hasStringProp(object, 'message') && hasStringProp(object, 'severity');
     }
 
@@ -136,7 +136,7 @@ export interface StartProgressAction extends Action {
 export namespace StartProgressAction {
     export const KIND = 'startProgress';
 
-    export function is(object: any): object is StartProgressAction {
+    export function is(object: unknown): object is StartProgressAction {
         return Action.hasKind(object, KIND) && hasStringProp(object, 'progressId') && hasStringProp(object, 'title');
     }
 
@@ -171,7 +171,7 @@ export interface UpdateProgressAction extends Action {
 export namespace UpdateProgressAction {
     export const KIND = 'updateProgress';
 
-    export function is(object: any): object is UpdateProgressAction {
+    export function is(object: unknown): object is UpdateProgressAction {
         return Action.hasKind(object, KIND) && hasStringProp(object, 'progressId');
     }
 
@@ -209,7 +209,7 @@ export interface EndProgressAction extends Action {
 export namespace EndProgressAction {
     export const KIND = 'endProgress';
 
-    export function is(object: any): object is EndProgressAction {
+    export function is(object: unknown): object is EndProgressAction {
         return Action.hasKind(object, KIND) && hasStringProp(object, 'progressId');
     }
 

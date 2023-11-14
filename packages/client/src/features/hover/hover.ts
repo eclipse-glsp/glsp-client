@@ -22,13 +22,13 @@ import {
     HoverMouseListener,
     IActionHandler,
     ICommand,
-    PreRenderedElementSchema,
+    GPreRenderedElementSchema,
     RequestPopupModelAction,
-    SModelElement,
-    SModelElementSchema,
-    SModelRootSchema,
-    SetPopupModelAction
-} from '~glsp-sprotty';
+    GModelElement,
+    GModelElementSchema,
+    SetPopupModelAction,
+    GModelRootSchema
+} from '@eclipse-glsp/sprotty';
 import { FocusStateChangedAction } from '../../base/focus/focus-state-change-action';
 import { EnableDefaultToolsAction, EnableToolsAction } from '../../base/tool-manager/tool';
 import { EdgeCreationTool } from '../tools/edge-creation/edge-creation-tool';
@@ -61,14 +61,14 @@ export class GlspHoverMouseListener extends HoverMouseListener implements IActio
         }
     }
 
-    override mouseOver(target: SModelElement, event: MouseEvent): (Action | Promise<Action>)[] {
+    override mouseOver(target: GModelElement, event: MouseEvent): (Action | Promise<Action>)[] {
         if (this.enableHover) {
             return super.mouseOver(target, event);
         }
         return [];
     }
 
-    protected override startMouseOverTimer(target: SModelElement, event: MouseEvent): Promise<Action> {
+    protected override startMouseOverTimer(target: GModelElement, event: MouseEvent): Promise<Action> {
         this.stopMouseOverTimer();
         return new Promise(resolve => {
             this.state.mouseOverTimer = window.setTimeout(() => {
@@ -85,7 +85,7 @@ export class GlspHoverMouseListener extends HoverMouseListener implements IActio
         });
     }
 
-    protected createPopupModel(marker: GIssueMarker, bounds: Bounds): SModelRootSchema {
+    protected createPopupModel(marker: GIssueMarker, bounds: Bounds): GModelRootSchema {
         if (marker.issues !== undefined && marker.issues.length > 0) {
             return {
                 type: 'html',
@@ -97,13 +97,13 @@ export class GlspHoverMouseListener extends HoverMouseListener implements IActio
         return { type: EMPTY_ROOT.type, id: EMPTY_ROOT.id };
     }
 
-    protected createMarkerIssuePopup(marker: GIssueMarker): SModelElementSchema {
+    protected createMarkerIssuePopup(marker: GIssueMarker): GModelElementSchema {
         const message = this.createIssueMessage(marker);
-        return {
+        return <GPreRenderedElementSchema>{
             type: 'pre-rendered',
             id: 'popup-title',
             code: `<div class="${getSeverity(marker)}"><div class="sprotty-popup-title">${message}</div></div>`
-        } as PreRenderedElementSchema;
+        };
     }
 
     protected createIssueMessage(marker: GIssueMarker): string {

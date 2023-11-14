@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { inject, injectable } from 'inversify';
-import { Action, Disposable, IActionDispatcher, ILogger, TYPES } from '~glsp-sprotty';
+import { Action, Disposable, IActionDispatcher, ILogger, TYPES } from '@eclipse-glsp/sprotty';
 
 export interface IFeedbackEmitter {}
 
@@ -26,10 +26,10 @@ export interface IFeedbackEmitter {}
  * The purpose of this dispatcher is to re-establish the feedback
  * after the model has been updated or reset by the server, as this would
  * overwrite the already established feedback, in case it is drawn by
- * extending the `SModelRoot`. Therefore, tools can register themselves
+ * extending the `GModelRoot`. Therefore, tools can register themselves
  * as feedback emitters with actions they want to place for showing
  * feedback. This dispatcher will then re-establish all feedback actions
- * of the registered emitters, whenever the `SModelRoot` has been set or updated.
+ * of the registered emitters, whenever the `GModelRoot` has been set or updated.
  */
 export interface IFeedbackActionDispatcher {
     /**
@@ -67,14 +67,16 @@ export class FeedbackActionDispatcher implements IFeedbackActionDispatcher {
     @inject(TYPES.ILogger) protected logger: ILogger;
 
     registerFeedback(feedbackEmitter: IFeedbackEmitter, feedbackActions: Action[], cleanupActions?: Action[] | undefined): Disposable {
-        this.registeredFeedback.set(feedbackEmitter, feedbackActions);
-        this.dispatchFeedback(feedbackActions, feedbackEmitter);
+        if (feedbackActions.length > 0) {
+            this.registeredFeedback.set(feedbackEmitter, feedbackActions);
+            this.dispatchFeedback(feedbackActions, feedbackEmitter);
+        }
         return Disposable.create(() => this.deregisterFeedback(feedbackEmitter, cleanupActions));
     }
 
     deregisterFeedback(feedbackEmitter: IFeedbackEmitter, cleanupActions?: Action[] | undefined): void {
         this.registeredFeedback.delete(feedbackEmitter);
-        if (cleanupActions) {
+        if (cleanupActions && cleanupActions.length > 0) {
             this.dispatchFeedback(cleanupActions, feedbackEmitter);
         }
     }

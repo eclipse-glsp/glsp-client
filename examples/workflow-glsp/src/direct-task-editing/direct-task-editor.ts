@@ -26,7 +26,7 @@ import {
     Operation,
     RequestContextActions,
     RequestEditValidationAction,
-    SModelRoot,
+    GModelRoot,
     SetContextActions,
     SetEditValidationResultAction,
     TYPES,
@@ -137,12 +137,12 @@ export class TaskEditor extends AbstractUIExtension {
         this.autoSuggestion.initialize(containerElement);
     }
 
-    override show(root: Readonly<SModelRoot>, ...contextElementIds: string[]): void {
+    override show(root: Readonly<GModelRoot>, ...contextElementIds: string[]): void {
         super.show(root, ...contextElementIds);
         this.autoSuggestion.open(root);
     }
 
-    protected override onBeforeShow(containerElement: HTMLElement, root: Readonly<SModelRoot>, ...contextElementIds: string[]): void {
+    protected override onBeforeShow(containerElement: HTMLElement, root: Readonly<GModelRoot>, ...contextElementIds: string[]): void {
         this.task = getTask(contextElementIds, root.index)[0];
         this.autoSuggestion.inputField.value = '';
         this.setPosition(containerElement);

@@ -98,8 +98,8 @@ export interface EditorContext {
 }
 
 export namespace EditorContext {
-    export function is(object: any): object is EditorContext {
-        return object !== undefined && hasArrayProp(object, 'selectedElementIds');
+    export function is(object: unknown): object is EditorContext {
+        return AnyObject.is(object) && hasArrayProp(object, 'selectedElementIds');
     }
 }
 /**
@@ -124,7 +124,7 @@ export interface LabeledAction {
 }
 
 export namespace LabeledAction {
-    export function is(object: any): object is LabeledAction {
+    export function is(object: unknown): object is LabeledAction {
         return AnyObject.is(object) && hasStringProp(object, 'label') && hasArrayProp(object, 'actions');
     }
 
@@ -152,7 +152,7 @@ export interface PaletteItem extends LabeledAction {
 }
 
 export namespace PaletteItem {
-    export function is(object: any): object is PaletteItem {
+    export function is(object: unknown): object is PaletteItem {
         return LabeledAction.is(object) && hasStringProp(object, 'id') && hasStringProp(object, 'sortString');
     }
 
@@ -168,7 +168,7 @@ export namespace PaletteItem {
 
     export type TriggerElementCreationAction = TriggerEdgeCreationAction | TriggerNodeCreationAction;
 
-    export function isTriggerElementCreationAction(object: any): object is TriggerElementCreationAction {
+    export function isTriggerElementCreationAction(object: unknown): object is TriggerElementCreationAction {
         return TriggerNodeCreationAction.is(object) || TriggerEdgeCreationAction.is(object);
     }
 }
@@ -233,7 +233,7 @@ export interface MenuItem extends LabeledAction {
 }
 
 export namespace MenuItem {
-    export function is(object: any): object is MenuItem {
+    export function is(object: unknown): object is MenuItem {
         return LabeledAction.is(object) && hasStringProp(object, 'id');
     }
 }

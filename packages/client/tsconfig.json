@@ -1,13 +1,8 @@
 {
   "extends": "@eclipse-glsp/ts-config/mocha",
   "compilerOptions": {
-    "rootDir": "src",
     "outDir": "lib",
-    "reactNamespace": "JSX",
-    "baseUrl": ".",
-    "paths": {
-      "~glsp-sprotty": ["src/glsp-sprotty/index"]
-    }
+    "reactNamespace": "JSX"
   },
   "include": ["src"]
 }

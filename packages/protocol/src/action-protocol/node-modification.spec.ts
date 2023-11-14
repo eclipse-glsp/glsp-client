@@ -19,7 +19,7 @@ import { Dimension, Point } from 'sprotty-protocol';
 import { ChangeBoundsOperation, ChangeContainerOperation } from './node-modification';
 
 /**
- * The schema of an SModelElement describes its serializable form. The actual class-based model is derived
+ * The schema of an GModelElement describes its serializable form. The actual class-based model is derived
  * its schema whenever the client or server deserializes a received schema`.
  * Each model element must have a unique ID and a type that is used on the client to  look up its view.
  */

@@ -13,10 +13,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, KeyListener, SModelRoot, SaveModelAction, matchesKeystroke } from '~glsp-sprotty';
+import { Action, KeyListener, GModelRoot, SaveModelAction, matchesKeystroke } from '@eclipse-glsp/sprotty';
 
 export class SaveModelKeyboardListener extends KeyListener {
-    override keyDown(_element: SModelRoot, event: KeyboardEvent): Action[] {
+    override keyDown(_element: GModelRoot, event: KeyboardEvent): Action[] {
         if (matchesKeystroke(event, 'KeyS', 'ctrlCmd')) {
             return [SaveModelAction.create()];
         }

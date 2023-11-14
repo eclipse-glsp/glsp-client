@@ -56,7 +56,7 @@ export namespace Disposable {
  */
 export class DisposableCollection implements Disposable {
     protected readonly disposables: Disposable[] = [];
-    errorHandler?: (err: any) => void;
+    errorHandler?: (err: unknown) => void;
 
     constructor(...toDispose: Disposable[]) {
         toDispose.forEach(d => this.push(d));

@@ -15,7 +15,7 @@
  ********************************************************************************/
 
 import { injectable } from 'inversify';
-import { ActionHandlerRegistry } from '~glsp-sprotty';
+import { ActionHandlerRegistry } from '@eclipse-glsp/sprotty';
 
 @injectable()
 export class GLSPActionHandlerRegistry extends ActionHandlerRegistry {

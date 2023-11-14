@@ -43,7 +43,7 @@ export interface Event<T> extends jsonrpc.Event<T> {
      * @param disposables An array to which the {@link Disposable} for removing the listener will be added.
      * @returns a {@link Disposable} to remove the listener again.
      */
-    (listener: (e: T) => any, thisArgs?: any, disposables?: Disposable[]): Disposable;
+    (listener: (e: T) => unknown, thisArgs?: unknown, disposables?: Disposable[]): Disposable;
 }
 
 /**

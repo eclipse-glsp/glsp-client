@@ -35,7 +35,7 @@ export interface ChangeBoundsOperation extends Operation {
 export namespace ChangeBoundsOperation {
     export const KIND = 'changeBounds';
 
-    export function is(object: any): object is ChangeBoundsOperation {
+    export function is(object: unknown): object is ChangeBoundsOperation {
         return Operation.hasKind(object, KIND) && hasArrayProp(object, 'newBounds');
     }
 
@@ -76,7 +76,7 @@ export interface ChangeContainerOperation extends Operation {
 export namespace ChangeContainerOperation {
     export const KIND = 'changeContainer';
 
-    export function is(object: any): object is ChangeContainerOperation {
+    export function is(object: unknown): object is ChangeContainerOperation {
         return Operation.hasKind(object, KIND) && hasStringProp(object, 'elementId') && hasStringProp(object, 'targetContainerId');
     }
 

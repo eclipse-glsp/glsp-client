@@ -22,37 +22,36 @@ import {
     DiamondNodeView,
     ExpandButtonView,
     FeatureModule,
-    ForeignObjectElement,
     ForeignObjectView,
-    HtmlRoot,
+    GButton,
+    GCompartment,
+    GCompartmentView,
+    GForeignObjectElement,
+    GGraphView,
+    GHtmlRoot,
+    GLabel,
+    GNode,
+    GPort,
+    GPreRenderedElement,
+    GRoutingHandle,
+    GRoutingHandleView,
+    GShapedPreRenderedElement,
+    GViewportRootElement,
     HtmlRootView,
-    PreRenderedElement,
     PreRenderedView,
     RectangularNode,
     RectangularNodeView,
-    SButton,
-    SCompartment,
-    SCompartmentView,
-    SEdge,
-    SGraphView,
-    SLabel,
-    SLabelView,
-    SNode,
-    SPort,
-    SRoutingHandle,
-    SRoutingHandleView,
-    ShapedPreRenderedElement,
+    GLabelView,
     SvgViewportView,
-    ViewportRootElement,
     configureModelElement,
     moveFeature,
     selectFeature
-} from '~glsp-sprotty';
+} from '@eclipse-glsp/sprotty';
 import { GIssueMarker } from '../features/validation/issue-marker';
-import { GLSPGraph } from '../lib/model';
-import { GEdgeView } from './glsp-edge-view';
+import { GEdgeView } from './gedge-view';
 import { GIssueMarkerView } from './issue-marker-view';
 import { RoundedCornerNodeView } from './rounded-corner-view';
+import { GEdge, GGraph } from '../model';
 
 export const baseViewModule = new FeatureModule((bind, unbind, isBound, rebind) => {
     const context = { bind, unbind, isBound, rebind };
@@ -61,31 +60,31 @@ export const baseViewModule = new FeatureModule((bind, unbind, isBound, rebind) 
 
 export function configureDefaultModelElements(context: Pick<BindingContext, 'bind' | 'isBound'>): void {
     // HTML elements
-    configureModelElement(context, DefaultTypes.HTML, HtmlRoot, HtmlRootView);
+    configureModelElement(context, DefaultTypes.HTML, GHtmlRoot, HtmlRootView);
 
     // generic elements
-    configureModelElement(context, DefaultTypes.FOREIGN_OBJECT, ForeignObjectElement, ForeignObjectView, {
+    configureModelElement(context, DefaultTypes.FOREIGN_OBJECT, GForeignObjectElement, ForeignObjectView, {
         disable: [selectFeature, moveFeature]
     });
-    configureModelElement(context, DefaultTypes.PRE_RENDERED, PreRenderedElement, PreRenderedView);
-    configureModelElement(context, DefaultTypes.SHAPE_PRE_RENDERED, ShapedPreRenderedElement, PreRenderedView);
+    configureModelElement(context, DefaultTypes.PRE_RENDERED, GPreRenderedElement, PreRenderedView);
+    configureModelElement(context, DefaultTypes.SHAPE_PRE_RENDERED, GShapedPreRenderedElement, PreRenderedView);
 
     // SVG elements
-    configureModelElement(context, DefaultTypes.SVG, ViewportRootElement, SvgViewportView);
+    configureModelElement(context, DefaultTypes.SVG, GViewportRootElement, SvgViewportView);
 
     // graph elements
-    configureModelElement(context, DefaultTypes.GRAPH, GLSPGraph, SGraphView);
-    configureModelElement(context, DefaultTypes.NODE, SNode, RoundedCornerNodeView);
-    configureModelElement(context, DefaultTypes.COMPARTMENT, SCompartment, SCompartmentView);
-    configureModelElement(context, DefaultTypes.COMPARTMENT_HEADER, SCompartment, SCompartmentView);
-    configureModelElement(context, DefaultTypes.EDGE, SEdge, GEdgeView);
-    configureModelElement(context, DefaultTypes.PORT, SPort, RectangularNodeView);
-    configureModelElement(context, DefaultTypes.ROUTING_POINT, SRoutingHandle, SRoutingHandleView);
-    configureModelElement(context, DefaultTypes.VOLATILE_ROUTING_POINT, SRoutingHandle, SRoutingHandleView);
-    configureModelElement(context, DefaultTypes.LABEL, SLabel, SLabelView);
+    configureModelElement(context, DefaultTypes.GRAPH, GGraph, GGraphView);
+    configureModelElement(context, DefaultTypes.NODE, GNode, RoundedCornerNodeView);
+    configureModelElement(context, DefaultTypes.COMPARTMENT, GCompartment, GCompartmentView);
+    configureModelElement(context, DefaultTypes.COMPARTMENT_HEADER, GCompartment, GCompartmentView);
+    configureModelElement(context, DefaultTypes.EDGE, GEdge, GEdgeView);
+    configureModelElement(context, DefaultTypes.PORT, GPort, RectangularNodeView);
+    configureModelElement(context, DefaultTypes.ROUTING_POINT, GRoutingHandle, GRoutingHandleView);
+    configureModelElement(context, DefaultTypes.VOLATILE_ROUTING_POINT, GRoutingHandle, GRoutingHandleView);
+    configureModelElement(context, DefaultTypes.LABEL, GLabel, GLabelView);
 
     // UI elements
-    configureModelElement(context, DefaultTypes.BUTTON_EXPAND, SButton, ExpandButtonView);
+    configureModelElement(context, DefaultTypes.BUTTON_EXPAND, GButton, ExpandButtonView);
     configureModelElement(context, DefaultTypes.ISSUE_MARKER, GIssueMarker, GIssueMarkerView);
 
     // shapes

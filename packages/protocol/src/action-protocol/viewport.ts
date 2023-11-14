@@ -47,7 +47,7 @@ export interface CenterAction extends Action, sprotty.CenterAction {
 export namespace CenterAction {
     export const KIND = 'center';
 
-    export function is(object: any): object is CenterAction {
+    export function is(object: unknown): object is CenterAction {
         return Action.hasKind(object, KIND) && hasBooleanProp(object, 'animate') && hasBooleanProp(object, 'retainZoom');
     }
 
@@ -94,7 +94,7 @@ export interface FitToScreenAction extends Action, sprotty.FitToScreenAction {
 export namespace FitToScreenAction {
     export const KIND = 'fit';
 
-    export function is(object: any): object is FitToScreenAction {
+    export function is(object: unknown): object is FitToScreenAction {
         return Action.hasKind(object, KIND) && hasArrayProp(object, 'elementIds') && hasBooleanProp(object, 'animate');
     }
 

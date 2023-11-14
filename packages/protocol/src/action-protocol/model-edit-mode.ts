@@ -34,7 +34,7 @@ export interface SetEditModeAction extends Action {
 export namespace SetEditModeAction {
     export const KIND = 'setEditMode';
 
-    export function is(object: any): object is SetEditModeAction {
+    export function is(object: unknown): object is SetEditModeAction {
         return Action.hasKind(object, KIND) && hasStringProp(object, 'editMode');
     }
 

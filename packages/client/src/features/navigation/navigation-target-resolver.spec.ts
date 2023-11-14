@@ -16,7 +16,7 @@
 import { expect } from 'chai';
 import 'mocha';
 import 'reflect-metadata';
-import { NavigationTarget } from '~glsp-sprotty';
+import { NavigationTarget } from '@eclipse-glsp/sprotty';
 
 describe('NavigationTarget', () => {
     it('should be able to set and get element IDs', () => {

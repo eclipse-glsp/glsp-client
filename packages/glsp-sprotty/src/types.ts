@@ -13,11 +13,11 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-// eslint-disable-next-line no-restricted-imports
 import { TYPES as SprottyTYPES } from 'sprotty';
 /**
  * Reexport of the TYPES namespace of sprotty augments with additional GLSP specific service
  * identifiers.
+ *
  */
 export const TYPES = {
     ...SprottyTYPES,
@@ -41,10 +41,3 @@ export const TYPES = {
     IDiagramStartup: Symbol('IDiagramStartup'),
     IToolManager: Symbol('IToolManager')
 };
-
-/**
- * Keep a reexport under the old deprecated namespace to avoid hard API breaks.
- * This gives adopters a grace period but all deprecated API will be removed before the 1.0.0 release.
- * @deprecated Please use `TYPES` from `@eclipse-glsp/client` instead
- */
-export const GLSP_TYPES = TYPES;

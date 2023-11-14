@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { boundsFeature, Point, RectangularNode } from '~glsp-sprotty';
+import { boundsFeature, Point, RectangularNode } from '@eclipse-glsp/sprotty';
 
 export class MarqueeNode extends RectangularNode {
     static override readonly DEFAULT_FEATURES = [boundsFeature];

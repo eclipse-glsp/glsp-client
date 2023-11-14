@@ -15,7 +15,7 @@
  ********************************************************************************/
 
 import { injectable, inject } from 'inversify';
-import { Action, AbstractUIExtension, IActionHandler, ICommand, TYPES } from '~glsp-sprotty';
+import { Action, AbstractUIExtension, IActionHandler, ICommand, TYPES } from '@eclipse-glsp/sprotty';
 import { IDiagramStartup } from '../../../base/model/diagram-loader';
 import { GLSPActionDispatcher } from '../../../base/action-dispatcher';
 import { EditorContextService } from '../../../base/editor-context-service';

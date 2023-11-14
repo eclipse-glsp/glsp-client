@@ -15,25 +15,25 @@
  ********************************************************************************/
 import {
     Bounds,
+    GDecoration,
+    GIssue,
+    GIssueSeverity,
+    GParentElement,
     Marker,
     MarkerKind,
     Projectable,
-    SDecoration,
-    SIssue,
     SIssueMarker,
-    SIssueSeverity,
-    SParentElement,
     isBoundsAware
-} from '~glsp-sprotty';
+} from '@eclipse-glsp/sprotty';
 
 export class GIssueMarker extends SIssueMarker implements Projectable {
     constructor() {
         super();
-        this.features = new Set<symbol>(SDecoration.DEFAULT_FEATURES);
+        this.features = new Set<symbol>(GDecoration.DEFAULT_FEATURES);
     }
     projectionCssClasses: string[];
     projectedBounds?: Bounds;
-    override issues: SIssue[] = [];
+    override issues: GIssue[] = [];
     override type = 'marker';
 
     computeProjectionCssClasses(): void {
@@ -43,16 +43,16 @@ export class GIssueMarker extends SIssueMarker implements Projectable {
 }
 
 /**
- * Retrieves the `SIssueMarker` contained by the provided model element as
- * direct child or a newly instantiated `SIssueMarker` if no child
- * `SIssueMarker` exists.
- * @param modelElement for which the `SIssueMarker` should be retrieved or created.
- * @returns the child `SIssueMarker` or a new `SIssueMarker` if no such child exists.
+ * Retrieves the `GIssueMarker` contained by the provided model element as
+ * direct child or a newly instantiated `GIssueMarker` if no child
+ * `GIssueMarker` exists.
+ * @param modelElement for which the `GIssueMarker` should be retrieved or created.
+ * @returns the child `GIssueMarker` or a new `GIssueMarker` if no such child exists.
  */
-export function getOrCreateSIssueMarker(modelElement: SParentElement): SIssueMarker {
+export function getOrCreateGIssueMarker(modelElement: GParentElement): GIssueMarker {
     let issueMarker: GIssueMarker | undefined;
 
-    issueMarker = getSIssueMarker(modelElement);
+    issueMarker = getGIssueMarker(modelElement);
 
     if (issueMarker === undefined) {
         issueMarker = new GIssueMarker();
@@ -66,12 +66,12 @@ export function getOrCreateSIssueMarker(modelElement: SParentElement): SIssueMar
 }
 
 /**
- * Retrieves the `SIssueMarker` contained by the provided model element as
- * direct child or `undefined` if such an `SIssueMarker` does not exist.
- * @param modelElement for which the `SIssueMarker` should be retrieved.
- * @returns the child `SIssueMarker` or `undefined` if no such child exists.
+ * Retrieves the `GIssueMarker` contained by the provided model element as
+ * direct child or `undefined` if such an `GIssueMarker` does not exist.
+ * @param modelElement for which the `GIssueMarker` should be retrieved.
+ * @returns the child `GIssueMarker` or `undefined` if no such child exists.
  */
-export function getSIssueMarker(modelElement: SParentElement): GIssueMarker | undefined {
+export function getGIssueMarker(modelElement: GParentElement): GIssueMarker | undefined {
     let issueMarker: GIssueMarker | undefined;
 
     for (const child of modelElement.children) {
@@ -84,13 +84,13 @@ export function getSIssueMarker(modelElement: SParentElement): GIssueMarker | un
 }
 
 /**
- * Creates an `SIssue` with `severity` and `message` set according to
+ * Creates an `GIssue` with `severity` and `message` set according to
  * the `kind` and `description` of the provided `Marker`.
- * @param marker `Marker` for that an `SIssue` should be created.
- * @returns the created `SIssue`.
+ * @param marker `Marker` for that an `GIssue` should be created.
+ * @returns the created `GIssue`.
  */
-export function createSIssue(marker: Marker, parent?: SParentElement): SIssue {
-    const issue = new SIssue();
+export function createGIssue(marker: Marker, parent?: GParentElement): GIssue {
+    const issue = new GIssue();
     issue.message = marker.description;
 
     switch (marker.kind) {
@@ -110,8 +110,8 @@ export function createSIssue(marker: Marker, parent?: SParentElement): SIssue {
     return issue;
 }
 
-export function getSeverity(marker: SIssueMarker): SIssueSeverity {
-    let currentSeverity: SIssueSeverity = 'info';
+export function getSeverity(marker: GIssueMarker): GIssueSeverity {
+    let currentSeverity: GIssueSeverity = 'info';
     for (const severity of marker.issues.map(s => s.severity)) {
         if (severity === 'error') {
             return severity;

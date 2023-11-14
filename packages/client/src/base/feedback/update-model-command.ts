@@ -23,13 +23,13 @@ import {
     CommandReturn,
     ILogger,
     MorphEdgesAnimation,
-    SModelRoot,
+    GModelRoot,
     TYPES,
     UpdateAnimationData,
     UpdateModelAction,
     UpdateModelCommand,
     toTypeGuard
-} from '~glsp-sprotty';
+} from '@eclipse-glsp/sprotty';
 import { IFeedbackActionDispatcher } from './feedback-action-dispatcher';
 import { FeedbackCommand } from './feedback-command';
 
@@ -58,7 +58,7 @@ export class FeedbackAwareUpdateModelCommand extends UpdateModelCommand {
         actionHandlerRegistryProvider().then(registry => (this.actionHandlerRegistry = registry));
     }
 
-    protected override performUpdate(oldRoot: SModelRoot, newRoot: SModelRoot, context: CommandExecutionContext): CommandReturn {
+    protected override performUpdate(oldRoot: GModelRoot, newRoot: GModelRoot, context: CommandExecutionContext): CommandReturn {
         if (this.feedbackActionDispatcher && this.actionHandlerRegistry) {
             // Create a temporary context which defines the `newRoot` as `root`
             // This way we do not corrupt the redo/undo behavior of the super class
@@ -93,7 +93,7 @@ export class FeedbackAwareUpdateModelCommand extends UpdateModelCommand {
 
     // Override the `createAnimations` implementation and remove the animation for edge morphing. Otherwise routing & reconnect
     // handles flicker after each server update.
-    protected override createAnimations(data: UpdateAnimationData, root: SModelRoot, context: CommandExecutionContext): Animation[] {
+    protected override createAnimations(data: UpdateAnimationData, root: GModelRoot, context: CommandExecutionContext): Animation[] {
         const animations = super.createAnimations(data, root, context);
         return animations.filter(animation => !(animation instanceof MorphEdgesAnimation));
     }

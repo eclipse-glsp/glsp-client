@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { ValidationStatus, codiconCSSString } from '~glsp-sprotty';
+import { ValidationStatus, codiconCSSString } from '@eclipse-glsp/sprotty';
 
 export interface IValidationDecorator {
     decorateValidationResult(status: ValidationStatus): void;

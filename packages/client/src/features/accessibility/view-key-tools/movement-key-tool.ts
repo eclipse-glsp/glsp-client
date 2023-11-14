@@ -14,9 +14,9 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
+import { Action, GModelElement, ISnapper, KeyListener, KeyTool, Point, TYPES } from '@eclipse-glsp/sprotty';
 import { inject, injectable, optional } from 'inversify';
 import { matchesKeystroke } from 'sprotty/lib/utils/keyboard';
-import { Action, ISnapper, KeyListener, KeyTool, SModelElement, TYPES } from '~glsp-sprotty';
 import { GLSPActionDispatcher } from '../../../base/action-dispatcher';
 import { SelectionService } from '../../../base/selection-service';
 import { Tool } from '../../../base/tool-manager/tool';
@@ -63,14 +63,18 @@ export class MoveKeyListener extends KeyListener implements AccessibleKeyShortcu
 
     protected readonly token = MoveKeyListener.name;
 
-    protected grid = { x: MoveKeyListener.defaultMoveX, y: MoveKeyListener.defaultMoveY };
-
     constructor(protected readonly tool: MovementKeyTool) {
         super();
+    }
 
+    protected get grid(): Point {
         if (this.tool.snapper instanceof GridSnapper) {
-            this.grid = this.tool.snapper.grid;
+            return this.tool.snapper.grid;
         }
+        return {
+            x: MoveKeyListener.defaultMoveX,
+            y: MoveKeyListener.defaultMoveY
+        };
     }
 
     registerShortcutKey(): void {
@@ -82,24 +86,27 @@ export class MoveKeyListener extends KeyListener implements AccessibleKeyShortcu
         );
     }
 
-    override keyDown(element: SModelElement, event: KeyboardEvent): Action[] {
+    override keyDown(element: GModelElement, event: KeyboardEvent): Action[] {
         const selectedElementIds = this.tool.selectionService.getSelectedElementIDs();
+        const snap = !event.altKey;
+        const offsetX = snap ? this.grid.x : 1;
+        const offsetY = snap ? this.grid.y : 1;
 
         if (selectedElementIds.length > 0) {
             if (this.matchesMoveUpKeystroke(event)) {
-                return [MoveElementAction.create(selectedElementIds, 0, -this.grid.x)];
+                return [MoveElementAction.create(selectedElementIds, 0, -offsetY, snap)];
             } else if (this.matchesMoveDownKeystroke(event)) {
-                return [MoveElementAction.create(selectedElementIds, 0, this.grid.x)];
+                return [MoveElementAction.create(selectedElementIds, 0, offsetY, snap)];
             } else if (this.matchesMoveRightKeystroke(event)) {
-                return [MoveElementAction.create(selectedElementIds, this.grid.x, 0)];
+                return [MoveElementAction.create(selectedElementIds, offsetX, 0, snap)];
             } else if (this.matchesMoveLeftKeystroke(event)) {
-                return [MoveElementAction.create(selectedElementIds, -this.grid.x, 0)];
+                return [MoveElementAction.create(selectedElementIds, -offsetX, 0, snap)];
             }
         } else {
             if (this.matchesMoveUpKeystroke(event)) {
-                return [MoveViewportAction.create(0, -this.grid.x)];
+                return [MoveViewportAction.create(0, -this.grid.y)];
             } else if (this.matchesMoveDownKeystroke(event)) {
-                return [MoveViewportAction.create(0, this.grid.x)];
+                return [MoveViewportAction.create(0, this.grid.y)];
             } else if (this.matchesMoveRightKeystroke(event)) {
                 return [MoveViewportAction.create(this.grid.x, 0)];
             } else if (this.matchesMoveLeftKeystroke(event)) {
@@ -110,18 +117,18 @@ export class MoveKeyListener extends KeyListener implements AccessibleKeyShortcu
     }
 
     protected matchesMoveUpKeystroke(event: KeyboardEvent): boolean {
-        return matchesKeystroke(event, 'ArrowUp');
+        return matchesKeystroke(event, 'ArrowUp') || matchesKeystroke(event, 'ArrowUp', 'alt');
     }
 
     protected matchesMoveDownKeystroke(event: KeyboardEvent): boolean {
-        return matchesKeystroke(event, 'ArrowDown');
+        return matchesKeystroke(event, 'ArrowDown') || matchesKeystroke(event, 'ArrowDown', 'alt');
     }
 
     protected matchesMoveRightKeystroke(event: KeyboardEvent): boolean {
-        return matchesKeystroke(event, 'ArrowRight');
+        return matchesKeystroke(event, 'ArrowRight') || matchesKeystroke(event, 'ArrowRight', 'alt');
     }
 
     protected matchesMoveLeftKeystroke(event: KeyboardEvent): boolean {
-        return matchesKeystroke(event, 'ArrowLeft');
+        return matchesKeystroke(event, 'ArrowLeft') || matchesKeystroke(event, 'ArrowLeft', 'alt');
     }
 }

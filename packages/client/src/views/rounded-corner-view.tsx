@@ -15,7 +15,7 @@
  ********************************************************************************/
 import { injectable } from 'inversify';
 import { Classes, VNode } from 'snabbdom';
-import { Hoverable, RectangularNodeView, RenderingContext, SNode, SPort, SShapeElement, Selectable, svg } from '~glsp-sprotty';
+import { Hoverable, RectangularNodeView, RenderingContext, GNode, GPort, GShapeElement, Selectable, svg } from '@eclipse-glsp/sprotty';
 import { CornerRadius } from '../utils/argument-utils';
 import { RoundedCornerWrapper } from './rounded-corner';
 
@@ -24,7 +24,7 @@ const JSX = { createElement: svg };
 
 @injectable()
 export class RoundedCornerNodeView extends RectangularNodeView {
-    override render(node: Readonly<SShapeElement & Hoverable & Selectable>, context: RenderingContext): VNode | undefined {
+    override render(node: Readonly<GNode & Hoverable & Selectable>, context: RenderingContext): VNode | undefined {
         const cornerRadius = CornerRadius.from(node);
         if (!cornerRadius) {
             return this.renderWithoutRadius(node, context);
@@ -44,7 +44,7 @@ export class RoundedCornerNodeView extends RectangularNodeView {
         );
     }
 
-    protected renderWithoutRadius(node: Readonly<SShapeElement & Hoverable & Selectable>, context: RenderingContext): VNode | undefined {
+    protected renderWithoutRadius(node: Readonly<GShapeElement & Hoverable & Selectable>, context: RenderingContext): VNode | undefined {
         return super.render(node, context);
     }
 
@@ -56,8 +56,8 @@ export class RoundedCornerNodeView extends RectangularNodeView {
         return (
             <path
                 d={this.renderPath(wrapper, context, 0)}
-                class-sprotty-node={wrapper.element instanceof SNode}
-                class-sprotty-port={wrapper.element instanceof SPort}
+                class-sprotty-node={wrapper.element instanceof GNode}
+                class-sprotty-port={wrapper.element instanceof GPort}
                 class-mouseover={wrapper.element.hoverFeedback}
                 class-selected={wrapper.element.selected}
                 {...this.additionalClasses(wrapper.element, context)}
@@ -65,7 +65,7 @@ export class RoundedCornerNodeView extends RectangularNodeView {
         );
     }
 
-    protected additionalClasses(_node: Readonly<SShapeElement & Hoverable & Selectable>, _context: RenderingContext): Classes {
+    protected additionalClasses(_node: Readonly<GShapeElement & Hoverable & Selectable>, _context: RenderingContext): Classes {
         return {};
     }
 
@@ -97,6 +97,6 @@ export class RoundedCornerNodeView extends RectangularNodeView {
     }
 }
 
-export function toClipPathId(node: Readonly<SShapeElement & Hoverable & Selectable>): string {
+export function toClipPathId(node: Readonly<GShapeElement & Hoverable & Selectable>): string {
     return `${node.id}_clip_path`;
 }

@@ -21,15 +21,15 @@ import {
     LayoutContainer,
     LayoutRegistry,
     Layouter,
-    SModelElement,
-    SParentElement,
+    GModelElement,
+    GParentElement,
     StatefulLayouter,
     isLayoutContainer
-} from '~glsp-sprotty';
+} from '@eclipse-glsp/sprotty';
 
 @injectable()
 export class LayouterExt extends Layouter {
-    override layout(element2boundsData: Map<SModelElement, BoundsData>): void {
+    override layout(element2boundsData: Map<GModelElement, BoundsData>): void {
         new StatefulLayouterExt(element2boundsData, this.layoutRegistry, this.logger).layout();
     }
 }
@@ -42,7 +42,7 @@ export class LayouterExt extends Layouter {
 // Parent-to-children layout
 
 export class StatefulLayouterExt extends StatefulLayouter {
-    protected toBeLayouted2: (SParentElement & LayoutContainer)[];
+    protected toBeLayouted2: (GParentElement & LayoutContainer)[];
 
     /**
      *
@@ -52,7 +52,7 @@ export class StatefulLayouterExt extends StatefulLayouter {
      * @param log The log.
      */
     constructor(
-        protected readonly elementToBoundsData: Map<SModelElement, BoundsData>,
+        protected readonly elementToBoundsData: Map<GModelElement, BoundsData>,
         protected readonly layoutRegistry2: LayoutRegistry,
         log: ILogger
     ) {
@@ -69,7 +69,7 @@ export class StatefulLayouterExt extends StatefulLayouter {
         }
     }
 
-    override getBoundsData(element: SModelElement): BoundsData {
+    override getBoundsData(element: GModelElement): BoundsData {
         let boundsData = this.elementToBoundsData.get(element);
         let bounds = (element as any).bounds;
         if (isLayoutContainer(element) && this.toBeLayouted2.indexOf(element) >= 0) {
@@ -117,7 +117,7 @@ export class StatefulLayouterExt extends StatefulLayouter {
         }
     }
 
-    protected override doLayout(element: SParentElement & LayoutContainer): Bounds {
+    protected override doLayout(element: GParentElement & LayoutContainer): Bounds {
         const index = this.toBeLayouted2.indexOf(element);
         if (index >= 0) {
             this.toBeLayouted2.splice(index, 1);

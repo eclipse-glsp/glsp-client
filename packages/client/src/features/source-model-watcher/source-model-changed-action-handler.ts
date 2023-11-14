@@ -23,7 +23,7 @@ import {
     StatusAction,
     TYPES,
     ViewerOptions
-} from '~glsp-sprotty';
+} from '@eclipse-glsp/sprotty';
 
 /**
  * An external handler of the source model change event.

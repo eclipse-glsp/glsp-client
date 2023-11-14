@@ -22,10 +22,10 @@ import {
     DisposableCollection,
     Emitter,
     Event,
+    GChildElement,
     ILogger,
-    SChildElement,
-    SModelElement,
-    SModelRoot,
+    GModelElement,
+    GModelRoot,
     SelectAction,
     SelectAllAction,
     Selectable,
@@ -35,24 +35,24 @@ import {
     hasArrayProp,
     isSelectable,
     pluck
-} from '~glsp-sprotty';
-import { getElements, getMatchingElements } from '../utils/smodel-util';
+} from '@eclipse-glsp/sprotty';
+import { getElements, getMatchingElements } from '../utils/gmodel-util';
 import { ISModelRootListener } from './command-stack';
 import { IFeedbackActionDispatcher } from './feedback/feedback-action-dispatcher';
 
 export interface ISelectionListener {
-    selectionChanged(root: Readonly<SModelRoot>, selectedElements: string[], deselectedElements?: string[]): void;
+    selectionChanged(root: Readonly<GModelRoot>, selectedElements: string[], deselectedElements?: string[]): void;
 }
 
 export interface SelectionChange {
-    root: Readonly<SModelRoot>;
+    root: Readonly<GModelRoot>;
     selectedElements: string[];
     deselectedElements: string[];
 }
 
 @injectable()
 export class SelectionService implements ISModelRootListener, Disposable {
-    protected root: Readonly<SModelRoot>;
+    protected root: Readonly<GModelRoot>;
     protected selectedElementIDs: Set<string> = new Set();
 
     @inject(TYPES.IFeedbackActionDispatcher)
@@ -85,11 +85,11 @@ export class SelectionService implements ISModelRootListener, Disposable {
         return this.onSelectionChangedEmitter.event;
     }
 
-    modelRootChanged(root: Readonly<SModelRoot>): void {
+    modelRootChanged(root: Readonly<GModelRoot>): void {
         this.updateSelection(root, [], []);
     }
 
-    updateSelection(root: Readonly<SModelRoot>, select: string[], deselect: string[]): void {
+    updateSelection(root: Readonly<GModelRoot>, select: string[], deselect: string[]): void {
         if (root === undefined && select.length === 0 && deselect.length === 0) {
             return;
         }
@@ -148,7 +148,7 @@ export class SelectionService implements ISModelRootListener, Disposable {
         this.feedbackDispatcher.registerFeedback(this, actions);
     }
 
-    notifyListeners(root: SModelRoot, selectedElementIDs: Set<string>, deselectedElementIDs: Set<string>): void {
+    notifyListeners(root: GModelRoot, selectedElementIDs: Set<string>, deselectedElementIDs: Set<string>): void {
         this.onSelectionChangedEmitter.fire({
             root,
             selectedElements: Array.from(selectedElementIDs),
@@ -156,11 +156,11 @@ export class SelectionService implements ISModelRootListener, Disposable {
         });
     }
 
-    getModelRoot(): Readonly<SModelRoot> {
+    getModelRoot(): Readonly<GModelRoot> {
         return this.root;
     }
 
-    getSelectedElements(): Readonly<SModelElement & Selectable>[] {
+    getSelectedElements(): Readonly<GModelElement & Selectable>[] {
         return !this.root ? [] : getElements(this.root.index, Array.from(this.selectedElementIDs), isSelectable);
     }
 
@@ -194,16 +194,16 @@ export class SelectionService implements ISModelRootListener, Disposable {
 export class SelectCommand extends Command {
     static readonly KIND = SprottySelectCommand.KIND;
 
-    protected selected: SModelElement[] = [];
-    protected deselected: SModelElement[] = [];
+    protected selected: GModelElement[] = [];
+    protected deselected: GModelElement[] = [];
 
     constructor(@inject(TYPES.Action) public action: SelectAction, @inject(SelectionService) public selectionService: SelectionService) {
         super();
     }
 
-    execute(context: CommandExecutionContext): SModelRoot {
+    execute(context: CommandExecutionContext): GModelRoot {
         const model = context.root;
-        const selectionGuard = (element: any): element is SModelElement => element instanceof SChildElement && isSelectable(element);
+        const selectionGuard = (element: any): element is GModelElement => element instanceof GChildElement && isSelectable(element);
         const selectedElements = getElements(model.index, this.action.selectedElementsIDs, selectionGuard);
         const deselectedElements = this.action.deselectAll
             ? this.selectionService.getSelectedElements()
@@ -214,12 +214,12 @@ export class SelectCommand extends Command {
     }
 
     // Basically no-op since client-side undo is not supported in GLSP.
-    undo(context: CommandExecutionContext): SModelRoot {
+    undo(context: CommandExecutionContext): GModelRoot {
         return context.root;
     }
 
     // Basically no-op since client-side redo is not supported in GLSP.
-    redo(context: CommandExecutionContext): SModelRoot {
+    redo(context: CommandExecutionContext): GModelRoot {
         return context.root;
     }
 }
@@ -238,9 +238,9 @@ export class SelectAllCommand extends Command {
         super();
     }
 
-    execute(context: CommandExecutionContext): SModelRoot {
+    execute(context: CommandExecutionContext): GModelRoot {
         const model = context.root;
-        const selectionGuard = (element: any): element is SModelElement => element instanceof SChildElement && isSelectable(element);
+        const selectionGuard = (element: any): element is GModelElement => element instanceof GChildElement && isSelectable(element);
 
         const selectables = getMatchingElements(model.index, selectionGuard);
         const selectableIds = pluck(selectables, 'id');
@@ -254,12 +254,12 @@ export class SelectAllCommand extends Command {
     }
 
     // Basically no-op since client-side undo is not supported in GLSP.
-    undo(context: CommandExecutionContext): SModelRoot {
+    undo(context: CommandExecutionContext): GModelRoot {
         return context.root;
     }
 
     // Basically no-op since client-side redo is not supported in GLSP.
-    redo(context: CommandExecutionContext): SModelRoot {
+    redo(context: CommandExecutionContext): GModelRoot {
         return context.root;
     }
 }

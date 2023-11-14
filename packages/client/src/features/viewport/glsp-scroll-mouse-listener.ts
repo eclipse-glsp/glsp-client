@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { injectable } from 'inversify';
-import { Action, IActionHandler, ICommand, ScrollMouseListener, SModelElement } from '~glsp-sprotty';
+import { Action, IActionHandler, ICommand, ScrollMouseListener, GModelElement } from '@eclipse-glsp/sprotty';
 import { EnableDefaultToolsAction, EnableToolsAction } from '../../base/tool-manager/tool';
 import { MarqueeMouseTool } from '../tools/marquee-selection/marquee-mouse-tool';
 
@@ -32,7 +32,7 @@ export class GLSPScrollMouseListener extends ScrollMouseListener implements IAct
         }
     }
 
-    override mouseDown(target: SModelElement, event: MouseEvent): (Action | Promise<Action>)[] {
+    override mouseDown(target: GModelElement, event: MouseEvent): (Action | Promise<Action>)[] {
         if (this.preventScrolling) {
             return [];
         }

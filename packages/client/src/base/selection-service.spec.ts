@@ -16,7 +16,7 @@
 import { AssertionError, expect } from 'chai';
 import { Container, injectable } from 'inversify';
 import * as sinon from 'sinon';
-import { Action, Disposable, SGraphFactory, SModelElementSchema, SModelRoot, TYPES, initializeContainer } from '~glsp-sprotty';
+import { Action, Disposable, GModelRoot, GNode, TYPES, initializeContainer } from '@eclipse-glsp/sprotty';
 import { defaultModule } from './default.module';
 import { IFeedbackActionDispatcher, IFeedbackEmitter } from './feedback/feedback-action-dispatcher';
 import { ISelectionListener, SelectFeedbackAction, SelectionService } from './selection-service';
@@ -47,7 +47,7 @@ class MockFeedbackActionDispatcher implements IFeedbackActionDispatcher {
 }
 
 class MockSelectionListener implements ISelectionListener {
-    selectionChanged(root: Readonly<SModelRoot>, selectedElements: string[], deselectedElements: string[] | undefined): void {
+    selectionChanged(root: Readonly<GModelRoot>, selectedElements: string[], deselectedElements: string[] | undefined): void {
         // no.op
     }
 }
@@ -55,22 +55,19 @@ class MockSelectionListener implements ISelectionListener {
 function createContainer(): Container {
     const container = initializeContainer(new Container(), defaultModule);
     // eslint-disable-next-line deprecation/deprecation
-    container.rebind(TYPES.IModelFactory).to(SGraphFactory).inSingletonScope();
     container.rebind(TYPES.IFeedbackActionDispatcher).to(MockFeedbackActionDispatcher).inSingletonScope();
     return container;
 }
 
 describe('SelectionService', () => {
     // eslint-disable-next-line deprecation/deprecation
-    let graphFactory: SGraphFactory;
-    let root: SModelRoot;
+    let root: GModelRoot;
     let selectionService: SelectionService;
     let feedbackDispatcher: MockFeedbackActionDispatcher;
 
     beforeEach(() => {
         const container = createContainer();
         // eslint-disable-next-line deprecation/deprecation
-        graphFactory = container.get<SGraphFactory>(TYPES.IModelFactory);
         root = createRoot('node1', 'node2', 'node3', 'node4', 'node5');
         selectionService = container.get<SelectionService>(SelectionService);
         feedbackDispatcher = container.get<MockFeedbackActionDispatcher>(TYPES.IFeedbackActionDispatcher);
@@ -242,14 +239,17 @@ describe('SelectionService', () => {
         });
     });
 
-    function createRoot(...nodes: string[]): SModelRoot {
-        const children: SModelElementSchema[] = [];
-        nodes.forEach(node => children.push({ id: node, type: 'node:circle' }));
-        return graphFactory.createRoot({
-            id: 'selection-service-spec',
-            type: 'graph',
-            children: children
+    function createRoot(...nodes: string[]): GModelRoot {
+        const model = new GModelRoot();
+        model.id = 'selection-service-spec';
+        model.type = 'graph';
+        nodes.forEach(id => {
+            const node = new GNode();
+            node.type = 'node:circle';
+            node.id = id;
+            model.add(node);
         });
+        return model;
     }
 
     function assertSelectionAndFeedback(expectedSelection: string[], expectedDeselection: string[]): void {
@@ -284,7 +284,7 @@ describe('SelectionService', () => {
 
     function assertListener(
         listener: sinon.SinonStubbedInstance<MockSelectionListener>,
-        expectedRoot: SModelRoot | undefined,
+        expectedRoot: GModelRoot | undefined,
         expectedSelection: string[],
         expectedDeselection: string[],
         expectedCalled: number

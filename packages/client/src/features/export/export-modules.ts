@@ -23,7 +23,7 @@ import {
     ExportSvgPostprocessor,
     FeatureModule,
     TYPES
-} from '~glsp-sprotty';
+} from '@eclipse-glsp/sprotty';
 import { ExportSvgActionHandler } from './export-svg-action-handler';
 import { GLSPSvgExporter } from './glsp-svg-exporter';
 

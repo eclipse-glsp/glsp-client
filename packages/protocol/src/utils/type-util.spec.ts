@@ -32,7 +32,7 @@ describe('TypeUtil', () => {
                 // eslint-disable-next-line no-null/no-null
                 expect(AnyObject.is(null)).to.be.false;
             });
-            it('should return false for any object of primitive type', () => {
+            it('should return false for unknown object of primitive type', () => {
                 expect(AnyObject.is('')).to.be.false;
                 expect(AnyObject.is(5)).to.be.false;
                 expect(AnyObject.is(true)).to.be.false;

@@ -14,23 +14,28 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { inject, injectable, optional } from 'inversify';
 import {
     Action,
     ChangeBoundsOperation,
     Dimension,
+    DisposableCollection,
+    ElementAndBounds,
+    GModelElement,
+    GParentElement,
     IActionDispatcher,
     IActionHandler,
     ICommand,
     ISnapper,
     Point,
-    SModelElement,
-    SParentElement,
+    SetBoundsAction,
     TYPES
-} from '~glsp-sprotty';
+} from '@eclipse-glsp/sprotty';
+import { inject, injectable, optional } from 'inversify';
+import { DebouncedFunc, debounce } from 'lodash';
 import { EditorContextService } from '../../../base/editor-context-service';
+import { IFeedbackActionDispatcher } from '../../../base/feedback/feedback-action-dispatcher';
+import { SelectableBoundsAware, getElements, isSelectableAndBoundsAware, toElementAndBounds } from '../../../utils/gmodel-util';
 import { isValidMove, isValidSize, minHeight, minWidth } from '../../../utils/layout-utils';
-import { SelectableBoundsAware, getElements, isSelectableAndBoundsAware, toElementAndBounds } from '../../../utils/smodel-util';
 import { Resizable } from '../../change-bounds/model';
 import { GridSnapper } from '../../change-bounds/snap';
 
@@ -67,7 +72,14 @@ export class ResizeElementHandler implements IActionHandler {
     @inject(EditorContextService)
     protected editorContextService: EditorContextService;
 
-    @inject(TYPES.IActionDispatcher) protected dispatcher: IActionDispatcher;
+    @inject(TYPES.IActionDispatcher)
+    protected dispatcher: IActionDispatcher;
+
+    @inject(TYPES.IFeedbackActionDispatcher)
+    protected feedbackDispatcher: IFeedbackActionDispatcher;
+
+    protected debouncedChangeBounds?: DebouncedFunc<() => void>;
+    protected disposableFeedback = new DisposableCollection();
 
     // Default x resize used if GridSnapper is not provided
     static readonly defaultResizeX = 20;
@@ -92,11 +104,21 @@ export class ResizeElementHandler implements IActionHandler {
 
     handleResizeElement(action: ResizeElementAction): void {
         const elements = getElements(this.editorContextService.modelRoot.index, action.elementIds, isSelectableAndBoundsAware);
-        this.dispatcher.dispatchAll(this.resize(elements, action));
+        const elementAndBounds = this.computeElementAndBounds(elements, action);
+
+        this.disposableFeedback.push(this.feedbackDispatcher.registerFeedback(this, [SetBoundsAction.create(elementAndBounds)]));
+
+        this.debouncedChangeBounds?.cancel();
+        this.debouncedChangeBounds = debounce(() => {
+            this.disposableFeedback.dispose();
+            this.dispatcher.dispatchAll([ChangeBoundsOperation.create(elementAndBounds)]);
+            this.debouncedChangeBounds = undefined;
+        }, 300);
+        this.debouncedChangeBounds();
     }
 
-    protected resize(elements: SelectableBoundsAware[], action: ResizeElementAction): Action[] {
-        const actions: Action[] = [];
+    protected computeElementAndBounds(elements: SelectableBoundsAware[], action: ResizeElementAction): ElementAndBounds[] {
+        const elementAndBounds: ElementAndBounds[] = [];
 
         elements.forEach(element => {
             const { x, y, width: oldWidth, height: oldHeight } = element.bounds;
@@ -115,12 +137,12 @@ export class ResizeElementHandler implements IActionHandler {
             }
 
             if (this.isValidBoundChange(element, { x, y }, { width, height })) {
-                const resizeElement = { id: element.id, bounds: { x, y, width, height } } as SModelElement & SParentElement & Resizable;
-                actions.push(ChangeBoundsOperation.create([toElementAndBounds(resizeElement)]));
+                const resizeElement = { id: element.id, bounds: { x, y, width, height } } as GModelElement & GParentElement & Resizable;
+                elementAndBounds.push(toElementAndBounds(resizeElement));
             }
         });
 
-        return actions;
+        return elementAndBounds;
     }
 
     protected isValidBoundChange(element: SelectableBoundsAware, newPosition: Point, newSize: Dimension): boolean {

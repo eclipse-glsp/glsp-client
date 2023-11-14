@@ -25,7 +25,7 @@ import {
     bindAsService,
     configureCommand,
     configureLayout
-} from '~glsp-sprotty';
+} from '@eclipse-glsp/sprotty';
 import { FreeFormLayouter } from './freeform-layout';
 import { GLSPHiddenBoundsUpdater } from './glsp-hidden-bounds-updater';
 import { HBoxLayouterExt } from './hbox-layout';

@@ -23,12 +23,12 @@ import {
     PaletteItem,
     RequestContextActions,
     RequestMarkersAction,
-    SModelRoot,
+    GModelRoot,
     SetContextActions,
     SetUIExtensionVisibilityAction,
     codiconCSSClasses,
     matchesKeystroke
-} from '~glsp-sprotty';
+} from '@eclipse-glsp/sprotty';
 import { GLSPActionDispatcher } from '../../base/action-dispatcher';
 import { EditorContextService, IEditModeListener } from '../../base/editor-context-service';
 import { FocusTracker } from '../../base/focus/focus-tracker';
@@ -105,7 +105,7 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
         containerElement.setAttribute('aria-label', 'Tool-Palette');
     }
 
-    protected override onBeforeShow(_containerElement: HTMLElement, root: Readonly<SModelRoot>): void {
+    protected override onBeforeShow(_containerElement: HTMLElement, root: Readonly<GModelRoot>): void {
         this.modelRootId = root.id;
         this.containerElement.style.maxHeight = PALETTE_HEIGHT;
     }
@@ -182,7 +182,7 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
         this.containerElement.appendChild(headerCompartment);
     }
 
-    private createHeaderTools(): HTMLElement {
+    protected createHeaderTools(): HTMLElement {
         const headerTools = document.createElement('div');
         headerTools.classList.add('header-tools');
 

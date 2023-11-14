@@ -14,19 +14,21 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { inject, injectable, postConstruct, preDestroy } from 'inversify';
+import { inject, injectable, preDestroy } from 'inversify';
 import {
     Action,
     ActionMessage,
     Disposable,
     DisposableCollection,
+    DisposeClientSessionParameters,
     GLSPClient,
+    GModelRootSchema,
     ILogger,
+    InitializeClientSessionParameters,
     InitializeResult,
     ModelSource,
-    SModelRootSchema,
     TYPES
-} from '~glsp-sprotty';
+} from '@eclipse-glsp/sprotty';
 import { GLSPActionHandlerRegistry } from '../action-handler-registry';
 import { IDiagramOptions } from './diagram-loader';
 /**
@@ -71,8 +73,9 @@ export class GLSPModelSource extends ModelSource implements Disposable {
     protected toDispose = new DisposableCollection();
     clientId: string;
 
-    protected _glspClient: GLSPClient | undefined;
-    protected _currentRoot: SModelRootSchema;
+    protected _currentRoot: GModelRootSchema;
+    protected registry: GLSPActionHandlerRegistry;
+    protected glspClient?: GLSPClient;
 
     get diagramType(): string {
         return this.options.diagramType;
@@ -82,32 +85,52 @@ export class GLSPModelSource extends ModelSource implements Disposable {
         return this.options.sourceUri;
     }
 
-    get glspClient(): GLSPClient | undefined {
-        return this._glspClient;
-    }
-
-    @postConstruct()
-    protected postConstruct(): void {
-        this.clientId = this.options.clientId ?? this.viewerOptions.baseDiv;
-    }
-
-    configure(registry: GLSPActionHandlerRegistry, initializeResult: InitializeResult): Promise<void> {
-        const serverActions = initializeResult.serverActions[this.diagramType];
-        if (!serverActions || serverActions.length === 0) {
-            throw new Error(`No server-handled actions could be derived from the initialize result for diagramType: ${this.diagramType}!`);
+    /**
+     * Configure forwarding of server-handled actions to the given {@link GLSPClient} and
+     * handling of action received from the `GLSPClient` (i.e. server). It is expected that the
+     * given GLSP client has already been initialized.
+     * @param glspClient The GLSP  to use.
+     * @throws An error if the given `GLSPClient` has not been initialized yet or if the set of server handled
+     *         action kinds could not be derived from the initialize result
+     */
+    configure(glspClient: GLSPClient): Promise<void> {
+        this.glspClient = glspClient;
+        if (!glspClient.initializeResult) {
+            throw new Error('Could not configure model source. The GLSP client is not initialized yet!');
         }
-        // Retrieve all currently handled action kinds. We do this before registering the server actions
-        // to ensure that the array will only contain client-side handled actions
-        const clientActionKinds = registry.getHandledActionKinds();
 
-        serverActions.forEach(action => registry.register(action, this));
-        this.toDispose.push(this.glspClient!.onActionMessage(message => this.messageReceived(message), this.clientId));
+        const initializeParams = this.createInitializeClientSessionParameters(glspClient.initializeResult);
+        this.configureServeActions(glspClient.initializeResult);
 
-        return this.glspClient!.initializeClientSession({
+        this.toDispose.push(
+            glspClient.onActionMessage(message => this.messageReceived(message), this.clientId),
+            Disposable.create(() => glspClient.disposeClientSession(this.createDisposeClientSessionParameters()))
+        );
+
+        return glspClient!.initializeClientSession(initializeParams);
+    }
+
+    protected createInitializeClientSessionParameters(_initializeResult: InitializeResult): InitializeClientSessionParameters {
+        const clientActionKinds = this.registry.getHandledActionKinds();
+        return {
             clientSessionId: this.clientId,
             clientActionKinds,
             diagramType: this.diagramType
-        });
+        };
+    }
+
+    protected createDisposeClientSessionParameters(): DisposeClientSessionParameters {
+        return {
+            clientSessionId: this.clientId
+        };
+    }
+
+    protected configureServeActions(initializeResult: InitializeResult): void {
+        const serverActions = initializeResult.serverActions[this.diagramType];
+        if (serverActions?.length === 0) {
+            throw new Error(`No server-handled actions could be derived from the initialize result for diagramType: ${this.diagramType}!`);
+        }
+        serverActions.forEach(action => this.registry.register(action, this));
     }
 
     protected messageReceived(message: ActionMessage): void {
@@ -124,20 +147,10 @@ export class GLSPModelSource extends ModelSource implements Disposable {
         // Registering actions here is discouraged and it's recommended
         // to implemented dedicated action handlers.
         if (!this.clientId) {
-            this.clientId = this.viewerOptions.baseDiv;
+            this.clientId = this.options.clientId ?? this.viewerOptions.baseDiv;
         }
 
-        this.options.glspClientProvider().then(glspClient => {
-            this._glspClient = glspClient;
-            if (glspClient.initializeResult) {
-                this.configure(registry, glspClient.initializeResult);
-            } else {
-                const initializeListener = glspClient.onServerInitialized(result => {
-                    this.configure(registry, result);
-                    initializeListener.dispose();
-                });
-            }
-        });
+        this.registry = registry;
     }
 
     handle(action: Action): void {
@@ -165,7 +178,7 @@ export class GLSPModelSource extends ModelSource implements Disposable {
         return !ServerAction.is(action);
     }
 
-    commitModel(newRoot: SModelRootSchema): SModelRootSchema {
+    commitModel(newRoot: GModelRootSchema): GModelRootSchema {
         /* In GLSP the model update flow is server-driven. i.e. changes to the graphical model are applied
          * on server-side an only the server can issue a model update.
          * The internal/local model should never be committed back to the model source i.e. GLSP server.
@@ -175,7 +188,7 @@ export class GLSPModelSource extends ModelSource implements Disposable {
         return newRoot;
     }
 
-    override get model(): SModelRootSchema {
+    override get model(): GModelRootSchema {
         return this._currentRoot;
     }
 

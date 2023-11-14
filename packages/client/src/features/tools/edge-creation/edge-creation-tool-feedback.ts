@@ -22,13 +22,13 @@ import {
     MoveAction,
     Point,
     PolylineEdgeRouter,
-    SConnectableElement,
-    SModelElement,
+    GConnectableElement,
+    GModelElement,
     findChildrenAtPosition,
     findParentByFeature,
     isBoundsAware,
     isConnectable
-} from '~glsp-sprotty';
+} from '@eclipse-glsp/sprotty';
 import { IFeedbackActionDispatcher } from '../../../base/feedback/feedback-action-dispatcher';
 import { absoluteToParent, getAbsolutePosition, toAbsoluteBounds } from '../../../utils/viewpoint-util';
 import { FeedbackEdgeEnd, feedbackEdgeEndId } from './dangling-edge-feedback';
@@ -38,7 +38,7 @@ export class FeedbackEdgeEndMovingMouseListener extends MouseListener implements
         super();
     }
 
-    override mouseMove(target: SModelElement, event: MouseEvent): Action[] {
+    override mouseMove(target: GModelElement, event: MouseEvent): Action[] {
         const root = target.root;
         const edgeEnd = root.index.getById(feedbackEdgeEndId(root));
         if (!(edgeEnd instanceof FeedbackEdgeEnd) || !edgeEnd.feedbackEdge) {
@@ -51,7 +51,7 @@ export class FeedbackEdgeEndMovingMouseListener extends MouseListener implements
             .reverse()
             .find(element => isConnectable(element) && element.canConnect(edge, 'target'));
 
-        if (endAtMousePosition instanceof SConnectableElement && edge.source && isBoundsAware(edge.source)) {
+        if (endAtMousePosition instanceof GConnectableElement && edge.source && isBoundsAware(edge.source)) {
             const anchor = this.computeAbsoluteAnchor(endAtMousePosition, Bounds.center(toAbsoluteBounds(edge.source)));
             if (Point.euclideanDistance(anchor, edgeEnd.position) > 1) {
                 this.feedbackDispatcher.registerFeedback(this, [
@@ -67,7 +67,7 @@ export class FeedbackEdgeEndMovingMouseListener extends MouseListener implements
         return [];
     }
 
-    protected computeAbsoluteAnchor(element: SConnectableElement, absoluteReferencePoint: Point, offset?: number): Point {
+    protected computeAbsoluteAnchor(element: GConnectableElement, absoluteReferencePoint: Point, offset?: number): Point {
         const referencePointInParent = absoluteToParent(element, absoluteReferencePoint);
         const anchorComputer = this.anchorRegistry.get(PolylineEdgeRouter.KIND, element.anchorKind);
         let anchor = anchorComputer.getAnchor(element, referencePointInParent, offset);

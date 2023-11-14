@@ -14,24 +14,11 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { LabeledAction, SModelElement, SModelRoot } from '~glsp-sprotty';
+import { TriggerEdgeCreationAction } from '@eclipse-glsp/sprotty';
 
-/**
- * Interface for a provider that provides suggestions that can be used to fill the autocomplete
- */
-export interface IAutocompleteSuggestionProvider {
-    /**
-     * Returns the suggestions based on the provided parameters.
-     * @param root: The root model
-     * @param text: The text input provided by the user.
-     */
-    retrieveSuggestions(root: Readonly<SModelRoot>, text: string): Promise<AutocompleteSuggestion[]>;
-}
-
-/**
- * Interface for autocomplete suggestions.
- */
-export interface AutocompleteSuggestion {
-    element: SModelElement;
-    action: LabeledAction;
+export interface EdgeAutocompleteContext {
+    role: 'source' | 'target';
+    trigger: TriggerEdgeCreationAction;
+    sourceId?: string;
+    targetId?: string;
 }

@@ -16,7 +16,7 @@
 
 import { inject, injectable } from 'inversify';
 import { matchesKeystroke } from 'sprotty/lib/utils/keyboard';
-import { Action, KeyListener, KeyTool, SModelElement, SetUIExtensionVisibilityAction, TYPES } from '~glsp-sprotty';
+import { Action, KeyListener, KeyTool, GModelElement, SetUIExtensionVisibilityAction, TYPES } from '@eclipse-glsp/sprotty';
 import { GLSPActionDispatcher } from '../../../base/action-dispatcher';
 import { Tool } from '../../../base/tool-manager/tool';
 import { AccessibleKeyShortcutProvider, SetAccessibleKeyShortcutAction } from '../key-shortcut/accessible-key-shortcut';
@@ -59,7 +59,7 @@ export class SearchAutocompletePaletteKeyListener extends KeyListener implements
         );
     }
 
-    override keyDown(element: SModelElement, event: KeyboardEvent): Action[] {
+    override keyDown(element: GModelElement, event: KeyboardEvent): Action[] {
         if (this.matchesSearchActivateKeystroke(event)) {
             return [
                 SetUIExtensionVisibilityAction.create({

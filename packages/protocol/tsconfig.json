@@ -3,9 +3,7 @@
   "compilerOptions": {
     "rootDir": "src",
     "outDir": "lib",
-    "reactNamespace": "JSX",
-    "baseUrl": "."
+    "reactNamespace": "JSX"
   },
-  "exclude": ["**/*.spec.ts", "src/utils/test-util.ts"],
   "include": ["src"]
 }

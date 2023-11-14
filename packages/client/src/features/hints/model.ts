@@ -13,22 +13,28 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { SModelElement, SModelElementSchema, SModelExtension } from '~glsp-sprotty';
+import { GModelElement, GModelElementSchema } from '@eclipse-glsp/sprotty';
 
 export const containerFeature = Symbol('containable');
 
-export interface Containable extends SModelExtension {
-    isContainableElement(input: SModelElement | SModelElementSchema | string): boolean;
+/**
+ *  Feature extension interface for {@link containerFeature}.
+ */
+export interface Containable {
+    isContainableElement(input: GModelElement | GModelElementSchema | string): boolean;
 }
 
-export function isContainable(element: SModelElement): element is SModelElement & Containable {
+export function isContainable(element: GModelElement): element is GModelElement & Containable {
     return element.hasFeature(containerFeature);
 }
 
 export const reparentFeature = Symbol('reparentFeature');
 
-export interface Reparentable extends SModelExtension {}
+/**
+ *  Feature extension interface for {@link reparentFeature}.
+ */
+export interface Reparentable {}
 
-export function isReparentable(element: SModelElement): element is SModelElement & Reparentable {
+export function isReparentable(element: GModelElement): element is GModelElement & Reparentable {
     return element.hasFeature(reparentFeature);
 }

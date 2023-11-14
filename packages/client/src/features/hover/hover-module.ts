@@ -30,7 +30,7 @@ import {
     bindAsService,
     configureActionHandler,
     configureCommand
-} from '~glsp-sprotty';
+} from '@eclipse-glsp/sprotty';
 import { FocusStateChangedAction } from '../../base/focus/focus-state-change-action';
 import { EnableDefaultToolsAction, EnableToolsAction } from '../../base/tool-manager/tool';
 import { GlspHoverMouseListener } from './hover';

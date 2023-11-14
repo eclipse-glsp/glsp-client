@@ -14,13 +14,13 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { Action, KeyListener, RedoAction, SModelElement, UndoAction, isMac, matchesKeystroke } from '~glsp-sprotty';
+import { Action, KeyListener, RedoAction, GModelElement, UndoAction, isMac, matchesKeystroke } from '@eclipse-glsp/sprotty';
 
 /**
  * Key listener that listens to the typical keyboard shortcuts for undo/redo and dispatches the corresponding actions.
  */
 export class GLSPUndoRedoKeyListener extends KeyListener {
-    override keyDown(element: SModelElement, event: KeyboardEvent): Action[] {
+    override keyDown(element: GModelElement, event: KeyboardEvent): Action[] {
         if (matchesKeystroke(event, 'KeyZ', 'ctrlCmd')) {
             return [UndoAction.create()];
         }

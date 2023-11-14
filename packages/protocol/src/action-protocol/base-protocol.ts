@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import * as sprotty from 'sprotty-protocol/lib/actions';
-import { AnyObject, hasArrayProp, hasStringProp, TypeGuard } from '../utils/type-util';
+import { AnyObject, TypeGuard, hasArrayProp, hasStringProp } from '../utils/type-util';
 
 /**
  * An action is a declarative description of a behavior that shall be invoked by the receiver upon receipt of the action.
@@ -81,6 +81,10 @@ export interface RequestAction<Res extends ResponseAction> extends Action, sprot
      * Unique id for this request. In order to match a response to this request, the response needs to have the same id.
      */
     requestId: string;
+    /**
+     * Used to ensure correct typing. Clients must not use this property
+     */
+    readonly _?: Res;
 }
 
 export namespace RequestAction {
@@ -155,7 +159,7 @@ export interface RejectAction extends ResponseAction, sprotty.RejectAction {
 export namespace RejectAction {
     export const KIND = 'rejectRequest';
 
-    export function is(object: any): object is RejectAction {
+    export function is(object: unknown): object is RejectAction {
         return Action.hasKind(object, RejectAction.KIND) && hasStringProp(object, 'message');
     }
 
@@ -184,8 +188,8 @@ export interface Operation extends Action {
 }
 
 export namespace Operation {
-    export function is(object: any): object is Operation {
-        return Action.is(object) && (object as any).isOperation === true;
+    export function is(object: unknown): object is Operation {
+        return Action.is(object) && 'isOperation' in object && object.isOperation === true;
     }
 
     /**
@@ -194,7 +198,7 @@ export namespace Operation {
      * @param kind  The expected operation kind.
      * @returns A type literal indicating wether the given object is an operation with the given kind.
      */
-    export function hasKind(object: any, kind: string): object is Operation {
+    export function hasKind(object: unknown, kind: string): object is Operation {
         return Operation.is(object) && object.kind === kind;
     }
 }
@@ -215,7 +219,7 @@ export interface CompoundOperation extends Operation {
 export namespace CompoundOperation {
     export const KIND = 'compound';
 
-    export function is(object: any): object is CompoundOperation {
+    export function is(object: unknown): object is CompoundOperation {
         return Operation.hasKind(object, KIND) && hasArrayProp(object, 'operationList');
     }
 

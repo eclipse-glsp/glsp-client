@@ -16,6 +16,7 @@
 /* eslint-disable max-len */
 import { expect } from 'chai';
 import { Action, ActionMessage, CompoundOperation, Operation, RejectAction, RequestAction, ResponseAction } from './base-protocol';
+import { AnyObject } from '../utils/type-util';
 
 /**
  * Tests for the utility functions declared in the namespaces of the protocol
@@ -233,4 +234,5 @@ interface SomeRequestAction extends RequestAction<SomeResponseAction> {
 interface SomeResponseAction extends ResponseAction {
     kind: 'someResponse';
 }
-const isSomeCustomAction = (object: any): object is SomeCustomAction => object !== undefined && object.kind === 'custom';
+const isSomeCustomAction = (object: unknown): object is SomeCustomAction =>
+    AnyObject.is(object) && 'kind' in object && object.kind === 'custom';

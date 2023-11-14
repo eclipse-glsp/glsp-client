@@ -14,7 +14,6 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { Container, ContainerModule } from 'inversify';
 import {
     BindingContext,
     ContainerConfiguration,
@@ -31,7 +30,8 @@ import {
     modelSourceModule,
     resolveContainerConfiguration,
     zorderModule
-} from '~glsp-sprotty';
+} from '@eclipse-glsp/sprotty';
+import { Container } from 'inversify';
 import { defaultModule } from './base/default.module';
 import { IDiagramOptions } from './base/model/diagram-loader';
 import { boundsModule } from './features/bounds/bounds-module';
@@ -118,16 +118,21 @@ export function createDiagramOptionsModule(options: IDiagramOptions): FeatureMod
  * In addition to binding the {@link IDiagramOptions} this function also overrides the
  * {@link ViewerOptions} to match the given client id.
  * @param context The binding context
- * @param options The {@link IDiagramOptions} that should be bound
+ * @param diagramOptions The {@link IDiagramOptions} that should be bound
+ * @param viewerOptions Optional {@link ViewerOptions} that should be configured
  */
-export function configureDiagramOptions(context: BindingContext, options: IDiagramOptions): void {
-    const viewerOptions: Partial<ViewerOptions> = {
-        baseDiv: options.clientId,
-        hiddenDiv: options.clientId + '_hidden'
-    };
-    configureViewerOptions(context, viewerOptions);
-
-    context.bind(TYPES.IDiagramOptions).toConstantValue(options);
+export function configureDiagramOptions(
+    context: BindingContext,
+    diagramOptions: IDiagramOptions,
+    viewerOptions?: Partial<ViewerOptions>
+): void {
+    configureViewerOptions(context, {
+        baseDiv: diagramOptions.clientId,
+        hiddenDiv: diagramOptions.clientId + '_hidden',
+        zoomLimits: { min: 0.1, max: 20 },
+        ...viewerOptions
+    });
+    context.bind(TYPES.IDiagramOptions).toConstantValue(diagramOptions);
 }
 
 /**
@@ -170,30 +175,4 @@ export function initializeDiagramContainer(container: Container, ...containerCon
     }
     container.load(...modules);
     return container;
-}
-
-/**
- * Creates a GLSP Client container with the GLSP default modules and the specified custom `modules`.
- *
- * You can still customize the default modules in two ways.
- *
- * First, you can unload default modules and load them again with your custom code.
- *
- * ```typescript
- * const container = createClientContainer(myModule1, myModule2);
- * container.unload(modelSourceWatcherModule);
- * container.load(myModelSourceWatcherModule);
- * ```
- *
- * Second, you can unbind or rebind implementations that are originally bound in one of the default modules.
- *
- * ```typescript
- * rebind(NavigationTargetResolver).to(MyNavigationTargetResolver);
- * ```
- * @param modules Custom modules to be loaded in addition to the default modules.
- * @returns The created container.
- * @deprecated Please use `initializeDiagramContainer` from `@eclipse-glsp/client` instead
- */
-export function createClientContainer(...modules: ContainerModule[]): Container {
-    return initializeDiagramContainer(new Container(), ...modules);
 }

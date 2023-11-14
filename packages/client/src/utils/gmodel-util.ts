@@ -29,19 +29,19 @@ import {
     remove,
     RoutedPoint,
     Selectable,
-    SModelElement,
-    SModelElementSchema,
-    SRoutableElement,
-    SRoutingHandle,
-    TypeGuard
-} from '~glsp-sprotty';
+    GModelElement,
+    GRoutableElement,
+    GRoutingHandle,
+    TypeGuard,
+    GModelElementSchema
+} from '@eclipse-glsp/sprotty';
 
 /**
- * Helper type to represent a filter predicate for {@link SModelElement}s. This is used to retrieve
+ * Helper type to represent a filter predicate for {@link GModelElement}s. This is used to retrieve
  * elements from the {@link ModelIndexImpl} that also conform to a second type `T`. Its mainly used for
  * retrieving elements that also implement a certain model features (e.g. selectable)
  */
-export type ModelFilterPredicate<T> = (modelElement: SModelElement) => modelElement is SModelElement & T;
+export type ModelFilterPredicate<T> = (modelElement: GModelElement) => modelElement is GModelElement & T;
 
 /**
  * Retrieves all elements from the given {@link ModelIndexImpl} that match the given {@link ModelFilterPredicate}
@@ -50,8 +50,8 @@ export type ModelFilterPredicate<T> = (modelElement: SModelElement) => modelElem
  * @returns A {@link FluentIterable} of all indexed element that match the predicate
  * (correctly casted to also include the additional type of the predicate).
  */
-export function filter<T>(index: ModelIndexImpl, predicate: ModelFilterPredicate<T>): FluentIterable<SModelElement & T> {
-    return index.all().filter(predicate) as FluentIterable<SModelElement & T>;
+export function filter<T>(index: ModelIndexImpl, predicate: ModelFilterPredicate<T>): FluentIterable<GModelElement & T> {
+    return index.all().filter(predicate) as FluentIterable<GModelElement & T>;
 }
 
 /**
@@ -64,7 +64,7 @@ export function filter<T>(index: ModelIndexImpl, predicate: ModelFilterPredicate
 export function forEachElement<T>(
     index: ModelIndexImpl,
     predicate: ModelFilterPredicate<T>,
-    runnable: (modelElement: SModelElement & T) => void
+    runnable: (modelElement: GModelElement & T) => void
 ): void {
     filter(index, predicate).forEach(runnable);
 }
@@ -76,7 +76,7 @@ export function forEachElement<T>(
  * @returns An array of all indexed element that match the predicate
  * (correctly casted to also include the additional type of the predicate).
  */
-export function getMatchingElements<T>(index: ModelIndexImpl, predicate: ModelFilterPredicate<T>): (SModelElement & T)[] {
+export function getMatchingElements<T>(index: ModelIndexImpl, predicate: ModelFilterPredicate<T>): (GModelElement & T)[] {
     return Array.from(filter(index, predicate));
 }
 
@@ -88,9 +88,9 @@ export function getMatchingElements<T>(index: ModelIndexImpl, predicate: ModelFi
  * @param guard Optional typeguard. If defined only elements that match the guard will be returned.
  * @returns An array of the model elements that correspond to the given ids and filter predicate.
  */
-export function getElements<S extends SModelElement>(index: ModelIndexImpl, elementsIDs: string[], guard?: TypeGuard<S>): S[] {
+export function getElements<S extends GModelElement>(index: ModelIndexImpl, elementsIDs: string[], guard?: TypeGuard<S>): S[] {
     // Internal filter function that filters out undefined model elements and runs an optional typeguard check.
-    const filterFn = (element?: SModelElement): element is S => {
+    const filterFn = (element?: GModelElement): element is S => {
         if (element !== undefined) {
             return guard ? guard(element) : true;
         }
@@ -128,81 +128,81 @@ export function isNotUndefined<T>(element: T | undefined): element is T {
 }
 
 /**
- * Adds a set of css classes to the given {@link SModelElement}.
+ * Adds a set of css classes to the given {@link GModelElement}.
  * @param element The element to which the css classes should be added.
  * @param cssClasses The set of css classes as string array.
  */
-export function addCssClasses(element: SModelElement, cssClasses: string[]): void {
+export function addCssClasses(element: GModelElement, cssClasses: string[]): void {
     const elementCssClasses: string[] = element.cssClasses ?? [];
     distinctAdd(elementCssClasses, ...cssClasses);
     element.cssClasses = elementCssClasses;
 }
 
 /**
- * Removes a set of css classes from the given {@link SModelElement}.
+ * Removes a set of css classes from the given {@link GModelElement}.
  * @param element The element from which the css classes should be removed.
  * @param cssClasses The set of css classes as string array.
  */
-export function removeCssClasses(root: SModelElement, cssClasses: string[]): void {
+export function removeCssClasses(root: GModelElement, cssClasses: string[]): void {
     if (!root.cssClasses || root.cssClasses.length === 0) {
         return;
     }
     remove(root.cssClasses, ...cssClasses);
 }
 
-export function isNonRoutableSelectedMovableBoundsAware(element: SModelElement): element is SelectableBoundsAware {
+export function isNonRoutableSelectedMovableBoundsAware(element: GModelElement): element is SelectableBoundsAware {
     return isNonRoutableSelectedBoundsAware(element) && isMoveable(element);
 }
 
 /**
- * A typeguard function to check wether a given {@link SModelElement} implements the {@link BoundsAware} model feature,
- * the {@link Selectable} model feature and is actually selected. In addition, the element must not be a {@link SRoutableElement}.
+ * A typeguard function to check wether a given {@link GModelElement} implements the {@link BoundsAware} model feature,
+ * the {@link Selectable} model feature and is actually selected. In addition, the element must not be a {@link GRoutableElement}.
  * @param element The element to check.
  * @returns A type predicate indicating wether the element is of type {@link SelectableBoundsAware}.
  */
-export function isNonRoutableSelectedBoundsAware(element: SModelElement): element is SelectableBoundsAware {
+export function isNonRoutableSelectedBoundsAware(element: GModelElement): element is SelectableBoundsAware {
     return isBoundsAware(element) && isSelected(element) && !isRoutable(element);
 }
 
 /**
- * A type guard function to check wether a given {@link SModelElement} is a {@link SRoutableElement}.
+ * A type guard function to check wether a given {@link GModelElement} is a {@link GRoutableElement}.
  * @param element The element to check.
- * @returns A type predicate indicating wether the element is a {@link SRoutableElement}.
+ * @returns A type predicate indicating wether the element is a {@link GRoutableElement}.
  */
-export function isRoutable<T extends SModelElement>(element: T): element is T & SRoutableElement {
-    return element instanceof SRoutableElement && (element as any).routingPoints !== undefined;
+export function isRoutable<T extends GModelElement>(element: T): element is T & GRoutableElement {
+    return element instanceof GRoutableElement && (element as any).routingPoints !== undefined;
 }
 
 /**
- * A typeguard function to check wether a given {@link SModelElement} is a {@link SRoutingHandle}.
+ * A typeguard function to check wether a given {@link GModelElement} is a {@link SRoutingHandle}.
  * @param element The element to check.
  * @returns A type predicate indicating wether the element is a {@link SRoutingHandle}
  */
-export function isRoutingHandle(element: SModelElement | undefined): element is SRoutingHandle {
-    return element !== undefined && element instanceof SRoutingHandle;
+export function isRoutingHandle(element: GModelElement | undefined): element is GRoutingHandle {
+    return element !== undefined && element instanceof GRoutingHandle;
 }
 
 /**
- * A typeguard function to check wether a given {@link SModelElement} implements the {@link Selectable} model feature and
+ * A typeguard function to check wether a given {@link GModelElement} implements the {@link Selectable} model feature and
  * the {@link BoundsAware} model feature.
  * @returns A type predicate indicating wether the element is of type {@link SelectableBoundsAware}.
  */
-export function isSelectableAndBoundsAware(element: SModelElement): element is SelectableBoundsAware {
+export function isSelectableAndBoundsAware(element: GModelElement): element is SelectableBoundsAware {
     return isSelectable(element) && isBoundsAware(element);
 }
 
 /**
- * Union type to describe {@link SModelElement}s that implement the {@link Selectable} and {@link BoundsAware} feature.
+ * Union type to describe {@link GModelElement}s that implement the {@link Selectable} and {@link BoundsAware} feature.
  */
-export type SelectableBoundsAware = SModelElement & BoundsAware & Selectable;
+export type SelectableBoundsAware = GModelElement & BoundsAware & Selectable;
 
 /**
- * Union type to describe {@link SModelElement}s that implement the {@link BoundsAware} feature.
+ * Union type to describe {@link GModelElement}s that implement the {@link BoundsAware} feature.
  */
-export type BoundsAwareModelElement = SModelElement & BoundsAware;
+export type BoundsAwareModelElement = GModelElement & BoundsAware;
 
 /**
- * Helper function to translate a given {@link SModelElement} into its corresponding {@link ElementAndBounds} representation.
+ * Helper function to translate a given {@link GModelElement} into its corresponding {@link ElementAndBounds} representation.
  * @param element The element to translate.
  * @returns The corresponding {@link ElementAndBounds} for the given element.
  */
@@ -221,12 +221,12 @@ export function toElementAndBounds(element: BoundsAwareModelElement): ElementAnd
 }
 
 /**
- * Helper function to translate a given {@link SRoutableElement} into its corresponding
+ * Helper function to translate a given {@link GRoutableElement} into its corresponding
  * {@link ElementAndRoutingPoints} representation.
  * @param element The element to translate.
  * @returns The corresponding {@link ElementAndRoutingPoints} for the given element.
  */
-export function toElementAndRoutingPoints(element: SRoutableElement): ElementAndRoutingPoints {
+export function toElementAndRoutingPoints(element: GRoutableElement): ElementAndRoutingPoints {
     return {
         elementId: element.id,
         newRoutingPoints: element.routingPoints
@@ -242,27 +242,27 @@ export const ROUTING_POINT_KINDS = ['linear', 'bezier-junction'];
 export const ROUTE_KINDS = [...ROUTING_POINT_KINDS, 'source', 'target'];
 
 /**
- * Helper function to calculate the {@link ElementAndRoutingPoints} for a given {@link SRoutableElement}.
+ * Helper function to calculate the {@link ElementAndRoutingPoints} for a given {@link GRoutableElement}.
  * If client layout is activated, i.e., the edge routing registry is given and has a router for the element, then the routing
- * points from the calculated route are used, otherwise we use the already specified routing points of the {@link SRoutableElement}.
+ * points from the calculated route are used, otherwise we use the already specified routing points of the {@link GRoutableElement}.
  * @param element The element to translate.
  * @param routerRegistry the edge router registry.
  * @returns The corresponding {@link ElementAndRoutingPoints} for the given element.
  */
-export function calcElementAndRoutingPoints(element: SRoutableElement, routerRegistry?: EdgeRouterRegistry): ElementAndRoutingPoints {
+export function calcElementAndRoutingPoints(element: GRoutableElement, routerRegistry?: EdgeRouterRegistry): ElementAndRoutingPoints {
     const newRoutingPoints = routerRegistry ? calcRoute(element, routerRegistry, ROUTING_POINT_KINDS) : element.routingPoints;
     return { elementId: element.id, newRoutingPoints };
 }
 
 /**
- * Helper function to calculate the route for a given {@link SRoutableElement}.
+ * Helper function to calculate the route for a given {@link GRoutableElement}.
  * If client layout is activated, i.e., the edge routing registry is given and has a router for the element, then the points
- * from the calculated route are used, otherwise we use the already specified routing points of the {@link SRoutableElement}.
+ * from the calculated route are used, otherwise we use the already specified routing points of the {@link GRoutableElement}.
  * @param element The element to translate.
  * @param routerRegistry the edge router registry.
  * @returns The corresponding route for the given element.
  */
-export function calcElementAndRoute(element: SRoutableElement, routerRegistry?: EdgeRouterRegistry): ElementAndRoutingPoints {
+export function calcElementAndRoute(element: GRoutableElement, routerRegistry?: EdgeRouterRegistry): ElementAndRoutingPoints {
     let route: Point[] | undefined = routerRegistry ? calcRoute(element, routerRegistry, ROUTE_KINDS) : undefined;
     if (!route) {
         // add source and target to the routing points
@@ -274,7 +274,7 @@ export function calcElementAndRoute(element: SRoutableElement, routerRegistry?: 
 }
 
 /**
- * Helper function to calculate the route for a given {@link SRoutableElement} by filtering duplicate points.
+ * Helper function to calculate the route for a given {@link GRoutableElement} by filtering duplicate points.
  * @param element The element to translate.
  * @param routerRegistry the edge router registry.
  * @param pointKinds the routing point kinds that should be considered.
@@ -282,7 +282,7 @@ export function calcElementAndRoute(element: SRoutableElement, routerRegistry?: 
  * @returns The corresponding route for the given element.
  */
 export function calcRoute(
-    element: SRoutableElement,
+    element: GRoutableElement,
     routerRegistry: EdgeRouterRegistry,
     pointKinds: string[] | undefined = ALL_ROUTING_POINTS,
     tolerance = Number.EPSILON
@@ -307,24 +307,15 @@ export function calcRoute(
 }
 
 /**
- * Checks if the model is compatible with the passed type string.
- * (either has the same type or a subtype of this type)
- */
-export function hasCompatibleType(input: SModelElement | SModelElementSchema | string, type: string): boolean {
-    const inputType = getElementTypeId(input);
-    return inputType === type ? true : inputType.split(':').includes(type);
-}
-
-/**
  * Convenience function to retrieve the model element type from a given input. The input
- * can either be a {@link SModelElement}, {@link SModelElementSchema} or a string.
+ * can either be a {@link GModelElement}, {@link GModelElementSchema} or a string.
  * @param input The type input.
  * @returns The corresponding model type as string.
  */
-export function getElementTypeId(input: SModelElement | SModelElementSchema | string): string {
+export function getElementTypeId(input: GModelElement | GModelElementSchema | string): string {
     if (typeof input === 'string') {
-        return input as string;
+        return input;
     } else {
-        return (input as any)['type'] as string;
+        return input.type;
     }
 }

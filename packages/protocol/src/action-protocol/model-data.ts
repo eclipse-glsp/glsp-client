@@ -14,9 +14,9 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import * as sprotty from 'sprotty-protocol/lib/actions';
+import { GModelRootSchema } from '../model/model-schema';
 import { hasObjectProp, hasStringProp } from '../utils/type-util';
 import { Action, RequestAction, ResponseAction } from './base-protocol';
-import { SModelRootSchema } from './model-structure';
 import { Args } from './types';
 
 /**
@@ -36,7 +36,7 @@ export interface RequestModelAction extends RequestAction<SetModelAction>, sprot
 export namespace RequestModelAction {
     export const KIND = 'requestModel';
 
-    export function is(object: any): object is RequestModelAction {
+    export function is(object: unknown): object is RequestModelAction {
         return RequestAction.hasKind(object, KIND);
     }
 
@@ -59,17 +59,17 @@ export interface SetModelAction extends ResponseAction, sprotty.SetModelAction {
     /**
      * The new graphical model root.
      */
-    newRoot: SModelRootSchema;
+    newRoot: GModelRootSchema;
 }
 
 export namespace SetModelAction {
     export const KIND = 'setModel';
 
-    export function is(object: any): object is SetModelAction {
+    export function is(object: unknown): object is SetModelAction {
         return Action.hasKind(object, KIND) && hasObjectProp(object, 'newRoot');
     }
 
-    export function create(newRoot: SModelRootSchema, options: { responseId?: string } = {}): SetModelAction {
+    export function create(newRoot: GModelRootSchema, options: { responseId?: string } = {}): SetModelAction {
         return {
             kind: KIND,
             responseId: '',
@@ -88,7 +88,7 @@ export namespace SetModelAction {
 export interface UpdateModelAction extends Action, Omit<sprotty.UpdateModelAction, 'matches' | 'cause'> {
     kind: typeof UpdateModelAction.KIND;
 
-    newRoot: SModelRootSchema;
+    newRoot: GModelRootSchema;
     /**
      * Boolean flag to indicate wether updated/changed elements should be animated in the diagram.
      */
@@ -98,11 +98,11 @@ export interface UpdateModelAction extends Action, Omit<sprotty.UpdateModelActio
 export namespace UpdateModelAction {
     export const KIND = 'updateModel';
 
-    export function is(action: any): action is UpdateModelAction {
+    export function is(action: unknown): action is UpdateModelAction {
         return Action.hasKind(action, KIND) && hasObjectProp(action, 'newRoot');
     }
 
-    export function create(newRoot: SModelRootSchema, options: { animate?: boolean } = {}): UpdateModelAction {
+    export function create(newRoot: GModelRootSchema, options: { animate?: boolean } = {}): UpdateModelAction {
         return {
             kind: KIND,
             newRoot,
@@ -130,7 +130,7 @@ export interface SourceModelChangedAction extends Action {
 export namespace SourceModelChangedAction {
     export const KIND = 'sourceModelChanged';
 
-    export function is(object: any): object is SourceModelChangedAction {
+    export function is(object: unknown): object is SourceModelChangedAction {
         return Action.hasKind(object, KIND) && hasStringProp(object, 'sourceModelName');
     }
 

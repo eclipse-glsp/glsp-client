@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { injectable } from 'inversify';
-import { ISnapper, Point, SModelElement, Writable, findParentByFeature, isViewport } from '~glsp-sprotty';
+import { ISnapper, Point, GModelElement, Writable, findParentByFeature, isViewport } from '@eclipse-glsp/sprotty';
 
 /**
  * A {@link ISnapper} implementation that snaps all elements onto a fixed gride size.
@@ -30,7 +30,7 @@ import { ISnapper, Point, SModelElement, Writable, findParentByFeature, isViewpo
 export class GridSnapper implements ISnapper {
     constructor(public grid: { x: number; y: number } = { x: 10, y: 10 }) {}
 
-    snap(position: Point, element: SModelElement): Point {
+    snap(position: Point, element: GModelElement): Point {
         return {
             x: Math.round(position.x / this.grid.x) * this.grid.x,
             y: Math.round(position.y / this.grid.y) * this.grid.y
@@ -86,7 +86,7 @@ export class PointPositionUpdater {
      * @param isSnapEnabled if a snapper is defined you can disable it, e.g when a specific key is pressed `!event.altKey`
      * @returns current position or undefined if updater has no last drag position initialized
      */
-    public updatePosition(target: SModelElement, mousePosition: Point, isSnapEnabled: boolean): Point | undefined {
+    public updatePosition(target: GModelElement, mousePosition: Point, isSnapEnabled: boolean): Point | undefined {
         if (this.lastDragPosition) {
             const newDragPosition = mousePosition;
 
@@ -116,7 +116,7 @@ export class PointPositionUpdater {
         return undefined;
     }
 
-    protected snap(position: Point, element: SModelElement, isSnap: boolean): Point {
+    protected snap(position: Point, element: GModelElement, isSnap: boolean): Point {
         return isSnap && this.snapper ? this.snapper.snap(position, element) : { x: position.x, y: position.y };
     }
 }

@@ -19,14 +19,14 @@ import {
     AnchorComputerRegistry,
     CommandExecutionContext,
     CommandReturn,
+    GChildElement,
     MouseListener,
     Point,
-    SChildElement,
-    SModelElement,
-    SModelRoot,
+    GModelElement,
+    GModelRoot,
     TYPES,
     hasObjectProp
-} from '~glsp-sprotty';
+} from '@eclipse-glsp/sprotty';
 import { FeedbackCommand } from '../../../base/feedback/feedback-command';
 
 export interface DrawMarqueeAction extends Action {
@@ -95,12 +95,12 @@ export class MarqueeEndMovingMouseListener extends MouseListener {
         super();
     }
 
-    override mouseMove(target: SModelElement, event: MouseEvent): Action[] {
+    override mouseMove(target: GModelElement, event: MouseEvent): Action[] {
         return [];
     }
 }
 
-export function marqueeId(root: SModelRoot): string {
+export function marqueeId(root: GModelRoot): string {
     return root.id + '_' + MARQUEE;
 }
 
@@ -122,9 +122,9 @@ export function drawMarquee(context: CommandExecutionContext, startPoint: Point,
     root.add(marquee);
 }
 
-export function removeMarquee(root: SModelRoot): void {
+export function removeMarquee(root: GModelRoot): void {
     const marquee = root.index.getById(marqueeId(root));
-    if (marquee instanceof SChildElement) {
+    if (marquee instanceof GChildElement) {
         root.remove(marquee);
     }
 }

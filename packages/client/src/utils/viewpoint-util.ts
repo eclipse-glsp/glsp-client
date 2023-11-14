@@ -18,17 +18,18 @@ import {
     Bounds,
     BoundsAware,
     Dimension,
+    GChildElement,
+    GModelElement,
+    GModelRoot,
     Point,
-    SChildElement,
-    SModelElement,
     Viewport,
     findParentByFeature,
     isAlignable,
     isBoundsAware,
     isViewport,
     translateBounds
-} from '~glsp-sprotty';
-import { BoundsAwareModelElement } from './smodel-util';
+} from '@eclipse-glsp/sprotty';
+import { BoundsAwareModelElement } from './gmodel-util';
 
 /**
  * Return the position corresponding to this mouse event (Browser coordinates)
@@ -43,9 +44,12 @@ import { BoundsAwareModelElement } from './smodel-util';
  * @param mouseEvent
  *  A mouseEvent
  */
-export function getAbsolutePosition(target: SModelElement, mouseEvent: MouseEvent): Point {
-    let xPos = mouseEvent.pageX;
-    let yPos = mouseEvent.pageY;
+export function getAbsolutePosition(target: GModelElement, mouseEvent: MouseEvent): Point {
+    return getAbsolutePositionByPoint(target, { x: mouseEvent.pageX, y: mouseEvent.pageY });
+}
+export function getAbsolutePositionByPoint(target: GModelElement, point: Point): Point {
+    let xPos = point.x;
+    let yPos = point.y;
     const canvasBounds = target.root.canvasBounds;
     xPos -= canvasBounds.x;
     yPos -= canvasBounds.y;
@@ -73,7 +77,7 @@ export function getAbsolutePosition(target: SModelElement, mouseEvent: MouseEven
  *
  * @param target  A bounds-aware element from the diagram
  */
-export function toAbsoluteBounds(element: SModelElement & BoundsAware): Bounds {
+export function toAbsoluteBounds(element: GModelElement & BoundsAware): Bounds {
     const location = isAlignable(element) ? element.alignment : Point.ORIGIN;
     const x = location.x;
     const y = location.y;
@@ -88,7 +92,7 @@ export function toAbsoluteBounds(element: SModelElement & BoundsAware): Bounds {
  *
  * @param target  A bounds-aware element from the diagram
  */
-export function toAbsolutePosition(target: SModelElement & BoundsAware): Point {
+export function toAbsolutePosition(target: GModelElement & BoundsAware): Point {
     return toAbsoluteBounds(target);
 }
 
@@ -98,7 +102,7 @@ export function toAbsolutePosition(target: SModelElement & BoundsAware): Point {
  *
  * @param target  A bounds-aware element from the diagram
  */
-export function toAbsoluteSize(target: SModelElement & BoundsAware): Dimension {
+export function toAbsoluteSize(target: GModelElement & BoundsAware): Dimension {
     return toAbsoluteBounds(target);
 }
 
@@ -110,7 +114,7 @@ export function toAbsoluteSize(target: SModelElement & BoundsAware): Dimension {
  * @param absolutePoint a point in absolute coordinates
  * @returns the equivalent point, relative to the element's parent coordinates
  */
-export function absoluteToParent(element: BoundsAwareModelElement & SChildElement, absolutePoint: Point): Point {
+export function absoluteToParent(element: BoundsAwareModelElement & GChildElement, absolutePoint: Point): Point {
     if (isBoundsAware(element.parent)) {
         return absoluteToLocal(element.parent, absolutePoint);
     }
@@ -129,4 +133,19 @@ export function absoluteToParent(element: BoundsAwareModelElement & SChildElemen
 export function absoluteToLocal(element: BoundsAwareModelElement, absolutePoint: Point): Point {
     const absoluteElementBounds = toAbsoluteBounds(element);
     return { x: absolutePoint.x - absoluteElementBounds.x, y: absolutePoint.y - absoluteElementBounds.y };
+}
+
+/**
+ * Returns `true` if `point` is outside of the `viewport`.
+ * @param point The point to check.
+ * @param viewport The viewport.
+ * @returns `true` if `point` is outside, `false` otherwise.
+ */
+export function outsideOfViewport(point: Point, viewport: GModelRoot & Viewport): boolean {
+    return (
+        point.x < viewport.scroll.x ||
+        point.x > viewport.scroll.x + viewport.canvasBounds.width ||
+        point.y < viewport.scroll.y ||
+        point.y > viewport.scroll.y + viewport.canvasBounds.height
+    );
 }

@@ -13,8 +13,9 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { hasStringProp, LabeledAction } from '~glsp-sprotty';
+import { hasStringProp, LabeledAction } from '@eclipse-glsp/sprotty';
 
+/** A special {@link LabeledAction} that has a `text` property in addition to the `label  */
 export interface AutoCompleteValue extends LabeledAction {
     readonly text: string;
 }

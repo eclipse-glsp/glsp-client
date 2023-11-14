@@ -15,12 +15,12 @@
  ********************************************************************************/
 
 import { expect } from 'chai';
-import { SModelElement } from '~glsp-sprotty';
+import { GModelElement } from '@eclipse-glsp/sprotty';
 import { GridSnapper, PointPositionUpdater } from './snap';
 
 describe('GridSnapper', () => {
     it('snap', () => {
-        const element = new SModelElement();
+        const element = new GModelElement();
         const snapper = new GridSnapper();
         expect(snapper.snap({ x: 0, y: 0 }, element)).to.be.deep.equals({ x: 0, y: 0 });
         expect(snapper.snap({ x: 4, y: 5 }, element)).to.be.deep.equals({ x: 0, y: 10 });
@@ -31,7 +31,7 @@ describe('GridSnapper', () => {
 
 describe('PointPositionUpdater', () => {
     it('updatePosition with no last drag position', () => {
-        const element = new SModelElement();
+        const element = new GModelElement();
         const updater = new PointPositionUpdater();
         expect(updater.updatePosition(element, { x: 0, y: 0 }, false)).to.be.undefined;
         expect(updater.updatePosition(element, { x: 0, y: 0 }, true)).to.be.undefined;
@@ -47,7 +47,7 @@ describe('PointPositionUpdater', () => {
     });
 
     it('updatePosition with no snapper', () => {
-        const element = new SModelElement();
+        const element = new GModelElement();
         const updater = new PointPositionUpdater();
         resetUpdater(updater);
         expect(updater.updatePosition(element, { x: 0, y: 0 }, false)).to.be.undefined;
@@ -61,7 +61,7 @@ describe('PointPositionUpdater', () => {
     });
 
     it('updatePosition with snapper', () => {
-        const element = new SModelElement();
+        const element = new GModelElement();
         const snapper = new GridSnapper();
         const updater = new PointPositionUpdater(snapper);
         resetUpdater(updater);

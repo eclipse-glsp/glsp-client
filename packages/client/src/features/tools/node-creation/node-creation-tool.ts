@@ -18,13 +18,13 @@ import {
     Action,
     CreateNodeOperation,
     ISnapper,
-    SModelElement,
-    SNode,
+    GModelElement,
+    GNode,
     TYPES,
     TriggerNodeCreationAction,
     findParentByFeature,
     isCtrlOrCmd
-} from '~glsp-sprotty';
+} from '@eclipse-glsp/sprotty';
 import { DragAwareMouseListener } from '../../../base/drag-aware-mouse-listener';
 import { CursorCSS, cursorFeedbackAction } from '../../../base/feedback/css-feedback';
 import { EnableDefaultToolsAction } from '../../../base/tool-manager/tool';
@@ -54,7 +54,7 @@ export class NodeCreationTool extends BaseCreationTool<TriggerNodeCreationAction
 
 @injectable()
 export class NodeCreationToolMouseListener extends DragAwareMouseListener {
-    protected container?: SModelElement & Containable;
+    protected container?: GModelElement & Containable;
 
     constructor(protected triggerAction: TriggerNodeCreationAction, protected tool: NodeCreationTool) {
         super();
@@ -68,14 +68,18 @@ export class NodeCreationToolMouseListener extends DragAwareMouseListener {
         return this.triggerAction.elementTypeId;
     }
 
-    override nonDraggingMouseUp(target: SModelElement, event: MouseEvent): Action[] {
+    override nonDraggingMouseUp(target: GModelElement, event: MouseEvent): Action[] {
         const result: Action[] = [];
+        if (this.container === undefined) {
+            this.mouseOver(target, event);
+        }
+
         if (this.creationAllowed(this.elementTypeId)) {
             const containerId = this.container ? this.container.id : undefined;
             let location = getAbsolutePosition(target, event);
             if (this.tool.snapper) {
                 // Create a 0-bounds proxy element for snapping
-                const elementProxy = new SNode();
+                const elementProxy = new GNode();
                 elementProxy.size = { width: 0, height: 0 };
                 location = this.tool.snapper.snap(location, elementProxy);
             }
@@ -87,7 +91,7 @@ export class NodeCreationToolMouseListener extends DragAwareMouseListener {
         return result;
     }
 
-    override mouseOver(target: SModelElement, event: MouseEvent): Action[] {
+    override mouseOver(target: GModelElement, event: MouseEvent): Action[] {
         const currentContainer = findParentByFeature(target, isContainable);
         if (!this.container || currentContainer !== this.container) {
             this.container = currentContainer;

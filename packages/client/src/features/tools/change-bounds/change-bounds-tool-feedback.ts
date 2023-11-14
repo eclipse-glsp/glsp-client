@@ -13,30 +13,31 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { inject, injectable } from 'inversify';
-import { VNode } from 'snabbdom';
 import {
     Action,
     CommandExecutionContext,
     CommandReturn,
     Disposable,
     ElementMove,
+    GChildElement,
+    GModelElement,
+    GModelRoot,
     MouseListener,
     MoveAction,
     Point,
-    SChildElement,
-    SModelElement,
-    SModelRoot,
     TYPES,
     findParentByFeature,
     hasStringProp,
     isMoveable,
     isSelectable,
     isViewport
-} from '~glsp-sprotty';
+} from '@eclipse-glsp/sprotty';
+import { inject, injectable } from 'inversify';
+import { VNode } from 'snabbdom';
+
 import { CursorCSS, cursorFeedbackAction } from '../../../base/feedback/css-feedback';
 import { FeedbackCommand } from '../../../base/feedback/feedback-command';
-import { forEachElement } from '../../../utils/smodel-util';
+import { forEachElement } from '../../../utils/gmodel-util';
 import { SResizeHandle, addResizeHandles, isResizable, removeResizeHandles } from '../../change-bounds/model';
 import { createMovementRestrictionFeedback, removeMovementRestrictionFeedback } from '../../change-bounds/movement-restrictor';
 import { ChangeBoundsTool } from './change-bounds-tool';
@@ -121,7 +122,7 @@ export class HideChangeBoundsToolResizeFeedbackCommand extends FeedbackCommand {
  */
 export class FeedbackMoveMouseListener extends MouseListener implements Disposable {
     protected hasDragged = false;
-    protected rootElement?: SModelRoot;
+    protected rootElement?: GModelRoot;
     protected startDragPosition?: Point;
     protected elementId2startPos = new Map<string, Point>();
 
@@ -129,7 +130,7 @@ export class FeedbackMoveMouseListener extends MouseListener implements Disposab
         super();
     }
 
-    override mouseDown(target: SModelElement, event: MouseEvent): Action[] {
+    override mouseDown(target: GModelElement, event: MouseEvent): Action[] {
         if (event.button === 0 && !(target instanceof SResizeHandle)) {
             const moveable = findParentByFeature(target, isMoveable);
             if (moveable !== undefined) {
@@ -142,7 +143,7 @@ export class FeedbackMoveMouseListener extends MouseListener implements Disposab
         return [];
     }
 
-    override mouseMove(target: SModelElement, event: MouseEvent): Action[] {
+    override mouseMove(target: GModelElement, event: MouseEvent): Action[] {
         const result: Action[] = [];
         if (event.buttons === 0) {
             this.mouseUp(target, event);
@@ -161,7 +162,7 @@ export class FeedbackMoveMouseListener extends MouseListener implements Disposab
         return [];
     }
 
-    protected collectStartPositions(root: SModelRoot): void {
+    protected collectStartPositions(root: GModelRoot): void {
         this.rootElement = root;
         const selectedElements = root.index.all().filter(element => isSelectable(element) && element.selected);
         const elementsSet = new Set(selectedElements);
@@ -174,8 +175,8 @@ export class FeedbackMoveMouseListener extends MouseListener implements Disposab
             });
     }
 
-    protected isChildOfSelected(selectedElements: Set<SModelElement>, element: SModelElement): boolean {
-        while (element instanceof SChildElement) {
+    protected isChildOfSelected(selectedElements: Set<GModelElement>, element: GModelElement): boolean {
+        while (element instanceof GChildElement) {
             element = element.parent;
             if (selectedElements.has(element)) {
                 return true;
@@ -184,7 +185,7 @@ export class FeedbackMoveMouseListener extends MouseListener implements Disposab
         return false;
     }
 
-    protected getElementMoves(target: SModelElement, event: MouseEvent, finished: boolean): MoveAction | undefined {
+    protected getElementMoves(target: GModelElement, event: MouseEvent, finished: boolean): MoveAction | undefined {
         if (!this.startDragPosition) {
             return undefined;
         }
@@ -196,7 +197,7 @@ export class FeedbackMoveMouseListener extends MouseListener implements Disposab
             y: (event.pageY - this.startDragPosition.y) / zoom
         };
 
-        const elementMoves: ElementMove[] = this.getElementMovesForDelta(target, delta, !event.shiftKey, finished);
+        const elementMoves: ElementMove[] = this.getElementMovesForDelta(target, delta, !event.altKey, finished);
         if (elementMoves.length > 0) {
             return MoveAction.create(elementMoves, { animate: false, finished });
         } else {
@@ -205,7 +206,7 @@ export class FeedbackMoveMouseListener extends MouseListener implements Disposab
     }
 
     protected getElementMovesForDelta(
-        target: SModelElement,
+        target: GModelElement,
         delta: { x: number; y: number },
         isSnap: boolean,
         finished: boolean
@@ -239,7 +240,7 @@ export class FeedbackMoveMouseListener extends MouseListener implements Disposab
         return elementMoves;
     }
 
-    protected validateMove(startPosition: Point, toPosition: Point, element: SModelElement, isFinished: boolean): Point {
+    protected validateMove(startPosition: Point, toPosition: Point, element: GModelElement, isFinished: boolean): Point {
         let newPosition = toPosition;
         if (this.tool.movementRestrictor) {
             const valid = this.tool.movementRestrictor.validate(element, toPosition);
@@ -258,7 +259,7 @@ export class FeedbackMoveMouseListener extends MouseListener implements Disposab
         return newPosition;
     }
 
-    protected snap(position: Point, element: SModelElement, isSnap: boolean): Point {
+    protected snap(position: Point, element: GModelElement, isSnap: boolean): Point {
         if (isSnap && this.tool.snapper) {
             return this.tool.snapper.snap(position, element);
         } else {
@@ -266,14 +267,14 @@ export class FeedbackMoveMouseListener extends MouseListener implements Disposab
         }
     }
 
-    override mouseEnter(target: SModelElement, event: MouseEvent): Action[] {
-        if (target instanceof SModelRoot && event.buttons === 0 && !this.startDragPosition) {
+    override mouseEnter(target: GModelElement, event: MouseEvent): Action[] {
+        if (target instanceof GModelRoot && event.buttons === 0 && !this.startDragPosition) {
             this.mouseUp(target, event);
         }
         return [];
     }
 
-    override mouseUp(target: SModelElement, event: MouseEvent): Action[] {
+    override mouseUp(target: GModelElement, event: MouseEvent): Action[] {
         const result: Action[] = [];
         if (this.startDragPosition) {
             const moveAction = this.getElementMoves(target, event, true);
@@ -303,7 +304,7 @@ export class FeedbackMoveMouseListener extends MouseListener implements Disposab
         this.elementId2startPos.clear();
     }
 
-    override decorate(vnode: VNode, _element: SModelElement): VNode {
+    override decorate(vnode: VNode, _element: GModelElement): VNode {
         return vnode;
     }
 

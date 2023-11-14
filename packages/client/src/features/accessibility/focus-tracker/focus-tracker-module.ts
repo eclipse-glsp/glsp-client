@@ -16,7 +16,7 @@
 
 import { ContainerModule } from 'inversify';
 import { FocusTrackerTool } from './focus-tracker-tool';
-import { BindingContext, TYPES, bindAsService } from '~glsp-sprotty';
+import { BindingContext, TYPES, bindAsService } from '@eclipse-glsp/sprotty';
 
 /**
  * Handles actions for tracking the focus of the cursor.

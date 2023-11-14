@@ -15,11 +15,16 @@
  ********************************************************************************/
 
 import { inject } from 'inversify';
-import { AbstractUIExtension, Action, LabeledAction, SModelRoot, TYPES } from '~glsp-sprotty';
+import { AbstractUIExtension, Action, LabeledAction, GModelRoot, TYPES } from '@eclipse-glsp/sprotty';
 import '../../../css/autocomplete-palette.css';
-import { GLSPActionDispatcher } from '../../base/action-dispatcher';
-import { AutoCompleteWidget, CloseReason, toActionArray } from '../../base/auto-complete/auto-complete-widget';
+import { GLSPActionDispatcher } from '../action-dispatcher';
+import { AutoCompleteWidget, CloseReason, toActionArray } from './auto-complete-widget';
 
+/**
+ * A reusable base implementation for `UIExtensions` that want to provide autocomplete functionality
+ * using the {@link AutoCompleteWidget}.
+ *
+ */
 export abstract class BaseAutocompletePalette extends AbstractUIExtension {
     protected readonly autoSuggestionSettings = {
         noSuggestionsMessage: 'No suggestions available',
@@ -28,7 +33,7 @@ export abstract class BaseAutocompletePalette extends AbstractUIExtension {
         showOnFocus: true
     };
 
-    protected root?: Readonly<SModelRoot>;
+    protected root?: Readonly<GModelRoot>;
     protected autocompleteWidget: AutoCompleteWidget;
 
     @inject(TYPES.IActionDispatcher)
@@ -38,14 +43,14 @@ export abstract class BaseAutocompletePalette extends AbstractUIExtension {
         return 'autocomplete-palette';
     }
 
-    override show(root: Readonly<SModelRoot>, ...contextElementIds: string[]): void {
+    override show(root: Readonly<GModelRoot>, ...contextElementIds: string[]): void {
         super.show(root, ...contextElementIds);
         this.root = root;
         this.autocompleteWidget.open(root);
     }
 
     override hide(): void {
-        this.autocompleteWidget.dispose();
+        this.autocompleteWidget?.dispose();
         this.root = undefined;
         super.hide();
     }
@@ -67,13 +72,13 @@ export abstract class BaseAutocompletePalette extends AbstractUIExtension {
         this.autocompleteWidget.initialize(containerElement);
     }
 
-    protected abstract retrieveSuggestions(root: Readonly<SModelRoot>, input: string): Promise<LabeledAction[]>;
+    protected abstract retrieveSuggestions(root: Readonly<GModelRoot>, input: string): Promise<LabeledAction[]>;
 
-    protected async visibleSuggestionsChanged(root: Readonly<SModelRoot>, labeledActions: LabeledAction[]): Promise<void> {
+    protected async visibleSuggestionsChanged(root: Readonly<GModelRoot>, labeledActions: LabeledAction[]): Promise<void> {
         return;
     }
 
-    protected async selectedSuggestionChanged(root: Readonly<SModelRoot>, labeledAction?: LabeledAction): Promise<void> {
+    protected async selectedSuggestionChanged(root: Readonly<GModelRoot>, labeledAction?: LabeledAction): Promise<void> {
         return;
     }
 

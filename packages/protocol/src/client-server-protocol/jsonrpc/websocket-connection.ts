@@ -36,8 +36,8 @@ import {
  */
 export interface WebSocketWrapper extends Disposable {
     send(content: string | ArrayBufferLike | ArrayBufferView): void;
-    onMessage(cb: (data: any) => void): void;
-    onError(cb: (reason: any) => void): void;
+    onMessage(cb: (data: unknown) => void): void;
+    onError(cb: (reason: unknown) => void): void;
     onClose(cb: (code: number, reason: string) => void): void;
 }
 
@@ -66,7 +66,7 @@ export function wrap(socket: WebSocket): WebSocketWrapper {
 export class WebSocketMessageReader extends AbstractMessageReader {
     protected state: 'initial' | 'listening' | 'closed' = 'initial';
     protected callback?: DataCallback;
-    protected eventQueue: Array<{ message?: unknown; error?: any }> = [];
+    protected eventQueue: Array<{ message?: unknown; error?: unknown }> = [];
 
     constructor(protected readonly socket: WebSocketWrapper) {
         super();
@@ -105,7 +105,7 @@ export class WebSocketMessageReader extends AbstractMessageReader {
         }
     }
 
-    protected override fireError(error: any): void {
+    protected override fireError(error: unknown): void {
         if (this.state === 'initial') {
             this.eventQueue.push({ error });
         } else if (this.state === 'listening') {

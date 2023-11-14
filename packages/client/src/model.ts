@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2023 EclipseSource and others.
+ * Copyright (c) 2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -14,28 +14,32 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import {
+    Args,
     Bounds,
-    exportFeature,
-    getRouteBounds,
-    isBounds,
+    GModelElementSchema,
+    GShapeElement,
     Point,
-    SEdge,
-    SGraph,
-    SModelElement,
-    SModelElementSchema,
-    viewportFeature
-} from '~glsp-sprotty';
-import { Containable, containerFeature } from '../features/hints/model';
+    SEdgeImpl,
+    SGraphImpl,
+    getRouteBounds,
+    isBounds
+} from '@eclipse-glsp/sprotty';
+import { ArgsAware, argsFeature } from './base/args-feature';
+import { Containable, containerFeature } from './features/hints/model';
 
-export class GLSPGraph extends SGraph implements Containable {
-    static override readonly DEFAULT_FEATURES = [viewportFeature, exportFeature, containerFeature];
-    dirty = false;
-    isContainableElement(input: string | SModelElement | SModelElementSchema): boolean {
+export class GGraph extends SGraphImpl implements Containable, ArgsAware {
+    static override readonly DEFAULT_FEATURES = [...SGraphImpl.DEFAULT_FEATURES, containerFeature, argsFeature];
+    args?: Args;
+    isContainableElement(_input: string | GShapeElement | GModelElementSchema): boolean {
         return true;
     }
 }
 
-export class GEdge extends SEdge {
+export class GEdge extends SEdgeImpl implements ArgsAware {
+    static override readonly DEFAULT_FEATURES = [...SEdgeImpl.DEFAULT_FEATURES, argsFeature];
+
+    args?: Args;
+
     override localToParent(point: Point | Bounds): Bounds {
         const bounds = getRouteBounds(this.routingPoints);
         const result = {

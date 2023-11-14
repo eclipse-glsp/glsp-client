@@ -19,21 +19,21 @@ import { throttle } from 'lodash';
 import {
     Action,
     Bounds,
+    GChildElement,
     IActionDispatcher,
     IActionHandler,
     ICommand,
     Point,
-    SChildElement,
-    SModelElement,
-    SModelRoot,
+    GModelElement,
+    GModelRoot,
     SetViewportAction,
     TYPES,
     Viewport,
     findParentByFeature,
     isViewport
-} from '~glsp-sprotty';
+} from '@eclipse-glsp/sprotty';
 import { EditorContextService } from '../../../base/editor-context-service';
-import { SelectableBoundsAware, getElements, isSelectableAndBoundsAware } from '../../../utils/smodel-util';
+import { SelectableBoundsAware, getElements, isSelectableAndBoundsAware } from '../../../utils/gmodel-util';
 
 /**
  * Action for triggering zooming of the viewport.
@@ -112,7 +112,7 @@ export class ZoomViewportHandler implements IActionHandler {
         this.dispatcher.dispatch(this.setNewZoomFactor(viewport, action.zoomFactor));
     }
 
-    protected setNewZoomFactor(viewport: SModelRoot & Viewport, zoomFactor: number): SetViewportAction {
+    protected setNewZoomFactor(viewport: GModelRoot & Viewport, zoomFactor: number): SetViewportAction {
         const newZoom = viewport.zoom * zoomFactor;
 
         const newViewport = {
@@ -150,7 +150,7 @@ export class ZoomElementHandler implements IActionHandler {
         this.dispatcher.dispatch(this.setNewZoomFactor(viewport, action.zoomFactor, center));
     }
 
-    protected getCenter(viewport: SModelRoot & Viewport, selectedElements: SelectableBoundsAware[]): Point {
+    protected getCenter(viewport: GModelRoot & Viewport, selectedElements: SelectableBoundsAware[]): Point {
         // Get bounds of elements based on the viewport
         const allBounds = selectedElements.map(e => this.boundsInViewport(viewport, e, e.bounds));
         const mergedBounds = allBounds.reduce((b0, b1) => Bounds.combine(b0, b1));
@@ -158,15 +158,15 @@ export class ZoomElementHandler implements IActionHandler {
     }
 
     // copy from center-fit.ts, translates the children bounds to the viewport bounds
-    protected boundsInViewport(viewport: SModelRoot & Viewport, element: SModelElement, bounds: Bounds): Bounds {
-        if (element instanceof SChildElement && element.parent !== viewport) {
+    protected boundsInViewport(viewport: GModelRoot & Viewport, element: GModelElement, bounds: Bounds): Bounds {
+        if (element instanceof GChildElement && element.parent !== viewport) {
             return this.boundsInViewport(viewport, element.parent, element.parent.localToParent(bounds) as Bounds);
         } else {
             return bounds;
         }
     }
 
-    protected setNewZoomFactor(viewport: SModelRoot & Viewport, zoomFactor: number, point: Point): SetViewportAction {
+    protected setNewZoomFactor(viewport: GModelRoot & Viewport, zoomFactor: number, point: Point): SetViewportAction {
         const newZoom = viewport.zoom * zoomFactor;
 
         const newViewport = {

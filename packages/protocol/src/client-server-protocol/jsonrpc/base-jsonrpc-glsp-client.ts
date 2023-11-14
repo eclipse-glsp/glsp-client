@@ -84,13 +84,6 @@ export class BaseJsonrpcGLSPClient implements GLSPClient {
         return this.resolvedConnection!;
     }
 
-    /**
-     * @Deprecated use {@link checkConnection} instead
-     */
-    protected checkConnectionState(): boolean {
-        return this.checkedConnection !== undefined;
-    }
-
     async start(): Promise<void> {
         if (this.state === ClientState.Running) {
             return;

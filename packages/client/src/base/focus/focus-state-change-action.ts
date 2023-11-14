@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, hasBooleanProp } from '~glsp-sprotty';
+import { Action, hasBooleanProp } from '@eclipse-glsp/sprotty';
 
 /**
  * A `FocusStateChangedAction` is dispatched by the client whenever the
