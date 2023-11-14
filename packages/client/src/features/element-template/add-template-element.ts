@@ -20,15 +20,9 @@ import {
     CommandResult,
     ElementTemplate,
     GChildElement,
-    GLabel,
-    GLabelSchema,
-    GModelElement,
     GModelElementSchema,
-    GParentElement,
-    ModelIndexImpl,
     TYPES,
     distinctAdd,
-    isBoundsAware,
     remove
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
@@ -71,12 +65,12 @@ export class AddTemplateElementsFeedbackCommand extends FeedbackCommand {
 
     override execute(context: CommandExecutionContext): CommandResult {
         this.action.templates
-            .map(template => templateToSchema(context.root.index, template))
+            .map(template => templateToSchema(template, context))
             .filter(isNotUndefined)
             .map(schema => context.modelFactory.createElement(schema))
             .map(element => this.applyRootCssClasses(element, this.action.addClasses, this.action.removeClasses))
             .forEach(templateElement => context.root.add(templateElement));
-        return LocalRequestBoundsAction.fromCommand(context.root, this.actionDispatcher, this.action);
+        return LocalRequestBoundsAction.fromCommand(context, this.actionDispatcher, this.action);
     }
 
     protected applyRootCssClasses(element: GChildElement, addClasses?: string[], removeClasses?: string[]): GChildElement {
@@ -85,24 +79,22 @@ export class AddTemplateElementsFeedbackCommand extends FeedbackCommand {
     }
 }
 
-export function templateToSchema(index: ModelIndexImpl, template: ElementTemplate): GModelElementSchema | undefined {
+export function templateToSchema(template: ElementTemplate, context: CommandExecutionContext): GModelElementSchema | undefined {
     if (typeof template === 'string') {
-        const element = index.getById(template);
-        return element ? toElementSchema(element) : undefined;
+        const element = context.root.index.getById(template);
+        const schema = element ? context.modelFactory.createSchema(element) : undefined;
+        if (schema) {
+            adaptSchemaIds(schema);
+        }
+        return schema;
     }
     return template;
 }
 
-export function toElementSchema(element: GModelElement): GModelElementSchema | GLabelSchema {
-    return {
-        type: element.type,
-        id: getTemplateElementId(element.id),
-        cssClasses: [...(element.cssClasses || [])],
-        position: isBoundsAware(element) ? { x: element.bounds.x, y: element.bounds.y } : undefined,
-        size: isBoundsAware(element) ? { width: element.bounds.width, height: element.bounds.height } : undefined,
-        text: element instanceof GLabel ? element.text : undefined,
-        children: element instanceof GParentElement ? element.children.map(child => toElementSchema(child)) : undefined
-    };
+function adaptSchemaIds(schema: GModelElementSchema): GModelElementSchema {
+    schema.id = getTemplateElementId(schema.id);
+    schema.children?.forEach(child => adaptSchemaIds(child));
+    return schema;
 }
 
 function modifyCssClasses(source?: string[], toAdd?: string[], toRemove?: string[]): string[] {

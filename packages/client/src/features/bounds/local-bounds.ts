@@ -35,11 +35,11 @@ export namespace LocalRequestBoundsAction {
         return RequestBoundsAction.is(object) && !ServerAction.is(object);
     }
 
-    export function fromCommand(model: GModelRoot, actionDispatcher: ActionDispatcher, cause?: Action): CommandResult {
+    export function fromCommand(context: CommandExecutionContext, actionDispatcher: ActionDispatcher, cause?: Action): CommandResult {
         // do not modify the main model (modelChanged = false) but request local bounds calculation on hidden model
-        actionDispatcher.dispatch(RequestBoundsAction.create(model as unknown as GModelRootSchema));
+        actionDispatcher.dispatch(RequestBoundsAction.create(context.root as unknown as GModelRootSchema));
         return {
-            model,
+            model: context.root,
             modelChanged: false,
             cause
         };

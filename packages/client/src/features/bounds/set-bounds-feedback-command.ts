@@ -65,6 +65,6 @@ export class SetBoundsFeebackCommand extends SetBoundsCommand implements Feedbac
                 element.layoutOptions = options;
             }
         });
-        return LocalRequestBoundsAction.fromCommand(context.root, this.actionDispatcher, this.action);
+        return LocalRequestBoundsAction.fromCommand(context, this.actionDispatcher, this.action);
     }
 }
