@@ -16,10 +16,10 @@
 import {
     BoundsAware,
     GChildElement,
-    Hoverable,
-    Locateable,
     GModelElement,
     GParentElement,
+    Hoverable,
+    Locateable,
     Selectable,
     hoverFeedbackFeature,
     isBoundsAware,
@@ -72,7 +72,6 @@ export class SResizeHandle extends GChildElement implements Hoverable {
 }
 
 export function addResizeHandles(element: GParentElement): void {
-    removeResizeHandles(element);
     element.add(new SResizeHandle(ResizeHandleLocation.TopLeft));
     element.add(new SResizeHandle(ResizeHandleLocation.TopRight));
     element.add(new SResizeHandle(ResizeHandleLocation.BottomLeft));

@@ -1,6 +1,14 @@
 # Eclipse GLSP Client Changelog
 
-## v2.0.0 - 14/10/2023
+## v2.10.0 - active
+
+### Changes
+
+-   [diagram] Remove unused handleSetContextActions from ToolPalette [#301](https://github.com/eclipse-glsp/glsp-client/pull/301)
+
+### Breaking Changes
+
+## [v2.0.0 - 14/10/2023](https://github.com/eclipse-glsp/glsp-client/releases/tag/v2.0.0)
 
 ### Changes
 

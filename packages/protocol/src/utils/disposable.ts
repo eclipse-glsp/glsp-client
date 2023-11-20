@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import * as jsonrpc from 'vscode-jsonrpc';
-import { remove } from '../utils/array-util';
+import { isArrayOfType, remove } from '../utils/array-util';
 import { AnyObject, hasFunctionProp } from '../utils/type-util';
 
 /**
@@ -85,9 +85,12 @@ export class DisposableCollection implements Disposable {
      * @param disposables The disposables that should be added
      * @returns A disposable that removes the previously pushed values from the collection when invoked
      */
-    push(...disposables: Disposable[]): Disposable {
-        this.disposables.push(...disposables);
-        return Disposable.create(() => remove(this.disposables, ...disposables));
+    push(...disposables: Disposable[]): Disposable;
+    push(...disposables: (() => void)[]): Disposable;
+    push(...disposables: (() => void)[] | Disposable[]): Disposable {
+        const toAdd = isArrayOfType(disposables, Disposable.is) ? disposables : disposables.map(Disposable.create);
+        this.disposables.push(...toAdd);
+        return Disposable.create(() => remove(this.disposables, ...toAdd));
     }
 
     get isDisposed(): boolean {

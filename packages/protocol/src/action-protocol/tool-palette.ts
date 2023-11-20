@@ -16,7 +16,16 @@
 
 import { hasStringProp } from '../utils/type-util';
 import { Action } from './base-protocol';
-import { Args } from './types';
+import { Args, ElementTemplate } from './types';
+
+/**
+ * A ghost element describes an element that may be rendered as a schematic visualization of an element that may be inserted
+ * during creation.
+ */
+export interface GhostElement {
+    template: ElementTemplate;
+    dynamic?: boolean;
+}
 
 /**
  * Triggers the enablement of the tool that is responsible for creating nodes and initializes it with the creation of nodes of the given
@@ -28,9 +37,15 @@ export interface TriggerNodeCreationAction extends Action {
     kind: typeof TriggerNodeCreationAction.KIND;
 
     /**
-     * The type of edge that should be created by the nodes creation tool.
+     * The type of node that should be created by the node creation tool.
      */
     elementTypeId: string;
+
+    /**
+     * A ghost element represents the node that may be created by this action schematically.
+     * It is not guaranteed that the created element will match the ghost element exactly.
+     */
+    ghostElement?: GhostElement;
 
     /**
      * Custom arguments.
@@ -45,7 +60,10 @@ export namespace TriggerNodeCreationAction {
         return Action.hasKind(object, KIND) && hasStringProp(object, 'elementTypeId');
     }
 
-    export function create(elementTypeId: string, options: { args?: Args } = {}): TriggerNodeCreationAction {
+    export function create(
+        elementTypeId: string,
+        options?: Omit<TriggerNodeCreationAction, 'kind' | 'elementTypeId'>
+    ): TriggerNodeCreationAction {
         return {
             kind: KIND,
             elementTypeId,

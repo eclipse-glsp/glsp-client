@@ -13,8 +13,8 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { Decoration, DecorationPlacer, GChildElement, GModelElement, GRoutableElement, Point, isSizeable } from '@eclipse-glsp/sprotty';
 import { injectable } from 'inversify';
-import { Decoration, DecorationPlacer, GChildElement, Point, GModelElement, GRoutableElement, isSizeable } from '@eclipse-glsp/sprotty';
 
 @injectable()
 export class GlspDecorationPlacer extends DecorationPlacer {
@@ -26,8 +26,8 @@ export class GlspDecorationPlacer extends DecorationPlacer {
         }
         if (isSizeable(element)) {
             return {
-                x: GlspDecorationPlacer.DECORATION_OFFSET.x * element.bounds.width,
-                y: GlspDecorationPlacer.DECORATION_OFFSET.y * element.bounds.height
+                x: -GlspDecorationPlacer.DECORATION_OFFSET.x,
+                y: -GlspDecorationPlacer.DECORATION_OFFSET.y
             };
         }
         return Point.ORIGIN;
