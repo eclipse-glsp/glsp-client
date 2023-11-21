@@ -17,8 +17,10 @@ import { TYPES as SprottyTYPES } from 'sprotty';
 /**
  * Reexport of the TYPES namespace of sprotty augments with additional GLSP specific service
  * identifiers.
- *
  */
+
+const IGModelRootListener = Symbol('IGModelRootListener');
+
 export const TYPES = {
     ...SprottyTYPES,
     IAsyncClipboardService: Symbol('IAsyncClipboardService'),
@@ -28,7 +30,10 @@ export const TYPES = {
     ITypeHintProvider: Symbol('ITypeHintProvider'),
     IMovementRestrictor: Symbol('IMovementRestrictor'),
     ISelectionListener: Symbol('ISelectionListener'),
-    ISModelRootListener: Symbol('ISModelRootListener'),
+    /** @deprecated Use {@link TYPES.IGModelRootListener} instead */
+    // eslint-disable-next-line deprecation/deprecation
+    ISModelRootListener: IGModelRootListener,
+    IGModelRootListener: IGModelRootListener,
     IContextMenuProvider: Symbol('IContextMenuProvider'),
     ICopyPasteHandler: Symbol('ICopyPasteHandler'),
     ITool: Symbol('ITool'),

@@ -13,7 +13,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import '@vscode/codicons/dist/codicon.css';
 import {
     ActionHandlerRegistry,
     FeatureModule,
@@ -30,6 +29,7 @@ import {
     configureCommand,
     sprottyDefaultModule
 } from '@eclipse-glsp/sprotty';
+import '@vscode/codicons/dist/codicon.css';
 import '../../css/glsp-sprotty.css';
 import { GLSPActionDispatcher } from './action-dispatcher';
 import { GLSPActionHandlerRegistry } from './action-handler-registry';
@@ -96,7 +96,7 @@ export const defaultModule = new FeatureModule((bind, unbind, isBound, rebind, .
     bindOrRebind(context, TYPES.ViewRegistry).to(GViewRegistry).inSingletonScope();
 
     bind(SelectionService).toSelf().inSingletonScope();
-    bind(TYPES.ISModelRootListener).toService(SelectionService);
+    bind(TYPES.IGModelRootListener).toService(SelectionService);
 
     // Feedback Support ------------------------------------
     // Generic re-usable feedback modifying css classes
