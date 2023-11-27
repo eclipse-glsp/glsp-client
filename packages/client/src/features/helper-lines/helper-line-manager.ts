@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2020 EclipseSource and others.
+ * Copyright (c) 2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,19 +13,9 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { AnyObject, hasNumberProp } from '@eclipse-glsp/sprotty';
+import { GModelElement } from '@eclipse-glsp/sprotty';
+import { Direction } from './model';
 
-export function createElementFromHTML(html: string): HTMLElement | undefined {
-    const template = document.createElement('template');
-    html = html.trim(); // Never return a text node of whitespace as the result
-    template.innerHTML = html;
-    const node = template.content.firstChild;
-    if (node && node instanceof HTMLElement) {
-        return node as HTMLElement;
-    }
-    return undefined;
-}
-
-export function isMouseEvent(object: unknown): object is MouseEvent {
-    return AnyObject.is(object) && hasNumberProp(object, 'pageX') && hasNumberProp(object, 'pageY');
+export interface IHelperLineManager {
+    getHelperLineSnapping(target: GModelElement, isSnap: boolean, direction: Direction): number;
 }

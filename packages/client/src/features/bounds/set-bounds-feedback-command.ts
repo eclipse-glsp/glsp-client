@@ -45,7 +45,7 @@ export namespace SetBoundsFeedbackAction {
 }
 
 @injectable()
-export class SetBoundsFeebackCommand extends SetBoundsCommand implements FeedbackCommand {
+export class SetBoundsFeedbackCommand extends SetBoundsCommand implements FeedbackCommand {
     static override readonly KIND: string = SetBoundsFeedbackAction.KIND;
 
     readonly priority: number = 0;

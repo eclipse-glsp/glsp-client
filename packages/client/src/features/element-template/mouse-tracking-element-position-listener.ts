@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { Action, Disposable, GModelElement, ISnapper, MoveAction, Point, isBoundsAware, isMoveable } from '@eclipse-glsp/sprotty';
+import { Action, Disposable, GModelElement, Locateable, MoveAction, Point, isBoundsAware, isMoveable } from '@eclipse-glsp/sprotty';
 import { injectable } from 'inversify';
 import { DragAwareMouseListener } from '../../base/drag-aware-mouse-listener';
 import { CSS_HIDDEN, ModifyCSSFeedbackAction } from '../../base/feedback/css-feedback';
@@ -26,9 +26,12 @@ import {
     createMovementRestrictionFeedback,
     removeMovementRestrictionFeedback
 } from '../change-bounds/movement-restrictor';
+import { PositionSnapper } from '../change-bounds/position-snapper';
+import { PointPositionUpdater } from '../change-bounds/point-position-updater';
+import { useSnap } from '../change-bounds/snap';
 
 export interface PositioningTool extends Tool {
-    readonly snapper?: ISnapper;
+    readonly positionSnapper: PositionSnapper;
     readonly movementRestrictor?: IMovementRestrictor;
 
     registerFeedback(feedbackActions: Action[], feedbackEmitter?: IFeedbackEmitter, cleanupActions?: Action[]): Disposable;
@@ -37,8 +40,9 @@ export interface PositioningTool extends Tool {
 
 @injectable()
 export class MouseTrackingElementPositionListener extends DragAwareMouseListener {
-    element?: GModelElement;
     currentPosition?: Point;
+
+    protected positionUpdater: PointPositionUpdater;
 
     constructor(
         protected elementId: string,
@@ -46,48 +50,51 @@ export class MouseTrackingElementPositionListener extends DragAwareMouseListener
         protected cursorPosition: 'top-left' | 'middle' = 'top-left'
     ) {
         super();
+        this.positionUpdater = new PointPositionUpdater(this.tool.positionSnapper);
     }
 
     override mouseMove(target: GModelElement, event: MouseEvent): Action[] {
         super.mouseMove(target, event);
         const element = target.root.index.getById(this.elementId);
-        this.element = element;
-        if (!element) {
+        if (!element || !isMoveable(element)) {
             return [];
         }
-
-        let newPosition = getAbsolutePosition(target, event);
-        if (this.cursorPosition === 'middle' && isBoundsAware(element)) {
-            newPosition = Point.subtract(newPosition, { x: element.bounds.width / 2, y: element.bounds.height / 2 });
+        let targetPosition = this.getTargetPosition(target, event, element);
+        if (this.positionUpdater.isLastDragPositionUndefined()) {
+            this.positionUpdater.updateLastDragPosition(targetPosition);
         }
-        newPosition = this.snap(newPosition, element);
-
-        const finished = false;
-        if (isMoveable(element)) {
-            newPosition = this.validateMove(this.currentPosition ?? newPosition, newPosition, element, finished);
+        const delta = this.positionUpdater.updatePosition(element, targetPosition, useSnap(event));
+        if (!delta) {
+            return [];
         }
-        this.currentPosition = newPosition;
+        targetPosition = this.validateMove(this.currentPosition ?? targetPosition, targetPosition, element, false);
         const moveGhostElement = MoveAction.create(
             [
                 {
                     elementId: element.id,
-                    toPosition: newPosition
+                    fromPosition: this.currentPosition,
+                    toPosition: targetPosition
                 }
             ],
-            { animate: false, finished }
+            { animate: false, finished: false }
         );
+        this.currentPosition = targetPosition;
         this.tool.registerFeedback([moveGhostElement], this);
         return element.cssClasses?.includes(CSS_HIDDEN)
             ? [ModifyCSSFeedbackAction.create({ elements: [element.id], remove: [CSS_HIDDEN] })]
             : [];
     }
 
-    protected snap(position: Point, element: GModelElement, isSnap = true): Point {
-        if (isSnap && this.tool.snapper) {
-            return this.tool.snapper.snap(position, element);
-        } else {
-            return position;
+    protected getTargetPosition(target: GModelElement, event: MouseEvent, element: GModelElement & Locateable): Point {
+        let targetPosition = getAbsolutePosition(target, event);
+        if (this.cursorPosition === 'middle' && isBoundsAware(element)) {
+            targetPosition = Point.subtract(targetPosition, { x: element.bounds.width / 2, y: element.bounds.height / 2 });
         }
+        return targetPosition;
+    }
+
+    protected snap(position: Point, element: GModelElement, isSnap = true): Point {
+        return this.tool.positionSnapper.snapPosition(position, element, isSnap);
     }
 
     protected validateMove(startPosition: Point, toPosition: Point, element: GModelElement, isFinished: boolean): Point {

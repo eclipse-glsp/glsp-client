@@ -41,6 +41,7 @@ import { copyPasteModule } from './features/copy-paste/copy-paste-modules';
 import { decorationModule } from './features/decoration/decoration-module';
 import { elementTemplateModule } from './features/element-template/element-template-module';
 import { exportModule } from './features/export/export-modules';
+import { helperLineModule } from './features/helper-lines/helper-line-module';
 import { typeHintsModule } from './features/hints/type-hints-module';
 import { hoverModule } from './features/hover/hover-module';
 import { labelEditModule } from './features/label-edit/label-edit-module';
@@ -48,11 +49,11 @@ import { layoutModule } from './features/layout/layout-module';
 import { navigationModule } from './features/navigation/navigation-module';
 import { routingModule } from './features/routing/routing-module';
 import { selectModule } from './features/select/select-module';
-import { sourceModelWatcherModule } from './features/source-model-watcher/source-model-wacher-module';
+import { sourceModelWatcherModule } from './features/source-model-watcher/source-model-watcher-module';
 import { statusModule } from './features/status/status-module';
 import { svgMetadataModule } from './features/svg-metadata/svg-metadata-module';
 import { toolPaletteModule } from './features/tool-palette/tool-palette-module';
-import { changeBoundsToolModule } from './features/tools/change-bounds/change-boounds-tool-module';
+import { changeBoundsToolModule } from './features/tools/change-bounds/change-bounds-tool-module';
 import { deletionToolModule } from './features/tools/deletion/deletion-tool-module';
 import { edgeCreationToolModule } from './features/tools/edge-creation/edege-creation-module';
 import { edgeEditToolModule } from './features/tools/edge-edit/edge-edit-module';
@@ -91,6 +92,7 @@ export const DEFAULT_MODULES = [
     edgeCreationToolModule,
     edgeEditToolModule,
     deletionToolModule,
+    helperLineModule,
     elementTemplateModule,
     nodeCreationToolModule,
     changeBoundsToolModule,

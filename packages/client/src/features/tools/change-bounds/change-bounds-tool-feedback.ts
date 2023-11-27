@@ -22,24 +22,23 @@ import {
     GChildElement,
     GModelElement,
     GModelRoot,
-    MouseListener,
     MoveAction,
     Point,
     TYPES,
     findParentByFeature,
     hasStringProp,
     isMoveable,
-    isSelectable,
-    isViewport
+    isSelectable
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
-import { VNode } from 'snabbdom';
 
+import { DragAwareMouseListener } from '../../../base/drag-aware-mouse-listener';
 import { CursorCSS, cursorFeedbackAction } from '../../../base/feedback/css-feedback';
 import { FeedbackCommand } from '../../../base/feedback/feedback-command';
 import { forEachElement } from '../../../utils/gmodel-util';
 import { SResizeHandle, addResizeHandles, isResizable, removeResizeHandles } from '../../change-bounds/model';
 import { createMovementRestrictionFeedback, removeMovementRestrictionFeedback } from '../../change-bounds/movement-restrictor';
+import { PointPositionUpdater } from '../../change-bounds/point-position-updater';
 import { ChangeBoundsTool } from './change-bounds-tool';
 
 export interface ShowChangeBoundsToolResizeFeedbackAction extends Action {
@@ -113,6 +112,38 @@ export class HideChangeBoundsToolResizeFeedbackCommand extends FeedbackCommand {
     }
 }
 
+export interface MoveInitializedAction extends Action {
+    kind: typeof MoveInitializedAction.KIND;
+}
+
+export namespace MoveInitializedAction {
+    export const KIND = 'move-initialized';
+
+    export function is(object: any): object is MoveInitializedAction {
+        return Action.hasKind(object, KIND);
+    }
+
+    export function create(): MoveInitializedAction {
+        return { kind: KIND };
+    }
+}
+
+export interface MoveFinishedAction extends Action {
+    kind: typeof MoveFinishedAction.KIND;
+}
+
+export namespace MoveFinishedAction {
+    export const KIND = 'move-finished';
+
+    export function is(object: any): object is MoveFinishedAction {
+        return Action.hasKind(object, KIND);
+    }
+
+    export function create(): MoveFinishedAction {
+        return { kind: KIND };
+    }
+}
+
 /**
  * This mouse listener provides visual feedback for moving by sending client-side
  * `MoveAction`s while elements are selected and dragged. This will also update
@@ -120,25 +151,26 @@ export class HideChangeBoundsToolResizeFeedbackCommand extends FeedbackCommand {
  * the visual feedback but also the basis for sending the change to the server
  * (see also `tools/MoveTool`).
  */
-export class FeedbackMoveMouseListener extends MouseListener implements Disposable {
-    protected hasDragged = false;
+export class FeedbackMoveMouseListener extends DragAwareMouseListener implements Disposable {
     protected rootElement?: GModelRoot;
-    protected startDragPosition?: Point;
+    protected positionUpdater;
     protected elementId2startPos = new Map<string, Point>();
 
     constructor(protected tool: ChangeBoundsTool) {
         super();
+        this.positionUpdater = new PointPositionUpdater(tool.positionSnapper);
     }
 
     override mouseDown(target: GModelElement, event: MouseEvent): Action[] {
         if (event.button === 0 && !(target instanceof SResizeHandle)) {
             const moveable = findParentByFeature(target, isMoveable);
-            if (moveable !== undefined) {
-                this.startDragPosition = { x: event.pageX, y: event.pageY };
+            if (moveable !== undefined && !(target instanceof SResizeHandle)) {
+                this.positionUpdater.updateLastDragPosition(event);
+                this.tool.registerFeedback([MoveInitializedAction.create()], this);
             } else {
-                this.startDragPosition = undefined;
+                this.positionUpdater.resetPosition();
             }
-            this.hasDragged = false;
+            this._isMouseDrag = false;
         }
         return [];
     }
@@ -147,18 +179,18 @@ export class FeedbackMoveMouseListener extends MouseListener implements Disposab
         const result: Action[] = [];
         if (event.buttons === 0) {
             this.mouseUp(target, event);
-        } else if (this.startDragPosition) {
+        } else if (!this.positionUpdater.isLastDragPositionUndefined()) {
             if (this.elementId2startPos.size === 0) {
                 this.collectStartPositions(target.root);
             }
-            this.hasDragged = true;
+            this._isMouseDrag = true;
             const moveAction = this.getElementMoves(target, event, false);
             if (moveAction) {
                 result.push(moveAction);
                 result.push(cursorFeedbackAction(CursorCSS.MOVE));
+                this.tool.registerFeedback(result, this);
             }
         }
-        this.tool.registerFeedback(result, this);
         return [];
     }
 
@@ -186,18 +218,11 @@ export class FeedbackMoveMouseListener extends MouseListener implements Disposab
     }
 
     protected getElementMoves(target: GModelElement, event: MouseEvent, finished: boolean): MoveAction | undefined {
-        if (!this.startDragPosition) {
+        const delta = this.positionUpdater.updatePosition(target, event);
+        if (!delta) {
             return undefined;
         }
-
-        const viewport = findParentByFeature(target, isViewport);
-        const zoom = viewport ? viewport.zoom : 1;
-        const delta = {
-            x: (event.pageX - this.startDragPosition.x) / zoom,
-            y: (event.pageY - this.startDragPosition.y) / zoom
-        };
-
-        const elementMoves: ElementMove[] = this.getElementMovesForDelta(target, delta, !event.altKey, finished);
+        const elementMoves: ElementMove[] = this.getElementMovesForDelta(target, delta, finished);
         if (elementMoves.length > 0) {
             return MoveAction.create(elementMoves, { animate: false, finished });
         } else {
@@ -205,35 +230,15 @@ export class FeedbackMoveMouseListener extends MouseListener implements Disposab
         }
     }
 
-    protected getElementMovesForDelta(
-        target: GModelElement,
-        delta: { x: number; y: number },
-        isSnap: boolean,
-        finished: boolean
-    ): ElementMove[] {
+    protected getElementMovesForDelta(target: GModelElement, delta: Point, finished: boolean): ElementMove[] {
         const elementMoves: ElementMove[] = [];
         this.elementId2startPos.forEach((startPosition, elementId) => {
             const element = target.root.index.getById(elementId);
             if (element) {
-                let toPosition = this.snap(
-                    {
-                        x: startPosition.x + delta.x,
-                        y: startPosition.y + delta.y
-                    },
-                    element,
-                    isSnap
-                );
-
                 if (isMoveable(element)) {
-                    toPosition = this.validateMove(startPosition, toPosition, element, finished);
-                    elementMoves.push({
-                        elementId: element.id,
-                        fromPosition: {
-                            x: element.position.x,
-                            y: element.position.y
-                        },
-                        toPosition
-                    });
+                    const targetPosition = Point.add(element.position, delta);
+                    const toPosition = this.validateMove(startPosition, targetPosition, element, finished);
+                    elementMoves.push({ elementId: element.id, fromPosition: element.position, toPosition });
                 }
             }
         });
@@ -247,7 +252,6 @@ export class FeedbackMoveMouseListener extends MouseListener implements Disposab
             let action;
             if (!valid) {
                 action = createMovementRestrictionFeedback(element, this.tool.movementRestrictor);
-
                 if (isFinished) {
                     newPosition = startPosition;
                 }
@@ -259,24 +263,24 @@ export class FeedbackMoveMouseListener extends MouseListener implements Disposab
         return newPosition;
     }
 
-    protected snap(position: Point, element: GModelElement, isSnap: boolean): Point {
-        if (isSnap && this.tool.snapper) {
-            return this.tool.snapper.snap(position, element);
-        } else {
-            return position;
-        }
-    }
-
     override mouseEnter(target: GModelElement, event: MouseEvent): Action[] {
-        if (target instanceof GModelRoot && event.buttons === 0 && !this.startDragPosition) {
+        if (target instanceof GModelRoot && event.buttons === 0 && this.positionUpdater.isLastDragPositionUndefined()) {
             this.mouseUp(target, event);
         }
         return [];
     }
 
-    override mouseUp(target: GModelElement, event: MouseEvent): Action[] {
+    override nonDraggingMouseUp(element: GModelElement, event: MouseEvent): Action[] {
+        this.reset(true);
+        return [];
+    }
+
+    override draggingMouseUp(target: GModelElement, event: MouseEvent): Action[] {
         const result: Action[] = [];
-        if (this.startDragPosition) {
+        if (this.positionUpdater.isLastDragPositionUndefined()) {
+            this.reset(true);
+            return result;
+        } else {
             const moveAction = this.getElementMoves(target, event, true);
             if (moveAction) {
                 result.push(moveAction);
@@ -292,20 +296,33 @@ export class FeedbackMoveMouseListener extends MouseListener implements Disposab
         return result;
     }
 
-    protected reset(resetFeedback = false): void {
-        if (this.rootElement && resetFeedback) {
-            const elementMoves: ElementMove[] = this.getElementMovesForDelta(this.rootElement, { x: 0, y: 0 }, true, true);
-            const moveAction = MoveAction.create(elementMoves, { animate: false, finished: true });
-            this.tool.deregisterFeedback(this, [moveAction]);
-        }
-        this.hasDragged = false;
-        this.startDragPosition = undefined;
-        this.rootElement = undefined;
-        this.elementId2startPos.clear();
+    protected resetMoveFeedback(): ElementMove[] {
+        const elementMoves: ElementMove[] = [];
+        this.elementId2startPos.forEach((startPosition, elementId) => {
+            const element = this.rootElement!.index.getById(elementId);
+            if (element) {
+                if (isMoveable(element)) {
+                    elementMoves.push({ elementId: element.id, fromPosition: element.position, toPosition: startPosition });
+                }
+            }
+        });
+        return elementMoves;
     }
 
-    override decorate(vnode: VNode, _element: GModelElement): VNode {
-        return vnode;
+    protected reset(resetFeedback = false): void {
+        if (this.rootElement && resetFeedback) {
+            const elementMoves: ElementMove[] = this.resetMoveFeedback();
+            if (elementMoves.length > 0) {
+                const moveAction = MoveAction.create(elementMoves, { animate: false, finished: true });
+                this.tool.deregisterFeedback(this, [moveAction]);
+            }
+        } else if (resetFeedback) {
+            this.tool.deregisterFeedback(this, [MoveFinishedAction.create()]);
+        }
+        this.positionUpdater.resetPosition();
+        this._isMouseDrag = false;
+        this.rootElement = undefined;
+        this.elementId2startPos.clear();
     }
 
     dispose(): void {

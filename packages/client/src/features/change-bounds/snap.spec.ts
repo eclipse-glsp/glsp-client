@@ -14,9 +14,10 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { expect } from 'chai';
 import { GModelElement } from '@eclipse-glsp/sprotty';
-import { GridSnapper, PointPositionUpdater } from './snap';
+import { expect } from 'chai';
+import { PointPositionUpdater } from './point-position-updater';
+import { GridSnapper } from './snap';
 
 describe('GridSnapper', () => {
     it('snap', () => {
