@@ -13,17 +13,17 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { AutocompleteResult, AutocompleteSettings } from 'autocompleter';
 import {
     Action,
+    GModelRoot,
     ILogger,
     LabeledAction,
-    GModelRoot,
     ValidationStatus,
     codiconCSSClasses,
     matchesKeystroke,
     toArray
 } from '@eclipse-glsp/sprotty';
+import { AutocompleteResult, AutocompleteSettings } from 'autocompleter';
 import { AutoCompleteValue } from './auto-complete-actions';
 import { IValidationDecorator } from './validation-decorator';
 
@@ -196,6 +196,7 @@ export class AutoCompleteWidget {
         maxHeight: number
     ): void {
         // move container into our UIExtension container as this is already positioned correctly
+        container.style.position = 'fixed';
         if (this.containerElement) {
             this.containerElement.appendChild(container);
 
