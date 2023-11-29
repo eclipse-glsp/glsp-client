@@ -1,12 +1,17 @@
 # Eclipse GLSP Client Changelog
 
-## v2.10.0 - active
+## v2.1.0 - active
 
 ### Changes
 
+-   [diagram] Fix a bug that prevented correct rendering of projection bars when using `GLSPProjectionView` [#298](https://github.com/eclipse-glsp/glsp-client/pull/298)
+-   [a11y] Improved responsibility and feedback when resizing or moving diagram elements with keyboard-only commands [#295](https://github.com/eclipse-glsp/glsp-client/pull/295)
+-   [diagram] Extends `configureDiagramOptions` function to also allow partial configuration of `ViewerOptions` [#296](https://github.com/eclipse-glsp/glsp-client/pull/296)
 -   [diagram] Remove unused handleSetContextActions from ToolPalette [#301](https://github.com/eclipse-glsp/glsp-client/pull/301)
-
-### Breaking Changes
+-   [diagram] Deprecate `ISModelRootListener` API in favor of `IGModelRootListener` [#303](https://github.com/eclipse-glsp/glsp-client/pull/303)
+-   [diagram] Ensure that the suggestion container position of the `AutoCompleteWidget` is rendered correctly [#304](https://github.com/eclipse-glsp/glsp-client/pull/304)
+-   [feature] Extend `ToolPalette`/`CreateOperation` API to support rendering of preview/ghost elements when creating new nodes [#301](https://github.com/eclipse-glsp/glsp-client/pull/301)
+-   [protocol] Fix a bug in `BaseJsonRpcClient` to ensure that it can handle multiple open diagram sessions [#307](https://github.com/eclipse-glsp/glsp-client/pull/307)
 
 ## [v2.0.0 - 14/10/2023](https://github.com/eclipse-glsp/glsp-client/releases/tag/v2.0.0)
 
