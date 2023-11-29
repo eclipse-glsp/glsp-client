@@ -96,7 +96,6 @@ export const defaultModule = new FeatureModule((bind, unbind, isBound, rebind, .
     bindOrRebind(context, TYPES.ViewRegistry).to(GViewRegistry).inSingletonScope();
 
     bind(SelectionService).toSelf().inSingletonScope();
-    bind(TYPES.IGModelRootListener).toService(SelectionService);
 
     // Feedback Support ------------------------------------
     // Generic re-usable feedback modifying css classes

@@ -37,7 +37,7 @@ import {
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable, multiInject, optional, postConstruct, preDestroy } from 'inversify';
 import { getElements, getMatchingElements } from '../utils/gmodel-util';
-import { IGModelRootListener } from './command-stack';
+import { GLSPCommandStack, IGModelRootListener } from './command-stack';
 import { IFeedbackActionDispatcher } from './feedback/feedback-action-dispatcher';
 
 export interface ISelectionListener {
@@ -61,6 +61,9 @@ export class SelectionService implements IGModelRootListener, Disposable {
     @inject(TYPES.ILogger)
     protected logger: ILogger;
 
+    @inject(TYPES.ICommandStack)
+    protected commandStack: GLSPCommandStack;
+
     @multiInject(TYPES.ISelectionListener)
     @optional()
     protected selectionListeners: ISelectionListener[] = [];
@@ -69,7 +72,11 @@ export class SelectionService implements IGModelRootListener, Disposable {
 
     @postConstruct()
     protected initialize(): void {
-        this.toDispose.push(this.onSelectionChangedEmitter);
+        this.toDispose.push(
+            this.onSelectionChangedEmitter,
+            this.commandStack.onModelRootChanged(root => this.modelRootChanged(root))
+        );
+
         this.selectionListeners.forEach(listener =>
             this.onSelectionChanged(change => listener.selectionChanged(change.root, change.selectedElements, change.deselectedElements))
         );
