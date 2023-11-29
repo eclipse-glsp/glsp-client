@@ -186,15 +186,15 @@ export enum SmartConnectorPosition {
 }
 
 /**
- * TODO
+ * Represents a group of the smart connector, which can be positioned around the clicked node
  */
 export interface SmartConnectorGroupItem extends PaletteItem {
-    /** Show the title of a group */
-    readonly showTitle: boolean;
-    /** Show a group as a collapsed submenu if true, open if false */
-    readonly submenu: boolean;
     /** Position of the group */
     readonly position: SmartConnectorPosition;
+    /** Shows the title of a group */
+    readonly showTitle: boolean;
+    /** Shows a group as a collapsed submenu if true, open if false */
+    readonly submenu?: boolean;
     /** Show either only icons or labels. Show both when not given*/
     readonly showOnlyForChildren?: SmartConnectorGroupUIType;
     
@@ -202,7 +202,18 @@ export interface SmartConnectorGroupItem extends PaletteItem {
 
 export namespace SmartConnectorGroupItem {
     export function is(object: any): object is SmartConnectorGroupItem {
-        return PaletteItem.is(object) && hasBooleanProp(object, 'showTitle') && hasBooleanProp(object, 'submenu') && hasObjectProp(object, 'position');
+        return PaletteItem.is(object) && hasObjectProp(object, 'position') && hasBooleanProp(object, 'showTitle');
+    }
+}
+
+export interface SmartConnectorNodeItem extends PaletteItem {
+    /** default edge when creating an outgoing edge */
+    readonly edgeType: string;
+}
+
+export namespace SmartConnectorNodeItem {
+    export function is(object: any): object is SmartConnectorNodeItem {
+        return PaletteItem.is(object) && hasStringProp(object, 'edgeType');
     }
 }
 

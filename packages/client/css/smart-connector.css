@@ -1,44 +1,18 @@
-
 .smart-connector {
     position: absolute;
     z-index: 1;
 }
 
-.smart-connector-container {
+/* combined container */
+
+#smart-connector-container {
     position: absolute;
+    visibility: hidden;
 }
 
-.smart-connector-button-container {
-    border-left: 1px solid black;
-    border-right: 1px solid black;
-    background-color:rgba(1, 1, 1, 0.6);
-    overflow-y: scroll;
-    max-height: 150px;
-    max-width: 400px;
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
-    /* display: flex; */
-}
+/* expand button */
 
-.smart-connector-button-container::-webkit-scrollbar {
-    display: none;
-}
-
-.smart-connector-button {
-    border-top: 1px solid black;
-    margin: 0 2px;
-    padding: 8px 0;
-    z-index: 9999;
-    pointer-events: auto;
-    cursor: pointer;
-}
-
-.smart-connector-button-container div:first-child {
-    background-color:rgba(1, 1, 1, 0.6);
-    border-top: 0;
-}
-
-.smart-connector-expand-button {
+#smart-connector-expand-button {
     height: 32px;
     width: 32px;
     border-radius: 50%;
@@ -49,4 +23,84 @@
     justify-content: center;
     position: absolute;
     background: #cccccc;
+    visibility: hidden;
+}
+
+/* search bar */
+
+.smart-connector-search {
+    background: #dfdfdf;
+    color: black;
+    border: #bddaef;
+    padding-left: 3px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.smart-connector-submenu-search-container {
+    max-height: 0;
+    overflow: hidden;
+}
+
+.smart-connector-search-container {
+    max-height: 50px;
+}
+
+/* header */
+
+.header-title {
+    display: flex;
+    align-items: center;
+    padding-right: 8px;
+}
+
+.smart-connector-group-header {
+    justify-content: space-between;
+}
+
+/* seperated containers */
+
+.smart-connector-group-container {
+    border-left: 1px solid black;
+    border-right: 1px solid black;
+    background-color:rgba(1, 1, 1, 0.6);
+    max-width: 200px;
+    /* display: flex; */
+}
+
+.smart-connector-group-container:hover, .smart-connector-group-container:focus-within {
+    z-index: 10000;
+}
+
+.smart-connector-group-container div:first-child {
+    border-top: 0;
+}
+
+/* container items */
+
+.smart-connector-group {
+    overflow-y: scroll;
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+
+/* scrollbar */
+.smart-connector-group::-webkit-scrollbar {
+    display: none;
+}
+
+.collapsable-group {
+    max-height: 0;
+    /* transition: max-height 0.2s ease-out; */
+}
+
+/* single item */
+
+.smart-connector-button {
+    border-top: 1px solid black;
+    margin: 0 4px;
+    padding: 8px 0;
+    z-index: 9998;
+    pointer-events: auto;
+    cursor: pointer;
 }

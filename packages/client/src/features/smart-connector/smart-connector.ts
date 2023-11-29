@@ -5,14 +5,11 @@ import { FocusTracker } from '../../base/focus/focus-tracker';
 import {
     AbstractUIExtension,
     Action,
-    DeleteElementOperation,
     IActionHandler,
     ICommand,
     KeyListener,
-    SModelElement,
-    SModelRoot,
-    isDeletable,
-    isSelectable,
+    GModelElement,
+    GModelRoot,
     matchesKeystroke,
     OpenSmartConnectorAction,
     SetUIExtensionVisibilityAction,
@@ -24,29 +21,47 @@ import {
     TriggerNodeCreationAction,
     Args,
     SmartConnectorGroupItem,
+    SmartConnectorNodeItem,
     SmartConnectorPosition,
-} from '~glsp-sprotty'
+    KeyCode,
+} from '@eclipse-glsp/sprotty'
 import { GetViewportAction } from 'sprotty-protocol/lib/actions'
-import { createIcon } from '../tool-palette/tool-palette';
-import { IDiagramStartup } from 'src';
+import { changeCodiconClass, createIcon } from '../tool-palette/tool-palette';
+import { IDiagramStartup } from '../../base/model/diagram-loader';
+import { EnableDefaultToolsAction } from '../../base/tool-manager/tool';
 
-
-
+const CONTAINER_PADDING_PX = 20;
+const MAX_HEIGHT_GROUP = '150px';
+const SEARCH_FIELD_SUFFIX = '_search_field';
+const SMART_CONNECTOR_CONTAINER_ID = 'smart-connector-container';
+const EXPAND_BUTTON_ID = 'smart-connector-expand-button';
+const GROUP_CONTAINER_CLASS = 'smart-connector-group-container';
+const HEADER_CLASS = 'smart-connector-group-header';
+const GROUP_CLASS = 'smart-connector-group';
+const TOOL_BUTTON_CLASS = 'smart-connector-button';
+const COLLAPSABLE_CLASS = 'collapsable-group';
 
 @injectable()
 export class SmartConnector extends AbstractUIExtension implements IActionHandler, IDiagramStartup {
     
     static readonly ID = 'smart-connector';
-    static readonly CONTAINER_PADDING = 16;
     
+    protected selectedElementId: string; 
+    protected smartConnectorItems: SmartConnectorGroupItem[];
+    protected smartConnectorContainer: HTMLElement;
+    protected expandButton: HTMLElement;
+    protected currentZoom: number;
 
-    private selectedElementId: string; 
-    private smartConnectorItems: SmartConnectorGroupItem[];
-    protected smartConnectorItemsCopy: SmartConnectorGroupItem[] = [];
-    private smartConnectorContainer: HTMLElement;
-    private expandButton: HTMLElement;
+    protected smartConnectorGroups: Record<string, HTMLElement> = {};
+    protected groupIsCollapsed: Record<string, boolean> = {};
+    protected groupIsTop: Record<string, boolean> = {};
+    protected searchFields: Record<string, HTMLInputElement> = {};
 
-    protected searchField: HTMLInputElement;
+    protected previousElementKeyCode: KeyCode = 'ArrowUp';
+    protected nextElementKeyCode: KeyCode = 'ArrowDown';
+
+    // Sets the position of the expand button
+    protected expandButtonPosition = SmartConnectorPosition.Top;
     
     @inject(GLSPActionDispatcher)
     protected actionDispatcher: GLSPActionDispatcher;
@@ -64,113 +79,119 @@ export class SmartConnector extends AbstractUIExtension implements IActionHandle
         return SmartConnector.ID;
     }
     
-    protected override async onBeforeShow(containerElement: HTMLElement, root: Readonly<SModelRoot>, ...contextElementIds: string[]): Promise<void> {
-        this.hideSmartConnector(); 
-        // TODO temporary for testing, to be replaced by settings 
-        var position = SmartConnectorPosition.Top;
-        var viewportResult: ViewportResult = await this.actionDispatcher.request(GetViewportAction.create())
-        this.setMainPosition(viewportResult)
-        this.setPosition(viewportResult, this.expandButton, position)
-        await this.requestAvailableOptions(contextElementIds)
+    protected override async onBeforeShow(_containerElement: HTMLElement, root: Readonly<GModelRoot>): Promise<void> {
+        var viewportResult: ViewportResult = await this.actionDispatcher.request(GetViewportAction.create());
+        await this.requestAvailableOptions(root.index.getById(this.selectedElementId)); 
+        this.currentZoom = viewportResult.viewport.zoom;
+        var nodeFromDom = document.getElementById(`${this.options.baseDiv}_${this.selectedElementId}`) as any as SVGGElement;
+        var nodeBoundsFromDom = nodeFromDom.getBoundingClientRect();
+        this.setMainPosition(viewportResult, nodeBoundsFromDom);
+        // set position of expand button
+        this.setPosition(this.expandButton, this.expandButtonPosition, nodeBoundsFromDom);
+        // set position of container(s)
         var sameSide = this.smartConnectorItems.every((e) => e.position === this.smartConnectorItems[0].position)
         if (sameSide)
-            this.setPosition(viewportResult, this.smartConnectorContainer, this.smartConnectorItems[0].position)
+            this.setPosition(this.smartConnectorContainer, this.smartConnectorItems[0].position, nodeBoundsFromDom)
         else {
             for (var i = 0; i < this.smartConnectorContainer.childElementCount; i++) {
-                this.setPosition(viewportResult, this.smartConnectorContainer.children[i] as HTMLElement, this.smartConnectorItems[i].position, true)
+                this.setPosition(this.smartConnectorContainer.children[i] as HTMLElement, this.smartConnectorItems[i].position, nodeBoundsFromDom, true)
             }
         }
+        this.hideSmartConnector();
     }
 
-    protected async requestAvailableOptions(contextElementIds: string[]) {
+    protected async requestAvailableOptions(contextElement?: GModelElement) {
         const requestAction = RequestContextActions.create({
             contextId: SmartConnector.ID,
             editorContext: {
-                selectedElementIds: contextElementIds
+                selectedElementIds: [this.selectedElementId],
+                args: { nodeType: contextElement!.type }
             }
         });
         const response = await this.actionDispatcher.request<SetContextActions>(requestAction);
         this.smartConnectorItems = response.actions.map(e => e as SmartConnectorGroupItem);
+        this.createBody();
     }
 
-    protected setMainPosition(viewport: ViewportResult) {
-        // TODO: get element from server instead of DOM
-        var nodeFromDom = document.getElementById(`${this.options.baseDiv}_${this.selectedElementId}`) as any as SVGGElement;
-        if (nodeFromDom) {
-            var nodeBoundsFromDom = nodeFromDom.getBoundingClientRect();
-            var xCenter = nodeBoundsFromDom.x + nodeBoundsFromDom.width/2 - viewport.canvasBounds.x
-            var yCenter = nodeBoundsFromDom.y + nodeBoundsFromDom.height/2 - viewport.canvasBounds.y
-            this.containerElement.style.left = `${xCenter}px`;
-            this.containerElement.style.top = `${yCenter}px`;
-        } 
+    protected setMainPosition(viewport: ViewportResult, nodeBounds: DOMRect) {
+        var xCenter = nodeBounds.x + nodeBounds.width/2 - viewport.canvasBounds.x
+        var yCenter = nodeBounds.y + nodeBounds.height/2 - viewport.canvasBounds.y
+        this.containerElement.style.left = `${xCenter}px`;
+        this.containerElement.style.top = `${yCenter}px`;
+        
     }
 
-    protected setPosition(viewport: ViewportResult, element: HTMLElement, position: SmartConnectorPosition, setAbsolute?: boolean) {
-        var zoom = viewport.viewport.zoom;
-        // TODO: get element from server instead of DOM
-        var nodeFromDom = document.getElementById(`${this.options.baseDiv}_${this.selectedElementId}`) as any as SVGGElement;
-        if (nodeFromDom) {
-            var nodeHeight = nodeFromDom.getBoundingClientRect().height;
-            var nodeWidth = nodeFromDom.getBoundingClientRect().width;
-            var xDiff = -element.offsetWidth/2;
-            var yDiff = -element.offsetHeight/2;
-            if (position == SmartConnectorPosition.Right) {
-                xDiff = nodeWidth/2;
-                //element.style.flexDirection = 'column';
-            }  
-            if (position == SmartConnectorPosition.Left) {
-                xDiff = -(nodeWidth/2 + element.offsetWidth);
-                //element.style.flexDirection = 'column';
-            }
-            if (position == SmartConnectorPosition.Top) {
-                yDiff = -(nodeHeight/2 + element.offsetHeight);
-                //element.style.flexDirection = 'row';
-            }
-            if (position == SmartConnectorPosition.Bottom) {
-                yDiff = nodeHeight/2;
-                //element.style.flexDirection = 'row';
-            }
-            if (setAbsolute) element.style.position = 'absolute';
-            element.style.left = `${xDiff}px`;
+    protected setPosition(element: HTMLElement, position: SmartConnectorPosition, nodeBounds: DOMRect, singleContainer?: boolean) {
+        var zoom = this.currentZoom;
+        element.style.transform = `scale(${zoom})`;
+        var nodeHeight = nodeBounds.height;
+        var nodeWidth = nodeBounds.width;
+        var xDiff = -element.offsetWidth/2;
+        var yDiff = -element.offsetHeight/2*zoom;
+        if (position == SmartConnectorPosition.Right || position == SmartConnectorPosition.Left) {
+            xDiff = nodeWidth/2 + CONTAINER_PADDING_PX*zoom;
             element.style.top = `${yDiff}px`;
-            console.log('width', nodeWidth, 'height', nodeHeight)
-            element.style.transform = `scale(${zoom})`;
-        } 
+        }
+        if (position == SmartConnectorPosition.Top || position == SmartConnectorPosition.Bottom) {
+            yDiff = nodeHeight/2 + CONTAINER_PADDING_PX*zoom;
+            element.style.left = `${xDiff}px`;
+        }
+        if (position == SmartConnectorPosition.Right) {
+            element.style.transformOrigin = 'top left'
+            element.style.left = `${xDiff}px`;
+        }  
+        if (position == SmartConnectorPosition.Left) {
+            element.style.transformOrigin = 'top right'
+            element.style.right = `${xDiff}px`;
+        }
+        if (position == SmartConnectorPosition.Top) {
+            element.style.transformOrigin = 'bottom'
+            element.style.bottom = `${yDiff}px`;
+        }
+        if (position == SmartConnectorPosition.Bottom) {
+            element.style.transformOrigin = 'top'
+            element.style.top = `${yDiff}px`;
+        }
+        if (singleContainer) element.style.position = 'absolute'; 
     }
 
     protected initializeContents(containerElement: HTMLElement): void {
         this.createBody();
-        this.containerElement.appendChild(this.smartConnectorContainer)
         this.createExpandButton();
         this.containerElement.appendChild(this.expandButton);
         containerElement.setAttribute('aria-label', 'Smart-Connector');
     }
 
     protected createBody() {
-        this.smartConnectorContainer = document.createElement('div');
-        this.smartConnectorContainer.classList.add('smart-connector-container')
+        var smartConnectorContainer = document.createElement('div');
+        smartConnectorContainer.id = SMART_CONNECTOR_CONTAINER_ID
         for (const item of this.smartConnectorItems) {
             if (item.children) {
                 var group = this.createGroup(item);
-                this.smartConnectorContainer.appendChild(group);    
+                this.smartConnectorGroups[group.id] = group
+                smartConnectorContainer.appendChild(group);    
             }
         }
+        if (this.smartConnectorContainer) {
+            this.containerElement.removeChild(this.smartConnectorContainer)
+        }
+        this.containerElement.appendChild(smartConnectorContainer)
+        this.smartConnectorContainer = smartConnectorContainer;
     }
 
     protected createExpandButton() {
         this.expandButton = document.createElement('div');
-        this.expandButton.className = 'smart-connector-expand-button';
+        this.expandButton.id = EXPAND_BUTTON_ID;
         this.expandButton.innerHTML = '+'
-        this.expandButton.onclick = this.showSmartConnector();
-    }
-
-    protected showSmartConnector() {
-        return (_ev: MouseEvent) => {
-            if (!this.editorContext.isReadonly) {
-                this.smartConnectorContainer.style.visibility = 'visible';
-                this.expandButton.style.visibility = 'hidden';
-            }
-        };
+        this.expandButton.onclick = _ev => { 
+            if(!this.editorContext.isReadonly) 
+                showSmartConnector(this.smartConnectorContainer, this.expandButton) 
+            };
+        this.expandButton.onkeydown = ev => { 
+            if(matchesKeystroke(ev, 'Space') && !this.editorContext.isReadonly) 
+                showSmartConnector(this.smartConnectorContainer, this.expandButton)
+            };
+        
     }
 
     // default state
@@ -181,112 +202,241 @@ export class SmartConnector extends AbstractUIExtension implements IActionHandle
         }
     }
 
-    private createGroup(item: SmartConnectorGroupItem): HTMLElement {
+    protected createGroup(item: SmartConnectorGroupItem): HTMLElement {
+        const searchField = this.createSearchField(item);
         const group = document.createElement('div');
-        group.classList.add('smart-connector-button-container');
+        if (item.children!.length == 0) return group;
+        const groupItems = document.createElement('div');
+        group.classList.add(GROUP_CONTAINER_CLASS);
+        groupItems.classList.add(GROUP_CLASS);
         group.id = item.id;
-        if (item.showTitle) {
-            const header = document.createElement('div');
-            header.classList.add('group-header');
-            if (item.icon) {
-                header.appendChild(createIcon(item.icon));
-            }
-            header.insertAdjacentText('beforeend', item.label);
-            group.appendChild(header);   
-        }
-            
         for (const child of item.children!) {
-            group.appendChild(this.createToolButton(child));
+            groupItems.appendChild(this.createToolButton(child));
         }   
+        if (item.showTitle) {
+            const header = this.createGroupHeader(item, groupItems, searchField)
+            if (item.position == SmartConnectorPosition.Top) {
+                // the header is at the bottom on top
+                group.appendChild(groupItems);
+                if (item.children!.length > 1) group.appendChild(searchField);
+                group.appendChild(header);
+                this.groupIsTop[group.id] = true
+                return group;
+            }
+            group.appendChild(header);
+        }
+        if (item.children!.length > 1) group.appendChild(searchField);
+        group.appendChild(groupItems);
+        this.groupIsTop[group.id] = false
         return group;
+    }
+
+    protected createGroupHeader(group: SmartConnectorGroupItem, groupItems: HTMLElement, searchField: HTMLElement): HTMLElement{
+        const header = document.createElement('div');
+        const headerTitle = document.createElement('div');
+        header.classList.add(HEADER_CLASS);
+        // for same css as palette header
+        header.classList.add('group-header');
+        if (group.icon) {
+            headerTitle.appendChild(createIcon(group.icon));
+        }
+        headerTitle.insertAdjacentText('beforeend', group.label);
+        headerTitle.classList.add('header-title');
+        header.appendChild(headerTitle);
+        header.tabIndex = 0;
+        if (group.submenu) {
+            const submenuIcon = group.position == SmartConnectorPosition.Top ? createIcon('chevron-up') : createIcon('chevron-down');
+            header.appendChild(submenuIcon);
+            groupItems.classList.add(COLLAPSABLE_CLASS);
+            header.onclick = _ev => {
+                this.toggleSubmenu(submenuIcon, group, groupItems, searchField);
+            };
+            header.onkeydown = ev => {
+                if (matchesKeystroke(ev, 'Enter')) {
+                    this.toggleSubmenu(submenuIcon, group, groupItems, searchField);
+                }
+                this.headerNavigation(ev, groupItems, header)
+            }
+            this.groupIsCollapsed[group.id] = true
+        }
+        return header;
+    }
+
+    protected toggleSubmenu(icon: HTMLElement, group: SmartConnectorGroupItem, groupItems: HTMLElement, searchField: HTMLElement) {
+        changeCodiconClass(icon, 'chevron-up');
+        changeCodiconClass(icon, 'chevron-down');
+        this.groupIsCollapsed[group.id] = !this.groupIsCollapsed[group.id];
+        if (groupItems.style.maxHeight) {
+            groupItems.style.maxHeight = '';
+            searchField.style.maxHeight = '';
+        } else {
+            groupItems.style.maxHeight = MAX_HEIGHT_GROUP;
+            searchField.style.maxHeight = '50px';
+        }
     }
 
     protected createToolButton(item: PaletteItem): HTMLElement {
         const button = document.createElement('div');
         button.tabIndex = 0;
-        button.classList.add('smart-connector-button');
+        button.classList.add(TOOL_BUTTON_CLASS);
         if (item.icon) {
             button.appendChild(createIcon(item.icon));
             return button;
         }
         button.insertAdjacentText('beforeend', item.label);
         button.onclick = this.onClickCreateToolButton(button, item);
-        //TODO: keyboard support
-        //button.onkeydown = ev => this.clearToolOnEscape(ev);
+        button.onkeydown = ev => this.toolButtonKeyHandler(ev, item);
+        button.id = item.id;
         return button;
     }
 
-    protected createSearchField(): HTMLInputElement {
+    protected createSearchField(itemGroup: SmartConnectorGroupItem): HTMLElement {
         const searchField = document.createElement('input');
-        searchField.classList.add('search-input');
-        searchField.id = this.containerElement.id + '_search_field';
+        searchField.classList.add('smart-connector-search');
+        searchField.id = itemGroup.id + SEARCH_FIELD_SUFFIX;
         searchField.type = 'text';
         searchField.placeholder = ' Search...';
-        searchField.style.display = 'none';
-        searchField.onkeyup = () => this.requestFilterUpdate(this.searchField.value);
-        searchField.onkeydown = ev => this.clearOnEscape(ev);
-        return searchField;
+        searchField.onkeyup = () => this.requestFilterUpdate(this.searchFields[itemGroup.id].value, itemGroup);
+        searchField.onkeydown = ev => this.searchFieldKeyHandler(ev, itemGroup);
+        this.searchFields[itemGroup.id] = searchField;
+        const searchContainer = document.createElement('div');
+        var containerClass = itemGroup.submenu ? 'smart-connector-submenu-search-container' : 'smart-connector-search-container';
+        searchContainer.classList.add(containerClass);
+        searchContainer.appendChild(searchField)
+        return searchContainer;
     }
 
-    protected requestFilterUpdate(filter: string): void {
-        // Initialize the copy if it's empty
-        if (this.smartConnectorItemsCopy.length === 0) {
-            // Creating deep copy
-            this.smartConnectorItemsCopy = JSON.parse(JSON.stringify(this.smartConnectorItems));
-        }
+    //#region event handlers
 
-        // Reset the paletteItems before searching
-        this.smartConnectorItems = JSON.parse(JSON.stringify(this.smartConnectorItemsCopy));
-        // Filter the entries
-        const filteredPaletteItems: PaletteItem[] = [];
-        
-        for (var itemGroup of this.smartConnectorItems) {
-            if (itemGroup.children) {
-                // Fetch the labels according to the filter
-                const matchingChildren = itemGroup.children.filter(child => child.label.toLowerCase().includes(filter.toLowerCase()));  
-                
-                // Add the itemgroup containing the correct entries
-                if (matchingChildren.length > 0) {
-                    // Clear existing children
-                    itemGroup.children.splice(0, itemGroup.children.length);
-                    // Push the matching children
-                    matchingChildren.forEach(child => itemGroup.children!.push(child));
-                    filteredPaletteItems.push(itemGroup);
+    protected requestFilterUpdate(filter: string, itemGroup: SmartConnectorGroupItem): void {
+        if (itemGroup.children) {
+            const matchingChildren = itemGroup.children.filter(child => child.label.toLowerCase().includes(filter.toLowerCase()));  
+            if (matchingChildren.length > 0) {
+                var items = document.getElementById(itemGroup.id)?.getElementsByClassName(TOOL_BUTTON_CLASS);
+                if (items) {
+                    Array.from(items).forEach(item => {
+                        if (matchingChildren.find(child => child.id == item.id)) (item as HTMLElement).style.display = 'block';
+                        else (item as HTMLElement).style.display = 'none';
+                    })   
                 }
             }
-            itemGroup.children?.push(...filteredPaletteItems);
         }
-        
-        this.createBody();
     }
 
-    protected clearOnEscape(event: KeyboardEvent): void {
+    protected toolButtonKeyHandler(event: KeyboardEvent, item: PaletteItem): void {
         if (matchesKeystroke(event, 'Escape')) {
-            this.searchField.value = '';
-            this.requestFilterUpdate('');
+            this.actionDispatcher.dispatch(EnableDefaultToolsAction.create());
+        }
+        if (matchesKeystroke(event, 'Enter')) {
+            this.createTool(item)
+        }
+        if (event.ctrlKey) {
+        // matchesKeystroke with Ctrl and Ctrl+F does not seem to work on Windows 11/Chrome
+        //if (matchesKeystroke(event, 'ControlLeft')) {
+        //if (matchesKeystroke(event, 'KeyF', 'ctrlCmd')) {
+            var parentId = this.smartConnectorItems.find(e => e.children?.includes(item))!.id;
+            var searchFieldId = parentId + SEARCH_FIELD_SUFFIX;
+            var searchField = document.getElementById(searchFieldId);
+            if (searchField) (searchField as HTMLElement).focus();
+        }
+        this.toolButtonNavigation(event, item)
+    }
+
+    protected searchFieldKeyHandler(event: KeyboardEvent, itemGroup: SmartConnectorGroupItem): void {
+        if (matchesKeystroke(event, 'Escape')) {
+            this.searchFields[itemGroup.id].value = '';
+            this.requestFilterUpdate('', itemGroup);
+        }
+        this.searchFieldNavigation(event, itemGroup)
+    }
+
+    // #region navigation handlers
+
+    protected searchFieldNavigation(event: KeyboardEvent, itemGroup: SmartConnectorGroupItem) {
+        if (matchesKeystroke(event, this.previousElementKeyCode)) {
+            (document.getElementById(itemGroup.children![itemGroup.children!.length-1].id) as HTMLElement).focus()
+        }
+        if (matchesKeystroke(event, this.nextElementKeyCode)) {
+            (document.getElementById(itemGroup.children![0].id) as HTMLElement).focus()
         }
     }
 
-    protected onClickCreateToolButton(button: HTMLElement, item: PaletteItem) {
-        return (_ev: MouseEvent) => {
-            if (!this.editorContext.isReadonly) {
-                item.actions.forEach(e => {
-                    var args: Args;
-                    if (TriggerEdgeCreationAction.is(e)) {
-                        args = { source: this.selectedElementId };
-                        (e as TriggerEdgeCreationAction).args = args;
-                    }
-                    if (TriggerNodeCreationAction.is(e)) {
-                        args = { createEdge: true, source: this.selectedElementId };
-                        (e as TriggerNodeCreationAction).args = args;
-                    }
-                });
-                this.actionDispatcher.dispatchAll(item.actions.concat([SetUIExtensionVisibilityAction.create({ extensionId: SmartConnector.ID, visible: false })]));
-                this.hideSmartConnector();
-                button.focus();
+    protected headerNavigation(event: KeyboardEvent, groupItems: HTMLElement, header: HTMLElement) {
+        var parent = header.parentElement!;
+        if (matchesKeystroke(event, this.previousElementKeyCode)) {
+            if ((this.groupIsCollapsed[parent.id] || !header.previous()) && parent.previous()) {
+                var collapsableHeader = getHeaderIfGroupContainsCollapsable(parent.previous())
+                if (collapsableHeader && (this.groupIsTop[parent.previous().id] || this.groupIsCollapsed[parent.previous().id])) collapsableHeader.focus();
+                else this.getPreviousGroupLastItem(parent).focus()
             }
+            else if (!this.groupIsCollapsed[parent.id] && header.previous()) (groupItems.last()).focus()
+        }
+        if (matchesKeystroke(event, this.nextElementKeyCode)) {
+            if ((this.groupIsCollapsed[parent.id] || !header.next()) && parent.next()) {
+                var collapsableHeader = getHeaderIfGroupContainsCollapsable(parent.next())
+                if (collapsableHeader && (!this.groupIsTop[parent.next().id] || this.groupIsCollapsed[parent.next().id])) collapsableHeader.focus();
+                else this.getNextGroupFirstItem(parent).focus()
+            }
+            else if (!this.groupIsCollapsed[parent.id] && header.next()) (groupItems.first()).focus()
+        }
+    }
+
+    protected toolButtonNavigation(event: KeyboardEvent, item: PaletteItem) {
+        var parentId = this.smartConnectorItems.find(e => e.children?.includes(item))!.id;
+        var parent = document.getElementById(parentId)!;
+        var toolButton = document.getElementById(item.id)!;
+        var collapsableHeader = getHeaderIfGroupContainsCollapsable(parent)
+        if (matchesKeystroke(event, this.previousElementKeyCode)) {
+            var previousGroupCollapsableHeader = getHeaderIfGroupContainsCollapsable(parent.previous())
+            if (toolButton.previous()) toolButton.previous().focus()
+            else if (collapsableHeader && !this.groupIsTop[parent.id]) collapsableHeader.focus();
+            else if (previousGroupCollapsableHeader && this.groupIsTop[parent.previous().id]) previousGroupCollapsableHeader.focus();
+            else if (parent.previous()) this.getPreviousGroupLastItem(parent).focus()
+        }
+        if (matchesKeystroke(event, this.nextElementKeyCode)) {
+            var nextGroupCollapsableHeader = getHeaderIfGroupContainsCollapsable(parent.next())
+            if (toolButton.next()) toolButton.next().focus()
+            else if (collapsableHeader && this.groupIsTop[parent.id]) collapsableHeader.focus();
+            else if (nextGroupCollapsableHeader && !this.groupIsTop[parent.previous().id]) nextGroupCollapsableHeader.focus();
+            else if (parent.next()) this.getNextGroupFirstItem(parent).focus()
+        }
+    }
+
+    protected getNextGroupFirstItem(parent: HTMLElement): HTMLElement {
+        return parent.nextElementSibling!.getElementsByClassName(GROUP_CLASS)[0].firstElementChild as HTMLElement;
+    }
+
+    protected getPreviousGroupLastItem(parent: HTMLElement): HTMLElement {
+        return parent.previousElementSibling!.getElementsByClassName(GROUP_CLASS)[0].lastElementChild as HTMLElement;
+    }
+    
+    // #endregion
+
+    protected onClickCreateToolButton(_button: HTMLElement, item: PaletteItem) {
+        return (_ev: MouseEvent) => {
+            this.createTool(item)
         };
     }
+
+    protected createTool(item: PaletteItem) {
+        if (!this.editorContext.isReadonly) {
+            item.actions.forEach(e => {
+                var args: Args;
+                if (TriggerEdgeCreationAction.is(e)) {
+                    args = { source: this.selectedElementId };
+                    (e as TriggerEdgeCreationAction).args = args;
+                }
+                if (TriggerNodeCreationAction.is(e)) {
+                    args = { createEdge: true, source: this.selectedElementId, edgeType: (item as SmartConnectorNodeItem).edgeType };
+                    (e as TriggerNodeCreationAction).args = args;
+                }
+            });
+            this.actionDispatcher.dispatchAll(item.actions.concat([SetUIExtensionVisibilityAction.create({ extensionId: SmartConnector.ID, visible: false })]));
+            this.hideSmartConnector();
+        }
+    }
+
+    //#endregion
 
     handle(action: Action): ICommand | Action | void {
         if (OpenSmartConnectorAction.is(action)) {
@@ -315,20 +465,58 @@ export class SmartConnector extends AbstractUIExtension implements IActionHandle
     }
 }
 
+// HTMLElement extensions for readability and convenience (reduce casting)
+declare global {
+    interface HTMLElement {
+        next(): HTMLElement
+        previous(): HTMLElement
+        first(): HTMLElement
+        last(): HTMLElement
+    }
+}
+
+HTMLElement.prototype.next = function() {
+    return this.nextElementSibling as HTMLElement
+}
+
+HTMLElement.prototype.previous = function() {
+    return this.previousElementSibling as HTMLElement
+}
+
+HTMLElement.prototype.first = function() {
+    return this.firstElementChild as HTMLElement
+}
+
+HTMLElement.prototype.last = function() {
+    return this.lastElementChild as HTMLElement
+}
+
+
+export function showSmartConnector(container: HTMLElement, expandButton: HTMLElement) {
+    container.style.visibility = 'visible';
+    expandButton.style.visibility = 'hidden';
+}
+
+function getHeaderIfGroupContainsCollapsable(group: HTMLElement) {
+    if (group && group.getElementsByClassName(COLLAPSABLE_CLASS).length != 0) {
+        return group.getElementsByClassName(HEADER_CLASS)[0] as HTMLElement;
+    }
+    return null;
+}
+
 @injectable()
 export class SmartConnectorKeyListener extends KeyListener {
-    override keyDown(element: SModelElement, event: KeyboardEvent): Action[] {
-        if (matchesKeystroke(event, 'Delete', 'ctrl')) {
-            const deleteElementIds = Array.from(
-                element.root.index
-                    .all()
-                    .filter(e => isDeletable(e) && isSelectable(e) && e.selected)
-                    .filter(e => e.id !== e.root.id)
-                    .map(e => e.id)
-            );
-            if (deleteElementIds.length > 0) {
-                return [DeleteElementOperation.create(deleteElementIds)];
+    override keyDown(_element: GModelElement, event: KeyboardEvent) {
+        var container = document.getElementById(SMART_CONNECTOR_CONTAINER_ID)!
+        var expandButton = document.getElementById(EXPAND_BUTTON_ID)
+        var smartConnector = expandButton?.parentElement;
+        if (matchesKeystroke(event, 'Space') && smartConnector?.style.visibility == 'visible' && expandButton?.style.visibility == 'visible') {
+            showSmartConnector(container, expandButton);
+            var collapsableHeader = getHeaderIfGroupContainsCollapsable(container.firstElementChild as HTMLElement);
+            if (collapsableHeader) {
+                collapsableHeader.focus()
             }
+            else (container.firstElementChild!.getElementsByClassName(GROUP_CLASS)[0].firstElementChild as HTMLElement).focus()
         }
         return [];
     }

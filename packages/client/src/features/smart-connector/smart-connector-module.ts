@@ -1,6 +1,6 @@
-import { FeatureModule, TYPES, bindAsService, configureActionHandler, OpenSmartConnectorAction, CloseSmartConnectorAction, MoveAction, SetBoundsAction, SetViewportAction, DeleteElementOperation } from '~glsp-sprotty';
+import { FeatureModule, TYPES, bindAsService, configureActionHandler, OpenSmartConnectorAction, CloseSmartConnectorAction, MoveAction, SetBoundsAction, SetViewportAction, DeleteElementOperation } from '@eclipse-glsp/sprotty';
 import '../../../css/smart-connector.css'
-import { SmartConnector } from './smart-connector';
+import { SmartConnector, SmartConnectorKeyListener } from './smart-connector';
 
 export const smartConnectorModule = new FeatureModule((bind, unbind, isBound, rebind) => {
     const context = { bind, unbind, isBound, rebind };
@@ -12,4 +12,5 @@ export const smartConnectorModule = new FeatureModule((bind, unbind, isBound, re
     configureActionHandler(context, SetBoundsAction.KIND, SmartConnector);
     configureActionHandler(context, SetViewportAction.KIND, SmartConnector);
     configureActionHandler(context, DeleteElementOperation.KIND, SmartConnector);
+    bindAsService(bind, TYPES.KeyListener, SmartConnectorKeyListener);
 });

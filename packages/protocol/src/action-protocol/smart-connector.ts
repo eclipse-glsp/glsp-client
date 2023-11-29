@@ -2,7 +2,7 @@ import { hasStringProp } from '../utils/type-util';
 import { Action } from './base-protocol';
 
 /**
- * TODO
+ * Action that opens the smart connector at the position of the element
  */
 export interface OpenSmartConnectorAction extends Action {
     kind: typeof OpenSmartConnectorAction.KIND;
@@ -29,7 +29,7 @@ export namespace OpenSmartConnectorAction {
 }
 
 /**
- * TODO
+ * Action that closes the smart connector
  */
 export interface CloseSmartConnectorAction extends Action {
     kind: typeof CloseSmartConnectorAction.KIND;
