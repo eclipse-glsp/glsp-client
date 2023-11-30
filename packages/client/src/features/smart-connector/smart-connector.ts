@@ -202,6 +202,14 @@ export class SmartConnector extends AbstractUIExtension implements IActionHandle
         }
     }
 
+    // to avoid onclicks on nested visible
+    protected hideAll() {
+        if (this.smartConnectorContainer && this.expandButton) {
+            this.smartConnectorContainer.style.visibility = 'hidden';
+            this.expandButton.style.visibility = 'hidden';
+        }
+    }
+
     protected createGroup(item: SmartConnectorGroupItem): HTMLElement {
         const searchField = this.createSearchField(item);
         const group = document.createElement('div');
@@ -364,7 +372,7 @@ export class SmartConnector extends AbstractUIExtension implements IActionHandle
     protected headerNavigation(event: KeyboardEvent, groupItems: HTMLElement, header: HTMLElement) {
         var parent = header.parentElement!;
         if (matchesKeystroke(event, this.previousElementKeyCode)) {
-            if ((this.groupIsCollapsed[parent.id] || !header.previous()) && parent.previous()) {
+            if ((this.groupIsCollapsed[parent.id] || !this.groupIsTop[parent.id]) && parent.previous()) {
                 var collapsableHeader = getHeaderIfGroupContainsCollapsable(parent.previous())
                 if (collapsableHeader && (this.groupIsTop[parent.previous().id] || this.groupIsCollapsed[parent.previous().id])) collapsableHeader.focus();
                 else this.getPreviousGroupLastItem(parent).focus()
@@ -372,7 +380,7 @@ export class SmartConnector extends AbstractUIExtension implements IActionHandle
             else if (!this.groupIsCollapsed[parent.id] && header.previous()) (groupItems.last()).focus()
         }
         if (matchesKeystroke(event, this.nextElementKeyCode)) {
-            if ((this.groupIsCollapsed[parent.id] || !header.next()) && parent.next()) {
+            if ((this.groupIsCollapsed[parent.id] || this.groupIsTop[parent.id]) && parent.next()) {
                 var collapsableHeader = getHeaderIfGroupContainsCollapsable(parent.next())
                 if (collapsableHeader && (!this.groupIsTop[parent.next().id] || this.groupIsCollapsed[parent.next().id])) collapsableHeader.focus();
                 else this.getNextGroupFirstItem(parent).focus()
@@ -397,7 +405,7 @@ export class SmartConnector extends AbstractUIExtension implements IActionHandle
             var nextGroupCollapsableHeader = getHeaderIfGroupContainsCollapsable(parent.next())
             if (toolButton.next()) toolButton.next().focus()
             else if (collapsableHeader && this.groupIsTop[parent.id]) collapsableHeader.focus();
-            else if (nextGroupCollapsableHeader && !this.groupIsTop[parent.previous().id]) nextGroupCollapsableHeader.focus();
+            else if (nextGroupCollapsableHeader && !this.groupIsTop[parent.next().id]) nextGroupCollapsableHeader.focus();
             else if (parent.next()) this.getNextGroupFirstItem(parent).focus()
         }
     }
@@ -432,7 +440,7 @@ export class SmartConnector extends AbstractUIExtension implements IActionHandle
                 }
             });
             this.actionDispatcher.dispatchAll(item.actions.concat([SetUIExtensionVisibilityAction.create({ extensionId: SmartConnector.ID, visible: false })]));
-            this.hideSmartConnector();
+            this.hideAll();
         }
     }
 
@@ -449,7 +457,7 @@ export class SmartConnector extends AbstractUIExtension implements IActionHandle
             this.actionDispatcher.dispatch(
                 SetUIExtensionVisibilityAction.create({ extensionId: SmartConnector.ID, visible: false })
             );
-            this.hideSmartConnector();
+            this.hideAll();
         }
     }
 

@@ -56,6 +56,7 @@
 
 .smart-connector-group-header {
     justify-content: space-between;
+    width: 100px;
 }
 
 /* seperated containers */
@@ -82,6 +83,7 @@
     overflow-y: scroll;
     -ms-overflow-style: none;  /* IE and Edge */
     scrollbar-width: none;  /* Firefox */
+    max-height: 150px;
 }
 
 /* scrollbar */
@@ -101,6 +103,5 @@
     margin: 0 4px;
     padding: 8px 0;
     z-index: 9998;
-    pointer-events: auto;
     cursor: pointer;
 }
