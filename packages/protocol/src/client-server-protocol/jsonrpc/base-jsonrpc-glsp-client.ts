@@ -96,9 +96,6 @@ export class BaseJsonrpcGLSPClient implements GLSPClient {
         try {
             this.state = ClientState.Starting;
             const connection = await this.resolveConnection();
-            connection.onNotification(JsonrpcGLSPClient.ActionMessageNotification, msg =>
-                this.onActionMessageNotificationEmitter.fire(msg)
-            );
             connection.listen();
             this.resolvedConnection = connection;
             this.state = ClientState.Running;
@@ -138,6 +135,7 @@ export class BaseJsonrpcGLSPClient implements GLSPClient {
         const connection = typeof this.connectionProvider === 'function' ? await this.connectionProvider() : this.connectionProvider;
         connection.onError(data => this.handleConnectionError(data[0], data[1], data[2]));
         connection.onClose(() => this.handleConnectionClosed());
+        connection.onNotification(JsonrpcGLSPClient.ActionMessageNotification, msg => this.onActionMessageNotificationEmitter.fire(msg));
         return connection;
     }
 
