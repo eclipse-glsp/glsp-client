@@ -491,32 +491,6 @@ export class SmartConnector extends AbstractUIExtension implements IActionHandle
     }
 }
 
-// HTMLElement extensions for readability and convenience (reduce casting)
-declare global {
-    interface HTMLElement {
-        next(): HTMLElement
-        previous(): HTMLElement
-        first(): HTMLElement
-        last(): HTMLElement
-    }
-}
-
-HTMLElement.prototype.next = function () {
-    return this.nextElementSibling as HTMLElement;
-};
-
-HTMLElement.prototype.previous = function () {
-    return this.previousElementSibling as HTMLElement;
-};
-
-HTMLElement.prototype.first = function () {
-    return this.firstElementChild as HTMLElement;
-};
-
-HTMLElement.prototype.last = function () {
-    return this.lastElementChild as HTMLElement;
-};
-
 export function showSmartConnector(container: HTMLElement, expandButton: HTMLElement): void {
     container.style.visibility = 'visible';
     expandButton.style.visibility = 'hidden';

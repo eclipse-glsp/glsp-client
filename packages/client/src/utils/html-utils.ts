@@ -23,3 +23,29 @@ export function createElementFromHTML(html: string): HTMLElement | undefined {
     }
     return undefined;
 }
+
+declare global {
+    interface HTMLElement {
+        next(): HTMLElement
+        previous(): HTMLElement
+        first(): HTMLElement
+        last(): HTMLElement
+    }
+}
+
+// HTMLElement extensions for readability and convenience (reduce casting)
+HTMLElement.prototype.next = function (): HTMLElement {
+    return this.nextElementSibling as HTMLElement;
+};
+
+HTMLElement.prototype.previous = function (): HTMLElement  {
+    return this.previousElementSibling as HTMLElement;
+};
+
+HTMLElement.prototype.first = function (): HTMLElement {
+    return this.firstElementChild as HTMLElement;
+};
+
+HTMLElement.prototype.last = function (): HTMLElement  {
+    return this.lastElementChild as HTMLElement;
+};
