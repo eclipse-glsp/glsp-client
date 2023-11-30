@@ -203,7 +203,6 @@ export interface SmartConnectorGroupItem extends PaletteItem {
     readonly submenu?: boolean;
     /** Show either only icons or labels. Show both when not given*/
     readonly showOnlyForChildren?: SmartConnectorGroupUIType;
-    
 }
 
 export namespace SmartConnectorGroupItem {

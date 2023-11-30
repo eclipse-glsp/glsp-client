@@ -101,7 +101,7 @@ export const DEFAULT_MODULES = [
     zorderModule,
     svgMetadataModule,
     statusModule,
-    smartConnectorModule,
+    smartConnectorModule
 ] as const;
 
 /**
