@@ -15,6 +15,7 @@
  ********************************************************************************/
 import * as sprotty from 'sprotty-protocol';
 import { Dimension, Point } from 'sprotty-protocol';
+import { GModelElementSchema } from '../model/model-schema';
 import { AnyObject, hasArrayProp, hasBooleanProp, hasObjectProp, hasStringProp } from '../utils/type-util';
 import { Action } from './base-protocol';
 import { TriggerEdgeCreationAction, TriggerNodeCreationAction } from './tool-palette';
@@ -26,6 +27,11 @@ import { TriggerEdgeCreationAction, TriggerNodeCreationAction } from './tool-pal
 export interface Args {
     [key: string]: sprotty.JsonPrimitive;
 }
+
+/**
+ * The template for a model element, i.e., either a reference to an existing element by element id or an element schema.
+ */
+export type ElementTemplate = string | GModelElementSchema;
 
 /**
  * The ElementAndBounds type is used to associate new bounds with a model element, which is referenced via its id.

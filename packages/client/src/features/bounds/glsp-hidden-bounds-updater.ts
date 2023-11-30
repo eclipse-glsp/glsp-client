@@ -14,22 +14,23 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { inject, injectable, optional } from 'inversify';
-import { VNode } from 'snabbdom';
 import {
     Action,
     ComputedBoundsAction,
     Deferred,
     EdgeRouterRegistry,
     ElementAndRoutingPoints,
+    GModelElement,
+    GRoutableElement,
     HiddenBoundsUpdater,
     IActionDispatcher,
     RequestAction,
-    ResponseAction,
-    GModelElement,
-    GRoutableElement
+    ResponseAction
 } from '@eclipse-glsp/sprotty';
+import { inject, injectable, optional } from 'inversify';
+import { VNode } from 'snabbdom';
 import { calcElementAndRoute, isRoutable } from '../../utils/gmodel-util';
+import { LocalComputedBoundsAction, LocalRequestBoundsAction } from './local-bounds';
 
 /**
  * Grabs the bounds from hidden SVG DOM elements, applies layouts, collects routes and fires {@link ComputedBoundsAction}s.
@@ -56,7 +57,7 @@ export class GLSPHiddenBoundsUpdater extends HiddenBoundsUpdater {
         const actions = this.captureActions(() => super.postUpdate(cause));
         actions
             .filter(action => ComputedBoundsAction.is(action))
-            .forEach(action => this.actionDispatcher.dispatch(this.enhanceAction(action as ComputedBoundsAction)));
+            .forEach(action => this.actionDispatcher.dispatch(this.enhanceAction(action as ComputedBoundsAction, cause)));
         this.element2route = [];
     }
 
@@ -72,7 +73,10 @@ export class GLSPHiddenBoundsUpdater extends HiddenBoundsUpdater {
         }
     }
 
-    protected enhanceAction(action: ComputedBoundsAction): ComputedBoundsAction {
+    protected enhanceAction(action: ComputedBoundsAction, cause?: Action): ComputedBoundsAction {
+        if (LocalRequestBoundsAction.is(cause)) {
+            LocalComputedBoundsAction.mark(action);
+        }
         action.routes = this.element2route.length === 0 ? undefined : this.element2route;
         return action;
     }

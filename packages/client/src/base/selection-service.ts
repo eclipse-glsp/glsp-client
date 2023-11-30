@@ -13,7 +13,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { inject, injectable, multiInject, optional, postConstruct, preDestroy } from 'inversify';
 import {
     Action,
     Command,
@@ -23,9 +22,9 @@ import {
     Emitter,
     Event,
     GChildElement,
-    ILogger,
     GModelElement,
     GModelRoot,
+    ILogger,
     SelectAction,
     SelectAllAction,
     Selectable,
@@ -36,8 +35,9 @@ import {
     isSelectable,
     pluck
 } from '@eclipse-glsp/sprotty';
+import { inject, injectable, multiInject, optional, postConstruct, preDestroy } from 'inversify';
 import { getElements, getMatchingElements } from '../utils/gmodel-util';
-import { ISModelRootListener } from './command-stack';
+import { GLSPCommandStack, IGModelRootListener } from './command-stack';
 import { IFeedbackActionDispatcher } from './feedback/feedback-action-dispatcher';
 
 export interface ISelectionListener {
@@ -51,7 +51,7 @@ export interface SelectionChange {
 }
 
 @injectable()
-export class SelectionService implements ISModelRootListener, Disposable {
+export class SelectionService implements IGModelRootListener, Disposable {
     protected root: Readonly<GModelRoot>;
     protected selectedElementIDs: Set<string> = new Set();
 
@@ -61,6 +61,9 @@ export class SelectionService implements ISModelRootListener, Disposable {
     @inject(TYPES.ILogger)
     protected logger: ILogger;
 
+    @inject(TYPES.ICommandStack)
+    protected commandStack: GLSPCommandStack;
+
     @multiInject(TYPES.ISelectionListener)
     @optional()
     protected selectionListeners: ISelectionListener[] = [];
@@ -69,7 +72,11 @@ export class SelectionService implements ISModelRootListener, Disposable {
 
     @postConstruct()
     protected initialize(): void {
-        this.toDispose.push(this.onSelectionChangedEmitter);
+        this.toDispose.push(
+            this.onSelectionChangedEmitter,
+            this.commandStack.onModelRootChanged(root => this.modelRootChanged(root))
+        );
+
         this.selectionListeners.forEach(listener =>
             this.onSelectionChanged(change => listener.selectionChanged(change.root, change.selectedElements, change.deselectedElements))
         );
@@ -197,7 +204,10 @@ export class SelectCommand extends Command {
     protected selected: GModelElement[] = [];
     protected deselected: GModelElement[] = [];
 
-    constructor(@inject(TYPES.Action) public action: SelectAction, @inject(SelectionService) public selectionService: SelectionService) {
+    constructor(
+        @inject(TYPES.Action) public action: SelectAction,
+        @inject(SelectionService) public selectionService: SelectionService
+    ) {
         super();
     }
 
@@ -234,7 +244,10 @@ export class SelectAllCommand extends Command {
     static readonly KIND = SprottySelectAllCommand.KIND;
     protected previousSelection: Map<string, boolean> = new Map<string, boolean>();
 
-    constructor(@inject(TYPES.Action) public action: SelectAllAction, @inject(SelectionService) public selectionService: SelectionService) {
+    constructor(
+        @inject(TYPES.Action) public action: SelectAllAction,
+        @inject(SelectionService) public selectionService: SelectionService
+    ) {
         super();
     }
 

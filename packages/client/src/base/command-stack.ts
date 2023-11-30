@@ -13,33 +13,38 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { injectable, multiInject, optional, preDestroy } from 'inversify';
 import {
     CommandStack,
     Disposable,
     DisposableCollection,
     Emitter,
     Event,
-    ICommand,
     GModelRoot,
+    ICommand,
     SetModelCommand,
     TYPES,
     UpdateModelCommand
 } from '@eclipse-glsp/sprotty';
+import { injectable, multiInject, optional, preDestroy } from 'inversify';
 
 /**
  * A hook to listen for model root changes. Will be called after a server update
  * has been processed
  */
-export interface ISModelRootListener {
+export interface IGModelRootListener {
     modelRootChanged(root: Readonly<GModelRoot>): void;
 }
 
+/**
+ * @deprecated Use {@link IGModelRootListener} instead
+ */
+export type ISModelRootListener = IGModelRootListener;
+
 @injectable()
 export class GLSPCommandStack extends CommandStack implements Disposable {
-    @multiInject(TYPES.ISModelRootListener)
+    @multiInject(TYPES.IGModelRootListener)
     @optional()
-    protected modelRootListeners: ISModelRootListener[] = [];
+    protected modelRootListeners: IGModelRootListener[] = [];
     protected toDispose = new DisposableCollection();
 
     protected override initialize(): void {

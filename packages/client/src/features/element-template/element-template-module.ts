@@ -13,15 +13,12 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { FeatureModule, TYPES, TriggerNodeCreationAction, bindAsService, configureActionHandler } from '@eclipse-glsp/sprotty';
-import { elementTemplateModule } from '../../element-template/element-template-module';
-import { NodeCreationTool } from './node-creation-tool';
+import { FeatureModule, configureCommand } from '@eclipse-glsp/sprotty';
+import { AddTemplateElementsFeedbackCommand } from './add-template-element';
+import { RemoveTemplateElementsFeedbackCommand } from './remove-template-element';
 
-export const nodeCreationToolModule = new FeatureModule(
-    (bind, unbind, isBound, rebind) => {
-        const context = { bind, unbind, isBound, rebind };
-        bindAsService(context, TYPES.ITool, NodeCreationTool);
-        configureActionHandler(context, TriggerNodeCreationAction.KIND, NodeCreationTool);
-    },
-    { requires: elementTemplateModule }
-);
+export const elementTemplateModule = new FeatureModule((bind, unbind, isBound, rebind) => {
+    const context = { bind, unbind, isBound, rebind };
+    configureCommand(context, AddTemplateElementsFeedbackCommand);
+    configureCommand(context, RemoveTemplateElementsFeedbackCommand);
+});

@@ -13,22 +13,25 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { inject, injectable, postConstruct } from 'inversify';
 import {
     AbstractUIExtension,
     Action,
+    GModelRoot,
     IActionHandler,
     ICommand,
     MarkersReason,
     PaletteItem,
     RequestContextActions,
     RequestMarkersAction,
-    GModelRoot,
     SetContextActions,
+    SetModelAction,
     SetUIExtensionVisibilityAction,
+    TriggerNodeCreationAction,
+    UpdateModelAction,
     codiconCSSClasses,
     matchesKeystroke
 } from '@eclipse-glsp/sprotty';
+import { inject, injectable, postConstruct } from 'inversify';
 import { GLSPActionDispatcher } from '../../base/action-dispatcher';
 import { EditorContextService, IEditModeListener } from '../../base/editor-context-service';
 import { FocusTracker } from '../../base/focus/focus-tracker';
@@ -73,6 +76,7 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
 
     protected paletteItems: PaletteItem[];
     protected paletteItemsCopy: PaletteItem[] = [];
+    protected dynamic = false;
     protected bodyDiv?: HTMLElement;
     protected lastActiveButton?: HTMLElement;
     protected defaultToolsButton: HTMLElement;
@@ -333,11 +337,15 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
         }
     }
 
-    handle(action: EnableDefaultToolsAction): ICommand | Action | void {
+    handle(action: Action): ICommand | Action | void {
         this.changeActiveButton();
-        if (this.focusTracker.hasFocus) {
-            // if focus was deliberately taken do not restore focus to the palette
-            this.focusTracker.diagramElement?.focus();
+        if (UpdateModelAction.is(action) || SetModelAction.is(action)) {
+            this.reloadPaletteBody();
+        } else if (EnableDefaultToolsAction.is(action)) {
+            if (this.focusTracker.hasFocus) {
+                // if focus was deliberately taken do not restore focus to the palette
+                this.focusTracker.diagramElement?.focus();
+            }
         }
     }
 
@@ -358,11 +366,6 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
         if (matchesKeystroke(event, 'Escape')) {
             this.actionDispatcher.dispatch(EnableDefaultToolsAction.create());
         }
-    }
-
-    protected handleSetContextActions(action: SetContextActions): void {
-        this.paletteItems = action.actions.map(e => e as PaletteItem);
-        this.createBody();
     }
 
     protected requestFilterUpdate(filter: string): void {
@@ -395,6 +398,17 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
     }
 
     async preRequestModel(): Promise<void> {
+        await this.setPaletteItems();
+        if (!this.editorContext.isReadonly) {
+            this.show(this.editorContext.modelRoot);
+        }
+    }
+
+    async postRequestModel(): Promise<void> {
+        this.reloadPaletteBody();
+    }
+
+    protected async setPaletteItems(): Promise<void> {
         const requestAction = RequestContextActions.create({
             contextId: ToolPalette.ID,
             editorContext: {
@@ -402,9 +416,23 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
             }
         });
         const response = await this.actionDispatcher.request<SetContextActions>(requestAction);
-        this.paletteItems = response.actions.map(e => e as PaletteItem);
-        if (!this.editorContext.isReadonly) {
-            this.show(this.editorContext.modelRoot);
+        this.paletteItems = response.actions.map(action => action as PaletteItem);
+        this.dynamic = this.paletteItems.some(item => this.hasDynamicAction(item));
+    }
+
+    protected hasDynamicAction(item: PaletteItem): boolean {
+        const dynamic = !!item.actions.find(action => TriggerNodeCreationAction.is(action) && action.ghostElement?.dynamic);
+        if (dynamic) {
+            return dynamic;
+        }
+        return item.children?.some(child => this.hasDynamicAction(child)) || false;
+    }
+
+    protected async reloadPaletteBody(): Promise<void> {
+        if (this.dynamic) {
+            await this.setPaletteItems();
+            this.paletteItemsCopy = [];
+            this.requestFilterUpdate(this.searchField.value);
         }
     }
 }

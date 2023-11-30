@@ -30,6 +30,8 @@ import { FreeFormLayouter } from './freeform-layout';
 import { GLSPHiddenBoundsUpdater } from './glsp-hidden-bounds-updater';
 import { HBoxLayouterExt } from './hbox-layout';
 import { LayouterExt } from './layouter';
+import { LocalComputedBoundsCommand } from './local-bounds';
+import { SetBoundsFeebackCommand } from './set-bounds-feedback-command';
 import { VBoxLayouterExt } from './vbox-layout';
 
 export const boundsModule = new FeatureModule((bind, _unbind, isBound, _rebind) => {
@@ -38,6 +40,10 @@ export const boundsModule = new FeatureModule((bind, _unbind, isBound, _rebind) 
     configureCommand(context, RequestBoundsCommand);
     bind(HiddenBoundsUpdater).toSelf().inSingletonScope();
     bindAsService(context, TYPES.HiddenVNodePostprocessor, GLSPHiddenBoundsUpdater);
+
+    configureCommand(context, LocalComputedBoundsCommand);
+    configureCommand(context, SetBoundsFeebackCommand);
+
     bind(TYPES.Layouter).to(LayouterExt).inSingletonScope();
     bind(TYPES.LayoutRegistry).to(LayoutRegistry).inSingletonScope();
 
