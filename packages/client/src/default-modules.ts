@@ -41,7 +41,6 @@ import { copyPasteModule } from './features/copy-paste/copy-paste-modules';
 import { decorationModule } from './features/decoration/decoration-module';
 import { elementTemplateModule } from './features/element-template/element-template-module';
 import { exportModule } from './features/export/export-modules';
-import { helperLineModule } from './features/helper-lines/helper-line-module';
 import { typeHintsModule } from './features/hints/type-hints-module';
 import { hoverModule } from './features/hover/hover-module';
 import { labelEditModule } from './features/label-edit/label-edit-module';
@@ -92,7 +91,6 @@ export const DEFAULT_MODULES = [
     edgeCreationToolModule,
     edgeEditToolModule,
     deletionToolModule,
-    helperLineModule,
     elementTemplateModule,
     nodeCreationToolModule,
     changeBoundsToolModule,

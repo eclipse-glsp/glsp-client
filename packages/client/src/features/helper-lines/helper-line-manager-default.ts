@@ -29,7 +29,7 @@ import { IFeedbackActionDispatcher } from '../../base/feedback/feedback-action-d
 import { ISelectionListener, SelectionService } from '../../base/selection-service';
 import { SetBoundsFeedbackAction } from '../bounds/set-bounds-feedback-command';
 import { GridSnapper } from '../change-bounds/snap';
-import { MoveFinishedAction, MoveInitializedAction } from '../tools/change-bounds/change-bounds-tool-feedback';
+import { MoveFinishedEventAction, MoveInitializedEventAction } from '../tools/change-bounds/change-bounds-tool-feedback';
 import { DrawHelperLinesFeedbackAction, RemoveHelperLinesFeedbackAction, ViewportLineType } from './helper-line-feedback';
 import { IHelperLineManager } from './helper-line-manager';
 import { Direction, HelperLineType } from './model';
@@ -58,24 +58,24 @@ export class HelperLineManager implements IActionHandler, ISelectionListener, IH
     }
 
     handle(action: Action): void {
-        if (MoveInitializedAction.is(action)) {
+        if (MoveInitializedEventAction.is(action)) {
             this.handleMoveInitializedAction(action);
         } else if (MoveAction.is(action)) {
             this.handleMoveAction(action);
-        } else if (MoveFinishedAction.is(action)) {
+        } else if (MoveFinishedEventAction.is(action)) {
             this.handleMoveFinishedAction(action);
         } else if (SetBoundsAction.is(action) || SetBoundsFeedbackAction.is(action)) {
             this.handleSetBoundsAction(action);
         }
     }
 
-    protected handleMoveInitializedAction(_action: MoveInitializedAction): void {
+    protected handleMoveInitializedAction(_action: MoveInitializedEventAction): void {
         this.feedback.dispose();
         const feedback = this.createHelperLineFeedback(this.selectionService.getSelectedElementIDs());
         this.feedback.push(this.feedbackDispatcher.registerFeedback(this, [feedback], [RemoveHelperLinesFeedbackAction.create()]));
     }
 
-    protected handleMoveFinishedAction(_action: MoveFinishedAction): void {
+    protected handleMoveFinishedAction(_action: MoveFinishedEventAction): void {
         this.feedback.dispose();
     }
 

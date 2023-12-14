@@ -25,7 +25,7 @@ import {
     configureModelElement
 } from '@eclipse-glsp/sprotty';
 import { SetBoundsFeedbackAction } from '../bounds/set-bounds-feedback-command';
-import { MoveFinishedAction, MoveInitializedAction } from '../tools/change-bounds/change-bounds-tool-feedback';
+import { MoveFinishedEventAction, MoveInitializedEventAction } from '../tools/change-bounds/change-bounds-tool-feedback';
 import { DrawHelperLinesFeedbackCommand, RemoveHelperLinesFeedbackCommand } from './helper-line-feedback';
 import { HelperLineManager } from './helper-line-manager-default';
 import { HELPER_LINE, HelperLine, SELECTION_BOUNDS, SelectionBounds } from './model';
@@ -42,6 +42,6 @@ export const helperLineModule = new FeatureModule((bind, unbind, isBound, rebind
     configureActionHandler(context, SetBoundsAction.KIND, TYPES.IHelperLineManager);
     configureActionHandler(context, SetBoundsFeedbackAction.KIND, TYPES.IHelperLineManager);
     configureActionHandler(context, MoveAction.KIND, TYPES.IHelperLineManager);
-    configureActionHandler(context, MoveInitializedAction.KIND, TYPES.IHelperLineManager);
-    configureActionHandler(context, MoveFinishedAction.KIND, TYPES.IHelperLineManager);
+    configureActionHandler(context, MoveInitializedEventAction.KIND, TYPES.IHelperLineManager);
+    configureActionHandler(context, MoveFinishedEventAction.KIND, TYPES.IHelperLineManager);
 });

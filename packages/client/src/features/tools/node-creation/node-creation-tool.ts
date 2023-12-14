@@ -34,7 +34,6 @@ import { IMovementRestrictor } from '../../change-bounds/movement-restrictor';
 import { PositionSnapper } from '../../change-bounds/position-snapper';
 import { AddTemplateElementsAction, getTemplateElementId } from '../../element-template/add-template-element';
 import { MouseTrackingElementPositionListener, PositioningTool } from '../../element-template/mouse-tracking-element-position-listener';
-import { RemoveTemplateElementsAction } from '../../element-template/remove-template-element';
 import { Containable, isContainable } from '../../hints/model';
 import { BaseCreationTool } from '../base-tools';
 
@@ -59,8 +58,7 @@ export class NodeCreationTool extends BaseCreationTool<TriggerNodeCreationAction
             this.toDisposeOnDisable.push(
                 this.registerFeedback(
                     [AddTemplateElementsAction.create({ templates: [ghostElement.template], addClasses: [CSS_HIDDEN, CSS_GHOST_ELEMENT] })],
-                    ghostElement,
-                    [RemoveTemplateElementsAction.create({ templates: [ghostElement.template] })]
+                    ghostElement
                 ),
                 this.mouseTool.registerListener(trackingListener)
             );
