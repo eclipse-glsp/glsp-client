@@ -13,11 +13,8 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-export * from './base';
-export * from './default-modules';
-export * from './features';
-export * from './model';
-export * from './re-exports';
-export * from './standalone-modules';
-export * from './utils';
-export * from './views';
+export { Viewport } from 'sprotty-protocol/lib/model';
+export * from 'sprotty-protocol/lib/utils/async';
+export * from 'sprotty-protocol/lib/utils/geometry';
+export * from 'sprotty-protocol/lib/utils/json';
+export { applyBounds, cloneModel, findElement, getBasicType, getSubType } from 'sprotty-protocol/lib/utils/model-utils';

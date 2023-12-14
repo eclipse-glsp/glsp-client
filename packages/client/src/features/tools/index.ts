@@ -14,10 +14,10 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 export * from './base-tools';
-export * from './change-bounds/index';
-export * from './deletion/index';
-export * from './edge-creation/index';
-export * from './edge-edit/index';
-export * from './marquee-selection/index';
-export * from './node-creation/index';
+export * from './change-bounds';
+export * from './deletion';
+export * from './edge-creation';
+export * from './edge-edit';
+export * from './marquee-selection';
+export * from './node-creation';
 export * from './tool-focus-loss-module';

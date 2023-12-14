@@ -16,5 +16,5 @@
 export * from './base-glsp-client';
 export * from './glsp-client';
 export * from './glsp-server';
-export * from './jsonrpc/index';
+export * from './jsonrpc';
 export * from './types';
