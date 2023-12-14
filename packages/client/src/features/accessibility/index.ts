@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020-2023 EclipseSource and others.
+ * Copyright (c) 2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,17 +13,18 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-
-// Partial reexport of sprotty-protocol
-export { Viewport } from 'sprotty-protocol/lib/model';
-export * from 'sprotty-protocol/lib/utils/async';
-export * from 'sprotty-protocol/lib/utils/geometry';
-export * from 'sprotty-protocol/lib/utils/json';
-export { applyBounds, cloneModel, findElement, getBasicType, getSubType } from 'sprotty-protocol/lib/utils/model-utils';
-
-// Default export of @eclipse-glsp/protocol
-export * from './action-protocol/index';
-export * from './client-server-protocol/index';
-export * from './model/index';
-export * from './sprotty-actions';
-export * from './utils/index';
+export * from './accessibility-module';
+export * from './actions';
+export * from './edge-autocomplete/index';
+export * from './element-navigation/index';
+export * from './focus-tracker/index';
+export * from './global-keylistener-tool';
+export * from './key-shortcut/index';
+export * from './keyboard-grid/index';
+export * from './keyboard-pointer/index';
+export * from './keyboard-tool-palette/index';
+export * from './move-zoom/index';
+export * from './resize-key-tool/index';
+export * from './search/index';
+export * from './toast/index';
+export * from './view-key-tools/index';

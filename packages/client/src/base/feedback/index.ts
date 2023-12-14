@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020-2023 EclipseSource and others.
+ * Copyright (c) 2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,17 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-
-// Partial reexport of sprotty-protocol
-export { Viewport } from 'sprotty-protocol/lib/model';
-export * from 'sprotty-protocol/lib/utils/async';
-export * from 'sprotty-protocol/lib/utils/geometry';
-export * from 'sprotty-protocol/lib/utils/json';
-export { applyBounds, cloneModel, findElement, getBasicType, getSubType } from 'sprotty-protocol/lib/utils/model-utils';
-
-// Default export of @eclipse-glsp/protocol
-export * from './action-protocol/index';
-export * from './client-server-protocol/index';
-export * from './model/index';
-export * from './sprotty-actions';
-export * from './utils/index';
+export * from './css-feedback';
+export * from './feedback-action-dispatcher';
+export * from './feedback-command';
+export * from './update-model-command';
