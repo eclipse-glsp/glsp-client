@@ -19,18 +19,18 @@ import {
     DefaultTypes,
     DeleteElementContextMenuItemProvider,
     DiamondNodeView,
+    GCompartment,
+    GCompartmentView,
     GEdge,
     GGraph,
     GLSPProjectionView,
+    GLabel,
+    GLabelView,
     GridSnapper,
     LogLevel,
     RectangularNodeView,
     RevealNamedElementActionProvider,
     RoundedCornerNodeView,
-    GCompartment,
-    GCompartmentView,
-    GLabel,
-    GLabelView,
     StructureCompartmentView,
     TYPES,
     bindAsService,
@@ -38,6 +38,7 @@ import {
     configureDefaultModelElements,
     configureModelElement,
     editLabelFeature,
+    helperLineModule,
     initializeDiagramContainer
 } from '@eclipse-glsp/client';
 import 'balloon-css/balloon.min.css';
@@ -81,5 +82,5 @@ export function createWorkflowDiagramContainer(...containerConfiguration: Contai
 }
 
 export function initializeWorkflowDiagramContainer(container: Container, ...containerConfiguration: ContainerConfiguration): Container {
-    return initializeDiagramContainer(container, workflowDiagramModule, directTaskEditor, ...containerConfiguration);
+    return initializeDiagramContainer(container, workflowDiagramModule, directTaskEditor, helperLineModule, ...containerConfiguration);
 }

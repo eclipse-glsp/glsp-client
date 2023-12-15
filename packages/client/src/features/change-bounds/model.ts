@@ -62,12 +62,28 @@ export class SResizeHandle extends GChildElement implements Hoverable {
         return feature === hoverFeedbackFeature;
     }
 
+    isNwResize(): boolean {
+        return this.location === ResizeHandleLocation.TopLeft;
+    }
+
+    isSeResize(): boolean {
+        return this.location === ResizeHandleLocation.BottomRight;
+    }
+
+    isNeResize(): boolean {
+        return this.location === ResizeHandleLocation.TopRight;
+    }
+
+    isSwResize(): boolean {
+        return this.location === ResizeHandleLocation.BottomLeft;
+    }
+
     isNwSeResize(): boolean {
-        return this.location === ResizeHandleLocation.TopLeft || this.location === ResizeHandleLocation.BottomRight;
+        return this.isNwResize() || this.isSeResize();
     }
 
     isNeSwResize(): boolean {
-        return this.location === ResizeHandleLocation.TopRight || this.location === ResizeHandleLocation.BottomLeft;
+        return this.isNeResize() || this.isSwResize();
     }
 }
 

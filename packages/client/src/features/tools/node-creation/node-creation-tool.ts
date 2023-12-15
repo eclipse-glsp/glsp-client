@@ -18,7 +18,6 @@ import {
     CreateNodeOperation,
     GModelElement,
     GNode,
-    ISnapper,
     Point,
     TYPES,
     TriggerNodeCreationAction,
@@ -32,9 +31,9 @@ import { CSS_GHOST_ELEMENT, CSS_HIDDEN, CursorCSS, cursorFeedbackAction } from '
 import { EnableDefaultToolsAction } from '../../../base/tool-manager/tool';
 import { getAbsolutePosition } from '../../../utils/viewpoint-util';
 import { IMovementRestrictor } from '../../change-bounds/movement-restrictor';
+import { PositionSnapper } from '../../change-bounds/position-snapper';
 import { AddTemplateElementsAction, getTemplateElementId } from '../../element-template/add-template-element';
 import { MouseTrackingElementPositionListener, PositioningTool } from '../../element-template/mouse-tracking-element-position-listener';
-import { RemoveTemplateElementsAction } from '../../element-template/remove-template-element';
 import { Containable, isContainable } from '../../hints/model';
 import { BaseCreationTool } from '../base-tools';
 
@@ -44,8 +43,8 @@ export class NodeCreationTool extends BaseCreationTool<TriggerNodeCreationAction
 
     protected isTriggerAction = TriggerNodeCreationAction.is;
 
-    @inject(TYPES.ISnapper) @optional() readonly snapper?: ISnapper;
     @inject(TYPES.IMovementRestrictor) @optional() readonly movementRestrictor?: IMovementRestrictor;
+    @inject(PositionSnapper) readonly positionSnapper: PositionSnapper;
 
     get id(): string {
         return NodeCreationTool.ID;
@@ -59,8 +58,7 @@ export class NodeCreationTool extends BaseCreationTool<TriggerNodeCreationAction
             this.toDisposeOnDisable.push(
                 this.registerFeedback(
                     [AddTemplateElementsAction.create({ templates: [ghostElement.template], addClasses: [CSS_HIDDEN, CSS_GHOST_ELEMENT] })],
-                    ghostElement,
-                    [RemoveTemplateElementsAction.create({ templates: [ghostElement.template] })]
+                    ghostElement
                 ),
                 this.mouseTool.registerListener(trackingListener)
             );
@@ -119,14 +117,12 @@ export class NodeCreationToolMouseListener extends DragAwareMouseListener {
                 return trackedPosition;
             }
         }
-        let location = getAbsolutePosition(target, event);
-        if (this.tool.snapper) {
-            // Create a 0-bounds proxy element for snapping
-            const elementProxy = new GNode();
-            elementProxy.size = { width: 0, height: 0 };
-            location = this.tool.snapper.snap(location, elementProxy);
-        }
-        return location;
+        const location = getAbsolutePosition(target, event);
+
+        // Create a 0-bounds proxy element for snapping
+        const elementProxy = new GNode();
+        elementProxy.size = { width: 0, height: 0 };
+        return this.tool.positionSnapper.snapPosition(location, elementProxy);
     }
 
     override mouseOver(target: GModelElement, event: MouseEvent): Action[] {

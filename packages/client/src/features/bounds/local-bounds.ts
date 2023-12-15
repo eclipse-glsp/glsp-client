@@ -25,7 +25,8 @@ import {
     GModelRoot,
     GModelRootSchema,
     RequestBoundsAction,
-    TYPES
+    TYPES,
+    ViewerOptions
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
 import { ServerAction } from '../../base/model/glsp-model-source';
@@ -63,6 +64,7 @@ export class LocalComputedBoundsCommand extends Command {
     static readonly KIND: string = ComputedBoundsAction.KIND;
 
     @inject(ComputedBoundsApplicator) protected readonly computedBoundsApplicator: ComputedBoundsApplicator;
+    @inject(TYPES.ViewerOptions) protected readonly viewerOptions: ViewerOptions;
 
     constructor(@inject(TYPES.Action) readonly action: ComputedBoundsAction) {
         super();
@@ -70,10 +72,14 @@ export class LocalComputedBoundsCommand extends Command {
 
     override execute(context: CommandExecutionContext): GModelRoot | CommandResult {
         if (LocalComputedBoundsAction.is(this.action)) {
+            if (!this.viewerOptions.needsClientLayout) {
+                return context.root;
+            }
             // apply computed bounds from the hidden model and return updated model to render new main model
             this.computedBoundsApplicator.apply(context.root as unknown as GModelRootSchema, this.action);
             return context.root;
         }
+
         // computed bounds action from server -> we do not care and do not trigger any update of the main model
         return {
             model: context.root,

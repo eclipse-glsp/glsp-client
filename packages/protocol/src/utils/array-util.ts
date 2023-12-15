@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { Constructor, Primitive } from './type-util';
+import { Constructor, Primitive, TypeGuard } from './type-util';
 
 /**
  * A union type for for objects that can either be a single element or and array of elements.
@@ -179,4 +179,17 @@ export function isStringArray(object: unknown, supportEmpty = false): object is 
  */
 export function isArrayMatching(object: unknown, predicate: (elem: unknown) => boolean, supportEmpty = false): boolean {
     return Array.isArray(object) && object.every(predicate) && (supportEmpty || object.length > 0);
+}
+
+export function partition<T>(source: T[], matchGuard: TypeGuard<T>): { match: T[]; rest: T[] } {
+    const match: T[] = [];
+    const rest: T[] = [];
+    source.forEach(element => {
+        if (matchGuard(element)) {
+            match.push(element);
+        } else {
+            rest.push(element);
+        }
+    });
+    return { match, rest };
 }

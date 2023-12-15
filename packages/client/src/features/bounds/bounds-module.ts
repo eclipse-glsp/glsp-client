@@ -26,12 +26,13 @@ import {
     configureCommand,
     configureLayout
 } from '@eclipse-glsp/sprotty';
+import { PositionSnapper } from '../change-bounds/position-snapper';
 import { FreeFormLayouter } from './freeform-layout';
 import { GLSPHiddenBoundsUpdater } from './glsp-hidden-bounds-updater';
 import { HBoxLayouterExt } from './hbox-layout';
 import { LayouterExt } from './layouter';
 import { LocalComputedBoundsCommand } from './local-bounds';
-import { SetBoundsFeebackCommand } from './set-bounds-feedback-command';
+import { SetBoundsFeedbackCommand } from './set-bounds-feedback-command';
 import { VBoxLayouterExt } from './vbox-layout';
 
 export const boundsModule = new FeatureModule((bind, _unbind, isBound, _rebind) => {
@@ -42,7 +43,7 @@ export const boundsModule = new FeatureModule((bind, _unbind, isBound, _rebind) 
     bindAsService(context, TYPES.HiddenVNodePostprocessor, GLSPHiddenBoundsUpdater);
 
     configureCommand(context, LocalComputedBoundsCommand);
-    configureCommand(context, SetBoundsFeebackCommand);
+    configureCommand(context, SetBoundsFeedbackCommand);
 
     bind(TYPES.Layouter).to(LayouterExt).inSingletonScope();
     bind(TYPES.LayoutRegistry).to(LayoutRegistry).inSingletonScope();
@@ -50,4 +51,6 @@ export const boundsModule = new FeatureModule((bind, _unbind, isBound, _rebind) 
     configureLayout(context, VBoxLayouter.KIND, VBoxLayouterExt);
     configureLayout(context, HBoxLayouter.KIND, HBoxLayouterExt);
     configureLayout(context, FreeFormLayouter.KIND, FreeFormLayouter);
+
+    bind(PositionSnapper).toSelf();
 });
