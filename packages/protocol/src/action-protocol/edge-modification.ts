@@ -40,11 +40,6 @@ export interface ReconnectEdgeOperation extends Operation {
      * The (new) target element of the edge.
      */
     targetElementId: string;
-
-    /*
-     * Additional arguments for custom behavior.
-     */
-    args?: Args;
 }
 
 export namespace ReconnectEdgeOperation {
@@ -95,11 +90,12 @@ export namespace ChangeRoutingPointsOperation {
         return Operation.hasKind(object, KIND) && hasArrayProp(object, 'newRoutingPoints');
     }
 
-    export function create(newRoutingPoints: ElementAndRoutingPoints[]): ChangeRoutingPointsOperation {
+    export function create(newRoutingPoints: ElementAndRoutingPoints[], options: { args?: Args } = {}): ChangeRoutingPointsOperation {
         return {
             kind: KIND,
             isOperation: true,
-            newRoutingPoints
+            newRoutingPoints,
+            ...options
         };
     }
 }

@@ -129,7 +129,7 @@ export namespace ApplyLabelEditOperation {
         return Operation.hasKind(object, KIND) && hasStringProp(object, 'labelId') && hasStringProp(object, 'text');
     }
 
-    export function create(options: { labelId: string; text: string }): ApplyLabelEditOperation {
+    export function create(options: { labelId: string; text: string; args?: Args }): ApplyLabelEditOperation {
         return {
             kind: KIND,
             isOperation: true,

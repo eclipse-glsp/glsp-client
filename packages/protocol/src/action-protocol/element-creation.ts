@@ -29,10 +29,6 @@ export interface CreateOperation extends Operation {
      * The type of the element that should be created.
      */
     elementTypeId: string;
-    /**
-     * Optional additional arguments for the server to execute the create operation.
-     */
-    args?: Args;
 }
 
 export namespace CreateOperation {
@@ -148,11 +144,12 @@ export namespace DeleteElementOperation {
         return Operation.hasKind(object, KIND) && hasArrayProp(object, 'elementIds');
     }
 
-    export function create(elementIds: string[]): DeleteElementOperation {
+    export function create(elementIds: string[], options: { args?: Args } = {}): DeleteElementOperation {
         return {
             kind: KIND,
             isOperation: true,
-            elementIds
+            elementIds,
+            ...options
         };
     }
 }
