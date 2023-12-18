@@ -15,6 +15,7 @@
  ********************************************************************************/
 import * as sprotty from 'sprotty-protocol/lib/actions';
 import { AnyObject, TypeGuard, hasArrayProp, hasStringProp } from '../utils/type-util';
+import { Args } from './types';
 
 /**
  * An action is a declarative description of a behavior that shall be invoked by the receiver upon receipt of the action.
@@ -185,6 +186,11 @@ export interface Operation extends Action {
      * Discriminator property to make operations distinguishable from plain {@link Action}s.
      */
     isOperation: true;
+
+    /**
+     * Optional custom arguments.
+     */
+    args?: Args;
 }
 
 export namespace Operation {
@@ -223,11 +229,12 @@ export namespace CompoundOperation {
         return Operation.hasKind(object, KIND) && hasArrayProp(object, 'operationList');
     }
 
-    export function create(operationList: Operation[]): CompoundOperation {
+    export function create(operationList: Operation[], options: { args?: Args } = {}): CompoundOperation {
         return {
             kind: KIND,
             isOperation: true,
-            operationList
+            operationList,
+            ...options
         };
     }
 }

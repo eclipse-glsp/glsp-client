@@ -17,7 +17,7 @@
 import { Point } from 'sprotty-protocol';
 import { hasArrayProp, hasStringProp } from '../utils/type-util';
 import { Operation } from './base-protocol';
-import { ElementAndBounds } from './types';
+import { Args, ElementAndBounds } from './types';
 
 /**
  * Triggers the position or size change of elements. This action concerns only the element's graphical size and position.
@@ -80,7 +80,12 @@ export namespace ChangeContainerOperation {
         return Operation.hasKind(object, KIND) && hasStringProp(object, 'elementId') && hasStringProp(object, 'targetContainerId');
     }
 
-    export function create(options: { elementId: string; targetContainerId: string; location?: Point }): ChangeContainerOperation {
+    export function create(options: {
+        elementId: string;
+        targetContainerId: string;
+        location?: Point;
+        args?: Args;
+    }): ChangeContainerOperation {
         return {
             kind: KIND,
             isOperation: true,

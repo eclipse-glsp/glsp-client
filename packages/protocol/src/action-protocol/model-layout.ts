@@ -17,7 +17,7 @@ import * as sprotty from 'sprotty-protocol/lib/actions';
 import { GModelRootSchema } from '..';
 import { hasArrayProp, hasObjectProp } from '../utils/type-util';
 import { Action, Operation, RequestAction, ResponseAction } from './base-protocol';
-import { ElementAndAlignment, ElementAndBounds, ElementAndRoutingPoints } from './types';
+import { Args, ElementAndAlignment, ElementAndBounds, ElementAndRoutingPoints } from './types';
 
 /**
  * Sent from the server to the client to request bounds for the given model. The model is rendered invisibly so the bounds can
@@ -127,11 +127,12 @@ export namespace LayoutOperation {
         return Action.hasKind(object, KIND) && hasArrayProp(object, 'elementIds');
     }
 
-    export function create(elementIds?: string[]): LayoutOperation {
+    export function create(elementIds?: string[], options: { args?: Args } = {}): LayoutOperation {
         return {
             kind: KIND,
             isOperation: true,
-            elementIds
+            elementIds,
+            ...options
         };
     }
 }
