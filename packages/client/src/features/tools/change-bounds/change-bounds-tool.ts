@@ -32,7 +32,6 @@ import {
     GModelElement,
     GModelRoot,
     GParentElement,
-    ISnapper,
     MouseListener,
     Operation,
     Point,
@@ -43,7 +42,7 @@ import {
 import { DragAwareMouseListener } from '../../../base/drag-aware-mouse-listener';
 import { CursorCSS, applyCssClasses, cursorFeedbackAction, deleteCssClasses } from '../../../base/feedback/css-feedback';
 import { ISelectionListener, SelectionService } from '../../../base/selection-service';
-import { PointPositionUpdater } from '../../../features/change-bounds/snap';
+import { PointPositionUpdater } from '../../../features/change-bounds/point-position-updater';
 import {
     calcElementAndRoutingPoints,
     forEachElement,
@@ -58,6 +57,8 @@ import {
     createMovementRestrictionFeedback,
     removeMovementRestrictionFeedback
 } from '../../change-bounds/movement-restrictor';
+import { PositionSnapper } from '../../change-bounds/position-snapper';
+import { getDirectionFrom } from '../../helper-lines/model';
 import { BaseEditTool } from '../base-tools';
 import {
     FeedbackMoveMouseListener,
@@ -84,8 +85,8 @@ export class ChangeBoundsTool extends BaseEditTool {
 
     @inject(SelectionService) protected selectionService: SelectionService;
     @inject(EdgeRouterRegistry) @optional() readonly edgeRouterRegistry?: EdgeRouterRegistry;
-    @inject(TYPES.ISnapper) @optional() readonly snapper?: ISnapper;
     @inject(TYPES.IMovementRestrictor) @optional() readonly movementRestrictor?: IMovementRestrictor;
+    @inject(PositionSnapper) readonly positionSnapper: PositionSnapper;
 
     get id(): string {
         return ChangeBoundsTool.ID;
@@ -135,7 +136,7 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
 
     constructor(protected tool: ChangeBoundsTool) {
         super();
-        this.pointPositionUpdater = new PointPositionUpdater(tool.snapper);
+        this.pointPositionUpdater = new PointPositionUpdater(tool.positionSnapper);
     }
 
     override mouseDown(target: GModelElement, event: MouseEvent): Action[] {
@@ -168,7 +169,11 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
                 cursorFeedbackAction(this.activeResizeHandle.isNwSeResize() ? CursorCSS.RESIZE_NWSE : CursorCSS.RESIZE_NESW),
                 applyCssClasses(this.activeResizeHandle, ChangeBoundsListener.CSS_CLASS_ACTIVE)
             ];
-            const positionUpdate = this.pointPositionUpdater.updatePosition(target, { x: event.pageX, y: event.pageY }, !event.altKey);
+            const positionUpdate = this.pointPositionUpdater.updatePosition(
+                target,
+                event,
+                getDirectionFrom(this.activeResizeHandle.location)
+            );
             if (positionUpdate) {
                 const resizeActions = this.handleResizeOnClient(positionUpdate);
                 actions.push(...resizeActions);
@@ -242,7 +247,7 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
         const newRoutingPoints: ElementAndRoutingPoints[] = [];
         const routerRegistry = this.tool.edgeRouterRegistry;
         if (routerRegistry) {
-            //  If client routing is enabled -> delegate routingpoints of connected edges to server
+            //  If client routing is enabled -> delegate routing points of connected edges to server
             forEachElement(target.index, isNonRoutableSelectedMovableBoundsAware, element => {
                 if (element instanceof GConnectableElement) {
                     element.incomingEdges
@@ -308,7 +313,7 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
     }
 
     protected initPosition(event: MouseEvent): void {
-        this.pointPositionUpdater.updateLastDragPosition({ x: event.pageX, y: event.pageY });
+        this.pointPositionUpdater.updateLastDragPosition(event);
         if (this.activeResizeHandle) {
             const resizeElement = findParentByFeature(this.activeResizeHandle, isResizable);
             this.initialBounds = {
@@ -457,10 +462,6 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
         }
 
         return result;
-    }
-
-    protected snap(position: Point, element: GModelElement, isSnap: boolean): Point {
-        return isSnap && this.tool.snapper ? this.tool.snapper.snap(position, element) : { x: position.x, y: position.y };
     }
 
     protected isValidBoundChange(element: GModelElement & BoundsAware, newPosition: Point, newSize: Dimension): boolean {

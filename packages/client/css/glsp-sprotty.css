@@ -46,6 +46,7 @@
     max-width: 400px;
     min-width: 100px;
     z-index: 1;
+    pointer-events: none;
 }
 
 .sprotty-popup > div {

@@ -13,6 +13,8 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { AnyObject, hasNumberProp } from '@eclipse-glsp/sprotty';
+
 export function createElementFromHTML(html: string): HTMLElement | undefined {
     const template = document.createElement('template');
     html = html.trim(); // Never return a text node of whitespace as the result
@@ -22,6 +24,10 @@ export function createElementFromHTML(html: string): HTMLElement | undefined {
         return node as HTMLElement;
     }
     return undefined;
+}
+
+export function isMouseEvent(object: unknown): object is MouseEvent {
+    return AnyObject.is(object) && hasNumberProp(object, 'pageX') && hasNumberProp(object, 'pageY');
 }
 
 declare global {

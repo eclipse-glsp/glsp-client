@@ -13,8 +13,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { inject, injectable } from 'inversify';
-import { VNode } from 'snabbdom';
 import {
     Action,
     AnchorComputerRegistry,
@@ -24,14 +22,13 @@ import {
     Disposable,
     EdgeRouterRegistry,
     ElementMove,
-    ISnapper,
+    GConnectableElement,
+    GModelElement,
+    GRoutingHandle,
     MouseListener,
     MoveAction,
     Point,
     PolylineEdgeRouter,
-    GConnectableElement,
-    GModelElement,
-    GRoutingHandle,
     SwitchEditModeAction,
     SwitchEditModeCommand,
     TYPES,
@@ -42,14 +39,17 @@ import {
     isConnectable,
     isSelected
 } from '@eclipse-glsp/sprotty';
+import { inject, injectable } from 'inversify';
 import { IFeedbackActionDispatcher } from '../../../base/feedback/feedback-action-dispatcher';
 import { FeedbackCommand } from '../../../base/feedback/feedback-command';
 import { forEachElement, isRoutable, isRoutingHandle } from '../../../utils/gmodel-util';
 import { getAbsolutePosition, toAbsoluteBounds } from '../../../utils/viewpoint-util';
-import { PointPositionUpdater } from '../../change-bounds/snap';
+import { PositionSnapper } from '../../change-bounds/position-snapper';
+import { useSnap } from '../../change-bounds/snap';
 import { addReconnectHandles, removeReconnectHandles } from '../../reconnect/model';
 import { FeedbackEdgeEnd, feedbackEdgeEndId, feedbackEdgeId } from '../edge-creation/dangling-edge-feedback';
 import { FeedbackEdgeEndMovingMouseListener } from '../edge-creation/edge-creation-tool-feedback';
+import { PointPositionUpdater } from '../../change-bounds/point-position-updater';
 
 /**
  * RECONNECT HANDLES FEEDBACK
@@ -198,7 +198,10 @@ export class FeedbackEdgeTargetMovingMouseListener extends FeedbackEdgeEndMoving
 }
 
 export class FeedbackEdgeSourceMovingMouseListener extends MouseListener implements Disposable {
-    constructor(protected anchorRegistry: AnchorComputerRegistry, protected feedbackDispatcher: IFeedbackActionDispatcher) {
+    constructor(
+        protected anchorRegistry: AnchorComputerRegistry,
+        protected feedbackDispatcher: IFeedbackActionDispatcher
+    ) {
         super();
     }
 
@@ -254,9 +257,12 @@ export class FeedbackEdgeSourceMovingMouseListener extends MouseListener impleme
 export class FeedbackEdgeRouteMovingMouseListener extends MouseListener {
     protected pointPositionUpdater: PointPositionUpdater;
 
-    constructor(protected edgeRouterRegistry?: EdgeRouterRegistry, protected snapper?: ISnapper) {
+    constructor(
+        protected positionSnapper: PositionSnapper,
+        protected edgeRouterRegistry?: EdgeRouterRegistry
+    ) {
         super();
-        this.pointPositionUpdater = new PointPositionUpdater(snapper);
+        this.pointPositionUpdater = new PointPositionUpdater(positionSnapper);
     }
 
     override mouseDown(target: GModelElement, event: MouseEvent): Action[] {
@@ -265,7 +271,7 @@ export class FeedbackEdgeRouteMovingMouseListener extends MouseListener {
             const routingHandle = findParentByFeature(target, isRoutingHandle);
             if (routingHandle !== undefined) {
                 result.push(SwitchRoutingModeAction.create({ elementsToActivate: [target.id] }));
-                this.pointPositionUpdater.updateLastDragPosition({ x: event.pageX, y: event.pageY });
+                this.pointPositionUpdater.updateLastDragPosition(event);
             } else {
                 this.pointPositionUpdater.resetPosition();
             }
@@ -278,9 +284,9 @@ export class FeedbackEdgeRouteMovingMouseListener extends MouseListener {
         if (event.buttons === 0) {
             return this.mouseUp(target, event);
         }
-        const positionUpdate = this.pointPositionUpdater.updatePosition(target, { x: event.pageX, y: event.pageY }, !event.altKey);
+        const positionUpdate = this.pointPositionUpdater.updatePosition(target, event);
         if (positionUpdate) {
-            const moveActions = this.handleMoveOnClient(target, positionUpdate, !event.altKey);
+            const moveActions = this.handleMoveOnClient(target, positionUpdate, useSnap(event));
             result.push(...moveActions);
         }
         return result;
@@ -322,10 +328,7 @@ export class FeedbackEdgeRouteMovingMouseListener extends MouseListener {
     }
 
     protected getSnappedHandlePosition(element: GRoutingHandle, point: Point, isSnap: boolean): Point {
-        if (this.snapper && isSnap) {
-            return this.snapper.snap(point, element);
-        }
-        return point;
+        return this.positionSnapper?.snapPosition(point, element, isSnap);
     }
 
     protected getHandlePosition(handle: GRoutingHandle): Point | undefined {
@@ -344,10 +347,6 @@ export class FeedbackEdgeRouteMovingMouseListener extends MouseListener {
     override mouseUp(_target: GModelElement, _event: MouseEvent): Action[] {
         this.pointPositionUpdater.resetPosition();
         return [];
-    }
-
-    override decorate(vnode: VNode, _element: GModelElement): VNode {
-        return vnode;
     }
 }
 

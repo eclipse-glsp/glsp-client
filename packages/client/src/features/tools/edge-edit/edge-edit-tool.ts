@@ -13,7 +13,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { inject, injectable, optional } from 'inversify';
 import {
     Action,
     AnchorComputerRegistry,
@@ -21,22 +20,22 @@ import {
     Connectable,
     Disposable,
     EdgeRouterRegistry,
-    ISnapper,
-    ReconnectEdgeOperation,
     GModelElement,
     GModelRoot,
     GRoutableElement,
     GRoutingHandle,
-    TYPES,
+    ReconnectEdgeOperation,
     canEditRouting,
     findParentByFeature,
     isConnectable,
     isSelected
 } from '@eclipse-glsp/sprotty';
+import { inject, injectable, optional } from 'inversify';
 import { DragAwareMouseListener } from '../../../base/drag-aware-mouse-listener';
 import { CursorCSS, cursorFeedbackAction } from '../../../base/feedback/css-feedback';
 import { ISelectionListener, SelectionService } from '../../../base/selection-service';
 import { calcElementAndRoutingPoints, isRoutable, isRoutingHandle } from '../../../utils/gmodel-util';
+import { PositionSnapper } from '../../change-bounds/position-snapper';
 import { GReconnectHandle, isReconnectHandle, isReconnectable, isSourceRoutingHandle, isTargetRoutingHandle } from '../../reconnect/model';
 import { BaseEditTool } from '../base-tools';
 import { DrawFeedbackEdgeAction, RemoveFeedbackEdgeAction, feedbackEdgeId } from '../edge-creation/dangling-edge-feedback';
@@ -57,7 +56,7 @@ export class EdgeEditTool extends BaseEditTool {
     @inject(SelectionService) protected selectionService: SelectionService;
     @inject(AnchorComputerRegistry) protected anchorRegistry: AnchorComputerRegistry;
     @inject(EdgeRouterRegistry) @optional() readonly edgeRouterRegistry?: EdgeRouterRegistry;
-    @inject(TYPES.ISnapper) @optional() readonly snapper?: ISnapper;
+    @inject(PositionSnapper) readonly positionSnapper: PositionSnapper;
 
     protected feedbackEdgeSourceMovingListener: FeedbackEdgeSourceMovingMouseListener;
     protected feedbackEdgeTargetMovingListener: FeedbackEdgeTargetMovingMouseListener;
@@ -74,7 +73,7 @@ export class EdgeEditTool extends BaseEditTool {
         // install feedback move mouse listener for client-side move updates
         this.feedbackEdgeSourceMovingListener = new FeedbackEdgeSourceMovingMouseListener(this.anchorRegistry, this.feedbackDispatcher);
         this.feedbackEdgeTargetMovingListener = new FeedbackEdgeTargetMovingMouseListener(this.anchorRegistry, this.feedbackDispatcher);
-        this.feedbackMovingListener = new FeedbackEdgeRouteMovingMouseListener(this.edgeRouterRegistry, this.snapper);
+        this.feedbackMovingListener = new FeedbackEdgeRouteMovingMouseListener(this.positionSnapper, this.edgeRouterRegistry);
 
         this.toDisposeOnDisable.push(
             Disposable.create(() => this.edgeEditListener.reset()),

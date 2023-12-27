@@ -40,6 +40,7 @@ export const TYPES = {
     IDefaultTool: Symbol('IDefaultTool'),
     IEditModeListener: Symbol('IEditModeListener'),
     IMarqueeBehavior: Symbol('IMarqueeBehavior'),
+    IHelperLineManager: Symbol('IHelperLineManager'),
     IElementNavigator: Symbol('IElementNavigator'),
     ILocalElementNavigator: Symbol('ILocalElementNavigator'),
     IDiagramOptions: Symbol('IDiagramOptions'),

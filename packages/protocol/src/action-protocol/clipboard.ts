@@ -16,7 +16,7 @@
 
 import { hasObjectProp } from '../utils/type-util';
 import { Action, Operation, RequestAction, ResponseAction } from './base-protocol';
-import { EditorContext } from './types';
+import { Args, EditorContext } from './types';
 
 /**
  * Requests the clipboard data for the current editor context, i.e., the selected elements, in a clipboard-compatible format.
@@ -96,11 +96,12 @@ export namespace CutOperation {
         return Operation.hasKind(object, KIND) && hasObjectProp(object, 'editorContext');
     }
 
-    export function create(editorContext: EditorContext): CutOperation {
+    export function create(editorContext: EditorContext, options: { args?: Args } = {}): CutOperation {
         return {
             kind: KIND,
             isOperation: true,
-            editorContext
+            editorContext,
+            ...options
         };
     }
 }
@@ -129,7 +130,7 @@ export namespace PasteOperation {
         return Operation.hasKind(object, KIND) && hasObjectProp(object, 'clipboardData') && hasObjectProp(object, 'editorContext');
     }
 
-    export function create(options: { editorContext: EditorContext; clipboardData: ClipboardData }): PasteOperation {
+    export function create(options: { editorContext: EditorContext; clipboardData: ClipboardData; args?: Args }): PasteOperation {
         return {
             kind: KIND,
             isOperation: true,

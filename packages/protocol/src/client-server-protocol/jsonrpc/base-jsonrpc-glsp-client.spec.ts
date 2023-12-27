@@ -19,6 +19,7 @@ import * as sinon from 'sinon';
 import { Disposable, Event, MessageConnection, NotificationHandler, ProgressType } from 'vscode-jsonrpc';
 import { ActionMessage } from '../../action-protocol/base-protocol';
 import { remove } from '../../utils/array-util';
+import { Emitter } from '../../utils/event';
 import { expectToThrowAsync } from '../../utils/test-util';
 import { ClientState } from '../glsp-client';
 import { InitializeResult } from '../types';
@@ -68,13 +69,23 @@ class StubMessageConnection implements MessageConnection {
     inspect(): void {}
 }
 
+class TestJsonRpcClient extends BaseJsonrpcGLSPClient {
+    protected override onActionMessageNotificationEmitter = new Emitter<ActionMessage>({
+        onFirstListenerAdd: () => (this.firstListenerAdded = true),
+        onLastListenerRemove: () => (this.lastListenerRemoved = true)
+    });
+
+    firstListenerAdded: boolean;
+    lastListenerRemoved: boolean;
+}
+
 describe('Base JSON-RPC GLSP Client', () => {
     const sandbox = sinon.createSandbox();
     const connection = sandbox.stub<StubMessageConnection>(new StubMessageConnection());
-    let client = new BaseJsonrpcGLSPClient({ id: 'test', connectionProvider: connection });
+    let client = new TestJsonRpcClient({ id: 'test', connectionProvider: connection });
     async function resetClient(setRunning = true): Promise<void> {
         sandbox.reset();
-        client = new BaseJsonrpcGLSPClient({ id: 'test', connectionProvider: connection });
+        client = new TestJsonRpcClient({ id: 'test', connectionProvider: connection });
         if (setRunning) {
             return client.start();
         }
@@ -221,16 +232,24 @@ describe('Base JSON-RPC GLSP Client', () => {
         // eslint-disable-next-line @typescript-eslint/no-empty-function
         const handler = sandbox.spy((_message: ActionMessage): void => {});
 
-        it('should fail if client is not running', async () => {
+        it('should be registered to message emitter if client is not running', async () => {
             await resetClient(false);
-            await expectToThrowAsync(() => client.onActionMessage(handler));
-            expect(connection.onNotification.called).to.be.false;
+            client.onActionMessage(handler);
+            expect(client.firstListenerAdded).to.be.true;
         });
 
-        it('should invoked the corresponding connection method', async () => {
+        it('should be registered to message emitter if client is running', async () => {
             await resetClient();
             client.onActionMessage(handler, 'someId');
-            expect(connection.onNotification.withArgs(JsonrpcGLSPClient.ActionMessageNotification).calledOnce).to.be.true;
+            expect(client.firstListenerAdded).to.be.true;
+        });
+        it('should unregister lister if dispose is invoked', () => {
+            resetClient(false);
+            const clientId = 'clientId';
+            const toDispose = client.onActionMessage(handler, clientId);
+            expect(client.firstListenerAdded).to.be.true;
+            toDispose.dispose();
+            expect(client.lastListenerRemoved).to.be.true;
         });
     });
 

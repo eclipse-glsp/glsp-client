@@ -36,6 +36,11 @@ export class BaseJsonrpcGLSPClient implements GLSPClient {
         return this.onServerInitializedEmitter.event;
     }
 
+    protected onActionMessageNotificationEmitter = new Emitter<ActionMessage>();
+    protected get onActionMessageNotification(): Event<ActionMessage> {
+        return this.onActionMessageNotificationEmitter.event;
+    }
+
     constructor(options: JsonrpcGLSPClient.Options) {
         Object.assign(this, options);
         this.state = ClientState.Initial;
@@ -66,7 +71,7 @@ export class BaseJsonrpcGLSPClient implements GLSPClient {
     }
 
     onActionMessage(handler: ActionMessageHandler, clientId?: string): Disposable {
-        return this.checkedConnection.onNotification(JsonrpcGLSPClient.ActionMessageNotification, msg => {
+        return this.onActionMessageNotification(msg => {
             if (!clientId || msg.clientId === clientId) {
                 handler(msg);
             }
@@ -113,6 +118,7 @@ export class BaseJsonrpcGLSPClient implements GLSPClient {
             connection.dispose();
             this.state = ClientState.Stopped;
             this.onStop = undefined;
+            this.onActionMessageNotificationEmitter.dispose();
             this.connectionPromise = undefined;
             this.resolvedConnection = undefined;
         }));
@@ -129,6 +135,7 @@ export class BaseJsonrpcGLSPClient implements GLSPClient {
         const connection = typeof this.connectionProvider === 'function' ? await this.connectionProvider() : this.connectionProvider;
         connection.onError(data => this.handleConnectionError(data[0], data[1], data[2]));
         connection.onClose(() => this.handleConnectionClosed());
+        connection.onNotification(JsonrpcGLSPClient.ActionMessageNotification, msg => this.onActionMessageNotificationEmitter.fire(msg));
         return connection;
     }
 

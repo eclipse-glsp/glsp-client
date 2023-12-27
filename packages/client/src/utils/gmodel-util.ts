@@ -15,25 +15,28 @@
  ********************************************************************************/
 import {
     BoundsAware,
-    distinctAdd,
     EdgeRouterRegistry,
     ElementAndBounds,
     ElementAndRoutingPoints,
     FluentIterable,
+    GChildElement,
+    GModelElement,
+    GModelElementSchema,
+    GRoutableElement,
+    GRoutingHandle,
+    ModelIndexImpl,
+    Point,
+    RoutedPoint,
+    Selectable,
+    TypeGuard,
+    distinctAdd,
+    findParentByFeature,
     isBoundsAware,
     isMoveable,
     isSelectable,
     isSelected,
-    ModelIndexImpl,
-    Point,
-    remove,
-    RoutedPoint,
-    Selectable,
-    GModelElement,
-    GRoutableElement,
-    GRoutingHandle,
-    TypeGuard,
-    GModelElementSchema
+    isViewport,
+    remove
 } from '@eclipse-glsp/sprotty';
 
 /**
@@ -318,4 +321,32 @@ export function getElementTypeId(input: GModelElement | GModelElementSchema | st
     } else {
         return input.type;
     }
+}
+
+export function findTopLevelElementByFeature<T>(
+    element: GModelElement,
+    predicate: (t: GModelElement) => t is GModelElement & T,
+    skip: (t: GModelElement) => boolean = _t => false
+): (GModelElement & T) | undefined {
+    let match: (GModelElement & T) | undefined;
+    let current: GModelElement | undefined = element;
+    while (current !== undefined) {
+        if (!skip(current) && predicate(current)) {
+            match = current;
+        }
+        if (current instanceof GChildElement) {
+            current = current.parent;
+        } else {
+            current = undefined;
+        }
+    }
+    return match;
+}
+
+export function calculateDeltaBetweenPoints(target: Point, source: Point, element: GModelElement): Point {
+    const delta = Point.subtract(target, source);
+    const viewport = findParentByFeature(element, isViewport);
+    const zoom = viewport?.zoom ?? 1;
+    const adaptedDelta = { x: delta.x / zoom, y: delta.y / zoom };
+    return adaptedDelta;
 }

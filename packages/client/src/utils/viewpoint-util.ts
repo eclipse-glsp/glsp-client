@@ -29,6 +29,7 @@ import {
     isViewport,
     translateBounds
 } from '@eclipse-glsp/sprotty';
+import { bottomRight, topLeft } from './geometry-util';
 import { BoundsAwareModelElement } from './gmodel-util';
 
 /**
@@ -47,6 +48,7 @@ import { BoundsAwareModelElement } from './gmodel-util';
 export function getAbsolutePosition(target: GModelElement, mouseEvent: MouseEvent): Point {
     return getAbsolutePositionByPoint(target, { x: mouseEvent.pageX, y: mouseEvent.pageY });
 }
+
 export function getAbsolutePositionByPoint(target: GModelElement, point: Point): Point {
     let xPos = point.x;
     let yPos = point.y;
@@ -69,6 +71,12 @@ export function getAbsolutePositionByPoint(target: GModelElement, point: Point):
         x: xPos,
         y: yPos
     };
+}
+
+export function getViewportBounds(target: GModelElement, bounds: Bounds): Bounds {
+    const start = getAbsolutePositionByPoint(target, topLeft(bounds));
+    const end = getAbsolutePositionByPoint(target, bottomRight(bounds));
+    return { ...start, width: end.x - start.x, height: end.y - start.y };
 }
 
 /**
