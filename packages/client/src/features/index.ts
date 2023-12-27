@@ -32,6 +32,7 @@ export * from './reconnect';
 export * from './routing';
 export * from './save';
 export * from './select';
+export * from './smart-connector'
 export * from './source-model-watcher';
 export * from './status';
 export * from './svg-metadata';
