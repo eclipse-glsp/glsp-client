@@ -13,8 +13,9 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { inject, injectable } from 'inversify';
 import { Action, ActionDispatcher, RequestAction, ResponseAction } from '@eclipse-glsp/sprotty';
+import { inject, injectable } from 'inversify';
+import { OptionalAction } from './model/glsp-model-source';
 import { ModelInitializationConstraint } from './model/model-initialization-constraint';
 
 @injectable()
@@ -75,6 +76,9 @@ export class GLSPActionDispatcher extends ActionDispatcher {
             if (deferred === undefined) {
                 action.responseId = '';
             }
+        }
+        if (!this.hasHandler(action) && OptionalAction.is(action)) {
+            return Promise.resolve();
         }
         return super.handleAction(action);
     }
