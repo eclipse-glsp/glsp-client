@@ -31,6 +31,7 @@ import {
     TypeGuard,
     distinctAdd,
     findParentByFeature,
+    getAbsoluteBounds,
     isBoundsAware,
     isMoveable,
     isSelectable,
@@ -349,4 +350,15 @@ export function calculateDeltaBetweenPoints(target: Point, source: Point, elemen
     const zoom = viewport?.zoom ?? 1;
     const adaptedDelta = { x: delta.x / zoom, y: delta.y / zoom };
     return adaptedDelta;
+}
+
+export function isVisibleOnCanvas(model: BoundsAwareModelElement): boolean {
+    const modelBounds = getAbsoluteBounds(model);
+    const canvasBounds = model.root.canvasBounds;
+    return (
+        modelBounds.x <= canvasBounds.width &&
+        modelBounds.x + modelBounds.width >= 0 &&
+        modelBounds.y <= canvasBounds.height &&
+        modelBounds.y + modelBounds.height >= 0
+    );
 }

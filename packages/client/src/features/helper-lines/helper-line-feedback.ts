@@ -50,14 +50,22 @@ import {
     topLeft,
     topRight
 } from '../../utils/geometry-util';
-import { BoundsAwareModelElement, findTopLevelElementByFeature, forEachElement, getMatchingElements } from '../../utils/gmodel-util';
+import {
+    BoundsAwareModelElement,
+    findTopLevelElementByFeature,
+    forEachElement,
+    getMatchingElements,
+    isVisibleOnCanvas
+} from '../../utils/gmodel-util';
 import { getViewportBounds } from '../../utils/viewpoint-util';
 import { HelperLine, HelperLineType, SelectionBounds, isHelperLine, isSelectionBounds } from './model';
 
 export type ViewportLineType = typeof HelperLineType.Center | typeof HelperLineType.Middle | string;
 
-export const ALL_ELEMENT_LINE_TYPES = Object.values(HelperLineType);
-export const ALL_VIEWPORT_LINE_TYPES = [HelperLineType.Center, HelperLineType.Middle];
+export type AlignmentElementFilter = (element: BoundsAwareModelElement) => boolean;
+
+export const isTopLevelBoundsAwareElement: AlignmentElementFilter = element =>
+    findTopLevelElementByFeature(element, isBoundsAware, isViewport) === element;
 
 export interface DrawHelperLinesFeedbackAction extends Action {
     kind: typeof DrawHelperLinesFeedbackAction.KIND;
@@ -65,7 +73,17 @@ export interface DrawHelperLinesFeedbackAction extends Action {
     elementLines?: HelperLineType[];
     viewportLines?: ViewportLineType[];
     alignmentEpsilon?: number;
+    alignmentElementFilter?: AlignmentElementFilter;
 }
+
+export const ALL_ELEMENT_LINE_TYPES = Object.values(HelperLineType);
+export const ALL_VIEWPORT_LINE_TYPES = [HelperLineType.Center, HelperLineType.Middle];
+
+export const DEFAULT_ELEMENT_LINES = ALL_ELEMENT_LINE_TYPES;
+export const DEFAULT_VIEWPORT_LINES = ALL_VIEWPORT_LINE_TYPES;
+export const DEFAULT_EPSILON = 1;
+export const DEFAULT_ALIGNABLE_ELEMENT_FILTER = (element: BoundsAwareModelElement): boolean =>
+    isTopLevelBoundsAwareElement(element) && isVisibleOnCanvas(element);
 
 export namespace DrawHelperLinesFeedbackAction {
     export const KIND = 'drawHelperLines';
@@ -82,15 +100,28 @@ export namespace DrawHelperLinesFeedbackAction {
 export class DrawHelperLinesFeedbackCommand extends FeedbackCommand {
     static readonly KIND = DrawHelperLinesFeedbackAction.KIND;
 
-    constructor(@inject(TYPES.Action) public action: DrawHelperLinesFeedbackAction) {
+    protected elementIds: string[];
+    protected elementLines: HelperLineType[];
+    protected viewportLines: ViewportLineType[];
+    protected alignmentEpsilon: number;
+    protected alignableElementFilter: AlignmentElementFilter;
+    protected isAlignableElementPredicate: (element: GModelElement) => element is BoundsAwareModelElement;
+
+    constructor(@inject(TYPES.Action) action: DrawHelperLinesFeedbackAction) {
         super();
+        this.elementIds = action.elementIds;
+        this.elementLines = action.elementLines ?? DEFAULT_ELEMENT_LINES;
+        this.viewportLines = action.viewportLines ?? DEFAULT_VIEWPORT_LINES;
+        this.alignmentEpsilon = action.alignmentEpsilon ?? DEFAULT_EPSILON;
+        this.alignableElementFilter = action.alignmentElementFilter ?? DEFAULT_ALIGNABLE_ELEMENT_FILTER;
+        this.isAlignableElementPredicate = this.isAlignableElement.bind(this);
     }
 
     execute(context: CommandExecutionContext): CommandReturn {
         removeHelperLines(context.root);
         removeSelectionBounds(context.root);
-        const boundsAwareElements = getMatchingElements(context.root.index, this.isCompareElement);
-        const [referenceElements, elements] = partition(boundsAwareElements, element => this.action.elementIds.includes(element.id));
+        const alignableElements = getMatchingElements(context.root.index, this.isAlignableElementPredicate);
+        const [referenceElements, elements] = partition(alignableElements, element => this.elementIds.includes(element.id));
         if (referenceElements.length === 0) {
             return context.root;
         }
@@ -103,29 +134,27 @@ export class DrawHelperLinesFeedbackCommand extends FeedbackCommand {
         return context.root;
     }
 
-    protected isCompareElement(element: GModelElement): element is BoundsAwareModelElement {
-        return isBoundsAware(element) && findTopLevelElementByFeature(element, isBoundsAware, isViewport) === element;
+    protected isAlignableElement(element: GModelElement): element is BoundsAwareModelElement {
+        return isBoundsAware(element) && this.alignableElementFilter(element);
     }
 
     protected calcReferenceBounds(referenceElements: BoundsAwareModelElement[]): Bounds {
-        return referenceElements.map(element => element.bounds).reduce((combined, next) => Bounds.combine(combined, next), Bounds.EMPTY);
+        return referenceElements.map(element => element.bounds).reduce(Bounds.combine, Bounds.EMPTY);
     }
 
     protected calcHelperLines(elements: BoundsAwareModelElement[], bounds: Bounds, context: CommandExecutionContext): HelperLine[] {
         const helperLines: HelperLine[] = [];
         const viewport = findParentByFeature(context.root, isViewport);
         if (viewport) {
-            helperLines.push(...this.calcHelperLinesForViewport(viewport, bounds));
+            helperLines.push(...this.calcHelperLinesForViewport(viewport, bounds, this.viewportLines));
         }
-        elements.flatMap(element => this.calcHelperLinesForElement(element, bounds)).forEach(line => helperLines.push(line));
+        elements
+            .flatMap(element => this.calcHelperLinesForElement(element, bounds, this.elementLines))
+            .forEach(line => helperLines.push(line));
         return helperLines;
     }
 
-    protected calcHelperLinesForViewport(
-        root: Viewport & GModelRoot,
-        bounds: Bounds,
-        lineTypes: HelperLineType[] = this.action.viewportLines ?? ALL_VIEWPORT_LINE_TYPES
-    ): HelperLine[] {
+    protected calcHelperLinesForViewport(root: Viewport & GModelRoot, bounds: Bounds, lineTypes: HelperLineType[]): HelperLine[] {
         const helperLines: HelperLine[] = [];
         const viewportBounds = getViewportBounds(root, root.canvasBounds);
         if (lineTypes.includes(HelperLineType.Center) && this.isAligned(center, viewportBounds, bounds, 2)) {
@@ -137,52 +166,44 @@ export class DrawHelperLinesFeedbackCommand extends FeedbackCommand {
         return helperLines;
     }
 
-    protected calcHelperLinesForElement(
-        element: BoundsAwareModelElement,
-        bounds: Bounds,
-        lineTypes: HelperLineType[] = this.action.elementLines ?? ALL_ELEMENT_LINE_TYPES
-    ): HelperLine[] {
+    protected calcHelperLinesForElement(element: BoundsAwareModelElement, bounds: Bounds, lineTypes: HelperLineType[]): HelperLine[] {
         return this.calcHelperLinesForBounds(element.bounds, bounds, lineTypes);
     }
 
-    protected calcHelperLinesForBounds(
-        elementBounds: Bounds,
-        bounds: Bounds,
-        lineTypes: HelperLineType[] = this.action.elementLines ?? ALL_ELEMENT_LINE_TYPES
-    ): HelperLine[] {
+    protected calcHelperLinesForBounds(elementBounds: Bounds, bounds: Bounds, lineTypes: HelperLineType[]): HelperLine[] {
         const helperLines: HelperLine[] = [];
 
-        if (lineTypes.includes(HelperLineType.Left) && this.isAligned(left, elementBounds, bounds)) {
+        if (lineTypes.includes(HelperLineType.Left) && this.isAligned(left, elementBounds, bounds, this.alignmentEpsilon)) {
             const [above, below] = sortBy(top, elementBounds, bounds); // higher top-value ==> lower
             helperLines.push(new HelperLine(bottomLeft(below), topLeft(above), HelperLineType.Left));
         }
 
-        if (lineTypes.includes(HelperLineType.Center) && this.isAligned(center, elementBounds, bounds)) {
+        if (lineTypes.includes(HelperLineType.Center) && this.isAligned(center, elementBounds, bounds, this.alignmentEpsilon)) {
             const [above, below] = sortBy(top, elementBounds, bounds); // higher top-value ==> lower
             helperLines.push(new HelperLine(topCenter(above), bottomCenter(below), HelperLineType.Center));
         }
 
-        if (lineTypes.includes(HelperLineType.Right) && this.isAligned(right, elementBounds, bounds)) {
+        if (lineTypes.includes(HelperLineType.Right) && this.isAligned(right, elementBounds, bounds, this.alignmentEpsilon)) {
             const [above, below] = sortBy(top, elementBounds, bounds); // higher top-value ==> lower
             helperLines.push(new HelperLine(bottomRight(below), topRight(above), HelperLineType.Right));
         }
 
-        if (lineTypes.includes(HelperLineType.Bottom) && this.isAligned(bottom, elementBounds, bounds)) {
+        if (lineTypes.includes(HelperLineType.Bottom) && this.isAligned(bottom, elementBounds, bounds, this.alignmentEpsilon)) {
             const [before, after] = sortBy(left, elementBounds, bounds); // higher left-value ==> more to the right
             helperLines.push(new HelperLine(bottomLeft(before), bottomRight(after), HelperLineType.Bottom));
         }
 
-        if (lineTypes.includes(HelperLineType.Middle) && this.isAligned(middle, elementBounds, bounds)) {
+        if (lineTypes.includes(HelperLineType.Middle) && this.isAligned(middle, elementBounds, bounds, this.alignmentEpsilon)) {
             const [before, after] = sortBy(left, elementBounds, bounds); // higher left-value ==> more to the right
             helperLines.push(new HelperLine(middleLeft(before), middleRight(after), HelperLineType.Middle));
         }
 
-        if (lineTypes.includes(HelperLineType.Top) && this.isAligned(top, elementBounds, bounds)) {
+        if (lineTypes.includes(HelperLineType.Top) && this.isAligned(top, elementBounds, bounds, this.alignmentEpsilon)) {
             const [before, after] = sortBy(left, elementBounds, bounds); // higher left-value ==> more to the right
             helperLines.push(new HelperLine(topLeft(before), topRight(after), HelperLineType.Top));
         }
 
-        if (lineTypes.includes(HelperLineType.LeftRight) && this.isMatch(left(elementBounds), right(bounds), 2)) {
+        if (lineTypes.includes(HelperLineType.LeftRight) && this.isMatch(left(elementBounds), right(bounds), this.alignmentEpsilon)) {
             if (isAbove(bounds, elementBounds)) {
                 helperLines.push(new HelperLine(bottomLeft(elementBounds), topRight(bounds), HelperLineType.RightLeft));
             } else {
@@ -190,7 +211,7 @@ export class DrawHelperLinesFeedbackCommand extends FeedbackCommand {
             }
         }
 
-        if (lineTypes.includes(HelperLineType.LeftRight) && this.isMatch(right(elementBounds), left(bounds), 2)) {
+        if (lineTypes.includes(HelperLineType.LeftRight) && this.isMatch(right(elementBounds), left(bounds), this.alignmentEpsilon)) {
             if (isAbove(bounds, elementBounds)) {
                 helperLines.push(new HelperLine(bottomRight(elementBounds), topLeft(bounds), HelperLineType.LeftRight));
             } else {
@@ -198,7 +219,7 @@ export class DrawHelperLinesFeedbackCommand extends FeedbackCommand {
             }
         }
 
-        if (lineTypes.includes(HelperLineType.TopBottom) && this.isMatch(top(elementBounds), bottom(bounds), 2)) {
+        if (lineTypes.includes(HelperLineType.TopBottom) && this.isMatch(top(elementBounds), bottom(bounds), this.alignmentEpsilon)) {
             if (isBefore(bounds, elementBounds)) {
                 helperLines.push(new HelperLine(topRight(elementBounds), bottomLeft(bounds), HelperLineType.BottomTop));
             } else {
@@ -206,7 +227,7 @@ export class DrawHelperLinesFeedbackCommand extends FeedbackCommand {
             }
         }
 
-        if (lineTypes.includes(HelperLineType.TopBottom) && this.isMatch(bottom(elementBounds), top(bounds), 2)) {
+        if (lineTypes.includes(HelperLineType.TopBottom) && this.isMatch(bottom(elementBounds), top(bounds), this.alignmentEpsilon)) {
             if (isBefore(bounds, elementBounds)) {
                 helperLines.push(new HelperLine(bottomRight(elementBounds), topLeft(bounds), HelperLineType.TopBottom));
             } else {
@@ -217,16 +238,11 @@ export class DrawHelperLinesFeedbackCommand extends FeedbackCommand {
         return helperLines;
     }
 
-    protected isAligned(
-        coordinate: (elem: Bounds) => number,
-        leftBounds: Bounds,
-        rightBounds: Bounds,
-        epsilon = this.action.alignmentEpsilon ?? 1
-    ): boolean {
+    protected isAligned(coordinate: (elem: Bounds) => number, leftBounds: Bounds, rightBounds: Bounds, epsilon: number): boolean {
         return this.isMatch(coordinate(leftBounds), coordinate(rightBounds), epsilon);
     }
 
-    protected isMatch(leftCoordinate: number, rightCoordinate: number, epsilon = this.action.alignmentEpsilon ?? 1): boolean {
+    protected isMatch(leftCoordinate: number, rightCoordinate: number, epsilon: number): boolean {
         return Math.abs(leftCoordinate - rightCoordinate) < epsilon;
     }
 }

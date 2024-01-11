@@ -27,6 +27,8 @@ import {
     GLabel,
     GLabelView,
     GridSnapper,
+    IHelperLineOptions,
+    ISnapper,
     LogLevel,
     RectangularNodeView,
     RevealNamedElementActionProvider,
@@ -75,6 +77,12 @@ export const workflowDiagramModule = new ContainerModule((bind, unbind, isBound,
     configureModelElement(context, DefaultTypes.GRAPH, GGraph, GLSPProjectionView);
     configureModelElement(context, 'category', CategoryNode, RoundedCornerNodeView);
     configureModelElement(context, 'struct', GCompartment, StructureCompartmentView);
+
+    bind<IHelperLineOptions>(TYPES.IHelperLineOptions).toDynamicValue(ctx => {
+        // the user needs to use twice the force (double the distance) to break through a helper line compared to moving on the grid
+        const snapper = ctx.container.get<ISnapper>(TYPES.ISnapper);
+        return snapper instanceof GridSnapper ? { minimumMoveDelta: { x: snapper.grid.x * 2, y: snapper.grid.y * 2 } } : {};
+    });
 });
 
 export function createWorkflowDiagramContainer(...containerConfiguration: ContainerConfiguration): Container {
