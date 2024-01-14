@@ -60,7 +60,7 @@ export interface IHelperLineOptions {
     alignmentEpsilon?: number;
     /**
      * A filter that is applied to determine on which elements the alignment calculation is performed.
-     * By default all top-level bounds-aware elements that are visible on the canvas are considered.
+     * By default all top-level bounds-aware, non-routable elements that are visible on the canvas are considered.
      */
     alignmentElementFilter?: AlignmentElementFilter;
     /**

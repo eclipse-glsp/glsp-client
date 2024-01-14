@@ -55,6 +55,7 @@ import {
     findTopLevelElementByFeature,
     forEachElement,
     getMatchingElements,
+    isRoutable,
     isVisibleOnCanvas
 } from '../../utils/gmodel-util';
 import { getViewportBounds } from '../../utils/viewpoint-util';
@@ -83,7 +84,7 @@ export const DEFAULT_ELEMENT_LINES = ALL_ELEMENT_LINE_TYPES;
 export const DEFAULT_VIEWPORT_LINES = ALL_VIEWPORT_LINE_TYPES;
 export const DEFAULT_EPSILON = 1;
 export const DEFAULT_ALIGNABLE_ELEMENT_FILTER = (element: BoundsAwareModelElement): boolean =>
-    isTopLevelBoundsAwareElement(element) && isVisibleOnCanvas(element);
+    isTopLevelBoundsAwareElement(element) && isVisibleOnCanvas(element) && !isRoutable(element);
 
 export namespace DrawHelperLinesFeedbackAction {
     export const KIND = 'drawHelperLines';
