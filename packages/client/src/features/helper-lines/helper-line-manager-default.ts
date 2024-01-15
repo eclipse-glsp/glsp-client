@@ -32,6 +32,7 @@ import { MoveFinishedEventAction, MoveInitializedEventAction } from '../tools/ch
 import {
     AlignmentElementFilter,
     DEFAULT_ALIGNABLE_ELEMENT_FILTER,
+    DEFAULT_DEBUG,
     DEFAULT_ELEMENT_LINES,
     DEFAULT_EPSILON,
     DEFAULT_VIEWPORT_LINES,
@@ -68,6 +69,12 @@ export interface IHelperLineOptions {
      * Defaults to { x: 1, y: 1 } whereas the x represents the horizontal distance and y represents the vertical distance.
      */
     minimumMoveDelta?: Point;
+
+    /**
+     * Produces debug output.
+     * Defaults to false.
+     */
+    debug?: boolean;
 }
 
 export const DEFAULT_MOVE_DELTA = { x: 1, y: 1 };
@@ -77,7 +84,8 @@ export const DEFAULT_HELPER_LINE_OPTIONS: Required<IHelperLineOptions> = {
     viewportLines: DEFAULT_VIEWPORT_LINES,
     alignmentEpsilon: DEFAULT_EPSILON,
     alignmentElementFilter: DEFAULT_ALIGNABLE_ELEMENT_FILTER,
-    minimumMoveDelta: DEFAULT_MOVE_DELTA
+    minimumMoveDelta: DEFAULT_MOVE_DELTA,
+    debug: DEFAULT_DEBUG
 };
 
 @injectable()

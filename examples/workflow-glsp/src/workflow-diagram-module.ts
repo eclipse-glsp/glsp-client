@@ -16,6 +16,7 @@
 import {
     ConsoleLogger,
     ContainerConfiguration,
+    DEFAULT_ALIGNABLE_ELEMENT_FILTER,
     DefaultTypes,
     DeleteElementContextMenuItemProvider,
     DiamondNodeView,
@@ -79,9 +80,16 @@ export const workflowDiagramModule = new ContainerModule((bind, unbind, isBound,
     configureModelElement(context, 'struct', GCompartment, StructureCompartmentView);
 
     bind<IHelperLineOptions>(TYPES.IHelperLineOptions).toDynamicValue(ctx => {
+        const options: IHelperLineOptions = {};
         // the user needs to use twice the force (double the distance) to break through a helper line compared to moving on the grid
         const snapper = ctx.container.get<ISnapper>(TYPES.ISnapper);
-        return snapper instanceof GridSnapper ? { minimumMoveDelta: { x: snapper.grid.x * 2, y: snapper.grid.y * 2 } } : {};
+        if (snapper instanceof GridSnapper) {
+            options.minimumMoveDelta = { x: snapper.grid.x * 2, y: snapper.grid.y * 2 };
+        }
+        // skip icons for alignment as well as compartments which are only used for structure
+        options.alignmentElementFilter = element =>
+            DEFAULT_ALIGNABLE_ELEMENT_FILTER(element) && !(element instanceof Icon) && !(element instanceof GCompartment);
+        return options;
     });
 });
 
