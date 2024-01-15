@@ -20,6 +20,7 @@ import {
     CommandExecutionContext,
     CommandReturn,
     GChildElement,
+    GLabel,
     GModelElement,
     GModelRoot,
     ILogger,
@@ -27,7 +28,6 @@ import {
     TYPES,
     Viewport,
     findParentByFeature,
-    getAbsoluteBounds,
     isBoundsAware,
     isDecoration,
     isViewport
@@ -63,12 +63,12 @@ import {
     isRoutable,
     isVisibleOnCanvas
 } from '../../utils/gmodel-util';
-import { getViewportBounds } from '../../utils/viewpoint-util';
+import { getViewportBounds, toAbsoluteBounds } from '../../utils/viewpoint-util';
 import { HelperLine, HelperLineType, SelectionBounds, isHelperLine, isSelectionBounds } from './model';
 
 export type ViewportLineType = typeof HelperLineType.Center | typeof HelperLineType.Middle | string;
 
-export type AlignmentElementFilter = (element: BoundsAwareModelElement) => boolean;
+export type AlignmentElementFilter = (element: BoundsAwareModelElement, referenceElementIds: string[]) => boolean;
 
 export const isTopLevelBoundsAwareElement: AlignmentElementFilter = element =>
     findTopLevelElementByFeature(element, isBoundsAware, isViewport) === element;
@@ -90,7 +90,7 @@ export const DEFAULT_ELEMENT_LINES = ALL_ELEMENT_LINE_TYPES;
 export const DEFAULT_VIEWPORT_LINES = ALL_VIEWPORT_LINE_TYPES;
 export const DEFAULT_EPSILON = 1;
 export const DEFAULT_ALIGNABLE_ELEMENT_FILTER = (element: BoundsAwareModelElement): boolean =>
-    isVisibleOnCanvas(element) && !isRoutable(element) && !isDecoration(element);
+    isVisibleOnCanvas(element) && !isRoutable(element) && !(element instanceof GLabel) && !isDecoration(element);
 export const DEFAULT_DEBUG = false;
 
 export namespace DrawHelperLinesFeedbackAction {
@@ -158,11 +158,15 @@ export class DrawHelperLinesFeedbackCommand extends FeedbackCommand {
     }
 
     protected isAlignableElement(element: GModelElement): element is BoundsAwareModelElement {
-        return isBoundsAware(element) && this.alignableElementFilter(element);
+        return isBoundsAware(element) && this.alignableElementFilter(element, this.elementIds);
     }
 
     protected calcReferenceBounds(referenceElements: BoundsAwareModelElement[]): Bounds {
-        return referenceElements.map(element => getAbsoluteBounds(element)).reduce(Bounds.combine, Bounds.EMPTY);
+        return referenceElements.map(element => this.calcBounds(element)).reduce(Bounds.combine, Bounds.EMPTY);
+    }
+
+    protected calcBounds(element: BoundsAwareModelElement): Bounds {
+        return toAbsoluteBounds(element);
     }
 
     protected calcHelperLines(elements: BoundsAwareModelElement[], bounds: Bounds, context: CommandExecutionContext): HelperLine[] {
@@ -197,7 +201,7 @@ export class DrawHelperLinesFeedbackCommand extends FeedbackCommand {
 
     protected calcHelperLinesForElement(element: BoundsAwareModelElement, bounds: Bounds, lineTypes: HelperLineType[]): HelperLine[] {
         this.log('Find helperlines for element:', element);
-        return this.calcHelperLinesForBounds(getAbsoluteBounds(element), bounds, lineTypes);
+        return this.calcHelperLinesForBounds(this.calcBounds(element), bounds, lineTypes);
     }
 
     protected calcHelperLinesForBounds(elementBounds: Bounds, bounds: Bounds, lineTypes: HelperLineType[]): HelperLine[] {
@@ -322,6 +326,7 @@ export class RemoveHelperLinesFeedbackCommand extends FeedbackCommand {
     constructor(@inject(TYPES.Action) public action: RemoveHelperLinesFeedbackAction) {
         super();
     }
+
     override execute(context: CommandExecutionContext): CommandReturn {
         removeHelperLines(context.root);
         removeSelectionBounds(context.root);
