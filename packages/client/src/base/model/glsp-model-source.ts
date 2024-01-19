@@ -14,7 +14,6 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { inject, injectable, preDestroy } from 'inversify';
 import {
     Action,
     ActionMessage,
@@ -29,8 +28,10 @@ import {
     ModelSource,
     TYPES
 } from '@eclipse-glsp/sprotty';
+import { inject, injectable, preDestroy } from 'inversify';
 import { GLSPActionHandlerRegistry } from '../action-handler-registry';
 import { IDiagramOptions } from './diagram-loader';
+
 /**
  * A helper interface that allows the client to mark actions that have been received from the server.
  */
@@ -44,11 +45,34 @@ export namespace ServerAction {
     }
 
     /**
-     * Mark the given action as {@link ServerAction} by attaching the "_receivedFromServer" property
+     * Mark the given action as {@link ServerAction} by attaching the "__receivedFromServer" property
      * @param action The action that should be marked as server action
      */
     export function mark(action: Action): void {
         (action as ServerAction).__receivedFromServer = true;
+    }
+}
+
+/**
+ * A helper interface that allows the client to mark actions that can be considered optional and should not throw an error if
+ * no handler is available.
+ */
+export interface OptionalAction extends Action {
+    __skipErrorIfNoHandler: true;
+}
+
+export namespace OptionalAction {
+    export function is(object: unknown): object is ServerAction {
+        return Action.is(object) && '__skipErrorIfNoHandler' in object && object.__skipErrorIfNoHandler === true;
+    }
+
+    /**
+     * Mark the given action as {@link OptionalAction} by attaching the "__skipErrorIfNoHandler" property
+     * @param action The action that should be marked as optional action
+     */
+    export function mark<T extends Action>(action: T): T & OptionalAction {
+        (action as unknown as OptionalAction).__skipErrorIfNoHandler = true;
+        return action as T & OptionalAction;
     }
 }
 

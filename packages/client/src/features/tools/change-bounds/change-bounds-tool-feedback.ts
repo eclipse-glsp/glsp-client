@@ -36,6 +36,7 @@ import { DebouncedFunc, debounce } from 'lodash';
 import { DragAwareMouseListener } from '../../../base/drag-aware-mouse-listener';
 import { CursorCSS, cursorFeedbackAction } from '../../../base/feedback/css-feedback';
 import { FeedbackCommand } from '../../../base/feedback/feedback-command';
+import { OptionalAction } from '../../../base/model/glsp-model-source';
 import { forEachElement } from '../../../utils/gmodel-util';
 import { SResizeHandle, addResizeHandles, isResizable, removeResizeHandles } from '../../change-bounds/model';
 import { createMovementRestrictionFeedback, removeMovementRestrictionFeedback } from '../../change-bounds/movement-restrictor';
@@ -125,7 +126,7 @@ export namespace MoveInitializedEventAction {
     }
 
     export function create(): MoveInitializedEventAction {
-        return { kind: KIND };
+        return OptionalAction.mark({ kind: KIND });
     }
 }
 
@@ -141,7 +142,7 @@ export namespace MoveFinishedEventAction {
     }
 
     export function create(): MoveFinishedEventAction {
-        return { kind: KIND };
+        return OptionalAction.mark({ kind: KIND });
     }
 }
 
@@ -157,6 +158,7 @@ export class FeedbackMoveMouseListener extends DragAwareMouseListener implements
     protected positionUpdater;
     protected elementId2startPos = new Map<string, Point>();
     protected pendingMoveInitialized?: DebouncedFunc<() => void>;
+    protected moveInitialized = false;
 
     constructor(protected tool: ChangeBoundsTool) {
         super();
@@ -178,10 +180,12 @@ export class FeedbackMoveMouseListener extends DragAwareMouseListener implements
     }
 
     protected scheduleMoveInitialized(): void {
+        this.moveInitialized = false;
         this.pendingMoveInitialized?.cancel();
         this.pendingMoveInitialized = debounce(() => {
             this.tool.registerFeedback([MoveInitializedEventAction.create()], this);
             this.pendingMoveInitialized = undefined;
+            this.moveInitialized = true;
         }, 750);
         this.pendingMoveInitialized();
     }
@@ -329,11 +333,12 @@ export class FeedbackMoveMouseListener extends DragAwareMouseListener implements
                 const moveAction = MoveAction.create(elementMoves, { animate: false, finished: true });
                 this.tool.deregisterFeedback(this, [moveAction]);
             }
-        } else if (resetFeedback) {
+        } else if (resetFeedback && this.moveInitialized) {
             this.tool.deregisterFeedback(this, [MoveFinishedEventAction.create()]);
         }
         this.positionUpdater.resetPosition();
         this._isMouseDrag = false;
+        this.moveInitialized = false;
         this.rootElement = undefined;
         this.elementId2startPos.clear();
     }
