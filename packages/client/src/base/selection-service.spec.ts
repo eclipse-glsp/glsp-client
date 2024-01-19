@@ -13,10 +13,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { Action, Disposable, GModelRoot, GNode, TYPES, initializeContainer } from '@eclipse-glsp/sprotty';
 import { AssertionError, expect } from 'chai';
 import { Container, injectable } from 'inversify';
 import * as sinon from 'sinon';
-import { Action, Disposable, GModelRoot, GNode, TYPES, initializeContainer } from '@eclipse-glsp/sprotty';
 import { defaultModule } from './default.module';
 import { IFeedbackActionDispatcher, IFeedbackEmitter } from './feedback/feedback-action-dispatcher';
 import { ISelectionListener, SelectFeedbackAction, SelectionService } from './selection-service';
@@ -217,13 +217,13 @@ describe('SelectionService', () => {
             selectionService.updateSelection(root, [], ['node4']);
             assertListener(listener, root, ['node2', 'node3'], ['node4'], 4);
         });
-        it('A registered listener should be notified of root changes.', () => {
+        it('A registered listener should NOT be notified of root changes.', () => {
             selectionService.updateSelection(root, [], []);
-            assertListener(listener, root, [], [], 1);
+            assertListener(listener, root, [], [], 0);
 
             const newRoot = createRoot('node1', 'newNode2', 'newNode3');
             selectionService.updateSelection(newRoot, [], []);
-            assertListener(listener, newRoot, [], [], 2);
+            assertListener(listener, newRoot, [], [], 0);
         });
         it('Selecting the same elements consecutively should not trigger a listener update.', () => {
             selectionService.updateSelection(root, ['node1'], []);
@@ -290,8 +290,10 @@ describe('SelectionService', () => {
         expectedCalled: number
     ): void {
         expect(listener.selectionChanged.callCount).to.be.equal(expectedCalled);
-        expect(listener.selectionChanged.lastCall.args[0]).to.be.deep.equals(expectedRoot);
-        expect(listener.selectionChanged.lastCall.args[1]).to.be.deep.equals(expectedSelection);
-        expect(listener.selectionChanged.lastCall.args[2]).to.be.deep.equals(expectedDeselection);
+        if (expectedCalled > 0) {
+            expect(listener.selectionChanged.lastCall.args[0]).to.be.deep.equals(expectedRoot);
+            expect(listener.selectionChanged.lastCall.args[1]).to.be.deep.equals(expectedSelection);
+            expect(listener.selectionChanged.lastCall.args[2]).to.be.deep.equals(expectedDeselection);
+        }
     }
 });
