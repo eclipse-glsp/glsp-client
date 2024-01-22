@@ -195,13 +195,13 @@ export class FeedbackMoveMouseListener extends DragAwareMouseListener implements
         if (event.buttons === 0) {
             this.mouseUp(target, event);
         } else if (!this.positionUpdater.isLastDragPositionUndefined()) {
-            this.pendingMoveInitialized?.cancel();
             if (this.elementId2startPos.size === 0) {
                 this.collectStartPositions(target.root);
             }
             this._isMouseDrag = true;
             const moveAction = this.getElementMoves(target, event, false);
             if (moveAction) {
+                this.pendingMoveInitialized?.cancel();
                 result.push(moveAction);
                 result.push(cursorFeedbackAction(CursorCSS.MOVE));
                 this.tool.registerFeedback(result, this);

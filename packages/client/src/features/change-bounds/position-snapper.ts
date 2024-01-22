@@ -55,14 +55,14 @@ export class PositionSnapper {
 
         const minimum: Writable<Point> = { x: 0, y: 0 };
         if (directions.includes(Direction.Left) && helperLines.some(line => line.isLeft || line.isCenter)) {
-            minimum.x = this.helperLineManager.getHelperLineSnapping(target, isSnap, Direction.Left);
+            minimum.x = this.helperLineManager.getMinimumMoveDelta(target, isSnap, Direction.Left);
         } else if (directions.includes(Direction.Right) && helperLines.some(line => line.isRight || line.isCenter)) {
-            minimum.x = this.helperLineManager.getHelperLineSnapping(target, isSnap, Direction.Right);
+            minimum.x = this.helperLineManager.getMinimumMoveDelta(target, isSnap, Direction.Right);
         }
         if (directions.includes(Direction.Up) && helperLines.some(line => line.isTop || line.isMiddle)) {
-            minimum.y = this.helperLineManager.getHelperLineSnapping(target, isSnap, Direction.Up);
+            minimum.y = this.helperLineManager.getMinimumMoveDelta(target, isSnap, Direction.Up);
         } else if (directions.includes(Direction.Down) && helperLines.some(line => line.isBottom || line.isMiddle)) {
-            minimum.y = this.helperLineManager.getHelperLineSnapping(target, isSnap, Direction.Down);
+            minimum.y = this.helperLineManager.getMinimumMoveDelta(target, isSnap, Direction.Down);
         }
         return minimum;
     }
