@@ -13,6 +13,8 @@
 -   [feature] Extend `ToolPalette`/`CreateOperation` API to support rendering of preview/ghost elements when creating new nodes [#301](https://github.com/eclipse-glsp/glsp-client/pull/301)
 -   [protocol] Fix a bug in `BaseJsonRpcClient` to ensure that it can handle multiple open diagram sessions [#307](https://github.com/eclipse-glsp/glsp-client/pull/307)
 -   [diagram] Restructure some tools to have a more common infrastructure and support helper lines [#306](https://github.com/eclipse-glsp/glsp-client/pull/306)
+-   [diagram] Fix a bug in `SelectionService` that caused issues with inversify when injecting certain services (e.g. `ActionDispatcher`) in `SelectionChangeListener` implementations [#305](https://github.com/eclipse-glsp/glsp-client/pull/305)
+-   [diagram] Ensure that the `SelectionService` does not trigger a change event if the selection did not change on model update [#313](https://github.com/eclipse-glsp/glsp-client/pull/313)
 
 ## [v2.0.0 - 14/10/2023](https://github.com/eclipse-glsp/glsp-client/releases/tag/v2.0.0)
 
