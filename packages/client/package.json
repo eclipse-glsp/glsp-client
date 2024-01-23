@@ -1,6 +1,6 @@
 {
   "name": "@eclipse-glsp/client",
-  "version": "2.1.0",
+  "version": "2.2.0-next",
   "description": "A sprotty-based client for GLSP",
   "keywords": [
     "eclipse",
@@ -47,7 +47,7 @@
     "watch": "tsc -w"
   },
   "dependencies": {
-    "@eclipse-glsp/sprotty": "2.1.0",
+    "@eclipse-glsp/sprotty": "^2.2.0-next",
     "autocompleter": "^9.1.0",
     "file-saver": "^2.0.5",
     "lodash": "4.17.21"
