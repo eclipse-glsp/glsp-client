@@ -17,5 +17,12 @@ import { GModelElement } from '@eclipse-glsp/sprotty';
 import { Direction } from './model';
 
 export interface IHelperLineManager {
-    getHelperLineSnapping(target: GModelElement, isSnap: boolean, direction: Direction): number;
+    /**
+     * Calculates the minimum move delta that is necessary to break through a helper line.
+     *
+     * @param element element that is being moved
+     * @param isSnap whether snapping is active or not
+     * @param direction direction in which the target element is moving
+     */
+    getMinimumMoveDelta(element: GModelElement, isSnap: boolean, direction: Direction): number;
 }

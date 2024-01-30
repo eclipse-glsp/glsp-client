@@ -1,6 +1,6 @@
 {
   "name": "parent",
-  "version": "2.1.0-next",
+  "version": "2.1.0",
   "private": true,
   "workspaces": [
     "packages/*",

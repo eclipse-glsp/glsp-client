@@ -96,41 +96,41 @@ export class SelectionService implements IGModelRootListener, Disposable {
         this.updateSelection(root, [], []);
     }
 
-    updateSelection(root: Readonly<GModelRoot>, select: string[], deselect: string[]): void {
-        if (root === undefined && select.length === 0 && deselect.length === 0) {
+    updateSelection(newRoot: Readonly<GModelRoot>, select: string[], deselect: string[]): void {
+        if (newRoot === undefined && select.length === 0 && deselect.length === 0) {
             return;
         }
         const prevRoot = this.root;
         const prevSelectedElementIDs = new Set(this.selectedElementIDs);
 
-        // update root
-        this.root = root;
+        this.root = newRoot;
 
-        // update selected element IDs and collect deselected elements
-        // - select all elements that are not deselected at the same time (no-op)
-        // - deselect all elements that are not selected at the same time (no-op) but was selected
+        // We only select elements that are not part of the deselection
         const toSelect = [...select].filter(selectId => deselect.indexOf(selectId) === -1);
-        const toDeselect = [...deselect].filter(deselectId => select.indexOf(deselectId) === -1 && this.selectedElementIDs.has(deselectId));
-        for (const id of toDeselect) {
-            this.selectedElementIDs.delete(id);
-        }
-        for (const id of toSelect) {
-            this.selectedElementIDs.add(id);
-        }
 
+        // We only need to deselect elements that are not part of the selection
+        // If an element is part of both the select and deselect, it's state is not changed
+        const toDeselect = [...deselect].filter(deselectId => select.indexOf(deselectId) === -1 && this.selectedElementIDs.has(deselectId));
+
+        // update selected element ids
+        toDeselect.forEach(toDeselectId => this.selectedElementIDs.delete(toDeselectId));
+        toSelect.forEach(toSelectId => this.selectedElementIDs.add(toSelectId));
+
+        // check if the newly or previously selected elements still exist in the updated root
         const deselectedElementIDs = new Set(toDeselect);
-        // see if selected elements still exist in the updated root
         for (const id of this.selectedElementIDs) {
-            const element = root.index.getById(id);
+            const element = newRoot.index.getById(id);
             if (element === undefined) {
+                // element to be selected does not exist in the root...
                 this.selectedElementIDs.delete(id);
-                if (prevRoot !== undefined && prevRoot.index.getById(id)) {
+                if (prevRoot?.index.getById(id)) {
+                    // ...but existed in the previous root, so we want to consider it deselected
                     deselectedElementIDs.add(id);
                 }
             }
         }
 
-        // only send out changes if there actually are changes, i.e., the root or the selected elements changed
+        // only send out changes if there actually are changes, i.e., any of the selected elements ids has changed
         const selectionChanged =
             prevSelectedElementIDs.size !== this.selectedElementIDs.size ||
             ![...prevSelectedElementIDs].every(value => this.selectedElementIDs.has(value));
@@ -142,10 +142,6 @@ export class SelectionService implements IGModelRootListener, Disposable {
                     deselectedElementsIDs: [...deselectedElementIDs]
                 })
             ]);
-        }
-
-        const rootChanged = prevRoot !== root;
-        if (rootChanged || selectionChanged) {
             // notify listeners after the feedback action
             this.notifyListeners(this.root, this.selectedElementIDs, deselectedElementIDs);
         }
