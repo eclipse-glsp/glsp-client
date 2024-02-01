@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2020 EclipseSource and others.
+ * Copyright (c) 2023-2024 Business Informatics Group (TU Wien) and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,19 +13,30 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { AnyObject, hasNumberProp } from '@eclipse-glsp/sprotty';
-
-export function createElementFromHTML(html: string): HTMLElement | undefined {
-    const template = document.createElement('template');
-    html = html.trim(); // Never return a text node of whitespace as the result
-    template.innerHTML = html;
-    const node = template.content.firstChild;
-    if (node && node instanceof HTMLElement) {
-        return node as HTMLElement;
+declare global {
+    interface HTMLElement {
+        next(): HTMLElement
+        previous(): HTMLElement
+        first(): HTMLElement
+        last(): HTMLElement
     }
-    return undefined;
 }
 
-export function isMouseEvent(object: unknown): object is MouseEvent {
-    return AnyObject.is(object) && hasNumberProp(object, 'pageX') && hasNumberProp(object, 'pageY');
-}
+// HTMLElement extensions for readability and convenience (reduce casting)
+HTMLElement.prototype.next = function (): HTMLElement {
+    return this.nextElementSibling as HTMLElement;
+};
+
+HTMLElement.prototype.previous = function (): HTMLElement  {
+    return this.previousElementSibling as HTMLElement;
+};
+
+HTMLElement.prototype.first = function (): HTMLElement {
+    return this.firstElementChild as HTMLElement;
+};
+
+HTMLElement.prototype.last = function (): HTMLElement  {
+    return this.lastElementChild as HTMLElement;
+};
+
+export {};

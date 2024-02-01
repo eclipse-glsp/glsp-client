@@ -15,7 +15,8 @@
  ********************************************************************************/
 import { FeatureModule, TYPES, bindAsService, configureActionHandler, OpenSmartConnectorAction,
     CloseSmartConnectorAction, MoveAction, SetBoundsAction, SetViewportAction,
-    DeleteElementOperation } from '@eclipse-glsp/sprotty';
+    DeleteElementOperation,
+    ChangeSmartConnectorStateAction} from '@eclipse-glsp/sprotty';
 import '../../../css/smart-connector.css';
 import { SmartConnector, SmartConnectorKeyListener } from './smart-connector';
 
@@ -25,6 +26,7 @@ export const smartConnectorModule = new FeatureModule((bind, unbind, isBound, re
     bind(TYPES.IDiagramStartup).toService(SmartConnector);
     configureActionHandler(context, OpenSmartConnectorAction.KIND, SmartConnector);
     configureActionHandler(context, CloseSmartConnectorAction.KIND, SmartConnector);
+    configureActionHandler(context, ChangeSmartConnectorStateAction.KIND, SmartConnector);
     configureActionHandler(context, MoveAction.KIND, SmartConnector);
     configureActionHandler(context, SetBoundsAction.KIND, SmartConnector);
     configureActionHandler(context, SetViewportAction.KIND, SmartConnector);

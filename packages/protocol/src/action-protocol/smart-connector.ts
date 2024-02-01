@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { hasStringProp } from '../utils/type-util';
+import { hasNumberProp, hasStringProp } from '../utils/type-util';
 import { Action } from './base-protocol';
 
 /**
@@ -25,20 +25,20 @@ export interface OpenSmartConnectorAction extends Action {
     /**
      * The identifier of the element where the smart connector is to be opened.
      */
-    selectedElementID: string;
+    selectedElementId: string;
 }
 
 export namespace OpenSmartConnectorAction {
     export const KIND = 'openSmartConnector';
 
     export function is(object: any): object is OpenSmartConnectorAction {
-        return Action.hasKind(object, KIND) && hasStringProp(object, 'selectedElementID');
+        return Action.hasKind(object, KIND) && hasStringProp(object, 'selectedElementId');
     }
 
-    export function create(selectedElementID: string): OpenSmartConnectorAction {
+    export function create(selectedElementId: string): OpenSmartConnectorAction {
         return {
             kind: KIND,
-            selectedElementID
+            selectedElementId
         };
     }
 }
@@ -60,6 +60,38 @@ export namespace CloseSmartConnectorAction {
     export function create(): CloseSmartConnectorAction {
         return {
             kind: KIND
+        };
+    }
+}
+
+export enum SmartConnectorState {
+    Collapse,
+    Expand
+}
+
+/**
+ * Action that closes the smart connector
+ */
+export interface ChangeSmartConnectorStateAction extends Action {
+    kind: typeof ChangeSmartConnectorStateAction.KIND;
+
+    /**
+     * The smart connector state to be switched to
+     */
+    state: SmartConnectorState;
+}
+
+export namespace ChangeSmartConnectorStateAction {
+    export const KIND = 'changeSmartConnectorState';
+
+    export function is(object: any): object is ChangeSmartConnectorStateAction {
+        return Action.hasKind(object, KIND) && hasNumberProp(object, 'state');
+    }
+
+    export function create(state: SmartConnectorState): ChangeSmartConnectorStateAction {
+        return {
+            kind: KIND,
+            state
         };
     }
 }

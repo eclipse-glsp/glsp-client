@@ -38,23 +38,14 @@ import {
     SmartConnectorGroupItem,
     SmartConnectorNodeItem,
     SmartConnectorPosition,
-    KeyCode
+    KeyCode,
+    ChangeSmartConnectorStateAction,
+    SmartConnectorState
 } from '@eclipse-glsp/sprotty';
 import { GetViewportAction } from 'sprotty-protocol/lib/actions';
 import { changeCodiconClass, createIcon } from '../tool-palette/tool-palette';
 import { IDiagramStartup } from '../../base/model/diagram-loader';
 import { EnableDefaultToolsAction } from '../../base/tool-manager/tool';
-
-const CONTAINER_PADDING_PX = 20;
-const MAX_HEIGHT_GROUP = '150px';
-const SEARCH_FIELD_SUFFIX = '_search_field';
-const SMART_CONNECTOR_CONTAINER_ID = 'smart-connector-container';
-const EXPAND_BUTTON_ID = 'smart-connector-expand-button';
-const GROUP_CONTAINER_CLASS = 'smart-connector-group-container';
-const HEADER_CLASS = 'smart-connector-group-header';
-const GROUP_CLASS = 'smart-connector-group';
-const TOOL_BUTTON_CLASS = 'smart-connector-button';
-const COLLAPSABLE_CLASS = 'collapsable-group';
 
 @injectable()
 export class SmartConnector extends AbstractUIExtension implements IActionHandler, IDiagramStartup {
@@ -96,7 +87,8 @@ export class SmartConnector extends AbstractUIExtension implements IActionHandle
 
     protected override async onBeforeShow(_containerElement: HTMLElement, root: Readonly<GModelRoot>): Promise<void> {
         const viewportResult: ViewportResult = await this.actionDispatcher.request(GetViewportAction.create());
-        await this.requestAvailableOptions(root.index.getById(this.selectedElementId));
+        await this.initAvailableOptions(root.index.getById(this.selectedElementId));
+        this.initBody();
         this.currentZoom = viewportResult.viewport.zoom;
         const nodeFromDom = document.getElementById(`${this.options.baseDiv}_${this.selectedElementId}`) as any as SVGGElement;
         const nodeBoundsFromDom = nodeFromDom.getBoundingClientRect();
@@ -116,7 +108,7 @@ export class SmartConnector extends AbstractUIExtension implements IActionHandle
         this.hideSmartConnector();
     }
 
-    protected async requestAvailableOptions(contextElement?: GModelElement): Promise<void> {
+    protected async initAvailableOptions(contextElement?: GModelElement): Promise<void> {
         const requestAction = RequestContextActions.create({
             contextId: SmartConnector.ID,
             editorContext: {
@@ -126,7 +118,6 @@ export class SmartConnector extends AbstractUIExtension implements IActionHandle
         });
         const response = await this.actionDispatcher.request<SetContextActions>(requestAction);
         this.smartConnectorItems = response.actions.map(e => e as SmartConnectorGroupItem);
-        this.createBody();
     }
 
     protected setMainPosition(viewport: ViewportResult, nodeBounds: DOMRect): void {
@@ -144,11 +135,11 @@ export class SmartConnector extends AbstractUIExtension implements IActionHandle
         let xDiff = -element.offsetWidth/2;
         let yDiff = -element.offsetHeight/2*zoom;
         if (position === SmartConnectorPosition.Right || position === SmartConnectorPosition.Left) {
-            xDiff = nodeWidth/2 + CONTAINER_PADDING_PX*zoom;
+            xDiff = nodeWidth/2 + SmartConnector.CONTAINER_PADDING_PX*zoom;
             element.style.top = `${yDiff}px`;
         }
         if (position === SmartConnectorPosition.Top || position === SmartConnectorPosition.Bottom) {
-            yDiff = nodeHeight/2 + CONTAINER_PADDING_PX*zoom;
+            yDiff = nodeHeight/2 + SmartConnector.CONTAINER_PADDING_PX*zoom;
             element.style.left = `${xDiff}px`;
         }
         if (position === SmartConnectorPosition.Right) {
@@ -171,15 +162,15 @@ export class SmartConnector extends AbstractUIExtension implements IActionHandle
     }
 
     protected initializeContents(containerElement: HTMLElement): void {
-        this.createBody();
-        this.createExpandButton();
+        this.initBody();
+        this.initExpandButton();
         this.containerElement.appendChild(this.expandButton);
         containerElement.setAttribute('aria-label', 'Smart-Connector');
     }
 
-    protected createBody(): void {
+    protected initBody(): void {
         const smartConnectorContainer = document.createElement('div');
-        smartConnectorContainer.id = SMART_CONNECTOR_CONTAINER_ID;
+        smartConnectorContainer.id = SmartConnector.SMART_CONNECTOR_CONTAINER_ID;
         for (const item of this.smartConnectorItems) {
             if (item.children) {
                 const group = this.createGroup(item);
@@ -194,18 +185,18 @@ export class SmartConnector extends AbstractUIExtension implements IActionHandle
         this.smartConnectorContainer = smartConnectorContainer;
     }
 
-    protected createExpandButton(): void {
+    protected initExpandButton(): void {
         this.expandButton = document.createElement('div');
-        this.expandButton.id = EXPAND_BUTTON_ID;
+        this.expandButton.id = SmartConnector.EXPAND_BUTTON_ID;
         this.expandButton.innerHTML = '+';
         this.expandButton.onclick = _ev => {
             if(!this.editorContext.isReadonly)
-                {showSmartConnector(this.smartConnectorContainer, this.expandButton);}
+                {this.showSmartConnector();}
             };
-        this.expandButton.onkeydown = ev => {
-            if(matchesKeystroke(ev, 'Space') && !this.editorContext.isReadonly)
-                {showSmartConnector(this.smartConnectorContainer, this.expandButton);}
-            };
+        // this.expandButton.onkeydown = ev => {
+        //     if(matchesKeystroke(ev, 'Space') && !this.editorContext.isReadonly)
+        //         {this.showSmartConnector();}
+        //     };
     }
 
     // default state
@@ -214,6 +205,11 @@ export class SmartConnector extends AbstractUIExtension implements IActionHandle
             this.smartConnectorContainer.style.visibility = 'hidden';
             this.expandButton.style.visibility = 'visible';
         }
+    }
+
+    protected showSmartConnector(): void {
+        this.smartConnectorContainer.style.visibility = 'visible';
+        this.expandButton.style.visibility = 'hidden';
     }
 
     // to avoid onclicks on nested hidden > visible
@@ -229,8 +225,8 @@ export class SmartConnector extends AbstractUIExtension implements IActionHandle
         const group = document.createElement('div');
         if (item.children!.length === 0) {return group;}
         const groupItems = document.createElement('div');
-        group.classList.add(GROUP_CONTAINER_CLASS);
-        groupItems.classList.add(GROUP_CLASS);
+        group.classList.add(SmartConnector.GROUP_CONTAINER_CLASS);
+        groupItems.classList.add(SmartConnector.GROUP_CLASS);
         group.id = item.id;
         for (const child of item.children!) {
             groupItems.appendChild(this.createToolButton(child));
@@ -256,7 +252,7 @@ export class SmartConnector extends AbstractUIExtension implements IActionHandle
     protected createGroupHeader(group: SmartConnectorGroupItem, groupItems: HTMLElement, searchField: HTMLElement): HTMLElement{
         const header = document.createElement('div');
         const headerTitle = document.createElement('div');
-        header.classList.add(HEADER_CLASS);
+        header.classList.add(SmartConnector.HEADER_CLASS);
         // for same css as palette header
         header.classList.add('group-header');
         if (group.icon) {
@@ -269,7 +265,7 @@ export class SmartConnector extends AbstractUIExtension implements IActionHandle
         if (group.submenu) {
             const submenuIcon = group.position === SmartConnectorPosition.Top ? createIcon('chevron-up') : createIcon('chevron-down');
             header.appendChild(submenuIcon);
-            groupItems.classList.add(COLLAPSABLE_CLASS);
+            groupItems.classList.add(SmartConnector.COLLAPSABLE_CLASS);
             header.onclick = _ev => {
                 this.toggleSubmenu(submenuIcon, group, groupItems, searchField);
             };
@@ -277,7 +273,7 @@ export class SmartConnector extends AbstractUIExtension implements IActionHandle
                 if (matchesKeystroke(ev, 'Enter')) {
                     this.toggleSubmenu(submenuIcon, group, groupItems, searchField);
                 }
-                this.headerNavigation(ev, groupItems, header);
+                this.navigateHeader(ev, groupItems, header);
             };
             this.groupIsCollapsed[group.id] = true;
         }
@@ -292,7 +288,7 @@ export class SmartConnector extends AbstractUIExtension implements IActionHandle
             groupItems.style.maxHeight = '';
             searchField.style.maxHeight = '';
         } else {
-            groupItems.style.maxHeight = MAX_HEIGHT_GROUP;
+            groupItems.style.maxHeight = SmartConnector.MAX_HEIGHT_GROUP;
             searchField.style.maxHeight = '50px';
         }
     }
@@ -300,29 +296,29 @@ export class SmartConnector extends AbstractUIExtension implements IActionHandle
     protected createToolButton(item: PaletteItem): HTMLElement {
         const button = document.createElement('div');
         button.tabIndex = 0;
-        button.classList.add(TOOL_BUTTON_CLASS);
+        button.classList.add(SmartConnector.TOOL_BUTTON_CLASS);
         if (item.icon) {
             button.appendChild(createIcon(item.icon));
             return button;
         }
         button.insertAdjacentText('beforeend', item.label);
         button.onclick = this.onClickCreateToolButton(button, item);
-        button.onkeydown = ev => this.toolButtonKeyHandler(ev, item);
+        button.onkeydown = ev => this.handleToolButtonKey(ev, item);
         button.id = item.id;
         return button;
     }
 
     protected createSearchField(itemGroup: SmartConnectorGroupItem): HTMLElement {
         const searchField = document.createElement('input');
-        searchField.classList.add('smart-connector-search');
-        searchField.id = itemGroup.id + SEARCH_FIELD_SUFFIX;
+        searchField.classList.add(SmartConnector.SEARCH_CLASS);
+        searchField.id = itemGroup.id + SmartConnector.SEARCH_FIELD_SUFFIX;
         searchField.type = 'text';
         searchField.placeholder = ' Search...';
         searchField.onkeyup = () => this.requestFilterUpdate(this.searchFields[itemGroup.id].value, itemGroup);
-        searchField.onkeydown = ev => this.searchFieldKeyHandler(ev, itemGroup);
+        searchField.onkeydown = ev => this.handleSearchFieldKey(ev, itemGroup);
         this.searchFields[itemGroup.id] = searchField;
         const searchContainer = document.createElement('div');
-        const containerClass = itemGroup.submenu ? 'smart-connector-submenu-search-container' : 'smart-connector-search-container';
+        const containerClass = itemGroup.submenu ? SmartConnector.SEARCH_SUBMENU_CONTAINER_CLASS : SmartConnector.SEARCH_CONTAINER_CLASS;
         searchContainer.classList.add(containerClass);
         searchContainer.appendChild(searchField);
         return searchContainer;
@@ -333,48 +329,46 @@ export class SmartConnector extends AbstractUIExtension implements IActionHandle
     protected requestFilterUpdate(filter: string, itemGroup: SmartConnectorGroupItem): void {
         if (itemGroup.children) {
             const matchingChildren = itemGroup.children.filter(child => child.label.toLowerCase().includes(filter.toLowerCase()));
-            if (matchingChildren.length > 0) {
-                const items = document.getElementById(itemGroup.id)?.getElementsByClassName(TOOL_BUTTON_CLASS);
-                if (items) {
-                    Array.from(items).forEach(item => {
-                        if (matchingChildren.find(child => child.id === item.id)) {(item as HTMLElement).style.display = 'block';}
-                        else {(item as HTMLElement).style.display = 'none';}
-                    });
-                }
+            const items = document.getElementById(itemGroup.id)?.getElementsByClassName(SmartConnector.TOOL_BUTTON_CLASS);
+            if (items) {
+                Array.from(items).forEach(item => {
+                    if (matchingChildren.find(child => child.id === item.id)) {(item as HTMLElement).style.display = 'block';}
+                    else {(item as HTMLElement).style.display = 'none';}
+                });
             }
         }
     }
 
-    protected toolButtonKeyHandler(event: KeyboardEvent, item: PaletteItem): void {
+    protected handleToolButtonKey(event: KeyboardEvent, item: PaletteItem): void {
         if (matchesKeystroke(event, 'Escape')) {
             this.actionDispatcher.dispatch(EnableDefaultToolsAction.create());
         }
         if (matchesKeystroke(event, 'Enter')) {
-            this.createTool(item);
+            this.triggerCreation(item);
         }
         if (event.ctrlKey) {
         // matchesKeystroke with Ctrl and Ctrl+F does not seem to work on Windows 11/Chrome
         // if (matchesKeystroke(event, 'ControlLeft')) {
         // if (matchesKeystroke(event, 'KeyF', 'ctrlCmd')) {
             const parentId = this.smartConnectorItems.find(e => e.children?.includes(item))!.id;
-            const searchFieldId = parentId + SEARCH_FIELD_SUFFIX;
+            const searchFieldId = parentId + SmartConnector.SEARCH_FIELD_SUFFIX;
             const searchField = document.getElementById(searchFieldId);
             if (searchField) {(searchField as HTMLElement).focus();}
         }
-        this.toolButtonNavigation(event, item);
+        this.navigateToolButton(event, item);
     }
 
-    protected searchFieldKeyHandler(event: KeyboardEvent, itemGroup: SmartConnectorGroupItem): void {
+    protected handleSearchFieldKey(event: KeyboardEvent, itemGroup: SmartConnectorGroupItem): void {
         if (matchesKeystroke(event, 'Escape')) {
             this.searchFields[itemGroup.id].value = '';
             this.requestFilterUpdate('', itemGroup);
         }
-        this.searchFieldNavigation(event, itemGroup);
+        this.navigateSearchField(event, itemGroup);
     }
 
     // #region navigation handlers
 
-    protected searchFieldNavigation(event: KeyboardEvent, itemGroup: SmartConnectorGroupItem): void {
+    protected navigateSearchField(event: KeyboardEvent, itemGroup: SmartConnectorGroupItem): void {
         if (matchesKeystroke(event, this.previousElementKeyCode)) {
             (document.getElementById(itemGroup.children![itemGroup.children!.length-1].id) as HTMLElement).focus();
         }
@@ -383,11 +377,11 @@ export class SmartConnector extends AbstractUIExtension implements IActionHandle
         }
     }
 
-    protected headerNavigation(event: KeyboardEvent, groupItems: HTMLElement, header: HTMLElement): void {
+    protected navigateHeader(event: KeyboardEvent, groupItems: HTMLElement, header: HTMLElement): void {
         const parent = header.parentElement!;
         if (matchesKeystroke(event, this.previousElementKeyCode)) {
             if ((this.groupIsCollapsed[parent.id] || !this.groupIsTop[parent.id]) && parent.previous()) {
-                const collapsableHeader = getHeaderIfGroupContainsCollapsable(parent.previous());
+                const collapsableHeader = this.getHeaderIfGroupContainsCollapsable(parent.previous());
                 if (collapsableHeader &&
                     (this.groupIsTop[parent.previous().id] || this.groupIsCollapsed[parent.previous().id])) {collapsableHeader.focus();}
                 else {this.getPreviousGroupLastItem(parent).focus();}
@@ -396,7 +390,7 @@ export class SmartConnector extends AbstractUIExtension implements IActionHandle
         }
         if (matchesKeystroke(event, this.nextElementKeyCode)) {
             if ((this.groupIsCollapsed[parent.id] || this.groupIsTop[parent.id]) && parent.next()) {
-                const collapsableHeader = getHeaderIfGroupContainsCollapsable(parent.next());
+                const collapsableHeader = this.getHeaderIfGroupContainsCollapsable(parent.next());
                 if (collapsableHeader &&
                     (!this.groupIsTop[parent.next().id] || this.groupIsCollapsed[parent.next().id])) {collapsableHeader.focus();}
                 else {this.getNextGroupFirstItem(parent).focus();}
@@ -405,20 +399,20 @@ export class SmartConnector extends AbstractUIExtension implements IActionHandle
         }
     }
 
-    protected toolButtonNavigation(event: KeyboardEvent, item: PaletteItem): void {
+    protected navigateToolButton(event: KeyboardEvent, item: PaletteItem): void {
         const parentId = this.smartConnectorItems.find(e => e.children?.includes(item))!.id;
         const parent = document.getElementById(parentId)!;
         const toolButton = document.getElementById(item.id)!;
-        const collapsableHeader = getHeaderIfGroupContainsCollapsable(parent);
+        const collapsableHeader = this.getHeaderIfGroupContainsCollapsable(parent);
         if (matchesKeystroke(event, this.previousElementKeyCode)) {
-            const previousGroupCollapsableHeader = getHeaderIfGroupContainsCollapsable(parent.previous());
+            const previousGroupCollapsableHeader = this.getHeaderIfGroupContainsCollapsable(parent.previous());
             if (toolButton.previous()) {toolButton.previous().focus();}
             else if (collapsableHeader && !this.groupIsTop[parent.id]) {collapsableHeader.focus();}
             else if (previousGroupCollapsableHeader && this.groupIsTop[parent.previous().id]) {previousGroupCollapsableHeader.focus();}
             else if (parent.previous()) {this.getPreviousGroupLastItem(parent).focus();}
         }
         if (matchesKeystroke(event, this.nextElementKeyCode)) {
-            const nextGroupCollapsableHeader = getHeaderIfGroupContainsCollapsable(parent.next());
+            const nextGroupCollapsableHeader = this.getHeaderIfGroupContainsCollapsable(parent.next());
             if (toolButton.next()) {toolButton.next().focus();}
             else if (collapsableHeader && this.groupIsTop[parent.id]) {collapsableHeader.focus();}
             else if (nextGroupCollapsableHeader && !this.groupIsTop[parent.next().id]) {nextGroupCollapsableHeader.focus();}
@@ -427,22 +421,29 @@ export class SmartConnector extends AbstractUIExtension implements IActionHandle
     }
 
     protected getNextGroupFirstItem(parent: HTMLElement): HTMLElement {
-        return parent.nextElementSibling!.getElementsByClassName(GROUP_CLASS)[0].firstElementChild as HTMLElement;
+        return parent.nextElementSibling!.getElementsByClassName(SmartConnector.GROUP_CLASS)[0].firstElementChild as HTMLElement;
     }
 
     protected getPreviousGroupLastItem(parent: HTMLElement): HTMLElement {
-        return parent.previousElementSibling!.getElementsByClassName(GROUP_CLASS)[0].lastElementChild as HTMLElement;
+        return parent.previousElementSibling!.getElementsByClassName(SmartConnector.GROUP_CLASS)[0].lastElementChild as HTMLElement;
+    }
+
+    protected getHeaderIfGroupContainsCollapsable(group: HTMLElement): HTMLElement | undefined {
+        if (group && group.getElementsByClassName(SmartConnector.COLLAPSABLE_CLASS).length !== 0) {
+            return group.getElementsByClassName(SmartConnector.HEADER_CLASS)[0] as HTMLElement;
+        }
+        return undefined;
     }
 
     // #endregion
 
     protected onClickCreateToolButton(_button: HTMLElement, item: PaletteItem)  {
         return (_ev: MouseEvent) => {
-            this.createTool(item);
+            this.triggerCreation(item);
         };
     }
 
-    protected createTool(item: PaletteItem): void {
+    protected triggerCreation(item: PaletteItem): void {
         if (!this.editorContext.isReadonly) {
             item.actions.forEach(e => {
                 let args: Args;
@@ -466,10 +467,24 @@ export class SmartConnector extends AbstractUIExtension implements IActionHandle
 
     handle(action: Action): ICommand | Action | void {
         if (OpenSmartConnectorAction.is(action)) {
-            this.selectedElementId = action.selectedElementID;
+            this.selectedElementId = action.selectedElementId;
             this.actionDispatcher.dispatch(
                 SetUIExtensionVisibilityAction.create({ extensionId: SmartConnector.ID, visible: true })
             );
+        }
+        else if (ChangeSmartConnectorStateAction.is(action)) {
+            if (action.state === SmartConnectorState.Collapse) {
+                this.hideSmartConnector();
+            } else {
+                this.showSmartConnector();
+                const collapsableHeader = this.getHeaderIfGroupContainsCollapsable(this.smartConnectorContainer
+                    .firstElementChild as HTMLElement);
+                if (collapsableHeader) {
+                    collapsableHeader.focus();
+                }
+                else {(this.smartConnectorContainer.firstElementChild!.getElementsByClassName(SmartConnector.GROUP_CLASS)[0]
+                    .firstElementChild as HTMLElement).focus();}
+            }
         }
         else {
             this.actionDispatcher.dispatch(
@@ -491,34 +506,29 @@ export class SmartConnector extends AbstractUIExtension implements IActionHandle
     }
 }
 
-export function showSmartConnector(container: HTMLElement, expandButton: HTMLElement): void {
-    container.style.visibility = 'visible';
-    expandButton.style.visibility = 'hidden';
-}
-
-function getHeaderIfGroupContainsCollapsable(group: HTMLElement): HTMLElement | undefined {
-    if (group && group.getElementsByClassName(COLLAPSABLE_CLASS).length !== 0) {
-        return group.getElementsByClassName(HEADER_CLASS)[0] as HTMLElement;
-    }
-    return undefined;
+export namespace SmartConnector {
+    export const CONTAINER_PADDING_PX = 20;
+    export const MAX_HEIGHT_GROUP = '150px';
+    export const SEARCH_FIELD_SUFFIX = '_search_field';
+    export const SMART_CONNECTOR_CONTAINER_ID = 'smart-connector-container';
+    export const EXPAND_BUTTON_ID = 'smart-connector-expand-button';
+    export const GROUP_CONTAINER_CLASS = 'smart-connector-group-container';
+    export const HEADER_CLASS = 'smart-connector-group-header';
+    export const GROUP_CLASS = 'smart-connector-group';
+    export const TOOL_BUTTON_CLASS = 'smart-connector-button';
+    export const COLLAPSABLE_CLASS = 'collapsable-group';
+    export const SEARCH_CLASS = 'smart-connector-search';
+    export const SEARCH_CONTAINER_CLASS = 'smart-connector-search-container';
+    export const SEARCH_SUBMENU_CONTAINER_CLASS = 'smart-connector-submenu-search-container';
 }
 
 @injectable()
 export class SmartConnectorKeyListener extends KeyListener {
     override keyDown(_element: GModelElement, event: KeyboardEvent): Action[] {
-        const container = document.getElementById(SMART_CONNECTOR_CONTAINER_ID)!;
-        const expandButton = document.getElementById(EXPAND_BUTTON_ID);
-        const smartConnector = expandButton?.parentElement;
-        if (matchesKeystroke(event, 'Space') && smartConnector?.style.visibility === 'visible'
-            && expandButton?.style.visibility === 'visible') {
-            showSmartConnector(container, expandButton);
-            const collapsableHeader = getHeaderIfGroupContainsCollapsable(container.firstElementChild as HTMLElement);
-            if (collapsableHeader) {
-                collapsableHeader.focus();
-            }
-            else {(container.firstElementChild!.getElementsByClassName(GROUP_CLASS)[0].firstElementChild as HTMLElement).focus();}
+        if (matchesKeystroke(event, 'Space')) {
+            return [ChangeSmartConnectorStateAction.create(SmartConnectorState.Expand)];
         }
+        // Add key to close
         return [];
     }
 }
-
