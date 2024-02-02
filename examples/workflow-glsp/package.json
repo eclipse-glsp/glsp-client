@@ -43,7 +43,7 @@
     "watch": "tsc -w"
   },
   "dependencies": {
-    "@eclipse-glsp/client": "^2.2.0-next",
+    "@eclipse-glsp/client": "2.2.0-next",
     "balloon-css": "^0.5.0"
   },
   "devDependencies": {
