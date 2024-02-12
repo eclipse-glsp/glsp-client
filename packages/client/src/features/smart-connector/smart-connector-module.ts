@@ -13,10 +13,19 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { FeatureModule, TYPES, bindAsService, configureActionHandler, OpenSmartConnectorAction,
-    CloseSmartConnectorAction, MoveAction, SetBoundsAction, SetViewportAction,
+import {
+    FeatureModule,
+    TYPES,
+    bindAsService,
+    configureActionHandler,
+    OpenSmartConnectorAction,
+    CloseSmartConnectorAction,
+    MoveAction,
+    SetBoundsAction,
+    SetViewportAction,
     DeleteElementOperation,
-    ChangeSmartConnectorStateAction} from '@eclipse-glsp/sprotty';
+    ChangeSmartConnectorStateAction
+} from '@eclipse-glsp/sprotty';
 import '../../../css/smart-connector.css';
 import { SmartConnector, SmartConnectorKeyListener } from './smart-connector';
 

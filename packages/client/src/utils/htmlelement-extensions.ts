@@ -15,10 +15,10 @@
  ********************************************************************************/
 declare global {
     interface HTMLElement {
-        next(): HTMLElement
-        previous(): HTMLElement
-        first(): HTMLElement
-        last(): HTMLElement
+        next(): HTMLElement;
+        previous(): HTMLElement;
+        first(): HTMLElement;
+        last(): HTMLElement;
     }
 }
 
@@ -27,7 +27,7 @@ HTMLElement.prototype.next = function (): HTMLElement {
     return this.nextElementSibling as HTMLElement;
 };
 
-HTMLElement.prototype.previous = function (): HTMLElement  {
+HTMLElement.prototype.previous = function (): HTMLElement {
     return this.previousElementSibling as HTMLElement;
 };
 
@@ -35,7 +35,7 @@ HTMLElement.prototype.first = function (): HTMLElement {
     return this.firstElementChild as HTMLElement;
 };
 
-HTMLElement.prototype.last = function (): HTMLElement  {
+HTMLElement.prototype.last = function (): HTMLElement {
     return this.lastElementChild as HTMLElement;
 };
 
