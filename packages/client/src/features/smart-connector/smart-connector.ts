@@ -45,7 +45,6 @@ import {
 import { GetViewportAction } from 'sprotty-protocol/lib/actions';
 import { changeCodiconClass, createIcon } from '../tool-palette/tool-palette';
 import { IDiagramStartup } from '../../base/model/diagram-loader';
-//import { EnableDefaultToolsAction } from '../../base/tool-manager/tool';
 
 @injectable()
 export class SmartConnector extends AbstractUIExtension implements IActionHandler, IDiagramStartup {
@@ -381,12 +380,12 @@ export class SmartConnector extends AbstractUIExtension implements IActionHandle
         this.navigateSearchField(event, itemGroup);
     }
 
-    protected handlerHeaderKey(event: KeyboardEvent, groupItems: HTMLElement, header: HTMLElement) {
+    protected handlerHeaderKey(event: KeyboardEvent, groupItems: HTMLElement, header: HTMLElement): void {
         this.navigateHeader(event, groupItems, header);
         this.closeOnEscapeKey(event);
     }
 
-    protected closeOnEscapeKey(event: KeyboardEvent) {
+    protected closeOnEscapeKey(event: KeyboardEvent): void {
         if (matchesKeystroke(event, 'Escape')) {
             this.hideSmartConnector();
             // assumes that the graph is always the last child of base div
