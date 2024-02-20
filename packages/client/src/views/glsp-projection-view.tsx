@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2017-2022 TypeFox and others.
+ * Copyright (c) 2017-2023 TypeFox and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -14,29 +14,33 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-/** @jsx html */
-import { Bounds } from '@eclipse-glsp/protocol';
-import { injectable } from 'inversify';
-import { h, VNode, VNodeStyle } from 'snabbdom';
 import {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    html,
+    Bounds,
+    EdgeRouterRegistry,
+    GViewportRootElement,
     IViewArgs,
     ProjectedViewportView,
     ProjectionParams,
     RenderingContext,
+    ViewProjection,
+    html,
     setAttr,
-    setClass,
-    ViewportRootElement,
-    ViewProjection
-} from 'sprotty';
+    setClass
+} from '@eclipse-glsp/sprotty';
+import { inject, injectable } from 'inversify';
+import { VNode, VNodeStyle, h } from 'snabbdom';
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const JSX = { createElement: html };
 
 /**
  * Special viewport root view that renders horizontal and vertical projection bars for quick navigation.
  */
 @injectable()
 export class GLSPProjectionView extends ProjectedViewportView {
-    override render(model: Readonly<ViewportRootElement>, context: RenderingContext, args?: IViewArgs): VNode {
+    @inject(EdgeRouterRegistry) edgeRouterRegistry: EdgeRouterRegistry;
+
+    override render(model: Readonly<GViewportRootElement>, context: RenderingContext, args?: IViewArgs): VNode {
         const svgElem = this.renderSvg(model, context, args);
         if (svgElem.data) {
             svgElem.data!.class = { 'sprotty-graph': true };
@@ -47,20 +51,27 @@ export class GLSPProjectionView extends ProjectedViewportView {
                 {this.renderProjections(model, context, args)}
             </div>
         );
-        setAttr(rootNode, 'tabindex', 0);
+        setAttr(rootNode, 'tabindex', 1);
+        setAttr(rootNode, 'aria-label', 'Diagram');
+
         return rootNode;
     }
 
-    protected override renderSvg(model: Readonly<ViewportRootElement>, context: RenderingContext, args?: IViewArgs): VNode {
+    protected override renderSvg(model: Readonly<GViewportRootElement>, context: RenderingContext, args?: IViewArgs): VNode {
+        const edgeRouting = this.edgeRouterRegistry.routeAllChildren(model);
         const transform = `scale(${model.zoom}) translate(${-model.scroll.x},${-model.scroll.y})`;
         const ns = 'http://www.w3.org/2000/svg';
-        const svg = h('svg', { ns, style: { height: '100%' } }, h('g', { ns, attrs: { transform } }, context.renderChildren(model)));
+        const svg = h(
+            'svg',
+            { ns, style: { height: '100%' } },
+            h('g', { ns, attrs: { transform } }, context.renderChildren(model, { edgeRouting }))
+        );
         return svg;
     }
 
     protected override renderProjectionBar(
         projections: ViewProjection[],
-        model: Readonly<ViewportRootElement>,
+        model: Readonly<GViewportRootElement>,
         modelBounds: Bounds,
         orientation: 'horizontal' | 'vertical'
     ): VNode {
@@ -83,7 +94,7 @@ export class GLSPProjectionView extends ProjectedViewportView {
         );
     }
 
-    protected override renderViewport(model: Readonly<ViewportRootElement>, params: ProjectionParams): VNode {
+    protected override renderViewport(model: Readonly<GViewportRootElement>, params: ProjectionParams): VNode {
         let canvasSize;
         let viewportPos: number;
         if (params.orientation === 'horizontal') {
@@ -112,18 +123,20 @@ export class GLSPProjectionView extends ProjectedViewportView {
             params.orientation === 'horizontal'
                 ? {
                       left: `${viewportPos}px`,
-                      width: `${viewportSize}px`,
-                      border: 'none'
+                      width: `${viewportSize}px`
                   }
                 : {
                       top: `${viewportPos}px`,
-                      height: `${viewportSize}px`,
-                      border: 'none'
+                      height: `${viewportSize}px`
                   };
         return <div class-sprotty-viewport={viewportSize !== 0} class-projection-scroll-bar={true} style={style} />;
     }
 
-    protected override renderProjection(projection: ViewProjection, model: Readonly<ViewportRootElement>, params: ProjectionParams): VNode {
+    protected override renderProjection(
+        projection: ViewProjection,
+        model: Readonly<GViewportRootElement>,
+        params: ProjectionParams
+    ): VNode {
         let canvasSize;
         let projPos;
         let projSize: number;

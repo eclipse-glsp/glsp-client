@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2021-2022 EclipseSource and others.
+ * Copyright (c) 2019-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,11 +13,16 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { IView, ViewRegistry } from '@eclipse-glsp/sprotty';
 import { injectable } from 'inversify';
-import { IView, ViewRegistry } from 'sprotty';
 
+/**
+ * Allows to look up the IView for a given GModelElement based on its type.
+ */
 @injectable()
-export class GLSPViewRegistry extends ViewRegistry {
+export class GViewRegistry extends ViewRegistry {
+    /* Overwrite the `register` method to only log an info message (instead of thrown an error) if
+       an existing registration is overwritten */
     override register(key: string, instance: IView): void {
         if (key === undefined) {
             throw new Error('Key is undefined');

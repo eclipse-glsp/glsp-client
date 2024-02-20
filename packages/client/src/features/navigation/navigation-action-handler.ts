@@ -13,28 +13,32 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { inject, injectable } from 'inversify';
 import {
     Action,
+    ActionHandlerRegistry,
     Args,
     CenterAction,
-    hasObjectProp,
-    hasStringProp,
+    IActionDispatcher,
+    IActionHandler,
+    ICommand,
+    ILogger,
+    MessageAction,
     NavigateToExternalTargetAction,
     NavigateToTargetAction,
     NavigationTarget,
     RequestNavigationTargetsAction,
     SelectAction,
     SelectAllAction,
-    ServerMessageAction,
-    ServerSeverity,
-    ServerStatusAction,
     SetNavigationTargetsAction,
-    SetResolvedNavigationTargetAction
-} from '@eclipse-glsp/protocol';
-import { inject, injectable } from 'inversify';
-import { ActionHandlerRegistry, IActionDispatcher, IActionHandler, ICommand, ILogger } from 'sprotty';
+    SetResolvedNavigationTargetAction,
+    SeverityLevel,
+    StatusAction,
+    TYPES,
+    hasObjectProp,
+    hasStringProp
+} from '@eclipse-glsp/sprotty';
 import { EditorContextServiceProvider } from '../../base/editor-context-service';
-import { TYPES } from '../../base/types';
 import { NavigationTargetResolver } from './navigation-target-resolver';
 
 /**
@@ -260,11 +264,8 @@ export class NavigationActionHandler implements IActionHandler {
         this.notify('WARNING', message);
     }
 
-    private notify(severity: ServerSeverity, message: string): void {
+    private notify(severity: SeverityLevel, message: string): void {
         const timeout = this.notificationTimeout;
-        this.dispatcher.dispatchAll([
-            ServerStatusAction.create(message, { severity, timeout }),
-            ServerMessageAction.create(message, { severity, timeout })
-        ]);
+        this.dispatcher.dispatchAll([StatusAction.create(message, { severity, timeout }), MessageAction.create(message, { severity })]);
     }
 }

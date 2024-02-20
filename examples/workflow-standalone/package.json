@@ -1,6 +1,6 @@
 {
   "name": "workflow-standalone",
-  "version": "1.1.0-next",
+  "version": "2.2.0-next",
   "private": true,
   "description": "Standalone browser-app for the Workflow example",
   "homepage": "https://www.eclipse.org/glsp/",
@@ -27,15 +27,19 @@
     "lint": "eslint --ext .ts,.tsx ./src",
     "lint:ci": "yarn lint -o eslint.xml -f checkstyle",
     "prepare": "yarn clean && yarn build",
+    "start:exampleServer": "yarn ts-node ./scripts/start-example-server.ts",
     "watch": "tsc -w -p ./tsconfig.json"
   },
   "dependencies": {
-    "@eclipse-glsp-examples/workflow-glsp": "1.1.0-next",
-    "@eclipse-glsp/client": "1.1.0-next"
+    "@eclipse-glsp-examples/workflow-glsp": "^2.2.0-next",
+    "@eclipse-glsp/client": "^2.2.0-next"
   },
   "devDependencies": {
+    "@types/shelljs": "0.8.12",
+    "@types/tar": "6.1.5",
     "circular-dependency-plugin": "^5.2.2",
     "css-loader": "^6.7.1",
+    "inversify": "^6.0.1",
     "path-browserify": "^1.0.1",
     "source-map-loader": "^4.0.0",
     "style-loader": "^3.3.1",

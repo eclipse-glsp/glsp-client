@@ -5,12 +5,28 @@ module.exports = {
         'no-restricted-imports': [
             'warn',
             {
+                name: 'sprotty',
+                message: 'Please use @eclipse-glsp/sprotty instead'
+            },
+            {
+                name: 'sprotty/*',
+                message: 'Please use @eclipse-glsp/sprotty instead'
+            },
+            {
                 name: 'sprotty-protocol',
-                message: "Please use '@eclipse-glsp/protocol' instead"
+                message: 'Please use @eclipse-glsp/sprotty instead'
             },
             {
                 name: 'sprotty-protocol/*',
-                message: "Please use '@eclipse-glsp/protocol' instead"
+                message: 'Please use @eclipse-glsp/sprotty instead'
+            },
+            {
+                name: '@eclipse-glsp/protocol',
+                message: 'Please use @eclipse-glsp/sprotty instead'
+            },
+            {
+                name: '@eclipse-glsp/protocol/*',
+                message: 'Please use @eclipse-glsp/sprotty instead'
             }
         ]
     }

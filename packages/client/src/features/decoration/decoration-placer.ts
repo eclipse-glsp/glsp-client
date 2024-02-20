@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020-2022 EclipseSource and others.
+ * Copyright (c) 2019-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,22 +13,21 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Point } from '@eclipse-glsp/protocol';
+import { Decoration, DecorationPlacer, GChildElement, GModelElement, GRoutableElement, Point, isSizeable } from '@eclipse-glsp/sprotty';
 import { injectable } from 'inversify';
-import { Decoration, DecorationPlacer, isSizeable, SChildElement, SModelElement, SRoutableElement } from 'sprotty';
 
 @injectable()
 export class GlspDecorationPlacer extends DecorationPlacer {
     protected static readonly DECORATION_OFFSET: Point = { x: 12, y: 10 };
 
-    protected override getPosition(element: SModelElement & Decoration): Point {
-        if (element instanceof SChildElement && element.parent instanceof SRoutableElement) {
+    protected override getPosition(element: GModelElement & Decoration): Point {
+        if (element instanceof GChildElement && element.parent instanceof GRoutableElement) {
             return super.getPosition(element);
         }
         if (isSizeable(element)) {
             return {
-                x: GlspDecorationPlacer.DECORATION_OFFSET.x * element.bounds.width,
-                y: GlspDecorationPlacer.DECORATION_OFFSET.y * element.bounds.height
+                x: -GlspDecorationPlacer.DECORATION_OFFSET.x,
+                y: -GlspDecorationPlacer.DECORATION_OFFSET.y
             };
         }
         return Point.ORIGIN;

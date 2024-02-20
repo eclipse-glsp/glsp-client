@@ -14,7 +14,8 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { inject, injectable, postConstruct } from 'inversify';
-import { CommandPaletteKeyListener, KeyListener, KeyTool, Tool } from 'sprotty';
+import { CommandPaletteKeyListener, KeyListener, KeyTool } from '@eclipse-glsp/sprotty';
+import { Tool } from '../../base/tool-manager/tool';
 
 @injectable()
 export class CommandPaletteTool implements Tool {

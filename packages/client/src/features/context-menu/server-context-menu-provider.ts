@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2022 EclipseSource and others.
+ * Copyright (c) 2019-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,12 +13,20 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, LabeledAction, Point, RequestContextActions, SetContextActions } from '@eclipse-glsp/protocol';
 import { inject, injectable } from 'inversify';
-import { IContextMenuItemProvider, isSelected, SModelElement } from 'sprotty';
+import {
+    Action,
+    IContextMenuItemProvider,
+    LabeledAction,
+    Point,
+    RequestContextActions,
+    GModelElement,
+    SetContextActions,
+    TYPES,
+    isSelected
+} from '@eclipse-glsp/sprotty';
 import { GLSPActionDispatcher } from '../../base/action-dispatcher';
 import { EditorContextService } from '../../base/editor-context-service';
-import { TYPES } from '../../base/types';
 
 export namespace ServerContextMenu {
     export const CONTEXT_ID = 'context-menu';
@@ -29,7 +37,7 @@ export class ServerContextMenuItemProvider implements IContextMenuItemProvider {
     @inject(TYPES.IActionDispatcher) protected actionDispatcher: GLSPActionDispatcher;
     @inject(EditorContextService) protected editorContext: EditorContextService;
 
-    getItems(root: Readonly<SModelElement>, lastMousePosition?: Point): Promise<LabeledAction[]> {
+    async getItems(root: Readonly<GModelElement>, _lastMousePosition?: Point): Promise<LabeledAction[]> {
         const selectedElementIds = Array.from(
             root.index
                 .all()
@@ -38,7 +46,8 @@ export class ServerContextMenuItemProvider implements IContextMenuItemProvider {
         );
         const editorContext = this.editorContext.getWithSelection(selectedElementIds);
         const requestAction = RequestContextActions.create({ contextId: ServerContextMenu.CONTEXT_ID, editorContext });
-        return this.actionDispatcher.requestUntil(requestAction).then(response => this.getContextActionsFromResponse(response));
+        const response = await this.actionDispatcher.requestUntil(requestAction);
+        return response ? this.getContextActionsFromResponse(response) : [];
     }
 
     getContextActionsFromResponse(action: Action): LabeledAction[] {

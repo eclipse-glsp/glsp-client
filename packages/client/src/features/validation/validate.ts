@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2022 EclipseSource and others.
+ * Copyright (c) 2019-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,15 +13,26 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, DeleteMarkersAction, hasArrayProp, Marker, SetMarkersAction } from '@eclipse-glsp/protocol';
 import { inject, injectable, optional } from 'inversify';
-import { CommandExecutionContext, CommandReturn, IActionDispatcher, IActionHandler, ICommand, SIssueMarker, SParentElement } from 'sprotty';
+import {
+    Action,
+    CommandExecutionContext,
+    CommandReturn,
+    DeleteMarkersAction,
+    IActionDispatcher,
+    IActionHandler,
+    ICommand,
+    Marker,
+    GParentElement,
+    SetMarkersAction,
+    TYPES,
+    hasArrayProp
+} from '@eclipse-glsp/sprotty';
 import { EditorContextService } from '../../base/editor-context-service';
-import { TYPES } from '../../base/types';
-import { removeCssClasses } from '../../utils/smodel-util';
-import { IFeedbackActionDispatcher, IFeedbackEmitter } from '../tool-feedback/feedback-action-dispatcher';
-import { FeedbackCommand } from '../tool-feedback/model';
-import { createSIssue, getOrCreateSIssueMarker, getSeverity, getSIssueMarker, GIssueMarker } from './issue-marker';
+import { IFeedbackActionDispatcher, IFeedbackEmitter } from '../../base/feedback/feedback-action-dispatcher';
+import { FeedbackCommand } from '../../base/feedback/feedback-command';
+import { removeCssClasses } from '../../utils/gmodel-util';
+import { GIssueMarker, createGIssue, getOrCreateGIssueMarker, getGIssueMarker, getSeverity } from './issue-marker';
 
 /**
  * Feedback emitter sending actions for visualizing model validation feedback and
@@ -33,28 +44,25 @@ export class ValidationFeedbackEmitter implements IFeedbackEmitter {
 
     @inject(TYPES.IActionDispatcherProvider) protected actionDispatcher: () => Promise<IActionDispatcher>;
 
-    private registeredAction: ApplyMarkersAction;
-
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    private constructor() {}
+    protected registeredFeedbackByReason: Map<string, ApplyMarkersAction> = new Map();
 
     /**
      * Register the action that should be emitted for visualizing validation feedback.
      * @param action the action that should be emitted when the model is updated and that will visualize the model validation feedback.
+     * @param reason the reason for this validation feedback.
      */
-    registerValidationFeedbackAction(action: ApplyMarkersAction): void {
-        // De-register old action responsible for applying markers and re-applying them when the model is updated
-        this.feedbackActionDispatcher.deregisterFeedback(this, []);
-
-        // Clear existing markers
-        if (this.registeredAction !== undefined) {
-            const deleteMarkersAction = DeleteMarkersAction.create(this.registeredAction.markers);
+    registerValidationFeedbackAction(action: ApplyMarkersAction, reason = ''): void {
+        // De-register feedback and clear existing markers with the same reason
+        const previousFeedbackWithSameReason = this.registeredFeedbackByReason.get(reason);
+        if (previousFeedbackWithSameReason) {
+            this.feedbackActionDispatcher.deregisterFeedback(this, [previousFeedbackWithSameReason]);
+            const deleteMarkersAction = DeleteMarkersAction.create(previousFeedbackWithSameReason.markers);
             this.actionDispatcher().then(dispatcher => dispatcher.dispatch(deleteMarkersAction));
         }
 
         // Register new action responsible for applying markers and re-applying them when the model is updated
-        this.feedbackActionDispatcher.registerFeedback(this, [action]);
-        this.registeredAction = action;
+        this.registeredFeedbackByReason.set(reason, action);
+        this.feedbackActionDispatcher.registerFeedback(this, [...this.registeredFeedbackByReason.values()]);
     }
 }
 
@@ -80,7 +88,7 @@ export abstract class ExternalMarkerManager {
         }
     }
 
-    abstract setMarkers(markers: Marker[], sourceUri?: string): void;
+    abstract setMarkers(markers: Marker[], reason?: string, sourceUri?: string): void;
 }
 
 @injectable()
@@ -97,14 +105,14 @@ export class SetMarkersActionHandler implements IActionHandler {
 
     handle(action: SetMarkersAction): void | Action | ICommand {
         const markers: Marker[] = action.markers;
-        this.setMarkers(markers);
+        this.setMarkers(markers, action.reason);
     }
 
-    async setMarkers(markers: Marker[]): Promise<void> {
-        const uri = await this.editorContextService.getSourceUri();
-        this.externalMarkerManager?.setMarkers(markers, uri);
+    async setMarkers(markers: Marker[], reason: string | undefined): Promise<void> {
+        const uri = this.editorContextService.sourceUri;
+        this.externalMarkerManager?.setMarkers(markers, reason, uri);
         const applyMarkersAction = ApplyMarkersAction.create(markers);
-        this.validationFeedbackEmitter.registerValidationFeedbackAction(applyMarkersAction);
+        this.validationFeedbackEmitter.registerValidationFeedbackAction(applyMarkersAction, reason);
     }
 }
 
@@ -132,7 +140,7 @@ export namespace ApplyMarkersAction {
 }
 
 /**
- * Handles {@link ApplyMarkersAction}s by creating the corresponding {@link SIssueMarker}s and
+ * Handles {@link ApplyMarkersAction}s by creating the corresponding {@link GIssueMarker}s and
  * adding them to the graphical model.
  */
 @injectable()
@@ -146,9 +154,9 @@ export class ApplyMarkersCommand extends FeedbackCommand {
     execute(context: CommandExecutionContext): CommandReturn {
         this.action.markers.forEach(marker => {
             const modelElement = context.root.index.getById(marker.elementId);
-            if (modelElement instanceof SParentElement) {
-                const issueMarker = getOrCreateSIssueMarker(modelElement);
-                const issue = createSIssue(marker);
+            if (modelElement instanceof GParentElement) {
+                const issueMarker = getOrCreateGIssueMarker(modelElement);
+                const issue = createGIssue(marker);
                 issueMarker.issues.push(issue);
                 if (issueMarker instanceof GIssueMarker) {
                     issueMarker.computeProjectionCssClasses();
@@ -160,7 +168,7 @@ export class ApplyMarkersCommand extends FeedbackCommand {
     }
 }
 
-function addMaxSeverityCSSClassToIssueParent(modelElement: SParentElement, issueMarker: SIssueMarker): void {
+function addMaxSeverityCSSClassToIssueParent(modelElement: GParentElement, issueMarker: GIssueMarker): void {
     const maxSeverityCSSClass = getSeverity(issueMarker);
     if (!modelElement.cssClasses) {
         modelElement.cssClasses = [maxSeverityCSSClass];
@@ -170,7 +178,7 @@ function addMaxSeverityCSSClassToIssueParent(modelElement: SParentElement, issue
     }
 }
 
-function removeCSSClassFromIssueParent(modelElement: SParentElement, issueMarker: SIssueMarker): void {
+function removeCSSClassFromIssueParent(modelElement: GParentElement, issueMarker: GIssueMarker): void {
     const severity = getSeverity(issueMarker);
     removeCssClasses(modelElement, [severity]);
 }
@@ -189,8 +197,8 @@ export class DeleteMarkersCommand extends FeedbackCommand {
     execute(context: CommandExecutionContext): CommandReturn {
         this.action.markers.forEach(marker => {
             const modelElement = context.root.index.getById(marker.elementId);
-            if (modelElement instanceof SParentElement) {
-                const issueMarker = getSIssueMarker(modelElement);
+            if (modelElement instanceof GParentElement) {
+                const issueMarker = getGIssueMarker(modelElement);
                 if (issueMarker) {
                     removeCSSClassFromIssueParent(modelElement, issueMarker);
                     for (let index = 0; index < issueMarker.issues.length; ++index) {

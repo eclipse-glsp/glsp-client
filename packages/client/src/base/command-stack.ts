@@ -13,12 +13,57 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { injectable } from 'inversify';
-import { CommandStack, SModelRoot } from 'sprotty';
+import {
+    CommandStack,
+    Disposable,
+    DisposableCollection,
+    Emitter,
+    Event,
+    GModelRoot,
+    ICommand,
+    SetModelCommand,
+    TYPES,
+    UpdateModelCommand
+} from '@eclipse-glsp/sprotty';
+import { injectable, multiInject, optional, preDestroy } from 'inversify';
+
+/**
+ * A hook to listen for model root changes. Will be called after a server update
+ * has been processed
+ */
+export interface IGModelRootListener {
+    modelRootChanged(root: Readonly<GModelRoot>): void;
+}
+
+/**
+ * @deprecated Use {@link IGModelRootListener} instead
+ */
+export type ISModelRootListener = IGModelRootListener;
 
 @injectable()
-export class GLSPCommandStack extends CommandStack {
-    override undo(): Promise<SModelRoot> {
+export class GLSPCommandStack extends CommandStack implements Disposable {
+    @multiInject(TYPES.IGModelRootListener)
+    @optional()
+    protected modelRootListeners: IGModelRootListener[] = [];
+    protected toDispose = new DisposableCollection();
+
+    protected override initialize(): void {
+        super.initialize();
+        this.toDispose.push(this.onModelRootChangedEmitter);
+        this.modelRootListeners.forEach(listener => this.onModelRootChanged(root => listener.modelRootChanged(root)));
+    }
+
+    @preDestroy()
+    dispose(): void {
+        this.toDispose.dispose();
+    }
+
+    protected onModelRootChangedEmitter = new Emitter<Readonly<GModelRoot>>();
+    get onModelRootChanged(): Event<Readonly<GModelRoot>> {
+        return this.onModelRootChangedEmitter.event;
+    }
+
+    override undo(): Promise<GModelRoot> {
         this.logger.warn(
             this,
             'GLSPCommandStack.undo() was called. This should never happen as the GLSP server is responsible for handling undo requests'
@@ -26,11 +71,23 @@ export class GLSPCommandStack extends CommandStack {
         return this.currentModel;
     }
 
-    override redo(): Promise<SModelRoot> {
+    override redo(): Promise<GModelRoot> {
         this.logger.warn(
             this,
             'GLSPCommandStack.redo() was called. This should never happen as the GLSP server is responsible for handling redo requests'
         );
         return this.currentModel;
+    }
+
+    override execute(command: ICommand): Promise<GModelRoot> {
+        const result = super.execute(command);
+        if (command instanceof SetModelCommand || command instanceof UpdateModelCommand) {
+            result.then(root => this.notifyListeners(root));
+        }
+        return result;
+    }
+
+    protected notifyListeners(root: Readonly<GModelRoot>): void {
+        this.onModelRootChangedEmitter.fire(root);
     }
 }

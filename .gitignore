@@ -16,3 +16,5 @@ examples/workflow-standalone/app
 tsconfig.tsbuildinfo
 eslint.xml
 report.xml
+
+examples/workflow-standalone/server

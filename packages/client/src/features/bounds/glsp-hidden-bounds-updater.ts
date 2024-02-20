@@ -14,11 +14,23 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { Action, ComputedBoundsAction, Deferred, ElementAndRoutingPoints, RequestAction, ResponseAction } from '@eclipse-glsp/protocol';
+import {
+    Action,
+    ComputedBoundsAction,
+    Deferred,
+    EdgeRouterRegistry,
+    ElementAndRoutingPoints,
+    GModelElement,
+    GRoutableElement,
+    HiddenBoundsUpdater,
+    IActionDispatcher,
+    RequestAction,
+    ResponseAction
+} from '@eclipse-glsp/sprotty';
 import { inject, injectable, optional } from 'inversify';
 import { VNode } from 'snabbdom';
-import { EdgeRouterRegistry, HiddenBoundsUpdater, IActionDispatcher, SModelElement, SRoutableElement } from 'sprotty';
-import { calcElementAndRoute, isRoutable } from '../../utils/smodel-util';
+import { calcElementAndRoute, isRoutable } from '../../utils/gmodel-util';
+import { LocalComputedBoundsAction, LocalRequestBoundsAction } from './local-bounds';
 
 /**
  * Grabs the bounds from hidden SVG DOM elements, applies layouts, collects routes and fires {@link ComputedBoundsAction}s.
@@ -30,10 +42,10 @@ export class GLSPHiddenBoundsUpdater extends HiddenBoundsUpdater {
     @inject(EdgeRouterRegistry) @optional() protected readonly edgeRouterRegistry?: EdgeRouterRegistry;
 
     protected element2route: ElementAndRoutingPoints[] = [];
-    protected edges: SRoutableElement[] = [];
+    protected edges: GRoutableElement[] = [];
     protected nodes: VNode[] = [];
 
-    override decorate(vnode: VNode, element: SModelElement): VNode {
+    override decorate(vnode: VNode, element: GModelElement): VNode {
         super.decorate(vnode, element);
         if (isRoutable(element)) {
             this.element2route.push(calcElementAndRoute(element, this.edgeRouterRegistry));
@@ -45,7 +57,7 @@ export class GLSPHiddenBoundsUpdater extends HiddenBoundsUpdater {
         const actions = this.captureActions(() => super.postUpdate(cause));
         actions
             .filter(action => ComputedBoundsAction.is(action))
-            .forEach(action => this.actionDispatcher.dispatch(this.enhanceAction(action as ComputedBoundsAction)));
+            .forEach(action => this.actionDispatcher.dispatch(this.enhanceAction(action as ComputedBoundsAction, cause)));
         this.element2route = [];
     }
 
@@ -61,7 +73,10 @@ export class GLSPHiddenBoundsUpdater extends HiddenBoundsUpdater {
         }
     }
 
-    protected enhanceAction(action: ComputedBoundsAction): ComputedBoundsAction {
+    protected enhanceAction(action: ComputedBoundsAction, cause?: Action): ComputedBoundsAction {
+        if (LocalRequestBoundsAction.is(cause)) {
+            LocalComputedBoundsAction.mark(action);
+        }
         action.routes = this.element2route.length === 0 ? undefined : this.element2route;
         return action;
     }

@@ -17,28 +17,28 @@ import {
     AbstractUIExtension,
     Action,
     AutoCompleteWidget,
+    DOMHelper,
     EditorContextService,
-    getAbsoluteClientBounds,
     GLSPActionDispatcher,
-    hasStringProp,
     ILogger,
     LabeledAction,
     ModelIndexImpl,
     Operation,
     RequestContextActions,
     RequestEditValidationAction,
+    GModelRoot,
     SetContextActions,
     SetEditValidationResultAction,
-    SModelRoot,
-    toActionArray,
     TYPES,
     ValidationDecorator,
     ValidationStatus,
-    ViewerOptions
+    ViewerOptions,
+    getAbsoluteClientBounds,
+    hasStringProp,
+    toActionArray
 } from '@eclipse-glsp/client';
 import { inject, injectable } from 'inversify';
-import { DOMHelper } from 'sprotty/lib/base/views/dom-helper';
-import { isTaskNode, TaskNode } from '../model';
+import { TaskNode, isTaskNode } from '../model';
 
 /**
  * Is send from the {@link TaskEditor} to the GLSP server
@@ -137,12 +137,12 @@ export class TaskEditor extends AbstractUIExtension {
         this.autoSuggestion.initialize(containerElement);
     }
 
-    override show(root: Readonly<SModelRoot>, ...contextElementIds: string[]): void {
+    override show(root: Readonly<GModelRoot>, ...contextElementIds: string[]): void {
         super.show(root, ...contextElementIds);
         this.autoSuggestion.open(root);
     }
 
-    protected override onBeforeShow(containerElement: HTMLElement, root: Readonly<SModelRoot>, ...contextElementIds: string[]): void {
+    protected override onBeforeShow(containerElement: HTMLElement, root: Readonly<GModelRoot>, ...contextElementIds: string[]): void {
         this.task = getTask(contextElementIds, root.index)[0];
         this.autoSuggestion.inputField.value = '';
         this.setPosition(containerElement);

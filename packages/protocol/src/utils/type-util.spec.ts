@@ -32,7 +32,7 @@ describe('TypeUtil', () => {
                 // eslint-disable-next-line no-null/no-null
                 expect(AnyObject.is(null)).to.be.false;
             });
-            it('should return false for any object of primitive type', () => {
+            it('should return false for unknown object of primitive type', () => {
                 expect(AnyObject.is('')).to.be.false;
                 expect(AnyObject.is(5)).to.be.false;
                 expect(AnyObject.is(true)).to.be.false;
@@ -63,6 +63,12 @@ describe('TypeUtil', () => {
         it('should return false for an object that has a property with matching name but invalid type when using the optional flag', () => {
             expect(hasStringProp({ someProp: 123 }, 'someProp', true)).to.be.false;
         });
+        it('should return true for an object that has a property with matching name but without value when using the optional flag', () => {
+            expect(hasStringProp({ someProp: undefined }, 'someProp', true)).to.be.true;
+        });
+        it('should return true for an object that has a property that matches the given key and type when using the optional flag', () => {
+            expect(hasStringProp({ someProp: 'someKey' }, 'someProp', true)).to.be.true;
+        });
     });
 
     describe('hasBooleanProp', () => {
@@ -80,6 +86,12 @@ describe('TypeUtil', () => {
         });
         it('should return false for an object that has a property with matching name but invalid type when using the optional flag', () => {
             expect(hasBooleanProp({ someProp: 123 }, 'someProp', true)).to.be.false;
+        });
+        it('should return true for an object that has a property with matching name but without value when using the optional flag', () => {
+            expect(hasBooleanProp({ someProp: undefined }, 'someProp', true)).to.be.true;
+        });
+        it('should return true for an object that has a property that matches the given key and type when using the optional flag', () => {
+            expect(hasBooleanProp({ someProp: true }, 'someProp', true)).to.be.true;
         });
     });
 
@@ -99,6 +111,12 @@ describe('TypeUtil', () => {
         it('should return false for an object that has a property with matching name but invalid type when using the optional flag', () => {
             expect(hasNumberProp({ someProp: '123' }, 'someProp', true)).to.be.false;
         });
+        it('should return true for an object that has a property with matching name but without value when using the optional flag', () => {
+            expect(hasNumberProp({ someProp: undefined }, 'someProp', true)).to.be.true;
+        });
+        it('should return true for an object that has a property that matches the given key and type when using the optional flag', () => {
+            expect(hasNumberProp({ someProp: 123 }, 'someProp', true)).to.be.true;
+        });
     });
 
     describe('hasObjectProp', () => {
@@ -116,6 +134,12 @@ describe('TypeUtil', () => {
         });
         it('should return false for an object that has a property with matching name but invalid type when using the optional flag', () => {
             expect(hasObjectProp({ someProp: 123 }, 'someProp', true)).to.be.false;
+        });
+        it('should return true for an object that has a property with matching name but without value when using the optional flag', () => {
+            expect(hasObjectProp({ someProp: undefined }, 'someProp', true)).to.be.true;
+        });
+        it('should return true for an object that has a property that matches the given key and type when using the optional flag', () => {
+            expect(hasObjectProp({ someProp: { value: 'someKey' } }, 'someProp', true)).to.be.true;
         });
     });
 
@@ -136,6 +160,13 @@ describe('TypeUtil', () => {
         it('should return false for an object that has a property with matching name but invalid type when using the optional flag', () => {
             expect(hasFunctionProp({ someProp: 123 }, 'someProp', true)).to.be.false;
         });
+        it('should return true for an object that has a property with matching name but without value when using the optional flag', () => {
+            expect(hasFunctionProp({ someProp: undefined }, 'someProp', true)).to.be.true;
+        });
+        it('should return true for an object that has a property that matches the given key and type when using the optional flag', () => {
+            // eslint-disable-next-line @typescript-eslint/no-empty-function
+            expect(hasFunctionProp({ someProp: () => {} }, 'someProp', true)).to.be.true;
+        });
     });
 
     describe('hasArrayProp', () => {
@@ -153,6 +184,12 @@ describe('TypeUtil', () => {
         });
         it('should return false for an object that has a property with matching name but invalid type when using the optional flag', () => {
             expect(hasArrayProp({ someProp: 123 }, 'someProp', true)).to.be.false;
+        });
+        it('should return true for an object that has a property with matching name but without value when using the optional flag', () => {
+            expect(hasArrayProp({ someProp: undefined }, 'someProp', true)).to.be.true;
+        });
+        it('should return true for an object that has a property that matches the given key and type when using the optional flag', () => {
+            expect(hasArrayProp({ someProp: ['some', 'prop'] }, 'someProp', true)).to.be.true;
         });
     });
 });

@@ -13,14 +13,13 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { RequestAction } from '@eclipse-glsp/protocol';
 import { injectable } from 'inversify';
-import { ExportSvgAction, SModelRoot, SvgExporter } from 'sprotty';
 import { v4 as uuid } from 'uuid';
+import { ExportSvgAction, RequestAction, GModelRoot, SvgExporter } from '@eclipse-glsp/sprotty';
 
 @injectable()
 export class GLSPSvgExporter extends SvgExporter {
-    override export(root: SModelRoot, _request?: RequestAction<ExportSvgAction>): void {
+    override export(root: GModelRoot, _request?: RequestAction<ExportSvgAction>): void {
         if (typeof document !== 'undefined') {
             const svgElement = this.findSvgElement();
             if (svgElement) {
@@ -35,7 +34,7 @@ export class GLSPSvgExporter extends SvgExporter {
                         `style="width: ${bounds.width}px !important;height: ${bounds.height}px !important;border: none !important;`
                     );
                     // do not give request/response id here as otherwise the action is treated as an unrequested response
-                    this.actionDispatcher.dispatch(ExportSvgAction.create(svg, ''));
+                    this.actionDispatcher.dispatch(ExportSvgAction.create(svg));
                 } finally {
                     svgElement.id = originalId;
                 }

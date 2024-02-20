@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020-2022 EclipseSource and others.
+ * Copyright (c) 2020-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -14,10 +14,21 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 /* eslint-disable deprecation/deprecation */
-import { Action, hasStringProp, Point, ServerMessageAction, ServerStatusAction } from '@eclipse-glsp/protocol';
 import { inject, injectable } from 'inversify';
-import { IActionDispatcher, IActionHandler, IContextMenuItemProvider, isSelected, MenuItem, SModelRoot } from 'sprotty';
-import { TYPES } from '../../base/types';
+import {
+    Action,
+    IActionDispatcher,
+    IActionHandler,
+    IContextMenuItemProvider,
+    MenuItem,
+    Point,
+    GModelRoot,
+    MessageAction,
+    StatusAction,
+    TYPES,
+    hasStringProp,
+    isSelected
+} from '@eclipse-glsp/sprotty';
 
 /**
  * An `InvokeCopyPasteAction` is dispatched by the client to initiate a cut, copy or paste operation.
@@ -72,16 +83,13 @@ export class InvokeCopyPasteActionHandler implements IActionHandler {
         const message = `Please use the browser's ${operation} command or shortcut.`;
         const timeout = 10000;
         const severity = 'WARNING';
-        this.dispatcher.dispatchAll([
-            ServerStatusAction.create(message, { severity, timeout }),
-            ServerMessageAction.create(message, { severity, timeout })
-        ]);
+        this.dispatcher.dispatchAll([StatusAction.create(message, { severity, timeout }), MessageAction.create(message, { severity })]);
     }
 }
 
 @injectable()
 export class CopyPasteContextMenuItemProvider implements IContextMenuItemProvider {
-    getItems(root: Readonly<SModelRoot>, _lastMousePosition?: Point): Promise<MenuItem[]> {
+    getItems(root: Readonly<GModelRoot>, _lastMousePosition?: Point): Promise<MenuItem[]> {
         const hasSelectedElements = Array.from(root.index.all().filter(isSelected)).length > 0;
         return Promise.resolve([
             this.createCopyMenuItem(hasSelectedElements),

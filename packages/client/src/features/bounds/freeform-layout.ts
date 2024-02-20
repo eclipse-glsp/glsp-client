@@ -13,11 +13,19 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Bounds, Dimension, Point } from '@eclipse-glsp/protocol';
 import { injectable } from 'inversify';
-import { BoundsData, LayoutContainer, SChildElement, SParentElement, StatefulLayouter } from 'sprotty';
-import { AbstractLayout } from 'sprotty/lib/features/bounds/abstract-layout';
-import { AbstractLayoutOptions } from 'sprotty/lib/features/bounds/layout-options';
+import {
+    AbstractLayout,
+    AbstractLayoutOptions,
+    Bounds,
+    BoundsData,
+    Dimension,
+    GChildElement,
+    LayoutContainer,
+    Point,
+    GParentElement,
+    StatefulLayouter
+} from '@eclipse-glsp/sprotty';
 
 /**
  * Layouts children of a container with explicit X/Y positions
@@ -26,7 +34,7 @@ import { AbstractLayoutOptions } from 'sprotty/lib/features/bounds/layout-option
 export class FreeFormLayouter extends AbstractLayout<AbstractLayoutOptions> {
     static KIND = 'freeform';
 
-    override layout(container: SParentElement & LayoutContainer, layouter: StatefulLayouter): void {
+    override layout(container: GParentElement & LayoutContainer, layouter: StatefulLayouter): void {
         const boundsData = layouter.getBoundsData(container);
         const options = this.getLayoutOptions(container);
         const childrenSize = this.getChildrenSize(container, options, layouter);
@@ -47,7 +55,7 @@ export class FreeFormLayouter extends AbstractLayout<AbstractLayoutOptions> {
     }
 
     protected getChildrenSize(
-        container: SParentElement & LayoutContainer,
+        container: GParentElement & LayoutContainer,
         containerOptions: AbstractLayoutOptions,
         layouter: StatefulLayouter
     ): Dimension {
@@ -69,7 +77,7 @@ export class FreeFormLayouter extends AbstractLayout<AbstractLayoutOptions> {
     }
 
     protected layoutChild(
-        child: SChildElement,
+        child: GChildElement,
         boundsData: BoundsData,
         bounds: Bounds,
         childOptions: AbstractLayoutOptions,
@@ -89,7 +97,7 @@ export class FreeFormLayouter extends AbstractLayout<AbstractLayoutOptions> {
     }
 
     protected override getFinalContainerBounds(
-        container: SParentElement & LayoutContainer,
+        container: GParentElement & LayoutContainer,
         lastOffset: Point,
         options: AbstractLayoutOptions,
         maxWidth: number,

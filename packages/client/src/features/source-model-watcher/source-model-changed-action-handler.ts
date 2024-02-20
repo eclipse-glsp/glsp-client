@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020-2022 EclipseSource and others.
+ * Copyright (c) 2020-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,10 +13,17 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, ServerMessageAction, ServerStatusAction, SourceModelChangedAction } from '@eclipse-glsp/protocol';
 import { inject, injectable, optional } from 'inversify';
-import { IActionDispatcher, IActionHandler, ViewerOptions } from 'sprotty';
-import { TYPES } from '../../base/types';
+import {
+    Action,
+    IActionDispatcher,
+    IActionHandler,
+    MessageAction,
+    SourceModelChangedAction,
+    StatusAction,
+    TYPES,
+    ViewerOptions
+} from '@eclipse-glsp/sprotty';
 
 /**
  * An external handler of the source model change event.
@@ -61,9 +68,6 @@ export class SourceModelChangedActionHandler implements IActionHandler {
         const message = `The source model ${action.sourceModelName} has changed. You might want to consider reloading.`;
         const timeout = 0;
         const severity = 'WARNING';
-        this.dispatcher.dispatchAll([
-            ServerStatusAction.create(message, { severity, timeout }),
-            ServerMessageAction.create(message, { severity, timeout })
-        ]);
+        this.dispatcher.dispatchAll([StatusAction.create(message, { severity, timeout }), MessageAction.create(message, { severity })]);
     }
 }

@@ -14,24 +14,23 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 /* eslint-disable deprecation/deprecation */
-import { Dimension } from '@eclipse-glsp/protocol';
 import { expect } from 'chai';
 import 'mocha';
 import 'reflect-metadata';
-import { BoundsData, ConsoleLogger, SModelElement, SNode } from 'sprotty';
-import { layout, setupLayoutRegistry, sLabel, sNode } from './layouter-test-util.spec';
+import { BoundsData, ConsoleLogger, Dimension, GModelElement, GNode } from '@eclipse-glsp/sprotty';
+import { createLabel, createNode, layout, setupLayoutRegistry } from './layouter-test-util.spec';
 
 describe('HBoxLayouter', () => {
     const layoutRegistry = setupLayoutRegistry();
     const log = new ConsoleLogger();
-    const map = new Map<SModelElement, BoundsData>();
+    const map = new Map<GModelElement, BoundsData>();
 
-    function createModel(): SNode {
-        const model = sNode('node', undefined, Dimension.EMPTY);
+    function createModel(): GNode {
+        const model = createNode('node', undefined, Dimension.EMPTY);
         model.children = [
-            sLabel('label1', undefined, undefined, { width: 1, height: 2 }),
-            sLabel('label2', undefined, undefined, { width: 2, height: 1 }),
-            sLabel('label3', undefined, undefined, { width: 3, height: 3 })
+            createLabel('label1', undefined, undefined, { width: 1, height: 2 }),
+            createLabel('label2', undefined, undefined, { width: 2, height: 1 }),
+            createLabel('label3', undefined, undefined, { width: 3, height: 3 })
         ];
         model.layout = 'hbox';
         return model;

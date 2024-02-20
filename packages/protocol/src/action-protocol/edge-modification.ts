@@ -40,17 +40,12 @@ export interface ReconnectEdgeOperation extends Operation {
      * The (new) target element of the edge.
      */
     targetElementId: string;
-
-    /*
-     * Additional arguments for custom behavior.
-     */
-    args?: Args;
 }
 
 export namespace ReconnectEdgeOperation {
     export const KIND = 'reconnectEdge';
 
-    export function is(object: any): object is ReconnectEdgeOperation {
+    export function is(object: unknown): object is ReconnectEdgeOperation {
         return (
             Operation.hasKind(object, KIND) &&
             hasStringProp(object, 'edgeElementId') &&
@@ -91,15 +86,16 @@ export interface ChangeRoutingPointsOperation extends Operation {
 export namespace ChangeRoutingPointsOperation {
     export const KIND = 'changeRoutingPoints';
 
-    export function is(object: any): object is ChangeRoutingPointsOperation {
+    export function is(object: unknown): object is ChangeRoutingPointsOperation {
         return Operation.hasKind(object, KIND) && hasArrayProp(object, 'newRoutingPoints');
     }
 
-    export function create(newRoutingPoints: ElementAndRoutingPoints[]): ChangeRoutingPointsOperation {
+    export function create(newRoutingPoints: ElementAndRoutingPoints[], options: { args?: Args } = {}): ChangeRoutingPointsOperation {
         return {
             kind: KIND,
             isOperation: true,
-            newRoutingPoints
+            newRoutingPoints,
+            ...options
         };
     }
 }

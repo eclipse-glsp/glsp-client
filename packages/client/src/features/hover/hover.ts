@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020-2022 EclipseSource and others.
+ * Copyright (c) 2020-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,22 +13,27 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { injectable } from 'inversify';
 import {
     Action,
     Bounds,
-    PreRenderedElementSchema,
+    EMPTY_ROOT,
+    HoverFeedbackAction,
+    HoverMouseListener,
+    IActionHandler,
+    ICommand,
+    GPreRenderedElementSchema,
     RequestPopupModelAction,
+    GModelElement,
+    GModelElementSchema,
     SetPopupModelAction,
-    SModelElementSchema,
-    SModelRootSchema
-} from '@eclipse-glsp/protocol';
-import { injectable } from 'inversify';
-import { EMPTY_ROOT, HoverMouseListener, IActionHandler, ICommand, SModelElement } from 'sprotty';
-import { HoverFeedbackAction } from 'sprotty-protocol/lib/actions';
-import { FocusStateChangedAction } from '../../base/actions/focus-change-action';
-import { EnableDefaultToolsAction, EnableToolsAction } from '../../base/tool-manager/tool-actions';
-import { EdgeCreationTool } from '../tools/edge-creation-tool';
-import { getSeverity, GIssueMarker } from '../validation/issue-marker';
+    GModelRootSchema
+} from '@eclipse-glsp/sprotty';
+import { FocusStateChangedAction } from '../../base/focus/focus-state-change-action';
+import { EnableDefaultToolsAction, EnableToolsAction } from '../../base/tool-manager/tool';
+import { EdgeCreationTool } from '../tools/edge-creation/edge-creation-tool';
+import { GIssueMarker, getSeverity } from '../validation/issue-marker';
+
 @injectable()
 export class GlspHoverMouseListener extends HoverMouseListener implements IActionHandler {
     protected enableHover = true;
@@ -56,20 +61,20 @@ export class GlspHoverMouseListener extends HoverMouseListener implements IActio
         }
     }
 
-    override mouseOver(target: SModelElement, event: MouseEvent): (Action | Promise<Action>)[] {
+    override mouseOver(target: GModelElement, event: MouseEvent): (Action | Promise<Action>)[] {
         if (this.enableHover) {
             return super.mouseOver(target, event);
         }
         return [];
     }
 
-    protected override startMouseOverTimer(target: SModelElement, event: MouseEvent): Promise<Action> {
+    protected override startMouseOverTimer(target: GModelElement, event: MouseEvent): Promise<Action> {
         this.stopMouseOverTimer();
         return new Promise(resolve => {
             this.state.mouseOverTimer = window.setTimeout(() => {
                 const popupBounds = this.computePopupBounds(target, { x: event.pageX, y: event.pageY });
                 if (target instanceof GIssueMarker) {
-                    resolve(SetPopupModelAction.create(this.createPopupModel(target as GIssueMarker, popupBounds)));
+                    resolve(SetPopupModelAction.create(this.createPopupModel(target, popupBounds)));
                 } else {
                     resolve(RequestPopupModelAction.create({ elementId: target.id, bounds: popupBounds }));
                 }
@@ -80,7 +85,7 @@ export class GlspHoverMouseListener extends HoverMouseListener implements IActio
         });
     }
 
-    protected createPopupModel(marker: GIssueMarker, bounds: Bounds): SModelRootSchema {
+    protected createPopupModel(marker: GIssueMarker, bounds: Bounds): GModelRootSchema {
         if (marker.issues !== undefined && marker.issues.length > 0) {
             return {
                 type: 'html',
@@ -92,13 +97,13 @@ export class GlspHoverMouseListener extends HoverMouseListener implements IActio
         return { type: EMPTY_ROOT.type, id: EMPTY_ROOT.id };
     }
 
-    protected createMarkerIssuePopup(marker: GIssueMarker): SModelElementSchema {
+    protected createMarkerIssuePopup(marker: GIssueMarker): GModelElementSchema {
         const message = this.createIssueMessage(marker);
-        return {
+        return <GPreRenderedElementSchema>{
             type: 'pre-rendered',
             id: 'popup-title',
             code: `<div class="${getSeverity(marker)}"><div class="sprotty-popup-title">${message}</div></div>`
-        } as PreRenderedElementSchema;
+        };
     }
 
     protected createIssueMessage(marker: GIssueMarker): string {

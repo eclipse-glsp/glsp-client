@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { JsonPrimitive } from 'sprotty-protocol';
-import { hasArrayProp, hasObjectProp, hasStringProp } from '../utils/type-util';
+import { AnyObject, hasArrayProp, hasObjectProp, hasStringProp } from '../utils/type-util';
 import { Action, RequestAction, ResponseAction } from './base-protocol';
 import { Args, EditorContext } from './types';
 
@@ -40,8 +40,8 @@ export interface NavigationTarget {
 }
 
 export namespace NavigationTarget {
-    export function is(object: any): object is NavigationTarget {
-        return object !== undefined && hasStringProp(object, 'uri');
+    export function is(object: unknown): object is NavigationTarget {
+        return AnyObject.is(object) && hasStringProp(object, 'uri');
     }
     /**
      *  Generic key to store element ids as additional argument
@@ -175,7 +175,7 @@ export interface RequestNavigationTargetsAction extends RequestAction<SetNavigat
 export namespace RequestNavigationTargetsAction {
     export const KIND = 'requestNavigationTargets';
 
-    export function is(object: any): object is RequestNavigationTargetsAction {
+    export function is(object: unknown): object is RequestNavigationTargetsAction {
         return RequestAction.hasKind(object, KIND) && hasStringProp(object, 'targetTypeId') && hasObjectProp(object, 'editorContext');
     }
 
@@ -213,7 +213,7 @@ export interface SetNavigationTargetsAction extends ResponseAction {
 export namespace SetNavigationTargetsAction {
     export const KIND = 'setNavigationTargets';
 
-    export function is(object: any): object is SetNavigationTargetsAction {
+    export function is(object: unknown): object is SetNavigationTargetsAction {
         return Action.hasKind(object, KIND) && hasArrayProp(object, 'targets');
     }
 
@@ -241,7 +241,7 @@ export interface NavigateToTargetAction extends Action {
 export namespace NavigateToTargetAction {
     export const KIND = 'navigateToTarget';
 
-    export function is(object: any): object is NavigateToTargetAction {
+    export function is(object: unknown): object is NavigateToTargetAction {
         return Action.hasKind(object, KIND) && hasObjectProp(object, 'target');
     }
 
@@ -272,7 +272,7 @@ export interface ResolveNavigationTargetAction extends RequestAction<SetResolved
 export namespace ResolveNavigationTargetAction {
     export const KIND = 'resolveNavigationTarget';
 
-    export function is(object: any): object is ResolveNavigationTargetAction {
+    export function is(object: unknown): object is ResolveNavigationTargetAction {
         return RequestAction.hasKind(object, KIND) && hasObjectProp(object, 'navigationTarget');
     }
 
@@ -309,7 +309,7 @@ export interface SetResolvedNavigationTargetAction extends ResponseAction {
 export namespace SetResolvedNavigationTargetAction {
     export const KIND = 'setResolvedNavigationTarget';
 
-    export function is(object: any): object is SetResolvedNavigationTargetAction {
+    export function is(object: unknown): object is SetResolvedNavigationTargetAction {
         return Action.hasKind(object, KIND) && hasArrayProp(object, 'elementIds');
     }
 
@@ -342,7 +342,7 @@ export interface NavigateToExternalTargetAction extends Action {
 export namespace NavigateToExternalTargetAction {
     export const KIND = 'navigateToExternalTarget';
 
-    export function is(object: any): object is NavigateToExternalTargetAction {
+    export function is(object: unknown): object is NavigateToExternalTargetAction {
         return Action.hasKind(object, KIND) && hasObjectProp(object, 'target');
     }
 

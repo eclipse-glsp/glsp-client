@@ -1,6 +1,6 @@
 {
   "name": "@eclipse-glsp/protocol",
-  "version": "1.1.0-next",
+  "version": "2.2.0-next",
   "description": "The protocol definition for client-server communication in GLSP",
   "keywords": [
     "eclipse",
@@ -46,7 +46,7 @@
     "watch": "tsc -w"
   },
   "dependencies": {
-    "sprotty-protocol": "0.13.0-next.f4445dd.342",
+    "sprotty-protocol": "0.15.0-next.044bba2.13",
     "uuid": "7.0.3",
     "vscode-jsonrpc": "^8.0.2"
   },
@@ -54,7 +54,7 @@
     "@types/uuid": "3.4.5"
   },
   "peerDependencies": {
-    "inversify": "^5.1.1"
+    "inversify": "^6.0.1"
   },
   "publishConfig": {
     "access": "public"

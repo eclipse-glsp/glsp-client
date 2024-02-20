@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2022 EclipseSource and others.
+ * Copyright (c) 2019-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,15 +13,18 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, RequestAction, ResponseAction } from '@eclipse-glsp/protocol';
-import { inject } from 'inversify';
-import { ActionDispatcher } from 'sprotty';
-import { ModelInitializationConstraint } from './model-initialization-constraint';
+import { Action, ActionDispatcher, RequestAction, ResponseAction } from '@eclipse-glsp/sprotty';
+import { inject, injectable } from 'inversify';
+import { OptionalAction } from './model/glsp-model-source';
+import { ModelInitializationConstraint } from './model/model-initialization-constraint';
 
+@injectable()
 export class GLSPActionDispatcher extends ActionDispatcher {
     protected readonly timeouts: Map<string, NodeJS.Timeout> = new Map();
     protected initializedConstraint = false;
-    @inject(ModelInitializationConstraint) protected initializationConstraint: ModelInitializationConstraint;
+
+    @inject(ModelInitializationConstraint)
+    protected initializationConstraint: ModelInitializationConstraint;
 
     override initialize(): Promise<void> {
         return super.initialize().then(() => this.startModelInitialization());
@@ -30,7 +33,7 @@ export class GLSPActionDispatcher extends ActionDispatcher {
     startModelInitialization(): void {
         if (!this.initializedConstraint) {
             this.logger.log(this, 'Starting model initialization mode');
-            this.initializationConstraint.onInitialized().then(() => this.logger.log(this, 'Model initialization completed'));
+            this.initializationConstraint.onInitialized(() => this.logger.log(this, 'Model initialization completed'));
             this.initializedConstraint = true;
         }
     }
@@ -39,8 +42,21 @@ export class GLSPActionDispatcher extends ActionDispatcher {
         return this.initializationConstraint.onInitialized();
     }
 
-    override dispatch(action: Action): Promise<void> {
-        const result = super.dispatch(action);
+    hasHandler(action: Action): boolean {
+        return this.actionHandlerRegistry.get(action.kind).length > 0;
+    }
+
+    /**
+     * Processes all given actions, by dispatching them to the corresponding handlers, after the model initialization is completed.
+     *
+     * @param actions The actions that should be dispatched after the model initialization
+     */
+    dispatchOnceModelInitialized(...actions: Action[]): void {
+        this.initializationConstraint.onInitialized(() => this.dispatchAll(actions));
+    }
+
+    override async dispatch(action: Action): Promise<void> {
+        const result = await super.dispatch(action);
         this.initializationConstraint.notifyDispatched(action);
         return result;
     }
@@ -54,12 +70,15 @@ export class GLSPActionDispatcher extends ActionDispatcher {
                 this.timeouts.delete(action.responseId);
             }
 
-            // we might have reached a timeout, so we simply drop the response
+            // Check if we have a pending request for the response.
+            // If not the  we clear the responseId => action will be dispatched normally
             const deferred = this.requests.get(action.responseId);
             if (deferred === undefined) {
-                this.logger.log(this, 'No matching request for response', action);
-                return Promise.resolve();
+                action.responseId = '';
             }
+        }
+        if (!this.hasHandler(action) && OptionalAction.is(action)) {
+            return Promise.resolve();
         }
         return super.handleAction(action);
     }
@@ -82,7 +101,11 @@ export class GLSPActionDispatcher extends ActionDispatcher {
      * If `rejectOnTimeout` is set to false (default) the returned promise will be resolved with
      * no value, otherwise it will be rejected.
      */
-    requestUntil<Res extends ResponseAction>(action: RequestAction<Res>, timeoutMs = 2000, rejectOnTimeout = false): Promise<Res> {
+    requestUntil<Res extends ResponseAction>(
+        action: RequestAction<Res>,
+        timeoutMs = 2000,
+        rejectOnTimeout = false
+    ): Promise<Res | undefined> {
         if (!action.requestId && action.requestId === '') {
             // No request id has been specified. So we use a generated one.
             action.requestId = RequestAction.generateRequestId();
@@ -107,6 +130,6 @@ export class GLSPActionDispatcher extends ActionDispatcher {
         }, timeoutMs);
         this.timeouts.set(requestId, timeout);
 
-        return super.request(action);
+        return super.request<Res>(action);
     }
 }

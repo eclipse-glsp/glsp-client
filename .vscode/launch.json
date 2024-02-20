@@ -4,27 +4,59 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Run current test",
+      "name": "Run current test (client)",
       "program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
-      "args": ["--config", "${workspaceRoot}/.mocharc", "${file}"],
+      "args": ["--config", "${workspaceRoot}/.mocharc", "--timeout", "0", "${file}"],
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
       "env": {
-        "TS_NODE_PROJECT": "${workspaceFolder}/tsconfig.eslint.json"
+        "TS_NODE_PROJECT": "${workspaceFolder}/packages/client/tsconfig.json"
       }
     },
     {
       "type": "node",
       "request": "launch",
-      "name": "Run all tests",
+      "name": "Run current test (protocol)",
+      "program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
+      "args": ["--config", "${workspaceRoot}/.mocharc", "--timeout", "0", "${file}"],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "env": {
+        "TS_NODE_PROJECT": "${workspaceFolder}/packages/protocol/tsconfig.json"
+      }
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Run tests (client)",
       "program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
       "args": [
         "--config",
         "${workspaceRoot}/.mocharc",
+        "--timeout",
+        "0",
         "${workspaceFolder}/packages/client/src/**/*.spec.ts"
       ],
       "env": {
-        "TS_NODE_PROJECT": "${workspaceFolder}/tsconfig.eslint.json"
+        "TS_NODE_PROJECT": "${workspaceFolder}/packages/client/tsconfig.json"
+      },
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Run tests (protocol)",
+      "program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
+      "args": [
+        "--config",
+        "${workspaceRoot}/.mocharc",
+        "--timeout",
+        "0",
+        "${workspaceFolder}/packages/protocol/src/**/*.spec.ts"
+      ],
+      "env": {
+        "TS_NODE_PROJECT": "${workspaceFolder}/packages/protocol/tsconfig.json"
       },
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen"

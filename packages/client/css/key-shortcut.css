@@ -1,0 +1,111 @@
+/********************************************************************************
+ * Copyright (c) 2023 Business Informatics Group (TU Wien) and others.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v. 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is available at
+ * https://www.gnu.org/software/classpath/license.html.
+ *
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ ********************************************************************************/
+
+.keyboard-shortcuts-menu {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #ededee;
+    margin-bottom: 20px;
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    bottom: 0;
+    right: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    line-height: 1.5;
+    font-size: 16px;
+    z-index: 9999;
+    width: 400px;
+    max-height: 512px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+.keyboard-shortcuts-menu h3 {
+    font-size: 18px;
+    font-weight: bold;
+    margin: 0;
+    margin-bottom: 10px;
+    padding: 10px;
+}
+
+.keyboard-shortcuts-menu kbd {
+    background-color: #e4e1e1;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2), inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+    color: #333;
+    display: inline-block;
+    font-size: 0.85em;
+    font-weight: 600;
+    line-height: 1;
+    padding: 2px 4px;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+    white-space: nowrap;
+}
+
+.keyboard-shortcuts-menu kbd:active {
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2) inset;
+}
+
+.keyboard-shortcuts-container {
+    display: flex;
+    flex-direction: column;
+    max-height: 100%;
+    padding: 10px;
+    padding-top: 3px;
+    overflow: auto;
+    right: 40px;
+    top: 25px;
+    text-align: left;
+    display: block;
+    z-index: 1000;
+    color: black;
+}
+
+.shortcut-entry-container {
+    display: flex;
+    justify-content: space-between;
+    margin-right: 10px;
+}
+
+#key-shortcut-close-btn {
+    position: absolute;
+    top: 14px;
+    right: 5px;
+    font-size: 16px;
+    font-weight: bold;
+    background: #cccccc;
+    border: none;
+    cursor: pointer;
+}
+
+.column-title {
+    text-align: left;
+}
+
+.menu-header {
+    padding: 0.4em;
+    text-align: left;
+    background: #cccccc;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+.shortcut-table thead th {
+    border-bottom: 2px solid #000;
+}

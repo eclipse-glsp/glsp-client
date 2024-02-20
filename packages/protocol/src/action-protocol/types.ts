@@ -15,6 +15,7 @@
  ********************************************************************************/
 import * as sprotty from 'sprotty-protocol';
 import { Dimension, Point } from 'sprotty-protocol';
+import { GModelElementSchema } from '../model/model-schema';
 import { AnyObject, hasArrayProp, hasStringProp } from '../utils/type-util';
 import { Action } from './base-protocol';
 import { TriggerEdgeCreationAction, TriggerNodeCreationAction } from './tool-palette';
@@ -26,6 +27,11 @@ import { TriggerEdgeCreationAction, TriggerNodeCreationAction } from './tool-pal
 export interface Args {
     [key: string]: sprotty.JsonPrimitive;
 }
+
+/**
+ * The template for a model element, i.e., either a reference to an existing element by element id or an element schema.
+ */
+export type ElementTemplate = string | GModelElementSchema;
 
 /**
  * The ElementAndBounds type is used to associate new bounds with a model element, which is referenced via its id.
@@ -98,8 +104,8 @@ export interface EditorContext {
 }
 
 export namespace EditorContext {
-    export function is(object: any): object is EditorContext {
-        return object !== undefined && hasArrayProp(object, 'selectedElementIds');
+    export function is(object: unknown): object is EditorContext {
+        return AnyObject.is(object) && hasArrayProp(object, 'selectedElementIds');
     }
 }
 /**
@@ -124,7 +130,7 @@ export interface LabeledAction {
 }
 
 export namespace LabeledAction {
-    export function is(object: any): object is LabeledAction {
+    export function is(object: unknown): object is LabeledAction {
         return AnyObject.is(object) && hasStringProp(object, 'label') && hasArrayProp(object, 'actions');
     }
 
@@ -152,7 +158,7 @@ export interface PaletteItem extends LabeledAction {
 }
 
 export namespace PaletteItem {
-    export function is(object: any): object is PaletteItem {
+    export function is(object: unknown): object is PaletteItem {
         return LabeledAction.is(object) && hasStringProp(object, 'id') && hasStringProp(object, 'sortString');
     }
 
@@ -168,7 +174,7 @@ export namespace PaletteItem {
 
     export type TriggerElementCreationAction = TriggerEdgeCreationAction | TriggerNodeCreationAction;
 
-    export function isTriggerElementCreationAction(object: any): object is TriggerElementCreationAction {
+    export function isTriggerElementCreationAction(object: unknown): object is TriggerElementCreationAction {
         return TriggerNodeCreationAction.is(object) || TriggerEdgeCreationAction.is(object);
     }
 }
@@ -200,7 +206,7 @@ export interface MenuItem extends LabeledAction {
 }
 
 export namespace MenuItem {
-    export function is(object: any): object is MenuItem {
+    export function is(object: unknown): object is MenuItem {
         return LabeledAction.is(object) && hasStringProp(object, 'id');
     }
 }

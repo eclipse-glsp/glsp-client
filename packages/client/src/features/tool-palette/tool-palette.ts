@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2022 EclipseSource and others.
+ * Copyright (c) 2019-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,25 +13,32 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, PaletteItem, RequestContextActions, RequestMarkersAction, SetContextActions } from '@eclipse-glsp/protocol';
-import { inject, injectable, postConstruct } from 'inversify';
 import {
     AbstractUIExtension,
-    EnableDefaultToolsAction,
-    EnableToolsAction,
+    Action,
+    GModelRoot,
     IActionHandler,
     ICommand,
-    IToolManager,
+    MarkersReason,
+    PaletteItem,
+    RequestContextActions,
+    RequestMarkersAction,
+    SetContextActions,
+    SetModelAction,
     SetUIExtensionVisibilityAction,
-    SModelRoot,
-    TYPES
-} from 'sprotty';
-import { codiconCSSClasses } from 'sprotty/lib/utils/codicon';
-import { matchesKeystroke } from 'sprotty/lib/utils/keyboard';
+    TriggerNodeCreationAction,
+    UpdateModelAction,
+    codiconCSSClasses,
+    matchesKeystroke
+} from '@eclipse-glsp/sprotty';
+import { inject, injectable, postConstruct } from 'inversify';
 import { GLSPActionDispatcher } from '../../base/action-dispatcher';
-import { EditModeListener, EditorContextService } from '../../base/editor-context-service';
-import { MouseDeleteTool } from '../tools/delete-tool';
-import { MarqueeMouseTool } from '../tools/marquee-mouse-tool';
+import { EditorContextService, IEditModeListener } from '../../base/editor-context-service';
+import { FocusTracker } from '../../base/focus/focus-tracker';
+import { IDiagramStartup } from '../../base/model/diagram-loader';
+import { EnableDefaultToolsAction, EnableToolsAction } from '../../base/tool-manager/tool';
+import { MouseDeleteTool } from '../tools/deletion/delete-tool';
+import { MarqueeMouseTool } from '../tools/marquee-selection/marquee-mouse-tool';
 
 const CLICKED_CSS_CLASS = 'clicked';
 const SEARCH_ICON_ID = 'search';
@@ -55,17 +62,23 @@ export namespace EnableToolPaletteAction {
     }
 }
 @injectable()
-export class ToolPalette extends AbstractUIExtension implements IActionHandler, EditModeListener {
+export class ToolPalette extends AbstractUIExtension implements IActionHandler, IEditModeListener, IDiagramStartup {
     static readonly ID = 'tool-palette';
 
-    @inject(TYPES.IActionDispatcher) protected readonly actionDispatcher: GLSPActionDispatcher;
-    @inject(TYPES.IToolManager) protected readonly toolManager: IToolManager;
-    @inject(EditorContextService) protected readonly editorContext: EditorContextService;
+    @inject(GLSPActionDispatcher)
+    protected actionDispatcher: GLSPActionDispatcher;
+
+    @inject(EditorContextService)
+    protected editorContext: EditorContextService;
+
+    @inject(FocusTracker)
+    protected focusTracker: FocusTracker;
 
     protected paletteItems: PaletteItem[];
     protected paletteItemsCopy: PaletteItem[] = [];
+    protected dynamic = false;
     protected bodyDiv?: HTMLElement;
-    protected lastActivebutton?: HTMLElement;
+    protected lastActiveButton?: HTMLElement;
     protected defaultToolsButton: HTMLElement;
     protected searchField: HTMLInputElement;
     modelRootId: string;
@@ -79,7 +92,7 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
 
     @postConstruct()
     postConstruct(): void {
-        this.editorContext.register(this);
+        this.editorContext.onEditModeChanged(change => this.editModeChanged(change.newValue, change.oldValue));
     }
 
     override initialize(): boolean {
@@ -89,13 +102,14 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
         return super.initialize();
     }
 
-    protected initializeContents(_containerElement: HTMLElement): void {
+    protected initializeContents(containerElement: HTMLElement): void {
         this.createHeader();
         this.createBody();
-        this.lastActivebutton = this.defaultToolsButton;
+        this.lastActiveButton = this.defaultToolsButton;
+        containerElement.setAttribute('aria-label', 'Tool-Palette');
     }
 
-    protected override onBeforeShow(_containerElement: HTMLElement, root: Readonly<SModelRoot>): void {
+    protected override onBeforeShow(_containerElement: HTMLElement, root: Readonly<GModelRoot>): void {
         this.modelRootId = root.id;
         this.containerElement.style.maxHeight = PALETTE_HEIGHT;
     }
@@ -172,7 +186,7 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
         this.containerElement.appendChild(headerCompartment);
     }
 
-    private createHeaderTools(): HTMLElement {
+    protected createHeaderTools(): HTMLElement {
         const headerTools = document.createElement('div');
         headerTools.classList.add('header-tools');
 
@@ -199,7 +213,9 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
         const button = createIcon('inspect');
         button.id = 'btn_default_tools';
         button.title = 'Enable selection tool';
-        button.onclick = this.onClickStaticToolButton(this.defaultToolsButton);
+        button.onclick = this.onClickStaticToolButton(button);
+        button.ariaLabel = button.title;
+        button.tabIndex = 1;
         return button;
     }
 
@@ -207,6 +223,8 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
         const deleteToolButton = createIcon('chrome-close');
         deleteToolButton.title = 'Enable deletion tool';
         deleteToolButton.onclick = this.onClickStaticToolButton(deleteToolButton, MouseDeleteTool.ID);
+        deleteToolButton.ariaLabel = deleteToolButton.title;
+        deleteToolButton.tabIndex = 1;
         return deleteToolButton;
     }
 
@@ -214,6 +232,8 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
         const marqueeToolButton = createIcon('screen-full');
         marqueeToolButton.title = 'Enable marquee tool';
         marqueeToolButton.onclick = this.onClickStaticToolButton(marqueeToolButton, MarqueeMouseTool.ID);
+        marqueeToolButton.ariaLabel = marqueeToolButton.title;
+        marqueeToolButton.tabIndex = 1;
         return marqueeToolButton;
     }
 
@@ -222,8 +242,11 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
         validateActionButton.title = 'Validate model';
         validateActionButton.onclick = _event => {
             const modelIds: string[] = [this.modelRootId];
-            this.actionDispatcher.dispatch(RequestMarkersAction.create(modelIds));
+            this.actionDispatcher.dispatch(RequestMarkersAction.create(modelIds, { reason: MarkersReason.BATCH }));
+            validateActionButton.focus();
         };
+        validateActionButton.ariaLabel = validateActionButton.title;
+        validateActionButton.tabIndex = 1;
         return validateActionButton;
     }
 
@@ -242,6 +265,8 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
         };
         searchIcon.classList.add('search-icon');
         searchIcon.title = 'Filter palette entries';
+        searchIcon.ariaLabel = searchIcon.title;
+        searchIcon.tabIndex = 1;
         return searchIcon;
     }
 
@@ -300,41 +325,31 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
     }
 
     changeActiveButton(button?: HTMLElement): void {
-        if (this.lastActivebutton) {
-            this.lastActivebutton.classList.remove(CLICKED_CSS_CLASS);
+        if (this.lastActiveButton) {
+            this.lastActiveButton.classList.remove(CLICKED_CSS_CLASS);
         }
         if (button) {
             button.classList.add(CLICKED_CSS_CLASS);
-            this.lastActivebutton = button;
-        } else {
+            this.lastActiveButton = button;
+        } else if (this.defaultToolsButton) {
             this.defaultToolsButton.classList.add(CLICKED_CSS_CLASS);
-            this.lastActivebutton = this.defaultToolsButton;
+            this.lastActiveButton = this.defaultToolsButton;
         }
     }
 
     handle(action: Action): ICommand | Action | void {
-        if (action.kind === EnableToolPaletteAction.KIND) {
-            const requestAction = RequestContextActions.create({
-                contextId: ToolPalette.ID,
-                editorContext: {
-                    selectedElementIds: []
-                }
-            });
-            this.actionDispatcher.requestUntil(requestAction).then(response => {
-                if (SetContextActions.is(response)) {
-                    this.paletteItems = response.actions.map(e => e as PaletteItem);
-                    this.actionDispatcher.dispatch(
-                        SetUIExtensionVisibilityAction.create({ extensionId: ToolPalette.ID, visible: !this.editorContext.isReadonly })
-                    );
-                }
-            });
-        } else if (action.kind === EnableDefaultToolsAction.KIND) {
-            this.changeActiveButton();
-            this.restoreFocus();
+        this.changeActiveButton();
+        if (UpdateModelAction.is(action) || SetModelAction.is(action)) {
+            this.reloadPaletteBody();
+        } else if (EnableDefaultToolsAction.is(action)) {
+            if (this.focusTracker.hasFocus) {
+                // if focus was deliberately taken do not restore focus to the palette
+                this.focusTracker.diagramElement?.focus();
+            }
         }
     }
 
-    editModeChanged(_oldValue: string, _newValue: string): void {
+    editModeChanged(_newValue: string, _oldValue: string): void {
         this.actionDispatcher.dispatch(
             SetUIExtensionVisibilityAction.create({ extensionId: ToolPalette.ID, visible: !this.editorContext.isReadonly })
         );
@@ -351,11 +366,6 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
         if (matchesKeystroke(event, 'Escape')) {
             this.actionDispatcher.dispatch(EnableDefaultToolsAction.create());
         }
-    }
-
-    protected handleSetContextActions(action: SetContextActions): void {
-        this.paletteItems = action.actions.map(e => e as PaletteItem);
-        this.createBody();
     }
 
     protected requestFilterUpdate(filter: string): void {
@@ -385,6 +395,45 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
         }
         this.paletteItems = filteredPaletteItems;
         this.createBody();
+    }
+
+    async preRequestModel(): Promise<void> {
+        await this.setPaletteItems();
+        if (!this.editorContext.isReadonly) {
+            this.show(this.editorContext.modelRoot);
+        }
+    }
+
+    async postRequestModel(): Promise<void> {
+        this.reloadPaletteBody();
+    }
+
+    protected async setPaletteItems(): Promise<void> {
+        const requestAction = RequestContextActions.create({
+            contextId: ToolPalette.ID,
+            editorContext: {
+                selectedElementIds: []
+            }
+        });
+        const response = await this.actionDispatcher.request<SetContextActions>(requestAction);
+        this.paletteItems = response.actions.map(action => action as PaletteItem);
+        this.dynamic = this.paletteItems.some(item => this.hasDynamicAction(item));
+    }
+
+    protected hasDynamicAction(item: PaletteItem): boolean {
+        const dynamic = !!item.actions.find(action => TriggerNodeCreationAction.is(action) && action.ghostElement?.dynamic);
+        if (dynamic) {
+            return dynamic;
+        }
+        return item.children?.some(child => this.hasDynamicAction(child)) || false;
+    }
+
+    protected async reloadPaletteBody(): Promise<void> {
+        if (this.dynamic) {
+            await this.setPaletteItems();
+            this.paletteItemsCopy = [];
+            this.requestFilterUpdate(this.searchField.value);
+        }
     }
 }
 

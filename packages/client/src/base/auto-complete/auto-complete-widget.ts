@@ -13,11 +13,17 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, LabeledAction, ValidationStatus } from '@eclipse-glsp/protocol';
+import {
+    Action,
+    GModelRoot,
+    ILogger,
+    LabeledAction,
+    ValidationStatus,
+    codiconCSSClasses,
+    matchesKeystroke,
+    toArray
+} from '@eclipse-glsp/sprotty';
 import { AutocompleteResult, AutocompleteSettings } from 'autocompleter';
-import { codiconCSSClasses, ILogger, SModelRoot } from 'sprotty';
-import { toArray } from 'sprotty/lib/utils/iterable';
-import { matchesKeystroke } from 'sprotty/lib/utils/keyboard';
 import { AutoCompleteValue } from './auto-complete-actions';
 import { IValidationDecorator } from './validation-decorator';
 
@@ -28,6 +34,7 @@ export interface AutoCompleteSettings {
     readonly showOnFocus?: boolean;
 }
 
+export type CloseReason = 'submission' | 'blur' | 'escape';
 export interface InputValidator {
     validate(input: string): Promise<ValidationStatus>;
 }
@@ -37,7 +44,7 @@ export interface SuggestionProvider {
 }
 
 export interface InputValueInitializer {
-    initializeValue(containerElement: HTMLElement, root: Readonly<SModelRoot>, ...contextElementIds: string[]): string;
+    initializeValue(containerElement: HTMLElement, root: Readonly<GModelRoot>, ...contextElementIds: string[]): string;
 }
 
 export interface SuggestionSubmitHandler {
@@ -46,6 +53,11 @@ export interface SuggestionSubmitHandler {
 
 export interface TextSubmitHandler {
     executeFromTextOnlyInput(input: string): void;
+}
+
+export interface AutoCompleteWidgetOptions {
+    visibleSuggestionsChanged?: (suggestions: LabeledAction[]) => void;
+    selectedSuggestionChanged?: (suggestion?: LabeledAction) => void;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -78,8 +90,9 @@ export class AutoCompleteWidget {
         public suggestionProvider: SuggestionProvider,
         public suggestionSubmitHandler: SuggestionSubmitHandler,
         // eslint-disable-next-line @typescript-eslint/no-empty-function
-        protected notifyClose: () => void = () => {},
-        protected logger?: ILogger
+        protected notifyClose: (reason: CloseReason) => void = () => {},
+        protected logger?: ILogger,
+        protected options?: AutoCompleteWidgetOptions
     ) {}
 
     configureValidation(
@@ -106,16 +119,21 @@ export class AutoCompleteWidget {
         inputElement.style.position = 'absolute';
         inputElement.spellcheck = false;
         inputElement.autocapitalize = 'false';
-        inputElement.autocomplete = 'false';
+        inputElement.autocomplete = 'off';
         inputElement.style.width = '100%';
         inputElement.addEventListener('keydown', event => this.handleKeyDown(event));
-        inputElement.addEventListener('blur', () => window.setTimeout(() => this.notifyClose(), 200));
+        inputElement.addEventListener('blur', () => {
+            if (this.containerElement.style.visibility !== 'hidden') {
+                window.setTimeout(() => this.notifyClose('blur'), 200);
+            }
+        });
+
         return inputElement;
     }
 
     protected handleKeyDown(event: KeyboardEvent): void {
         if (matchesKeystroke(event, 'Escape')) {
-            this.notifyClose();
+            this.notifyClose('escape');
             return;
         }
         if (matchesKeystroke(event, 'Enter') && !this.isInputElementChanged() && this.isSuggestionAvailable()) {
@@ -133,7 +151,7 @@ export class AutoCompleteWidget {
         }
         if (this.textSubmitHandler) {
             this.executeFromTextOnlyInput();
-            this.notifyClose();
+            this.notifyClose('submission');
         }
     }
 
@@ -146,7 +164,7 @@ export class AutoCompleteWidget {
         this.validationDecorator.invalidate();
     }
 
-    open(root: Readonly<SModelRoot>, ...contextElementIds: string[]): void {
+    open(root: Readonly<GModelRoot>, ...contextElementIds: string[]): void {
         this.contextActions = undefined;
         this.autoCompleteResult = configureAutocomplete(this.autocompleteSettings(root));
         this.previousContent = this.inputElement.value;
@@ -154,7 +172,7 @@ export class AutoCompleteWidget {
         this.inputElement.focus();
     }
 
-    protected autocompleteSettings(root: Readonly<SModelRoot>): AutocompleteSettings<LabeledAction> {
+    protected autocompleteSettings(root: Readonly<GModelRoot>): AutocompleteSettings<LabeledAction> {
         return {
             input: this.inputElement,
             emptyMsg: this.autoSuggestionSettings.noSuggestionsMessage,
@@ -165,23 +183,40 @@ export class AutoCompleteWidget {
             fetch: (text: string, update: (items: LabeledAction[]) => void) => this.updateSuggestions(update, text, root),
             onSelect: (item: LabeledAction) => this.onSelect(item),
             render: (item: LabeledAction, currentValue: string): HTMLDivElement | undefined => this.renderSuggestions(item, currentValue),
-            customize: (input: HTMLInputElement, inputRect: DOMRect, container: HTMLDivElement, maxHeight: number) => {
+            customize: (input, inputRect, container, maxHeight) => {
                 this.customizeInputElement(input, inputRect, container, maxHeight);
             }
         };
     }
 
-    protected customizeInputElement(input: HTMLInputElement, inputRect: DOMRect, container: HTMLDivElement, maxHeight: number): void {
+    protected customizeInputElement(
+        input: HTMLInputElement | HTMLTextAreaElement,
+        inputRect: DOMRect,
+        container: HTMLDivElement,
+        maxHeight: number
+    ): void {
         // move container into our UIExtension container as this is already positioned correctly
+        container.style.position = 'fixed';
         if (this.containerElement) {
             this.containerElement.appendChild(container);
+
+            if (this.options && this.options.selectedSuggestionChanged) {
+                const selectedElement = container.querySelector('.selected');
+                // eslint-disable-next-line no-null/no-null
+                if (selectedElement !== null && selectedElement !== undefined) {
+                    const index = Array.from(container.children).indexOf(selectedElement);
+                    this.options.selectedSuggestionChanged(this.contextActions?.[index]);
+                } else {
+                    this.options.selectedSuggestionChanged(undefined);
+                }
+            }
         }
     }
 
     protected updateSuggestions(
         update: (items: LabeledAction[]) => void,
         text: string,
-        root: Readonly<SModelRoot>,
+        root: Readonly<GModelRoot>,
         ...contextElementIds: string[]
     ): void {
         this.onLoading();
@@ -189,6 +224,7 @@ export class AutoCompleteWidget {
             .then(actions => {
                 this.contextActions = this.filterActions(text, actions);
                 update(this.contextActions);
+                this.options?.visibleSuggestionsChanged?.(this.contextActions);
                 this.onLoaded('success');
             })
             .catch(reason => {
@@ -208,7 +244,7 @@ export class AutoCompleteWidget {
         this.containerElement.appendChild(this.loadingIndicator);
     }
 
-    protected doUpdateSuggestions(text: string, root: Readonly<SModelRoot>, ...contextElementIds: string[]): Promise<LabeledAction[]> {
+    protected doUpdateSuggestions(text: string, root: Readonly<GModelRoot>, ...contextElementIds: string[]): Promise<LabeledAction[]> {
         return this.suggestionProvider.provideSuggestions(text);
     }
 
@@ -228,7 +264,7 @@ export class AutoCompleteWidget {
         if (item.icon) {
             this.renderIcon(itemElement, item.icon);
         }
-        itemElement.innerHTML += item.label.replace(regex, match => '<em>' + match + '</em>');
+        itemElement.innerHTML += item.label.replace(regex, match => '<em>' + match + '</em>').replace(/ /g, '&nbsp;');
         return itemElement;
     }
 
@@ -257,7 +293,7 @@ export class AutoCompleteWidget {
             window.setTimeout(() => this.inputElement.dispatchEvent(new Event('keyup')));
         } else {
             this.executeFromSuggestion(item);
-            this.notifyClose();
+            this.notifyClose('submission');
         }
     }
 

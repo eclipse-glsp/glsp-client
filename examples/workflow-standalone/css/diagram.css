@@ -13,6 +13,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+:root {
+    --glsp-info-foreground: blue;
+}
+
 .sprotty-graph {
     background: rgb(179, 196, 202);
 }
@@ -57,4 +61,25 @@ polygon.sprotty-node {
 
 .sprotty-node.selected {
     stroke: rgb(87, 87, 214);
+}
+
+.bordered-projection-bar {
+    border-color: #a1a1a1;
+}
+
+.sprotty-viewport {
+    border-width: 1px;
+    border-color: #555555;
+}
+
+.sprotty-projection-bar.horizontal.bordered-projection-bar {
+    height: 15px;
+}
+
+.sprotty-projection-bar.vertical.bordered-projection-bar {
+    width: 15px;
+}
+
+.projection-scroll-bar {
+    background-color: #555555;
 }

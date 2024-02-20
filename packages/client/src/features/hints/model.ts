@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2021 EclipseSource and others.
+ * Copyright (c) 2019-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,23 +13,28 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { SModelElementSchema } from '@eclipse-glsp/protocol';
-import { SModelElement, SModelExtension } from 'sprotty';
+import { GModelElement, GModelElementSchema } from '@eclipse-glsp/sprotty';
 
 export const containerFeature = Symbol('containable');
 
-export interface Containable extends SModelExtension {
-    isContainableElement(input: SModelElement | SModelElementSchema | string): boolean;
+/**
+ *  Feature extension interface for {@link containerFeature}.
+ */
+export interface Containable {
+    isContainableElement(input: GModelElement | GModelElementSchema | string): boolean;
 }
 
-export function isContainable(element: SModelElement): element is SModelElement & Containable {
+export function isContainable(element: GModelElement): element is GModelElement & Containable {
     return element.hasFeature(containerFeature);
 }
 
 export const reparentFeature = Symbol('reparentFeature');
 
-export interface Reparentable extends SModelExtension {}
+/**
+ *  Feature extension interface for {@link reparentFeature}.
+ */
+export interface Reparentable {}
 
-export function isReparentable(element: SModelElement): element is SModelElement & Reparentable {
+export function isReparentable(element: GModelElement): element is GModelElement & Reparentable {
     return element.hasFeature(reparentFeature);
 }

@@ -1,6 +1,6 @@
 {
   "name": "parent",
-  "version": "1.0.0",
+  "version": "2.1.0",
   "private": true,
   "workspaces": [
     "packages/*",
@@ -12,13 +12,13 @@
     "check:headers": "glsp checkHeaders . -t lastCommit",
     "check:pr": "yarn all && yarn check:headers",
     "clean": "lerna run clean && rimraf coverage .nyc_output",
-    "download:exampleServer": "ts-node examples/workflow-glsp/scripts/download.ts",
     "lint": "lerna run lint",
     "lint:ci": "lerna run lint:ci",
     "prepare": "lerna run prepare",
-    "publish:latest": "lerna publish from-git --no-git-reset --no-git-tag-version --no-verify-access --no-push",
-    "publish:next": "SHA=$(git rev-parse --short HEAD) && lerna publish preminor --exact --canary --preid next.${SHA} --dist-tag next --no-git-reset --no-git-tag-version --no-push --ignore-scripts --yes --no-verify-access",
+    "publish:latest": "lerna publish from-git --no-git-reset --no-git-tag-version --no-push",
+    "publish:next": "lerna publish preminor --exact --canary --preid next --dist-tag next --no-git-reset --no-git-tag-version --no-push --ignore-scripts --yes",
     "publish:prepare": "lerna version --ignore-scripts --yes --no-push",
+    "start:exampleServer": "yarn --cwd ./examples/workflow-standalone start:exampleServer",
     "test": "lerna run test",
     "test:ci": "lerna run test:ci",
     "test:coverage": "lerna run test:coverage",
@@ -27,8 +27,11 @@
     "watch": "lerna run --parallel watch"
   },
   "devDependencies": {
-    "@eclipse-glsp/dev": "1.1.0-next.164cf99.124",
-    "@types/node": "16.x"
+    "@eclipse-glsp/dev": "~2.0.0",
+    "@types/lodash": "4.14.191",
+    "@types/node": "16.x",
+    "lerna": "^7.1.1",
+    "typescript": "^5.1.6"
   },
   "engines": {
     "node": ">=16.11.0",

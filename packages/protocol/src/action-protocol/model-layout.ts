@@ -14,10 +14,10 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import * as sprotty from 'sprotty-protocol/lib/actions';
+import { GModelRootSchema } from '..';
 import { hasArrayProp, hasObjectProp } from '../utils/type-util';
 import { Action, Operation, RequestAction, ResponseAction } from './base-protocol';
-import { SModelRootSchema } from './model-structure';
-import { ElementAndAlignment, ElementAndBounds, ElementAndRoutingPoints } from './types';
+import { Args, ElementAndAlignment, ElementAndBounds, ElementAndRoutingPoints } from './types';
 
 /**
  * Sent from the server to the client to request bounds for the given model. The model is rendered invisibly so the bounds can
@@ -26,23 +26,23 @@ import { ElementAndAlignment, ElementAndBounds, ElementAndRoutingPoints } from '
  * The corresponding namespace declares the action kind as constant and offers helper functions for type guard checks
  * and creating new `RequestBoundsActions`.
  */
-export interface RequestBoundsAction extends RequestAction<ComputedBoundsAction>, sprotty.RequestBoundsAction {
+export interface RequestBoundsAction extends RequestAction<ComputedBoundsAction>, Omit<sprotty.RequestBoundsAction, '_'> {
     kind: typeof RequestBoundsAction.KIND;
 
     /**
      * The model root element for which to compute the bounds.
      */
-    newRoot: SModelRootSchema;
+    newRoot: GModelRootSchema;
 }
 
 export namespace RequestBoundsAction {
     export const KIND = 'requestBounds';
 
-    export function is(object: any): object is RequestBoundsAction {
+    export function is(object: unknown): object is RequestBoundsAction {
         return RequestAction.hasKind(object, KIND) && hasObjectProp(object, 'newRoot');
     }
 
-    export function create(newRoot: SModelRootSchema, options: { requestId?: string } = {}): RequestBoundsAction {
+    export function create(newRoot: GModelRootSchema, options: { requestId?: string } = {}): RequestBoundsAction {
         return {
             kind: KIND,
             requestId: '',
@@ -84,7 +84,7 @@ export interface ComputedBoundsAction extends ResponseAction, sprotty.ComputedBo
 export namespace ComputedBoundsAction {
     export const KIND = 'computedBounds';
 
-    export function is(object: any): object is ComputedBoundsAction {
+    export function is(object: unknown): object is ComputedBoundsAction {
         return Action.hasKind(object, KIND) && hasArrayProp(object, 'bounds');
     }
 
@@ -123,15 +123,16 @@ export interface LayoutOperation extends Operation, Omit<sprotty.LayoutAction, '
 export namespace LayoutOperation {
     export const KIND = 'layout';
 
-    export function is(object: any): object is LayoutOperation {
+    export function is(object: unknown): object is LayoutOperation {
         return Action.hasKind(object, KIND) && hasArrayProp(object, 'elementIds');
     }
 
-    export function create(elementIds?: string[]): LayoutOperation {
+    export function create(elementIds?: string[], options: { args?: Args } = {}): LayoutOperation {
         return {
             kind: KIND,
             isOperation: true,
-            elementIds
+            elementIds,
+            ...options
         };
     }
 }

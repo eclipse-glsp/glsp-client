@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2021-2022 EclipseSource and others.
+ * Copyright (c) 2021-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,12 +13,20 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { GModelElement, GModelElementConstructor, SModelRegistry } from '@eclipse-glsp/sprotty';
 import { injectable } from 'inversify';
-import { SModelElement, SModelRegistry } from 'sprotty';
+import { argsFeature } from '../args-feature';
 
+/**
+ *  Model element classes registered here are considered automatically when constructing a model from its schema.
+ *  Use the `configureModelElement` utility function to register a model element and its target render view in the
+ *  corresponding factories.
+ */
 @injectable()
-export class GLSPModelRegistry extends SModelRegistry {
-    override register(key: string, factory: (u: void) => SModelElement): void {
+export class GModelRegistry extends SModelRegistry {
+    /* Overwrite the `register` method to only log an info message (instead of thrown an error) if
+       an existing registration is overwritten */
+    override register(key: string, factory: (u: void) => GModelElement): void {
         if (key === undefined) {
             throw new Error('Key is undefined');
         }
@@ -27,5 +35,14 @@ export class GLSPModelRegistry extends SModelRegistry {
             console.log(`Factory for model element '${key}' will be overwritten.`);
         }
         this.elements.set(key, factory);
+    }
+
+    protected override getDefaultFeatures(constr: GModelElementConstructor): readonly symbol[] | undefined {
+        // Add the argsFeature per default to all model elements
+        const features = [...(super.getDefaultFeatures(constr) ?? [])];
+        if (!features.includes(argsFeature)) {
+            features.push(argsFeature);
+        }
+        return features;
     }
 }

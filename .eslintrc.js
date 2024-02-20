@@ -2,7 +2,7 @@
 module.exports = {
     root: true,
     extends: '@eclipse-glsp',
-    ignorePatterns: ['**/{node_modules,lib}', '**/.eslintrc.js'],
+    ignorePatterns: ['**/{node_modules,lib}', '**/.eslintrc.js', '**/scripts/*.ts'],
 
     parserOptions: {
         tsconfigRootDir: __dirname,

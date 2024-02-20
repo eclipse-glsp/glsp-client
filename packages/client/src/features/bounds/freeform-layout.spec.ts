@@ -16,13 +16,13 @@
 import { expect } from 'chai';
 import 'mocha';
 import 'reflect-metadata';
-import { BoundsData, ConsoleLogger, SModelElement } from 'sprotty';
-import { gModel, layout, sComp, setupLayoutRegistry, sLabel, sNode } from './layouter-test-util.spec';
+import { BoundsData, ConsoleLogger, GModelElement } from '@eclipse-glsp/sprotty';
+import { createCompartment, createGraph, createLabel, createNode, layout, setupLayoutRegistry } from './layouter-test-util.spec';
 
 describe('FreeFormLayouter', () => {
     const layoutRegistry = setupLayoutRegistry();
     const log = new ConsoleLogger();
-    const map = new Map<SModelElement, BoundsData>();
+    const map = new Map<GModelElement, BoundsData>();
 
     describe('issue-610', () => {
         it('recursive hGrab/vGrab', () => {
@@ -42,19 +42,19 @@ describe('FreeFormLayouter', () => {
              * This test case checks recursive hGrab/vGrab functionality of nested compartments
              * See also issue 610 for details and an example model https://github.com/eclipse-glsp/glsp/issues/610.
              */
-            const model = gModel();
-            const category = sNode('category', 'vbox', { width: 410.0, height: 215.0 }, undefined, {
+            const model = createGraph();
+            const category = createNode('category', 'vbox', { width: 410.0, height: 215.0 }, undefined, {
                 vGrab: false,
                 hGrab: false,
                 hAlign: 'center',
                 prefWidth: 410.0,
                 prefHeight: 215.0
             });
-            const headerComp = sComp('comp:header', 'hbox');
-            headerComp.children = [sLabel('Category 1')];
-            const childContainer = sComp('struct', 'freeform', { hGrab: true, vGrab: true });
-            const labelContainer = sComp('struct', 'hbox', { hGrab: true });
-            labelContainer.children = [sLabel('left text', { hGrab: true }), sLabel('right text')];
+            const headerComp = createCompartment('comp:header', 'hbox');
+            headerComp.children = [createLabel('Category 1')];
+            const childContainer = createCompartment('struct', 'freeform', { hGrab: true, vGrab: true });
+            const labelContainer = createCompartment('struct', 'hbox', { hGrab: true });
+            labelContainer.children = [createLabel('left text', { hGrab: true }), createLabel('right text')];
             category.children = [headerComp, childContainer, labelContainer];
 
             model.add(category);
@@ -85,22 +85,22 @@ describe('FreeFormLayouter', () => {
              * ||_left____________right_||
              * |_________________________|
              */
-            const model = gModel();
-            const category = sNode('category', 'vbox', { width: 500.0, height: 375.0 }, undefined, {
+            const model = createGraph();
+            const category = createNode('category', 'vbox', { width: 500.0, height: 375.0 }, undefined, {
                 vGrab: false,
                 hGrab: false,
                 hAlign: 'center',
                 prefWidth: 500.0,
                 prefHeight: 375.0
             });
-            const headerComp = sComp('comp:header', 'hbox');
-            headerComp.children = [sLabel('Category 2')];
-            const childContainer = sComp('struct', 'freeform', { hGrab: true, vGrab: true });
-            const childNode = sNode('task', 'hbox', undefined, { x: 170, y: 190 });
-            childNode.children = [sLabel('Task node', undefined, { x: 5.0, y: 5.0 }, { width: 25.0, height: 20.0 })];
+            const headerComp = createCompartment('comp:header', 'hbox');
+            headerComp.children = [createLabel('Category 2')];
+            const childContainer = createCompartment('struct', 'freeform', { hGrab: true, vGrab: true });
+            const childNode = createNode('task', 'hbox', undefined, { x: 170, y: 190 });
+            childNode.children = [createLabel('Task node', undefined, { x: 5.0, y: 5.0 }, { width: 25.0, height: 20.0 })];
             childContainer.children = [childNode];
-            const labelContainer = sComp('struct', 'hbox', { hGrab: true });
-            labelContainer.children = [sLabel('left text', { hGrab: true }), sLabel('right text')];
+            const labelContainer = createCompartment('struct', 'hbox', { hGrab: true });
+            labelContainer.children = [createLabel('left text', { hGrab: true }), createLabel('right text')];
             category.children = [headerComp, childContainer, labelContainer];
 
             model.add(category);
@@ -131,19 +131,19 @@ describe('FreeFormLayouter', () => {
              * ||_______________________||
              * |_________________________|
              */
-            const model = gModel();
-            const category = sNode('category', 'vbox', { width: 500.0, height: 375.0 }, undefined, {
+            const model = createGraph();
+            const category = createNode('category', 'vbox', { width: 500.0, height: 375.0 }, undefined, {
                 vGrab: false,
                 hGrab: false,
                 hAlign: 'center',
                 prefWidth: 500.0,
                 prefHeight: 375.0
             });
-            const headerComp = sComp('comp:header', 'hbox');
-            headerComp.children = [sLabel('Category 2')];
-            const childContainer = sComp('struct', 'freeform', { hGrab: true, vGrab: true });
-            const childNode = sNode('task', 'hbox', undefined, { x: 55, y: 15 });
-            childNode.children = [sLabel('Task node', undefined, undefined, { width: 50.0, height: 35.0 })];
+            const headerComp = createCompartment('comp:header', 'hbox');
+            headerComp.children = [createLabel('Category 2')];
+            const childContainer = createCompartment('struct', 'freeform', { hGrab: true, vGrab: true });
+            const childNode = createNode('task', 'hbox', undefined, { x: 55, y: 15 });
+            childNode.children = [createLabel('Task node', undefined, undefined, { width: 50.0, height: 35.0 })];
             childContainer.children = [childNode];
             category.children = [headerComp, childContainer];
 
@@ -173,8 +173,8 @@ describe('FreeFormLayouter', () => {
              * ||_______________________||
              * |_________________________|
              */
-            const model = gModel();
-            const category = sNode('category', 'vbox', { width: 500.0, height: 375.0 }, undefined, {
+            const model = createGraph();
+            const category = createNode('category', 'vbox', { width: 500.0, height: 375.0 }, undefined, {
                 vGrab: false,
                 hGrab: false,
                 hAlign: 'center',
@@ -185,17 +185,17 @@ describe('FreeFormLayouter', () => {
                 paddingTop: 10,
                 paddingBottom: 10
             });
-            const headerComp = sComp('comp:header', 'hbox');
-            headerComp.children = [sLabel('Category 2')];
-            const childContainer = sComp('struct', 'freeform', { hGrab: true, vGrab: true });
-            const childNode = sNode(
+            const headerComp = createCompartment('comp:header', 'hbox');
+            headerComp.children = [createLabel('Category 2')];
+            const childContainer = createCompartment('struct', 'freeform', { hGrab: true, vGrab: true });
+            const childNode = createNode(
                 'task',
                 'hbox',
                 undefined,
                 { x: 55, y: 15 },
                 { paddingLeft: 10, paddingRight: 10, paddingTop: 10, paddingBottom: 10 }
             );
-            childNode.children = [sLabel('Task node', undefined, undefined, { width: 50.0, height: 35.0 })];
+            childNode.children = [createLabel('Task node', undefined, undefined, { width: 50.0, height: 35.0 })];
             childContainer.children = [childNode];
             category.children = [headerComp, childContainer];
 

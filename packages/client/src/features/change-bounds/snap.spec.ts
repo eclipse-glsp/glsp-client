@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2022 EclipseSource and others.
+ * Copyright (c) 2022-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -14,13 +14,14 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
+import { GModelElement } from '@eclipse-glsp/sprotty';
 import { expect } from 'chai';
-import { SModelElement } from 'sprotty';
-import { GridSnapper, PointPositionUpdater } from './snap';
+import { PointPositionUpdater } from './point-position-updater';
+import { GridSnapper } from './snap';
 
 describe('GridSnapper', () => {
     it('snap', () => {
-        const element = new SModelElement();
+        const element = new GModelElement();
         const snapper = new GridSnapper();
         expect(snapper.snap({ x: 0, y: 0 }, element)).to.be.deep.equals({ x: 0, y: 0 });
         expect(snapper.snap({ x: 4, y: 5 }, element)).to.be.deep.equals({ x: 0, y: 10 });
@@ -31,7 +32,7 @@ describe('GridSnapper', () => {
 
 describe('PointPositionUpdater', () => {
     it('updatePosition with no last drag position', () => {
-        const element = new SModelElement();
+        const element = new GModelElement();
         const updater = new PointPositionUpdater();
         expect(updater.updatePosition(element, { x: 0, y: 0 }, false)).to.be.undefined;
         expect(updater.updatePosition(element, { x: 0, y: 0 }, true)).to.be.undefined;
@@ -47,7 +48,7 @@ describe('PointPositionUpdater', () => {
     });
 
     it('updatePosition with no snapper', () => {
-        const element = new SModelElement();
+        const element = new GModelElement();
         const updater = new PointPositionUpdater();
         resetUpdater(updater);
         expect(updater.updatePosition(element, { x: 0, y: 0 }, false)).to.be.undefined;
@@ -61,7 +62,7 @@ describe('PointPositionUpdater', () => {
     });
 
     it('updatePosition with snapper', () => {
-        const element = new SModelElement();
+        const element = new GModelElement();
         const snapper = new GridSnapper();
         const updater = new PointPositionUpdater(snapper);
         resetUpdater(updater);

@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2021 EclipseSource and others.
+ * Copyright (c) 2021-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -15,21 +15,21 @@
  ********************************************************************************/
 import { injectable } from 'inversify';
 import { VNode } from 'snabbdom';
-import { BoundsAware, RenderingContext, SChildElement, SCompartment, ShapeView, svg } from 'sprotty/lib';
+import { GCompartment, RenderingContext, ShapeView, svg } from '@eclipse-glsp/sprotty';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const JSX = { createElement: svg };
 
 @injectable()
 export class StructureCompartmentView extends ShapeView {
-    render(model: Readonly<SCompartment & SChildElement & BoundsAware>, context: RenderingContext): VNode | undefined {
+    render(model: Readonly<GCompartment>, context: RenderingContext): VNode | undefined {
         if (!this.isVisible(model, context)) {
             return undefined;
         }
 
         return (
             <g>
-                <rect class-sprotty-comp={true} class-debug={false} x='0' y='0' width={model.size.width} height={model.size.height}></rect>
+                <rect class-sprotty-comp={true} x='0' y='0' width={model.size.width} height={model.size.height}></rect>
                 {context.renderChildren(model)}
             </g>
         );

@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2022 EclipseSource and others.
+ * Copyright (c) 2019-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,30 +13,33 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { inject, injectable, optional } from 'inversify';
 import {
     Action,
     ChangeBoundsOperation,
     ElementAndBounds,
+    ElementMove,
+    IActionDispatcher,
+    IActionHandler,
+    ICommand,
+    MoveAction,
+    GModelElement,
+    SetBoundsAction,
+    TYPES,
+    Writable,
     hasArrayProp,
     hasNumberProp,
-    hasStringProp,
-    SetBoundsAction,
-    Writable
-} from '@eclipse-glsp/protocol';
-import { inject, injectable, optional } from 'inversify';
-import { ElementMove, IActionDispatcher, IActionHandler, ICommand, SModelElement } from 'sprotty';
-import { MoveAction } from 'sprotty-protocol/lib/actions';
-import { TYPES } from '../../base/types';
+    hasStringProp
+} from '@eclipse-glsp/sprotty';
+import { SelectionService } from '../../base/selection-service';
 import { toValidElementAndBounds, toValidElementMove } from '../../utils/layout-utils';
-import { BoundsAwareModelElement, getElements } from '../../utils/smodel-util';
+import { BoundsAwareModelElement, getElements } from '../../utils/gmodel-util';
 import { isBoundsAwareMoveable, isResizable } from '../change-bounds/model';
 import { IMovementRestrictor } from '../change-bounds/movement-restrictor';
-import { SelectionService } from '../select/selection-service';
 
 /**
  * Used to specify the desired resize dimension for a {@link ResizeElementsCommand}.
  */
-// eslint-disable-next-line no-shadow
 export enum ResizeDimension {
     Width,
     Height,
@@ -158,7 +161,7 @@ export abstract class LayoutElementsActionHandler implements IActionHandler {
     @inject(TYPES.IActionDispatcher)
     protected actionDispatcher: IActionDispatcher;
 
-    @inject(TYPES.SelectionService)
+    @inject(SelectionService)
     protected selectionService: SelectionService;
 
     @inject(TYPES.IMovementRestrictor)
@@ -173,7 +176,7 @@ export abstract class LayoutElementsActionHandler implements IActionHandler {
         return getElements(index, selectedElements, this.isActionElement);
     }
 
-    protected abstract isActionElement(element: SModelElement): element is BoundsAwareModelElement;
+    protected abstract isActionElement(element: GModelElement): element is BoundsAwareModelElement;
 
     dispatchAction(action: Action): void {
         this.actionDispatcher.dispatch(action);
@@ -267,12 +270,11 @@ export class ResizeElementsActionHandler extends LayoutElementsActionHandler {
         change(element, bounds);
         return toValidElementAndBounds(element, bounds, this.movementRestrictor);
     }
-    protected isActionElement(element: SModelElement): element is BoundsAwareModelElement {
+    protected isActionElement(element: GModelElement): element is BoundsAwareModelElement {
         return isResizable(element);
     }
 }
 
-// eslint-disable-next-line no-shadow
 export enum Alignment {
     Left,
     Center,
@@ -481,7 +483,7 @@ export class AlignElementsActionHandler extends LayoutElementsActionHandler {
             }
         };
     }
-    protected isActionElement(element: SModelElement): element is BoundsAwareModelElement {
+    protected isActionElement(element: GModelElement): element is BoundsAwareModelElement {
         return isBoundsAwareMoveable(element);
     }
 }

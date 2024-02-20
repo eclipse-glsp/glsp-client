@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020-2022 EclipseSource and others.
+ * Copyright (c) 2020-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -14,16 +14,17 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 /* eslint-disable max-len */
+import { GIssueSeverity, IssueMarkerView, RenderingContext, setClass, svg } from '@eclipse-glsp/sprotty';
 import { injectable } from 'inversify';
 import { VNode } from 'snabbdom';
-import { IssueMarkerView, RenderingContext, setClass, SIssueMarker, SIssueSeverity, svg } from 'sprotty';
+import { GIssueMarker } from '../features/validation/issue-marker';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const JSX = { createElement: svg };
 
 @injectable()
 export class GIssueMarkerView extends IssueMarkerView {
-    override render(marker: SIssueMarker, _context: RenderingContext): VNode {
+    override render(marker: GIssueMarker, _context: RenderingContext): VNode {
         const maxSeverity = super.getMaxSeverity(marker);
         const group = (
             <g class-sprotty-issue={true}>
@@ -37,7 +38,7 @@ export class GIssueMarkerView extends IssueMarkerView {
         return group;
     }
 
-    protected getGlspIssueMarkerBackground(severity: SIssueSeverity): VNode {
+    protected getGlspIssueMarkerBackground(severity: GIssueSeverity): VNode {
         switch (severity) {
             case 'warning':
                 return <polygon class-sprotty-issue-background={true} points='8 2, 15.9 14.9, 0.2 14.9' />;
@@ -51,7 +52,7 @@ export class GIssueMarkerView extends IssueMarkerView {
         return 8; // var(--theia-icon-size)=16px => 16/2=8
     }
 
-    protected getGlspIssueMarkerPath(severity: SIssueSeverity): string {
+    protected getGlspIssueMarkerPath(severity: GIssueSeverity): string {
         switch (severity) {
             // paths used here are svg versions of codicons, resized to var(--theia-icon-size) 16px
             case 'error': // 'codicon-error'

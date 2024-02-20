@@ -13,17 +13,35 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, Args, distinctAdd, EditMode, EditorContext, remove, SetEditModeAction } from '@eclipse-glsp/protocol';
-import { inject, injectable, multiInject, optional } from 'inversify';
-import { IActionHandler, ModelSource, MousePositionTracker, SModelElement, SModelRoot } from 'sprotty';
-import { SelectionService } from '../features/select/selection-service';
-import { isSourceUriAware } from './source-uri-aware';
-import { TYPES } from './types';
+import { inject, injectable, multiInject, optional, postConstruct, preDestroy } from 'inversify';
+import {
+    Action,
+    Args,
+    Disposable,
+    DisposableCollection,
+    EditMode,
+    EditorContext,
+    Emitter,
+    Event,
+    IActionHandler,
+    MaybePromise,
+    MousePositionTracker,
+    GModelElement,
+    GModelRoot,
+    SetDirtyStateAction,
+    SetEditModeAction,
+    TYPES,
+    ValueChange
+} from '@eclipse-glsp/sprotty';
+import { GLSPActionDispatcher } from './action-dispatcher';
+import { IDiagramOptions, IDiagramStartup } from './model/diagram-loader';
+import { SelectionService } from './selection-service';
 
-export interface EditModeListener {
+export interface IEditModeListener {
     editModeChanged(newValue: string, oldValue: string): void;
 }
 
+export type DirtyStateChange = Pick<SetDirtyStateAction, 'isDirty' | 'reason'>;
 /**
  * The `EditorContextService` is a central injectable component that gives read-only access to
  * certain aspects of the diagram, such as the currently selected elements, the model root,
@@ -37,28 +55,49 @@ export interface EditModeListener {
  *    position, etc.).
  */
 @injectable()
-export class EditorContextService implements IActionHandler {
-    @inject(TYPES.SelectionService)
+export class EditorContextService implements IActionHandler, Disposable, IDiagramStartup {
+    @inject(SelectionService)
     protected selectionService: SelectionService;
 
     @inject(MousePositionTracker)
     protected mousePositionTracker: MousePositionTracker;
 
+    @inject(TYPES.IDiagramOptions)
+    protected diagramOptions: IDiagramOptions;
+
     @multiInject(TYPES.IEditModeListener)
     @optional()
-    protected editModeListeners: EditModeListener[] = [];
+    protected editModeListeners: IEditModeListener[] = [];
 
-    @inject(TYPES.ModelSourceProvider)
-    protected modelSourceProvider: () => Promise<ModelSource>;
+    @inject(GLSPActionDispatcher)
+    protected actionDispatcher: GLSPActionDispatcher;
 
     protected _editMode: string;
-
-    register(editModeListener: EditModeListener): void {
-        distinctAdd(this.editModeListeners, editModeListener);
+    protected onEditModeChangedEmitter = new Emitter<ValueChange<string>>();
+    get onEditModeChanged(): Event<ValueChange<string>> {
+        return this.onEditModeChangedEmitter.event;
     }
 
-    deregister(editModeListener: EditModeListener): void {
-        remove(this.editModeListeners, editModeListener);
+    protected _isDirty: boolean;
+    protected onDirtyStateChangedEmitter = new Emitter<DirtyStateChange>();
+    get onDirtyStateChanged(): Event<DirtyStateChange> {
+        return this.onDirtyStateChangedEmitter.event;
+    }
+
+    protected toDispose = new DisposableCollection();
+
+    @postConstruct()
+    protected initialize(): void {
+        this._editMode = this.diagramOptions.editMode ?? EditMode.EDITABLE;
+        this.toDispose.push(this.onEditModeChangedEmitter, this.onDirtyStateChangedEmitter);
+        this.editModeListeners.forEach(listener =>
+            this.onEditModeChanged(change => listener.editModeChanged(change.newValue, change.oldValue))
+        );
+    }
+
+    @preDestroy()
+    dispose(): void {
+        this.toDispose.dispose();
     }
 
     get(args?: Args): EditorContext {
@@ -79,38 +118,59 @@ export class EditorContextService implements IActionHandler {
 
     handle(action: Action): void {
         if (SetEditModeAction.is(action)) {
-            const oldValue = this._editMode;
-            this._editMode = action.editMode;
-            this.notifyEditModeListeners(oldValue);
+            this.handleSetEditModeAction(action);
+        } else if (SetDirtyStateAction.is(action)) {
+            this.handleSetDirtyStateAction(action);
         }
     }
 
-    protected notifyEditModeListeners(oldValue: string): void {
-        this.editModeListeners.forEach(listener => listener.editModeChanged(oldValue, this.editMode));
+    protected handleSetEditModeAction(action: SetEditModeAction): void {
+        const oldValue = this._editMode;
+        this._editMode = action.editMode;
+        this.onEditModeChangedEmitter.fire({ newValue: this.editMode, oldValue });
     }
 
-    async getSourceUri(): Promise<string | undefined> {
-        const modelSource = await this.modelSourceProvider();
-        if (isSourceUriAware(modelSource)) {
-            return modelSource.sourceURI;
+    protected handleSetDirtyStateAction(action: SetDirtyStateAction): void {
+        if (action.isDirty !== this._isDirty) {
+            this._isDirty = action.isDirty;
+            this.onDirtyStateChangedEmitter.fire(action);
         }
-        return undefined;
+    }
+
+    get sourceUri(): string | undefined {
+        return this.diagramOptions.sourceUri;
     }
 
     get editMode(): string {
         return this._editMode;
     }
 
-    get modelRoot(): Readonly<SModelRoot> {
+    get diagramType(): string {
+        return this.diagramOptions.diagramType;
+    }
+
+    get clientId(): string {
+        return this.diagramOptions.clientId;
+    }
+
+    get modelRoot(): Readonly<GModelRoot> {
         return this.selectionService.getModelRoot();
     }
 
-    get selectedElements(): Readonly<SModelElement>[] {
+    get selectedElements(): Readonly<GModelElement>[] {
         return this.selectionService.getSelectedElements();
     }
 
     get isReadonly(): boolean {
         return this.editMode === EditMode.READONLY;
+    }
+
+    get isDirty(): boolean {
+        return this._isDirty;
+    }
+
+    postRequestModel(): MaybePromise<void> {
+        this.actionDispatcher.dispatch(SetEditModeAction.create(this.editMode));
     }
 }
 

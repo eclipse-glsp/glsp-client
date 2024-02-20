@@ -6,10 +6,10 @@
 {
   "editor.formatOnSave": true,
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": true
+    "source.fixAll.eslint": "explicit",
+    "source.organizeImports": "explicit"
   },
   "eslint.validate": ["javascript", "typescript"],
-  "prettier.prettierPath": "node_modules/prettier",
   "search.exclude": {
     "**/node_modules": true,
     "**/lib": true

@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2022 STMicroelectronics and others.
+ * Copyright (c) 2022-2023 STMicroelectronics and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -45,7 +45,8 @@ describe('Element validation actions', () => {
                 const expected: RequestMarkersAction = {
                     kind: 'requestMarkers',
                     requestId: '',
-                    elementsIDs: ['myIds']
+                    elementsIDs: ['myIds'],
+                    reason: 'batch'
                 };
                 const { elementsIDs } = expected;
                 expect(RequestMarkersAction.create(elementsIDs)).to.deep.equals(expected);
@@ -54,7 +55,8 @@ describe('Element validation actions', () => {
                 const expected: RequestMarkersAction = {
                     kind: 'requestMarkers',
                     requestId: 'myRequest',
-                    elementsIDs: ['myIds']
+                    elementsIDs: ['myIds'],
+                    reason: 'batch'
                 };
                 const { elementsIDs, requestId } = expected;
                 expect(RequestMarkersAction.create(elementsIDs, { requestId })).to.deep.equals(expected);
@@ -85,6 +87,7 @@ describe('Element validation actions', () => {
                 const expected: SetMarkersAction = {
                     kind: 'setMarkers',
                     responseId: '',
+                    reason: 'batch',
                     markers: [{ description: 'desc', elementId: 'myId', kind: 'info', label: 'string' }]
                 };
                 const { markers } = expected;
@@ -94,6 +97,7 @@ describe('Element validation actions', () => {
                 const expected: SetMarkersAction = {
                     kind: 'setMarkers',
                     responseId: 'myResponse',
+                    reason: 'batch',
                     markers: [{ description: 'desc', elementId: 'myId', kind: 'info', label: 'string' }]
                 };
                 const { markers, responseId } = expected;

@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2022 EclipseSource and others.
+ * Copyright (c) 2019-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,6 +13,13 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+
+:root {
+    --glsp-error-foreground: red;
+    --glsp-warning-foreground: yellow;
+    --glsp-info-foreground: lightblue;
+    --glsp-issue-background: rgb(255 255 255 / 85%);
+}
 
 .sprotty {
     padding: 0px;
@@ -39,6 +46,7 @@
     max-width: 400px;
     min-width: 100px;
     z-index: 1;
+    pointer-events: none;
 }
 
 .sprotty-popup > div {
@@ -63,6 +71,11 @@
 
 .sprotty-resize-handle.active {
     fill: #1d80d1;
+}
+
+.sprotty-hidden .sprotty-resize-handle {
+    /** resize handles should not be considered as part of the elements bounds */
+    display: none;
 }
 
 .sprotty-edge {
@@ -91,9 +104,6 @@
 .sprotty-edge.selected {
     stroke: #1d80d1;
     stroke-width: 1.5px;
-    stroke-dashoffset: 5;
-    stroke-dasharray: 5, 5;
-    stroke-linecap: round;
 }
 
 .sprotty-edge.mouseover:not(.selected) .arrow,
@@ -125,6 +135,10 @@
 .sprotty .edge-creation-select-target-mode,
 .sprotty .edge-reconnect-select-target-mode {
     cursor: crosshair;
+}
+
+.sprotty .edge-check-pending-mode {
+    cursor: wait;
 }
 
 .sprotty .move-mode {
@@ -222,37 +236,78 @@
 }
 
 .sprotty-projection-bar.vertical.bordered-projection-bar {
-    width: var(--theia-scrollbar-rail-width);
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 20px;
+    height: 100%;
 }
 
 .sprotty-projection-bar.horizontal.bordered-projection-bar {
-    height: var(--theia-scrollbar-rail-width);
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 20px;
+    width: 100%;
+}
+
+.sprotty-projection-bar.horizontal .sprotty-projection,
+.sprotty-projection-bar.horizontal .sprotty-viewport {
+    position: absolute;
+    height: 100%;
+    top: 0;
+}
+
+.sprotty-projection-bar.vertical .sprotty-projection,
+.sprotty-projection-bar.vertical .sprotty-viewport {
+    position: absolute;
+    width: 100%;
+    left: 0;
 }
 
 .projection-scroll-bar {
+    position: absolute;
+    background: transparent;
+    background-color: #aaa;
+    z-index: 1;
+    opacity: 0.3;
     transition: opacity 0.8s linear;
+}
+
+.sprotty-viewport {
+    z-index: 1;
+    border-style: solid;
+    border-width: 2px;
 }
 
 .mouse-enter .projection-scroll-bar {
     opacity: 0.3;
-    background: transparent;
-    background-color: #aaa;
-    z-index: 1;
 }
 
 .mouse-leave .projection-scroll-bar {
     opacity: 0;
     pointer-events: none;
-    background: transparent;
-    background-color: #aaa;
-    z-index: 1;
 }
 
 .bordered-projection-bar {
     border-left: 1px solid rgba(212, 212, 212, 0.2);
     border-top: 1px solid rgba(212, 212, 212, 0.2);
     fill: transparent;
-    width: var(--theia-scrollbar-rail-width);
+}
+
+.search-hidden {
+    opacity: 0.4;
+}
+
+.search-highlighted .sprotty-node,
+.search-highlighted .sprotty-edge {
+    stroke-width: 1.5px;
+    stroke-width: 2px;
+    stroke-dashoffset: 5;
+    stroke-dasharray: 5, 5;
+    stroke-linecap: round;
+    stroke: rgb(218, 89, 15) !important;
+    stroke: #130bf7 !important;
 }
 
 .mouse-pointer-text {

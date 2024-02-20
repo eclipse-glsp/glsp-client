@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2022 EclipseSource and others.
+ * Copyright (c) 2019-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -14,8 +14,23 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { Bounds, Dimension, Point, Viewport } from '@eclipse-glsp/protocol';
-import { BoundsAware, findParentByFeature, isAlignable, isViewport, SModelElement, translateBounds } from 'sprotty';
+import {
+    Bounds,
+    BoundsAware,
+    Dimension,
+    GChildElement,
+    GModelElement,
+    GModelRoot,
+    Point,
+    Viewport,
+    findParentByFeature,
+    isAlignable,
+    isBoundsAware,
+    isViewport,
+    translateBounds
+} from '@eclipse-glsp/sprotty';
+import { bottomRight, topLeft } from './geometry-util';
+import { BoundsAwareModelElement } from './gmodel-util';
 
 /**
  * Return the position corresponding to this mouse event (Browser coordinates)
@@ -30,9 +45,13 @@ import { BoundsAware, findParentByFeature, isAlignable, isViewport, SModelElemen
  * @param mouseEvent
  *  A mouseEvent
  */
-export function getAbsolutePosition(target: SModelElement, mouseEvent: MouseEvent): Point {
-    let xPos = mouseEvent.pageX;
-    let yPos = mouseEvent.pageY;
+export function getAbsolutePosition(target: GModelElement, mouseEvent: MouseEvent): Point {
+    return getAbsolutePositionByPoint(target, { x: mouseEvent.pageX, y: mouseEvent.pageY });
+}
+
+export function getAbsolutePositionByPoint(target: GModelElement, point: Point): Point {
+    let xPos = point.x;
+    let yPos = point.y;
     const canvasBounds = target.root.canvasBounds;
     xPos -= canvasBounds.x;
     yPos -= canvasBounds.y;
@@ -54,13 +73,19 @@ export function getAbsolutePosition(target: SModelElement, mouseEvent: MouseEven
     };
 }
 
+export function getViewportBounds(target: GModelElement, bounds: Bounds): Bounds {
+    const start = getAbsolutePositionByPoint(target, topLeft(bounds));
+    const end = getAbsolutePositionByPoint(target, bottomRight(bounds));
+    return { ...start, width: end.x - start.x, height: end.y - start.y };
+}
+
 /**
  * Translates the bounds of the diagram element (local coordinates) into the diagram coordinates system
  * (i.e. relative to the Diagram's 0;0 point)
  *
  * @param target  A bounds-aware element from the diagram
  */
-export function toAbsoluteBounds(element: SModelElement & BoundsAware): Bounds {
+export function toAbsoluteBounds(element: GModelElement & BoundsAware): Bounds {
     const location = isAlignable(element) ? element.alignment : Point.ORIGIN;
     const x = location.x;
     const y = location.y;
@@ -75,7 +100,7 @@ export function toAbsoluteBounds(element: SModelElement & BoundsAware): Bounds {
  *
  * @param target  A bounds-aware element from the diagram
  */
-export function toAbsolutePosition(target: SModelElement & BoundsAware): Point {
+export function toAbsolutePosition(target: GModelElement & BoundsAware): Point {
     return toAbsoluteBounds(target);
 }
 
@@ -85,6 +110,50 @@ export function toAbsolutePosition(target: SModelElement & BoundsAware): Point {
  *
  * @param target  A bounds-aware element from the diagram
  */
-export function toAbsoluteSize(target: SModelElement & BoundsAware): Dimension {
+export function toAbsoluteSize(target: GModelElement & BoundsAware): Dimension {
     return toAbsoluteBounds(target);
+}
+
+/**
+ * Convert a point, specified in absolute coordinates, to a point relative
+ * to the parent of the specified child element.
+ *
+ * @param element the child element
+ * @param absolutePoint a point in absolute coordinates
+ * @returns the equivalent point, relative to the element's parent coordinates
+ */
+export function absoluteToParent(element: BoundsAwareModelElement & GChildElement, absolutePoint: Point): Point {
+    if (isBoundsAware(element.parent)) {
+        return absoluteToLocal(element.parent, absolutePoint);
+    }
+    // If the parent is not bounds-aware, assume it's at 0; 0 and proceed
+    return absoluteToLocal(element, absolutePoint);
+}
+
+/**
+ * Convert a point, specified in absolute coordinates, to a point relative
+ * to the specified element.
+ *
+ * @param element the element
+ * @param absolutePoint a point in absolute coordinates
+ * @returns the equivalent point, relative to the element's coordinates
+ */
+export function absoluteToLocal(element: BoundsAwareModelElement, absolutePoint: Point): Point {
+    const absoluteElementBounds = toAbsoluteBounds(element);
+    return { x: absolutePoint.x - absoluteElementBounds.x, y: absolutePoint.y - absoluteElementBounds.y };
+}
+
+/**
+ * Returns `true` if `point` is outside of the `viewport`.
+ * @param point The point to check.
+ * @param viewport The viewport.
+ * @returns `true` if `point` is outside, `false` otherwise.
+ */
+export function outsideOfViewport(point: Point, viewport: GModelRoot & Viewport): boolean {
+    return (
+        point.x < viewport.scroll.x ||
+        point.x > viewport.scroll.x + viewport.canvasBounds.width ||
+        point.y < viewport.scroll.y ||
+        point.y > viewport.scroll.y + viewport.canvasBounds.height
+    );
 }

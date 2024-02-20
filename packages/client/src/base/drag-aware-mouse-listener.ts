@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2022 EclipseSource and others.
+ * Copyright (c) 2019-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,8 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action } from '@eclipse-glsp/protocol';
-import { MouseListener, SModelElement } from 'sprotty';
+import { Action, MouseListener, GModelElement } from '@eclipse-glsp/sprotty';
 
 /**
  * A mouse listener that is aware of prior mouse dragging.
@@ -25,22 +24,22 @@ import { MouseListener, SModelElement } from 'sprotty';
  * of mouse up events.
  */
 export class DragAwareMouseListener extends MouseListener {
-    private _isMouseDown = false;
-    private _isMouseDrag = false;
+    protected _isMouseDown = false;
+    protected _isMouseDrag = false;
 
-    override mouseDown(target: SModelElement, event: MouseEvent): Action[] {
+    override mouseDown(target: GModelElement, event: MouseEvent): Action[] {
         this._isMouseDown = true;
         return [];
     }
 
-    override mouseMove(target: SModelElement, event: MouseEvent): Action[] {
+    override mouseMove(target: GModelElement, event: MouseEvent): Action[] {
         if (this._isMouseDown) {
             this._isMouseDrag = true;
         }
         return [];
     }
 
-    override mouseUp(element: SModelElement, event: MouseEvent): Action[] {
+    override mouseUp(element: GModelElement, event: MouseEvent): Action[] {
         this._isMouseDown = false;
         if (this._isMouseDrag) {
             this._isMouseDrag = false;
@@ -50,11 +49,11 @@ export class DragAwareMouseListener extends MouseListener {
         return this.nonDraggingMouseUp(element, event);
     }
 
-    nonDraggingMouseUp(element: SModelElement, event: MouseEvent): Action[] {
+    nonDraggingMouseUp(element: GModelElement, event: MouseEvent): Action[] {
         return [];
     }
 
-    draggingMouseUp(element: SModelElement, event: MouseEvent): Action[] {
+    draggingMouseUp(element: GModelElement, event: MouseEvent): Action[] {
         return [];
     }
 
