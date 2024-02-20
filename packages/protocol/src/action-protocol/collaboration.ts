@@ -1,8 +1,5 @@
-import {Action} from './base-protocol';
-import {hasArrayProp, hasBooleanProp, hasObjectProp, hasStringProp} from '../utils/type-util';
-
 /********************************************************************************
- * Copyright (c) 2021-2023 STMicroelectronics and others.
+ * Copyright (c) 2024 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -16,12 +13,20 @@ import {hasArrayProp, hasBooleanProp, hasObjectProp, hasStringProp} from '../uti
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+
+import {Action} from './base-protocol';
+import {hasArrayProp, hasBooleanProp, hasObjectProp, hasStringProp} from '../utils/type-util';
 import { AnyObject} from '../utils/type-util';
 import {Bounds, Point} from 'sprotty-protocol';
 
-export type SubclientInfo = { subclientId: string, name: string; color: string };
+export interface SubclientInfo {
+    subclientId: string;
+    name: string;
+    color: string;
+}
+
 /**
- * TODO
+ * CollaborationActions are used to send data between subclients like mouse pointer, selections or viewport changes.
  */
 export interface CollaborationAction extends Action {
     /**
@@ -29,8 +34,14 @@ export interface CollaborationAction extends Action {
      */
     collaboration: true;
 
+    /**
+     * The initialSubclientInfo gets set to identify the initiator of the Action.
+     */
     initialSubclientInfo?: SubclientInfo;
 
+    /**
+     * This visible flag can be set to false so the element of the other subclients won't be rendered.
+     */
     visible: boolean;
 }
 
@@ -42,7 +53,10 @@ export namespace CollaborationAction {
     }
 }
 
-export type CollaborationActionKinds = typeof MouseMoveAction.KIND | typeof ViewportBoundsChangeAction.KIND | typeof SelectionChangeAction.KIND;
+export type CollaborationActionKinds =
+    typeof MouseMoveAction.KIND
+    | typeof ViewportBoundsChangeAction.KIND
+    | typeof SelectionChangeAction.KIND;
 
 export interface MouseMoveAction extends CollaborationAction {
     kind: typeof MouseMoveAction.KIND;
@@ -154,5 +168,4 @@ export namespace ToggleCollaborationFeatureAction {
         };
     }
 }
-
 

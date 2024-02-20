@@ -41,7 +41,7 @@ import {DrawMousePointerCommand, RemoveMousePointerCommand} from './mouse-move/m
 import {DrawViewportRectCommand, RemoveViewportRectCommand} from './viewport-bounds-change/viewport-bounds-change-commands';
 import {DrawSelectionIconCommand, RemoveSelectionIconCommand} from './selection-change/selection-change-commands';
 
-const glspMouseMoveModule = new ContainerModule((bind, _unbind, isBound) => {
+const collaborationModule = new ContainerModule((bind, _unbind, isBound) => {
     const context = { bind, isBound };
 
     bindAsService(context, TYPES.IDefaultTool, MouseMoveTool);
@@ -86,4 +86,4 @@ const glspMouseMoveModule = new ContainerModule((bind, _unbind, isBound) => {
     configureModelElement(context, DefaultTypes.SELECTION_ICON, SelectionIcon, SelectionIconView);
 });
 
-export default glspMouseMoveModule;
+export default collaborationModule;
