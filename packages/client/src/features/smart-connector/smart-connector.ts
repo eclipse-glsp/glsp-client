@@ -56,7 +56,6 @@ export class SmartConnector extends AbstractUIExtension implements IActionHandle
     protected expandButton: HTMLElement;
     protected currentZoom: number;
 
-    protected smartConnectorGroups: Record<string, HTMLElement> = {};
     protected groupIsCollapsed: Record<string, boolean> = {};
     protected groupIsTop: Record<string, boolean> = {};
     protected searchFields: Record<string, HTMLInputElement> = {};
@@ -96,14 +95,13 @@ export class SmartConnector extends AbstractUIExtension implements IActionHandle
         // set position of container(s)
         const sameSide = this.smartConnectorItems.every(e => e.position === this.smartConnectorItems[0].position);
         if (sameSide) {
-            this.setPosition(this.smartConnectorContainer, this.smartConnectorItems[0].position, nodeBoundsFromDom);
+            this.setPosition(this.smartConnectorContainer, this.smartConnectorItems[0].position, nodeBoundsFromDom, true);
         } else {
             for (let i = 0; i < this.smartConnectorContainer.childElementCount; i++) {
                 this.setPosition(
                     this.smartConnectorContainer.children[i] as HTMLElement,
                     this.smartConnectorItems[i].position,
-                    nodeBoundsFromDom,
-                    true
+                    nodeBoundsFromDom
                 );
             }
         }
@@ -134,6 +132,15 @@ export class SmartConnector extends AbstractUIExtension implements IActionHandle
         element.style.transform = `scale(${zoom})`;
         const nodeHeight = nodeBounds.height;
         const nodeWidth = nodeBounds.width;
+        if (single) {
+            for (let i = 0; i < element.childElementCount; i++) {
+                const child = element.children[i] as HTMLElement;
+                child.style.position = 'static';
+                if (i < element.childElementCount) {
+                    child.style.borderBottom = '0';
+                }
+            }
+        }
         let xDiff = -element.offsetWidth / 2;
         let yDiff = (-element.offsetHeight / 2) * zoom;
         if (position === SmartConnectorPosition.Right || position === SmartConnectorPosition.Left) {
@@ -160,9 +167,6 @@ export class SmartConnector extends AbstractUIExtension implements IActionHandle
             element.style.transformOrigin = 'top';
             element.style.top = `${yDiff}px`;
         }
-        if (single) {
-            element.style.position = 'absolute';
-        }
     }
 
     protected initializeContents(containerElement: HTMLElement): void {
@@ -178,7 +182,6 @@ export class SmartConnector extends AbstractUIExtension implements IActionHandle
         for (const item of this.smartConnectorItems) {
             if (item.children) {
                 const group = this.createGroup(item);
-                this.smartConnectorGroups[group.id] = group;
                 smartConnectorContainer.appendChild(group);
             }
         }
@@ -231,6 +234,7 @@ export class SmartConnector extends AbstractUIExtension implements IActionHandle
         if (item.children!.length === 0) {
             return group;
         }
+        group.style.position = 'absolute';
         const groupItems = document.createElement('div');
         group.classList.add(SmartConnector.GROUP_CONTAINER_CLASS);
         groupItems.classList.add(SmartConnector.GROUP_CLASS);
