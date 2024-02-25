@@ -117,6 +117,12 @@
     z-index: 9998;
     cursor: pointer;
     font-size: 12px;
+    display: flex;
+    align-items: center;
+}
+
+.smart-connector-button > i {
+    padding-right: 0.2em;
 }
 
 .smart-connector-button:hover {

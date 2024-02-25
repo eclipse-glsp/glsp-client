@@ -314,7 +314,6 @@ export class SmartConnector extends AbstractUIExtension implements IActionHandle
         button.classList.add(SmartConnector.TOOL_BUTTON_CLASS);
         if (item.icon) {
             button.appendChild(createIcon(item.icon));
-            return button;
         }
         button.insertAdjacentText('beforeend', item.label);
         button.onclick = this.onClickCreateToolButton(button, item);
