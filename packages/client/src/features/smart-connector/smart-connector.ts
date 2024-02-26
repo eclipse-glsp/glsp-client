@@ -347,7 +347,7 @@ export class SmartConnector extends AbstractUIExtension implements IActionHandle
             if (items) {
                 Array.from(items).forEach(item => {
                     if (matchingChildren.find(child => child.id === item.id)) {
-                        (item as HTMLElement).style.display = 'block';
+                        (item as HTMLElement).style.display = 'flex';
                     } else {
                         (item as HTMLElement).style.display = 'none';
                     }
