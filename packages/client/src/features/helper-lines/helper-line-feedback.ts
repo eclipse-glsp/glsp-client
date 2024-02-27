@@ -64,6 +64,7 @@ import {
     isVisibleOnCanvas
 } from '../../utils/gmodel-util';
 import { getViewportBounds, toAbsoluteBounds } from '../../utils/viewpoint-util';
+import { feedbackEdgeEndId, feedbackEdgeId } from '../tools';
 import { HelperLine, HelperLineType, SelectionBounds, isHelperLine, isSelectionBounds } from './model';
 
 export type ViewportLineType = typeof HelperLineType.Center | typeof HelperLineType.Middle | string;
@@ -90,7 +91,12 @@ export const DEFAULT_ELEMENT_LINES = ALL_ELEMENT_LINE_TYPES;
 export const DEFAULT_VIEWPORT_LINES = ALL_VIEWPORT_LINE_TYPES;
 export const DEFAULT_EPSILON = 1;
 export const DEFAULT_ALIGNABLE_ELEMENT_FILTER = (element: BoundsAwareModelElement): boolean =>
-    isVisibleOnCanvas(element) && !isRoutable(element) && !(element instanceof GLabel) && !isDecoration(element);
+    isVisibleOnCanvas(element) &&
+    !isRoutable(element) &&
+    !(element instanceof GLabel) &&
+    !(element.id === feedbackEdgeId(element.root)) &&
+    !(element.id === feedbackEdgeEndId(element.root)) &&
+    !isDecoration(element);
 export const DEFAULT_DEBUG = false;
 
 export namespace DrawHelperLinesFeedbackAction {
@@ -294,7 +300,7 @@ export class DrawHelperLinesFeedbackCommand extends FeedbackCommand {
     }
 
     protected isMatch(leftCoordinate: number, rightCoordinate: number, epsilon: number): boolean {
-        return Math.abs(leftCoordinate - rightCoordinate) < epsilon;
+        return Math.abs(leftCoordinate - rightCoordinate) <= epsilon;
     }
 
     protected log(message: string, ...params: any[]): void {
