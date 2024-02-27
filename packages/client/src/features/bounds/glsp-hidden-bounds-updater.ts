@@ -16,20 +16,21 @@
 
 import {
     Action,
+    BoundsData,
     ComputedBoundsAction,
     Deferred,
     EdgeRouterRegistry,
     ElementAndRoutingPoints,
     GModelElement,
-    GRoutableElement,
     HiddenBoundsUpdater,
     IActionDispatcher,
+    ModelIndexImpl,
     RequestAction,
     ResponseAction
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable, optional } from 'inversify';
 import { VNode } from 'snabbdom';
-import { calcElementAndRoute, isRoutable } from '../../utils/gmodel-util';
+import { BoundsAwareModelElement, calcElementAndRoute, getDescendantIds, isRoutable } from '../../utils/gmodel-util';
 import { LocalComputedBoundsAction, LocalRequestBoundsAction } from './local-bounds';
 
 /**
@@ -42,8 +43,10 @@ export class GLSPHiddenBoundsUpdater extends HiddenBoundsUpdater {
     @inject(EdgeRouterRegistry) @optional() protected readonly edgeRouterRegistry?: EdgeRouterRegistry;
 
     protected element2route: ElementAndRoutingPoints[] = [];
-    protected edges: GRoutableElement[] = [];
-    protected nodes: VNode[] = [];
+
+    protected getElement2BoundsData(): Map<BoundsAwareModelElement, BoundsData> {
+        return this['element2boundsData'];
+    }
 
     override decorate(vnode: VNode, element: GModelElement): VNode {
         super.decorate(vnode, element);
@@ -54,11 +57,30 @@ export class GLSPHiddenBoundsUpdater extends HiddenBoundsUpdater {
     }
 
     override postUpdate(cause?: Action): void {
+        if (LocalRequestBoundsAction.is(cause) && cause.elementIDs) {
+            this.focusOnElements(cause.elementIDs);
+        }
         const actions = this.captureActions(() => super.postUpdate(cause));
         actions
             .filter(action => ComputedBoundsAction.is(action))
             .forEach(action => this.actionDispatcher.dispatch(this.enhanceAction(action as ComputedBoundsAction, cause)));
         this.element2route = [];
+    }
+
+    protected focusOnElements(elementIDs: string[]): void {
+        const data = this.getElement2BoundsData();
+        if (data.size > 0) {
+            // expand given IDs to their descendent element IDs as we need their bounding boxes as well
+            const index = [...data.keys()][0].index;
+            const relevantIds = new Set(elementIDs.flatMap(elementId => this.expandElementId(elementId, index, elementIDs)));
+
+            // ensure we only keep the bounds of the elements we are interested in
+            data.forEach((_bounds, element) => !relevantIds.has(element.id) && data.delete(element));
+        }
+    }
+
+    protected expandElementId(id: string, index: ModelIndexImpl, elementIDs: string[]): string[] {
+        return getDescendantIds(index.getById(id));
     }
 
     protected captureActions(call: () => void): Action[] {

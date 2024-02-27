@@ -64,13 +64,14 @@ export class AddTemplateElementsFeedbackCommand extends FeedbackCommand {
     }
 
     override execute(context: CommandExecutionContext): CommandResult {
-        this.action.templates
+        const templateElements = this.action.templates
             .map(template => templateToSchema(template, context))
             .filter(isNotUndefined)
             .map(schema => context.modelFactory.createElement(schema))
-            .map(element => this.applyRootCssClasses(element, this.action.addClasses, this.action.removeClasses))
-            .forEach(templateElement => context.root.add(templateElement));
-        return LocalRequestBoundsAction.fromCommand(context, this.actionDispatcher, this.action);
+            .map(element => this.applyRootCssClasses(element, this.action.addClasses, this.action.removeClasses));
+        templateElements.forEach(templateElement => context.root.add(templateElement));
+        const templateElementIDs = templateElements.map(element => element.id);
+        return LocalRequestBoundsAction.fromCommand(context, this.actionDispatcher, this.action, templateElementIDs);
     }
 
     protected applyRootCssClasses(element: GChildElement, addClasses?: string[], removeClasses?: string[]): GChildElement {
