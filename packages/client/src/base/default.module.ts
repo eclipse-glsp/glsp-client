@@ -22,6 +22,7 @@ import {
     MoveCommand,
     SetDirtyStateAction,
     SetEditModeAction,
+    SetModelCommand,
     TYPES,
     bindAsService,
     bindOrRebind,
@@ -35,6 +36,7 @@ import { GLSPActionDispatcher } from './action-dispatcher';
 import { GLSPActionHandlerRegistry } from './action-handler-registry';
 import { GLSPCommandStack } from './command-stack';
 import { EditorContextService } from './editor-context-service';
+import { FeedbackAwareSetModelCommand } from './feedback';
 import { ModifyCssFeedbackCommand } from './feedback/css-feedback';
 import { FeedbackActionDispatcher } from './feedback/feedback-action-dispatcher';
 import { FeedbackAwareUpdateModelCommand } from './feedback/update-model-command';
@@ -73,6 +75,7 @@ export const defaultModule = new FeatureModule((bind, unbind, isBound, rebind, .
     // Model update initialization ------------------------------------
     bind(TYPES.IFeedbackActionDispatcher).to(FeedbackActionDispatcher).inSingletonScope();
     configureCommand(context, FeedbackAwareUpdateModelCommand);
+    rebind(SetModelCommand).to(FeedbackAwareSetModelCommand);
 
     bind(GLSPMouseTool).toSelf().inSingletonScope();
     bindOrRebind(context, MouseTool).toService(GLSPMouseTool);

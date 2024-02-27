@@ -16,4 +16,6 @@
 export * from './css-feedback';
 export * from './feedback-action-dispatcher';
 export * from './feedback-command';
+export * from './set-model-command';
 export * from './update-model-command';
+
