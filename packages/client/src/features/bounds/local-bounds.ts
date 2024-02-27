@@ -26,21 +26,38 @@ import {
     GModelRootSchema,
     RequestBoundsAction,
     TYPES,
-    ViewerOptions
+    ViewerOptions,
+    hasArrayProp
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
 import { ServerAction } from '../../base/model/glsp-model-source';
 
+export interface LocalRequestBoundsAction extends RequestBoundsAction {
+    elementIDs?: string[];
+}
+
 export namespace LocalRequestBoundsAction {
-    export function is(object: unknown): object is RequestBoundsAction {
-        return RequestBoundsAction.is(object) && !ServerAction.is(object);
+    export function is(object: unknown): object is LocalRequestBoundsAction {
+        return RequestBoundsAction.is(object) && !ServerAction.is(object) && hasArrayProp(object, 'elementIDs', true);
     }
 
-    export function fromCommand(context: CommandExecutionContext, actionDispatcher: ActionDispatcher, cause?: Action): CommandResult {
-        // do not modify the main model (modelChanged = false) but request local bounds calculation on hidden model
-        actionDispatcher.dispatch(RequestBoundsAction.create(context.root as unknown as GModelRootSchema));
+    export function create(newRoot: GModelRootSchema, elementIDs?: string[]): LocalRequestBoundsAction {
         return {
-            model: context.root,
+            ...RequestBoundsAction.create(newRoot),
+            elementIDs
+        };
+    }
+
+    export function fromCommand(
+        { root }: CommandExecutionContext,
+        actionDispatcher: ActionDispatcher,
+        cause?: Action,
+        elementIDs?: string[]
+    ): CommandResult {
+        // do not modify the main model (modelChanged = false) but request local bounds calculation on hidden model
+        actionDispatcher.dispatch(LocalRequestBoundsAction.create(root as unknown as GModelRootSchema, elementIDs));
+        return {
+            model: root,
             modelChanged: false,
             cause
         };

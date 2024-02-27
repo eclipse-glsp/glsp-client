@@ -173,6 +173,7 @@ export {
     SIssueSeverity as GIssueSeverity,
     // Export as is, we extend it glsp-client to `GIssueMarker`
     SIssueMarker,
+    decorationFeature,
     isDecoration
 } from 'sprotty/lib/features/decoration/model';
 export * from 'sprotty/lib/features/decoration/views';

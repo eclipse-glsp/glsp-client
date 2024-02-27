@@ -65,6 +65,7 @@ export class SetBoundsFeedbackCommand extends SetBoundsCommand implements Feedba
                 element.layoutOptions = options;
             }
         });
-        return LocalRequestBoundsAction.fromCommand(context, this.actionDispatcher, this.action);
+        const elementIDs = this.action.bounds.map(bounds => bounds.elementId);
+        return LocalRequestBoundsAction.fromCommand(context, this.actionDispatcher, this.action, elementIDs);
     }
 }

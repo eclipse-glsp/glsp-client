@@ -73,11 +73,6 @@
     fill: #1d80d1;
 }
 
-.sprotty-hidden .sprotty-resize-handle {
-    /** resize handles should not be considered as part of the elements bounds */
-    display: none;
-}
-
 .sprotty-edge {
     fill: none;
     stroke-width: 1.5px;

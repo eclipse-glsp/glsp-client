@@ -22,6 +22,7 @@ import {
     GChildElement,
     GModelElement,
     GModelElementSchema,
+    GParentElement,
     GRoutableElement,
     GRoutingHandle,
     ModelIndexImpl,
@@ -30,13 +31,12 @@ import {
     Selectable,
     TypeGuard,
     distinctAdd,
-    findParentByFeature,
     getAbsoluteBounds,
+    getZoom,
     isBoundsAware,
     isMoveable,
     isSelectable,
     isSelected,
-    isViewport,
     remove
 } from '@eclipse-glsp/sprotty';
 
@@ -346,8 +346,7 @@ export function findTopLevelElementByFeature<T>(
 
 export function calculateDeltaBetweenPoints(target: Point, source: Point, element: GModelElement): Point {
     const delta = Point.subtract(target, source);
-    const viewport = findParentByFeature(element, isViewport);
-    const zoom = viewport?.zoom ?? 1;
+    const zoom = getZoom(element);
     const adaptedDelta = { x: delta.x / zoom, y: delta.y / zoom };
     return adaptedDelta;
 }
@@ -361,4 +360,16 @@ export function isVisibleOnCanvas(model: BoundsAwareModelElement): boolean {
         modelBounds.y <= canvasBounds.height &&
         modelBounds.y + modelBounds.height >= 0
     );
+}
+
+export function getDescendantIds(element?: GModelElement, skip?: (t: GModelElement) => boolean): string[] {
+    if (!element || skip?.(element)) {
+        return [];
+    }
+    const parent = element;
+    const ids = [parent.id];
+    if (parent instanceof GParentElement) {
+        ids.push(...parent.children.flatMap(child => getDescendantIds(child, skip)));
+    }
+    return ids;
 }
