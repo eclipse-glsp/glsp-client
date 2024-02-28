@@ -15,38 +15,35 @@
  ********************************************************************************/
 
 import {
-    ActionDispatcher, IActionHandler, SModelRoot
+    ActionDispatcher, IActionHandler
 } from 'sprotty';
 import {
     Action, DisposeSubclientAction,
     SelectionChangeAction, ToggleCollaborationFeatureAction
 } from '@eclipse-glsp/protocol';
 import {inject, injectable} from 'inversify';
-import {IFeedbackActionDispatcher} from '../../tool-feedback/feedback-action-dispatcher';
-import {TYPES} from '../../../base/types';
-import {SelectionListener, SelectionService} from '../../select/selection-service';
-import {BaseGLSPTool} from '../../tools/base-glsp-tool';
 import {DrawSelectionIconAction, RemoveSelectionIconAction} from './selection-change-actions';
+import {BaseEditTool} from '../../tools';
+import {GModelRoot, TYPES} from '@eclipse-glsp/sprotty';
+import {IFeedbackActionDispatcher, ISelectionListener, SelectionService} from '../../../base';
 
 @injectable()
-export class SelectionChangeTool extends BaseGLSPTool implements SelectionListener {
+export class SelectionChangeTool extends BaseEditTool implements ISelectionListener {
     static ID = 'glsp.selection-change-tool';
 
-    @inject(TYPES.SelectionService) protected selectionService: SelectionService;
+    @inject(SelectionService) selectionService: SelectionService;
 
     get id(): string {
         return SelectionChangeTool.ID;
     }
 
     enable(): void {
-        this.selectionService.register(this);
+        this.toDisposeOnDisable.push(
+            this.selectionService.onSelectionChanged(change => this.selectionChanged(change.root, change.selectedElements))
+        );
     }
 
-    disable(): void {
-        this.selectionService.deregister(this);
-    }
-
-    selectionChanged(root: Readonly<SModelRoot>, selectedElements: string[]): void {
+    selectionChanged(root: Readonly<GModelRoot>, selectedElements: string[]): void {
         this.dispatchActions([SelectionChangeAction.create({
             selectedElements
         })]);

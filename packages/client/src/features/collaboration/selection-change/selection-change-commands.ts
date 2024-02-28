@@ -1,10 +1,10 @@
 import {inject, injectable} from 'inversify';
-import {FeedbackCommand} from '../../tool-feedback/model';
-import {TYPES} from '../../../base/types';
-import {Command, CommandExecutionContext, CommandReturn, SModelRoot, SParentElement} from 'sprotty';
+import {Command, CommandExecutionContext, CommandReturn} from 'sprotty';
 import {removeElementFromParent, SelectionIcon} from '../model';
 import {DefaultTypes, hasObjectProp, Point} from '@eclipse-glsp/protocol';
 import {DrawSelectionIconAction, RemoveSelectionIconAction} from './selection-change-actions';
+import {FeedbackCommand} from '../../../base/feedback/feedback-command';
+import {GModelRoot, GParentElement, TYPES} from '@eclipse-glsp/sprotty';
 
 @injectable()
 export class DrawSelectionIconCommand extends FeedbackCommand {
@@ -16,7 +16,7 @@ export class DrawSelectionIconCommand extends FeedbackCommand {
 
     execute(context: CommandExecutionContext): CommandReturn {
         const modelElement = context.root.index.getById(this.action.element);
-        if (modelElement instanceof SParentElement) {
+        if (modelElement instanceof GParentElement) {
             const id = selectionIconId(context.root, modelElement, this.action.initialSubclientInfo.subclientId);
             removeElementFromParent(modelElement, id);
             const icon = new SelectionIcon();
@@ -58,7 +58,7 @@ export class RemoveSelectionIconCommand extends Command {
 
     execute(context: CommandExecutionContext): CommandReturn {
         const modelElement = context.root.index.getById(this.action.element);
-        if (modelElement instanceof SParentElement) {
+        if (modelElement instanceof GParentElement) {
             const id = selectionIconId(context.root, modelElement, this.action.initialSubclientId);
             const existingSelectionIcon = modelElement.children.find(c => c.id === id);
             if (!existingSelectionIcon) {
@@ -77,6 +77,6 @@ export class RemoveSelectionIconCommand extends Command {
     }
 }
 
-export function selectionIconId(root: SModelRoot, parent: SParentElement, subclientId: string): string {
+export function selectionIconId(root: GModelRoot, parent: GParentElement, subclientId: string): string {
     return root.id + '_' + parent.id + '_' + DefaultTypes.SELECTION_ICON + '_' + subclientId;
 }

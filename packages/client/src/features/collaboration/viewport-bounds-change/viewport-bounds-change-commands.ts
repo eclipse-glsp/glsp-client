@@ -1,10 +1,10 @@
 import {inject, injectable} from 'inversify';
-import {FeedbackCommand} from '../../tool-feedback/model';
-import {TYPES} from '../../../base/types';
-import {Command, CommandExecutionContext, CommandReturn, SModelRoot} from 'sprotty';
+import {Command, CommandExecutionContext, CommandReturn} from 'sprotty';
 import {DefaultTypes} from '@eclipse-glsp/protocol';
 import {DrawViewportRectAction, RemoveViewportRectAction} from './viewport-bounds-change-actions';
 import {removeElementFromParent} from '../model';
+import {GModelRoot, TYPES} from '@eclipse-glsp/sprotty';
+import {FeedbackCommand} from '../../../base/feedback/feedback-command';
 
 @injectable()
 export class DrawViewportRectCommand extends FeedbackCommand {
@@ -59,6 +59,6 @@ export class RemoveViewportRectCommand extends Command {
     }
 }
 
-export function viewportRectId(root: SModelRoot, subclientId: string): string {
+export function viewportRectId(root: GModelRoot, subclientId: string): string {
     return root.id + '_' + DefaultTypes.VIEWPORT_RECT + '_' + subclientId;
 }

@@ -14,9 +14,9 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 /* eslint-disable max-len */
-import { injectable } from 'inversify';
-import { VNode } from 'snabbdom';
-import { RenderingContext, svg } from 'sprotty';
+import {injectable} from 'inversify';
+import {VNode} from 'snabbdom';
+import {RenderingContext, svg} from 'sprotty';
 import {MousePointer} from '../model';
 import {ShapeView} from 'sprotty/lib';
 
@@ -35,17 +35,18 @@ export class MousePointerView extends ShapeView {
         const textY = 30 / mousePointer.zoom;
         const pointerTransform = 'translate(' + pointerX + ', ' + pointerY + ') scale(' + invertedZoom + ')';
         const textTransform = 'translate(0, ' + textY + ') scale(' + invertedZoom + ')';
-        const graph = (
+        return (
             <g>
                 <g transform={pointerTransform}>
                     <polygon fill="#FFFFFF" points="8.2,20.9 8.2,4.9 19.8,16.5 13,16.5 12.6,16.6 "/>
                     <polygon fill="#FFFFFF" points="17.3,21.6 13.7,23.1 9,12 12.7,10.5 "/>
-                    <rect fill={mousePointer.color} x="12.5" y="13.6" transform="matrix(0.9221 -0.3871 0.3871 0.9221 -5.7605 6.5909)" width="2" height="8"/>
+                    <rect fill={mousePointer.color} x="12.5" y="13.6" transform="matrix(0.9221 -0.3871 0.3871 0.9221 -5.7605 6.5909)"
+                          width="2" height="8"/>
                     <polygon fill={mousePointer.color} points="9.2,7.3 9.2,18.5 12.2,15.6 12.6,15.5 17.4,15.5 "/>
                 </g>
-                <text class-mouse-pointer-text={true} style={{ fill: mousePointer.color }} transform={textTransform}>{ mousePointer.name }</text>
+                <text class-mouse-pointer-text={true} style={{fill: mousePointer.color}}
+                      transform={textTransform}>{mousePointer.name}</text>
             </g>
         );
-        return graph;
     }
 }

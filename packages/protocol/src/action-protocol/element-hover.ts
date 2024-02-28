@@ -25,7 +25,7 @@ import { Action, RequestAction, ResponseAction } from './base-protocol';
  * The corresponding namespace declares the action kind as constant and offers helper functions for type guard checks
  * and creating new `RequestPopupModelActions`.
  */
-export interface RequestPopupModelAction extends RequestAction<SetPopupModelAction>, sprotty.RequestPopupModelAction {
+export interface RequestPopupModelAction extends RequestAction<SetPopupModelAction>, Omit<sprotty.RequestPopupModelAction, '_'> {
     kind: typeof RequestPopupModelAction.KIND;
 
     /**

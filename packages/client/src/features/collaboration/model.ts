@@ -14,10 +14,10 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import {SChildElement, SParentElement, SShapeElement} from 'sprotty';
 import {DefaultTypes} from '@eclipse-glsp/protocol';
+import {GChildElement, GParentElement, GShapeElement} from '@eclipse-glsp/sprotty';
 
-export class CollaborationElement extends SShapeElement {
+export class CollaborationElement extends GShapeElement {
     color: string;
     visible: boolean;
 }
@@ -37,9 +37,9 @@ export class SelectionIcon extends CollaborationElement {
     elementType: 'Node' | 'Edge';
 }
 
-export function removeElementFromParent(parent: SParentElement, id: string): void {
+export function removeElementFromParent(parent: GParentElement, id: string): void {
     const child = parent.index.getById(id);
-    if (child instanceof SChildElement) {
+    if (child instanceof GChildElement) {
         parent.remove(child);
     }
 }

@@ -16,8 +16,7 @@
 
 import {
     IActionHandler,
-    MouseListener,
-    SModelElement
+    MouseListener
 } from 'sprotty';
 import {
     Action, DisposeSubclientAction,
@@ -25,13 +24,13 @@ import {
     SetViewportAction, ToggleCollaborationFeatureAction, Viewport
 } from '@eclipse-glsp/protocol';
 import {inject, injectable} from 'inversify';
-import {IFeedbackActionDispatcher} from '../../tool-feedback/feedback-action-dispatcher';
-import {TYPES} from '../../../base/types';
-import {BaseGLSPTool} from '../../tools/base-glsp-tool';
 import {DrawMousePointerAction, RemoveMousePointerAction} from './mouse-move-actions';
+import {GModelElement, TYPES} from '@eclipse-glsp/sprotty';
+import {IFeedbackActionDispatcher} from '../../../base';
+import {BaseEditTool} from '../../tools';
 
 @injectable()
-export class MouseMoveTool extends BaseGLSPTool implements IActionHandler {
+export class MouseMoveTool extends BaseEditTool implements IActionHandler {
     static ID = 'glsp.mouse-move-tool';
 
     protected mouseListener: MouseMoveListener;
@@ -56,11 +55,10 @@ export class MouseMoveTool extends BaseGLSPTool implements IActionHandler {
 
     enable(): void {
         this.mouseListener = new MouseMoveListener(this);
-        this.mouseTool.register(this.mouseListener);
-    }
 
-    disable(): void {
-        this.mouseTool.deregister(this.mouseListener);
+        this.toDisposeOnDisable.push(
+            this.mouseTool.registerListener(this.mouseListener)
+        );
     }
 
     getLastViewport(): Viewport {
@@ -74,7 +72,7 @@ export class MouseMoveListener extends MouseListener {
         super();
     }
 
-    override mouseMove(target: SModelElement, event: MouseEvent): Action[] {
+    override mouseMove(target: GModelElement, event: MouseEvent): Action[] {
         const lastViewport = this.tool.getLastViewport();
         const x = lastViewport.scroll.x + (event.pageX / lastViewport.zoom);
         const y = lastViewport.scroll.y + (event.pageY / lastViewport.zoom);

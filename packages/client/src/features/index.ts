@@ -16,6 +16,7 @@
 export * from './accessibility';
 export * from './bounds';
 export * from './change-bounds';
+export * from './collaboration';
 export * from './command-palette';
 export * from './context-menu';
 export * from './copy-paste';

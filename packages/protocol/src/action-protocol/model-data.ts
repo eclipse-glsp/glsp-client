@@ -24,7 +24,7 @@ import { Args } from './types';
  * The corresponding namespace declares the action kind as constant and offers helper functions for type guard checks
  * and creating new `RequestModelActions`.
  */
-export interface RequestModelAction extends RequestAction<SetModelAction>, sprotty.RequestModelAction {
+export interface RequestModelAction extends RequestAction<SetModelAction>, Omit<sprotty.RequestModelAction, '_'> {
     kind: typeof RequestModelAction.KIND;
 
     /**

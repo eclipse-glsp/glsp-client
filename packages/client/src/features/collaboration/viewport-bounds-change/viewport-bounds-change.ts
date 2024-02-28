@@ -22,9 +22,9 @@ import {
     SetViewportAction, ToggleCollaborationFeatureAction, Viewport, ViewportBoundsChangeAction
 } from '@eclipse-glsp/protocol';
 import {inject, injectable} from 'inversify';
-import {IFeedbackActionDispatcher} from '../../tool-feedback/feedback-action-dispatcher';
-import {TYPES} from '../../../base/types';
 import {DrawViewportRectAction, RemoveViewportRectAction} from './viewport-bounds-change-actions';
+import {TYPES} from '@eclipse-glsp/sprotty';
+import {IFeedbackActionDispatcher} from '../../../base';
 
 @injectable()
 export class ViewportBoundsChangeTool implements IActionHandler {
@@ -54,7 +54,7 @@ export class ViewportBoundsChangeTool implements IActionHandler {
                     width: this.lastCanvasBounds.width/this.lastViewport.zoom,
                     height: this.lastCanvasBounds.height/this.lastViewport.zoom
                 }
-            })
+            });
         }
     }
 

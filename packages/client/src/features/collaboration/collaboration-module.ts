@@ -15,13 +15,12 @@
  ********************************************************************************/
 import {
     bindAsService, DefaultTypes,
-    DisposeSubclientAction,
+    DisposeSubclientAction, FeatureModule,
     MouseMoveAction,
     SelectionChangeAction,
     SetViewportAction, ToggleCollaborationFeatureAction,
     ViewportBoundsChangeAction
 } from '@eclipse-glsp/protocol';
-import { ContainerModule } from 'inversify';
 import {
     configureActionHandler,
     configureCommand, configureModelElement, InitializeCanvasBoundsAction
@@ -35,14 +34,14 @@ import {
 } from './viewport-bounds-change/viewport-bounds-change';
 import {ViewportRectView} from './viewport-bounds-change/viewport-rect-view';
 import {SelectionChangeTool, SelectionIconProvider} from './selection-change/selection-change';
-import {TYPES} from '../../base/types';
 import {SelectionIconView} from './selection-change/selection-icon-view';
 import {DrawMousePointerCommand, RemoveMousePointerCommand} from './mouse-move/mouse-move-commands';
 import {DrawViewportRectCommand, RemoveViewportRectCommand} from './viewport-bounds-change/viewport-bounds-change-commands';
 import {DrawSelectionIconCommand, RemoveSelectionIconCommand} from './selection-change/selection-change-commands';
+import {TYPES} from '@eclipse-glsp/sprotty';
 
-const collaborationModule = new ContainerModule((bind, _unbind, isBound) => {
-    const context = { bind, isBound };
+export const collaborationModule = new FeatureModule((bind, unbind, isBound, rebind) => {
+    const context = { bind, unbind, isBound, rebind };
 
     bindAsService(context, TYPES.IDefaultTool, MouseMoveTool);
     configureActionHandler(context, SetViewportAction.KIND, MouseMoveTool);
@@ -85,5 +84,3 @@ const collaborationModule = new ContainerModule((bind, _unbind, isBound) => {
     configureCommand(context, RemoveSelectionIconCommand);
     configureModelElement(context, DefaultTypes.SELECTION_ICON, SelectionIcon, SelectionIconView);
 });
-
-export default collaborationModule;
