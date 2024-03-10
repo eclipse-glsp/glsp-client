@@ -192,12 +192,26 @@ export * from 'sprotty/lib/features/open/open';
 export * from 'sprotty/lib/features/projection/model';
 export * from 'sprotty/lib/features/projection/views';
 
-export * from 'sprotty/lib/features/routing/abstract-edge-router';
+export {
+    DefaultAnchors,
+    LinearRouteOptions,
+    Side,
+    AbstractEdgeRouter as SprottyAbstractEdgeRouter
+} from 'sprotty/lib/features/routing/abstract-edge-router';
 export * from 'sprotty/lib/features/routing/anchor';
 export * from 'sprotty/lib/features/routing/bezier-anchors';
-export * from 'sprotty/lib/features/routing/bezier-edge-router';
+export {
+    AddRemoveBezierSegmentAction,
+    AddRemoveBezierSegmentCommand,
+    BezierMouseListener,
+    BezierEdgeRouter as SprottyBezierEdgeRouter
+} from 'sprotty/lib/features/routing/bezier-edge-router';
 export * from 'sprotty/lib/features/routing/manhattan-anchors';
-export * from 'sprotty/lib/features/routing/manhattan-edge-router';
+export {
+    ManhattanRouterOptions,
+    ManhattanEdgeRouter as SprottyManhattanEdgeRouter
+} from 'sprotty/lib/features/routing/manhattan-edge-router';
+
 // Alias SModel types
 export {
     Connectable,
@@ -214,7 +228,7 @@ export {
     isConnectable
 } from 'sprotty/lib/features/routing/model';
 export * from 'sprotty/lib/features/routing/polyline-anchors';
-export * from 'sprotty/lib/features/routing/polyline-edge-router';
+export { PolylineRouteOptions, PolylineEdgeRouter as SprottyPolylineEdgeRouter } from 'sprotty/lib/features/routing/polyline-edge-router';
 export * from 'sprotty/lib/features/routing/routing';
 export * from 'sprotty/lib/features/routing/views';
 
