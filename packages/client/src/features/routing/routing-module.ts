@@ -17,6 +17,7 @@ import {
     AddRemoveBezierSegmentCommand,
     AnchorComputerRegistry,
     BezierDiamondAnchor,
+    BezierEdgeRouter,
     BezierEllipseAnchor,
     BezierRectangleAnchor,
     DiamondAnchor,
@@ -26,14 +27,13 @@ import {
     ManhattanDiamondAnchor,
     ManhattanEllipticAnchor,
     ManhattanRectangularAnchor,
+    PolylineEdgeRouter,
     RectangleAnchor,
     TYPES,
     bindAsService,
     configureCommand
 } from '@eclipse-glsp/sprotty';
 import { GLSPManhattanEdgeRouter } from './glsp-manhattan-edge-router';
-import { GLSPPolylineEdgeRouter } from './glsp-polyline-edge-router';
-import { GLSPBezierEdgeRouter } from './glsp-bezier-edge-router';
 
 export const routingModule = new FeatureModule((bind, unbind, isBound, rebind) => {
     const context = { bind, unbind, isBound, rebind };
@@ -45,12 +45,12 @@ export const routingModule = new FeatureModule((bind, unbind, isBound, rebind) =
     bindAsService(context, TYPES.IAnchorComputer, ManhattanRectangularAnchor);
     bindAsService(context, TYPES.IAnchorComputer, ManhattanDiamondAnchor);
 
-    bindAsService(context, TYPES.IEdgeRouter, GLSPPolylineEdgeRouter);
+    bindAsService(context, TYPES.IEdgeRouter, PolylineEdgeRouter);
     bindAsService(context, TYPES.IAnchorComputer, EllipseAnchor);
     bindAsService(context, TYPES.IAnchorComputer, RectangleAnchor);
     bindAsService(context, TYPES.IAnchorComputer, DiamondAnchor);
 
-    bindAsService(context, TYPES.IEdgeRouter, GLSPBezierEdgeRouter);
+    bindAsService(context, TYPES.IEdgeRouter, BezierEdgeRouter);
     bindAsService(context, TYPES.IAnchorComputer, BezierEllipseAnchor);
     bindAsService(context, TYPES.IAnchorComputer, BezierRectangleAnchor);
     bindAsService(context, TYPES.IAnchorComputer, BezierDiamondAnchor);

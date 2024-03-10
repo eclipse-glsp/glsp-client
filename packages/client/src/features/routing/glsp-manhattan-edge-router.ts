@@ -14,15 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import {
-    GConnectableElement,
-    GParentElement,
-    GRoutableElement,
-    ManhattanEdgeRouter,
-    Point,
-    ResolvedHandleMove,
-    almostEquals
-} from '@eclipse-glsp/sprotty';
+import { ManhattanEdgeRouter, ResolvedHandleMove, GRoutableElement, almostEquals } from '@eclipse-glsp/sprotty';
 
 export class GLSPManhattanEdgeRouter extends ManhattanEdgeRouter {
     protected override applyInnerHandleMoves(edge: GRoutableElement, moves: ResolvedHandleMove[]): void {
@@ -63,17 +55,5 @@ export class GLSPManhattanEdgeRouter extends ManhattanEdgeRouter {
                     break;
             }
         });
-    }
-
-    override getTranslatedAnchor(
-        connectable: GConnectableElement,
-        refPoint: Point,
-        refContainer: GParentElement,
-        edge: GRoutableElement,
-        anchorCorrection?: number | undefined
-    ): Point {
-        // users may define all kinds of anchors and anchor computers, we want to make sure we return a valid one in any case
-        const anchor = super.getTranslatedAnchor(connectable, refPoint, refContainer, edge, anchorCorrection);
-        return Point.isValid(anchor) ? anchor : refPoint;
     }
 }

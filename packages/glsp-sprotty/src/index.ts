@@ -16,4 +16,5 @@
 export * from './action-override';
 export * from './feature-modules';
 export * from './re-exports';
+export * from './routing-override';
 export * from './types';
