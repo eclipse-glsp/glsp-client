@@ -14,10 +14,11 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { Command, CommandExecutionContext, CommandReturn } from '@eclipse-glsp/sprotty';
+import { Prioritized } from '../priority';
 
-export abstract class FeedbackCommand extends Command {
-    // used by the `FeedbackAwareUpdateModelCommand`
-    readonly priority: number = 0;
+export abstract class FeedbackCommand extends Command implements Prioritized {
+    // used by the `FeedbackActionDispatcher`
+    readonly priority: number = Prioritized.DEFAULT_PRIORITY;
 
     undo(context: CommandExecutionContext): CommandReturn {
         return context.root;

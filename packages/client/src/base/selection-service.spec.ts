@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, Disposable, GModelRoot, GNode, TYPES, initializeContainer } from '@eclipse-glsp/sprotty';
+import { Action, Command, CommandExecutionContext, Disposable, GModelRoot, GNode, TYPES, initializeContainer } from '@eclipse-glsp/sprotty';
 import { AssertionError, expect } from 'chai';
 import { Container, injectable } from 'inversify';
 import * as sinon from 'sinon';
@@ -44,6 +44,12 @@ class MockFeedbackActionDispatcher implements IFeedbackActionDispatcher {
         const actions = this.getRegisteredFeedback();
         return actions.length === 1 ? (actions[0] as SelectFeedbackAction) : undefined;
     }
+
+    getFeedbackCommands(): Command[] {
+        return [];
+    }
+
+    async applyFeedbackCommands(context: CommandExecutionContext): Promise<void> {}
 }
 
 class MockSelectionListener implements ISelectionListener {
