@@ -13,19 +13,18 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { inject, injectable } from 'inversify';
 import {
     Action,
     CommandExecutionContext,
     Connectable,
     EdgeTypeHint,
-    IActionHandler,
-    RequestTypeHintsAction,
     GModelElement,
     GModelElementSchema,
     GModelRoot,
     GRoutableElement,
     GShapeElement,
+    IActionHandler,
+    RequestTypeHintsAction,
     SetTypeHintsAction,
     ShapeTypeHint,
     TYPES,
@@ -36,16 +35,17 @@ import {
     isConnectable,
     moveFeature
 } from '@eclipse-glsp/sprotty';
+import { inject, injectable } from 'inversify';
 
 import { GLSPActionDispatcher } from '../../base/action-dispatcher';
 import { IFeedbackActionDispatcher } from '../../base/feedback/feedback-action-dispatcher';
 import { FeedbackCommand } from '../../base/feedback/feedback-command';
 import { IDiagramStartup } from '../../base/model/diagram-loader';
+import { GEdge } from '../../model';
 import { getElementTypeId } from '../../utils/gmodel-util';
 import { resizeFeature } from '../change-bounds/model';
 import { reconnectFeature } from '../reconnect/model';
 import { containerFeature, isContainable, reparentFeature } from './model';
-import { GEdge } from '../../model';
 
 /**
  * Is dispatched by the {@link TypeHintProvider} to apply the type hints received from the server
@@ -78,7 +78,7 @@ type CanConnectFn = Connectable['canConnect'];
 @injectable()
 export class ApplyTypeHintsCommand extends FeedbackCommand {
     public static KIND = ApplyTypeHintsAction.KIND;
-    public override readonly priority = 10;
+    public override readonly rank: number = -10;
 
     @inject(TYPES.ITypeHintProvider)
     protected typeHintProvider: ITypeHintProvider;

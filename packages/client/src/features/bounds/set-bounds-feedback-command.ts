@@ -24,6 +24,7 @@ import {
     isLayoutContainer
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
+import { Ranked } from '../../base';
 import { GLSPActionDispatcher } from '../../base/action-dispatcher';
 import { FeedbackCommand } from '../../base/feedback/feedback-command';
 import { LocalRequestBoundsAction } from './local-bounds';
@@ -48,7 +49,7 @@ export namespace SetBoundsFeedbackAction {
 export class SetBoundsFeedbackCommand extends SetBoundsCommand implements FeedbackCommand {
     static override readonly KIND: string = SetBoundsFeedbackAction.KIND;
 
-    readonly priority: number = 0;
+    readonly rank: number = Ranked.DEFAULT_RANK;
 
     @inject(TYPES.IActionDispatcher) protected actionDispatcher: GLSPActionDispatcher;
 

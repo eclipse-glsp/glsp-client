@@ -27,8 +27,7 @@ import {
     toTypeGuard
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
-import { Prioritized } from '../priority';
-import { FeedbackCommand } from './feedback-command';
+import { getFeedbackRank } from './feedback-command';
 
 export interface IFeedbackEmitter {}
 
@@ -73,7 +72,7 @@ export interface IFeedbackActionDispatcher {
     getRegisteredFeedback(): Action[];
 
     /**
-     * Retrieves all commands based on the registered feedback actions, ordered by their priority (highest priority first).
+     * Retrieves all commands based on the registered feedback actions, ordered by their rank (lowest rank first).
      */
     getFeedbackCommands(): Command[];
 
@@ -130,7 +129,7 @@ export class FeedbackActionDispatcher implements IFeedbackActionDispatcher {
     getFeedbackCommands(): Command[] {
         return this.getRegisteredFeedback()
             .flatMap(action => this.actionToCommands(action))
-            .sort(Prioritized.sortDesc);
+            .sort((left, right) => getFeedbackRank(left) - getFeedbackRank(right));
     }
 
     async applyFeedbackCommands(context: CommandExecutionContext): Promise<void> {
@@ -148,10 +147,6 @@ export class FeedbackActionDispatcher implements IFeedbackActionDispatcher {
                 .filter(toTypeGuard(CommandActionHandler))
                 .map(handler => handler.handle(action)) ?? []
         );
-    }
-
-    protected getPriority(command: Partial<FeedbackCommand>): number {
-        return command.priority ?? 0;
     }
 
     protected async dispatchFeedback(actions: Action[], feedbackEmitter: IFeedbackEmitter): Promise<void> {
