@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 export * from './array-util';
-export * from './contribution-provider';
+export { bindContributionProvider } from './contribution-provider';
 export * from './di-util';
 export * from './disposable';
 export * from './event';

@@ -13,8 +13,8 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import type { ContributionProvider as IContributionProvider } from '@eclipse-glsp/protocol';
-import { ContributionProvider } from '@eclipse-glsp/protocol';
+import type { ContributionProvider as IContributionProvider } from '@eclipse-glsp/protocol/lib/utils/contribution-provider';
+import { ContributionProvider } from '@eclipse-glsp/protocol/lib/utils/contribution-provider';
 import { TYPES as SprottyTYPES } from 'sprotty';
 
 /**
