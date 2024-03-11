@@ -1,5 +1,6 @@
 /*******************************************************************************
  * Copyright (C) 2017 TypeFox and others.
+ * Modifications: (c) 2024 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -14,9 +15,10 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
  *******************************************************************************/
 // eslint-disable-next-line max-len
-// from https://github.com/eclipse-theia/theia/blob/9ff0cedff1d591b0eb4be97a05f6d992789d0a24/packages/core/src/common/contribution-provider.ts
+// based on https://github.com/eclipse-theia/theia/blob/9ff0cedff1d591b0eb4be97a05f6d992789d0a24/packages/core/src/common/contribution-provider.ts
 
 import { interfaces } from 'inversify';
+import { BindingContext } from './di-util';
 
 export const ContributionProvider = Symbol('ContributionProvider');
 
@@ -39,9 +41,8 @@ class ContainerBasedContributionProvider<T extends object> implements Contributi
     getContributions(recursive?: boolean): T[] {
         if (this.services === undefined) {
             const currentServices: T[] = [];
-            let currentContainer: interfaces.Container | null = this.container;
-            // eslint-disable-next-line no-null/no-null
-            while (currentContainer !== null) {
+            let currentContainer: interfaces.Container | undefined = this.container;
+            while (currentContainer !== undefined) {
                 if (currentContainer.isBound(this.serviceIdentifier)) {
                     try {
                         currentServices.push(...currentContainer.getAll(this.serviceIdentifier));
@@ -49,8 +50,7 @@ class ContainerBasedContributionProvider<T extends object> implements Contributi
                         console.error(error);
                     }
                 }
-                // eslint-disable-next-line no-null/no-null
-                currentContainer = recursive === true ? currentContainer.parent : null;
+                currentContainer = recursive === true && currentContainer.parent ? currentContainer.parent : undefined;
             }
             this.services = currentServices;
         }
@@ -58,21 +58,9 @@ class ContainerBasedContributionProvider<T extends object> implements Contributi
     }
 }
 
-export type Bindable = interfaces.Bind | interfaces.Container;
-export namespace Bindable {
-    export function isContainer(arg: Bindable): arg is interfaces.Container {
-        return (
-            typeof arg !== 'function' &&
-            // https://github.com/eclipse-theia/theia/issues/3204#issue-371029654
-            // In InversifyJS `4.14.0` containers no longer have a property `guid`.
-            ('guid' in arg || 'parent' in arg)
-        );
-    }
-}
-
-export function bindContributionProvider(bindable: Bindable, id: symbol): void {
-    const bindingToSyntax = Bindable.isContainer(bindable) ? bindable.bind(ContributionProvider) : bindable(ContributionProvider);
-    bindingToSyntax
+export function bindContributionProvider(context: Pick<BindingContext, 'bind'> | interfaces.Bind, id: symbol): void {
+    const bind = typeof context === 'object' ? context.bind.bind(context) : context;
+    bind(ContributionProvider)
         .toDynamicValue(ctx => new ContainerBasedContributionProvider(id, ctx.container))
         .inSingletonScope()
         .whenTargetNamed(id);
