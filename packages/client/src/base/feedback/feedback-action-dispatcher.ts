@@ -89,11 +89,7 @@ export class FeedbackActionDispatcher implements IFeedbackActionDispatcher {
     @inject(TYPES.IActionDispatcherProvider) protected actionDispatcher: () => Promise<IActionDispatcher>;
     @inject(TYPES.ILogger) protected logger: ILogger;
 
-    protected actionHandlerRegistry?: ActionHandlerRegistry;
-
-    constructor(@inject(TYPES.ActionHandlerRegistryProvider) actionHandlerRegistryProvider: () => Promise<ActionHandlerRegistry>) {
-        actionHandlerRegistryProvider().then(registry => (this.actionHandlerRegistry = registry));
-    }
+    @inject(ActionHandlerRegistry) protected actionHandlerRegistry: ActionHandlerRegistry;
 
     registerFeedback(feedbackEmitter: IFeedbackEmitter, feedbackActions: Action[], cleanupActions?: Action[] | undefined): Disposable {
         if (feedbackActions.length > 0) {

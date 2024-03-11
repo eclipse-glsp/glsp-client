@@ -14,7 +14,6 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import {
-    ActionHandlerRegistry,
     Animation,
     CommandExecutionContext,
     CommandReturn,
@@ -43,15 +42,8 @@ export class FeedbackAwareUpdateModelCommand extends UpdateModelCommand {
     @optional()
     protected feedbackActionDispatcher: IFeedbackActionDispatcher;
 
-    protected actionHandlerRegistry?: ActionHandlerRegistry;
-
-    constructor(
-        @inject(TYPES.Action) action: UpdateModelAction,
-        @inject(TYPES.ActionHandlerRegistryProvider)
-        actionHandlerRegistryProvider: () => Promise<ActionHandlerRegistry>
-    ) {
+    constructor(@inject(TYPES.Action) action: UpdateModelAction) {
         super({ animate: true, ...action });
-        actionHandlerRegistryProvider().then(registry => (this.actionHandlerRegistry = registry));
     }
 
     protected override performUpdate(oldRoot: GModelRoot, newRoot: GModelRoot, context: CommandExecutionContext): CommandReturn {

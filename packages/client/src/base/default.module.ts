@@ -13,6 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { bindContributionProvider } from '@eclipse-glsp/protocol/lib/utils/contribution-provider';
 import {
     ActionHandlerRegistry,
     FeatureModule,
@@ -87,6 +88,9 @@ export const defaultModule = new FeatureModule((bind, unbind, isBound, rebind, .
     bindOrRebind(context, TYPES.ICommandStack).to(GLSPCommandStack).inSingletonScope();
     bind(GLSPActionDispatcher).toSelf().inSingletonScope();
     bindOrRebind(context, TYPES.IActionDispatcher).toService(GLSPActionDispatcher);
+
+    bindContributionProvider(bind, TYPES.ActionHandlerRegistration);
+    bindContributionProvider(bind, TYPES.IActionHandlerInitializer);
     bind(GLSPActionHandlerRegistry).toSelf().inSingletonScope();
     bindOrRebind(context, ActionHandlerRegistry).toService(GLSPActionHandlerRegistry);
 
