@@ -15,6 +15,10 @@
 -   [diagram] Restructure some tools to have a more common infrastructure and support helper lines [#306](https://github.com/eclipse-glsp/glsp-client/pull/306)
 -   [diagram] Fix a bug in `SelectionService` that caused issues with inversify when injecting certain services (e.g. `ActionDispatcher`) in `SelectionChangeListener` implementations [#305](https://github.com/eclipse-glsp/glsp-client/pull/305)
 -   [diagram] Ensure that the `SelectionService` does not trigger a change event if the selection did not change on model update [#313](https://github.com/eclipse-glsp/glsp-client/pull/313)
+-   [API] Apply feedback commands already on `SetModelCommand` and unify `rank` and `priority` property [#323](https://github.com/eclipse-glsp/glsp-client/pull/322).
+    -   Method `FeedbackAwareUpdateModelCommand.getFeedbackCommands` was move to `IFeedbackEmitter` for re-use, resulting in two new methods: `getFeedbackCommands` and `applyFeedbackCommands`.
+    -   Method `FeedbackAwareUpdateModelCommand.getPriority` was replaced by a generic `rank` property and the `Ranked` namespace.
+    -   The `priority` property (higher priority equals earlier execution) in `FeedbackCommand` was superseeded by a `rank` property (lower rank equals earlier execution).
 
 ## [v2.0.0 - 14/10/2023](https://github.com/eclipse-glsp/glsp-client/releases/tag/v2.0.0)
 

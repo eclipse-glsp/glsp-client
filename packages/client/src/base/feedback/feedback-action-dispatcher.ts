@@ -13,8 +13,21 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import {
+    Action,
+    ActionHandlerRegistry,
+    Command,
+    CommandActionHandler,
+    CommandExecutionContext,
+    Disposable,
+    IActionDispatcher,
+    ICommand,
+    ILogger,
+    TYPES,
+    toTypeGuard
+} from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
-import { Action, Disposable, IActionDispatcher, ILogger, TYPES } from '@eclipse-glsp/sprotty';
+import { getFeedbackRank } from './feedback-command';
 
 export interface IFeedbackEmitter {}
 
@@ -57,6 +70,16 @@ export interface IFeedbackActionDispatcher {
      * Retrieve all `actions` sent out by currently registered `feedbackEmitter`.
      */
     getRegisteredFeedback(): Action[];
+
+    /**
+     * Retrieves all commands based on the registered feedback actions, ordered by their rank (lowest rank first).
+     */
+    getFeedbackCommands(): Command[];
+
+    /**
+     * Applies all current feedback commands to the given command execution context.
+     */
+    applyFeedbackCommands(context: CommandExecutionContext): Promise<void>;
 }
 
 @injectable()
@@ -65,6 +88,8 @@ export class FeedbackActionDispatcher implements IFeedbackActionDispatcher {
 
     @inject(TYPES.IActionDispatcherProvider) protected actionDispatcher: () => Promise<IActionDispatcher>;
     @inject(TYPES.ILogger) protected logger: ILogger;
+
+    @inject(ActionHandlerRegistry) protected actionHandlerRegistry: ActionHandlerRegistry;
 
     registerFeedback(feedbackEmitter: IFeedbackEmitter, feedbackActions: Action[], cleanupActions?: Action[] | undefined): Disposable {
         if (feedbackActions.length > 0) {
@@ -95,6 +120,29 @@ export class FeedbackActionDispatcher implements IFeedbackActionDispatcher {
             }
         });
         return result;
+    }
+
+    getFeedbackCommands(): Command[] {
+        return this.getRegisteredFeedback()
+            .flatMap(action => this.actionToCommands(action))
+            .sort((left, right) => getFeedbackRank(left) - getFeedbackRank(right));
+    }
+
+    async applyFeedbackCommands(context: CommandExecutionContext): Promise<void> {
+        const feedbackCommands = this.getFeedbackCommands() ?? [];
+        if (feedbackCommands?.length > 0) {
+            const results = feedbackCommands.map(command => command.execute(context));
+            await Promise.all(results);
+        }
+    }
+
+    protected actionToCommands(action: Action): ICommand[] {
+        return (
+            this.actionHandlerRegistry
+                ?.get(action.kind)
+                .filter(toTypeGuard(CommandActionHandler))
+                .map(handler => handler.handle(action)) ?? []
+        );
     }
 
     protected async dispatchFeedback(actions: Action[], feedbackEmitter: IFeedbackEmitter): Promise<void> {

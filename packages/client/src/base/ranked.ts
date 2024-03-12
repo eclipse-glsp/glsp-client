@@ -21,11 +21,16 @@ import { AnyObject, hasNumberProp } from '@eclipse-glsp/sprotty';
  * orderable by a type or rank/priority.
  */
 export interface Ranked {
+    /**
+     * A rank implies the position of this element within a sequence of other ranked elements.
+     * A lower rank implies a position earlier in the list.
+     */
     rank: number;
 }
 
 export namespace Ranked {
     export const DEFAULT_RANK = 0;
+
     export function is(object: unknown): object is Ranked {
         return AnyObject.is(object) && hasNumberProp(object, 'rank');
     }
@@ -39,4 +44,13 @@ export namespace Ranked {
     export function getRank(object: unknown): number {
         return is(object) ? object.rank : DEFAULT_RANK;
     }
+
+    /** Sort function for lowest rank first. */
+    export const sortAsc = (left: unknown, right: unknown): number => getRank(left) - getRank(right);
+
+    /** Sort function for highest rank first. */
+    export const sortDesc = (left: unknown, right: unknown): number => getRank(right) - getRank(left);
+
+    /** Default sort function for rank: Lowest rank first */
+    export const sort = sortAsc;
 }

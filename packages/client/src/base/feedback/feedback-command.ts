@@ -13,11 +13,16 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Command, CommandExecutionContext, CommandReturn } from '@eclipse-glsp/sprotty';
+/* eslint-disable deprecation/deprecation */
+import { Command, CommandExecutionContext, CommandReturn, ICommand } from '@eclipse-glsp/sprotty';
+import { Ranked } from '../ranked';
 
-export abstract class FeedbackCommand extends Command {
-    // used by the `FeedbackAwareUpdateModelCommand`
-    readonly priority: number = 0;
+export abstract class FeedbackCommand extends Command implements Ranked {
+    /** @deprecated Use rank instead. Please note that a lower rank implies higher priority, so the order is reversed. */
+    readonly priority?: number = 0;
+
+    // backwards compatibility: convert any existing priority to an equivalent rank
+    readonly rank: number = this.priority ? -this.priority : Ranked.DEFAULT_RANK;
 
     undo(context: CommandExecutionContext): CommandReturn {
         return context.root;
@@ -26,4 +31,10 @@ export abstract class FeedbackCommand extends Command {
     redo(context: CommandExecutionContext): CommandReturn {
         return context.root;
     }
+}
+
+/** Used for backwards compatibility, otherwise use Ranked.getRank or Ranked sort functions. */
+export function getFeedbackRank(command: ICommand): number {
+    const feedbackCommand = command as Partial<FeedbackCommand>;
+    return feedbackCommand?.priority ? -feedbackCommand.priority : feedbackCommand.rank ?? Ranked.DEFAULT_RANK;
 }
