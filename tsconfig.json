@@ -1,0 +1,25 @@
+{
+  "extends": "@eclipse-glsp/ts-config",
+  "include": [],
+  "compilerOptions": {
+    "composite": true,
+    "resolveJsonModule": true
+  },
+  "references": [
+    {
+      "path": "./packages/protocol"
+    },
+    {
+      "path": "./packages/glsp-sprotty"
+    },
+    {
+      "path": "./packages/client"
+    },
+    {
+      "path": "./examples/workflow-glsp"
+    },
+    {
+      "path": "./examples/workflow-standalone"
+    }
+  ]
+}
