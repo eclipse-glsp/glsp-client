@@ -1,6 +1,7 @@
 {
   "extends": "@eclipse-glsp/ts-config/mocha",
   "compilerOptions": {
+    "composite": true,
     "rootDir": "src",
     "outDir": "lib",
     "reactNamespace": "JSX"

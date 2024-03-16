@@ -22,13 +22,14 @@
   "main": "lib",
   "types": "lib",
   "scripts": {
-    "build": "tsc -b && webpack",
-    "clean": "rimraf lib tsconfig.tsbuildinfo app/bundle.js app/bundle.js.map app/css",
+    "build": "yarn compile && yarn bundle",
+    "bundle": "webpack",
+    "clean": "rimraf lib *.tsbuildinfo app/bundle.js app/bundle.js.map app/css",
+    "compile": "tsc -b",
     "lint": "eslint --ext .ts,.tsx ./src",
-    "lint:ci": "yarn lint -o eslint.xml -f checkstyle",
-    "prepare": "yarn clean && yarn build",
     "start:exampleServer": "yarn ts-node ./scripts/start-example-server.ts",
-    "watch": "tsc -w -p ./tsconfig.json"
+    "watch": "tsc -w && yarn watch:bundle",
+    "watch:bundle": "webpack -w"
   },
   "dependencies": {
     "@eclipse-glsp-examples/workflow-glsp": "2.2.0-next",

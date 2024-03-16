@@ -1,8 +1,17 @@
 {
   "extends": "@eclipse-glsp/ts-config/tsconfig.json",
   "compilerOptions": {
+    "composite": true,
     "rootDir": "src",
     "outDir": "lib"
   },
-  "include": ["src", "lib", "css", "app"]
+  "include": ["src", "lib", "css", "app"],
+  "references": [
+    {
+      "path": "../../packages/client"
+    },
+    {
+      "path": "../workflow-glsp"
+    }
+  ]
 }

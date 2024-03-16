@@ -27,10 +27,8 @@
   ],
   "scripts": {
     "build": "tsc -b",
-    "clean": "rimraf lib tsconfig.tsbuildinfo",
+    "clean": "rimraf lib *.tsbuildinfo",
     "lint": "eslint --ext .ts,.tsx ./src",
-    "lint:ci": "yarn lint -o eslint.xml -f checkstyle",
-    "prepare": "yarn clean && yarn build",
     "watch": "tsc -w"
   },
   "dependencies": {

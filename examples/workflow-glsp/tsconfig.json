@@ -1,11 +1,17 @@
 {
   "extends": "@eclipse-glsp/ts-config",
   "compilerOptions": {
+    "composite": true,
     "rootDir": "src",
     "outDir": "lib",
     "reactNamespace": "JSX",
     "skipLibCheck": true,
     "resolveJsonModule": true
   },
-  "include": ["src"]
+  "include": ["src"],
+  "references": [
+    {
+      "path": "../../packages/client"
+    }
+  ]
 }
