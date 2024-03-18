@@ -13,26 +13,26 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { inject, injectable, optional } from 'inversify';
 import {
     Action,
     CommandExecutionContext,
     CommandReturn,
     DeleteMarkersAction,
+    GParentElement,
     IActionDispatcher,
     IActionHandler,
     ICommand,
     Marker,
-    GParentElement,
     SetMarkersAction,
     TYPES,
     hasArrayProp
 } from '@eclipse-glsp/sprotty';
+import { inject, injectable, optional } from 'inversify';
 import { EditorContextService } from '../../base/editor-context-service';
 import { IFeedbackActionDispatcher, IFeedbackEmitter } from '../../base/feedback/feedback-action-dispatcher';
 import { FeedbackCommand } from '../../base/feedback/feedback-command';
 import { removeCssClasses } from '../../utils/gmodel-util';
-import { GIssueMarker, createGIssue, getOrCreateGIssueMarker, getGIssueMarker, getSeverity } from './issue-marker';
+import { GIssueMarker, createGIssue, getGIssueMarker, getOrCreateGIssueMarker, getSeverity } from './issue-marker';
 
 /**
  * Feedback emitter sending actions for visualizing model validation feedback and
@@ -42,9 +42,7 @@ import { GIssueMarker, createGIssue, getOrCreateGIssueMarker, getGIssueMarker, g
 export class ValidationFeedbackEmitter implements IFeedbackEmitter {
     @inject(TYPES.IFeedbackActionDispatcher) protected feedbackActionDispatcher: IFeedbackActionDispatcher;
 
-    @inject(TYPES.IActionDispatcherProvider) protected actionDispatcher: () => Promise<IActionDispatcher>;
-
-    protected registeredFeedbackByReason: Map<string, ApplyMarkersAction> = new Map();
+    protected registeredFeedbackByReason: Map<string, { action: ApplyMarkersAction; emitter: IFeedbackEmitter }> = new Map();
 
     /**
      * Register the action that should be emitted for visualizing validation feedback.
@@ -54,15 +52,24 @@ export class ValidationFeedbackEmitter implements IFeedbackEmitter {
     registerValidationFeedbackAction(action: ApplyMarkersAction, reason = ''): void {
         // De-register feedback and clear existing markers with the same reason
         const previousFeedbackWithSameReason = this.registeredFeedbackByReason.get(reason);
+        let emitter: IFeedbackEmitter | undefined;
         if (previousFeedbackWithSameReason) {
-            this.feedbackActionDispatcher.deregisterFeedback(this, [previousFeedbackWithSameReason]);
-            const deleteMarkersAction = DeleteMarkersAction.create(previousFeedbackWithSameReason.markers);
-            this.actionDispatcher().then(dispatcher => dispatcher.dispatch(deleteMarkersAction));
+            emitter = previousFeedbackWithSameReason.emitter;
+            const deleteMarkersAction = DeleteMarkersAction.create(previousFeedbackWithSameReason.action.markers);
+            this.feedbackActionDispatcher.deregisterFeedback(emitter, [deleteMarkersAction]);
+        }
+
+        if (!emitter) {
+            emitter = this.createEmitter(reason);
         }
 
         // Register new action responsible for applying markers and re-applying them when the model is updated
-        this.registeredFeedbackByReason.set(reason, action);
-        this.feedbackActionDispatcher.registerFeedback(this, [...this.registeredFeedbackByReason.values()]);
+        this.registeredFeedbackByReason.set(reason, { action, emitter });
+        this.feedbackActionDispatcher.registerFeedback(emitter, [action]);
+    }
+
+    protected createEmitter(reason: string): IFeedbackEmitter {
+        return { id: 'validationFeedbackEmitter_' + reason };
     }
 }
 
