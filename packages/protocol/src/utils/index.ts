@@ -14,7 +14,6 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 export * from './array-util';
-export * from './di-util';
 export * from './disposable';
 export * from './event';
 // we do not export test-util to avoid a dependency on test frameworks such as chai

@@ -139,7 +139,7 @@ export class FeedbackActionDispatcher implements IFeedbackActionDispatcher {
     protected actionToCommands(action: Action): ICommand[] {
         return (
             this.actionHandlerRegistry
-                ?.get(action.kind)
+                .get(action.kind)
                 .filter(toTypeGuard(CommandActionHandler))
                 .map(handler => handler.handle(action)) ?? []
         );

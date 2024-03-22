@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2023 EclipseSource and others.
+ * Copyright (c) 2019-2024 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -17,50 +17,38 @@ import {
     CommandStack,
     Disposable,
     DisposableCollection,
-    Emitter,
     Event,
     GModelRoot,
     ICommand,
+    LazyInjector,
     SetModelCommand,
-    TYPES,
     UpdateModelCommand
 } from '@eclipse-glsp/sprotty';
-import { injectable, multiInject, optional, preDestroy } from 'inversify';
-
-/**
- * A hook to listen for model root changes. Will be called after a server update
- * has been processed
- */
-export interface IGModelRootListener {
-    modelRootChanged(root: Readonly<GModelRoot>): void;
-}
-
-/**
- * @deprecated Use {@link IGModelRootListener} instead
- */
-export type ISModelRootListener = IGModelRootListener;
+import { inject, injectable, preDestroy } from 'inversify';
+import { EditorContextService } from './editor-context-service';
 
 @injectable()
 export class GLSPCommandStack extends CommandStack implements Disposable {
-    @multiInject(TYPES.IGModelRootListener)
-    @optional()
-    protected modelRootListeners: IGModelRootListener[] = [];
+    @inject(LazyInjector)
+    protected lazyInjector: LazyInjector;
     protected toDispose = new DisposableCollection();
-
-    protected override initialize(): void {
-        super.initialize();
-        this.toDispose.push(this.onModelRootChangedEmitter);
-        this.modelRootListeners.forEach(listener => this.onModelRootChanged(root => listener.modelRootChanged(root)));
-    }
 
     @preDestroy()
     dispose(): void {
         this.toDispose.dispose();
     }
 
-    protected onModelRootChangedEmitter = new Emitter<Readonly<GModelRoot>>();
+    // Use lazyInjector to resolve circular dependency
+    //  GLSPActionDispatcher --> GLSPCommandStack --> EditorContextService --> GLSPActionDispatcher
+    get editorContext(): EditorContextService {
+        return this.lazyInjector.get(EditorContextService);
+    }
+
+    /**
+     * @deprecated Use the `EditorContext.onModelRootChanged` event instead
+     */
     get onModelRootChanged(): Event<Readonly<GModelRoot>> {
-        return this.onModelRootChangedEmitter.event;
+        return this.editorContext.onModelRootChanged;
     }
 
     override undo(): Promise<GModelRoot> {
@@ -88,6 +76,6 @@ export class GLSPCommandStack extends CommandStack implements Disposable {
     }
 
     protected notifyListeners(root: Readonly<GModelRoot>): void {
-        this.onModelRootChangedEmitter.fire(root);
+        this.editorContext.notifyModelRootChanged(root, this);
     }
 }

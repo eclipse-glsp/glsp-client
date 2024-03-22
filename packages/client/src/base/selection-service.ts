@@ -25,6 +25,7 @@ import {
     GModelElement,
     GModelRoot,
     ILogger,
+    LazyInjector,
     SelectAction,
     SelectAllAction,
     Selectable,
@@ -35,10 +36,11 @@ import {
     isSelectable,
     pluck
 } from '@eclipse-glsp/sprotty';
-import { inject, injectable, multiInject, optional, postConstruct, preDestroy } from 'inversify';
+import { inject, injectable, postConstruct, preDestroy } from 'inversify';
 import { getElements, getMatchingElements } from '../utils/gmodel-util';
-import { GLSPCommandStack, IGModelRootListener } from './command-stack';
+import { IGModelRootListener } from './editor-context-service';
 import { IFeedbackActionDispatcher } from './feedback/feedback-action-dispatcher';
+import { IDiagramStartup } from './model';
 
 export interface ISelectionListener {
     selectionChanged(root: Readonly<GModelRoot>, selectedElements: string[], deselectedElements?: string[]): void;
@@ -51,35 +53,34 @@ export interface SelectionChange {
 }
 
 @injectable()
-export class SelectionService implements IGModelRootListener, Disposable {
-    protected root: Readonly<GModelRoot>;
-    protected selectedElementIDs: Set<string> = new Set();
-
+export class SelectionService implements IGModelRootListener, Disposable, IDiagramStartup {
     @inject(TYPES.IFeedbackActionDispatcher)
     protected feedbackDispatcher: IFeedbackActionDispatcher;
+
+    @inject(LazyInjector)
+    protected lazyInjector: LazyInjector;
 
     @inject(TYPES.ILogger)
     protected logger: ILogger;
 
-    @inject(TYPES.ICommandStack)
-    protected commandStack: GLSPCommandStack;
-
-    @multiInject(TYPES.ISelectionListener)
-    @optional()
-    protected selectionListeners: ISelectionListener[] = [];
+    protected root: Readonly<GModelRoot>;
+    protected selectedElementIDs: Set<string> = new Set();
 
     protected toDispose = new DisposableCollection();
 
     @postConstruct()
     protected initialize(): void {
-        this.toDispose.push(
-            this.onSelectionChangedEmitter,
-            this.commandStack.onModelRootChanged(root => this.modelRootChanged(root))
-        );
+        this.toDispose.push(this.onSelectionChangedEmitter);
+    }
 
-        this.selectionListeners.forEach(listener =>
-            this.onSelectionChanged(change => listener.selectionChanged(change.root, change.selectedElements, change.deselectedElements))
-        );
+    preLoadDiagram(): void {
+        this.lazyInjector
+            .getAll<ISelectionListener>('selectionListener')
+            .forEach(listener =>
+                this.onSelectionChanged(change =>
+                    listener.selectionChanged(change.root, change.selectedElements, change.deselectedElements)
+                )
+            );
     }
 
     @preDestroy()

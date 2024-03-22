@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2023-2024 EclipseSource and others.
+ * Copyright (c) 2024 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,12 +13,13 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { BindingContext, Disposable, KeyListener, KeyTool, LazyInjector, MaybePromise, TYPES, bindOrRebind } from '@eclipse-glsp/sprotty';
+
+import { BindingContext, IUIExtension, LazyInjector, MaybePromise, TYPES, UIExtensionRegistry, bindOrRebind } from '@eclipse-glsp/sprotty';
 import { decorate, inject, injectable, unmanaged } from 'inversify';
-import { IDiagramStartup } from '../model';
+import { IDiagramStartup } from './model';
 
 @injectable()
-export class GLSPKeyTool extends KeyTool implements IDiagramStartup {
+export class GLSPUIExtensionRegistry extends UIExtensionRegistry implements IDiagramStartup {
     @inject(LazyInjector)
     protected lazyInjector: LazyInjector;
 
@@ -26,23 +27,18 @@ export class GLSPKeyTool extends KeyTool implements IDiagramStartup {
         super([]);
     }
 
-    registerListener(keyListener: KeyListener): Disposable {
-        super.register(keyListener);
-        return Disposable.create(() => this.deregister(keyListener));
-    }
-
     preLoadDiagram(): MaybePromise<void> {
-        this.lazyInjector.getAll<KeyListener>(TYPES.KeyListener).forEach(listener => this.register(listener));
+        this.lazyInjector.getAll<IUIExtension>(TYPES.IUIExtension).forEach(extension => this.register(extension.id(), extension));
     }
 }
 
 let baseClassDecorated = false;
-export function bindKeyTool(context: Omit<BindingContext, 'unbind'>): void {
-    context.bind(GLSPKeyTool).toSelf().inSingletonScope();
-    bindOrRebind(context, KeyTool).toService(GLSPKeyTool);
-    context.bind(TYPES.IDiagramStartup).toService(GLSPKeyTool);
+export function bindUIExtensionRegistry(context: Omit<BindingContext, 'unbind'>): void {
+    context.bind(GLSPUIExtensionRegistry).toSelf().inSingletonScope();
+    bindOrRebind(context, TYPES.UIExtensionRegistry).toService(GLSPUIExtensionRegistry);
+    context.bind(TYPES.IDiagramStartup).toService(GLSPUIExtensionRegistry);
     if (!baseClassDecorated) {
-        decorate(unmanaged(), KeyTool, 0);
+        decorate(unmanaged(), UIExtensionRegistry, 0);
         baseClassDecorated = true;
     }
 }

@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2023 EclipseSource and others.
+ * Copyright (c) 2019-2024 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,8 +13,21 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { injectable, multiInject, optional } from 'inversify';
-import { Action, Disposable, MouseListener, MouseTool, GModelElement, GModelRoot, TYPES } from '@eclipse-glsp/sprotty';
+import {
+    Action,
+    BindingContext,
+    Disposable,
+    GModelElement,
+    GModelRoot,
+    LazyInjector,
+    MaybePromise,
+    MouseListener,
+    MouseTool,
+    TYPES,
+    bindOrRebind
+} from '@eclipse-glsp/sprotty';
+import { decorate, inject, injectable, unmanaged } from 'inversify';
+import { IDiagramStartup } from '../model';
 import { Ranked } from '../ranked';
 
 /**
@@ -24,12 +37,18 @@ import { Ranked } from '../ranked';
 type MouseListenerMethods = keyof Omit<MouseListener, 'decorate'>;
 
 @injectable()
-export class GLSPMouseTool extends MouseTool {
+export class GLSPMouseTool extends MouseTool implements IDiagramStartup {
+    @inject(LazyInjector)
+    protected lazyInjector: LazyInjector;
+
     protected rankedMouseListeners: Map<number, MouseListener[]>;
 
-    constructor(@multiInject(TYPES.MouseListener) @optional() protected override mouseListeners: MouseListener[] = []) {
-        super(mouseListeners);
-        this.rankedMouseListeners = groupBy(mouseListeners, listener => Ranked.getRank(listener));
+    constructor() {
+        super([]);
+    }
+
+    preLoadDiagram(): MaybePromise<void> {
+        this.lazyInjector.getAll<MouseListener>(TYPES.MouseListener).forEach(listener => this.register(listener));
     }
 
     override register(mouseListener: MouseListener): void {
@@ -85,6 +104,17 @@ export class GLSPMouseTool extends MouseTool {
                 }
             }
         }
+    }
+}
+
+let baseClassDecorated = false;
+export function bindMouseTool(context: Omit<BindingContext, 'unbind'>): void {
+    context.bind(GLSPMouseTool).toSelf().inSingletonScope();
+    bindOrRebind(context, MouseTool).toService(GLSPMouseTool);
+    context.bind(TYPES.IDiagramStartup).toService(GLSPMouseTool);
+    if (!baseClassDecorated) {
+        decorate(unmanaged(), MouseTool, 0);
+        baseClassDecorated = true;
     }
 }
 

@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2023 EclipseSource and others.
+ * Copyright (c) 2023-2024 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,19 +13,20 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { ActionHandlerRegistry, IActionHandler, RequestAction, ResponseAction, TYPES } from '@eclipse-glsp/sprotty';
 import { expect } from 'chai';
 import { Container } from 'inversify';
-import { ActionHandlerRegistry, IActionHandler, RequestAction, ResponseAction, TYPES } from '@eclipse-glsp/sprotty';
-import { IDiagramOptions } from '..';
+
 import { GLSPActionDispatcher } from './action-dispatcher';
 import { defaultModule } from './default.module';
+import { IDiagramOptions } from './model';
 
 const container = new Container();
 container.load(defaultModule);
 container.bind(TYPES.IDiagramOptions).toConstantValue(<IDiagramOptions>(<unknown>{
     clientId: 'client1',
     diagramType: 'diagramType',
-    glspClientProvider: async () => ({} as any)
+    glspClientProvider: async () => ({}) as any
 }));
 const registry = container.get(ActionHandlerRegistry);
 const actionDispatcher = container.get(GLSPActionDispatcher);

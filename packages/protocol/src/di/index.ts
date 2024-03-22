@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2023-2024 EclipseSource and others.
+ * Copyright (c) 2024 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,20 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-export * from './action-dispatcher';
-export * from './action-handler-registry';
-export * from './args-feature';
-export * from './auto-complete';
-export * from './command-stack';
-export * from './default.module';
-export * from './drag-aware-mouse-listener';
-export * from './editor-context-service';
-export * from './feedback';
-export * from './focus';
-export * from './model';
-export * from './ranked';
-export * from './selection-clearing-mouse-listener';
-export * from './selection-service';
-export * from './tool-manager';
-export * from './ui-extension-registry';
-export * from './view';
+export * from './container-configuration';
+export * from './feature-module';
+export * from './inversify-util';
+export * from './lazy-injector';
