@@ -14,17 +14,15 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import {
-    ActionHandlerRegistry,
     FeatureModule,
-    KeyTool,
     LocationPostprocessor,
-    MouseTool,
     MoveCommand,
     SetDirtyStateAction,
     SetEditModeAction,
     SetModelCommand,
     TYPES,
     bindAsService,
+    bindLazyInjector,
     bindOrRebind,
     configureActionHandler,
     configureCommand,
@@ -32,9 +30,8 @@ import {
 } from '@eclipse-glsp/sprotty';
 import '@vscode/codicons/dist/codicon.css';
 import '../../css/glsp-sprotty.css';
-import { bindContributionProvider } from '../utils/contribution-provider';
 import { GLSPActionDispatcher } from './action-dispatcher';
-import { GLSPActionHandlerRegistry } from './action-handler-registry';
+import { bindActionHandlerRegistry } from './action-handler-registry';
 import { GLSPCommandStack } from './command-stack';
 import { EditorContextService } from './editor-context-service';
 import { FeedbackAwareSetModelCommand } from './feedback';
@@ -51,8 +48,9 @@ import { SelectionClearingMouseListener } from './selection-clearing-mouse-liste
 import { SelectionService } from './selection-service';
 import { EnableDefaultToolsAction, EnableToolsAction } from './tool-manager/tool';
 import { DefaultToolsEnablingKeyListener, ToolManager, ToolManagerActionHandler } from './tool-manager/tool-manager';
-import { GLSPKeyTool } from './view/key-tool';
-import { GLSPMouseTool } from './view/mouse-tool';
+import { bindUIExtensionRegistry } from './ui-extension-registry';
+import { bindKeyTool } from './view/key-tool';
+import { bindMouseTool } from './view/mouse-tool';
 import { GViewRegistry } from './view/view-registry';
 
 /**
@@ -64,7 +62,10 @@ export const defaultModule = new FeatureModule((bind, unbind, isBound, rebind, .
     sprottyDefaultModule.registry(bind, unbind, isBound, rebind, ...rest);
     const context = { bind, unbind, isBound, rebind };
 
+    bindLazyInjector(context);
+
     bind(EditorContextService).toSelf().inSingletonScope();
+    bind(TYPES.IDiagramStartup).toService(EditorContextService);
     bind(TYPES.IEditorContextServiceProvider).toProvider<EditorContextService>(ctx => async () => ctx.container.get(EditorContextService));
 
     configureActionHandler(context, SetEditModeAction.KIND, EditorContextService);
@@ -78,10 +79,8 @@ export const defaultModule = new FeatureModule((bind, unbind, isBound, rebind, .
     configureCommand(context, FeedbackAwareUpdateModelCommand);
     rebind(SetModelCommand).to(FeedbackAwareSetModelCommand);
 
-    bind(GLSPMouseTool).toSelf().inSingletonScope();
-    bindOrRebind(context, MouseTool).toService(GLSPMouseTool);
-    bind(GLSPKeyTool).toSelf().inSingletonScope();
-    bindOrRebind(context, KeyTool).toService(GLSPKeyTool);
+    bindMouseTool(context);
+    bindKeyTool(context);
 
     bindAsService(context, TYPES.MouseListener, SelectionClearingMouseListener);
 
@@ -89,10 +88,7 @@ export const defaultModule = new FeatureModule((bind, unbind, isBound, rebind, .
     bind(GLSPActionDispatcher).toSelf().inSingletonScope();
     bindOrRebind(context, TYPES.IActionDispatcher).toService(GLSPActionDispatcher);
 
-    bindContributionProvider(bind, TYPES.ActionHandlerRegistration);
-    bindContributionProvider(bind, TYPES.IActionHandlerInitializer);
-    bind(GLSPActionHandlerRegistry).toSelf().inSingletonScope();
-    bindOrRebind(context, ActionHandlerRegistry).toService(GLSPActionHandlerRegistry);
+    bindActionHandlerRegistry(context);
 
     bindAsService(context, TYPES.ModelSource, GLSPModelSource);
     bind(DiagramLoader).toSelf().inSingletonScope();
@@ -103,6 +99,8 @@ export const defaultModule = new FeatureModule((bind, unbind, isBound, rebind, .
     bindOrRebind(context, TYPES.ViewRegistry).to(GViewRegistry).inSingletonScope();
 
     bind(SelectionService).toSelf().inSingletonScope();
+    bind(TYPES.IGModelRootListener).toService(SelectionService);
+    bind(TYPES.IDiagramStartup).toService(SelectionService);
 
     // Feedback Support ------------------------------------
     // Generic re-usable feedback modifying css classes
@@ -115,9 +113,11 @@ export const defaultModule = new FeatureModule((bind, unbind, isBound, rebind, .
 
     // Tool manager initialization ------------------------------------
     bind(TYPES.IToolManager).to(ToolManager).inSingletonScope();
+    bind(TYPES.IDiagramStartup).toService(TYPES.IToolManager);
     bind(DefaultToolsEnablingKeyListener).toSelf().inSingletonScope();
     bind(TYPES.KeyListener).toService(DefaultToolsEnablingKeyListener);
     bind(ToolManagerActionHandler).toSelf().inSingletonScope();
     configureActionHandler(context, EnableDefaultToolsAction.KIND, ToolManagerActionHandler);
     configureActionHandler(context, EnableToolsAction.KIND, ToolManagerActionHandler);
+    bindUIExtensionRegistry(context);
 });

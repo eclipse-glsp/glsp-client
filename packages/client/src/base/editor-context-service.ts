@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020-2023 EclipseSource and others.
+ * Copyright (c) 2020-2024 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,30 +13,50 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { inject, injectable, multiInject, optional, postConstruct, preDestroy } from 'inversify';
 import {
     Action,
+    AnyObject,
     Args,
+    CommandStack,
     Disposable,
     DisposableCollection,
     EditMode,
     EditorContext,
     Emitter,
     Event,
-    IActionHandler,
-    MaybePromise,
-    MousePositionTracker,
     GModelElement,
     GModelRoot,
+    IActionHandler,
+    LazyInjector,
+    MaybePromise,
+    MousePositionTracker,
     SetDirtyStateAction,
     SetEditModeAction,
     TYPES,
     ValueChange
 } from '@eclipse-glsp/sprotty';
+import { inject, injectable, postConstruct, preDestroy } from 'inversify';
 import { GLSPActionDispatcher } from './action-dispatcher';
 import { IDiagramOptions, IDiagramStartup } from './model/diagram-loader';
 import { SelectionService } from './selection-service';
 
+/**
+ * A hook to listen for model root changes. Will be called after a server update
+ * has been processed
+ */
+export interface IGModelRootListener {
+    modelRootChanged(root: Readonly<GModelRoot>): void;
+}
+
+/**
+ * @deprecated Use {@link IGModelRootListener} instead
+ */
+export type ISModelRootListener = IGModelRootListener;
+
+/**
+ * A hook to listen for edit mode changes. Will be after the {@link EditorContextService}
+ * has handled the {@link SetEditModeAction}.
+ */
 export interface IEditModeListener {
     editModeChanged(newValue: string, oldValue: string): void;
 }
@@ -62,12 +82,11 @@ export class EditorContextService implements IActionHandler, Disposable, IDiagra
     @inject(MousePositionTracker)
     protected mousePositionTracker: MousePositionTracker;
 
+    @inject(LazyInjector)
+    protected lazyInjector: LazyInjector;
+
     @inject(TYPES.IDiagramOptions)
     protected diagramOptions: IDiagramOptions;
-
-    @multiInject(TYPES.IEditModeListener)
-    @optional()
-    protected editModeListeners: IEditModeListener[] = [];
 
     @inject(GLSPActionDispatcher)
     protected actionDispatcher: GLSPActionDispatcher;
@@ -84,15 +103,27 @@ export class EditorContextService implements IActionHandler, Disposable, IDiagra
         return this.onDirtyStateChangedEmitter.event;
     }
 
+    protected _modelRoot?: Readonly<GModelRoot>;
+    protected onModelRootChangedEmitter = new Emitter<Readonly<GModelRoot>>();
+    get onModelRootChanged(): Event<Readonly<GModelRoot>> {
+        return this.onModelRootChangedEmitter.event;
+    }
+
     protected toDispose = new DisposableCollection();
 
     @postConstruct()
     protected initialize(): void {
         this._editMode = this.diagramOptions.editMode ?? EditMode.EDITABLE;
         this.toDispose.push(this.onEditModeChangedEmitter, this.onDirtyStateChangedEmitter);
-        this.editModeListeners.forEach(listener =>
-            this.onEditModeChanged(change => listener.editModeChanged(change.newValue, change.oldValue))
-        );
+    }
+
+    preLoadDiagram(): MaybePromise<void> {
+        this.lazyInjector.getAll<IGModelRootListener>(TYPES.IGModelRootListener).forEach(listener => {
+            this.onModelRootChanged(event => listener.modelRootChanged(event));
+        });
+        this.lazyInjector.getAll<IEditModeListener>(TYPES.IEditModeListener).forEach(listener => {
+            this.onEditModeChanged(event => listener.editModeChanged(event.newValue, event.oldValue));
+        });
     }
 
     @preDestroy()
@@ -114,6 +145,21 @@ export class EditorContextService implements IActionHandler, Disposable, IDiagra
             lastMousePosition: this.mousePositionTracker.lastPositionOnDiagram,
             args
         };
+    }
+
+    /**
+     * Notifies the service about a model root change. This method should not be called
+     * directly. It is called by the `CommandStack` after a model update has been processed.
+     * @throws an error if the notifier is not a `CommandStack`
+     * @param root the new model root
+     * @param notifier the object that triggered the model root change
+     */
+    notifyModelRootChanged(root: Readonly<GModelRoot>, notifier: AnyObject): void {
+        if (!(notifier instanceof CommandStack)) {
+            throw new Error('Invalid model root change notification. Notifier is not an instance of `CommandStack`.');
+        }
+        this._modelRoot = root;
+        this.onModelRootChangedEmitter.fire(root);
     }
 
     handle(action: Action): void {
@@ -154,7 +200,10 @@ export class EditorContextService implements IActionHandler, Disposable, IDiagra
     }
 
     get modelRoot(): Readonly<GModelRoot> {
-        return this.selectionService.getModelRoot();
+        if (!this._modelRoot) {
+            throw new Error('Model root not available yet');
+        }
+        return this._modelRoot;
     }
 
     get selectedElements(): Readonly<GModelElement>[] {
@@ -167,10 +216,6 @@ export class EditorContextService implements IActionHandler, Disposable, IDiagra
 
     get isDirty(): boolean {
         return this._isDirty;
-    }
-
-    postRequestModel(): MaybePromise<void> {
-        this.actionDispatcher.dispatch(SetEditModeAction.create(this.editMode));
     }
 }
 

@@ -48,5 +48,7 @@ export const TYPES = {
     IDiagramOptions: Symbol('IDiagramOptions'),
     IDiagramStartup: Symbol('IDiagramStartup'),
     IToolManager: Symbol('IToolManager'),
-    IContributionProvider: Symbol('IContributionProvider')
+    IContributionProvider: Symbol('IContributionProvider'),
+    IContributionInitializer: Symbol('IContributionInitializer'),
+    IServiceProvider: Symbol('IServiceProvider')
 };

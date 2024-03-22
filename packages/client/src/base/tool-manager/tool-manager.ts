@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2023 EclipseSource and others.
+ * Copyright (c) 2019-2024 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -14,19 +14,23 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { inject, injectable, multiInject, optional } from 'inversify';
 import {
     Action,
     EditMode,
+    GModelElement,
     IActionHandler,
     ICommand,
     KeyListener,
-    GModelElement,
+    LazyInjector,
+    MaybePromise,
     TYPES,
     distinctAdd,
     matchesKeystroke
 } from '@eclipse-glsp/sprotty';
-import { EditorContextService, EditorContextServiceProvider } from '../editor-context-service';
+import { inject, injectable } from 'inversify';
+import { EditorContextService } from '../editor-context-service';
+import { IDiagramStartup } from '../model';
+import { Ranked } from '../ranked';
 import { EnableDefaultToolsAction, EnableToolsAction, Tool } from './tool';
 /**
  * A tool manager coordinates the state of tools in the context of an editor.
@@ -75,27 +79,23 @@ export interface IToolManager {
  * registration of tools via Dependency Injection.
  */
 @injectable()
-export class ToolManager implements IToolManager {
+export class ToolManager implements IToolManager, IDiagramStartup {
+    @inject(EditorContextService)
+    protected editorContext: EditorContextService;
+
+    @inject(LazyInjector)
+    protected readonly lazyInjector: LazyInjector;
+
     readonly actives: Tool[] = [];
+    readonly tools: Tool[] = [];
+    readonly defaultTools: Tool[] = [];
 
-    protected editorContext?: EditorContextService;
-
-    constructor(
-        @multiInject(TYPES.ITool)
-        @optional()
-        readonly tools: Tool[] = [],
-        @multiInject(TYPES.IDefaultTool)
-        @optional()
-        readonly defaultTools: Tool[],
-        @inject(TYPES.IEditorContextServiceProvider) protected contextServiceProvider: EditorContextServiceProvider
-    ) {
-        this.registerTools(...this.tools);
-        this.registerDefaultTools(...this.defaultTools);
+    preLoadDiagram(): MaybePromise<void> {
+        const tools: Tool[] = this.lazyInjector.getAll(TYPES.ITool);
+        const defaultTools: Tool[] = this.lazyInjector.getAll(TYPES.IDefaultTool);
+        this.registerTools(...tools);
+        this.registerDefaultTools(...defaultTools);
         this.enableDefaultTools();
-        this.contextServiceProvider().then(editorContext => {
-            editorContext.onEditModeChanged(change => this.editModeChanged(change.newValue, change.oldValue));
-            this.editorContext = editorContext;
-        });
     }
 
     get managedTools(): Tool[] {
@@ -104,6 +104,10 @@ export class ToolManager implements IToolManager {
 
     get activeTools(): Tool[] {
         return this.actives;
+    }
+
+    get rank(): number {
+        return Ranked.DEFAULT_RANK - 100;
     }
 
     registerDefaultTools(...tools: Tool[]): void {

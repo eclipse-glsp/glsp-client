@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2017-2022 TypeFox & others
+ * Copyright (c) 2019-2024 EclipseSource & others
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -20,6 +20,9 @@ const buildRoot = path.resolve(__dirname, 'lib');
 const appRoot = path.resolve(__dirname, 'app');
 var CircularDependencyPlugin = require('circular-dependency-plugin');
 
+/**
+ * @type {import('webpack').Configuration}
+ */
 module.exports = {
     entry: [path.resolve(buildRoot, 'app')],
     output: {
@@ -63,6 +66,9 @@ module.exports = {
         new CircularDependencyPlugin({
             exclude: /(node_modules|examples)\/./,
             failOnError: false
+        }),
+        new webpack.ProvidePlugin({
+            process: 'process/browser'
         }),
         new webpack.WatchIgnorePlugin({ paths: [/\.js$/, /\.d\.ts$/] })
     ]

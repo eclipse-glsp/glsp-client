@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2023 EclipseSource and others.
+ * Copyright (c) 2023-2024 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -21,6 +21,7 @@ import {
     EMPTY_ROOT,
     GLSPClient,
     InitializeParameters,
+    LazyInjector,
     MaybePromise,
     RequestModelAction,
     SetModelAction,
@@ -28,7 +29,7 @@ import {
     TYPES,
     hasNumberProp
 } from '@eclipse-glsp/sprotty';
-import { inject, injectable, multiInject, optional, postConstruct } from 'inversify';
+import { inject, injectable } from 'inversify';
 import { GLSPActionDispatcher } from '../action-dispatcher';
 import { Ranked } from '../ranked';
 import { GLSPModelSource } from './glsp-model-source';
@@ -69,22 +70,27 @@ export interface IDiagramOptions {
  */
 export interface IDiagramStartup extends Partial<Ranked> {
     /**
-     * Hook for services that should be executed before the underlying GLSP client is configured and the server is initialized.
+     * Hook for services that want to execute code before the diagram loading routine is started. This is the
+     * first hook that is invoked directly after {@link DiagramLoader.load} is called.
+     */
+    preLoadDiagram?(): MaybePromise<void>;
+    /**
+     * Hook for services that want to execute code before the underlying GLSP client is configured and the server is initialized.
      */
     preInitialize?(): MaybePromise<void>;
     /**
-     * Hook for services that should be executed before the initial model loading request (i.e. `RequestModelAction`) but
+     * Hook for services that want to execute code before the initial model loading request (i.e. `RequestModelAction`) but
      * after the underlying GLSP client has been configured and the server is initialized.
      */
     preRequestModel?(): MaybePromise<void>;
     /**
-     * Hook for services that should be executed after the initial model loading request (i.e. `RequestModelAction`).
+     * Hook for services that want to execute code after the initial model loading request (i.e. `RequestModelAction`).
      * Note that this hook is invoked directly after the `RequestModelAction` has been dispatched. It does not necessarily wait
      * until the client-server update roundtrip is completed. If you need to wait until the diagram is fully initialized use the
      * {@link postModelInitialization} hook.
      */
     postRequestModel?(): MaybePromise<void>;
-    /* Hook for services that should be executed after the diagram model is fully initialized
+    /* Hook for services that want to execute code after the diagram model is fully initialized
      * (i.e. `ModelInitializationConstraint` is completed).
      */
     postModelInitialization?(): MaybePromise<void>;
@@ -95,7 +101,8 @@ export namespace IDiagramStartup {
         return (
             AnyObject.is(object) &&
             hasNumberProp(object, 'rank', true) &&
-            ('preInitialize' in object ||
+            ('preLoadDiagram' in object ||
+                'preInitialize' in object ||
                 'preRequestModel' in object ||
                 'postRequestModel' in object ||
                 'postModelInitialization' in object)
@@ -144,22 +151,22 @@ export class DiagramLoader {
     @inject(GLSPActionDispatcher)
     protected actionDispatcher: GLSPActionDispatcher;
 
-    @multiInject(TYPES.IDiagramStartup)
-    @optional()
-    protected diagramStartups: IDiagramStartup[] = [];
-
     @inject(GLSPModelSource)
     protected modelSource: GLSPModelSource;
 
     @inject(ModelInitializationConstraint)
     protected modelInitializationConstraint: ModelInitializationConstraint;
 
-    @postConstruct()
-    protected postConstruct(): void {
-        this.diagramStartups.sort((a, b) => Ranked.getRank(a) - Ranked.getRank(b));
+    @inject(LazyInjector)
+    protected lazyInjector: LazyInjector;
+
+    get diagramStartups(): IDiagramStartup[] {
+        return this.lazyInjector.getAll<IDiagramStartup>(TYPES.IDiagramStartup);
     }
 
     async load(options: DiagramLoadingOptions = {}): Promise<void> {
+        this.diagramStartups.sort(Ranked.sort);
+        await this.invokeStartupHook('preLoadDiagram');
         const resolvedOptions: ResolvedDiagramLoadingOptions = {
             requestModelOptions: {
                 sourceUri: this.options.sourceUri ?? '',

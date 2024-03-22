@@ -230,6 +230,10 @@
     opacity: 1;
 }
 
+.sprotty.sprotty-hidden .sprotty-projection-bar {
+    visibility: hidden;
+}
+
 .sprotty-projection-bar.vertical.bordered-projection-bar {
     position: absolute;
     top: 0;
