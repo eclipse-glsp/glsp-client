@@ -13,31 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-export * from './accessibility';
-export * from './bounds';
-export * from './change-bounds';
-export * from './collaboration';
-export * from './command-palette';
-export * from './context-menu';
-export * from './copy-paste';
-export * from './decoration';
-export * from './element-template';
-export * from './export';
-export * from './helper-lines';
-export * from './hints';
-export * from './hover';
-export * from './label-edit';
-export * from './layout';
-export * from './navigation';
-export * from './reconnect';
-export * from './routing';
-export * from './save';
-export * from './select';
-export * from './source-model-watcher';
-export * from './status';
-export * from './svg-metadata';
-export * from './tool-palette';
-export * from './tools';
-export * from './undo-redo';
-export * from './validation';
-export * from './viewport';
+
+export * from './collaboration-module';
+export * from './base-collaboration-actions';
+export * from './model';

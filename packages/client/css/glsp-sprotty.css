@@ -304,3 +304,7 @@
     stroke: rgb(218, 89, 15) !important;
     stroke: #130bf7 !important;
 }
+
+.mouse-pointer-text {
+    text-anchor: start !important;
+}
