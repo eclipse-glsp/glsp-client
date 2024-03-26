@@ -14,19 +14,22 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { inject, injectable, multiInject, optional } from 'inversify';
 import {
     Action,
     EditMode,
+    GModelElement,
     IActionHandler,
     ICommand,
     KeyListener,
-    GModelElement,
     TYPES,
     distinctAdd,
     matchesKeystroke
 } from '@eclipse-glsp/sprotty';
-import { EditorContextService, EditorContextServiceProvider } from '../editor-context-service';
+import { inject, injectable } from 'inversify';
+import { IContributionInitializer, IContributionProvider } from '../contribution-provider';
+import { EditorContextService } from '../editor-context-service';
+import { Ranked } from '../ranked';
+import { IServiceProvider } from '../service-provider';
 import { EnableDefaultToolsAction, EnableToolsAction, Tool } from './tool';
 /**
  * A tool manager coordinates the state of tools in the context of an editor.
@@ -75,27 +78,24 @@ export interface IToolManager {
  * registration of tools via Dependency Injection.
  */
 @injectable()
-export class ToolManager implements IToolManager {
+export class ToolManager implements IToolManager, IContributionInitializer {
+    @inject(TYPES.IServiceProvider)
+    protected serviceProvider: IServiceProvider;
+
     readonly actives: Tool[] = [];
+    readonly tools: Tool[] = [];
+    readonly defaultTools: Tool[] = [];
 
-    protected editorContext?: EditorContextService;
+    protected get editorContext(): EditorContextService {
+        return this.serviceProvider.get(EditorContextService);
+    }
 
-    constructor(
-        @multiInject(TYPES.ITool)
-        @optional()
-        readonly tools: Tool[] = [],
-        @multiInject(TYPES.IDefaultTool)
-        @optional()
-        readonly defaultTools: Tool[],
-        @inject(TYPES.IEditorContextServiceProvider) protected contextServiceProvider: EditorContextServiceProvider
-    ) {
-        this.registerTools(...this.tools);
-        this.registerDefaultTools(...this.defaultTools);
+    initializeContributions(provider: IContributionProvider): void {
+        const tools: Tool[] = provider.getAll(TYPES.ITool);
+        const defaultTools: Tool[] = provider.getAll(TYPES.IDefaultTool);
+        this.registerTools(...tools);
+        this.registerDefaultTools(...defaultTools);
         this.enableDefaultTools();
-        this.contextServiceProvider().then(editorContext => {
-            editorContext.onEditModeChanged(change => this.editModeChanged(change.newValue, change.oldValue));
-            this.editorContext = editorContext;
-        });
     }
 
     get managedTools(): Tool[] {
@@ -104,6 +104,10 @@ export class ToolManager implements IToolManager {
 
     get activeTools(): Tool[] {
         return this.actives;
+    }
+
+    get rank(): number {
+        return Ranked.DEFAULT_RANK - 100;
     }
 
     registerDefaultTools(...tools: Tool[]): void {

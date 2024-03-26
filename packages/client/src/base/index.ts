@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2023 EclipseSource and others.
+ * Copyright (c) 2023-2024 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -18,6 +18,7 @@ export * from './action-handler-registry';
 export * from './args-feature';
 export * from './auto-complete';
 export * from './command-stack';
+export * from './contribution-provider';
 export * from './default.module';
 export * from './drag-aware-mouse-listener';
 export * from './editor-context-service';
@@ -27,5 +28,7 @@ export * from './model';
 export * from './ranked';
 export * from './selection-clearing-mouse-listener';
 export * from './selection-service';
+export * from './service-provider';
 export * from './tool-manager';
+export * from './ui-extension-registry';
 export * from './view';

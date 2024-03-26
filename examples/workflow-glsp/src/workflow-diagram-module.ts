@@ -14,12 +14,16 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import {
+    Action,
+    ActionHandlerRegistry,
+    BindingContext,
     ConsoleLogger,
     ContainerConfiguration,
     DEFAULT_ALIGNABLE_ELEMENT_FILTER,
     DefaultTypes,
     DeleteElementContextMenuItemProvider,
     DiamondNodeView,
+    EditorContextService,
     GCompartment,
     GCompartmentView,
     GEdge,
@@ -27,17 +31,32 @@ import {
     GLSPProjectionView,
     GLabel,
     GLabelView,
+    GModelRoot,
     GridSnapper,
+    IActionDispatcher,
+    IActionHandler,
+    IActionHandlerInitializer,
+    ICommand,
+    IContributionInitializer,
+    IContributionProvider,
+    IDiagramStartup,
+    IEditModeListener,
+    IGModelRootListener,
     IHelperLineOptions,
+    ISelectionListener,
     ISnapper,
+    IUIExtension,
     LogLevel,
+    MaybePromise,
     RectangularNodeView,
     RevealNamedElementActionProvider,
     RoundedCornerNodeView,
+    SelectionService,
     StructureCompartmentView,
     TYPES,
     bindAsService,
     bindOrRebind,
+    configureActionHandler,
     configureDefaultModelElements,
     configureModelElement,
     editLabelFeature,
@@ -45,7 +64,7 @@ import {
     initializeDiagramContainer
 } from '@eclipse-glsp/client';
 import 'balloon-css/balloon.min.css';
-import { Container, ContainerModule } from 'inversify';
+import { Container, ContainerModule, inject, injectable, postConstruct } from 'inversify';
 import 'sprotty/css/edit-label.css';
 import '../css/diagram.css';
 import { directTaskEditor } from './direct-task-editing/di.config';
@@ -91,6 +110,8 @@ export const workflowDiagramModule = new ContainerModule((bind, unbind, isBound,
             DEFAULT_ALIGNABLE_ELEMENT_FILTER(element) && !(element instanceof Icon) && !(element instanceof GCompartment);
         return options;
     });
+
+    bindCircularDepsTester(context);
 });
 
 export function createWorkflowDiagramContainer(...containerConfiguration: ContainerConfiguration): Container {
@@ -99,4 +120,66 @@ export function createWorkflowDiagramContainer(...containerConfiguration: Contai
 
 export function initializeWorkflowDiagramContainer(container: Container, ...containerConfiguration: ContainerConfiguration): Container {
     return initializeDiagramContainer(container, workflowDiagramModule, directTaskEditor, helperLineModule, ...containerConfiguration);
+}
+
+@injectable()
+export class CircularDepTester
+    implements
+        IActionHandler,
+        IActionHandlerInitializer,
+        ISelectionListener,
+        IEditModeListener,
+        IGModelRootListener,
+        IUIExtension,
+        IDiagramStartup,
+        IContributionInitializer
+{
+    @inject(TYPES.IActionDispatcher) protected actionDispatcher: IActionDispatcher;
+    @inject(EditorContextService) protected EditorContextService: EditorContextService;
+    @inject(SelectionService) protected selectionService: SelectionService;
+
+    @postConstruct()
+    protected checkDefined(): void {
+        if (!this.actionDispatcher) {
+            throw new Error('actionDispatcher not defined');
+        }
+        if (!this.EditorContextService) {
+            throw new Error('EditorContextService not defined');
+        }
+        if (!this.selectionService) {
+            throw new Error('selectionService not defined');
+        }
+        console.log('CircularDepTester Construction success');
+    }
+
+    id(): string {
+        return 'foo';
+    }
+    show(root: Readonly<GModelRoot>, ...contextElementIds: string[]): void {}
+    hide(): void {}
+    enableOnStartup?: boolean | undefined;
+
+    initializeContributions(provider: IContributionProvider): MaybePromise<void> {}
+    preInitialize?(): MaybePromise<void> {}
+    preRequestModel?(): MaybePromise<void> {}
+    postRequestModel?(): MaybePromise<void> {}
+    postModelInitialization?(): MaybePromise<void> {}
+    rank?: number | undefined;
+    modelRootChanged(root: Readonly<GModelRoot>): void {}
+    editModeChanged(newValue: string, oldValue: string): void {}
+    selectionChanged(root: Readonly<GModelRoot>, selectedElements: string[], deselectedElements?: string[] | undefined): void {}
+    initialize(registry: ActionHandlerRegistry): void {}
+    handle(action: Action): void | Action | ICommand {}
+}
+
+export function bindCircularDepsTester(context: BindingContext): void {
+    context.bind(CircularDepTester).toSelf().inSingletonScope();
+    configureActionHandler(context, 'foo', CircularDepTester);
+    context.bind(TYPES.IActionHandlerInitializer).toService(CircularDepTester);
+    context.bind(TYPES.ISelectionListener).toService(CircularDepTester);
+    context.bind(TYPES.IEditModeListener).toService(CircularDepTester);
+    context.bind(TYPES.IGModelRootListener).toService(CircularDepTester);
+    context.bind(TYPES.IDiagramStartup).toService(CircularDepTester);
+    context.bind(TYPES.IContributionInitializer).toService(CircularDepTester);
+    context.bind(TYPES.IUIExtension).toService(CircularDepTester);
 }

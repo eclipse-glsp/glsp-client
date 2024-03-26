@@ -13,8 +13,20 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { injectable, multiInject, optional } from 'inversify';
-import { Action, Disposable, MouseListener, MouseTool, GModelElement, GModelRoot, TYPES } from '@eclipse-glsp/sprotty';
+import {
+    Action,
+    BindingContext,
+    Disposable,
+    GModelElement,
+    GModelRoot,
+    MaybePromise,
+    MouseListener,
+    MouseTool,
+    TYPES,
+    bindOrRebind
+} from '@eclipse-glsp/sprotty';
+import { decorate, injectable, unmanaged } from 'inversify';
+import { IContributionInitializer, IContributionProvider } from '../contribution-provider';
 import { Ranked } from '../ranked';
 
 /**
@@ -24,12 +36,15 @@ import { Ranked } from '../ranked';
 type MouseListenerMethods = keyof Omit<MouseListener, 'decorate'>;
 
 @injectable()
-export class GLSPMouseTool extends MouseTool {
+export class GLSPMouseTool extends MouseTool implements IContributionInitializer {
     protected rankedMouseListeners: Map<number, MouseListener[]>;
 
-    constructor(@multiInject(TYPES.MouseListener) @optional() protected override mouseListeners: MouseListener[] = []) {
-        super(mouseListeners);
-        this.rankedMouseListeners = groupBy(mouseListeners, listener => Ranked.getRank(listener));
+    constructor() {
+        super([]);
+    }
+
+    initializeContributions(provider: IContributionProvider): MaybePromise<void> {
+        provider.getAll<MouseListener>(TYPES.MouseListener).forEach(listener => this.register(listener));
     }
 
     override register(mouseListener: MouseListener): void {
@@ -85,6 +100,17 @@ export class GLSPMouseTool extends MouseTool {
                 }
             }
         }
+    }
+}
+
+let baseClassDecorated = false;
+export function bindMouseTool(context: Omit<BindingContext, 'unbind'>): void {
+    context.bind(GLSPMouseTool).toSelf().inSingletonScope();
+    bindOrRebind(context, MouseTool).toService(GLSPMouseTool);
+    context.bind(TYPES.IContributionInitializer).toService(GLSPMouseTool);
+    if (!baseClassDecorated) {
+        decorate(unmanaged(), MouseTool, 0);
+        baseClassDecorated = true;
     }
 }
 

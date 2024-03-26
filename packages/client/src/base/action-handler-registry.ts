@@ -14,56 +14,57 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { ActionHandlerRegistration, ActionHandlerRegistry, IActionHandler, IActionHandlerInitializer, TYPES } from '@eclipse-glsp/sprotty';
-import { inject, injectable, named } from 'inversify';
-import { IContributionProvider } from '../utils/contribution-provider';
+import {
+    ActionHandlerRegistration,
+    ActionHandlerRegistry,
+    BindingContext,
+    IActionHandlerInitializer,
+    TYPES,
+    bindOrRebind
+} from '@eclipse-glsp/sprotty';
+import { decorate, inject, injectable, unmanaged } from 'inversify';
+import { IContributionProvider } from './contribution-provider';
 
 @injectable()
 export class GLSPActionHandlerRegistry extends ActionHandlerRegistry {
     @inject(TYPES.IContributionProvider)
-    @named(TYPES.ActionHandlerRegistration)
-    protected readonly registrations: IContributionProvider<ActionHandlerRegistration>;
-
-    @inject(TYPES.IContributionProvider)
-    @named(TYPES.IActionHandlerInitializer)
-    protected readonly initializers: IContributionProvider<IActionHandlerInitializer>;
+    protected contributionProvider: IContributionProvider;
 
     protected initialized = false;
 
     constructor() {
         super([], []);
     }
-
-    protected init(): void {
-        if (!this.initialized) {
-            this.initialized = true;
-            this.registrations.getContributions().forEach(registration => this.register(registration.actionKind, registration.factory()));
-            this.initializers.getContributions().forEach(initializer => this.initializeActionHandler(initializer));
-        }
-    }
-
-    override register(key: string, instance: IActionHandler): void {
-        this.init();
-        super.register(key, instance);
-    }
-
-    override get(key: string): IActionHandler[] {
-        this.init();
-        return super.get(key);
-    }
-
-    override initializeActionHandler(initializer: IActionHandlerInitializer): void {
-        this.init();
-        super.initializeActionHandler(initializer);
-    }
-
     /**
      * Retrieve a set of all action kinds for which (at least) one
      * handler is registered
      * @returns the set of handled action kinds
      */
     getHandledActionKinds(): string[] {
-        this.init();
         return Array.from(this.elements.keys());
+    }
+
+    initialize(): void {
+        if (this.initialized) {
+            return;
+        }
+
+        this.contributionProvider
+            .getAll<ActionHandlerRegistration>(TYPES.ActionHandlerRegistration)
+            .forEach(registration => this.register(registration.actionKind, registration.factory()));
+        this.contributionProvider
+            .getAll<IActionHandlerInitializer>(TYPES.IActionHandlerInitializer)
+            .forEach(initializer => this.initializeActionHandler(initializer));
+    }
+}
+
+let baseClassDecorated = false;
+export function bindActionHandlerRegistry(context: Omit<BindingContext, 'unbind'>): void {
+    context.bind(GLSPActionHandlerRegistry).toSelf().inSingletonScope();
+    bindOrRebind(context, ActionHandlerRegistry).toService(GLSPActionHandlerRegistry);
+    if (!baseClassDecorated) {
+        decorate(unmanaged(), ActionHandlerRegistry, 0);
+        decorate(unmanaged(), ActionHandlerRegistry, 1);
+        baseClassDecorated = true;
     }
 }

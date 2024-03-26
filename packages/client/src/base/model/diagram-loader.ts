@@ -28,8 +28,9 @@ import {
     TYPES,
     hasNumberProp
 } from '@eclipse-glsp/sprotty';
-import { inject, injectable, multiInject, optional, postConstruct } from 'inversify';
+import { inject, injectable } from 'inversify';
 import { GLSPActionDispatcher } from '../action-dispatcher';
+import { IContributionProvider } from '../contribution-provider';
 import { Ranked } from '../ranked';
 import { GLSPModelSource } from './glsp-model-source';
 import { ModelInitializationConstraint } from './model-initialization-constraint';
@@ -69,22 +70,22 @@ export interface IDiagramOptions {
  */
 export interface IDiagramStartup extends Partial<Ranked> {
     /**
-     * Hook for services that should be executed before the underlying GLSP client is configured and the server is initialized.
+     * Hook for services that want to execute code before the underlying GLSP client is configured and the server is initialized.
      */
     preInitialize?(): MaybePromise<void>;
     /**
-     * Hook for services that should be executed before the initial model loading request (i.e. `RequestModelAction`) but
+     * Hook for services that want to execute code before the initial model loading request (i.e. `RequestModelAction`) but
      * after the underlying GLSP client has been configured and the server is initialized.
      */
     preRequestModel?(): MaybePromise<void>;
     /**
-     * Hook for services that should be executed after the initial model loading request (i.e. `RequestModelAction`).
+     * Hook for services that want to execute code after the initial model loading request (i.e. `RequestModelAction`).
      * Note that this hook is invoked directly after the `RequestModelAction` has been dispatched. It does not necessarily wait
      * until the client-server update roundtrip is completed. If you need to wait until the diagram is fully initialized use the
      * {@link postModelInitialization} hook.
      */
     postRequestModel?(): MaybePromise<void>;
-    /* Hook for services that should be executed after the diagram model is fully initialized
+    /* Hook for services that want to execute code after the diagram model is fully initialized
      * (i.e. `ModelInitializationConstraint` is completed).
      */
     postModelInitialization?(): MaybePromise<void>;
@@ -144,22 +145,21 @@ export class DiagramLoader {
     @inject(GLSPActionDispatcher)
     protected actionDispatcher: GLSPActionDispatcher;
 
-    @multiInject(TYPES.IDiagramStartup)
-    @optional()
-    protected diagramStartups: IDiagramStartup[] = [];
-
     @inject(GLSPModelSource)
     protected modelSource: GLSPModelSource;
 
     @inject(ModelInitializationConstraint)
     protected modelInitializationConstraint: ModelInitializationConstraint;
 
-    @postConstruct()
-    protected postConstruct(): void {
-        this.diagramStartups.sort((a, b) => Ranked.getRank(a) - Ranked.getRank(b));
+    @inject(TYPES.IContributionProvider)
+    protected contributionProvider: IContributionProvider;
+
+    get diagramStartups(): IDiagramStartup[] {
+        return this.contributionProvider.getAll<IDiagramStartup>(TYPES.IDiagramStartup, { sort: Ranked.sort });
     }
 
     async load(options: DiagramLoadingOptions = {}): Promise<void> {
+        this.contributionProvider.activate();
         const resolvedOptions: ResolvedDiagramLoadingOptions = {
             requestModelOptions: {
                 sourceUri: this.options.sourceUri ?? '',

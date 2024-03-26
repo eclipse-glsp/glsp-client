@@ -13,7 +13,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { inject, injectable } from 'inversify';
 import {
     Action,
     ActionHandlerRegistry,
@@ -38,6 +37,7 @@ import {
     hasObjectProp,
     hasStringProp
 } from '@eclipse-glsp/sprotty';
+import { inject, injectable } from 'inversify';
 import { EditorContextServiceProvider } from '../../base/editor-context-service';
 import { NavigationTargetResolver } from './navigation-target-resolver';
 

@@ -35,9 +35,10 @@ import {
     isSelectable,
     pluck
 } from '@eclipse-glsp/sprotty';
-import { inject, injectable, multiInject, optional, postConstruct, preDestroy } from 'inversify';
+import { inject, injectable, postConstruct, preDestroy } from 'inversify';
 import { getElements, getMatchingElements } from '../utils/gmodel-util';
-import { GLSPCommandStack, IGModelRootListener } from './command-stack';
+import { IContributionInitializer, IContributionProvider } from './contribution-provider';
+import { IGModelRootListener } from './editor-context-service';
 import { IFeedbackActionDispatcher } from './feedback/feedback-action-dispatcher';
 
 export interface ISelectionListener {
@@ -51,32 +52,39 @@ export interface SelectionChange {
 }
 
 @injectable()
-export class SelectionService implements IGModelRootListener, Disposable {
-    protected root: Readonly<GModelRoot>;
-    protected selectedElementIDs: Set<string> = new Set();
-
+export class SelectionService implements IGModelRootListener, Disposable, IContributionInitializer {
     @inject(TYPES.IFeedbackActionDispatcher)
     protected feedbackDispatcher: IFeedbackActionDispatcher;
 
     @inject(TYPES.ILogger)
     protected logger: ILogger;
 
-    @inject(TYPES.ICommandStack)
-    protected commandStack: GLSPCommandStack;
+    protected root: Readonly<GModelRoot>;
+    protected selectedElementIDs: Set<string> = new Set();
 
-    @multiInject(TYPES.ISelectionListener)
-    @optional()
+    /**
+     * @deprecated This property should not be used anymore. `ISelectionListener`s
+     * are registered via contribution provider.
+     */
     protected selectionListeners: ISelectionListener[] = [];
 
     protected toDispose = new DisposableCollection();
 
     @postConstruct()
     protected initialize(): void {
-        this.toDispose.push(
-            this.onSelectionChangedEmitter,
-            this.commandStack.onModelRootChanged(root => this.modelRootChanged(root))
-        );
+        this.toDispose.push(this.onSelectionChangedEmitter);
+    }
 
+    initializeContributions(provider: IContributionProvider): void {
+        provider
+            .getAll<ISelectionListener>('selectionListener')
+            .forEach(listener =>
+                this.onSelectionChanged(change =>
+                    listener.selectionChanged(change.root, change.selectedElements, change.deselectedElements)
+                )
+            );
+
+        // eslint-disable-next-line deprecation/deprecation
         this.selectionListeners.forEach(listener =>
             this.onSelectionChanged(change => listener.selectionChanged(change.root, change.selectedElements, change.deselectedElements))
         );

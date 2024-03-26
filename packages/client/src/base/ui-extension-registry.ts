@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2023 EclipseSource and others.
+ * Copyright (c) 2024 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,33 +13,29 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { BindingContext, Disposable, KeyListener, KeyTool, MaybePromise, TYPES, bindOrRebind } from '@eclipse-glsp/sprotty';
+
+import { BindingContext, IUIExtension, MaybePromise, SprottyUIExtensionRegistry, TYPES, bindOrRebind } from '@eclipse-glsp/sprotty';
 import { decorate, injectable, unmanaged } from 'inversify';
-import { IContributionInitializer, IContributionProvider } from '../contribution-provider';
+import { IContributionInitializer, IContributionProvider } from './contribution-provider';
 
 @injectable()
-export class GLSPKeyTool extends KeyTool implements IContributionInitializer {
+export class UIExtensionRegistry extends SprottyUIExtensionRegistry implements IContributionInitializer {
     constructor() {
         super([]);
     }
 
-    registerListener(keyListener: KeyListener): Disposable {
-        super.register(keyListener);
-        return Disposable.create(() => this.deregister(keyListener));
-    }
-
     initializeContributions(provider: IContributionProvider): MaybePromise<void> {
-        provider.getAll<KeyListener>(TYPES.KeyListener).forEach(listener => this.register(listener));
+        provider.getAll<IUIExtension>(TYPES.IUIExtension).forEach(extension => this.register(extension.id(), extension));
     }
 }
 
 let baseClassDecorated = false;
-export function bindKeyTool(context: Omit<BindingContext, 'unbind'>): void {
-    context.bind(GLSPKeyTool).toSelf().inSingletonScope();
-    bindOrRebind(context, KeyTool).toService(GLSPKeyTool);
-    context.bind(TYPES.IContributionInitializer).toService(GLSPKeyTool);
+export function bindUIExtensionRegistry(context: Omit<BindingContext, 'unbind'>): void {
+    context.bind(UIExtensionRegistry).toSelf().inSingletonScope();
+    bindOrRebind(context, TYPES.UIExtensionRegistry).toService(UIExtensionRegistry);
+    context.bind(TYPES.IContributionInitializer).toService(UIExtensionRegistry);
     if (!baseClassDecorated) {
-        decorate(unmanaged(), KeyTool, 0);
+        decorate(unmanaged(), SprottyUIExtensionRegistry, 0);
         baseClassDecorated = true;
     }
 }
