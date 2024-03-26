@@ -16,7 +16,7 @@
 import * as sprotty from 'sprotty-protocol';
 import { Dimension, Point } from 'sprotty-protocol';
 import { GModelElementSchema } from '../model/model-schema';
-import { AnyObject, hasArrayProp, hasStringProp } from '../utils/type-util';
+import { AnyObject, hasArrayProp, hasBooleanProp, hasObjectProp, hasStringProp } from '../utils/type-util';
 import { Action } from './base-protocol';
 import { TriggerEdgeCreationAction, TriggerNodeCreationAction } from './tool-palette';
 // A collection of convenience and utility types that are used in the GLSP action protocol.
@@ -176,6 +176,49 @@ export namespace PaletteItem {
 
     export function isTriggerElementCreationAction(object: unknown): object is TriggerElementCreationAction {
         return TriggerNodeCreationAction.is(object) || TriggerEdgeCreationAction.is(object);
+    }
+}
+
+export enum SmartConnectorGroupUIType {
+    Icons,
+    Labels
+}
+
+export enum SmartConnectorPosition {
+    Left,
+    Right,
+    Top,
+    Bottom
+}
+
+/**
+ * Represents a group of the smart connector, which can be positioned around the clicked node
+ */
+export interface SmartConnectorGroupItem extends PaletteItem {
+    /** Position of the group */
+    readonly position: SmartConnectorPosition;
+    /** Shows the title of a group */
+    readonly showTitle: boolean;
+    /** Shows a group as a collapsed submenu if true, open if false */
+    readonly submenu?: boolean;
+    /** Show either only icons or labels. Show both when not given*/
+    readonly showOnlyForChildren?: SmartConnectorGroupUIType;
+}
+
+export namespace SmartConnectorGroupItem {
+    export function is(object: any): object is SmartConnectorGroupItem {
+        return PaletteItem.is(object) && hasObjectProp(object, 'position') && hasBooleanProp(object, 'showTitle');
+    }
+}
+
+export interface SmartConnectorNodeItem extends PaletteItem {
+    /** default edge when creating an outgoing edge */
+    readonly edgeType: string;
+}
+
+export namespace SmartConnectorNodeItem {
+    export function is(object: any): object is SmartConnectorNodeItem {
+        return PaletteItem.is(object) && hasStringProp(object, 'edgeType');
     }
 }
 

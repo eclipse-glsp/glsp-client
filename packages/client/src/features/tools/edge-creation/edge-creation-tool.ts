@@ -87,6 +87,12 @@ export class EdgeCreationToolMouseListener extends DragAwareMouseListener {
         super();
         this.proxyEdge = new GEdge();
         this.proxyEdge.type = triggerAction.elementTypeId;
+        if (triggerAction.args?.source) {
+            this.source = triggerAction.args?.source as string;
+            this.tool.registerFeedback([
+                DrawFeedbackEdgeAction.create({ elementTypeId: this.triggerAction.elementTypeId, sourceId: this.source })
+            ]);
+        }
     }
 
     protected reinitialize(): void {

@@ -1,0 +1,130 @@
+/* expand button */
+
+#smart-connector-expand-button {
+    height: 32px;
+    width: 32px;
+    border-radius: 50%;
+    border: 1px solid black;
+    z-index: 9999;
+    display: flex; /* or inline-flex */
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    background: #cccccc;
+    visibility: hidden;
+    cursor: pointer;
+}
+
+.smart-connector {
+    position: absolute;
+    z-index: 1;
+}
+
+/* combined container */
+
+#smart-connector-container {
+    position: absolute;
+    visibility: hidden;
+}
+
+/* search bar */
+
+.smart-connector-search {
+    background: #dfdfdf;
+    color: black;
+    border: #bddaef;
+    width: 100%;
+    box-sizing: border-box;
+    min-height: 20px;
+}
+
+.smart-connector-submenu-search-container {
+    max-height: 0;
+    overflow: hidden;
+}
+
+.smart-connector-search-container {
+    max-height: 50px;
+}
+
+/* header */
+
+.header-title {
+    display: flex;
+    align-items: center;
+    padding-right: 8px;
+}
+
+.smart-connector-group-header {
+    justify-content: space-between;
+    min-width: 100px;
+}
+
+/* single containers */
+
+.smart-connector-group-container {
+    border: 1px solid black;
+    background: #ededee;
+    max-width: 200px;
+    /* display: flex; */
+}
+
+.smart-connector-group-container:hover,
+.smart-connector-group-container:focus-within {
+    z-index: 10000;
+}
+
+.smart-connector-group-container div:first-child {
+    border-top: 0;
+}
+
+/* container items */
+
+.smart-connector-group {
+    overflow-y: auto;
+    max-height: 150px;
+}
+
+/* scrollbar */
+.smart-connector-group::-webkit-scrollbar {
+    width: 6px;
+}
+
+.smart-connector-group::-webkit-scrollbar-thumb:active {
+    background: rgba(0, 0, 0, 0.9);
+}
+
+.smart-connector-group::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+}
+.smart-connector-group::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+}
+
+.collapsable-group {
+    max-height: 0;
+    /* transition: max-height 0.2s ease-out; */
+}
+
+/* single item */
+
+.smart-connector-button {
+    border-top: 1px solid black;
+    margin: 0 4px;
+    padding: 8px 0;
+    z-index: 9998;
+    cursor: pointer;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+}
+
+.smart-connector-button > i {
+    padding-right: 0.2em;
+}
+
+.smart-connector-button:hover {
+    background: #dfdfdf;
+}

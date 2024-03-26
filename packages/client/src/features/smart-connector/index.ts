@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2021-2023 STMicroelectronics and others.
+ * Copyright (c) 2023 Business Informatics Group (TU Wien) and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,25 +13,5 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-export * from './base-protocol';
-export * from './client-notification';
-export * from './clipboard';
-export * from './contexts';
-export * from './edge-modification';
-export * from './element-creation';
-export * from './element-hover';
-export * from './element-navigation';
-export * from './element-selection';
-export * from './element-text-editing';
-export * from './element-type-hints';
-export * from './element-validation';
-export * from './model-data';
-export * from './model-edit-mode';
-export * from './model-layout';
-export * from './model-saving';
-export * from './node-modification';
 export * from './smart-connector';
-export * from './tool-palette';
-export * from './types';
-export * from './undo-redo';
-export * from './viewport';
+export * from './smart-connector-module';
