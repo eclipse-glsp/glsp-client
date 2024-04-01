@@ -61,7 +61,6 @@ import { nodeCreationToolModule } from './features/tools/node-creation/node-crea
 import { toolFocusLossModule } from './features/tools/tool-focus-loss-module';
 import { markerNavigatorModule, validationModule } from './features/validation/validation-modules';
 import { viewportModule } from './features/viewport/viewport-modules';
-import { smartConnectorModule } from './features/smart-connector/smart-connector-module';
 
 export const DEFAULT_MODULES = [
     defaultModule,
@@ -100,8 +99,7 @@ export const DEFAULT_MODULES = [
     validationModule,
     zorderModule,
     svgMetadataModule,
-    statusModule,
-    smartConnectorModule
+    statusModule
 ] as const;
 
 /**

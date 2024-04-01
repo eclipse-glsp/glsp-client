@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { inject, injectable } from 'inversify';
+import { inject, injectable, postConstruct } from 'inversify';
 import { GLSPActionDispatcher } from '../../base/action-dispatcher';
 import { EditorContextService } from '../../base/editor-context-service';
 import { FocusTracker } from '../../base/focus/focus-tracker';
@@ -26,7 +26,6 @@ import {
     GModelElement,
     GModelRoot,
     matchesKeystroke,
-    OpenSmartConnectorAction,
     SetUIExtensionVisibilityAction,
     ViewportResult,
     RequestContextActions,
@@ -35,28 +34,28 @@ import {
     TriggerEdgeCreationAction,
     TriggerNodeCreationAction,
     Args,
-    SmartConnectorGroupItem,
-    SmartConnectorNodeItem,
-    SmartConnectorPosition,
-    KeyCode,
-    ChangeSmartConnectorStateAction,
-    SmartConnectorState
+    SelectionPaletteGroupItem,
+    SelectionPaletteNodeItem,
+    SelectionPalettePosition,
+    KeyCode
 } from '@eclipse-glsp/sprotty';
 import { GetViewportAction } from 'sprotty-protocol/lib/actions';
 import { changeCodiconClass, createIcon } from '../tool-palette/tool-palette';
 import { IDiagramStartup } from '../../base/model/diagram-loader';
+import { ISelectionListener, SelectionService } from '../../base/selection-service';
+import { ChangeSelectionPaletteStateAction, SelectionPaletteState } from './selection-palette-actions';
 
 @injectable()
-export class SmartConnector extends AbstractUIExtension implements IActionHandler, IDiagramStartup {
-    static readonly ID = 'smart-connector';
+export class SelectionPalette extends AbstractUIExtension implements IActionHandler, IDiagramStartup, ISelectionListener {
+    static readonly ID = 'selection-palette';
 
     protected selectedElementId: string;
-    protected smartConnectorItems: SmartConnectorGroupItem[];
-    protected smartConnectorContainer: HTMLElement;
+    protected selectionPaletteItems: SelectionPaletteGroupItem[];
+    protected selectionPaletteContainer: HTMLElement;
     protected expandButton: HTMLElement;
     protected currentZoom: number;
 
-    protected smartConnectorGroups: Record<string, HTMLElement> = {};
+    protected selectionPaletteGroups: Record<string, HTMLElement> = {};
     protected groupIsCollapsed: Record<string, boolean> = {};
     protected groupIsTop: Record<string, boolean> = {};
     protected searchFields: Record<string, HTMLInputElement> = {};
@@ -65,7 +64,7 @@ export class SmartConnector extends AbstractUIExtension implements IActionHandle
     protected nextElementKeyCode: KeyCode = 'ArrowDown';
 
     // Sets the position of the expand button
-    protected expandButtonPosition = SmartConnectorPosition.Top;
+    protected expandButtonPosition = SelectionPalettePosition.Top;
 
     @inject(GLSPActionDispatcher)
     protected actionDispatcher: GLSPActionDispatcher;
@@ -76,11 +75,29 @@ export class SmartConnector extends AbstractUIExtension implements IActionHandle
     @inject(FocusTracker)
     protected focusTracker: FocusTracker;
 
+    @inject(SelectionService)
+    protected selectionService: SelectionService;
+
+    @postConstruct()
+    protected init(): void {
+        this.selectionService.onSelectionChanged(change => this.selectionChanged(change.root, change.selectedElements));
+    }
+
+    selectionChanged(root: GModelRoot, selectedElements: string[]): void {
+        if (selectedElements.length !== 0) {
+            this.selectedElementId = selectedElements[0];
+            this.actionDispatcher.dispatch(SetUIExtensionVisibilityAction.create({ extensionId: SelectionPalette.ID, visible: true }));
+        } else {
+            this.actionDispatcher.dispatch(SetUIExtensionVisibilityAction.create({ extensionId: SelectionPalette.ID, visible: false }));
+            this.hideAll();
+        }
+    }
+
     override id(): string {
-        return SmartConnector.ID;
+        return SelectionPalette.ID;
     }
     override containerClass(): string {
-        return SmartConnector.ID;
+        return SelectionPalette.ID;
     }
 
     protected override async onBeforeShow(_containerElement: HTMLElement, root: Readonly<GModelRoot>): Promise<void> {
@@ -94,32 +111,32 @@ export class SmartConnector extends AbstractUIExtension implements IActionHandle
         // set position of expand button
         this.setPosition(this.expandButton, this.expandButtonPosition, nodeBoundsFromDom);
         // set position of container(s)
-        const sameSide = this.smartConnectorItems.every(e => e.position === this.smartConnectorItems[0].position);
+        const sameSide = this.selectionPaletteItems.every(e => e.position === this.selectionPaletteItems[0].position);
         if (sameSide) {
-            this.setPosition(this.smartConnectorContainer, this.smartConnectorItems[0].position, nodeBoundsFromDom);
+            this.setPosition(this.selectionPaletteContainer, this.selectionPaletteItems[0].position, nodeBoundsFromDom);
         } else {
-            for (let i = 0; i < this.smartConnectorContainer.childElementCount; i++) {
+            for (let i = 0; i < this.selectionPaletteContainer.childElementCount; i++) {
                 this.setPosition(
-                    this.smartConnectorContainer.children[i] as HTMLElement,
-                    this.smartConnectorItems[i].position,
+                    this.selectionPaletteContainer.children[i] as HTMLElement,
+                    this.selectionPaletteItems[i].position,
                     nodeBoundsFromDom,
                     true
                 );
             }
         }
-        this.hideSmartConnector();
+        this.hideSelectionPalette();
     }
 
     protected async initAvailableOptions(contextElement?: GModelElement): Promise<void> {
         const requestAction = RequestContextActions.create({
-            contextId: SmartConnector.ID,
+            contextId: SelectionPalette.ID,
             editorContext: {
                 selectedElementIds: [this.selectedElementId],
                 args: { nodeType: contextElement!.type }
             }
         });
         const response = await this.actionDispatcher.request<SetContextActions>(requestAction);
-        this.smartConnectorItems = response.actions.map(e => e as SmartConnectorGroupItem);
+        this.selectionPaletteItems = response.actions.map(e => e as SelectionPaletteGroupItem);
     }
 
     protected setMainPosition(viewport: ViewportResult, nodeBounds: DOMRect): void {
@@ -129,34 +146,34 @@ export class SmartConnector extends AbstractUIExtension implements IActionHandle
         this.containerElement.style.top = `${yCenter}px`;
     }
 
-    protected setPosition(element: HTMLElement, position: SmartConnectorPosition, nodeBounds: DOMRect, single?: boolean): void {
+    protected setPosition(element: HTMLElement, position: SelectionPalettePosition, nodeBounds: DOMRect, single?: boolean): void {
         const zoom = this.currentZoom;
         element.style.transform = `scale(${zoom})`;
         const nodeHeight = nodeBounds.height;
         const nodeWidth = nodeBounds.width;
         let xDiff = -element.offsetWidth / 2;
         let yDiff = (-element.offsetHeight / 2) * zoom;
-        if (position === SmartConnectorPosition.Right || position === SmartConnectorPosition.Left) {
-            xDiff = nodeWidth / 2 + SmartConnector.CONTAINER_PADDING_PX * zoom;
+        if (position === SelectionPalettePosition.Right || position === SelectionPalettePosition.Left) {
+            xDiff = nodeWidth / 2 + SelectionPalette.CONTAINER_PADDING_PX * zoom;
             element.style.top = `${yDiff}px`;
         }
-        if (position === SmartConnectorPosition.Top || position === SmartConnectorPosition.Bottom) {
-            yDiff = nodeHeight / 2 + SmartConnector.CONTAINER_PADDING_PX * zoom;
+        if (position === SelectionPalettePosition.Top || position === SelectionPalettePosition.Bottom) {
+            yDiff = nodeHeight / 2 + SelectionPalette.CONTAINER_PADDING_PX * zoom;
             element.style.left = `${xDiff}px`;
         }
-        if (position === SmartConnectorPosition.Right) {
+        if (position === SelectionPalettePosition.Right) {
             element.style.transformOrigin = 'top left';
             element.style.left = `${xDiff}px`;
         }
-        if (position === SmartConnectorPosition.Left) {
+        if (position === SelectionPalettePosition.Left) {
             element.style.transformOrigin = 'top right';
             element.style.right = `${xDiff}px`;
         }
-        if (position === SmartConnectorPosition.Top) {
+        if (position === SelectionPalettePosition.Top) {
             element.style.transformOrigin = 'bottom';
             element.style.bottom = `${yDiff}px`;
         }
-        if (position === SmartConnectorPosition.Bottom) {
+        if (position === SelectionPalettePosition.Bottom) {
             element.style.transformOrigin = 'top';
             element.style.top = `${yDiff}px`;
         }
@@ -169,78 +186,78 @@ export class SmartConnector extends AbstractUIExtension implements IActionHandle
         this.initBody();
         this.initExpandButton();
         this.containerElement.appendChild(this.expandButton);
-        containerElement.setAttribute('aria-label', 'Smart-Connector');
+        containerElement.setAttribute('aria-label', 'Selection-Palette');
     }
 
     protected initBody(): void {
-        const smartConnectorContainer = document.createElement('div');
-        smartConnectorContainer.id = SmartConnector.SMART_CONNECTOR_CONTAINER_ID;
-        for (const item of this.smartConnectorItems) {
+        const selectionPaletteContainer = document.createElement('div');
+        selectionPaletteContainer.id = SelectionPalette.SELECTION_PALETTE_CONTAINER_ID;
+        for (const item of this.selectionPaletteItems) {
             if (item.children) {
                 const group = this.createGroup(item);
-                this.smartConnectorGroups[group.id] = group;
-                smartConnectorContainer.appendChild(group);
+                this.selectionPaletteGroups[group.id] = group;
+                selectionPaletteContainer.appendChild(group);
             }
         }
-        if (this.smartConnectorContainer) {
-            this.containerElement.removeChild(this.smartConnectorContainer);
+        if (this.selectionPaletteContainer) {
+            this.containerElement.removeChild(this.selectionPaletteContainer);
         }
-        this.containerElement.appendChild(smartConnectorContainer);
-        this.smartConnectorContainer = smartConnectorContainer;
+        this.containerElement.appendChild(selectionPaletteContainer);
+        this.selectionPaletteContainer = selectionPaletteContainer;
     }
 
     protected initExpandButton(): void {
         this.expandButton = document.createElement('div');
-        this.expandButton.id = SmartConnector.EXPAND_BUTTON_ID;
+        this.expandButton.id = SelectionPalette.EXPAND_BUTTON_ID;
         this.expandButton.innerHTML = '+';
         this.expandButton.onclick = _ev => {
             if (!this.editorContext.isReadonly) {
-                this.showSmartConnector();
+                this.showSelectionPalette();
             }
         };
         // this.expandButton.onkeydown = ev => {
         //     if(matchesKeystroke(ev, 'Space') && !this.editorContext.isReadonly)
-        //         {this.showSmartConnector();}
+        //         {this.showSelectionPalette();}
         //     };
     }
 
     // default state
-    protected hideSmartConnector(): void {
-        if (this.smartConnectorContainer && this.expandButton) {
-            this.smartConnectorContainer.style.visibility = 'hidden';
+    protected hideSelectionPalette(): void {
+        if (this.selectionPaletteContainer && this.expandButton) {
+            this.selectionPaletteContainer.style.visibility = 'hidden';
             this.expandButton.style.visibility = 'visible';
         }
     }
 
-    protected showSmartConnector(): void {
-        this.smartConnectorContainer.style.visibility = 'visible';
+    protected showSelectionPalette(): void {
+        this.selectionPaletteContainer.style.visibility = 'visible';
         this.expandButton.style.visibility = 'hidden';
     }
 
     // to avoid onclicks on nested hidden > visible
     protected hideAll(): void {
-        if (this.smartConnectorContainer && this.expandButton) {
-            this.smartConnectorContainer.style.visibility = 'hidden';
+        if (this.selectionPaletteContainer && this.expandButton) {
+            this.selectionPaletteContainer.style.visibility = 'hidden';
             this.expandButton.style.visibility = 'hidden';
         }
     }
 
-    protected createGroup(item: SmartConnectorGroupItem): HTMLElement {
+    protected createGroup(item: SelectionPaletteGroupItem): HTMLElement {
         const searchField = this.createSearchField(item);
         const group = document.createElement('div');
         if (item.children!.length === 0) {
             return group;
         }
         const groupItems = document.createElement('div');
-        group.classList.add(SmartConnector.GROUP_CONTAINER_CLASS);
-        groupItems.classList.add(SmartConnector.GROUP_CLASS);
+        group.classList.add(SelectionPalette.GROUP_CONTAINER_CLASS);
+        groupItems.classList.add(SelectionPalette.GROUP_CLASS);
         group.id = item.id;
         for (const child of item.children!) {
             groupItems.appendChild(this.createToolButton(child));
         }
         if (item.showTitle) {
             const header = this.createGroupHeader(item, groupItems, searchField);
-            if (item.position === SmartConnectorPosition.Top) {
+            if (item.position === SelectionPalettePosition.Top) {
                 // the header is at the bottom on top
                 group.appendChild(groupItems);
                 if (item.children!.length > 1) {
@@ -260,10 +277,10 @@ export class SmartConnector extends AbstractUIExtension implements IActionHandle
         return group;
     }
 
-    protected createGroupHeader(group: SmartConnectorGroupItem, groupItems: HTMLElement, searchField: HTMLElement): HTMLElement {
+    protected createGroupHeader(group: SelectionPaletteGroupItem, groupItems: HTMLElement, searchField: HTMLElement): HTMLElement {
         const header = document.createElement('div');
         const headerTitle = document.createElement('div');
-        header.classList.add(SmartConnector.HEADER_CLASS);
+        header.classList.add(SelectionPalette.HEADER_CLASS);
         // for same css as palette header
         header.classList.add('group-header');
         if (group.icon) {
@@ -274,9 +291,9 @@ export class SmartConnector extends AbstractUIExtension implements IActionHandle
         header.appendChild(headerTitle);
         header.tabIndex = 0;
         if (group.submenu) {
-            const submenuIcon = group.position === SmartConnectorPosition.Top ? createIcon('chevron-up') : createIcon('chevron-down');
+            const submenuIcon = group.position === SelectionPalettePosition.Top ? createIcon('chevron-up') : createIcon('chevron-down');
             header.appendChild(submenuIcon);
-            groupItems.classList.add(SmartConnector.COLLAPSABLE_CLASS);
+            groupItems.classList.add(SelectionPalette.COLLAPSABLE_CLASS);
             header.onclick = _ev => {
                 this.toggleSubmenu(submenuIcon, group, groupItems, searchField);
             };
@@ -291,7 +308,7 @@ export class SmartConnector extends AbstractUIExtension implements IActionHandle
         return header;
     }
 
-    protected toggleSubmenu(icon: HTMLElement, group: SmartConnectorGroupItem, groupItems: HTMLElement, searchField: HTMLElement): void {
+    protected toggleSubmenu(icon: HTMLElement, group: SelectionPaletteGroupItem, groupItems: HTMLElement, searchField: HTMLElement): void {
         changeCodiconClass(icon, 'chevron-up');
         changeCodiconClass(icon, 'chevron-down');
         this.groupIsCollapsed[group.id] = !this.groupIsCollapsed[group.id];
@@ -299,7 +316,7 @@ export class SmartConnector extends AbstractUIExtension implements IActionHandle
             groupItems.style.maxHeight = '';
             searchField.style.maxHeight = '';
         } else {
-            groupItems.style.maxHeight = SmartConnector.MAX_HEIGHT_GROUP;
+            groupItems.style.maxHeight = SelectionPalette.MAX_HEIGHT_GROUP;
             searchField.style.maxHeight = '50px';
         }
     }
@@ -307,7 +324,7 @@ export class SmartConnector extends AbstractUIExtension implements IActionHandle
     protected createToolButton(item: PaletteItem): HTMLElement {
         const button = document.createElement('div');
         button.tabIndex = 0;
-        button.classList.add(SmartConnector.TOOL_BUTTON_CLASS);
+        button.classList.add(SelectionPalette.TOOL_BUTTON_CLASS);
         if (item.icon) {
             button.appendChild(createIcon(item.icon));
             return button;
@@ -319,17 +336,19 @@ export class SmartConnector extends AbstractUIExtension implements IActionHandle
         return button;
     }
 
-    protected createSearchField(itemGroup: SmartConnectorGroupItem): HTMLElement {
+    protected createSearchField(itemGroup: SelectionPaletteGroupItem): HTMLElement {
         const searchField = document.createElement('input');
-        searchField.classList.add(SmartConnector.SEARCH_CLASS);
-        searchField.id = itemGroup.id + SmartConnector.SEARCH_FIELD_SUFFIX;
+        searchField.classList.add(SelectionPalette.SEARCH_CLASS);
+        searchField.id = itemGroup.id + SelectionPalette.SEARCH_FIELD_SUFFIX;
         searchField.type = 'text';
         searchField.placeholder = ' Search...';
         searchField.onkeyup = () => this.requestFilterUpdate(this.searchFields[itemGroup.id].value, itemGroup);
         searchField.onkeydown = ev => this.handleSearchFieldKey(ev, itemGroup);
         this.searchFields[itemGroup.id] = searchField;
         const searchContainer = document.createElement('div');
-        const containerClass = itemGroup.submenu ? SmartConnector.SEARCH_SUBMENU_CONTAINER_CLASS : SmartConnector.SEARCH_CONTAINER_CLASS;
+        const containerClass = itemGroup.submenu
+            ? SelectionPalette.SEARCH_SUBMENU_CONTAINER_CLASS
+            : SelectionPalette.SEARCH_CONTAINER_CLASS;
         searchContainer.classList.add(containerClass);
         searchContainer.appendChild(searchField);
         return searchContainer;
@@ -337,10 +356,10 @@ export class SmartConnector extends AbstractUIExtension implements IActionHandle
 
     // #region event handlers
 
-    protected requestFilterUpdate(filter: string, itemGroup: SmartConnectorGroupItem): void {
+    protected requestFilterUpdate(filter: string, itemGroup: SelectionPaletteGroupItem): void {
         if (itemGroup.children) {
             const matchingChildren = itemGroup.children.filter(child => child.label.toLowerCase().includes(filter.toLowerCase()));
-            const items = document.getElementById(itemGroup.id)?.getElementsByClassName(SmartConnector.TOOL_BUTTON_CLASS);
+            const items = document.getElementById(itemGroup.id)?.getElementsByClassName(SelectionPalette.TOOL_BUTTON_CLASS);
             if (items) {
                 Array.from(items).forEach(item => {
                     if (matchingChildren.find(child => child.id === item.id)) {
@@ -361,8 +380,8 @@ export class SmartConnector extends AbstractUIExtension implements IActionHandle
             // matchesKeystroke with Ctrl and Ctrl+F does not seem to work on Windows 11/Chrome
             // if (matchesKeystroke(event, 'ControlLeft')) {
             // if (matchesKeystroke(event, 'KeyF', 'ctrlCmd')) {
-            const parentId = this.smartConnectorItems.find(e => e.children?.includes(item))!.id;
-            const searchFieldId = parentId + SmartConnector.SEARCH_FIELD_SUFFIX;
+            const parentId = this.selectionPaletteItems.find(e => e.children?.includes(item))!.id;
+            const searchFieldId = parentId + SelectionPalette.SEARCH_FIELD_SUFFIX;
             const searchField = document.getElementById(searchFieldId);
             if (searchField) {
                 (searchField as HTMLElement).focus();
@@ -372,7 +391,7 @@ export class SmartConnector extends AbstractUIExtension implements IActionHandle
         this.closeOnEscapeKey(event);
     }
 
-    protected handleSearchFieldKey(event: KeyboardEvent, itemGroup: SmartConnectorGroupItem): void {
+    protected handleSearchFieldKey(event: KeyboardEvent, itemGroup: SelectionPaletteGroupItem): void {
         if (matchesKeystroke(event, 'Escape')) {
             this.searchFields[itemGroup.id].value = '';
             this.requestFilterUpdate('', itemGroup);
@@ -387,16 +406,16 @@ export class SmartConnector extends AbstractUIExtension implements IActionHandle
 
     protected closeOnEscapeKey(event: KeyboardEvent): void {
         if (matchesKeystroke(event, 'Escape')) {
-            this.hideSmartConnector();
+            this.hideSelectionPalette();
             // assumes that the graph is always the last child of base div
             // this focus is done to "reactivate" the key listener to re-open if needed
-            document.getElementById(this.options.baseDiv)?.last().focus();
+            last(document.getElementById(this.options.baseDiv)!).focus();
         }
     }
 
     // #region navigation handlers
 
-    protected navigateSearchField(event: KeyboardEvent, itemGroup: SmartConnectorGroupItem): void {
+    protected navigateSearchField(event: KeyboardEvent, itemGroup: SelectionPaletteGroupItem): void {
         if (matchesKeystroke(event, this.previousElementKeyCode)) {
             (document.getElementById(itemGroup.children![itemGroup.children!.length - 1].id) as HTMLElement).focus();
         }
@@ -408,73 +427,73 @@ export class SmartConnector extends AbstractUIExtension implements IActionHandle
     protected navigateHeader(event: KeyboardEvent, groupItems: HTMLElement, header: HTMLElement): void {
         const parent = header.parentElement!;
         if (matchesKeystroke(event, this.previousElementKeyCode)) {
-            if ((this.groupIsCollapsed[parent.id] || !this.groupIsTop[parent.id]) && parent.previous()) {
-                const collapsableHeader = this.getHeaderIfGroupContainsCollapsable(parent.previous());
-                if (collapsableHeader && (this.groupIsTop[parent.previous().id] || this.groupIsCollapsed[parent.previous().id])) {
+            if ((this.groupIsCollapsed[parent.id] || !this.groupIsTop[parent.id]) && previous(parent)) {
+                const collapsableHeader = this.getHeaderIfGroupContainsCollapsable(previous(parent));
+                if (collapsableHeader && (this.groupIsTop[previous(parent).id] || this.groupIsCollapsed[previous(parent).id])) {
                     collapsableHeader.focus();
                 } else {
                     this.getPreviousGroupLastItem(parent).focus();
                 }
-            } else if (!this.groupIsCollapsed[parent.id] && header.previous()) {
-                groupItems.last().focus();
+            } else if (!this.groupIsCollapsed[parent.id] && previous(header)) {
+                last(groupItems).focus();
             }
         }
         if (matchesKeystroke(event, this.nextElementKeyCode)) {
-            if ((this.groupIsCollapsed[parent.id] || this.groupIsTop[parent.id]) && parent.next()) {
-                const collapsableHeader = this.getHeaderIfGroupContainsCollapsable(parent.next());
-                if (collapsableHeader && (!this.groupIsTop[parent.next().id] || this.groupIsCollapsed[parent.next().id])) {
+            if ((this.groupIsCollapsed[parent.id] || this.groupIsTop[parent.id]) && next(parent)) {
+                const collapsableHeader = this.getHeaderIfGroupContainsCollapsable(next(parent));
+                if (collapsableHeader && (!this.groupIsTop[next(parent).id] || this.groupIsCollapsed[next(parent).id])) {
                     collapsableHeader.focus();
                 } else {
                     this.getNextGroupFirstItem(parent).focus();
                 }
-            } else if (!this.groupIsCollapsed[parent.id] && header.next()) {
-                groupItems.first().focus();
+            } else if (!this.groupIsCollapsed[parent.id] && next(header)) {
+                first(groupItems).focus();
             }
         }
     }
 
     protected navigateToolButton(event: KeyboardEvent, item: PaletteItem): void {
-        const parentId = this.smartConnectorItems.find(e => e.children?.includes(item))!.id;
+        const parentId = this.selectionPaletteItems.find(e => e.children?.includes(item))!.id;
         const parent = document.getElementById(parentId)!;
         const toolButton = document.getElementById(item.id)!;
         const collapsableHeader = this.getHeaderIfGroupContainsCollapsable(parent);
         if (matchesKeystroke(event, this.previousElementKeyCode)) {
-            const previousGroupCollapsableHeader = this.getHeaderIfGroupContainsCollapsable(parent.previous());
-            if (toolButton.previous()) {
-                toolButton.previous().focus();
+            const previousGroupCollapsableHeader = this.getHeaderIfGroupContainsCollapsable(previous(parent));
+            if (previous(toolButton)) {
+                previous(toolButton).focus();
             } else if (collapsableHeader && !this.groupIsTop[parent.id]) {
                 collapsableHeader.focus();
-            } else if (previousGroupCollapsableHeader && this.groupIsTop[parent.previous().id]) {
+            } else if (previousGroupCollapsableHeader && this.groupIsTop[previous(parent).id]) {
                 previousGroupCollapsableHeader.focus();
-            } else if (parent.previous()) {
+            } else if (previous(parent)) {
                 this.getPreviousGroupLastItem(parent).focus();
             }
         }
         if (matchesKeystroke(event, this.nextElementKeyCode)) {
-            const nextGroupCollapsableHeader = this.getHeaderIfGroupContainsCollapsable(parent.next());
-            if (toolButton.next()) {
-                toolButton.next().focus();
+            const nextGroupCollapsableHeader = this.getHeaderIfGroupContainsCollapsable(next(parent));
+            if (next(toolButton)) {
+                next(toolButton).focus();
             } else if (collapsableHeader && this.groupIsTop[parent.id]) {
                 collapsableHeader.focus();
-            } else if (nextGroupCollapsableHeader && !this.groupIsTop[parent.next().id]) {
+            } else if (nextGroupCollapsableHeader && !this.groupIsTop[next(parent).id]) {
                 nextGroupCollapsableHeader.focus();
-            } else if (parent.next()) {
+            } else if (next(parent)) {
                 this.getNextGroupFirstItem(parent).focus();
             }
         }
     }
 
     protected getNextGroupFirstItem(parent: HTMLElement): HTMLElement {
-        return parent.nextElementSibling!.getElementsByClassName(SmartConnector.GROUP_CLASS)[0].firstElementChild as HTMLElement;
+        return parent.nextElementSibling!.getElementsByClassName(SelectionPalette.GROUP_CLASS)[0].firstElementChild as HTMLElement;
     }
 
     protected getPreviousGroupLastItem(parent: HTMLElement): HTMLElement {
-        return parent.previousElementSibling!.getElementsByClassName(SmartConnector.GROUP_CLASS)[0].lastElementChild as HTMLElement;
+        return parent.previousElementSibling!.getElementsByClassName(SelectionPalette.GROUP_CLASS)[0].lastElementChild as HTMLElement;
     }
 
     protected getHeaderIfGroupContainsCollapsable(group: HTMLElement): HTMLElement | undefined {
-        if (group && group.getElementsByClassName(SmartConnector.COLLAPSABLE_CLASS).length !== 0) {
-            return group.getElementsByClassName(SmartConnector.HEADER_CLASS)[0] as HTMLElement;
+        if (group && group.getElementsByClassName(SelectionPalette.COLLAPSABLE_CLASS).length !== 0) {
+            return group.getElementsByClassName(SelectionPalette.HEADER_CLASS)[0] as HTMLElement;
         }
         return undefined;
     }
@@ -493,15 +512,15 @@ export class SmartConnector extends AbstractUIExtension implements IActionHandle
                 let args: Args;
                 if (TriggerEdgeCreationAction.is(e)) {
                     args = { source: this.selectedElementId };
-                    (e as TriggerEdgeCreationAction).args = args;
+                    e.args = args;
                 }
                 if (TriggerNodeCreationAction.is(e)) {
-                    args = { createEdge: true, source: this.selectedElementId, edgeType: (item as SmartConnectorNodeItem).edgeType };
-                    (e as TriggerNodeCreationAction).args = args;
+                    args = { createEdge: true, source: this.selectedElementId, edgeType: (item as SelectionPaletteNodeItem).edgeType };
+                    e.args = args;
                 }
             });
             this.actionDispatcher.dispatchAll(
-                item.actions.concat([SetUIExtensionVisibilityAction.create({ extensionId: SmartConnector.ID, visible: false })])
+                item.actions.concat([SetUIExtensionVisibilityAction.create({ extensionId: SelectionPalette.ID, visible: false })])
             );
             this.hideAll();
         }
@@ -510,68 +529,81 @@ export class SmartConnector extends AbstractUIExtension implements IActionHandle
     // #endregion
 
     handle(action: Action): ICommand | Action | void {
-        if (OpenSmartConnectorAction.is(action)) {
-            this.selectedElementId = action.selectedElementId;
-            this.actionDispatcher.dispatch(SetUIExtensionVisibilityAction.create({ extensionId: SmartConnector.ID, visible: true }));
-        } else if (ChangeSmartConnectorStateAction.is(action)) {
-            if (action.state === SmartConnectorState.Collapse) {
-                this.hideSmartConnector();
-            } else if (action.state === SmartConnectorState.Expand && this.smartConnectorContainer.style.visibility === 'hidden') {
-                this.showSmartConnector();
+        if (ChangeSelectionPaletteStateAction.is(action)) {
+            if (action.state === SelectionPaletteState.Collapse) {
+                this.hideSelectionPalette();
+            } else if (action.state === SelectionPaletteState.Expand && this.selectionPaletteContainer.style.visibility === 'hidden') {
+                this.showSelectionPalette();
                 const collapsableHeader = this.getHeaderIfGroupContainsCollapsable(
-                    this.smartConnectorContainer.firstElementChild as HTMLElement
+                    this.selectionPaletteContainer.firstElementChild as HTMLElement
                 );
                 if (collapsableHeader) {
                     collapsableHeader.focus();
                 } else {
                     (
-                        this.smartConnectorContainer.firstElementChild!.getElementsByClassName(SmartConnector.GROUP_CLASS)[0]
+                        this.selectionPaletteContainer.firstElementChild!.getElementsByClassName(SelectionPalette.GROUP_CLASS)[0]
                             .firstElementChild as HTMLElement
                     ).focus();
                 }
             }
         } else {
-            this.actionDispatcher.dispatch(SetUIExtensionVisibilityAction.create({ extensionId: SmartConnector.ID, visible: false }));
+            this.actionDispatcher.dispatch(SetUIExtensionVisibilityAction.create({ extensionId: SelectionPalette.ID, visible: false }));
             this.hideAll();
         }
     }
 
     async preRequestModel(): Promise<void> {
         const requestAction = RequestContextActions.create({
-            contextId: SmartConnector.ID,
+            contextId: SelectionPalette.ID,
             editorContext: {
                 selectedElementIds: []
             }
         });
         const response = await this.actionDispatcher.request<SetContextActions>(requestAction);
-        this.smartConnectorItems = response.actions.map(e => e as SmartConnectorGroupItem);
+        this.selectionPaletteItems = response.actions.map(e => e as SelectionPaletteGroupItem);
     }
 }
 
-export namespace SmartConnector {
+function next(element: HTMLElement): HTMLElement {
+    return element.nextElementSibling as HTMLElement;
+}
+
+function previous(element: HTMLElement): HTMLElement {
+    return element.previousElementSibling as HTMLElement;
+}
+
+function first(element: HTMLElement): HTMLElement {
+    return element.firstElementChild as HTMLElement;
+}
+
+function last(element: HTMLElement): HTMLElement {
+    return element.lastElementChild as HTMLElement;
+}
+
+export namespace SelectionPalette {
     export const CONTAINER_PADDING_PX = 20;
     export const MAX_HEIGHT_GROUP = '150px';
     export const SEARCH_FIELD_SUFFIX = '_search_field';
-    export const SMART_CONNECTOR_CONTAINER_ID = 'smart-connector-container';
-    export const EXPAND_BUTTON_ID = 'smart-connector-expand-button';
-    export const GROUP_CONTAINER_CLASS = 'smart-connector-group-container';
-    export const HEADER_CLASS = 'smart-connector-group-header';
-    export const GROUP_CLASS = 'smart-connector-group';
-    export const TOOL_BUTTON_CLASS = 'smart-connector-button';
+    export const SELECTION_PALETTE_CONTAINER_ID = 'selection-palette-container';
+    export const EXPAND_BUTTON_ID = 'selection-palette-expand-button';
+    export const GROUP_CONTAINER_CLASS = 'selection-palette-group-container';
+    export const HEADER_CLASS = 'selection-palette-group-header';
+    export const GROUP_CLASS = 'selection-palette-group';
+    export const TOOL_BUTTON_CLASS = 'selection-palette-button';
     export const COLLAPSABLE_CLASS = 'collapsable-group';
-    export const SEARCH_CLASS = 'smart-connector-search';
-    export const SEARCH_CONTAINER_CLASS = 'smart-connector-search-container';
-    export const SEARCH_SUBMENU_CONTAINER_CLASS = 'smart-connector-submenu-search-container';
+    export const SEARCH_CLASS = 'selection-palette-search';
+    export const SEARCH_CONTAINER_CLASS = 'selection-palette-search-container';
+    export const SEARCH_SUBMENU_CONTAINER_CLASS = 'selection-palette-submenu-search-container';
 }
 
 @injectable()
-export class SmartConnectorKeyListener extends KeyListener {
+export class SelectionPaletteKeyListener extends KeyListener {
     override keyDown(_element: GModelElement, event: KeyboardEvent): Action[] {
         if (matchesKeystroke(event, 'Space')) {
-            return [ChangeSmartConnectorStateAction.create(SmartConnectorState.Expand)];
+            return [ChangeSelectionPaletteStateAction.create(SelectionPaletteState.Expand)];
         }
         if (matchesKeystroke(event, 'Escape')) {
-            return [ChangeSmartConnectorStateAction.create(SmartConnectorState.Collapse)];
+            return [ChangeSelectionPaletteStateAction.create(SelectionPaletteState.Collapse)];
         }
         return [];
     }

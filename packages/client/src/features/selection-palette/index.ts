@@ -13,5 +13,5 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-export * from './smart-connector';
-export * from './smart-connector-module';
+export * from './selection-palette';
+export * from './selection-palette-module';

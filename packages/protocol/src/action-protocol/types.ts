@@ -179,12 +179,12 @@ export namespace PaletteItem {
     }
 }
 
-export enum SmartConnectorGroupUIType {
+export enum SelectionPaletteGroupUIType {
     Icons,
     Labels
 }
 
-export enum SmartConnectorPosition {
+export enum SelectionPalettePosition {
     Left,
     Right,
     Top,
@@ -192,32 +192,32 @@ export enum SmartConnectorPosition {
 }
 
 /**
- * Represents a group of the smart connector, which can be positioned around the clicked node
+ * Represents a group of the selection palette, which can be positioned around the clicked node
  */
-export interface SmartConnectorGroupItem extends PaletteItem {
+export interface SelectionPaletteGroupItem extends PaletteItem {
     /** Position of the group */
-    readonly position: SmartConnectorPosition;
+    readonly position: SelectionPalettePosition;
     /** Shows the title of a group */
     readonly showTitle: boolean;
     /** Shows a group as a collapsed submenu if true, open if false */
     readonly submenu?: boolean;
     /** Show either only icons or labels. Show both when not given*/
-    readonly showOnlyForChildren?: SmartConnectorGroupUIType;
+    readonly showOnlyForChildren?: SelectionPaletteGroupUIType;
 }
 
-export namespace SmartConnectorGroupItem {
-    export function is(object: any): object is SmartConnectorGroupItem {
+export namespace SelectionPaletteGroupItem {
+    export function is(object: any): object is SelectionPaletteGroupItem {
         return PaletteItem.is(object) && hasObjectProp(object, 'position') && hasBooleanProp(object, 'showTitle');
     }
 }
 
-export interface SmartConnectorNodeItem extends PaletteItem {
+export interface SelectionPaletteNodeItem extends PaletteItem {
     /** default edge when creating an outgoing edge */
     readonly edgeType: string;
 }
 
-export namespace SmartConnectorNodeItem {
-    export function is(object: any): object is SmartConnectorNodeItem {
+export namespace SelectionPaletteNodeItem {
+    export function is(object: any): object is SelectionPaletteNodeItem {
         return PaletteItem.is(object) && hasStringProp(object, 'edgeType');
     }
 }

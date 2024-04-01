@@ -1,6 +1,6 @@
 /* expand button */
 
-#smart-connector-expand-button {
+#selection-palette-expand-button {
     height: 32px;
     width: 32px;
     border-radius: 50%;
@@ -15,21 +15,21 @@
     cursor: pointer;
 }
 
-.smart-connector {
+.selection-palette {
     position: absolute;
     z-index: 1;
 }
 
 /* combined container */
 
-#smart-connector-container {
+#selection-palette-container {
     position: absolute;
     visibility: hidden;
 }
 
 /* search bar */
 
-.smart-connector-search {
+.selection-palette-search {
     background: #dfdfdf;
     color: black;
     border: #bddaef;
@@ -38,12 +38,12 @@
     min-height: 20px;
 }
 
-.smart-connector-submenu-search-container {
+.selection-palette-submenu-search-container {
     max-height: 0;
     overflow: hidden;
 }
 
-.smart-connector-search-container {
+.selection-palette-search-container {
     max-height: 50px;
 }
 
@@ -55,50 +55,50 @@
     padding-right: 8px;
 }
 
-.smart-connector-group-header {
+.selection-palette-group-header {
     justify-content: space-between;
     min-width: 100px;
 }
 
 /* single containers */
 
-.smart-connector-group-container {
+.selection-palette-group-container {
     border: 1px solid black;
     background: #ededee;
     max-width: 200px;
     /* display: flex; */
 }
 
-.smart-connector-group-container:hover,
-.smart-connector-group-container:focus-within {
+.selection-palette-group-container:hover,
+.selection-palette-group-container:focus-within {
     z-index: 10000;
 }
 
-.smart-connector-group-container div:first-child {
+.selection-palette-group-container div:first-child {
     border-top: 0;
 }
 
 /* container items */
 
-.smart-connector-group {
+.selection-palette-group {
     overflow-y: auto;
     max-height: 150px;
 }
 
 /* scrollbar */
-.smart-connector-group::-webkit-scrollbar {
+.selection-palette-group::-webkit-scrollbar {
     width: 6px;
 }
 
-.smart-connector-group::-webkit-scrollbar-thumb:active {
+.selection-palette-group::-webkit-scrollbar-thumb:active {
     background: rgba(0, 0, 0, 0.9);
 }
 
-.smart-connector-group::-webkit-scrollbar-track {
+.selection-palette-group::-webkit-scrollbar-track {
     background: rgba(0, 0, 0, 0.1);
     border-radius: 10px;
 }
-.smart-connector-group::-webkit-scrollbar-thumb {
+.selection-palette-group::-webkit-scrollbar-thumb {
     background: rgba(0, 0, 0, 0.2);
     border-radius: 10px;
 }
@@ -110,7 +110,7 @@
 
 /* single item */
 
-.smart-connector-button {
+.selection-palette-button {
     border-top: 1px solid black;
     margin: 0 4px;
     padding: 8px 0;
@@ -119,6 +119,6 @@
     font-size: 12px;
 }
 
-.smart-connector-button:hover {
+.selection-palette-button:hover {
     background: #dfdfdf;
 }

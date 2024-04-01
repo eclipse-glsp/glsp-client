@@ -17,7 +17,6 @@ export * from './argument-utils';
 export * from './geometry-util';
 export * from './gmodel-util';
 export * from './html-utils';
-export * from './htmlelement-extensions';
 export * from './layout-utils';
 export * from './marker';
 export * from './viewpoint-util';
