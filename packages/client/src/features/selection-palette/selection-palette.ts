@@ -55,7 +55,6 @@ export class SelectionPalette extends AbstractUIExtension implements IActionHand
     protected expandButton: HTMLElement;
     protected currentZoom: number;
 
-    protected selectionPaletteGroups: Record<string, HTMLElement> = {};
     protected groupIsCollapsed: Record<string, boolean> = {};
     protected groupIsTop: Record<string, boolean> = {};
     protected searchFields: Record<string, HTMLInputElement> = {};
@@ -113,14 +112,13 @@ export class SelectionPalette extends AbstractUIExtension implements IActionHand
         // set position of container(s)
         const sameSide = this.selectionPaletteItems.every(e => e.position === this.selectionPaletteItems[0].position);
         if (sameSide) {
-            this.setPosition(this.selectionPaletteContainer, this.selectionPaletteItems[0].position, nodeBoundsFromDom);
+            this.setPosition(this.selectionPaletteContainer, this.selectionPaletteItems[0].position, nodeBoundsFromDom, true);
         } else {
             for (let i = 0; i < this.selectionPaletteContainer.childElementCount; i++) {
                 this.setPosition(
                     this.selectionPaletteContainer.children[i] as HTMLElement,
                     this.selectionPaletteItems[i].position,
-                    nodeBoundsFromDom,
-                    true
+                    nodeBoundsFromDom
                 );
             }
         }
@@ -151,6 +149,15 @@ export class SelectionPalette extends AbstractUIExtension implements IActionHand
         element.style.transform = `scale(${zoom})`;
         const nodeHeight = nodeBounds.height;
         const nodeWidth = nodeBounds.width;
+        if (single) {
+            for (let i = 0; i < element.childElementCount; i++) {
+                const child = element.children[i] as HTMLElement;
+                child.style.position = 'static';
+                if (i < element.childElementCount) {
+                    child.style.borderBottom = '0';
+                }
+            }
+        }
         let xDiff = -element.offsetWidth / 2;
         let yDiff = (-element.offsetHeight / 2) * zoom;
         if (position === SelectionPalettePosition.Right || position === SelectionPalettePosition.Left) {
@@ -177,9 +184,6 @@ export class SelectionPalette extends AbstractUIExtension implements IActionHand
             element.style.transformOrigin = 'top';
             element.style.top = `${yDiff}px`;
         }
-        if (single) {
-            element.style.position = 'absolute';
-        }
     }
 
     protected initializeContents(containerElement: HTMLElement): void {
@@ -195,7 +199,6 @@ export class SelectionPalette extends AbstractUIExtension implements IActionHand
         for (const item of this.selectionPaletteItems) {
             if (item.children) {
                 const group = this.createGroup(item);
-                this.selectionPaletteGroups[group.id] = group;
                 selectionPaletteContainer.appendChild(group);
             }
         }
@@ -248,6 +251,7 @@ export class SelectionPalette extends AbstractUIExtension implements IActionHand
         if (item.children!.length === 0) {
             return group;
         }
+        group.style.position = 'absolute';
         const groupItems = document.createElement('div');
         group.classList.add(SelectionPalette.GROUP_CONTAINER_CLASS);
         groupItems.classList.add(SelectionPalette.GROUP_CLASS);
@@ -327,7 +331,6 @@ export class SelectionPalette extends AbstractUIExtension implements IActionHand
         button.classList.add(SelectionPalette.TOOL_BUTTON_CLASS);
         if (item.icon) {
             button.appendChild(createIcon(item.icon));
-            return button;
         }
         button.insertAdjacentText('beforeend', item.label);
         button.onclick = this.onClickCreateToolButton(button, item);
@@ -363,7 +366,7 @@ export class SelectionPalette extends AbstractUIExtension implements IActionHand
             if (items) {
                 Array.from(items).forEach(item => {
                     if (matchingChildren.find(child => child.id === item.id)) {
-                        (item as HTMLElement).style.display = 'block';
+                        (item as HTMLElement).style.display = 'flex';
                     } else {
                         (item as HTMLElement).style.display = 'none';
                     }
