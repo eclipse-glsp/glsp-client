@@ -23,7 +23,8 @@ import {
     LogLevel,
     STANDALONE_MODULE_CONFIG,
     TYPES,
-    toolPaletteModule
+    toolPaletteModule,
+    selectionPaletteModule
 } from '@eclipse-glsp/client';
 import { Container } from 'inversify';
 import '../css/diagram.css';
@@ -33,6 +34,9 @@ export default function createContainer(options: IDiagramOptions): Container {
         {
             add: accessibilityModule,
             remove: toolPaletteModule
+        },
+        {
+            add: selectionPaletteModule
         },
         STANDALONE_MODULE_CONFIG
     );
