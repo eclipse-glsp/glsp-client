@@ -40,14 +40,14 @@ import {
     KeyCode,
     Viewport,
     Bounds,
-    GNode
+    GNode,
+    SetViewportAction
 } from '@eclipse-glsp/sprotty';
 import { GetViewportAction } from 'sprotty-protocol/lib/actions';
 import { changeCodiconClass, createIcon } from '../tool-palette/tool-palette';
 import { IDiagramStartup } from '../../base/model/diagram-loader';
 import { ISelectionListener, SelectionService } from '../../base/selection-service';
 import { ChangeSelectionPaletteStateAction, SelectionPaletteState } from './selection-palette-actions';
-import { SetViewportAction } from '@eclipse-glsp/sprotty';
 
 @injectable()
 export class SelectionPalette extends AbstractUIExtension implements IActionHandler, IDiagramStartup, ISelectionListener {
@@ -104,7 +104,7 @@ export class SelectionPalette extends AbstractUIExtension implements IActionHand
 
     protected override async onBeforeShow(_containerElement: HTMLElement, root: Readonly<GModelRoot>): Promise<void> {
         const viewportResult: ViewportResult = await this.actionDispatcher.request(GetViewportAction.create());
-        let node = root.index.getById(this.selectedElementId) as GNode;
+        const node = root.index.getById(this.selectedElementId) as GNode;
         await this.initAvailableOptions(node);
         this.initBody();
         this.setPosition(viewportResult.viewport, viewportResult.canvasBounds, node);
@@ -122,14 +122,20 @@ export class SelectionPalette extends AbstractUIExtension implements IActionHand
         this.selectionPaletteItems = response.actions.map(e => e as SelectionPaletteGroupItem);
     }
 
-    protected setPosition(viewport: Viewport, canvasBounds: Bounds, node: GNode) {
+    protected setPosition(viewport: Viewport, canvasBounds: Bounds, node: GNode): void {
         this.setMainPosition(canvasBounds, viewport, node);
         // set position of expand button
         this.setContainerPosition(this.expandButton, this.expandButtonPosition, node.bounds, viewport.zoom);
         // set position of container(s)
         const sameSide = this.selectionPaletteItems.every(e => e.position === this.selectionPaletteItems[0].position);
         if (sameSide) {
-            this.setContainerPosition(this.selectionPaletteContainer, this.selectionPaletteItems[0].position, node.bounds, viewport.zoom, true);
+            this.setContainerPosition(
+                this.selectionPaletteContainer,
+                this.selectionPaletteItems[0].position,
+                node.bounds,
+                viewport.zoom,
+                true
+            );
         } else {
             for (let i = 0; i < this.selectionPaletteContainer.childElementCount; i++) {
                 this.setContainerPosition(
@@ -144,15 +150,26 @@ export class SelectionPalette extends AbstractUIExtension implements IActionHand
     }
 
     protected setMainPosition(canvasBounds: Bounds, viewport: Viewport, node: GNode): void {
-        let zoom = viewport.zoom;
-        const calculatedBounds = { x: (-viewport.scroll.x + node.bounds.x)*zoom, y: (-viewport.scroll.y + node.bounds.y)*zoom, width: node.bounds.width*zoom, height: node.bounds.height*zoom };
+        const zoom = viewport.zoom;
+        const calculatedBounds = {
+            x: (-viewport.scroll.x + node.bounds.x) * zoom,
+            y: (-viewport.scroll.y + node.bounds.y) * zoom,
+            width: node.bounds.width * zoom,
+            height: node.bounds.height * zoom
+        };
         const xCenter = calculatedBounds.x + calculatedBounds.width / 2 - canvasBounds.x;
         const yCenter = calculatedBounds.y + calculatedBounds.height / 2 - canvasBounds.y;
         this.containerElement.style.left = `${xCenter}px`;
         this.containerElement.style.top = `${yCenter}px`;
     }
 
-    protected setContainerPosition(element: HTMLElement, position: SelectionPalettePosition, nodeBounds: Bounds, zoom: number, single?: boolean): void {
+    protected setContainerPosition(
+        element: HTMLElement,
+        position: SelectionPalettePosition,
+        nodeBounds: Bounds,
+        zoom: number,
+        single?: boolean
+    ): void {
         element.style.transform = `scale(${zoom})`;
         if (single) {
             for (let i = 0; i < element.childElementCount; i++) {
@@ -166,7 +183,7 @@ export class SelectionPalette extends AbstractUIExtension implements IActionHand
         this.setDirectionalProperties(element, position, nodeBounds, zoom);
     }
 
-    protected setDirectionalProperties(element: HTMLElement, position: SelectionPalettePosition, nodeBounds: Bounds, zoom: number) {
+    protected setDirectionalProperties(element: HTMLElement, position: SelectionPalettePosition, nodeBounds: Bounds, zoom: number): void {
         const nodeHeight = nodeBounds.height * zoom;
         const nodeWidth = nodeBounds.width * zoom;
         let xDiff = -element.offsetWidth / 2;
@@ -568,10 +585,12 @@ export class SelectionPalette extends AbstractUIExtension implements IActionHand
         }
     }
 
-    protected handleSetViewportAction(viewport: Viewport) {
+    protected handleSetViewportAction(viewport: Viewport): void {
         const root = this.selectionService.getModelRoot();
         const canvasBounds = root.canvasBounds;
-        if (!this.selectedElementId) return
+        if (!this.selectedElementId) {
+            return;
+        }
         const node = root.index.getById(this.selectedElementId) as GNode;
         this.setPosition(viewport, canvasBounds, node);
     }
