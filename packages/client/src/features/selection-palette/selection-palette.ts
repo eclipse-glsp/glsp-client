@@ -37,13 +37,17 @@ import {
     SelectionPaletteGroupItem,
     SelectionPaletteNodeItem,
     SelectionPalettePosition,
-    KeyCode
+    KeyCode,
+    Viewport,
+    Bounds,
+    GNode
 } from '@eclipse-glsp/sprotty';
 import { GetViewportAction } from 'sprotty-protocol/lib/actions';
 import { changeCodiconClass, createIcon } from '../tool-palette/tool-palette';
 import { IDiagramStartup } from '../../base/model/diagram-loader';
 import { ISelectionListener, SelectionService } from '../../base/selection-service';
 import { ChangeSelectionPaletteStateAction, SelectionPaletteState } from './selection-palette-actions';
+import { SetViewportAction } from '@eclipse-glsp/sprotty';
 
 @injectable()
 export class SelectionPalette extends AbstractUIExtension implements IActionHandler, IDiagramStartup, ISelectionListener {
@@ -53,7 +57,6 @@ export class SelectionPalette extends AbstractUIExtension implements IActionHand
     protected selectionPaletteItems: SelectionPaletteGroupItem[];
     protected selectionPaletteContainer: HTMLElement;
     protected expandButton: HTMLElement;
-    protected currentZoom: number;
 
     protected groupIsCollapsed: Record<string, boolean> = {};
     protected groupIsTop: Record<string, boolean> = {};
@@ -101,28 +104,10 @@ export class SelectionPalette extends AbstractUIExtension implements IActionHand
 
     protected override async onBeforeShow(_containerElement: HTMLElement, root: Readonly<GModelRoot>): Promise<void> {
         const viewportResult: ViewportResult = await this.actionDispatcher.request(GetViewportAction.create());
-        await this.initAvailableOptions(root.index.getById(this.selectedElementId));
+        let node = root.index.getById(this.selectedElementId) as GNode;
+        await this.initAvailableOptions(node);
         this.initBody();
-        this.currentZoom = viewportResult.viewport.zoom;
-        const nodeFromDom = document.getElementById(`${this.options.baseDiv}_${this.selectedElementId}`) as any as SVGGElement;
-        const nodeBoundsFromDom = nodeFromDom.getBoundingClientRect();
-        this.setMainPosition(viewportResult, nodeBoundsFromDom);
-        // set position of expand button
-        this.setPosition(this.expandButton, this.expandButtonPosition, nodeBoundsFromDom);
-        // set position of container(s)
-        const sameSide = this.selectionPaletteItems.every(e => e.position === this.selectionPaletteItems[0].position);
-        if (sameSide) {
-            this.setPosition(this.selectionPaletteContainer, this.selectionPaletteItems[0].position, nodeBoundsFromDom, true);
-        } else {
-            for (let i = 0; i < this.selectionPaletteContainer.childElementCount; i++) {
-                this.setPosition(
-                    this.selectionPaletteContainer.children[i] as HTMLElement,
-                    this.selectionPaletteItems[i].position,
-                    nodeBoundsFromDom
-                );
-            }
-        }
-        this.hideSelectionPalette();
+        this.setPosition(viewportResult.viewport, viewportResult.canvasBounds, node);
     }
 
     protected async initAvailableOptions(contextElement?: GModelElement): Promise<void> {
@@ -137,18 +122,38 @@ export class SelectionPalette extends AbstractUIExtension implements IActionHand
         this.selectionPaletteItems = response.actions.map(e => e as SelectionPaletteGroupItem);
     }
 
-    protected setMainPosition(viewport: ViewportResult, nodeBounds: DOMRect): void {
-        const xCenter = nodeBounds.x + nodeBounds.width / 2 - viewport.canvasBounds.x;
-        const yCenter = nodeBounds.y + nodeBounds.height / 2 - viewport.canvasBounds.y;
+    protected setPosition(viewport: Viewport, canvasBounds: Bounds, node: GNode) {
+        this.setMainPosition(canvasBounds, viewport, node);
+        // set position of expand button
+        this.setContainerPosition(this.expandButton, this.expandButtonPosition, node.bounds, viewport.zoom);
+        // set position of container(s)
+        const sameSide = this.selectionPaletteItems.every(e => e.position === this.selectionPaletteItems[0].position);
+        if (sameSide) {
+            this.setContainerPosition(this.selectionPaletteContainer, this.selectionPaletteItems[0].position, node.bounds, viewport.zoom, true);
+        } else {
+            for (let i = 0; i < this.selectionPaletteContainer.childElementCount; i++) {
+                this.setContainerPosition(
+                    this.selectionPaletteContainer.children[i] as HTMLElement,
+                    this.selectionPaletteItems[i].position,
+                    node.bounds,
+                    viewport.zoom
+                );
+            }
+        }
+        this.hideSelectionPalette();
+    }
+
+    protected setMainPosition(canvasBounds: Bounds, viewport: Viewport, node: GNode): void {
+        let zoom = viewport.zoom;
+        const calculatedBounds = { x: (-viewport.scroll.x + node.bounds.x)*zoom, y: (-viewport.scroll.y + node.bounds.y)*zoom, width: node.bounds.width*zoom, height: node.bounds.height*zoom };
+        const xCenter = calculatedBounds.x + calculatedBounds.width / 2 - canvasBounds.x;
+        const yCenter = calculatedBounds.y + calculatedBounds.height / 2 - canvasBounds.y;
         this.containerElement.style.left = `${xCenter}px`;
         this.containerElement.style.top = `${yCenter}px`;
     }
 
-    protected setPosition(element: HTMLElement, position: SelectionPalettePosition, nodeBounds: DOMRect, single?: boolean): void {
-        const zoom = this.currentZoom;
+    protected setContainerPosition(element: HTMLElement, position: SelectionPalettePosition, nodeBounds: Bounds, zoom: number, single?: boolean): void {
         element.style.transform = `scale(${zoom})`;
-        const nodeHeight = nodeBounds.height;
-        const nodeWidth = nodeBounds.width;
         if (single) {
             for (let i = 0; i < element.childElementCount; i++) {
                 const child = element.children[i] as HTMLElement;
@@ -158,6 +163,12 @@ export class SelectionPalette extends AbstractUIExtension implements IActionHand
                 }
             }
         }
+        this.setDirectionalProperties(element, position, nodeBounds, zoom);
+    }
+
+    protected setDirectionalProperties(element: HTMLElement, position: SelectionPalettePosition, nodeBounds: Bounds, zoom: number) {
+        const nodeHeight = nodeBounds.height * zoom;
+        const nodeWidth = nodeBounds.width * zoom;
         let xDiff = -element.offsetWidth / 2;
         let yDiff = (-element.offsetHeight / 2) * zoom;
         if (position === SelectionPalettePosition.Right || position === SelectionPalettePosition.Left) {
@@ -549,10 +560,20 @@ export class SelectionPalette extends AbstractUIExtension implements IActionHand
                     ).focus();
                 }
             }
+        } else if (SetViewportAction.is(action)) {
+            this.handleSetViewportAction(action.newViewport);
         } else {
             this.actionDispatcher.dispatch(SetUIExtensionVisibilityAction.create({ extensionId: SelectionPalette.ID, visible: false }));
             this.hideAll();
         }
+    }
+
+    protected handleSetViewportAction(viewport: Viewport) {
+        const root = this.selectionService.getModelRoot();
+        const canvasBounds = root.canvasBounds;
+        if (!this.selectedElementId) return
+        const node = root.index.getById(this.selectedElementId) as GNode;
+        this.setPosition(viewport, canvasBounds, node);
     }
 
     async preRequestModel(): Promise<void> {
