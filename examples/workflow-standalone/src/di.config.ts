@@ -16,6 +16,7 @@
 import { createWorkflowDiagramContainer } from '@eclipse-glsp-examples/workflow-glsp';
 import {
     ConsoleLogger,
+    EditMode,
     IDiagramOptions,
     LogLevel,
     STANDALONE_MODULE_CONFIG,
@@ -30,6 +31,10 @@ import { makeLoggerMiddleware } from 'inversify-logger-middleware';
 import '../css/diagram.css';
 import { getParameters } from './url-parameters';
 export default function createContainer(options: IDiagramOptions): Container {
+    const parameters = getParameters();
+    if (parameters.readonly) {
+        options.editMode = EditMode.READONLY;
+    }
     const container = createWorkflowDiagramContainer(
         createDiagramOptionsModule(options),
         {
@@ -41,15 +46,13 @@ export default function createContainer(options: IDiagramOptions): Container {
     bindOrRebind(container, TYPES.ILogger).to(ConsoleLogger).inSingletonScope();
     bindOrRebind(container, TYPES.LogLevel).toConstantValue(LogLevel.warn);
     container.bind(TYPES.IMarqueeBehavior).toConstantValue({ entireEdge: true, entireElement: true });
-    configureInversifyLogger(container);
+    if (parameters.inversifyLog) {
+        configureInversifyLogger(container);
+    }
     return container;
 }
 
 function configureInversifyLogger(container: Container): void {
-    const parameters = getParameters();
-    if (!parameters.inversifyLog) {
-        return;
-    }
     const logOptions = {
         request: {
             bindings: {

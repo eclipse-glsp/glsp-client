@@ -13,8 +13,8 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { BindingContext, Disposable, KeyListener, KeyTool, LazyInjector, MaybePromise, TYPES, bindOrRebind } from '@eclipse-glsp/sprotty';
-import { decorate, inject, injectable, unmanaged } from 'inversify';
+import { Disposable, KeyListener, KeyTool, LazyInjector, MaybePromise, TYPES } from '@eclipse-glsp/sprotty';
+import { inject, injectable, optional } from 'inversify';
 import { IDiagramStartup } from '../model';
 
 @injectable()
@@ -22,8 +22,8 @@ export class GLSPKeyTool extends KeyTool implements IDiagramStartup {
     @inject(LazyInjector)
     protected lazyInjector: LazyInjector;
 
-    constructor() {
-        super([]);
+    constructor(@optional() keyListeners: KeyListener[] = []) {
+        super(keyListeners);
     }
 
     registerListener(keyListener: KeyListener): Disposable {
@@ -33,16 +33,5 @@ export class GLSPKeyTool extends KeyTool implements IDiagramStartup {
 
     preLoadDiagram(): MaybePromise<void> {
         this.lazyInjector.getAll<KeyListener>(TYPES.KeyListener).forEach(listener => this.register(listener));
-    }
-}
-
-let baseClassDecorated = false;
-export function bindKeyTool(context: Omit<BindingContext, 'unbind'>): void {
-    context.bind(GLSPKeyTool).toSelf().inSingletonScope();
-    bindOrRebind(context, KeyTool).toService(GLSPKeyTool);
-    context.bind(TYPES.IDiagramStartup).toService(GLSPKeyTool);
-    if (!baseClassDecorated) {
-        decorate(unmanaged(), KeyTool, 0);
-        baseClassDecorated = true;
     }
 }

@@ -14,16 +14,8 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import {
-    ActionHandlerRegistration,
-    ActionHandlerRegistry,
-    BindingContext,
-    IActionHandlerInitializer,
-    LazyInjector,
-    TYPES,
-    bindOrRebind
-} from '@eclipse-glsp/sprotty';
-import { decorate, inject, injectable, unmanaged } from 'inversify';
+import { ActionHandlerRegistration, ActionHandlerRegistry, IActionHandlerInitializer, LazyInjector, TYPES } from '@eclipse-glsp/sprotty';
+import { inject, injectable, optional } from 'inversify';
 
 @injectable()
 export class GLSPActionHandlerRegistry extends ActionHandlerRegistry {
@@ -32,8 +24,8 @@ export class GLSPActionHandlerRegistry extends ActionHandlerRegistry {
 
     protected initialized = false;
 
-    constructor() {
-        super([], []);
+    constructor(@optional() registrations: ActionHandlerRegistration[] = [], @optional() initializers: IActionHandlerInitializer[] = []) {
+        super(registrations, initializers);
     }
     /**
      * Retrieve a set of all action kinds for which (at least) one
@@ -55,16 +47,5 @@ export class GLSPActionHandlerRegistry extends ActionHandlerRegistry {
         this.lazyInjector
             .getAll<IActionHandlerInitializer>(TYPES.IActionHandlerInitializer)
             .forEach(initializer => this.initializeActionHandler(initializer));
-    }
-}
-
-let baseClassDecorated = false;
-export function bindActionHandlerRegistry(context: Omit<BindingContext, 'unbind'>): void {
-    context.bind(GLSPActionHandlerRegistry).toSelf().inSingletonScope();
-    bindOrRebind(context, ActionHandlerRegistry).toService(GLSPActionHandlerRegistry);
-    if (!baseClassDecorated) {
-        decorate(unmanaged(), ActionHandlerRegistry, 0);
-        decorate(unmanaged(), ActionHandlerRegistry, 1);
-        baseClassDecorated = true;
     }
 }

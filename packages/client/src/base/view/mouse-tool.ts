@@ -15,7 +15,6 @@
  ********************************************************************************/
 import {
     Action,
-    BindingContext,
     Disposable,
     GModelElement,
     GModelRoot,
@@ -23,10 +22,9 @@ import {
     MaybePromise,
     MouseListener,
     MouseTool,
-    TYPES,
-    bindOrRebind
+    TYPES
 } from '@eclipse-glsp/sprotty';
-import { decorate, inject, injectable, unmanaged } from 'inversify';
+import { inject, injectable, optional } from 'inversify';
 import { IDiagramStartup } from '../model';
 import { Ranked } from '../ranked';
 
@@ -43,8 +41,8 @@ export class GLSPMouseTool extends MouseTool implements IDiagramStartup {
 
     protected rankedMouseListeners: Map<number, MouseListener[]>;
 
-    constructor() {
-        super([]);
+    constructor(@optional() mouseListeners: MouseListener[] = []) {
+        super(mouseListeners);
     }
 
     preLoadDiagram(): MaybePromise<void> {
@@ -104,17 +102,6 @@ export class GLSPMouseTool extends MouseTool implements IDiagramStartup {
                 }
             }
         }
-    }
-}
-
-let baseClassDecorated = false;
-export function bindMouseTool(context: Omit<BindingContext, 'unbind'>): void {
-    context.bind(GLSPMouseTool).toSelf().inSingletonScope();
-    bindOrRebind(context, MouseTool).toService(GLSPMouseTool);
-    context.bind(TYPES.IDiagramStartup).toService(GLSPMouseTool);
-    if (!baseClassDecorated) {
-        decorate(unmanaged(), MouseTool, 0);
-        baseClassDecorated = true;
     }
 }
 

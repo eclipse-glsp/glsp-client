@@ -14,8 +14,8 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { BindingContext, IUIExtension, LazyInjector, MaybePromise, TYPES, UIExtensionRegistry, bindOrRebind } from '@eclipse-glsp/sprotty';
-import { decorate, inject, injectable, unmanaged } from 'inversify';
+import { IUIExtension, LazyInjector, MaybePromise, TYPES, UIExtensionRegistry } from '@eclipse-glsp/sprotty';
+import { inject, injectable, optional } from 'inversify';
 import { IDiagramStartup } from './model';
 
 @injectable()
@@ -23,22 +23,11 @@ export class GLSPUIExtensionRegistry extends UIExtensionRegistry implements IDia
     @inject(LazyInjector)
     protected lazyInjector: LazyInjector;
 
-    constructor() {
-        super([]);
+    constructor(@optional() extensions: IUIExtension[] = []) {
+        super(extensions);
     }
 
     preLoadDiagram(): MaybePromise<void> {
         this.lazyInjector.getAll<IUIExtension>(TYPES.IUIExtension).forEach(extension => this.register(extension.id(), extension));
-    }
-}
-
-let baseClassDecorated = false;
-export function bindUIExtensionRegistry(context: Omit<BindingContext, 'unbind'>): void {
-    context.bind(GLSPUIExtensionRegistry).toSelf().inSingletonScope();
-    bindOrRebind(context, TYPES.UIExtensionRegistry).toService(GLSPUIExtensionRegistry);
-    context.bind(TYPES.IDiagramStartup).toService(GLSPUIExtensionRegistry);
-    if (!baseClassDecorated) {
-        decorate(unmanaged(), UIExtensionRegistry, 0);
-        baseClassDecorated = true;
     }
 }
