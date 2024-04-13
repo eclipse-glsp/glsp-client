@@ -28,7 +28,7 @@ import {
     matchesKeystroke
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
-import { EditorContextService } from '../editor-context-service';
+import { EditorContextService, IEditModeListener } from '../editor-context-service';
 import { IDiagramStartup } from '../model';
 import { Ranked } from '../ranked';
 import { EnableDefaultToolsAction, EnableToolsAction, Tool } from './tool';
@@ -79,7 +79,7 @@ export interface IToolManager {
  * registration of tools via Dependency Injection.
  */
 @injectable()
-export class ToolManager implements IToolManager, IDiagramStartup {
+export class ToolManager implements IToolManager, IDiagramStartup, IEditModeListener {
     @inject(EditorContextService)
     protected editorContext: EditorContextService;
 

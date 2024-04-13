@@ -14,8 +14,11 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import {
+    ActionHandlerRegistry,
     FeatureModule,
+    KeyTool,
     LocationPostprocessor,
+    MouseTool,
     MoveCommand,
     SetDirtyStateAction,
     SetEditModeAction,
@@ -31,7 +34,7 @@ import {
 import '@vscode/codicons/dist/codicon.css';
 import '../../css/glsp-sprotty.css';
 import { GLSPActionDispatcher } from './action-dispatcher';
-import { bindActionHandlerRegistry } from './action-handler-registry';
+import { GLSPActionHandlerRegistry } from './action-handler-registry';
 import { GLSPCommandStack } from './command-stack';
 import { EditorContextService } from './editor-context-service';
 import { FeedbackAwareSetModelCommand } from './feedback';
@@ -48,9 +51,9 @@ import { SelectionClearingMouseListener } from './selection-clearing-mouse-liste
 import { SelectionService } from './selection-service';
 import { EnableDefaultToolsAction, EnableToolsAction } from './tool-manager/tool';
 import { DefaultToolsEnablingKeyListener, ToolManager, ToolManagerActionHandler } from './tool-manager/tool-manager';
-import { bindUIExtensionRegistry } from './ui-extension-registry';
-import { bindKeyTool } from './view/key-tool';
-import { bindMouseTool } from './view/mouse-tool';
+import { GLSPUIExtensionRegistry } from './ui-extension-registry';
+import { GLSPKeyTool } from './view/key-tool';
+import { GLSPMouseTool } from './view/mouse-tool';
 import { GViewRegistry } from './view/view-registry';
 
 /**
@@ -79,16 +82,20 @@ export const defaultModule = new FeatureModule((bind, unbind, isBound, rebind, .
     configureCommand(context, FeedbackAwareUpdateModelCommand);
     rebind(SetModelCommand).to(FeedbackAwareSetModelCommand);
 
-    bindMouseTool(context);
-    bindKeyTool(context);
+    bind(GLSPMouseTool).toSelf().inSingletonScope();
+    bindOrRebind(context, MouseTool).toService(GLSPMouseTool);
+    bind(TYPES.IDiagramStartup).toService(GLSPMouseTool);
+
+    bind(GLSPKeyTool).toSelf().inSingletonScope();
+    bindOrRebind(context, KeyTool).toService(GLSPKeyTool);
+    bind(TYPES.IDiagramStartup).toService(GLSPKeyTool);
 
     bindAsService(context, TYPES.MouseListener, SelectionClearingMouseListener);
-
     bindOrRebind(context, TYPES.ICommandStack).to(GLSPCommandStack).inSingletonScope();
     bind(GLSPActionDispatcher).toSelf().inSingletonScope();
     bindOrRebind(context, TYPES.IActionDispatcher).toService(GLSPActionDispatcher);
 
-    bindActionHandlerRegistry(context);
+    bindOrRebind(context, ActionHandlerRegistry).to(GLSPActionHandlerRegistry).inSingletonScope();
 
     bindAsService(context, TYPES.ModelSource, GLSPModelSource);
     bind(DiagramLoader).toSelf().inSingletonScope();
@@ -114,10 +121,14 @@ export const defaultModule = new FeatureModule((bind, unbind, isBound, rebind, .
     // Tool manager initialization ------------------------------------
     bind(TYPES.IToolManager).to(ToolManager).inSingletonScope();
     bind(TYPES.IDiagramStartup).toService(TYPES.IToolManager);
+    bind(TYPES.IEditModeListener).toService(TYPES.IToolManager);
     bind(DefaultToolsEnablingKeyListener).toSelf().inSingletonScope();
     bind(TYPES.KeyListener).toService(DefaultToolsEnablingKeyListener);
     bind(ToolManagerActionHandler).toSelf().inSingletonScope();
     configureActionHandler(context, EnableDefaultToolsAction.KIND, ToolManagerActionHandler);
     configureActionHandler(context, EnableToolsAction.KIND, ToolManagerActionHandler);
-    bindUIExtensionRegistry(context);
+
+    bind(GLSPUIExtensionRegistry).toSelf().inSingletonScope();
+    bindOrRebind(context, TYPES.UIExtensionRegistry).toService(GLSPUIExtensionRegistry);
+    bind(TYPES.IDiagramStartup).toService(GLSPUIExtensionRegistry);
 });
