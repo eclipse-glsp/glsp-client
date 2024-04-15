@@ -28,6 +28,11 @@ export interface Action extends sprotty.Action {
      * Unique identifier specifying the kind of action to process.
      */
     kind: string;
+
+    /**
+     * Unique identifier specifying the subclient of the process.
+     */
+    subclientId?: string;
 }
 
 export namespace Action {
@@ -60,6 +65,10 @@ export interface ActionMessage<A extends Action = Action> extends sprotty.Action
      * The action to execute.
      */
     action: A;
+    /**
+     *     Additional custom arguments e.g. application specific parameters.
+     */
+    args?: Args;
 }
 
 export namespace ActionMessage {

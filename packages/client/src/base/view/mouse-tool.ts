@@ -96,7 +96,7 @@ export class GLSPMouseTool extends MouseTool implements IDiagramStartup {
                 if (Action.is(actionOrPromise)) {
                     await this.actionDispatcher.dispatch(actionOrPromise);
                 } else {
-                    actionOrPromise.then((action: Action) => {
+                    (actionOrPromise as Promise<Action>).then((action: Action) => {
                         this.actionDispatcher.dispatch(action);
                     });
                 }

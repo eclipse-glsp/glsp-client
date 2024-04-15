@@ -31,6 +31,7 @@ import {
 import { inject, injectable, preDestroy } from 'inversify';
 import { GLSPActionHandlerRegistry } from '../action-handler-registry';
 import { IDiagramOptions } from './diagram-loader';
+import {MouseMoveAction, SelectionChangeAction, ViewportBoundsChangeAction} from '@eclipse-glsp/protocol';
 
 /**
  * A helper interface that allows the client to mark actions that have been received from the server.
@@ -125,6 +126,7 @@ export class GLSPModelSource extends ModelSource implements Disposable {
 
         const initializeParams = this.createInitializeClientSessionParameters(glspClient.initializeResult);
         this.configureServeActions(glspClient.initializeResult);
+        this.configureCollaborationActions();
 
         this.toDispose.push(
             glspClient.onActionMessage(message => this.messageReceived(message), this.clientId),
@@ -155,6 +157,12 @@ export class GLSPModelSource extends ModelSource implements Disposable {
             throw new Error(`No server-handled actions could be derived from the initialize result for diagramType: ${this.diagramType}!`);
         }
         serverActions.forEach(action => this.registry.register(action, this));
+    }
+
+    configureCollaborationActions(): void {
+        this.registry.register(MouseMoveAction.KIND, this);
+        this.registry.register(ViewportBoundsChangeAction.KIND, this);
+        this.registry.register(SelectionChangeAction.KIND, this);
     }
 
     protected messageReceived(message: ActionMessage): void {
