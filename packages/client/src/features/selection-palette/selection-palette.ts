@@ -87,7 +87,11 @@ export class SelectionPalette extends AbstractUIExtension implements IActionHand
 
     selectionChanged(root: GModelRoot, selectedElements: string[]): void {
         if (selectedElements.length !== 0) {
-            this.selectedElementId = selectedElements[0];
+            const filteredNodes = root.children.filter(element => element instanceof GNode && element.id === selectedElements[0]);
+            if (filteredNodes.length === 0) {
+                return;
+            }
+            this.selectedElementId = filteredNodes[0].id;
             this.actionDispatcher.dispatch(SetUIExtensionVisibilityAction.create({ extensionId: SelectionPalette.ID, visible: true }));
         } else {
             this.actionDispatcher.dispatch(SetUIExtensionVisibilityAction.create({ extensionId: SelectionPalette.ID, visible: false }));
