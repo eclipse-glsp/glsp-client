@@ -73,7 +73,7 @@ export {
 } from 'sprotty/lib/base/model/smodel-factory';
 export * from 'sprotty/lib/base/model/smodel-utils';
 
-export * from 'sprotty/lib/base/ui-extensions/ui-extension';
+export { IUIExtension, isUIExtension } from 'sprotty/lib/base/ui-extensions/ui-extension';
 export * from 'sprotty/lib/base/ui-extensions/ui-extension-registry';
 
 export * from 'sprotty/lib/base/views/dom-helper';
@@ -128,7 +128,7 @@ export {
     CommandPaletteActionProviderRegistry,
     RevealNamedElementActionProvider
 } from 'sprotty/lib/features/command-palette/action-providers';
-export * from 'sprotty/lib/features/command-palette/command-palette';
+export { CommandPaletteKeyListener } from 'sprotty/lib/features/command-palette/command-palette';
 
 // Exclude menu item. Aready provided by glsp-protocol
 export { Anchor, IContextMenuService, IContextMenuServiceProvider } from 'sprotty/lib/features/context-menu/context-menu-service';
@@ -143,7 +143,7 @@ export * from 'sprotty/lib/features/edge-layout/model';
 // export * from 'sprotty/lib/features/edit/create-on-drag';
 export * from 'sprotty/lib/features/edit/delete';
 export * from 'sprotty/lib/features/edit/edit-label';
-export * from 'sprotty/lib/features/edit/edit-label-ui';
+export { EditLabelActionHandler, IEditLabelValidationDecorator } from 'sprotty/lib/features/edit/edit-label-ui';
 export * from 'sprotty/lib/features/edit/edit-routing';
 export * from 'sprotty/lib/features/edit/model';
 // export * from 'sprotty/lib/features/edit/reconnect';
