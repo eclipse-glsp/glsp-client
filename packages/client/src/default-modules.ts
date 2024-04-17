@@ -26,7 +26,6 @@ import {
     edgeLayoutModule,
     expandModule,
     fadeModule,
-    labelEditUiModule,
     modelSourceModule,
     resolveContainerConfiguration,
     zorderModule
@@ -61,6 +60,7 @@ import { nodeCreationToolModule } from './features/tools/node-creation/node-crea
 import { toolFocusLossModule } from './features/tools/tool-focus-loss-module';
 import { markerNavigatorModule, validationModule } from './features/validation/validation-modules';
 import { viewportModule } from './features/viewport/viewport-modules';
+import { labelEditUiModule } from './features/label-edit-ui/label-edit-ui-module';
 
 export const DEFAULT_MODULES = [
     defaultModule,

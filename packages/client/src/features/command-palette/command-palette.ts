@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2023 EclipseSource and others.
+ * Copyright (c) 2024 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,7 +13,22 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-export * from './command-palette';
-export * from './command-palette-module';
-export * from './command-palette-tool';
-export * from './server-command-palette-provider';
+
+import { CSS_HIDDEN_EXTENSION_CLASS, CSS_UI_EXTENSION_CLASS, CommandPalette } from '@eclipse-glsp/sprotty';
+import { injectable } from 'inversify';
+
+@injectable()
+export class GlspCommandPalette extends CommandPalette {
+    protected override initializeContents(containerElement: HTMLElement): void {
+        super.initializeContents(containerElement);
+        containerElement.classList.add(CSS_UI_EXTENSION_CLASS);
+    }
+
+    protected override setContainerVisible(visible: boolean): void {
+        if (visible) {
+            this.containerElement?.classList.remove(CSS_HIDDEN_EXTENSION_CLASS);
+        } else {
+            this.containerElement?.classList.add(CSS_HIDDEN_EXTENSION_CLASS);
+        }
+    }
+}

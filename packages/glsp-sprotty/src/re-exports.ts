@@ -73,7 +73,7 @@ export {
 } from 'sprotty/lib/base/model/smodel-factory';
 export * from 'sprotty/lib/base/model/smodel-utils';
 
-export * from 'sprotty/lib/base/ui-extensions/ui-extension';
+export { IUIExtension, isUIExtension } from 'sprotty/lib/base/ui-extensions/ui-extension';
 export * from 'sprotty/lib/base/ui-extensions/ui-extension-registry';
 
 export * from 'sprotty/lib/base/views/dom-helper';

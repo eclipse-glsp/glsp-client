@@ -16,21 +16,18 @@
 /* eslint-disable no-restricted-imports */
 
 import { FeatureModule } from '@eclipse-glsp/protocol';
+import sprottyDefaultModule from 'sprotty/lib/base/di.config';
 import sprottyButtonModule from 'sprotty/lib/features/button/di.config';
 import sprottyEdgeIntersectionModule from 'sprotty/lib/features/edge-intersection/di.config';
 import sprottyEdgeLayoutModule from 'sprotty/lib/features/edge-layout/di.config';
-import {
-    edgeEditModule as sprottyEdgeEditModule,
-    labelEditUiModule as sprottyLabelEditUiModule
-} from 'sprotty/lib/features/edit/di.config';
+import { edgeEditModule as sprottyEdgeEditModule } from 'sprotty/lib/features/edit/di.config';
 import sprottyExpandModule from 'sprotty/lib/features/expand/di.config';
 import sprottyFadeModule from 'sprotty/lib/features/fade/di.config';
 import sprottyMoveModule from 'sprotty/lib/features/move/di.config';
+import sprottyOpenModule from 'sprotty/lib/features/open/di.config';
 import sprottyUpdateModule from 'sprotty/lib/features/update/di.config';
 import sprottyZorderModule from 'sprotty/lib/features/zorder/di.config';
 import sprottyModelSourceModule from 'sprotty/lib/model-source/di.config';
-import sprottyDefaultModule from 'sprotty/lib/base/di.config';
-import sprottyOpenModule from 'sprotty/lib/features/open/di.config';
 
 export const buttonModule = new FeatureModule(sprottyButtonModule.registry);
 export const edgeEditModule = new FeatureModule(sprottyEdgeEditModule.registry);
@@ -38,7 +35,6 @@ export const edgeIntersectionModule = new FeatureModule(sprottyEdgeIntersectionM
 export const edgeLayoutModule = new FeatureModule(sprottyEdgeLayoutModule.registry);
 export const expandModule = new FeatureModule(sprottyExpandModule.registry);
 export const fadeModule = new FeatureModule(sprottyFadeModule.registry);
-export const labelEditUiModule = new FeatureModule(sprottyLabelEditUiModule.registry);
 export const modelSourceModule = new FeatureModule(sprottyModelSourceModule.registry);
 export const moveModule = new FeatureModule(sprottyMoveModule.registry);
 export const openModule = new FeatureModule(sprottyOpenModule.registry);
