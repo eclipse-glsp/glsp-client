@@ -14,7 +14,21 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-.ui-extension.hidden {
-    display: none;
-    opacity: 0;
+import { CSS_HIDDEN_EXTENSION_CLASS, CSS_UI_EXTENSION_CLASS, CommandPalette } from '@eclipse-glsp/sprotty';
+import { injectable } from 'inversify';
+
+@injectable()
+export class GlspCommandPalette extends CommandPalette {
+    protected override initializeContents(containerElement: HTMLElement): void {
+        super.initializeContents(containerElement);
+        containerElement.classList.add(CSS_UI_EXTENSION_CLASS);
+    }
+
+    protected override setContainerVisible(visible: boolean): void {
+        if (visible) {
+            this.containerElement?.classList.remove(CSS_HIDDEN_EXTENSION_CLASS);
+        } else {
+            this.containerElement?.classList.add(CSS_HIDDEN_EXTENSION_CLASS);
+        }
+    }
 }

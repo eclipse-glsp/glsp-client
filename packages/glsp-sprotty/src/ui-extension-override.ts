@@ -16,11 +16,7 @@
 import '../css/ui-extension.css';
 
 import { injectable } from 'inversify';
-import {
-    AbstractUIExtension as SprottyAbstractUIExtension,
-    CommandPalette as SprottyCommandPalette,
-    EditLabelUI as SprottyEditLabelUI
-} from 'sprotty';
+import { AbstractUIExtension as SprottyAbstractUIExtension } from 'sprotty';
 
 export const CSS_UI_EXTENSION_CLASS = 'ui-extension';
 export const CSS_HIDDEN_EXTENSION_CLASS = 'hidden';
@@ -73,7 +69,7 @@ export abstract class AbstractUIExtension extends SprottyAbstractUIExtension {
         }
         // to create a container the parent container
         const parent = this.getParentContainer();
-        if (!parent || !parent.isConnected) {
+        if (!parent?.isConnected) {
             throw new Error(`Could not obtain attached parent for initializing UI extension ${this.id}`);
         }
         const container = this.createContainer(parent);
@@ -95,7 +91,7 @@ export abstract class AbstractUIExtension extends SprottyAbstractUIExtension {
         container.classList.add(CSS_UI_EXTENSION_CLASS, this.containerClass());
     }
 
-    protected getParentContainer(): HTMLElement {
+    protected getParentContainer(): HTMLElement | null {
         return document.querySelector<HTMLElement>(this.parentContainerSelector)!;
     }
 
@@ -113,42 +109,10 @@ export abstract class AbstractUIExtension extends SprottyAbstractUIExtension {
     }
 
     protected isContainerVisible(): boolean {
-        return this.containerElement && !this.containerElement.classList.contains(CSS_HIDDEN_EXTENSION_CLASS);
+        return !this.containerElement?.classList.contains(CSS_HIDDEN_EXTENSION_CLASS);
     }
 
     protected toggleContainerVisible(): void {
         this.setContainerVisible(!this.isContainerVisible());
-    }
-}
-
-@injectable()
-export class EditLabelUI extends SprottyEditLabelUI {
-    protected override initializeContents(containerElement: HTMLElement): void {
-        super.initializeContents(containerElement);
-        containerElement.classList.add(CSS_UI_EXTENSION_CLASS);
-    }
-
-    protected override setContainerVisible(visible: boolean): void {
-        if (visible) {
-            this.containerElement?.classList.remove(CSS_HIDDEN_EXTENSION_CLASS);
-        } else {
-            this.containerElement?.classList.add(CSS_HIDDEN_EXTENSION_CLASS);
-        }
-    }
-}
-
-@injectable()
-export class CommandPalette extends SprottyCommandPalette {
-    protected override initializeContents(containerElement: HTMLElement): void {
-        super.initializeContents(containerElement);
-        containerElement.classList.add(CSS_UI_EXTENSION_CLASS);
-    }
-
-    protected override setContainerVisible(visible: boolean): void {
-        if (visible) {
-            this.containerElement?.classList.remove(CSS_HIDDEN_EXTENSION_CLASS);
-        } else {
-            this.containerElement?.classList.add(CSS_HIDDEN_EXTENSION_CLASS);
-        }
     }
 }

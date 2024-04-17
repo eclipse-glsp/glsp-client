@@ -13,6 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+export * from './command-palette';
 export * from './command-palette-module';
 export * from './command-palette-tool';
 export * from './server-command-palette-provider';
