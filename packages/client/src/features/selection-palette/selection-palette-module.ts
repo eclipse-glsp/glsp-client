@@ -21,7 +21,8 @@ import {
     MoveAction,
     SetBoundsAction,
     SetViewportAction,
-    DeleteElementOperation
+    DeleteElementOperation,
+    ChangeBoundsOperation
 } from '@eclipse-glsp/sprotty';
 import '../../../css/selection-palette.css';
 import { SelectionPalette, SelectionPaletteKeyListener } from './selection-palette';
@@ -36,5 +37,6 @@ export const selectionPaletteModule = new FeatureModule((bind, unbind, isBound, 
     configureActionHandler(context, SetBoundsAction.KIND, SelectionPalette);
     configureActionHandler(context, SetViewportAction.KIND, SelectionPalette);
     configureActionHandler(context, DeleteElementOperation.KIND, SelectionPalette);
+    configureActionHandler(context, ChangeBoundsOperation.KIND, SelectionPalette);
     bindAsService(bind, TYPES.KeyListener, SelectionPaletteKeyListener);
 });
