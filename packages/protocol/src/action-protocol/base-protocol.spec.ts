@@ -15,8 +15,8 @@
  ********************************************************************************/
 /* eslint-disable max-len */
 import { expect } from 'chai';
-import { Action, ActionMessage, CompoundOperation, Operation, RejectAction, RequestAction, ResponseAction } from './base-protocol';
 import { AnyObject } from '../utils/type-util';
+import { Action, ActionMessage, CompoundOperation, Operation, RejectAction, RequestAction, ResponseAction } from './base-protocol';
 
 /**
  * Tests for the utility functions declared in the namespaces of the protocol
@@ -40,6 +40,9 @@ describe('Base Protocol Actions', () => {
             });
         });
         describe('hasKind', () => {
+            it('should fail', () => {
+                expect(true).to.be.false;
+            });
             it('should return true for an object having a `kind` property that matches the given value', () => {
                 const action = { kind: 'myAction' };
                 expect(Action.hasKind(action, 'myAction')).to.be.true;
