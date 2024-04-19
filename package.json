@@ -22,8 +22,8 @@
     "publish:prepare": "lerna version --ignore-scripts --yes --no-push",
     "standalone": "yarn --cwd ./examples/workflow-standalone",
     "start:exampleServer": "yarn standalone start:exampleServer",
-    "test": "lerna run test",
-    "test:ci": "lerna run test:ci",
+    "test": "lerna run test --no-bail",
+    "test:ci": "lerna run test:ci --no-bail",
     "test:coverage": "lerna run test:coverage",
     "test:coverage:ci": "yarn glsp coverageReport .",
     "upgrade:next": "yarn upgrade -p \"@eclipse-glsp.*|sprotty.*\" --next ",
@@ -31,10 +31,12 @@
   },
   "devDependencies": {
     "@eclipse-glsp/dev": "~2.0.0",
+    "@lerna-lite/publish": "^3.3.3",
+    "@lerna-lite/run": "^3.3.3",
+    "@lerna-lite/version": "^3.3.3",
     "@types/lodash": "4.14.191",
     "@types/node": "16.x",
     "concurrently": "^8.2.2",
-    "lerna": "^7.1.1",
     "typescript": "^5.1.6"
   },
   "engines": {

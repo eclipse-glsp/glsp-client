@@ -8,6 +8,7 @@
     "reactNamespace": "JSX"
   },
   "include": ["src", "src/**/*.json"],
+  "exclude": ["**/*.spec.ts"],
   "references": [
     {
       "path": "../glsp-sprotty"

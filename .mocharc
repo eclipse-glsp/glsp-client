@@ -3,7 +3,6 @@
     "extends": "@eclipse-glsp/mocha-config",
     "require": [
         "ts-node/register",
-        "tsconfig-paths/register",
         "reflect-metadata/Reflect",
         "ignore-styles"
     ]
