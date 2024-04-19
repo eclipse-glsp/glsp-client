@@ -14,7 +14,7 @@ examples/workflow-standalone/app
 
 !packages/client/src/lib
 tsconfig.tsbuildinfo
-eslint.xml
+eslint_report.json
 report.xml
 
 examples/workflow-standalone/server

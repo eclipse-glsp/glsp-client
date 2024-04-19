@@ -1,0 +1,68 @@
+name: PR
+
+on:
+  pull_request:
+    branches: [master]
+
+jobs:
+  build:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18.x
+      - name: Build
+        run: yarn
+      - name: Check for uncommitted changes in yarn.lock
+        run: |
+          if git diff --name-only | grep -q "^yarn.lock"; then
+            echo "::error::The yarn.lock file has uncommitted changes!"
+            exit 1
+          fi
+      - name: Tests (Mocha)
+        run: yarn test:ci
+      - name: Create test report
+        uses: dorny/test-reporter@v1.9.0
+        with:
+          name: Mocha Tests
+          path: ./packages/*/report.xml
+          list-tests: 'failed'
+          list-suites: 'failed'
+          reporter: java-junit
+        # Anotation do not work in forks due to security reasons, only execute in the main repository
+        if: always() && github.event.pull_request.head.repo.full_name == 'eclipse-glsp/glsp-client'
+      - name: Create summary
+        uses: test-summary/action@v2.3
+        with:
+          paths: ./packages/*/report.xml
+        if: always()
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18.x
+      - name: Install
+        run: |
+          yarn install --ignore-scripts
+          yarn compile
+      - name: Create eslint json report
+        run: |
+          yarn lint:ci
+      - name: Annotate Code Linting Results
+        uses: ataylorme/eslint-annotate-action@v3
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          report-json: 'eslint_report.json'
+        # Anotation do not work in forks due to security reasons, only execute in the main repository
+        if: always() && github.event.pull_request.head.repo.full_name == 'eclipse-glsp/glsp-client'
+      - name: Create summary
+        run: |
+          npm_config_yes=true npx github:10up/eslint-json-to-md#82ff16b --path ./eslint_report.json --output ./eslint_report.md
+          cat eslint_report.md >> $GITHUB_STEP_SUMMARY
+        if: always()
