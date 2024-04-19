@@ -1,6 +1,7 @@
 {
   "version": "2.1.1",
   "npmClient": "yarn",
+  "useWorkspaces": true,
   "command": {
     "run": {
       "stream": true
@@ -8,7 +9,7 @@
     "publish": {
       "forcePublish": true,
       "skipGit": true,
-      "registry": "https://registry.npmjs.org/"
+      "registry": "http://localhost:4873/"
     }
   }
 }

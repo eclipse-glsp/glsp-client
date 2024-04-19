@@ -1,0 +1,19 @@
+name: 'Publish `next` version'
+on:
+  workflow_run:
+    workflows: ['PR'] 
+    branches: [citest]                    # runs after CI workflow
+    types:
+      - completed
+permissions:
+  contents: read
+  actions: read
+  checks: write
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Echo
+      run: echo "Hello, world!"
