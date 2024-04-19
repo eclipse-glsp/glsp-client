@@ -6,5 +6,6 @@
     "outDir": "lib",
     "reactNamespace": "JSX"
   },
-  "include": ["src"]
+  "include": ["src"],
+  "exclude": ["**/*.spec.ts"]
 }
