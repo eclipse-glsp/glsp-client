@@ -2,9 +2,9 @@ name: PR
 
 on:
   push: 
-    branches: [citest]
+    branches: [master,citest]
   pull_request:
-    branches: [master]
+    branches: [master,citest]
 
 jobs:
   build:
