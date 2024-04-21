@@ -15,10 +15,8 @@
  ********************************************************************************/
 export * from './action-protocol';
 export * from './client-server-protocol';
-export * from './di';
 export * from './model';
 export * from './re-exports';
 export * from './sprotty-actions';
 export * from './sprotty-geometry-point';
 export * from './utils';
-

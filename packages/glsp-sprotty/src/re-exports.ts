@@ -18,6 +18,7 @@
  * @eclipse-glsp/protocol
  */
 export * from '@eclipse-glsp/protocol';
+export * from '@eclipse-glsp/protocol/lib/di';
 
 /*
  * sprotty
@@ -325,3 +326,4 @@ export * from 'sprotty/lib/utils/iterable';
 export * from 'sprotty/lib/utils/keyboard';
 export * from 'sprotty/lib/utils/logging';
 export * from 'sprotty/lib/utils/registry';
+

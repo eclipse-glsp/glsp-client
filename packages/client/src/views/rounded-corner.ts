@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2021-2023 EclipseSource and others.
+ * Copyright (c) 2021-2024 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -27,7 +27,10 @@ export class RoundedCornerWrapper {
     protected _bottomRightCorner: RoundedCorner;
     protected _bottomLeftCorner: RoundedCorner;
 
-    constructor(public readonly element: GShapeElement & Hoverable & Selectable, public readonly cornerRadius: CornerRadius) {}
+    constructor(
+        public readonly element: GShapeElement & Hoverable & Selectable,
+        public readonly cornerRadius: CornerRadius
+    ) {}
 
     get size(): Dimension {
         return this.element.size;

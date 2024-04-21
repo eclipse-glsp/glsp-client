@@ -28,6 +28,7 @@
   "scripts": {
     "build": "tsc -b",
     "clean": "rimraf lib *.tsbuildinfo",
+    "generate:index": "glsp generateIndex src -f",
     "lint": "eslint --ext .ts,.tsx ./src",
     "watch": "tsc -w"
   },

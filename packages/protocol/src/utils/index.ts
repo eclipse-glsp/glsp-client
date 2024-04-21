@@ -16,7 +16,4 @@
 export * from './array-util';
 export * from './disposable';
 export * from './event';
-// we do not export test-util to avoid a dependency on test frameworks such as chai
-// however, adopters can still access the file by accessing it through the complete path
-// export * from './test-util';
 export * from './type-util';

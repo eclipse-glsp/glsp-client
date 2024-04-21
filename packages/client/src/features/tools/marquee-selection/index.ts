@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2023 EclipseSource and others.
+ * Copyright (c) 2023-2024 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -16,7 +16,7 @@
 export * from './marquee-behavior';
 export * from './marquee-mouse-tool';
 export * from './marquee-selection-module';
-export * from './marquee-tool-feedback';
 export * from './marquee-tool';
+export * from './marquee-tool-feedback';
 export * from './model';
 export * from './view';
