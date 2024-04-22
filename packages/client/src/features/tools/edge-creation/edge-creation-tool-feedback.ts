@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2023 EclipseSource and others.
+ * Copyright (c) 2019-2024 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -34,7 +34,10 @@ import { absoluteToParent, getAbsolutePosition, toAbsoluteBounds } from '../../.
 import { FeedbackEdgeEnd, feedbackEdgeEndId } from './dangling-edge-feedback';
 
 export class FeedbackEdgeEndMovingMouseListener extends MouseListener implements Disposable {
-    constructor(protected anchorRegistry: AnchorComputerRegistry, protected feedbackDispatcher: IFeedbackActionDispatcher) {
+    constructor(
+        protected anchorRegistry: AnchorComputerRegistry,
+        protected feedbackDispatcher: IFeedbackActionDispatcher
+    ) {
         super();
     }
 

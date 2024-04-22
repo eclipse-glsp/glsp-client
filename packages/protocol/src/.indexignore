@@ -1,0 +1,6 @@
+# do not export test-util in index to avoid a necessary dependency on test frameworks such as chai
+# adopters can still use the functionality by importing it through the complete path
+utils/test-util.ts
+# do not export the DI utilities to avoid a necessary dependency on reflect-metadata/inversify
+# This is reexported in @eclipse-glsp/client & @eclipse-glsp/server so that adopters can still use it
+di

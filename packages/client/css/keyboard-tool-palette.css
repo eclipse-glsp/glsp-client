@@ -39,7 +39,9 @@
     color: black;
     text-align: center;
 
-    font: bold 0.8rem Arial, sans-serif;
+    font:
+        bold 0.8rem Arial,
+        sans-serif;
     line-height: 0.5rem;
 }
 

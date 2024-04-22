@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2023 EclipseSource and others.
+ * Copyright (c) 2023-2024 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -15,7 +15,7 @@
  ********************************************************************************/
 export * from './actions';
 export * from './constants';
+export * from './keyboard-pointer';
 export * from './keyboard-pointer-listener';
 export * from './keyboard-pointer-module';
 export * from './keyboard-pointer-position';
-export * from './keyboard-pointer';

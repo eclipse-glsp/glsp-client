@@ -16,7 +16,9 @@
 
 .command-palette {
     transition: opacity 0.3s linear;
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    box-shadow:
+        0 4px 8px 0 rgba(0, 0, 0, 0.2),
+        0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 
 .command-palette-suggestions {
@@ -25,7 +27,9 @@
     overflow: auto;
     box-sizing: border-box;
     border: 1px solid rgba(60, 60, 60, 0.6);
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    box-shadow:
+        0 4px 8px 0 rgba(0, 0, 0, 0.2),
+        0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 
 .command-palette-suggestions .icon {

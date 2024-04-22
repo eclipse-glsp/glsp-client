@@ -38,6 +38,7 @@
   "scripts": {
     "build": "tsc -b",
     "clean": "rimraf lib *.tsbuildinfo  coverage .nyc_output",
+    "generate:index": "glsp generateIndex src -f",
     "lint": "eslint --ext .ts,.tsx ./src",
     "test": "mocha --config ../../.mocharc \"./src/**/*.spec.?(ts|tsx)\"",
     "test:ci": "export JUNIT_REPORT_PATH=./report.xml && yarn test --reporter mocha-jenkins-reporter",

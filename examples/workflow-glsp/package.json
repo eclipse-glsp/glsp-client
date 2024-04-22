@@ -30,13 +30,12 @@
   "files": [
     "lib",
     "src",
-    "build",
-    "css",
-    "scripts"
+    "css"
   ],
   "scripts": {
     "build": "tsc -b",
     "clean": "rimraf *.tsbuildinfo  lib",
+    "generate:index": "glsp generateIndex src -f",
     "lint": "eslint --ext .ts,.tsx ./src",
     "watch": "tsc -w"
   },

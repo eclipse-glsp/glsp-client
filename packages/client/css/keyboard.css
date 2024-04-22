@@ -46,5 +46,7 @@
     color: black;
     text-align: center;
 
-    font: bold 1.3rem Arial, sans-serif;
+    font:
+        bold 1.3rem Arial,
+        sans-serif;
 }

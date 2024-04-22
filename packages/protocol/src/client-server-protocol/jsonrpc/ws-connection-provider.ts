@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2023 EclipseSource and others.
+ * Copyright (c) 2023-2024 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -55,7 +55,10 @@ export class GLSPWebSocketProvider {
         reconnectDelay: 1000
     };
 
-    constructor(protected url: string, options?: GLSPWebSocketOptions) {
+    constructor(
+        protected url: string,
+        options?: GLSPWebSocketOptions
+    ) {
         this.options = Object.assign(this.options, options);
     }
 
