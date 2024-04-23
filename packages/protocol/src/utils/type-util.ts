@@ -75,6 +75,12 @@ export function toTypeGuard<G>(constructor: Constructor<G>): TypeGuard<G> {
  */
 export type SafeFunction<T = any> = (...args: any[]) => T;
 
+export type MaybeFunction<T = any> = T | SafeFunction<T>;
+
+export function call<T>(maybeFun: MaybeFunction<T>, ...args: any[]): T {
+    return typeof maybeFun === 'function' ? (maybeFun as SafeFunction<T>)(...args) : maybeFun;
+}
+
 /**
  * Validates whether the given object has a property of type `string` with the given key.
  * @param object The object that should be validated

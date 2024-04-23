@@ -13,11 +13,12 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { inject, injectable } from 'inversify';
 import { Action, Disposable, DisposableCollection, IActionHandler, TYPES } from '@eclipse-glsp/sprotty';
+import { inject, injectable } from 'inversify';
 import { GLSPActionDispatcher } from '../../base/action-dispatcher';
 import { EditorContextService } from '../../base/editor-context-service';
-import { IFeedbackActionDispatcher, IFeedbackEmitter } from '../../base/feedback/feedback-action-dispatcher';
+import { FeedbackEmitter } from '../../base/feedback/feeback-emitter';
+import { IFeedbackActionDispatcher, IFeedbackEmitter, MaybeActions } from '../../base/feedback/feedback-action-dispatcher';
 import { EnableToolsAction, Tool } from '../../base/tool-manager/tool';
 import { GLSPKeyTool } from '../../base/view/key-tool';
 import { GLSPMouseTool } from '../../base/view/mouse-tool';
@@ -51,6 +52,10 @@ export abstract class BaseEditTool implements Tool {
         this.actionDispatcher.dispatchAll(actions);
     }
 
+    createFeedbackEmitter(): FeedbackEmitter {
+        return this.feedbackDispatcher.createEmitter();
+    }
+
     /**
      * Registers `actions` to be sent out as feedback, i.e., changes that are re-established whenever the `GModelRoot`
      * has been set or updated.
@@ -59,9 +64,10 @@ export abstract class BaseEditTool implements Tool {
      * @param feedbackEmitter the emitter sending out feedback actions (this tool by default).
      * @param cleanupActions the actions to be sent out when the feedback is de-registered through the returned Disposable.
      * @returns A 'Disposable' that de-registers the feedback and cleans up any pending feedback with the given `cleanupActions`.
+     * @deprecated It is recommended to create a {@link createFeedbackEmitter dedicated emitter} per feedback instead of using the tool.
      */
-    registerFeedback(feedbackActions: Action[], feedbackEmitter?: IFeedbackEmitter, cleanupActions?: Action[]): Disposable {
-        return this.feedbackDispatcher.registerFeedback(feedbackEmitter ?? this, feedbackActions, cleanupActions);
+    registerFeedback(feedbackActions: Action[], feedbackEmitter: IFeedbackEmitter = this, cleanupActions?: MaybeActions): Disposable {
+        return this.feedbackDispatcher.registerFeedback(feedbackEmitter, feedbackActions, cleanupActions);
     }
 
     /**
@@ -70,9 +76,10 @@ export abstract class BaseEditTool implements Tool {
      *
      * @param feedbackEmitter the emitter to be deregistered (this tool by default).
      * @param cleanupActions the actions to be dispatched right after the deregistration to clean up any pending feedback.
+     * @deprecated It is recommended to create a {@link createFeedbackEmitter dedicated emitter} per feedback and dispose it like that.
      */
-    deregisterFeedback(feedbackEmitter?: IFeedbackEmitter, cleanupActions?: Action[]): void {
-        this.feedbackDispatcher.deregisterFeedback(feedbackEmitter ?? this, cleanupActions);
+    deregisterFeedback(feedbackEmitter: IFeedbackEmitter = this, cleanupActions?: MaybeActions): void {
+        this.feedbackDispatcher.deregisterFeedback(feedbackEmitter, cleanupActions);
     }
 }
 

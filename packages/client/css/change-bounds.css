@@ -1,0 +1,15 @@
+.sprotty-resize-handle[data-kind='top-left'] {
+    cursor: nw-resize;
+}
+
+.sprotty-resize-handle[data-kind='top-right'] {
+    cursor: ne-resize;
+}
+
+.sprotty-resize-handle[data-kind='bottom-left'] {
+    cursor: sw-resize;
+}
+
+.sprotty-resize-handle[data-kind='bottom-right'] {
+    cursor: se-resize;
+}

@@ -18,8 +18,8 @@ import {
     Action,
     Dimension,
     Disposable,
+    ElementMove,
     GModelElement,
-    Locateable,
     MoveAction,
     Point,
     isBoundsAware,
@@ -28,8 +28,10 @@ import {
 import { injectable } from 'inversify';
 import { DragAwareMouseListener } from '../../base/drag-aware-mouse-listener';
 import { CSS_HIDDEN, ModifyCSSFeedbackAction } from '../../base/feedback/css-feedback';
+import { FeedbackEmitter } from '../../base/feedback/feeback-emitter';
 import { IFeedbackEmitter } from '../../base/feedback/feedback-action-dispatcher';
 import { Tool } from '../../base/tool-manager/tool';
+import { MoveableElement } from '../../utils';
 import { getAbsolutePosition } from '../../utils/viewpoint-util';
 import {
     IMovementRestrictor,
@@ -39,20 +41,28 @@ import {
 import { PointPositionUpdater } from '../change-bounds/point-position-updater';
 import { PositionSnapper } from '../change-bounds/position-snapper';
 import { useSnap } from '../change-bounds/snap';
+import { MoveFinishedEventAction } from '../tools';
 
 export interface PositioningTool extends Tool {
     readonly positionSnapper: PositionSnapper;
     readonly movementRestrictor?: IMovementRestrictor;
 
+    createFeedbackEmitter(): FeedbackEmitter;
+    /**
+     * @deprecated It is recommended to create a {@link createFeedbackEmitter dedicated emitter} per feedback instead of using the tool.
+     */
     registerFeedback(feedbackActions: Action[], feedbackEmitter?: IFeedbackEmitter, cleanupActions?: Action[]): Disposable;
+    /**
+     * @deprecated It is recommended to create a {@link createFeedbackEmitter dedicated emitter} per feedback and dispose it like that.
+     */
     deregisterFeedback(feedbackEmitter?: IFeedbackEmitter, cleanupActions?: Action[]): void;
 }
 
 @injectable()
 export class MouseTrackingElementPositionListener extends DragAwareMouseListener {
-    currentPosition?: Point;
-
     protected positionUpdater: PointPositionUpdater;
+    protected moveGhostFeedback: FeedbackEmitter;
+    protected currentPosition?: Point;
 
     constructor(
         protected elementId: string,
@@ -61,6 +71,7 @@ export class MouseTrackingElementPositionListener extends DragAwareMouseListener
     ) {
         super();
         this.positionUpdater = new PointPositionUpdater(this.tool.positionSnapper);
+        this.moveGhostFeedback = this.tool.createFeedbackEmitter();
     }
 
     override mouseMove(target: GModelElement, event: MouseEvent): Action[] {
@@ -69,59 +80,48 @@ export class MouseTrackingElementPositionListener extends DragAwareMouseListener
         if (!element || !isMoveable(element)) {
             return [];
         }
-        let targetPosition = this.getTargetPosition(target, event, element);
         if (this.positionUpdater.isLastDragPositionUndefined()) {
-            this.positionUpdater.updateLastDragPosition(targetPosition);
+            this.positionUpdater.updateLastDragPosition(element.position);
         }
-        const delta = this.positionUpdater.updatePosition(element, targetPosition, useSnap(event));
+        const mousePosition = getAbsolutePosition(target, event);
+        const delta = this.positionUpdater.updatePosition(element, mousePosition, useSnap(event));
         if (!delta) {
             return [];
         }
-        targetPosition = this.validateMove(this.currentPosition ?? targetPosition, targetPosition, element, false);
-        const moveGhostElement = MoveAction.create(
-            [
-                {
-                    elementId: element.id,
-                    fromPosition: this.currentPosition,
-                    toPosition: targetPosition
-                }
-            ],
-            { animate: false, finished: false }
-        );
-        this.currentPosition = targetPosition;
-        this.tool.registerFeedback([moveGhostElement], this);
-        return element.cssClasses?.includes(CSS_HIDDEN)
-            ? [ModifyCSSFeedbackAction.create({ elements: [element.id], remove: [CSS_HIDDEN] })]
-            : [];
+        const toPosition = this.getElementTargetPosition(mousePosition, element, event);
+        const elementMove = { elementId: element.id, toPosition: toPosition };
+        this.addMoveFeeback(element, elementMove);
+        this.currentPosition = toPosition;
+        // since we are moving a ghost element that is feedback-only and will be removed anyway,
+        // we just send a MoveFinishedEventAction instead of reseting the position with a MoveAction and the finished flag set to true.
+        this.moveGhostFeedback.add(MoveAction.create([elementMove], { animate: false }), MoveFinishedEventAction.create()).submit();
+        return [];
     }
 
-    protected getTargetPosition(target: GModelElement, event: MouseEvent, element: GModelElement & Locateable): Point {
-        let targetPosition = getAbsolutePosition(target, event);
-        if (this.cursorPosition === 'middle' && isBoundsAware(element)) {
-            targetPosition = Point.subtract(targetPosition, Dimension.center(element.bounds));
-        }
-        return targetPosition;
+    protected getElementTargetPosition(mousePosition: Point, element: MoveableElement, event: MouseEvent): Point {
+        const unsnappedPosition =
+            this.cursorPosition === 'middle' && isBoundsAware(element)
+                ? Point.subtract(mousePosition, Dimension.center(element.bounds))
+                : mousePosition;
+        return this.tool.positionSnapper.snapPosition(unsnappedPosition, element, useSnap(event));
     }
 
-    protected snap(position: Point, element: GModelElement, isSnap = true): Point {
-        return this.tool.positionSnapper.snapPosition(position, element, isSnap);
-    }
-
-    protected validateMove(startPosition: Point, toPosition: Point, element: GModelElement, isFinished: boolean): Point {
-        let newPosition = toPosition;
+    protected addMoveFeeback(element: MoveableElement, elementMove: ElementMove): void {
         if (this.tool.movementRestrictor) {
-            const valid = this.tool.movementRestrictor.validate(element, toPosition);
-            let action;
-            if (!valid) {
-                action = createMovementRestrictionFeedback(element, this.tool.movementRestrictor);
-                if (isFinished) {
-                    newPosition = startPosition;
-                }
+            if (!this.tool.movementRestrictor.validate(element, elementMove.toPosition)) {
+                this.moveGhostFeedback.add(
+                    createMovementRestrictionFeedback(element, this.tool.movementRestrictor),
+                    removeMovementRestrictionFeedback(element, this.tool.movementRestrictor)
+                );
             } else {
-                action = removeMovementRestrictionFeedback(element, this.tool.movementRestrictor);
+                this.moveGhostFeedback.add(removeMovementRestrictionFeedback(element, this.tool.movementRestrictor));
             }
-            this.tool.registerFeedback([action], this, [removeMovementRestrictionFeedback(element, this.tool.movementRestrictor)]);
         }
-        return newPosition;
+        this.moveGhostFeedback.add(ModifyCSSFeedbackAction.create({ elements: [element.id], remove: [CSS_HIDDEN] }));
+    }
+
+    override dispose(): void {
+        this.moveGhostFeedback.dispose();
+        super.dispose();
     }
 }

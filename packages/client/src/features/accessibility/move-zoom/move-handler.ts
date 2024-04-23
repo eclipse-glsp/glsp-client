@@ -17,7 +17,6 @@
 import {
     Action,
     ChangeBoundsOperation,
-    DisposableCollection,
     ElementAndBounds,
     ElementMove,
     GModelRoot,
@@ -34,8 +33,9 @@ import {
     isBoundsAware,
     isViewport
 } from '@eclipse-glsp/sprotty';
-import { inject, injectable, optional } from 'inversify';
+import { inject, injectable, optional, postConstruct } from 'inversify';
 import { DebouncedFunc, debounce } from 'lodash';
+import { FeedbackEmitter } from '../../../base';
 import { EditorContextService } from '../../../base/editor-context-service';
 import { IFeedbackActionDispatcher } from '../../../base/feedback/feedback-action-dispatcher';
 import { SelectableBoundsAware, getElements, isSelectableAndBoundsAware } from '../../../utils/gmodel-util';
@@ -164,7 +164,12 @@ export class MoveElementHandler implements IActionHandler {
     readonly movementRestrictor?: IMovementRestrictor;
 
     protected debouncedChangeBounds?: DebouncedFunc<() => void>;
-    protected disposableFeedback = new DisposableCollection();
+    protected moveFeedback: FeedbackEmitter;
+
+    @postConstruct()
+    protected init(): void {
+        this.moveFeedback = this.feedbackDispatcher.createEmitter();
+    }
 
     handle(action: Action): void | Action | ICommand {
         if (MoveElementAction.is(action)) {
@@ -199,7 +204,7 @@ export class MoveElementHandler implements IActionHandler {
 
         this.dispatcher.dispatchAll(viewportActions);
         const moveAction = MoveAction.create(elementMoves, { animate: false });
-        this.disposableFeedback.push(this.feedbackDispatcher.registerFeedback(this, [moveAction]));
+        this.moveFeedback.add(moveAction).submit();
 
         this.scheduleChangeBounds(this.toElementAndBounds(elementMoves));
     }
@@ -219,7 +224,7 @@ export class MoveElementHandler implements IActionHandler {
     protected scheduleChangeBounds(elementAndBounds: ElementAndBounds[]): void {
         this.debouncedChangeBounds?.cancel();
         this.debouncedChangeBounds = debounce(() => {
-            this.disposableFeedback.dispose();
+            this.moveFeedback.dispose();
             this.dispatcher.dispatchAll([ChangeBoundsOperation.create(elementAndBounds)]);
             this.debouncedChangeBounds = undefined;
         }, 300);

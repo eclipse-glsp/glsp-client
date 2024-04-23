@@ -13,13 +13,13 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { BoundsAware, EdgeRouterRegistry, GConnectableElement, GModelElement, GModelRoot, TYPES } from '@eclipse-glsp/sprotty';
+import { EdgeRouterRegistry, GConnectableElement, GModelElement, GModelRoot, TYPES } from '@eclipse-glsp/sprotty';
 import { inject, injectable, optional } from 'inversify';
 import { GLSPActionDispatcher } from '../../../base/action-dispatcher';
 import { applyCssClasses, deleteCssClasses } from '../../../base/feedback/css-feedback';
-import { SelectableBoundsAware } from '../../../utils/gmodel-util';
-import { ElementNavigator } from './element-navigator';
 import { GEdge } from '../../../model';
+import { BoundsAwareModelElement, SelectableBoundsAware } from '../../../utils/gmodel-util';
+import { ElementNavigator } from './element-navigator';
 
 @injectable()
 export class LocalElementNavigator implements ElementNavigator {
@@ -91,7 +91,7 @@ export class LocalElementNavigator implements ElementNavigator {
 
     protected getIterables(
         current: SelectableBoundsAware,
-        previousCurrent?: GModelElement & BoundsAware,
+        previousCurrent?: BoundsAwareModelElement,
         predicate: (element: GModelElement) => boolean = () => true
     ): GModelElement[] {
         const elements: GModelElement[] = [];

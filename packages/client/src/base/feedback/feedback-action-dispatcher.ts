@@ -20,16 +20,33 @@ import {
     CommandActionHandler,
     CommandExecutionContext,
     Disposable,
+    GModelElement,
     IActionDispatcher,
     ICommand,
     ILogger,
+    MaybeFunction,
     TYPES,
+    call,
+    asArray as toArray,
     toTypeGuard
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
 import { getFeedbackRank } from './feedback-command';
+import { FeedbackEmitter } from './feeback-emitter';
 
 export interface IFeedbackEmitter {}
+
+export const feedbackFeature = Symbol('feedbackFeature');
+
+export type MaybeActions = MaybeFunction<Action[] | Action | undefined>;
+
+export namespace MaybeActions {
+    // eslint-disable-next-line @typescript-eslint/no-shadow
+    export function asArray(actions?: MaybeActions): Action[] {
+        const cleanup = actions ? call(actions) : [];
+        return cleanup ? toArray(cleanup) : [];
+    }
+}
 
 /**
  * Dispatcher for actions that are meant to show visual feedback on
@@ -52,7 +69,7 @@ export interface IFeedbackActionDispatcher {
      * @param cleanupActions the actions to be sent out when the feedback is de-registered through the returned Disposable.
      * @returns A 'Disposable' that de-registers the feedback and cleans up any pending feedback with the given `cleanupActions`.
      */
-    registerFeedback(feedbackEmitter: IFeedbackEmitter, feedbackActions: Action[], cleanupActions?: Action[]): Disposable;
+    registerFeedback(feedbackEmitter: IFeedbackEmitter, feedbackActions: Action[], cleanupActions?: MaybeActions): Disposable;
 
     /**
      * Deregisters a `feedbackEmitter` from this dispatcher and thereafter
@@ -64,7 +81,7 @@ export interface IFeedbackActionDispatcher {
      * to reset the normal state of the diagram without the feedback (e.g., reset a
      * CSS class that was set by a feedbackEmitter).
      */
-    deregisterFeedback(feedbackEmitter: IFeedbackEmitter, cleanupActions?: Action[]): void;
+    deregisterFeedback(feedbackEmitter: IFeedbackEmitter, cleanupActions?: MaybeActions): void;
 
     /**
      * Retrieve all `actions` sent out by currently registered `feedbackEmitter`.
@@ -80,6 +97,12 @@ export interface IFeedbackActionDispatcher {
      * Applies all current feedback commands to the given command execution context.
      */
     applyFeedbackCommands(context: CommandExecutionContext): Promise<void>;
+
+    /**
+     * Creates a new feedback emitter helper object. While anything can serve as a feedback emitter,
+     * this method ensures that the emitter is stable and does not change between model updates.
+     */
+    createEmitter(): FeedbackEmitter;
 }
 
 @injectable()
@@ -91,7 +114,14 @@ export class FeedbackActionDispatcher implements IFeedbackActionDispatcher {
 
     @inject(ActionHandlerRegistry) protected actionHandlerRegistry: ActionHandlerRegistry;
 
-    registerFeedback(feedbackEmitter: IFeedbackEmitter, feedbackActions: Action[], cleanupActions?: Action[] | undefined): Disposable {
+    registerFeedback(feedbackEmitter: IFeedbackEmitter, feedbackActions: Action[], cleanupActions?: MaybeActions): Disposable {
+        if (feedbackEmitter instanceof GModelElement) {
+            this.logger.log(
+                this,
+                // eslint-disable-next-line max-len
+                'GModelElements as feedback emitters are discouraged, as they usually change between model updates and are considered unstable.'
+            );
+        }
         if (feedbackActions.length > 0) {
             this.registeredFeedback.set(feedbackEmitter, feedbackActions);
             this.dispatchFeedback(feedbackActions, feedbackEmitter);
@@ -99,10 +129,11 @@ export class FeedbackActionDispatcher implements IFeedbackActionDispatcher {
         return Disposable.create(() => this.deregisterFeedback(feedbackEmitter, cleanupActions));
     }
 
-    deregisterFeedback(feedbackEmitter: IFeedbackEmitter, cleanupActions?: Action[] | undefined): void {
+    deregisterFeedback(feedbackEmitter: IFeedbackEmitter, cleanupActions?: MaybeActions): void {
         this.registeredFeedback.delete(feedbackEmitter);
-        if (cleanupActions && cleanupActions.length > 0) {
-            this.dispatchFeedback(cleanupActions, feedbackEmitter);
+        const actions = MaybeActions.asArray(cleanupActions);
+        if (actions.length > 0) {
+            this.dispatchFeedback(actions, feedbackEmitter);
         }
     }
 
@@ -143,6 +174,10 @@ export class FeedbackActionDispatcher implements IFeedbackActionDispatcher {
                 .filter(toTypeGuard(CommandActionHandler))
                 .map(handler => handler.handle(action)) ?? []
         );
+    }
+
+    createEmitter(): FeedbackEmitter {
+        return new FeedbackEmitter(this);
     }
 
     protected async dispatchFeedback(actions: Action[], feedbackEmitter: IFeedbackEmitter): Promise<void> {

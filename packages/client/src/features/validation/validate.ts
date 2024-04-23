@@ -28,6 +28,7 @@ import {
     hasArrayProp
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable, optional } from 'inversify';
+import { FeedbackEmitter } from '../../base';
 import { EditorContextService } from '../../base/editor-context-service';
 import { IFeedbackActionDispatcher, IFeedbackEmitter } from '../../base/feedback/feedback-action-dispatcher';
 import { FeedbackCommand } from '../../base/feedback/feedback-command';
@@ -42,7 +43,7 @@ import { GIssueMarker, createGIssue, getGIssueMarker, getOrCreateGIssueMarker, g
 export class ValidationFeedbackEmitter implements IFeedbackEmitter {
     @inject(TYPES.IFeedbackActionDispatcher) protected feedbackActionDispatcher: IFeedbackActionDispatcher;
 
-    protected registeredFeedbackByReason: Map<string, { action: ApplyMarkersAction; emitter: IFeedbackEmitter }> = new Map();
+    protected registeredFeedbackByReason: Map<string, FeedbackEmitter> = new Map();
 
     /**
      * Register the action that should be emitted for visualizing validation feedback.
@@ -51,25 +52,9 @@ export class ValidationFeedbackEmitter implements IFeedbackEmitter {
      */
     registerValidationFeedbackAction(action: ApplyMarkersAction, reason = ''): void {
         // De-register feedback and clear existing markers with the same reason
-        const previousFeedbackWithSameReason = this.registeredFeedbackByReason.get(reason);
-        let emitter: IFeedbackEmitter | undefined;
-        if (previousFeedbackWithSameReason) {
-            emitter = previousFeedbackWithSameReason.emitter;
-            const deleteMarkersAction = DeleteMarkersAction.create(previousFeedbackWithSameReason.action.markers);
-            this.feedbackActionDispatcher.deregisterFeedback(emitter, [deleteMarkersAction]);
-        }
-
-        if (!emitter) {
-            emitter = this.createEmitter(reason);
-        }
-
-        // Register new action responsible for applying markers and re-applying them when the model is updated
-        this.registeredFeedbackByReason.set(reason, { action, emitter });
-        this.feedbackActionDispatcher.registerFeedback(emitter, [action]);
-    }
-
-    protected createEmitter(reason: string): IFeedbackEmitter {
-        return { id: 'validationFeedbackEmitter_' + reason };
+        const emitter = this.registeredFeedbackByReason.get(reason)?.dispose() ?? this.feedbackActionDispatcher.createEmitter();
+        emitter.add(action, () => DeleteMarkersAction.create(action.markers)).submit();
+        this.registeredFeedbackByReason.set(reason, emitter);
     }
 }
 

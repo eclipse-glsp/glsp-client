@@ -22,16 +22,20 @@ import {
     TYPES,
     TriggerNodeCreationAction,
     findParentByFeature,
-    isCtrlOrCmd
+    isCtrlOrCmd,
+    isMoveable
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable, optional } from 'inversify';
 import '../../../../css/ghost-element.css';
+import { FeedbackEmitter } from '../../../base';
 import { DragAwareMouseListener } from '../../../base/drag-aware-mouse-listener';
 import { CSS_GHOST_ELEMENT, CSS_HIDDEN, CursorCSS, cursorFeedbackAction } from '../../../base/feedback/css-feedback';
 import { EnableDefaultToolsAction } from '../../../base/tool-manager/tool';
+import { MoveableElement, isValidMove } from '../../../utils';
 import { getAbsolutePosition } from '../../../utils/viewpoint-util';
 import { IMovementRestrictor } from '../../change-bounds/movement-restrictor';
 import { PositionSnapper } from '../../change-bounds/position-snapper';
+import { RemoveTemplateElementsAction } from '../../element-template';
 import { AddTemplateElementsAction, getTemplateElementId } from '../../element-template/add-template-element';
 import { MouseTrackingElementPositionListener, PositioningTool } from '../../element-template/mouse-tracking-element-position-listener';
 import { Containable, isContainable } from '../../hints/model';
@@ -53,34 +57,38 @@ export class NodeCreationTool extends BaseCreationTool<TriggerNodeCreationAction
     doEnable(): void {
         let trackingListener: MouseTrackingElementPositionListener | undefined;
         const ghostElement = this.triggerAction.ghostElement;
-        if (ghostElement) {
-            trackingListener = new MouseTrackingElementPositionListener(getTemplateElementId(ghostElement.template), this, 'middle');
-            this.toDisposeOnDisable.push(
-                this.registerFeedback(
-                    [AddTemplateElementsAction.create({ templates: [ghostElement.template], addClasses: [CSS_HIDDEN, CSS_GHOST_ELEMENT] })],
-                    ghostElement
-                ),
-                this.mouseTool.registerListener(trackingListener)
-            );
+        const ghostElementId = ghostElement ? getTemplateElementId(ghostElement.template) : undefined;
+        if (ghostElement && ghostElementId) {
+            trackingListener = new MouseTrackingElementPositionListener(ghostElementId, this, 'middle');
+            const ghostElementFeedback = this.createFeedbackEmitter()
+                .add(
+                    AddTemplateElementsAction.create({ templates: [ghostElement.template], addClasses: [CSS_HIDDEN, CSS_GHOST_ELEMENT] }),
+                    RemoveTemplateElementsAction.create({ templates: [ghostElement.template] })
+                )
+                .submit();
+            this.toDisposeOnDisable.push(ghostElementFeedback, trackingListener, this.mouseTool.registerListener(trackingListener));
         }
 
+        const toolListener = new NodeCreationToolMouseListener(this.triggerAction, this, ghostElementId);
         this.toDisposeOnDisable.push(
-            this.mouseTool.registerListener(new NodeCreationToolMouseListener(this.triggerAction, this, trackingListener)),
-            this.registerFeedback([cursorFeedbackAction(CursorCSS.NODE_CREATION)], this, [cursorFeedbackAction()])
+            toolListener,
+            this.mouseTool.registerListener(toolListener),
+            this.createFeedbackEmitter().add(cursorFeedbackAction(CursorCSS.NODE_CREATION), cursorFeedbackAction()).submit()
         );
     }
 }
 
-@injectable()
 export class NodeCreationToolMouseListener extends DragAwareMouseListener {
     protected container?: GModelElement & Containable;
+    protected cursorFeedback: FeedbackEmitter;
 
     constructor(
         protected triggerAction: TriggerNodeCreationAction,
         protected tool: NodeCreationTool,
-        protected trackingListener?: MouseTrackingElementPositionListener
+        protected ghostElementId?: string
     ) {
         super();
+        this.cursorFeedback = tool.createFeedbackEmitter();
     }
 
     protected creationAllowed(elementTypeId: string): boolean | undefined {
@@ -98,24 +106,32 @@ export class NodeCreationToolMouseListener extends DragAwareMouseListener {
         }
 
         if (this.creationAllowed(this.elementTypeId)) {
-            const containerId = this.container ? this.container.id : undefined;
-            const location = this.getInsertPosition(target, event);
-            result.push(CreateNodeOperation.create(this.elementTypeId, { location, containerId, args: this.triggerAction.args }));
+            const location = this.getValidInsertPosition(target, event);
+            if (location) {
+                const containerId = this.container?.id;
+                result.push(CreateNodeOperation.create(this.elementTypeId, { location, containerId, args: this.triggerAction.args }));
+            }
             if (!isCtrlOrCmd(event)) {
                 result.push(EnableDefaultToolsAction.create());
             } else {
-                this.tool.deregisterFeedback(this);
+                this.dispose();
             }
         }
         return result;
     }
 
-    protected getInsertPosition(target: GModelElement, event: MouseEvent): Point {
-        if (this.trackingListener) {
-            const trackedPosition = this.trackingListener.currentPosition;
-            if (trackedPosition) {
-                return trackedPosition;
-            }
+    protected getGhostElement(): MoveableElement | undefined {
+        if (!this.ghostElementId) {
+            return undefined;
+        }
+        const ghostElement = this.container?.index.getById(this.ghostElementId);
+        return ghostElement && isMoveable(ghostElement) ? ghostElement : undefined;
+    }
+
+    protected getValidInsertPosition(target: GModelElement, event: MouseEvent): Point | undefined {
+        const ghostElement = this.getGhostElement();
+        if (ghostElement) {
+            return isValidMove(ghostElement, ghostElement.position, this.tool.movementRestrictor) ? ghostElement.position : undefined;
         }
         const location = getAbsolutePosition(target, event);
 
@@ -132,8 +148,13 @@ export class NodeCreationToolMouseListener extends DragAwareMouseListener {
             const feedback = this.creationAllowed(this.elementTypeId)
                 ? cursorFeedbackAction(CursorCSS.NODE_CREATION)
                 : cursorFeedbackAction(CursorCSS.OPERATION_NOT_ALLOWED);
-            this.tool.registerFeedback([feedback]);
+            this.cursorFeedback.add(feedback).submit();
         }
         return [];
+    }
+
+    override dispose(): void {
+        this.cursorFeedback.dispose();
+        super.dispose();
     }
 }

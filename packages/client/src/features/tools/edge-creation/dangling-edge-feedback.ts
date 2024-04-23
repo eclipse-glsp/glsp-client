@@ -13,24 +13,26 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { inject, injectable } from 'inversify';
 import {
     Action,
     BindingContext,
     CommandExecutionContext,
     CommandReturn,
     GChildElement,
+    GDanglingAnchor,
+    GEdgeSchema,
     GModelRoot,
     GRoutableElement,
     TYPES,
     configureCommand,
     configureView,
+    deletableFeature,
     findParentByFeature,
     isBoundsAware,
-    isConnectable,
-    GDanglingAnchor,
-    GEdgeSchema
+    isConnectable
 } from '@eclipse-glsp/sprotty';
+import { inject, injectable } from 'inversify';
+import { feedbackFeature } from '../../../base';
 import { FeedbackCommand } from '../../../base/feedback/feedback-command';
 import { isRoutable } from '../../../utils/gmodel-util';
 import { toAbsolutePosition } from '../../../utils/viewpoint-util';
@@ -103,6 +105,7 @@ export class RemoveFeedbackEdgeCommand extends FeedbackCommand {
 }
 
 export class FeedbackEdgeEnd extends GDanglingAnchor {
+    static override readonly DEFAULT_FEATURES = [deletableFeature, feedbackFeature];
     static readonly TYPE = 'feedback-edge-end';
     constructor(
         readonly sourceId: string,

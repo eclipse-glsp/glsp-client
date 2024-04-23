@@ -26,7 +26,7 @@ export class PositionSnapper {
     ) {}
 
     snapPosition(position: Point, element: GModelElement, isSnap: boolean = true): Point {
-        return isSnap && this.snapper ? this.snapper.snap(position, element) : { x: position.x, y: position.y };
+        return isSnap && this.snapper ? this.snapper.snap(position, element) : { ...position };
     }
 
     snapDelta(positionDelta: Point, element: GModelElement, isSnap: boolean, directions: Direction[]): Point {

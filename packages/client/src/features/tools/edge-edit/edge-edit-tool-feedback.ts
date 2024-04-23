@@ -40,16 +40,17 @@ import {
     isSelected
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
+import { FeedbackEmitter } from '../../../base';
 import { IFeedbackActionDispatcher } from '../../../base/feedback/feedback-action-dispatcher';
 import { FeedbackCommand } from '../../../base/feedback/feedback-command';
 import { forEachElement, isRoutable, isRoutingHandle } from '../../../utils/gmodel-util';
 import { getAbsolutePosition, toAbsoluteBounds } from '../../../utils/viewpoint-util';
+import { PointPositionUpdater } from '../../change-bounds/point-position-updater';
 import { PositionSnapper } from '../../change-bounds/position-snapper';
 import { useSnap } from '../../change-bounds/snap';
 import { addReconnectHandles, removeReconnectHandles } from '../../reconnect/model';
 import { FeedbackEdgeEnd, feedbackEdgeEndId, feedbackEdgeId } from '../edge-creation/dangling-edge-feedback';
 import { FeedbackEdgeEndMovingMouseListener } from '../edge-creation/edge-creation-tool-feedback';
-import { PointPositionUpdater } from '../../change-bounds/point-position-updater';
 
 /**
  * RECONNECT HANDLES FEEDBACK
@@ -198,11 +199,14 @@ export class FeedbackEdgeTargetMovingMouseListener extends FeedbackEdgeEndMoving
 }
 
 export class FeedbackEdgeSourceMovingMouseListener extends MouseListener implements Disposable {
+    protected feedback: FeedbackEmitter;
+
     constructor(
         protected anchorRegistry: AnchorComputerRegistry,
         protected feedbackDispatcher: IFeedbackActionDispatcher
     ) {
         super();
+        this.feedback = feedbackDispatcher.createEmitter();
     }
 
     override mouseMove(target: GModelElement, event: MouseEvent): Action[] {
@@ -221,14 +225,10 @@ export class FeedbackEdgeSourceMovingMouseListener extends MouseListener impleme
         if (endAtMousePosition instanceof GConnectableElement && edge.target && isBoundsAware(edge.target)) {
             const anchor = this.computeAbsoluteAnchor(endAtMousePosition, Bounds.center(edge.target.bounds));
             if (Point.euclideanDistance(anchor, edgeEnd.position) > 1) {
-                this.feedbackDispatcher.registerFeedback(this, [
-                    MoveAction.create([{ elementId: edgeEnd.id, toPosition: anchor }], { animate: false })
-                ]);
+                this.feedback.add(MoveAction.create([{ elementId: edgeEnd.id, toPosition: anchor }], { animate: false })).submit();
             }
         } else {
-            this.feedbackDispatcher.registerFeedback(this, [
-                MoveAction.create([{ elementId: edgeEnd.id, toPosition: position }], { animate: false })
-            ]);
+            this.feedback.add(MoveAction.create([{ elementId: edgeEnd.id, toPosition: position }], { animate: false })).submit();
         }
 
         return [];
@@ -250,7 +250,7 @@ export class FeedbackEdgeSourceMovingMouseListener extends MouseListener impleme
     }
 
     dispose(): void {
-        this.feedbackDispatcher.deregisterFeedback(this);
+        this.feedback.dispose();
     }
 }
 

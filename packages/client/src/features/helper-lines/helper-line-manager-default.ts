@@ -13,18 +13,9 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import {
-    Action,
-    DisposableCollection,
-    GModelElement,
-    GModelRoot,
-    IActionHandler,
-    MoveAction,
-    Point,
-    SetBoundsAction,
-    TYPES
-} from '@eclipse-glsp/sprotty';
+import { Action, GModelElement, GModelRoot, IActionHandler, MoveAction, Point, SetBoundsAction, TYPES } from '@eclipse-glsp/sprotty';
 import { inject, injectable, optional, postConstruct } from 'inversify';
+import { FeedbackEmitter } from '../../base';
 import { IFeedbackActionDispatcher } from '../../base/feedback/feedback-action-dispatcher';
 import { ISelectionListener, SelectionService } from '../../base/selection-service';
 import { SetBoundsFeedbackAction } from '../bounds/set-bounds-feedback-command';
@@ -95,10 +86,11 @@ export class HelperLineManager implements IActionHandler, ISelectionListener, IH
     @optional() @inject(TYPES.IHelperLineOptions) protected userOptions?: IHelperLineOptions;
 
     protected options: Required<IHelperLineOptions>;
-    protected feedback: DisposableCollection = new DisposableCollection();
+    protected feedback: FeedbackEmitter;
 
     @postConstruct()
     protected init(): void {
+        this.feedback = this.feedbackDispatcher.createEmitter();
         this.options = { ...DEFAULT_HELPER_LINE_OPTIONS, ...this.userOptions };
         this.selectionService.onSelectionChanged(change =>
             this.selectionChanged(change.root, change.selectedElements, change.deselectedElements)
@@ -118,9 +110,7 @@ export class HelperLineManager implements IActionHandler, ISelectionListener, IH
     }
 
     protected handleMoveInitializedAction(_action: MoveInitializedEventAction): void {
-        this.feedback.dispose();
-        const feedback = this.createHelperLineFeedback(this.selectionService.getSelectedElementIDs());
-        this.feedback.push(this.feedbackDispatcher.registerFeedback(this, [feedback], [RemoveHelperLinesFeedbackAction.create()]));
+        this.submitHelperLineFeedback();
     }
 
     protected handleMoveFinishedAction(_action: MoveFinishedEventAction): void {
@@ -129,12 +119,15 @@ export class HelperLineManager implements IActionHandler, ISelectionListener, IH
 
     protected handleMoveAction(action: MoveAction): void {
         if (!action.finished) {
-            const elementIds = action.moves.map(move => move.elementId);
-            const feedback = this.createHelperLineFeedback(elementIds);
-            this.feedback.push(this.feedbackDispatcher.registerFeedback(this, [feedback], [RemoveHelperLinesFeedbackAction.create()]));
+            this.submitHelperLineFeedback(action.moves.map(move => move.elementId));
         } else {
             this.feedback.dispose();
         }
+    }
+
+    protected submitHelperLineFeedback(elementIds: string[] = this.selectionService.getSelectedElementIDs()): void {
+        const feedback = this.createHelperLineFeedback(elementIds);
+        this.feedback.add(feedback, [RemoveHelperLinesFeedbackAction.create()]).submit();
     }
 
     protected createHelperLineFeedback(elementIds: string[]): DrawHelperLinesFeedbackAction {
@@ -142,9 +135,7 @@ export class HelperLineManager implements IActionHandler, ISelectionListener, IH
     }
 
     protected handleSetBoundsAction(action: SetBoundsAction | SetBoundsFeedbackAction): void {
-        const elementIds = action.bounds.map(bound => bound.elementId);
-        const feedback = this.createHelperLineFeedback(elementIds);
-        this.feedback.push(this.feedbackDispatcher.registerFeedback(this, [feedback], [RemoveHelperLinesFeedbackAction.create()]));
+        this.submitHelperLineFeedback(action.bounds.map(bound => bound.elementId));
     }
 
     selectionChanged(root: Readonly<GModelRoot>, selectedElements: string[], deselectedElements?: string[] | undefined): void {

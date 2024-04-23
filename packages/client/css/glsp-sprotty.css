@@ -148,6 +148,22 @@
     cursor: nwse-resize;
 }
 
+.sprotty .resize-nw-mode {
+    cursor: nw-resize;
+}
+
+.sprotty .resize-ne-mode {
+    cursor: ne-resize;
+}
+
+.sprotty .resize-sw-mode {
+    cursor: sw-resize;
+}
+
+.sprotty .resize-se-mode {
+    cursor: se-resize;
+}
+
 .sprotty .element-deletion-mode {
     cursor: pointer;
 }
@@ -191,6 +207,7 @@
 
 .sprotty g .movement-not-allowed > .sprotty-node {
     stroke: var(--glsp-error-foreground) !important;
+    stroke-width: 1.5px;
 }
 
 .sprotty-resize-handle.movement-not-allowed {

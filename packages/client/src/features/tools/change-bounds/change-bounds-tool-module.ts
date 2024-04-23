@@ -14,6 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { FeatureModule, TYPES, bindAsService, configureCommand, configureView } from '@eclipse-glsp/sprotty';
+import '../../../../css/change-bounds.css';
 import { SResizeHandle } from '../../change-bounds/model';
 import { ChangeBoundsTool } from './change-bounds-tool';
 import { HideChangeBoundsToolResizeFeedbackCommand, ShowChangeBoundsToolResizeFeedbackCommand } from './change-bounds-tool-feedback';

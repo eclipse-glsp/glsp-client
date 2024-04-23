@@ -13,20 +13,20 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { inject, injectable } from 'inversify';
 import {
     Action,
     DeleteElementOperation,
+    GModelElement,
     KeyListener,
     KeyTool,
     MouseListener,
-    GModelElement,
     findParentByFeature,
     isCtrlOrCmd,
     isDeletable,
     isSelectable,
     matchesKeystroke
 } from '@eclipse-glsp/sprotty';
+import { inject, injectable } from 'inversify';
 import { CursorCSS, cursorFeedbackAction } from '../../../base/feedback/css-feedback';
 import { EnableDefaultToolsAction, Tool } from '../../../base/tool-manager/tool';
 import { BaseEditTool } from '../base-tools';
@@ -89,10 +89,10 @@ export class MouseDeleteTool extends BaseEditTool {
     }
 
     enable(): void {
-        this.toDisposeOnDisable.push(
-            this.mouseTool.registerListener(this.deleteToolMouseListener),
-            this.registerFeedback([cursorFeedbackAction(CursorCSS.ELEMENT_DELETION)], this, [cursorFeedbackAction()])
-        );
+        const cursorFeedback = this.createFeedbackEmitter()
+            .add(cursorFeedbackAction(CursorCSS.ELEMENT_DELETION), cursorFeedbackAction())
+            .submit();
+        this.toDisposeOnDisable.push(this.mouseTool.registerListener(this.deleteToolMouseListener), cursorFeedback);
     }
 }
 

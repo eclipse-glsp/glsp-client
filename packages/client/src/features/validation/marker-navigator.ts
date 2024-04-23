@@ -15,7 +15,6 @@
  ********************************************************************************/
 import {
     Action,
-    BoundsAware,
     CenterAction,
     GIssueSeverity,
     GModelElement,
@@ -26,7 +25,6 @@ import {
     MenuItem,
     Point,
     SelectAction,
-    Selectable,
     TYPES,
     findParentByFeature,
     hasArrayProp,
@@ -38,7 +36,7 @@ import {
 import { inject, injectable } from 'inversify';
 import { GLSPActionDispatcher } from '../../base/action-dispatcher';
 import { SelectionService } from '../../base/selection-service';
-import { getElements, isSelectableAndBoundsAware } from '../../utils/gmodel-util';
+import { BoundsAwareModelElement, SelectableElement, getElements, isSelectableAndBoundsAware } from '../../utils/gmodel-util';
 import { MarkerPredicates, collectIssueMarkers } from '../../utils/marker';
 import { GIssueMarker } from './issue-marker';
 
@@ -110,7 +108,7 @@ export class MarkerNavigator {
 
     next(
         root: Readonly<GModelRoot>,
-        current?: GModelElement & BoundsAware,
+        current?: BoundsAwareModelElement,
         predicate: (marker: GIssueMarker) => boolean = MarkerPredicates.ALL
     ): GIssueMarker | undefined {
         const markers = this.getMarkers(root, predicate);
@@ -122,7 +120,7 @@ export class MarkerNavigator {
 
     previous(
         root: Readonly<GModelRoot>,
-        current?: GModelElement & BoundsAware,
+        current?: BoundsAwareModelElement,
         predicate: (marker: GIssueMarker) => boolean = MarkerPredicates.ALL
     ): GIssueMarker | undefined {
         const markers = this.getMarkers(root, predicate);
@@ -137,7 +135,7 @@ export class MarkerNavigator {
         return markers.filter(predicate).sort(this.markerComparator.compare);
     }
 
-    protected getNextIndex(current: GModelElement & BoundsAware, markers: GIssueMarker[]): number {
+    protected getNextIndex(current: BoundsAwareModelElement, markers: GIssueMarker[]): number {
         for (let index = 0; index < markers.length; index++) {
             if (this.markerComparator.compare(markers[index], current) > 0) {
                 return index;
@@ -146,7 +144,7 @@ export class MarkerNavigator {
         return 0;
     }
 
-    protected getPreviousIndex(current: GModelElement & BoundsAware, markers: GIssueMarker[]): number {
+    protected getPreviousIndex(current: BoundsAwareModelElement, markers: GIssueMarker[]): number {
         for (let index = markers.length - 1; index >= 0; index--) {
             if (this.markerComparator.compare(markers[index], current) < 0) {
                 return index;
@@ -182,7 +180,7 @@ export class NavigateToMarkerActionHandler implements IActionHandler {
         }
     }
 
-    protected getSelectedElements(action: NavigateToMarkerAction): (GModelElement & Selectable)[] {
+    protected getSelectedElements(action: NavigateToMarkerAction): SelectableElement[] {
         if (action.selectedElementIds && action.selectedElementIds.length > 0) {
             return getElements(this.selectionService.getModelRoot().index, action.selectedElementIds, isSelectable);
         }
