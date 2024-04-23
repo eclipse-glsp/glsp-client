@@ -205,7 +205,7 @@ export class MoveElementHandler implements IActionHandler {
     }
 
     protected getTargetBounds(element: SelectableBoundsAware, action: MoveElementAction): Point {
-        let position = { x: element.bounds.x + action.moveX, y: element.bounds.y + action.moveY };
+        let position = Point.add(element.bounds, { x: action.moveX, y: action.moveY });
         if (this.snapper && action.snap) {
             position = this.snapper.snap(position, element);
         }

@@ -37,25 +37,6 @@ import { partition } from 'lodash';
 import '../../../css/helper-lines.css';
 import { FeedbackCommand } from '../../base/feedback/feedback-command';
 import {
-    bottom,
-    bottomCenter,
-    bottomLeft,
-    bottomRight,
-    center,
-    isAbove,
-    isBefore,
-    left,
-    middle,
-    middleLeft,
-    middleRight,
-    right,
-    sortBy,
-    top,
-    topCenter,
-    topLeft,
-    topRight
-} from '../../utils/geometry-util';
-import {
     BoundsAwareModelElement,
     findTopLevelElementByFeature,
     forEachElement,
@@ -191,12 +172,12 @@ export class DrawHelperLinesFeedbackCommand extends FeedbackCommand {
         const helperLines: HelperLine[] = [];
         this.log('Find helperlines for viewport:', root);
         const viewportBounds = getViewportBounds(root, root.canvasBounds);
-        if (lineTypes.includes(HelperLineType.Center) && this.isAligned(center, viewportBounds, bounds, 2)) {
-            helperLines.push(new HelperLine(topCenter(viewportBounds), bottomCenter(viewportBounds), HelperLineType.Center));
+        if (lineTypes.includes(HelperLineType.Center) && this.isAligned(Bounds.centerX, viewportBounds, bounds, 2)) {
+            helperLines.push(new HelperLine(Bounds.topCenter(viewportBounds), Bounds.bottomCenter(viewportBounds), HelperLineType.Center));
             this.log('- Reference bounds center align with viewport.', viewportBounds);
         }
-        if (lineTypes.includes(HelperLineType.Middle) && this.isAligned(middle, viewportBounds, bounds, 2)) {
-            helperLines.push(new HelperLine(middleLeft(viewportBounds), middleRight(viewportBounds), HelperLineType.Middle));
+        if (lineTypes.includes(HelperLineType.Middle) && this.isAligned(Bounds.middle, viewportBounds, bounds, 2)) {
+            helperLines.push(new HelperLine(Bounds.middleLeft(viewportBounds), Bounds.middleRight(viewportBounds), HelperLineType.Middle));
             this.log('- Reference bounds middle align with viewport.', viewportBounds);
         }
         if (helperLines.length > 0) {
@@ -213,78 +194,90 @@ export class DrawHelperLinesFeedbackCommand extends FeedbackCommand {
     protected calcHelperLinesForBounds(elementBounds: Bounds, bounds: Bounds, lineTypes: HelperLineType[]): HelperLine[] {
         const helperLines: HelperLine[] = [];
 
-        if (lineTypes.includes(HelperLineType.Left) && this.isAligned(left, elementBounds, bounds, this.alignmentEpsilon)) {
-            const [above, below] = sortBy(top, elementBounds, bounds); // higher top-value ==> lower
-            helperLines.push(new HelperLine(bottomLeft(below), topLeft(above), HelperLineType.Left));
+        if (lineTypes.includes(HelperLineType.Left) && this.isAligned(Bounds.left, elementBounds, bounds, this.alignmentEpsilon)) {
+            const [above, below] = Bounds.sortBy(Bounds.top, elementBounds, bounds); // higher top-value ==> lower
+            helperLines.push(new HelperLine(Bounds.bottomLeft(below), Bounds.topLeft(above), HelperLineType.Left));
             this.log('- Reference bounds left align with element', elementBounds);
         }
 
-        if (lineTypes.includes(HelperLineType.Center) && this.isAligned(center, elementBounds, bounds, this.alignmentEpsilon)) {
-            const [above, below] = sortBy(top, elementBounds, bounds); // higher top-value ==> lower
-            helperLines.push(new HelperLine(topCenter(above), bottomCenter(below), HelperLineType.Center));
+        if (lineTypes.includes(HelperLineType.Center) && this.isAligned(Bounds.centerX, elementBounds, bounds, this.alignmentEpsilon)) {
+            const [above, below] = Bounds.sortBy(Bounds.top, elementBounds, bounds); // higher top-value ==> lower
+            helperLines.push(new HelperLine(Bounds.topCenter(above), Bounds.bottomCenter(below), HelperLineType.Center));
             this.log('- Reference bounds center align with element', elementBounds);
         }
 
-        if (lineTypes.includes(HelperLineType.Right) && this.isAligned(right, elementBounds, bounds, this.alignmentEpsilon)) {
-            const [above, below] = sortBy(top, elementBounds, bounds); // higher top-value ==> lower
-            helperLines.push(new HelperLine(bottomRight(below), topRight(above), HelperLineType.Right));
+        if (lineTypes.includes(HelperLineType.Right) && this.isAligned(Bounds.right, elementBounds, bounds, this.alignmentEpsilon)) {
+            const [above, below] = Bounds.sortBy(Bounds.top, elementBounds, bounds); // higher top-value ==> lower
+            helperLines.push(new HelperLine(Bounds.bottomRight(below), Bounds.topRight(above), HelperLineType.Right));
             this.log('- Reference bounds right align with element', elementBounds);
         }
 
-        if (lineTypes.includes(HelperLineType.Bottom) && this.isAligned(bottom, elementBounds, bounds, this.alignmentEpsilon)) {
-            const [before, after] = sortBy(left, elementBounds, bounds); // higher left-value ==> more to the right
-            helperLines.push(new HelperLine(bottomLeft(before), bottomRight(after), HelperLineType.Bottom));
+        if (lineTypes.includes(HelperLineType.Bottom) && this.isAligned(Bounds.bottom, elementBounds, bounds, this.alignmentEpsilon)) {
+            const [before, after] = Bounds.sortBy(Bounds.left, elementBounds, bounds); // higher left-value ==> more to the right
+            helperLines.push(new HelperLine(Bounds.bottomLeft(before), Bounds.bottomRight(after), HelperLineType.Bottom));
             this.log('- Reference bounds bottom align with element', elementBounds);
         }
 
-        if (lineTypes.includes(HelperLineType.Middle) && this.isAligned(middle, elementBounds, bounds, this.alignmentEpsilon)) {
-            const [before, after] = sortBy(left, elementBounds, bounds); // higher left-value ==> more to the right
-            helperLines.push(new HelperLine(middleLeft(before), middleRight(after), HelperLineType.Middle));
+        if (lineTypes.includes(HelperLineType.Middle) && this.isAligned(Bounds.centerY, elementBounds, bounds, this.alignmentEpsilon)) {
+            const [before, after] = Bounds.sortBy(Bounds.left, elementBounds, bounds); // higher left-value ==> more to the right
+            helperLines.push(new HelperLine(Bounds.middleLeft(before), Bounds.middleRight(after), HelperLineType.Middle));
             this.log('- Reference bounds middle align with element', elementBounds);
         }
 
-        if (lineTypes.includes(HelperLineType.Top) && this.isAligned(top, elementBounds, bounds, this.alignmentEpsilon)) {
-            const [before, after] = sortBy(left, elementBounds, bounds); // higher left-value ==> more to the right
-            helperLines.push(new HelperLine(topLeft(before), topRight(after), HelperLineType.Top));
+        if (lineTypes.includes(HelperLineType.Top) && this.isAligned(Bounds.top, elementBounds, bounds, this.alignmentEpsilon)) {
+            const [before, after] = Bounds.sortBy(Bounds.left, elementBounds, bounds); // higher left-value ==> more to the right
+            helperLines.push(new HelperLine(Bounds.topLeft(before), Bounds.topRight(after), HelperLineType.Top));
             this.log('- Reference bounds top align with element', elementBounds);
         }
 
-        if (lineTypes.includes(HelperLineType.LeftRight) && this.isMatch(left(elementBounds), right(bounds), this.alignmentEpsilon)) {
-            if (isAbove(bounds, elementBounds)) {
-                helperLines.push(new HelperLine(bottomLeft(elementBounds), topRight(bounds), HelperLineType.RightLeft));
+        if (
+            lineTypes.includes(HelperLineType.LeftRight) &&
+            this.isMatch(Bounds.left(elementBounds), Bounds.right(bounds), this.alignmentEpsilon)
+        ) {
+            if (Bounds.isAbove(bounds, elementBounds)) {
+                helperLines.push(new HelperLine(Bounds.bottomLeft(elementBounds), Bounds.topRight(bounds), HelperLineType.RightLeft));
                 this.log('- Reference bounds right aligns with element left', elementBounds);
             } else {
-                helperLines.push(new HelperLine(topLeft(elementBounds), bottomRight(bounds), HelperLineType.RightLeft));
+                helperLines.push(new HelperLine(Bounds.topLeft(elementBounds), Bounds.bottomRight(bounds), HelperLineType.RightLeft));
                 this.log('- Reference bounds right aligns with element left', elementBounds);
             }
         }
 
-        if (lineTypes.includes(HelperLineType.LeftRight) && this.isMatch(right(elementBounds), left(bounds), this.alignmentEpsilon)) {
-            if (isAbove(bounds, elementBounds)) {
-                helperLines.push(new HelperLine(bottomRight(elementBounds), topLeft(bounds), HelperLineType.LeftRight));
+        if (
+            lineTypes.includes(HelperLineType.LeftRight) &&
+            this.isMatch(Bounds.right(elementBounds), Bounds.left(bounds), this.alignmentEpsilon)
+        ) {
+            if (Bounds.isAbove(bounds, elementBounds)) {
+                helperLines.push(new HelperLine(Bounds.bottomRight(elementBounds), Bounds.topLeft(bounds), HelperLineType.LeftRight));
                 this.log('- Reference bounds left aligns with element right', elementBounds);
             } else {
-                helperLines.push(new HelperLine(topRight(elementBounds), bottomLeft(bounds), HelperLineType.LeftRight));
+                helperLines.push(new HelperLine(Bounds.topRight(elementBounds), Bounds.bottomLeft(bounds), HelperLineType.LeftRight));
                 this.log('- Reference bounds left aligns with element right', elementBounds);
             }
         }
 
-        if (lineTypes.includes(HelperLineType.TopBottom) && this.isMatch(top(elementBounds), bottom(bounds), this.alignmentEpsilon)) {
-            if (isBefore(bounds, elementBounds)) {
-                helperLines.push(new HelperLine(topRight(elementBounds), bottomLeft(bounds), HelperLineType.BottomTop));
+        if (
+            lineTypes.includes(HelperLineType.TopBottom) &&
+            this.isMatch(Bounds.top(elementBounds), Bounds.bottom(bounds), this.alignmentEpsilon)
+        ) {
+            if (Bounds.isBefore(bounds, elementBounds)) {
+                helperLines.push(new HelperLine(Bounds.topRight(elementBounds), Bounds.bottomLeft(bounds), HelperLineType.BottomTop));
                 this.log('- Reference bounds bottom aligns with element top', elementBounds);
             } else {
-                helperLines.push(new HelperLine(topLeft(elementBounds), bottomRight(bounds), HelperLineType.BottomTop));
+                helperLines.push(new HelperLine(Bounds.topLeft(elementBounds), Bounds.bottomRight(bounds), HelperLineType.BottomTop));
                 this.log('- Reference bounds bottom aligns with element top', elementBounds);
             }
         }
 
-        if (lineTypes.includes(HelperLineType.TopBottom) && this.isMatch(bottom(elementBounds), top(bounds), this.alignmentEpsilon)) {
-            if (isBefore(bounds, elementBounds)) {
-                helperLines.push(new HelperLine(bottomRight(elementBounds), topLeft(bounds), HelperLineType.TopBottom));
+        if (
+            lineTypes.includes(HelperLineType.TopBottom) &&
+            this.isMatch(Bounds.bottom(elementBounds), Bounds.top(bounds), this.alignmentEpsilon)
+        ) {
+            if (Bounds.isBefore(bounds, elementBounds)) {
+                helperLines.push(new HelperLine(Bounds.bottomRight(elementBounds), Bounds.topLeft(bounds), HelperLineType.TopBottom));
                 this.log('- Reference bounds top aligns with element bottom', elementBounds);
             } else {
-                helperLines.push(new HelperLine(bottomLeft(elementBounds), topRight(bounds), HelperLineType.TopBottom));
+                helperLines.push(new HelperLine(Bounds.bottomLeft(elementBounds), Bounds.topRight(bounds), HelperLineType.TopBottom));
                 this.log('- Reference bounds top aligns with element bottom', elementBounds);
             }
         }

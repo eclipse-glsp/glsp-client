@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { Args, Bounds, GChildElement, GModelElement, GShapeElement, Point } from '@eclipse-glsp/sprotty';
+import { Args, Bounds, Direction, GChildElement, GModelElement, GShapeElement, Point, Vector } from '@eclipse-glsp/sprotty';
 import { v4 as uuid } from 'uuid';
 import { ArgsAware } from '../../base/args-feature';
 import { ResizeHandleLocation } from '../change-bounds/model';
@@ -98,30 +98,8 @@ export function isSelectionBounds(element: GModelElement): element is SelectionB
     return element.type === SELECTION_BOUNDS;
 }
 
-export const Direction = {
-    Left: 'left',
-    Right: 'right',
-    Up: 'up',
-    Down: 'down'
-} as const;
-
-// allow any string to be set as helper line type to support customization
-export type Direction = (typeof Direction)[keyof typeof Direction];
-
-export function getDirectionOf(point: Point): Direction[] {
-    const directions: Direction[] = [];
-    if (point.x < 0) {
-        directions.push(Direction.Left);
-    } else if (point.x > 0) {
-        directions.push(Direction.Right);
-    }
-    if (point.y < 0) {
-        directions.push(Direction.Up);
-    } else if (point.y > 0) {
-        directions.push(Direction.Down);
-    }
-    return directions;
-}
+// kept for backwards compatibility after moving the definition
+export const getDirectionOf = Vector.direction;
 
 export function getDirectionFrom(resize?: ResizeHandleLocation): Direction[] {
     if (resize === ResizeHandleLocation.TopLeft) {
@@ -138,3 +116,6 @@ export function getDirectionFrom(resize?: ResizeHandleLocation): Direction[] {
     }
     return [];
 }
+
+// re-export for backwards compatibility after moving the definition
+export { Direction } from '@eclipse-glsp/sprotty';

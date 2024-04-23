@@ -14,7 +14,17 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { Action, Disposable, GModelElement, Locateable, MoveAction, Point, isBoundsAware, isMoveable } from '@eclipse-glsp/sprotty';
+import {
+    Action,
+    Dimension,
+    Disposable,
+    GModelElement,
+    Locateable,
+    MoveAction,
+    Point,
+    isBoundsAware,
+    isMoveable
+} from '@eclipse-glsp/sprotty';
 import { injectable } from 'inversify';
 import { DragAwareMouseListener } from '../../base/drag-aware-mouse-listener';
 import { CSS_HIDDEN, ModifyCSSFeedbackAction } from '../../base/feedback/css-feedback';
@@ -26,8 +36,8 @@ import {
     createMovementRestrictionFeedback,
     removeMovementRestrictionFeedback
 } from '../change-bounds/movement-restrictor';
-import { PositionSnapper } from '../change-bounds/position-snapper';
 import { PointPositionUpdater } from '../change-bounds/point-position-updater';
+import { PositionSnapper } from '../change-bounds/position-snapper';
 import { useSnap } from '../change-bounds/snap';
 
 export interface PositioningTool extends Tool {
@@ -88,7 +98,7 @@ export class MouseTrackingElementPositionListener extends DragAwareMouseListener
     protected getTargetPosition(target: GModelElement, event: MouseEvent, element: GModelElement & Locateable): Point {
         let targetPosition = getAbsolutePosition(target, event);
         if (this.cursorPosition === 'middle' && isBoundsAware(element)) {
-            targetPosition = Point.subtract(targetPosition, { x: element.bounds.width / 2, y: element.bounds.height / 2 });
+            targetPosition = Point.subtract(targetPosition, Dimension.center(element.bounds));
         }
         return targetPosition;
     }

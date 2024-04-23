@@ -347,7 +347,7 @@ export function findTopLevelElementByFeature<T>(
 export function calculateDeltaBetweenPoints(target: Point, source: Point, element: GModelElement): Point {
     const delta = Point.subtract(target, source);
     const zoom = getZoom(element);
-    const adaptedDelta = { x: delta.x / zoom, y: delta.y / zoom };
+    const adaptedDelta = Point.divideScalar(delta, zoom);
     return adaptedDelta;
 }
 

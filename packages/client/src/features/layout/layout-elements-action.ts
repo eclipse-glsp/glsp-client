@@ -13,17 +13,18 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { inject, injectable, optional } from 'inversify';
 import {
     Action,
     ChangeBoundsOperation,
+    Dimension,
     ElementAndBounds,
     ElementMove,
+    GModelElement,
     IActionDispatcher,
     IActionHandler,
     ICommand,
     MoveAction,
-    GModelElement,
+    Point,
     SetBoundsAction,
     TYPES,
     Writable,
@@ -31,9 +32,10 @@ import {
     hasNumberProp,
     hasStringProp
 } from '@eclipse-glsp/sprotty';
+import { inject, injectable, optional } from 'inversify';
 import { SelectionService } from '../../base/selection-service';
-import { toValidElementAndBounds, toValidElementMove } from '../../utils/layout-utils';
 import { BoundsAwareModelElement, getElements } from '../../utils/gmodel-util';
+import { toValidElementAndBounds, toValidElementMove } from '../../utils/layout-utils';
 import { isBoundsAwareMoveable, isResizable } from '../change-bounds/model';
 import { IMovementRestrictor } from '../change-bounds/movement-restrictor';
 
@@ -227,12 +229,13 @@ export class ResizeElementsActionHandler extends LayoutElementsActionHandler {
     resizeWidthAndHeight(elements: BoundsAwareModelElement[], reduceFn: ReduceFunction): void {
         const targetWidth = reduceFn(...elements.map(element => element.bounds.width));
         const targetHeight = reduceFn(...elements.map(element => element.bounds.height));
+        const targetDimension: Dimension = { width: targetWidth, height: targetHeight };
         this.dispatchResizeActions(elements, (element, bounds) => {
             // resize around center and middle (horizontal & vertical)
-            const halfDiffWidth = 0.5 * (targetWidth - element.bounds.width);
-            const halfDiffHeight = 0.5 * (targetHeight - element.bounds.height);
-            bounds.newPosition = { x: element.bounds.x - halfDiffWidth, y: element.bounds.y - halfDiffHeight };
-            bounds.newSize = { width: targetWidth, height: targetHeight };
+            const difference = Dimension.subtract(targetDimension, element.bounds);
+            const center = Dimension.center(difference);
+            bounds.newPosition = Point.subtract(element.bounds, center);
+            bounds.newSize = targetDimension;
         });
     }
 

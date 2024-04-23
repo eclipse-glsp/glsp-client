@@ -29,7 +29,6 @@ import {
     isViewport,
     translateBounds
 } from '@eclipse-glsp/sprotty';
-import { bottomRight, topLeft } from './geometry-util';
 import { BoundsAwareModelElement } from './gmodel-util';
 
 /**
@@ -50,33 +49,23 @@ export function getAbsolutePosition(target: GModelElement, mouseEvent: MouseEven
 }
 
 export function getAbsolutePositionByPoint(target: GModelElement, point: Point): Point {
-    let xPos = point.x;
-    let yPos = point.y;
-    const canvasBounds = target.root.canvasBounds;
-    xPos -= canvasBounds.x;
-    yPos -= canvasBounds.y;
+    let position = Point.subtract(point, target.root.canvasBounds);
 
     const viewport: Viewport | undefined = findParentByFeature(target, isViewport);
-    const zoom = viewport ? viewport.zoom : 1;
     if (viewport) {
-        const scroll: Point = { x: viewport.scroll.x, y: viewport.scroll.y };
-        xPos += scroll.x * zoom;
-        yPos += scroll.y * zoom;
-
-        xPos /= zoom;
-        yPos /= zoom;
+        const zoom = viewport.zoom;
+        const zoomedScroll = Point.multiplyScalar(viewport.scroll, zoom);
+        position = Point.add(position, zoomedScroll);
+        position = Point.divideScalar(position, zoom);
     }
 
-    return {
-        x: xPos,
-        y: yPos
-    };
+    return position;
 }
 
 export function getViewportBounds(target: GModelElement, bounds: Bounds): Bounds {
-    const start = getAbsolutePositionByPoint(target, topLeft(bounds));
-    const end = getAbsolutePositionByPoint(target, bottomRight(bounds));
-    return { ...start, width: end.x - start.x, height: end.y - start.y };
+    const topLeft = getAbsolutePositionByPoint(target, Bounds.topLeft(bounds));
+    const bottomRight = getAbsolutePositionByPoint(target, Bounds.bottomRight(bounds));
+    return Bounds.from(topLeft, bottomRight);
 }
 
 /**
@@ -140,7 +129,7 @@ export function absoluteToParent(element: BoundsAwareModelElement & GChildElemen
  */
 export function absoluteToLocal(element: BoundsAwareModelElement, absolutePoint: Point): Point {
     const absoluteElementBounds = toAbsoluteBounds(element);
-    return { x: absolutePoint.x - absoluteElementBounds.x, y: absolutePoint.y - absoluteElementBounds.y };
+    return Point.subtract(absolutePoint, absoluteElementBounds);
 }
 
 /**

@@ -13,8 +13,8 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { Bounds, BoundsAware, GModelElement, GNode, GParentElement, Point } from '@eclipse-glsp/sprotty';
 import { injectable } from 'inversify';
-import { BoundsAware, Point, GModelElement, GNode, GParentElement } from '@eclipse-glsp/sprotty';
 import { ModifyCSSFeedbackAction } from '../../base/feedback/css-feedback';
 import { toAbsoluteBounds } from '../../utils/viewpoint-util';
 import { SResizeHandle, isBoundsAwareMoveable } from './model';
@@ -69,24 +69,7 @@ export class NoOverlapMovementRestrictor implements IMovementRestrictor {
     }
 
     protected areOverlapping(element1: GModelElement & BoundsAware, element2: GModelElement & BoundsAware): boolean {
-        const b1 = toAbsoluteBounds(element1);
-        const b2 = toAbsoluteBounds(element2);
-        const r1TopLeft: Point = b1;
-        const r1BottomRight = { x: b1.x + b1.width, y: b1.y + b1.height };
-        const r2TopLeft: Point = b2;
-        const r2BottomRight = { x: b2.x + b2.width, y: b2.y + b2.height };
-
-        // If one rectangle is on left side of other
-        if (r1TopLeft.x > r2BottomRight.x || r2TopLeft.x > r1BottomRight.x) {
-            return false;
-        }
-
-        // If one rectangle is above other
-        if (r1BottomRight.y < r2TopLeft.y || r2BottomRight.y < r1TopLeft.y) {
-            return false;
-        }
-
-        return true;
+        return Bounds.overlap(toAbsoluteBounds(element1), toAbsoluteBounds(element2));
     }
 }
 
