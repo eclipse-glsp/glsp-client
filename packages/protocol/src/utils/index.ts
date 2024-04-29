@@ -16,4 +16,7 @@
 export * from './array-util';
 export * from './disposable';
 export * from './event';
+export * from './geometry-movement';
+export * from './geometry-util';
+export * from './geometry-vector';
 export * from './type-util';

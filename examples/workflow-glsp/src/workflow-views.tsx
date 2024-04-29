@@ -14,15 +14,15 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import {
-    angleOfPoint,
-    findParentByFeature,
-    getSubType,
+    GEdge,
     Point,
     PolylineEdgeViewWithGapsOnIntersections,
     RenderingContext,
-    GEdge,
-    setAttr,
     ShapeView,
+    angleOfPoint,
+    findParentByFeature,
+    getSubType,
+    setAttr,
     svg,
     toDegrees
 } from '@eclipse-glsp/client';
@@ -44,9 +44,7 @@ export class WorkflowEdgeView extends PolylineEdgeViewWithGapsOnIntersections {
                 class-sprotty-edge={true}
                 class-arrow={true}
                 d='M 1,0 L 10,-4 L 10,4 Z'
-                transform={`rotate(${toDegrees(angleOfPoint({ x: p1.x - p2.x, y: p1.y - p2.y }))} ${p2.x} ${p2.y}) translate(${p2.x} ${
-                    p2.y
-                })`}
+                transform={`rotate(${toDegrees(angleOfPoint(Point.subtract(p1, p2)))} ${p2.x} ${p2.y}) translate(${p2.x} ${p2.y})`}
             />
         );
         additionals.push(arrow);

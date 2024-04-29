@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2023-2024 EclipseSource and others.
+ * Copyright (c) 2024 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,12 +13,14 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-export * from './action-protocol';
-export * from './client-server-protocol';
-export * from './model';
-export * from './re-exports';
-export * from './sprotty-actions';
-export * from './sprotty-geometry-bounds';
-export * from './sprotty-geometry-dimension';
-export * from './sprotty-geometry-point';
-export * from './utils';
+
+/**
+ * A direction in 2D space.
+ */
+export const Direction = {
+    Left: 'left',
+    Right: 'right',
+    Up: 'up',
+    Down: 'down'
+} as const;
+export type Direction = (typeof Direction)[keyof typeof Direction];

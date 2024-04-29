@@ -31,6 +31,7 @@ import {
     IHelperLineOptions,
     ISnapper,
     LogLevel,
+    Point,
     RectangularNodeView,
     RevealNamedElementActionProvider,
     RoundedCornerNodeView,
@@ -84,7 +85,7 @@ export const workflowDiagramModule = new ContainerModule((bind, unbind, isBound,
         // the user needs to use twice the force (double the distance) to break through a helper line compared to moving on the grid
         const snapper = ctx.container.get<ISnapper>(TYPES.ISnapper);
         if (snapper instanceof GridSnapper) {
-            options.minimumMoveDelta = { x: snapper.grid.x * 2, y: snapper.grid.y * 2 };
+            options.minimumMoveDelta = Point.multiplyScalar(snapper.grid, 2);
         }
         // skip icons for alignment as well as compartments which are only used for structure
         options.alignmentElementFilter = element =>

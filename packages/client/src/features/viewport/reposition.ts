@@ -14,7 +14,6 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { inject, injectable } from 'inversify';
 import {
     Action,
     Bounds,
@@ -23,14 +22,16 @@ import {
     GChildElement,
     GModelElement,
     GModelRoot,
+    Point,
     TYPES,
     Viewport,
     getRouteBounds,
     hasArrayProp,
     isViewport
 } from '@eclipse-glsp/sprotty';
-import { calcElementAndRoute } from '../../utils/gmodel-util';
+import { inject, injectable } from 'inversify';
 import { GEdge } from '../../model';
+import { calcElementAndRoute } from '../../utils/gmodel-util';
 
 export interface RepositionAction extends Action {
     kind: typeof RepositionAction.KIND;
@@ -83,25 +84,21 @@ export class RepositionCommand extends BoundsAwareViewportCommand {
         return this.action.elementIDs;
     }
 
-    getNewViewport(bounds: Bounds, model: GModelRoot): Viewport | undefined {
+    getNewViewport(combinedElementBounds: Bounds, model: GModelRoot): Viewport | undefined {
         if (!Dimension.isValid(model.canvasBounds)) {
             return undefined;
         }
 
         if (isViewport(model)) {
-            const zoom = model.zoom;
-            const c = Bounds.center(bounds);
-
-            if (this.isFullyVisible(bounds, model)) {
+            if (this.isFullyVisible(combinedElementBounds, model)) {
                 return undefined;
             } else {
-                return {
-                    scroll: {
-                        x: c.x - (0.5 * model.canvasBounds.width) / zoom,
-                        y: c.y - (0.5 * model.canvasBounds.height) / zoom
-                    },
-                    zoom: zoom
-                };
+                const zoom = model.zoom;
+                const centerOfElements = Bounds.center(combinedElementBounds);
+                const canvasCenter = Dimension.center(model.canvasBounds);
+                const scrollCenter = Point.subtract(centerOfElements, canvasCenter);
+                const scroll = Point.map(scrollCenter, coordinate => coordinate / zoom);
+                return { scroll, zoom };
             }
         }
 

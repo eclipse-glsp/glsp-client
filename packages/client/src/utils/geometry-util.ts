@@ -14,88 +14,69 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { Bounds, Point } from '@eclipse-glsp/sprotty';
+import { Bounds } from '@eclipse-glsp/sprotty';
 
-export function left(bounds: Bounds): number {
-    return bounds.x;
-}
+/** @deprecated Use {@link Bounds.left} */
+export const left = Bounds.left;
 
-export function center(bounds: Bounds): number {
-    return bounds.x + (bounds.width >= 0 ? bounds.width * 0.5 : 0);
-}
+/** @deprecated Use {@link Bounds.centerX} */
+export const center = Bounds.center;
 
-export function right(bounds: Bounds): number {
-    return bounds.x + bounds.width;
-}
+/** @deprecated Use {@link Bounds.right} */
+export const right = Bounds.right;
 
-export function top(bounds: Bounds): number {
-    return bounds.y;
-}
+/** @deprecated Use {@link Bounds.top} */
+export const top = Bounds.top;
 
-export function middle(bounds: Bounds): number {
-    return bounds.y + (bounds.height >= 0 ? bounds.height * 0.5 : 0);
-}
+/** @deprecated Use {@link Bounds.middle} */
+export const middle = Bounds.middle;
 
-export function bottom(bounds: Bounds): number {
-    return bounds.y + bounds.height;
-}
+/** @deprecated Use {@link Bounds.bottom} */
+export const bottom = Bounds.bottom;
 
-export function topLeft(bounds: Bounds): Point {
-    return { x: left(bounds), y: top(bounds) };
-}
+/** @deprecated Use {@link Bounds.topLeft} */
+export const topLeft = Bounds.topLeft;
 
-export function topCenter(bounds: Bounds): Point {
-    return { x: center(bounds), y: top(bounds) };
-}
+/** @deprecated Use {@link Bounds.topCenter} */
+export const topCenter = Bounds.topCenter;
 
-export function topRight(bounds: Bounds): Point {
-    return { x: right(bounds), y: top(bounds) };
-}
+/** @deprecated Use {@link Bounds.topRight} */
+export const topRight = Bounds.topRight;
 
-export function middleLeft(bounds: Bounds): Point {
-    return { x: left(bounds), y: middle(bounds) };
-}
+/** @deprecated Use {@link Bounds.middleLeft} */
+export const middleLeft = Bounds.middleLeft;
 
-export function middleCenter(bounds: Bounds): Point {
-    return { x: center(bounds), y: middle(bounds) };
-}
+/** @deprecated Use {@link Bounds.middleCenter} */
+export const middleCenter = Bounds.middleCenter;
 
-export function middleRight(bounds: Bounds): Point {
-    return { x: right(bounds), y: middle(bounds) };
-}
+/** @deprecated Use {@link Bounds.middleRight} */
+export const middleRight = Bounds.middleRight;
 
-export function bottomLeft(bounds: Bounds): Point {
-    return { x: left(bounds), y: bottom(bounds) };
-}
+/** @deprecated Use {@link Bounds.bottomLeft} */
+export const bottomLeft = Bounds.bottomLeft;
 
-export function bottomCenter(bounds: Bounds): Point {
-    return { x: center(bounds), y: bottom(bounds) };
-}
+/** @deprecated Use {@link Bounds.bottomCenter} */
+export const bottomCenter = Bounds.bottomCenter;
 
-export function bottomRight(bounds: Bounds): Point {
-    return { x: right(bounds), y: bottom(bounds) };
-}
+/** @deprecated Use {@link Bounds.bottomRight} */
+export const bottomRight = Bounds.bottomRight;
 
-export function sortBy(rankFunc: (elem: Bounds) => number, ...points: Bounds[]): Bounds[] {
-    return points.sort(compareFunction(rankFunc));
-}
+/** @deprecated Use {@link Bounds.left} */
+export const sortBy = Bounds.sortBy;
 
-export function compareFunction<T>(rankFunc: (elem: T) => number): (left: T, right: T) => number {
-    return (elemLeft, elemRight) => rankFunc(elemLeft) - rankFunc(elemRight);
-}
+export const compareFunction =
+    <T>(rankFunc: (elem: T) => number): ((x: T, y: T) => number) =>
+    (x, y) =>
+        rankFunc(x) - rankFunc(y);
 
-export function isAbove(leftBounds: Bounds, rightBounds: Bounds): boolean {
-    return top(leftBounds) <= top(rightBounds);
-}
+/** @deprecated Use {@link Bounds.isAbove} */
+export const isAbove = Bounds.isAbove;
 
-export function isBelow(leftBounds: Bounds, rightBounds: Bounds): boolean {
-    return top(leftBounds) >= top(rightBounds);
-}
+/** @deprecated Use {@link Bounds.isBelow} */
+export const isBelow = Bounds.isBelow;
 
-export function isBefore(leftBounds: Bounds, rightBounds: Bounds): boolean {
-    return left(leftBounds) < left(rightBounds);
-}
+/** @deprecated Use {@link Bounds.isBefore} */
+export const isBefore = Bounds.isBefore;
 
-export function isAfter(leftBounds: Bounds, rightBounds: Bounds): boolean {
-    return left(leftBounds) >= left(rightBounds);
-}
+/** @deprecated Use {@link Bounds.isAfter} */
+export const isAfter = Bounds.isAfter;
