@@ -20,7 +20,7 @@
     right: 40px;
     top: 25px;
     text-align: center;
-    width: 225px;
+    width: fit-content;
     display: block;
     z-index: 1000;
     border-style: solid;
@@ -54,6 +54,7 @@
     align-items: center;
     justify-content: space-between;
     flex-wrap: wrap;
+    gap: 20px;
 }
 
 .header-icon {

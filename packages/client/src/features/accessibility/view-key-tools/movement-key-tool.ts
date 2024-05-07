@@ -20,7 +20,8 @@ import { matchesKeystroke } from 'sprotty/lib/utils/keyboard';
 import { GLSPActionDispatcher } from '../../../base/action-dispatcher';
 import { SelectionService } from '../../../base/selection-service';
 import { Tool } from '../../../base/tool-manager/tool';
-import { GridSnapper, unsnapModifier, useSnap } from '../../change-bounds/snap';
+import { unsnapModifier, useSnap } from '../../change-bounds/snap';
+import { Grid } from '../../grid';
 import { AccessibleKeyShortcutProvider, SetAccessibleKeyShortcutAction } from '../key-shortcut/accessible-key-shortcut';
 import { MoveElementAction, MoveViewportAction } from '../move-zoom/move-handler';
 
@@ -55,22 +56,18 @@ export class MovementKeyTool implements Tool {
 }
 
 export class MoveKeyListener extends KeyListener implements AccessibleKeyShortcutProvider {
-    // Default x distance used if GridSnapper is not provided
+    // Default x distance used if grid is not provided
     static readonly defaultMoveX = 20;
 
-    // Default y distance used if GridSnapper is not provided
+    // Default y distance used if grid is not provided
     static readonly defaultMoveY = 20;
 
     protected readonly token = MoveKeyListener.name;
 
-    protected grid = { x: MoveKeyListener.defaultMoveX, y: MoveKeyListener.defaultMoveY };
+    @optional() @inject(Grid) protected grid: Grid = { x: MoveKeyListener.defaultMoveX, y: MoveKeyListener.defaultMoveY };
 
     constructor(protected readonly tool: MovementKeyTool) {
         super();
-
-        if (this.tool.snapper instanceof GridSnapper) {
-            this.grid = this.tool.snapper.grid;
-        }
     }
 
     registerShortcutKey(): void {

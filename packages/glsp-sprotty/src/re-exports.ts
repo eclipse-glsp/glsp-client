@@ -184,7 +184,7 @@ export * from 'sprotty/lib/features/edge-intersection/sweepline';
 
 export * from 'sprotty/lib/features/move/model';
 export * from 'sprotty/lib/features/move/move';
-export * from 'sprotty/lib/features/move/snap';
+export { ISnapper, CenterGridSnapper as SprottyCenterGridSnapper } from 'sprotty/lib/features/move/snap';
 
 export * from 'sprotty/lib/features/nameable/model';
 
@@ -326,4 +326,3 @@ export * from 'sprotty/lib/utils/iterable';
 export * from 'sprotty/lib/utils/keyboard';
 export * from 'sprotty/lib/utils/logging';
 export * from 'sprotty/lib/utils/registry';
-

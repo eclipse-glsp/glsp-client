@@ -16,4 +16,5 @@
 export * from './direct-task-editing';
 export * from './model';
 export * from './workflow-diagram-module';
+export * from './workflow-startup';
 export * from './workflow-views';

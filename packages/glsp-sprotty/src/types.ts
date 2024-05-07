@@ -47,5 +47,7 @@ export const TYPES = {
     ILocalElementNavigator: Symbol('ILocalElementNavigator'),
     IDiagramOptions: Symbol('IDiagramOptions'),
     IDiagramStartup: Symbol('IDiagramStartup'),
-    IToolManager: Symbol('IToolManager')
+    IToolManager: Symbol('IToolManager'),
+    IDebugManager: Symbol('IDebugManager'),
+    IGridManager: Symbol('IGridManager')
 };

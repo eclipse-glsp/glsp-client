@@ -19,6 +19,7 @@ import { FeedbackEmitter } from '../../base';
 import { IFeedbackActionDispatcher } from '../../base/feedback/feedback-action-dispatcher';
 import { ISelectionListener, SelectionService } from '../../base/selection-service';
 import { SetBoundsFeedbackAction } from '../bounds/set-bounds-feedback-command';
+import { Grid } from '../grid';
 import { MoveFinishedEventAction, MoveInitializedEventAction } from '../tools/change-bounds/change-bounds-tool-feedback';
 import {
     AlignmentElementFilter,
@@ -47,7 +48,7 @@ export interface IHelperLineOptions {
     viewportLines?: ViewportLineType[];
     /**
      * The minimum difference between two coordinates
-     * Defaults to 1.
+     * Defaults to 1 or zero (perfect match) if the optional grid module is loaded.
      */
     alignmentEpsilon?: number;
     /**
@@ -58,6 +59,7 @@ export interface IHelperLineOptions {
     /**
      * The minimum move delta that is necessary for an element to break through a helper line.
      * Defaults to { x: 1, y: 1 } whereas the x represents the horizontal distance and y represents the vertical distance.
+     * If the optional grid module is loaded, defaults to twice the grid size, i.e., two grid moves to break through a helper line.
      */
     minimumMoveDelta?: Point;
 
@@ -84,6 +86,7 @@ export class HelperLineManager implements IActionHandler, ISelectionListener, IH
     @inject(TYPES.IFeedbackActionDispatcher) protected feedbackDispatcher: IFeedbackActionDispatcher;
     @inject(SelectionService) protected selectionService: SelectionService;
     @optional() @inject(TYPES.IHelperLineOptions) protected userOptions?: IHelperLineOptions;
+    @optional() @inject(Grid) protected grid?: Grid;
 
     protected options: Required<IHelperLineOptions>;
     protected feedback: FeedbackEmitter;
@@ -91,7 +94,12 @@ export class HelperLineManager implements IActionHandler, ISelectionListener, IH
     @postConstruct()
     protected init(): void {
         this.feedback = this.feedbackDispatcher.createEmitter();
-        this.options = { ...DEFAULT_HELPER_LINE_OPTIONS, ...this.userOptions };
+        const dynamicOptions: IHelperLineOptions = {};
+        if (this.grid) {
+            dynamicOptions.alignmentEpsilon = 0;
+            dynamicOptions.minimumMoveDelta = Point.multiplyScalar(this.grid, 2);
+        }
+        this.options = { ...DEFAULT_HELPER_LINE_OPTIONS, ...dynamicOptions, ...this.userOptions };
         this.selectionService.onSelectionChanged(change =>
             this.selectionChanged(change.root, change.selectedElements, change.deselectedElements)
         );

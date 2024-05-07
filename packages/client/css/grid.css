@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020-2023 EclipseSource and others.
+ * Copyright (c) 2024 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,13 +13,12 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-/* eslint-disable @typescript-eslint/no-shadow */
-import { KeyboardModifier } from '@eclipse-glsp/sprotty';
 
-export function useSnap(event: MouseEvent | KeyboardEvent): boolean {
-    return !event.shiftKey;
+:root {
+    --grid-background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10"><rect class="grid-background-grid" width="10" height="10" x="0" y="0" fill="none" stroke="black" stroke-width="1" stroke-opacity="0.10" /></svg>');
 }
 
-export function unsnapModifier(): KeyboardModifier {
-    return 'shift';
+.grid-background .sprotty-graph {
+    background: var(--sprotty-background);
+    background-image: var(--grid-background-image);
 }

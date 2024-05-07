@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020-2023 EclipseSource and others.
+ * Copyright (c) 2023-2024 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,13 +13,9 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-/* eslint-disable @typescript-eslint/no-shadow */
-import { KeyboardModifier } from '@eclipse-glsp/sprotty';
-
-export function useSnap(event: MouseEvent | KeyboardEvent): boolean {
-    return !event.shiftKey;
-}
-
-export function unsnapModifier(): KeyboardModifier {
-    return 'shift';
-}
+export * from './grid';
+export * from './grid-background';
+export * from './grid-manager';
+export * from './grid-model';
+export * from './grid-module';
+export * from './grid-snapper';

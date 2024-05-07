@@ -26,17 +26,20 @@ import {
     SetContextActions,
     SetModelAction,
     SetUIExtensionVisibilityAction,
+    TYPES,
     TriggerNodeCreationAction,
     UpdateModelAction,
     codiconCSSClasses,
     matchesKeystroke
 } from '@eclipse-glsp/sprotty';
-import { inject, injectable, postConstruct } from 'inversify';
+import { inject, injectable, optional, postConstruct } from 'inversify';
 import { GLSPActionDispatcher } from '../../base/action-dispatcher';
 import { EditorContextService, IEditModeListener } from '../../base/editor-context-service';
 import { FocusTracker } from '../../base/focus/focus-tracker';
 import { IDiagramStartup } from '../../base/model/diagram-loader';
 import { EnableDefaultToolsAction, EnableToolsAction } from '../../base/tool-manager/tool';
+import { DebugManager } from '../debug';
+import { GridManager } from '../grid';
 import { MouseDeleteTool } from '../tools/deletion/delete-tool';
 import { MarqueeMouseTool } from '../tools/marquee-selection/marquee-mouse-tool';
 
@@ -73,6 +76,14 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
 
     @inject(FocusTracker)
     protected focusTracker: FocusTracker;
+
+    @optional()
+    @inject(TYPES.IGridManager)
+    protected gridManager?: GridManager;
+
+    @optional()
+    @inject(TYPES.IDebugManager)
+    protected debugManager?: DebugManager;
 
     protected paletteItems: PaletteItem[];
     protected paletteItemsCopy: PaletteItem[] = [];
@@ -202,6 +213,16 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
         const validateActionButton = this.createValidateButton();
         headerTools.appendChild(validateActionButton);
 
+        if (this.gridManager) {
+            const toggleGridButton = this.createToggleGridButton();
+            headerTools.appendChild(toggleGridButton);
+        }
+
+        if (this.debugManager) {
+            const toggleDebugButton = this.createToggleDebugButton();
+            headerTools.appendChild(toggleDebugButton);
+        }
+
         // Create button for Search
         const searchIcon = this.createSearchButton();
         headerTools.appendChild(searchIcon);
@@ -248,6 +269,46 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
         validateActionButton.ariaLabel = validateActionButton.title;
         validateActionButton.tabIndex = 1;
         return validateActionButton;
+    }
+
+    protected createToggleGridButton(): HTMLElement {
+        const toggleGridButton = createIcon('symbol-numeric');
+        toggleGridButton.title = 'Toggle Grid';
+        toggleGridButton.onclick = () => {
+            if (this.gridManager?.isGridVisible) {
+                toggleGridButton.classList.remove(CLICKED_CSS_CLASS);
+                this.gridManager?.setGridVisible(false);
+            } else {
+                toggleGridButton.classList.add(CLICKED_CSS_CLASS);
+                this.gridManager?.setGridVisible(true);
+            }
+        };
+        if (this.gridManager?.isGridVisible) {
+            toggleGridButton.classList.add(CLICKED_CSS_CLASS);
+        }
+        toggleGridButton.ariaLabel = toggleGridButton.title;
+        toggleGridButton.tabIndex = 1;
+        return toggleGridButton;
+    }
+
+    protected createToggleDebugButton(): HTMLElement {
+        const toggleDebugButton = createIcon('debug');
+        toggleDebugButton.title = 'Debug Mode';
+        toggleDebugButton.onclick = () => {
+            if (this.debugManager?.isDebugEnabled) {
+                toggleDebugButton.classList.remove(CLICKED_CSS_CLASS);
+                this.debugManager?.setDebugEnabled(false);
+            } else {
+                toggleDebugButton.classList.add(CLICKED_CSS_CLASS);
+                this.debugManager?.setDebugEnabled(true);
+            }
+        };
+        if (this.debugManager?.isDebugEnabled) {
+            toggleDebugButton.classList.add(CLICKED_CSS_CLASS);
+        }
+        toggleDebugButton.ariaLabel = toggleDebugButton.title;
+        toggleDebugButton.tabIndex = 1;
+        return toggleDebugButton;
     }
 
     protected createSearchButton(): HTMLElement {

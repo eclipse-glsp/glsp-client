@@ -17,7 +17,8 @@
     --glsp-info-foreground: blue;
 }
 
-.sprotty-graph {
+.sprotty-graph,
+.grid-background {
     background: rgb(179, 196, 202);
 }
 

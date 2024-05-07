@@ -27,11 +27,8 @@ import {
     GLSPProjectionView,
     GLabel,
     GLabelView,
-    GridSnapper,
     IHelperLineOptions,
-    ISnapper,
     LogLevel,
-    Point,
     RectangularNodeView,
     RevealNamedElementActionProvider,
     RoundedCornerNodeView,
@@ -41,7 +38,9 @@ import {
     bindOrRebind,
     configureDefaultModelElements,
     configureModelElement,
+    debugModule,
     editLabelFeature,
+    gridModule,
     helperLineModule,
     initializeDiagramContainer
 } from '@eclipse-glsp/client';
@@ -51,6 +50,7 @@ import 'sprotty/css/edit-label.css';
 import '../css/diagram.css';
 import { directTaskEditor } from './direct-task-editing/di.config';
 import { ActivityNode, CategoryNode, Icon, TaskNode, WeightedEdge } from './model';
+import { WorkflowStartup } from './workflow-startup';
 import { IconView, WorkflowEdgeView } from './workflow-views';
 
 export const workflowDiagramModule = new ContainerModule((bind, unbind, isBound, rebind) => {
@@ -58,7 +58,6 @@ export const workflowDiagramModule = new ContainerModule((bind, unbind, isBound,
 
     bindOrRebind(context, TYPES.ILogger).to(ConsoleLogger).inSingletonScope();
     bindOrRebind(context, TYPES.LogLevel).toConstantValue(LogLevel.warn);
-    bind(TYPES.ISnapper).to(GridSnapper);
     bindAsService(context, TYPES.ICommandPaletteActionProvider, RevealNamedElementActionProvider);
     bindAsService(context, TYPES.IContextMenuItemProvider, DeleteElementContextMenuItemProvider);
 
@@ -82,16 +81,13 @@ export const workflowDiagramModule = new ContainerModule((bind, unbind, isBound,
 
     bind<IHelperLineOptions>(TYPES.IHelperLineOptions).toDynamicValue(ctx => {
         const options: IHelperLineOptions = {};
-        // the user needs to use twice the force (double the distance) to break through a helper line compared to moving on the grid
-        const snapper = ctx.container.get<ISnapper>(TYPES.ISnapper);
-        if (snapper instanceof GridSnapper) {
-            options.minimumMoveDelta = Point.multiplyScalar(snapper.grid, 2);
-        }
         // skip icons for alignment as well as compartments which are only used for structure
         options.alignmentElementFilter = element =>
             DEFAULT_ALIGNABLE_ELEMENT_FILTER(element) && !(element instanceof Icon) && !(element instanceof GCompartment);
         return options;
     });
+
+    bindAsService(context, TYPES.IDiagramStartup, WorkflowStartup);
 });
 
 export function createWorkflowDiagramContainer(...containerConfiguration: ContainerConfiguration): Container {
@@ -99,5 +95,13 @@ export function createWorkflowDiagramContainer(...containerConfiguration: Contai
 }
 
 export function initializeWorkflowDiagramContainer(container: Container, ...containerConfiguration: ContainerConfiguration): Container {
-    return initializeDiagramContainer(container, workflowDiagramModule, directTaskEditor, helperLineModule, ...containerConfiguration);
+    return initializeDiagramContainer(
+        container,
+        workflowDiagramModule,
+        directTaskEditor,
+        helperLineModule,
+        gridModule,
+        debugModule,
+        ...containerConfiguration
+    );
 }

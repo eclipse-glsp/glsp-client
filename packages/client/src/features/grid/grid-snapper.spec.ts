@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020-2023 EclipseSource and others.
+ * Copyright (c) 2022-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,13 +13,18 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-/* eslint-disable @typescript-eslint/no-shadow */
-import { KeyboardModifier } from '@eclipse-glsp/sprotty';
 
-export function useSnap(event: MouseEvent | KeyboardEvent): boolean {
-    return !event.shiftKey;
-}
+import { GModelElement } from '@eclipse-glsp/sprotty';
+import { expect } from 'chai';
+import { GridSnapper } from './grid-snapper';
 
-export function unsnapModifier(): KeyboardModifier {
-    return 'shift';
-}
+describe('GridSnapper', () => {
+    it('snap', () => {
+        const element = new GModelElement();
+        const snapper = new GridSnapper();
+        expect(snapper.snap({ x: 0, y: 0 }, element)).to.be.deep.equals({ x: 0, y: 0 });
+        expect(snapper.snap({ x: 4, y: 5 }, element)).to.be.deep.equals({ x: 0, y: 10 });
+        expect(snapper.snap({ x: 8, y: 11 }, element)).to.be.deep.equals({ x: 10, y: 10 });
+        expect(snapper.snap({ x: -7, y: -4 }, element)).to.be.deep.equals({ x: -10, y: -0 });
+    });
+});

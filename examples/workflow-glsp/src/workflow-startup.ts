@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020-2023 EclipseSource and others.
+ * Copyright (c) 2024 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,13 +13,18 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-/* eslint-disable @typescript-eslint/no-shadow */
-import { KeyboardModifier } from '@eclipse-glsp/sprotty';
 
-export function useSnap(event: MouseEvent | KeyboardEvent): boolean {
-    return !event.shiftKey;
-}
+import { GridManager, IDiagramStartup } from '@eclipse-glsp/client';
+import { MaybePromise, TYPES } from '@eclipse-glsp/sprotty';
+import { inject, injectable } from 'inversify';
 
-export function unsnapModifier(): KeyboardModifier {
-    return 'shift';
+@injectable()
+export class WorkflowStartup implements IDiagramStartup {
+    rank = -1;
+
+    @inject(TYPES.IGridManager) protected gridManager: GridManager;
+
+    preRequestModel(): MaybePromise<void> {
+        this.gridManager.setGridVisible(true);
+    }
 }

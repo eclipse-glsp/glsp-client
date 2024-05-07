@@ -212,29 +212,42 @@ export class KeyboardToolPalette extends ToolPalette {
 
     protected override createHeaderTools(): HTMLElement {
         this.headerToolsButtonMapping.clear();
+        let mappingIndex = 0;
 
         const headerTools = document.createElement('div');
         headerTools.classList.add('header-tools');
 
         this.defaultToolsButton = this.createDefaultToolButton();
-        this.headerToolsButtonMapping.set(0, this.defaultToolsButton);
+        this.headerToolsButtonMapping.set(mappingIndex++, this.defaultToolsButton);
         headerTools.appendChild(this.defaultToolsButton);
 
         this.deleteToolButton = this.createMouseDeleteToolButton();
-        this.headerToolsButtonMapping.set(1, this.deleteToolButton);
+        this.headerToolsButtonMapping.set(mappingIndex++, this.deleteToolButton);
         headerTools.appendChild(this.deleteToolButton);
 
         this.marqueeToolButton = this.createMarqueeToolButton();
-        this.headerToolsButtonMapping.set(2, this.marqueeToolButton);
+        this.headerToolsButtonMapping.set(mappingIndex++, this.marqueeToolButton);
         headerTools.appendChild(this.marqueeToolButton);
 
         this.validateToolButton = this.createValidateButton();
-        this.headerToolsButtonMapping.set(3, this.validateToolButton);
+        this.headerToolsButtonMapping.set(mappingIndex++, this.validateToolButton);
         headerTools.appendChild(this.validateToolButton);
+
+        if (this.gridManager) {
+            const toggleGridButton = this.createToggleGridButton();
+            this.headerToolsButtonMapping.set(mappingIndex++, toggleGridButton);
+            headerTools.appendChild(toggleGridButton);
+        }
+
+        if (this.debugManager) {
+            const toggleDebugButton = this.createToggleDebugButton();
+            this.headerToolsButtonMapping.set(mappingIndex++, toggleDebugButton);
+            headerTools.appendChild(toggleDebugButton);
+        }
 
         // Create button for Search
         this.searchToolButton = this.createSearchButton();
-        this.headerToolsButtonMapping.set(4, this.searchToolButton);
+        this.headerToolsButtonMapping.set(mappingIndex++, this.searchToolButton);
         headerTools.appendChild(this.searchToolButton);
 
         return headerTools;
