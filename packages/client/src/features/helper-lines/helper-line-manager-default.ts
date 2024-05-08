@@ -13,7 +13,18 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, GModelElement, GModelRoot, IActionHandler, MoveAction, Point, SetBoundsAction, TYPES } from '@eclipse-glsp/sprotty';
+import {
+    Action,
+    GModelElement,
+    GModelRoot,
+    IActionHandler,
+    MoveAction,
+    Point,
+    SetBoundsAction,
+    TYPES,
+    Vector,
+    Writable
+} from '@eclipse-glsp/sprotty';
 import { inject, injectable, optional, postConstruct } from 'inversify';
 import { FeedbackEmitter } from '../../base';
 import { IFeedbackActionDispatcher } from '../../base/feedback/feedback-action-dispatcher';
@@ -33,7 +44,7 @@ import {
     ViewportLineType
 } from './helper-line-feedback';
 import { IHelperLineManager } from './helper-line-manager';
-import { Direction, HelperLineType } from './model';
+import { Direction, HelperLine, HelperLineType, isHelperLine } from './model';
 
 export interface IHelperLineOptions {
     /**
@@ -157,5 +168,29 @@ export class HelperLineManager implements IActionHandler, ISelectionListener, IH
         return direction === Direction.Left || direction === Direction.Right
             ? this.options.minimumMoveDelta.x
             : this.options.minimumMoveDelta.y;
+    }
+
+    getMinimumMoveVector(element: GModelElement, isSnap: boolean, directions: Direction[]): Vector | undefined {
+        if (!isSnap) {
+            return undefined;
+        }
+
+        const helperLines = element.root.children.filter(child => isHelperLine(child)) as HelperLine[];
+        if (helperLines.length === 0) {
+            return undefined;
+        }
+
+        const minimum: Writable<Vector> = { ...Vector.ZERO };
+        if (directions.includes(Direction.Left) && helperLines.some(line => line.isLeft || line.isCenter)) {
+            minimum.x = this.getMinimumMoveDelta(element, isSnap, Direction.Left);
+        } else if (directions.includes(Direction.Right) && helperLines.some(line => line.isRight || line.isCenter)) {
+            minimum.x = this.getMinimumMoveDelta(element, isSnap, Direction.Right);
+        }
+        if (directions.includes(Direction.Up) && helperLines.some(line => line.isTop || line.isMiddle)) {
+            minimum.y = this.getMinimumMoveDelta(element, isSnap, Direction.Up);
+        } else if (directions.includes(Direction.Down) && helperLines.some(line => line.isBottom || line.isMiddle)) {
+            minimum.y = this.getMinimumMoveDelta(element, isSnap, Direction.Down);
+        }
+        return Vector.isZero(minimum) ? undefined : minimum;
     }
 }

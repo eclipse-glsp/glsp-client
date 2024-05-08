@@ -18,20 +18,28 @@ import {
     Action,
     BoundsData,
     ComputedBoundsAction,
-    Deferred,
     EdgeRouterRegistry,
+    ElementAndAlignment,
+    ElementAndBounds,
+    ElementAndLayoutData,
     ElementAndRoutingPoints,
+    GChildElement,
     GModelElement,
     HiddenBoundsUpdater,
-    IActionDispatcher,
+    LayoutData,
     ModelIndexImpl,
-    RequestAction,
-    ResponseAction
+    RequestBoundsAction,
+    isLayoutContainer
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable, optional } from 'inversify';
 import { VNode } from 'snabbdom';
 import { BoundsAwareModelElement, calcElementAndRoute, getDescendantIds, isRoutable } from '../../utils/gmodel-util';
+import { LayoutAware } from './layout-data';
 import { LocalComputedBoundsAction, LocalRequestBoundsAction } from './local-bounds';
+
+export class BoundsDataExt extends BoundsData {
+    layoutData?: LayoutData;
+}
 
 /**
  * Grabs the bounds from hidden SVG DOM elements, applies layouts, collects routes and fires {@link ComputedBoundsAction}s.
@@ -44,7 +52,7 @@ export class GLSPHiddenBoundsUpdater extends HiddenBoundsUpdater {
 
     protected element2route: ElementAndRoutingPoints[] = [];
 
-    protected getElement2BoundsData(): Map<BoundsAwareModelElement, BoundsData> {
+    protected getElement2BoundsData(): Map<BoundsAwareModelElement, BoundsDataExt> {
         return this['element2boundsData'];
     }
 
@@ -60,10 +68,56 @@ export class GLSPHiddenBoundsUpdater extends HiddenBoundsUpdater {
         if (LocalRequestBoundsAction.is(cause) && cause.elementIDs) {
             this.focusOnElements(cause.elementIDs);
         }
-        const actions = this.captureActions(() => super.postUpdate(cause));
-        actions
-            .filter(action => ComputedBoundsAction.is(action))
-            .forEach(action => this.actionDispatcher.dispatch(this.enhanceAction(action as ComputedBoundsAction, cause)));
+
+        // collect bounds and layout data in element2BoundsData
+        this.getBoundsFromDOM();
+        this.layouter.layout(this.getElement2BoundsData());
+
+        // prepare data for action
+        const resizes: ElementAndBounds[] = [];
+        const alignments: ElementAndAlignment[] = [];
+        const layoutData: ElementAndLayoutData[] = [];
+        this.getElement2BoundsData().forEach((boundsData, element) => {
+            if (boundsData.boundsChanged && boundsData.bounds !== undefined) {
+                const resize: ElementAndBounds = {
+                    elementId: element.id,
+                    newSize: {
+                        width: boundsData.bounds.width,
+                        height: boundsData.bounds.height
+                    }
+                };
+                // don't copy position if the element is layouted by the server
+                if (element instanceof GChildElement && isLayoutContainer(element.parent)) {
+                    resize.newPosition = {
+                        x: boundsData.bounds.x,
+                        y: boundsData.bounds.y
+                    };
+                }
+                resizes.push(resize);
+            }
+            if (boundsData.alignmentChanged && boundsData.alignment !== undefined) {
+                alignments.push({
+                    elementId: element.id,
+                    newAlignment: boundsData.alignment
+                });
+            }
+            if (LayoutAware.is(boundsData)) {
+                layoutData.push({ elementId: element.id, layoutData: boundsData.layoutData });
+            }
+        });
+        const routes = this.element2route.length === 0 ? undefined : this.element2route;
+
+        // prepare and dispatch action
+        const responseId = (cause as RequestBoundsAction).requestId;
+        const revision = this.root !== undefined ? this.root.revision : undefined;
+        const computedBoundsAction = ComputedBoundsAction.create(resizes, { revision, alignments, layoutData, routes, responseId });
+        if (LocalRequestBoundsAction.is(cause)) {
+            LocalComputedBoundsAction.mark(computedBoundsAction);
+        }
+        this.actionDispatcher.dispatch(computedBoundsAction);
+
+        // cleanup
+        this.getElement2BoundsData().clear();
         this.element2route = [];
     }
 
@@ -81,42 +135,5 @@ export class GLSPHiddenBoundsUpdater extends HiddenBoundsUpdater {
 
     protected expandElementId(id: string, index: ModelIndexImpl, elementIDs: string[]): string[] {
         return getDescendantIds(index.getById(id));
-    }
-
-    protected captureActions(call: () => void): Action[] {
-        const capturingActionDispatcher = new CapturingActionDispatcher();
-        const actualActionDispatcher = this.actionDispatcher;
-        this.actionDispatcher = capturingActionDispatcher;
-        try {
-            call();
-            return capturingActionDispatcher.actions;
-        } finally {
-            this.actionDispatcher = actualActionDispatcher;
-        }
-    }
-
-    protected enhanceAction(action: ComputedBoundsAction, cause?: Action): ComputedBoundsAction {
-        if (LocalRequestBoundsAction.is(cause)) {
-            LocalComputedBoundsAction.mark(action);
-        }
-        action.routes = this.element2route.length === 0 ? undefined : this.element2route;
-        return action;
-    }
-}
-
-class CapturingActionDispatcher implements IActionDispatcher {
-    readonly actions: Action[] = [];
-
-    async dispatch(action: Action): Promise<void> {
-        this.actions.push(action);
-    }
-
-    async dispatchAll(actions: Action[]): Promise<void> {
-        this.actions.push(...actions);
-    }
-
-    async request<Res extends ResponseAction>(action: RequestAction<Res>): Promise<Res> {
-        // ignore, not needed for our purposes
-        return new Deferred<Res>().promise;
     }
 }

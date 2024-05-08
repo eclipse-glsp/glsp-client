@@ -13,8 +13,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+export * from './change-bounds-manager';
 export * from './change-bounds-tool';
 export * from './change-bounds-tool-feedback';
 export * from './change-bounds-tool-module';
 export * from './change-bounds-tool-move-feedback';
+export * from './change-bounds-tracker';
 export * from './view';

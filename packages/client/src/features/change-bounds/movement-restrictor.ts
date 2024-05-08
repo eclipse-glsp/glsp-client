@@ -108,3 +108,13 @@ export function removeMovementRestrictionFeedback(
 
     return ModifyCSSFeedbackAction.create({ elements, remove: movementRestrictor.cssClasses });
 }
+
+export function movementRestrictionFeedback(
+    element: GModelElement,
+    movementRestrictor: IMovementRestrictor,
+    valid: boolean
+): ModifyCSSFeedbackAction {
+    return valid
+        ? removeMovementRestrictionFeedback(element, movementRestrictor)
+        : createMovementRestrictionFeedback(element, movementRestrictor);
+}

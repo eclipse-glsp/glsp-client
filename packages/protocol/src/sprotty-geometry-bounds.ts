@@ -20,6 +20,11 @@ import { Bounds, Dimension, Point } from 'sprotty-protocol/lib/utils/geometry';
 declare module 'sprotty-protocol/lib/utils/geometry' {
     namespace Bounds {
         /**
+         * The empty bounds with valid dimensions. It has x, y, width, and height set to 0.
+         */
+        const ZERO: Bounds;
+
+        /**
          * Checks whether the inner bounds are compeletely encompassed by the outer bounds.
          *
          * @param outer outer bounds
@@ -209,8 +214,31 @@ declare module 'sprotty-protocol/lib/utils/geometry' {
          * @returns the sorted bounds
          */
         function sortBy<T>(rankFunc: (elem: T) => number, ...bounds: T[]): T[];
+
+        /**
+         * Moves the bounds by the given delta.
+         * @param bounds the bounds to move
+         * @param delta the delta to move the bounds by
+         * @returns the moved bounds
+         */
+        function move(bounds: Bounds, delta: Point): Bounds;
+
+        /**
+         * Resizes the bounds by the given delta.
+         * @param bounds the bounds to resize
+         * @param delta the delta to resize the bounds by
+         * @returns the resized bounds
+         */
+        function resize(bounds: Bounds, delta: Dimension): Bounds;
     }
 }
+
+(Bounds as any).ZERO = Object.freeze({
+    x: 0,
+    y: 0,
+    width: 0,
+    height: 0
+});
 
 Bounds.encompasses = (outer: Bounds, inner: Bounds): boolean =>
     Bounds.includes(outer, Bounds.topLeft(inner)) && Bounds.includes(outer, Bounds.bottomRight(inner));
@@ -279,6 +307,14 @@ Bounds.from = (topLeft: Point, bottomRight: Point): Bounds => ({
     ...topLeft,
     width: bottomRight.x - topLeft.x,
     height: bottomRight.y - topLeft.y
+});
+
+Bounds.move = Bounds.translate;
+
+Bounds.resize = (bounds: Bounds, delta: Dimension): Bounds => ({
+    ...bounds,
+    width: bounds.width + delta.width,
+    height: bounds.height + delta.height
 });
 
 export { Bounds };

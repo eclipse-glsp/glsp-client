@@ -14,7 +14,9 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import {
+    Bounds,
     BoundsAware,
+    Dimension,
     EdgeRouterRegistry,
     ElementAndBounds,
     ElementAndRoutingPoints,
@@ -40,6 +42,7 @@ import {
     isSelected,
     remove
 } from '@eclipse-glsp/sprotty';
+import { GEdge } from '../model';
 
 /**
  * Helper type to represent a filter predicate for {@link GModelElement}s. This is used to retrieve
@@ -153,6 +156,50 @@ export function removeCssClasses(root: GModelElement, cssClasses: string[]): voi
         return;
     }
     remove(root.cssClasses, ...cssClasses);
+}
+
+/**
+ * Adds a css classs to a set of {@link GModelElement}s.
+ *
+ * @param elements The elements to which the css class should be added.
+ * @param cssClass The css class to add.
+ */
+export function addCssClassToElements(elements: GModelElement[], cssClass: string): void {
+    for (const element of elements) {
+        addCssClasses(element, [cssClass]);
+    }
+}
+
+/**
+ * Removes a css class from a set of {@link GModelElement}s.
+ * @param elements The elements from which the css class should be removed.
+ * @param cssClass The css class to remove.
+ */
+export function removeCssClassOfElements(elements: GModelElement[], cssClass: string): void {
+    for (const element of elements) {
+        removeCssClasses(element, [cssClass]);
+    }
+}
+
+/**
+ * Adds a css class to a {@link GModelElement}.
+ */
+export function addCssClass(element: GModelElement, cssClass: string): void {
+    addCssClassToElements([element], cssClass);
+}
+
+/**
+ * Removes a css class from a {@link GModelElement}.
+ */
+export function removeCssClass(element: GModelElement, cssClass: string): void {
+    removeCssClassOfElements([element], cssClass);
+}
+
+/**
+ * Toggles a css class on a {@link GModelElement} based on the given toggle flag.
+ */
+export function toggleCssClass(element: GModelElement, cssClass: string, toggle: boolean): void {
+    return toggle ? addCssClass(element, cssClass) : removeCssClass(element, cssClass);
 }
 
 export function isNonRoutableSelectedMovableBoundsAware(element: GModelElement): element is SelectableBoundsAware {
@@ -415,4 +462,30 @@ export function isNotDescendantOfAnyElement<T extends GModelElement>(elements: F
  */
 export function removeDescendants<T extends GModelElement>(elements: FluentIterable<T>): FluentIterable<T> {
     return elements.filter(isNotDescendantOfAnyElement(elements));
+}
+
+/**
+ * Computes the bounds of the given edge, i.e., the bounding box of the edge's source, target, and routing points in absolute coordinates.
+ *
+ * @param edge The edge to compute the bounds for.
+ * @returns the bounds of the edge
+ */
+export function getAbsoluteEdgeBounds(edge: GEdge): Bounds {
+    if (!edge.source || !edge.target) {
+        return edge.bounds;
+    }
+    const source = edge.source;
+    const target = edge.target;
+    const edgePoints: Bounds[] = [];
+    edgePoints.push({ ...Dimension.ZERO, ...Bounds.center(source.bounds) });
+    edgePoints.push(...edge.routingPoints.map(point => ({ ...Dimension.ZERO, ...point })));
+    edgePoints.push({ ...Dimension.ZERO, ...Bounds.center(target.bounds) });
+    let bounds = edgePoints.reduce(Bounds.combine);
+    let current: GModelElement = edge;
+    while (current instanceof GChildElement) {
+        const parent = current.parent;
+        bounds = parent.localToParent(bounds);
+        current = parent;
+    }
+    return bounds;
 }

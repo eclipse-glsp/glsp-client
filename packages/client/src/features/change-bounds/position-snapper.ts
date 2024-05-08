@@ -18,6 +18,10 @@ import { inject, injectable, optional } from 'inversify';
 import { IHelperLineManager } from '../helper-lines/helper-line-manager';
 import { Direction, HelperLine, isHelperLine } from '../helper-lines/model';
 
+/**
+ * @deprecated The use of this class is discouraged. Use the {@link ChangeBoundsManager.createTracker}
+ * instead which centralized a few aspects of the tracking.
+ */
 @injectable()
 export class PositionSnapper {
     constructor(

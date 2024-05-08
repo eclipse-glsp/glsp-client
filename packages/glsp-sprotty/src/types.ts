@@ -50,5 +50,6 @@ export const TYPES = {
     IToolManager: Symbol('IToolManager'),
     IDebugManager: Symbol('IDebugManager'),
     Grid: Symbol('Grid'),
-    IGridManager: Symbol('IGridManager')
+    IGridManager: Symbol('IGridManager'),
+    IChangeBoundsManager: Symbol('IChangeBoundsManager')
 };

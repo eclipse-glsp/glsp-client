@@ -13,7 +13,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { injectable } from 'inversify';
 import {
     AbstractLayout,
     AbstractLayoutOptions,
@@ -21,11 +20,13 @@ import {
     BoundsData,
     Dimension,
     GChildElement,
+    GParentElement,
     LayoutContainer,
     Point,
-    GParentElement,
     StatefulLayouter
 } from '@eclipse-glsp/sprotty';
+import { injectable } from 'inversify';
+import { LayoutAware } from './layout-data';
 
 /**
  * Layouts children of a container with explicit X/Y positions
@@ -44,9 +45,11 @@ export class FreeFormLayouter extends AbstractLayout<AbstractLayoutOptions> {
 
         const maxWidth = childrenSize.width > 0 ? childrenSize.width + options.paddingLeft + options.paddingRight : 0;
         const maxHeight = childrenSize.height > 0 ? childrenSize.height + options.paddingTop + options.paddingBottom : 0;
-        if (maxWidth > 0 && maxHeight > 0) {
+        if (childrenSize.width > 0 && childrenSize.height > 0) {
             const offset = this.layoutChildren(container, layouter, options, maxWidth, maxHeight);
-            boundsData.bounds = this.getFinalContainerBounds(container, offset, options, maxWidth, maxHeight);
+            const computed = this.getComputedContainerDimensions(options, childrenSize.width, childrenSize.height);
+            LayoutAware.setComputedDimensions(boundsData, computed);
+            boundsData.bounds = this.getFinalContainerBounds(container, offset, options, computed.width, computed.height);
             boundsData.boundsChanged = true;
         } else {
             boundsData.bounds = { x: boundsData.bounds!.x, y: boundsData.bounds!.y, width: 0, height: 0 };
@@ -96,6 +99,13 @@ export class FreeFormLayouter extends AbstractLayout<AbstractLayoutOptions> {
         return currentOffset;
     }
 
+    protected getComputedContainerDimensions(options: AbstractLayoutOptions, maxWidth: number, maxHeight: number): Dimension {
+        return {
+            width: maxWidth + options.paddingLeft + options.paddingRight,
+            height: maxHeight + options.paddingTop + options.paddingBottom
+        };
+    }
+
     protected override getFinalContainerBounds(
         container: GParentElement & LayoutContainer,
         lastOffset: Point,
@@ -106,8 +116,8 @@ export class FreeFormLayouter extends AbstractLayout<AbstractLayoutOptions> {
         const result = {
             x: container.bounds.x,
             y: container.bounds.y,
-            width: Math.max(options.minWidth, maxWidth + options.paddingLeft + options.paddingRight),
-            height: Math.max(options.minHeight, maxHeight + options.paddingTop + options.paddingBottom)
+            width: Math.max(options.minWidth, maxWidth),
+            height: Math.max(options.minHeight, maxHeight)
         };
 
         return result;

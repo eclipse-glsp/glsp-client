@@ -29,6 +29,9 @@ import { useSnap } from './snap';
  *
  * You can initialize a this class with a optional {@link ISnapper}. If a
  * snapper is present, the positions will be snapped to the defined grid.
+ *
+ * @deprecated The use of this class is discouraged. Use the {@link ChangeBoundsManager.createTracker}
+ * instead which centralized a few aspects of the tracking.
  */
 export class PointPositionUpdater {
     protected positionSnapper: PositionSnapper;

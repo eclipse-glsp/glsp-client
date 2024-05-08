@@ -85,14 +85,18 @@ export enum CursorCSS {
     RESIZE_NESW = 'resize-nesw-mode',
     RESIZE_NWSE = 'resize-nwse-mode',
     RESIZE_NW = 'resize-nw-mode',
+    RESIZE_N = 'resize-n-mode',
     RESIZE_NE = 'resize-ne-mode',
-    RESIZE_SW = 'resize-sw-mode',
+    RESIZE_E = 'resize-e-mode',
     RESIZE_SE = 'resize-se-mode',
+    RESIZE_S = 'resize-s-mode',
+    RESIZE_SW = 'resize-sw-mode',
+    RESIZE_W = 'resize-w-mode',
     MOVE = 'move-mode',
     MARQUEE = 'marquee-mode'
 }
 
-export function cursorFeedbackAction(cursorCss?: CursorCSS): ModifyCSSFeedbackAction {
+export function cursorFeedbackAction(cursorCss?: string): ModifyCSSFeedbackAction {
     const add = [];
     if (cursorCss) {
         add.push(cursorCss);
@@ -106,4 +110,8 @@ export function applyCssClasses(element: GModelElement, ...add: string[]): Modif
 
 export function deleteCssClasses(element: GModelElement, ...remove: string[]): ModifyCSSFeedbackAction {
     return ModifyCSSFeedbackAction.create({ elements: [element], remove });
+}
+
+export function toggleCssClasses(element: GModelElement, add: boolean, ...cssClasses: string[]): ModifyCSSFeedbackAction {
+    return add ? applyCssClasses(element, ...cssClasses) : deleteCssClasses(element, ...cssClasses);
 }

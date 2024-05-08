@@ -24,6 +24,7 @@ export * from './editor-context-service';
 export * from './feedback';
 export * from './focus';
 export * from './model';
+export * from './mouse-position-tracker';
 export * from './ranked';
 export * from './selection-clearing-mouse-listener';
 export * from './selection-service';

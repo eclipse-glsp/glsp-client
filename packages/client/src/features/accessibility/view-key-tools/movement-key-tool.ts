@@ -20,8 +20,8 @@ import { matchesKeystroke } from 'sprotty/lib/utils/keyboard';
 import { GLSPActionDispatcher } from '../../../base/action-dispatcher';
 import { SelectionService } from '../../../base/selection-service';
 import { Tool } from '../../../base/tool-manager/tool';
-import { unsnapModifier, useSnap } from '../../change-bounds/snap';
 import { Grid } from '../../grid';
+import { ChangeBoundsManager } from '../../tools';
 import { AccessibleKeyShortcutProvider, SetAccessibleKeyShortcutAction } from '../key-shortcut/accessible-key-shortcut';
 import { MoveElementAction, MoveViewportAction } from '../move-zoom/move-handler';
 
@@ -41,6 +41,7 @@ export class MovementKeyTool implements Tool {
     @inject(TYPES.ISnapper) @optional() readonly snapper?: ISnapper;
     @inject(TYPES.IActionDispatcher) readonly actionDispatcher: GLSPActionDispatcher;
     @optional() @inject(TYPES.Grid) protected grid: Grid;
+    @inject(TYPES.IChangeBoundsManager) readonly changeBoundsManager: ChangeBoundsManager;
 
     get id(): string {
         return MovementKeyTool.ID;
@@ -86,7 +87,7 @@ export class MoveKeyListener extends KeyListener implements AccessibleKeyShortcu
 
     override keyDown(_element: GModelElement, event: KeyboardEvent): Action[] {
         const selectedElementIds = this.tool.selectionService.getSelectedElementIDs();
-        const snap = useSnap(event);
+        const snap = this.tool.changeBoundsManager.usePositionSnap(event);
         const offsetX = snap ? this.grid.x : 1;
         const offsetY = snap ? this.grid.y : 1;
 
@@ -115,18 +116,20 @@ export class MoveKeyListener extends KeyListener implements AccessibleKeyShortcu
     }
 
     protected matchesMoveUpKeystroke(event: KeyboardEvent): boolean {
-        return matchesKeystroke(event, 'ArrowUp') || matchesKeystroke(event, 'ArrowUp', unsnapModifier());
+        return matchesKeystroke(event, 'ArrowUp') || matchesKeystroke(event, 'ArrowUp', this.tool.changeBoundsManager.unsnapModifier());
     }
 
     protected matchesMoveDownKeystroke(event: KeyboardEvent): boolean {
-        return matchesKeystroke(event, 'ArrowDown') || matchesKeystroke(event, 'ArrowDown', unsnapModifier());
+        return matchesKeystroke(event, 'ArrowDown') || matchesKeystroke(event, 'ArrowDown', this.tool.changeBoundsManager.unsnapModifier());
     }
 
     protected matchesMoveRightKeystroke(event: KeyboardEvent): boolean {
-        return matchesKeystroke(event, 'ArrowRight') || matchesKeystroke(event, 'ArrowRight', unsnapModifier());
+        return (
+            matchesKeystroke(event, 'ArrowRight') || matchesKeystroke(event, 'ArrowRight', this.tool.changeBoundsManager.unsnapModifier())
+        );
     }
 
     protected matchesMoveLeftKeystroke(event: KeyboardEvent): boolean {
-        return matchesKeystroke(event, 'ArrowLeft') || matchesKeystroke(event, 'ArrowLeft', unsnapModifier());
+        return matchesKeystroke(event, 'ArrowLeft') || matchesKeystroke(event, 'ArrowLeft', this.tool.changeBoundsManager.unsnapModifier());
     }
 }

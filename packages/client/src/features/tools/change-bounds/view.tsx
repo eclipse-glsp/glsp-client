@@ -16,7 +16,7 @@
 import { IView, Point, RenderingContext, setAttr, svg } from '@eclipse-glsp/sprotty';
 import { injectable } from 'inversify';
 import { VNode } from 'snabbdom';
-import { ResizeHandleLocation, SResizeHandle, isResizable } from '../../change-bounds/model';
+import { SResizeHandle } from '../../change-bounds/model';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const JSX = { createElement: svg };
@@ -46,19 +46,7 @@ export class SResizeHandleView implements IView {
     }
 
     protected getPosition(handle: SResizeHandle): Point | undefined {
-        const parent = handle.parent;
-        if (isResizable(parent)) {
-            if (handle.location === ResizeHandleLocation.TopLeft) {
-                return { x: 0, y: 0 };
-            } else if (handle.location === ResizeHandleLocation.TopRight) {
-                return { x: parent.bounds.width, y: 0 };
-            } else if (handle.location === ResizeHandleLocation.BottomLeft) {
-                return { x: 0, y: parent.bounds.height };
-            } else if (handle.location === ResizeHandleLocation.BottomRight) {
-                return { x: parent.bounds.width, y: parent.bounds.height };
-            }
-        }
-        return undefined;
+        return Point.subtract(SResizeHandle.getHandlePosition(handle), handle.parent.bounds);
     }
 
     getRadius(): number {

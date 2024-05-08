@@ -21,7 +21,6 @@ import {
     CommandReturn,
     Disposable,
     EdgeRouterRegistry,
-    ElementMove,
     GConnectableElement,
     GModelElement,
     GRoutingHandle,
@@ -37,17 +36,17 @@ import {
     hasStringProp,
     isBoundsAware,
     isConnectable,
-    isSelected
+    isSelected,
+    toTypeGuard,
+    typeGuard
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
+import { ChangeBoundsManager, ChangeBoundsTracker, MoveableRoutingHandle } from '..';
 import { FeedbackEmitter } from '../../../base';
 import { IFeedbackActionDispatcher } from '../../../base/feedback/feedback-action-dispatcher';
 import { FeedbackCommand } from '../../../base/feedback/feedback-command';
-import { forEachElement, isRoutable, isRoutingHandle } from '../../../utils/gmodel-util';
+import { forEachElement, getMatchingElements, isRoutable, isRoutingHandle } from '../../../utils/gmodel-util';
 import { getAbsolutePosition, toAbsoluteBounds } from '../../../utils/viewpoint-util';
-import { PointPositionUpdater } from '../../change-bounds/point-position-updater';
-import { PositionSnapper } from '../../change-bounds/position-snapper';
-import { useSnap } from '../../change-bounds/snap';
 import { addReconnectHandles, removeReconnectHandles } from '../../reconnect/model';
 import { FeedbackEdgeEnd, feedbackEdgeEndId, feedbackEdgeId } from '../edge-creation/dangling-edge-feedback';
 import { FeedbackEdgeEndMovingMouseListener } from '../edge-creation/edge-creation-tool-feedback';
@@ -255,14 +254,14 @@ export class FeedbackEdgeSourceMovingMouseListener extends MouseListener impleme
 }
 
 export class FeedbackEdgeRouteMovingMouseListener extends MouseListener {
-    protected pointPositionUpdater: PointPositionUpdater;
+    protected tracker: ChangeBoundsTracker;
 
     constructor(
-        protected positionSnapper: PositionSnapper,
+        protected changeBoundsManager: ChangeBoundsManager,
         protected edgeRouterRegistry?: EdgeRouterRegistry
     ) {
         super();
-        this.pointPositionUpdater = new PointPositionUpdater(positionSnapper);
+        this.tracker = this.changeBoundsManager.createTracker();
     }
 
     override mouseDown(target: GModelElement, event: MouseEvent): Action[] {
@@ -271,64 +270,47 @@ export class FeedbackEdgeRouteMovingMouseListener extends MouseListener {
             const routingHandle = findParentByFeature(target, isRoutingHandle);
             if (routingHandle !== undefined) {
                 result.push(SwitchRoutingModeAction.create({ elementsToActivate: [target.id] }));
-                this.pointPositionUpdater.updateLastDragPosition(event);
+                this.tracker.startTracking();
             } else {
-                this.pointPositionUpdater.resetPosition();
+                this.tracker.dispose();
             }
         }
         return result;
     }
 
     override mouseMove(target: GModelElement, event: MouseEvent): Action[] {
-        const result: Action[] = [];
+        super.mouseMove(target, event);
         if (event.buttons === 0) {
             return this.mouseUp(target, event);
-        }
-        const positionUpdate = this.pointPositionUpdater.updatePosition(target, event);
-        if (positionUpdate) {
-            const moveActions = this.handleMoveOnClient(target, positionUpdate, useSnap(event));
-            result.push(...moveActions);
-        }
-        return result;
-    }
-
-    protected handleMoveOnClient(target: GModelElement, positionUpdate: Point, isSnap: boolean): Action[] {
-        const handleMoves: ElementMove[] = [];
-        target.root.index
-            .all()
-            .filter(element => isSelected(element))
-            .forEach(element => {
-                if (isRoutingHandle(element)) {
-                    const elementMove = this.toElementMove(element, positionUpdate, isSnap);
-                    if (elementMove) {
-                        handleMoves.push(elementMove);
-                    }
-                }
-            });
-        if (handleMoves.length > 0) {
-            return [MoveAction.create(handleMoves, { animate: false })];
+        } else if (this.tracker.isTracking()) {
+            return this.moveRoutingHandles(target, event);
         }
         return [];
     }
 
-    protected toElementMove(element: GRoutingHandle, positionDelta: Point, isSnap: boolean): ElementMove | undefined {
-        const point = this.getHandlePosition(element);
-        if (point !== undefined) {
-            const snappedPoint = this.getSnappedHandlePosition(element, point, isSnap);
-            return {
-                elementId: element.id,
-                fromPosition: point,
-                toPosition: {
-                    x: snappedPoint.x + positionDelta.x,
-                    y: snappedPoint.y + positionDelta.y
-                }
-            };
+    protected moveRoutingHandles(target: GModelElement, event: MouseEvent): Action[] {
+        const routingHandlesToMove = this.getRoutingHandlesToMove(target);
+        const move = this.tracker.moveElements(routingHandlesToMove, { snap: event, restrict: event });
+        if (move.elementMoves.length === 0) {
+            return [];
         }
-        return undefined;
+        this.tracker.updateTrackingPosition(move);
+        return [
+            MoveAction.create(
+                move.elementMoves.map(elementMove => ({ elementId: elementMove.element.id, toPosition: elementMove.toPosition })),
+                { animate: false }
+            )
+        ];
     }
 
-    protected getSnappedHandlePosition(element: GRoutingHandle, point: Point, isSnap: boolean): Point {
-        return this.positionSnapper?.snapPosition(point, element, isSnap);
+    protected getRoutingHandlesToMove(context: GModelElement): MoveableRoutingHandle[] {
+        const selectedRoutingHandles = getMatchingElements(context.root.index, typeGuard(isRoutingHandle, isSelected));
+        return selectedRoutingHandles
+            .map(handle => {
+                const position = this.getHandlePosition(handle);
+                return position ? new MoveableRoutingHandle(handle, position) : undefined;
+            })
+            .filter(toTypeGuard(MoveableRoutingHandle));
     }
 
     protected getHandlePosition(handle: GRoutingHandle): Point | undefined {
@@ -345,7 +327,7 @@ export class FeedbackEdgeRouteMovingMouseListener extends MouseListener {
     }
 
     override mouseUp(_target: GModelElement, _event: MouseEvent): Action[] {
-        this.pointPositionUpdater.resetPosition();
+        this.tracker.dispose();
         return [];
     }
 }

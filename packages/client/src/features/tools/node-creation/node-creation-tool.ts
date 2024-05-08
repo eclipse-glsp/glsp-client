@@ -26,7 +26,7 @@ import {
     isCtrlOrCmd,
     isMoveable
 } from '@eclipse-glsp/sprotty';
-import { inject, injectable, optional } from 'inversify';
+import { inject, injectable } from 'inversify';
 import '../../../../css/ghost-element.css';
 import { FeedbackEmitter } from '../../../base';
 import { DragAwareMouseListener } from '../../../base/drag-aware-mouse-listener';
@@ -34,13 +34,12 @@ import { CSS_GHOST_ELEMENT, CSS_HIDDEN, CursorCSS, cursorFeedbackAction } from '
 import { EnableDefaultToolsAction } from '../../../base/tool-manager/tool';
 import { MoveableElement, isValidMove } from '../../../utils';
 import { getAbsolutePosition } from '../../../utils/viewpoint-util';
-import { IMovementRestrictor } from '../../change-bounds/movement-restrictor';
-import { PositionSnapper } from '../../change-bounds/position-snapper';
 import { RemoveTemplateElementsAction } from '../../element-template';
 import { AddTemplateElementsAction, getTemplateElementId } from '../../element-template/add-template-element';
 import { MouseTrackingElementPositionListener, PositioningTool } from '../../element-template/mouse-tracking-element-position-listener';
 import { Containable, isContainable } from '../../hints/model';
 import { BaseCreationTool } from '../base-tools';
+import { ChangeBoundsManager } from '../change-bounds';
 
 @injectable()
 export class NodeCreationTool extends BaseCreationTool<TriggerNodeCreationAction> implements PositioningTool {
@@ -48,8 +47,7 @@ export class NodeCreationTool extends BaseCreationTool<TriggerNodeCreationAction
 
     protected isTriggerAction = TriggerNodeCreationAction.is;
 
-    @inject(TYPES.IMovementRestrictor) @optional() readonly movementRestrictor?: IMovementRestrictor;
-    @inject(PositionSnapper) readonly positionSnapper: PositionSnapper;
+    @inject(TYPES.IChangeBoundsManager) readonly changeBoundsManager: ChangeBoundsManager;
 
     get id(): string {
         return NodeCreationTool.ID;
@@ -149,14 +147,16 @@ export class NodeCreationToolMouseListener extends DragAwareMouseListener {
     protected getValidInsertPosition(target: GModelElement, event: MouseEvent): Point | undefined {
         const ghostElement = this.getGhostElement();
         if (ghostElement) {
-            return isValidMove(ghostElement, ghostElement.position, this.tool.movementRestrictor) ? ghostElement.position : undefined;
+            return isValidMove(ghostElement, ghostElement.position, this.tool.changeBoundsManager.movementRestrictor)
+                ? ghostElement.position
+                : undefined;
         }
         const location = getAbsolutePosition(target, event);
 
         // Create a 0-bounds proxy element for snapping
         const elementProxy = new GNode();
         elementProxy.size = { width: 0, height: 0 };
-        return this.tool.positionSnapper.snapPosition(location, elementProxy);
+        return this.tool.changeBoundsManager.snapPosition(elementProxy, location);
     }
 
     override mouseOver(target: GModelElement, event: MouseEvent): Action[] {

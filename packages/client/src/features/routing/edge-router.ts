@@ -41,6 +41,13 @@ export abstract class GLSPAbstractEdgeRouter extends AbstractEdgeRouter {
         const anchor = super.getTranslatedAnchor(connectable, refPoint, refContainer, edge, anchorCorrection);
         return Point.isValid(anchor) ? anchor : refPoint;
     }
+
+    override cleanupRoutingPoints(edge: GRoutableElement, routingPoints: Point[], updateHandles: boolean, addRoutingPoints: boolean): void {
+        // sometimes it might happen that the source or target has the bounds not properly set when using the feedback edge
+        if (ensureBounds(edge.source) && ensureBounds(edge.target)) {
+            super.cleanupRoutingPoints(edge, routingPoints, updateHandles, addRoutingPoints);
+        }
+    }
 }
 
 @injectable()
@@ -55,6 +62,13 @@ export class GLSPPolylineEdgeRouter extends PolylineEdgeRouter {
         // users may define all kinds of anchors and anchor computers, we want to make sure we return a valid one in any case
         const anchor = super.getTranslatedAnchor(connectable, refPoint, refContainer, edge, anchorCorrection);
         return Point.isValid(anchor) ? anchor : refPoint;
+    }
+
+    override cleanupRoutingPoints(edge: GRoutableElement, routingPoints: Point[], updateHandles: boolean, addRoutingPoints: boolean): void {
+        // sometimes it might happen that the source or target has the bounds not properly set when using the feedback edge
+        if (ensureBounds(edge.source) && ensureBounds(edge.target)) {
+            super.cleanupRoutingPoints(edge, routingPoints, updateHandles, addRoutingPoints);
+        }
     }
 }
 
@@ -111,6 +125,13 @@ export class GLSPManhattanEdgeRouter extends ManhattanEdgeRouter {
             }
         });
     }
+
+    override cleanupRoutingPoints(edge: GRoutableElement, routingPoints: Point[], updateHandles: boolean, addRoutingPoints: boolean): void {
+        // sometimes it might happen that the source or target has the bounds not properly set when using the feedback edge
+        if (ensureBounds(edge.source) && ensureBounds(edge.target)) {
+            super.cleanupRoutingPoints(edge, routingPoints, updateHandles, addRoutingPoints);
+        }
+    }
 }
 
 @injectable()
@@ -126,4 +147,25 @@ export class GLSPBezierEdgeRouter extends BezierEdgeRouter {
         const anchor = super.getTranslatedAnchor(connectable, refPoint, refContainer, edge, anchorCorrection);
         return Point.isValid(anchor) ? anchor : refPoint;
     }
+
+    override cleanupRoutingPoints(edge: GRoutableElement, routingPoints: Point[], updateHandles: boolean, addRoutingPoints: boolean): void {
+        // sometimes it might happen that the source or target has the bounds not properly set when using the feedback edge
+        if (ensureBounds(edge.source) && ensureBounds(edge.target)) {
+            super.cleanupRoutingPoints(edge, routingPoints, updateHandles, addRoutingPoints);
+        }
+    }
+}
+
+function ensureBounds(element?: GConnectableElement): boolean {
+    if (!element) {
+        return false;
+    }
+    if (element.bounds) {
+        return true;
+    }
+    if (element.position && element.size) {
+        element.bounds = { ...element.position, ...element.size };
+        return true;
+    }
+    return false;
 }

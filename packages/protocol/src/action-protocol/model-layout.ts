@@ -17,7 +17,7 @@ import * as sprotty from 'sprotty-protocol/lib/actions';
 import { GModelRootSchema } from '..';
 import { hasArrayProp, hasObjectProp } from '../utils/type-util';
 import { Action, Operation, RequestAction, ResponseAction } from './base-protocol';
-import { Args, ElementAndAlignment, ElementAndBounds, ElementAndRoutingPoints } from './types';
+import { Args, ElementAndAlignment, ElementAndBounds, ElementAndLayoutData, ElementAndRoutingPoints } from './types';
 
 /**
  * Sent from the server to the client to request bounds for the given model. The model is rendered invisibly so the bounds can
@@ -79,6 +79,11 @@ export interface ComputedBoundsAction extends ResponseAction, sprotty.ComputedBo
      * The route of the model elements.
      */
     routes?: ElementAndRoutingPoints[];
+
+    /**
+     * The layout data of hte model elements.
+     */
+    layoutData?: ElementAndLayoutData[];
 }
 
 export namespace ComputedBoundsAction {
@@ -95,6 +100,7 @@ export namespace ComputedBoundsAction {
             responseId?: string;
             alignments?: ElementAndAlignment[];
             routes?: ElementAndRoutingPoints[];
+            layoutData?: ElementAndLayoutData[];
         } = {}
     ): ComputedBoundsAction {
         return {
