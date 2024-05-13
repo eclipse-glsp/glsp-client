@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, MouseListener, GModelElement } from '@eclipse-glsp/sprotty';
+import { Action, Disposable, GModelElement, MouseListener } from '@eclipse-glsp/sprotty';
 
 /**
  * A mouse listener that is aware of prior mouse dragging.
@@ -23,7 +23,7 @@ import { Action, MouseListener, GModelElement } from '@eclipse-glsp/sprotty';
  * `draggingMouseUp` and/or `nonDraggingMouseUp` to react to only these specific kinds
  * of mouse up events.
  */
-export class DragAwareMouseListener extends MouseListener {
+export class DragAwareMouseListener extends MouseListener implements Disposable {
     protected _isMouseDown = false;
     protected _isMouseDrag = false;
 
@@ -35,7 +35,16 @@ export class DragAwareMouseListener extends MouseListener {
     override mouseMove(target: GModelElement, event: MouseEvent): Action[] {
         if (this._isMouseDown) {
             this._isMouseDrag = true;
+            return this.draggingMouseMove(target, event);
         }
+        return this.nonDraggingMouseMove(target, event);
+    }
+
+    protected draggingMouseMove(target: GModelElement, event: MouseEvent): Action[] {
+        return [];
+    }
+
+    protected nonDraggingMouseMove(target: GModelElement, event: MouseEvent): Action[] {
         return [];
     }
 
@@ -63,5 +72,10 @@ export class DragAwareMouseListener extends MouseListener {
 
     get isMouseDown(): boolean {
         return this._isMouseDown;
+    }
+
+    dispose(): void {
+        this._isMouseDrag = false;
+        this._isMouseDown = false;
     }
 }

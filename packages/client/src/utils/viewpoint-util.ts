@@ -16,7 +16,6 @@
 
 import {
     Bounds,
-    BoundsAware,
     Dimension,
     GChildElement,
     GModelElement,
@@ -74,7 +73,7 @@ export function getViewportBounds(target: GModelElement, bounds: Bounds): Bounds
  *
  * @param target  A bounds-aware element from the diagram
  */
-export function toAbsoluteBounds(element: GModelElement & BoundsAware): Bounds {
+export function toAbsoluteBounds(element: BoundsAwareModelElement): Bounds {
     const location = isAlignable(element) ? element.alignment : Point.ORIGIN;
     const x = location.x;
     const y = location.y;
@@ -89,7 +88,7 @@ export function toAbsoluteBounds(element: GModelElement & BoundsAware): Bounds {
  *
  * @param target  A bounds-aware element from the diagram
  */
-export function toAbsolutePosition(target: GModelElement & BoundsAware): Point {
+export function toAbsolutePosition(target: BoundsAwareModelElement): Point {
     return toAbsoluteBounds(target);
 }
 
@@ -99,7 +98,7 @@ export function toAbsolutePosition(target: GModelElement & BoundsAware): Point {
  *
  * @param target  A bounds-aware element from the diagram
  */
-export function toAbsoluteSize(target: GModelElement & BoundsAware): Dimension {
+export function toAbsoluteSize(target: BoundsAwareModelElement): Dimension {
     return toAbsoluteBounds(target);
 }
 

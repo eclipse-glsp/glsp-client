@@ -25,6 +25,7 @@ import {
     GParentElement,
     GRoutableElement,
     GRoutingHandle,
+    Locateable,
     ModelIndexImpl,
     Point,
     RoutedPoint,
@@ -194,16 +195,29 @@ export function isRoutingHandle(element: GModelElement | undefined): element is 
 export function isSelectableAndBoundsAware(element: GModelElement): element is SelectableBoundsAware {
     return isSelectable(element) && isBoundsAware(element);
 }
+/**
+ * Union type to describe {@link GModelElement}s that implement the {@link Selectable} feature.
+ */
+export type SelectableElement = GModelElement & Selectable;
 
 /**
  * Union type to describe {@link GModelElement}s that implement the {@link Selectable} and {@link BoundsAware} feature.
  */
-export type SelectableBoundsAware = GModelElement & BoundsAware & Selectable;
+export type SelectableBoundsAware = SelectableElement & BoundsAware;
 
 /**
  * Union type to describe {@link GModelElement}s that implement the {@link BoundsAware} feature.
  */
 export type BoundsAwareModelElement = GModelElement & BoundsAware;
+
+/**
+ * Union type to describe {@link GModelElement}s that implement the {@link Locateable} feature.
+ */
+export type MoveableElement = GModelElement & Locateable;
+
+export interface Resizable extends BoundsAware, Selectable {}
+
+export interface ResizableModelElement extends GParentElement, Resizable {}
 
 /**
  * Helper function to translate a given {@link GModelElement} into its corresponding {@link ElementAndBounds} representation.
@@ -372,4 +386,33 @@ export function getDescendantIds(element?: GModelElement, skip?: (t: GModelEleme
         ids.push(...parent.children.flatMap(child => getDescendantIds(child, skip)));
     }
     return ids;
+}
+
+/**
+ * Returns a filter function that checks if the given element is not a descendant of any of the given elements.
+ *
+ * @param elements  The elements that the element should not be a descendant of.
+ * @returns the filter function
+ */
+export function isNotDescendantOfAnyElement<T extends GModelElement>(elements: FluentIterable<T>): (element: T) => boolean {
+    const elementsSet = new Set<GModelElement>(elements);
+    return (element: T): boolean => {
+        let parent: GModelElement = element;
+        while (parent instanceof GChildElement) {
+            parent = parent.parent;
+            if (elementsSet.has(parent)) {
+                return false;
+            }
+        }
+        return true;
+    };
+}
+
+/**
+ * Removes any descendants of the given elements from the given elements.
+ * @param elements The elements to filter.
+ * @returns the filtered elements
+ */
+export function removeDescendants<T extends GModelElement>(elements: FluentIterable<T>): FluentIterable<T> {
+    return elements.filter(isNotDescendantOfAnyElement(elements));
 }

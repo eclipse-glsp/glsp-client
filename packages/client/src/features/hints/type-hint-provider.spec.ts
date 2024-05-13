@@ -35,6 +35,7 @@ import {
 import { expect } from 'chai';
 import { Container } from 'inversify';
 import * as sinon from 'sinon';
+import { FeedbackEmitter } from '../../base';
 import { GLSPActionDispatcher } from '../../base/action-dispatcher';
 import { FeedbackActionDispatcher } from '../../base/feedback/feedback-action-dispatcher';
 import { GEdge } from '../../model';
@@ -45,7 +46,9 @@ import { ApplyTypeHintsAction, ApplyTypeHintsCommand, ITypeHintProvider, TypeHin
 describe('TypeHintProvider', () => {
     const container = new Container();
     container.bind(GLSPActionDispatcher).toConstantValue(sinon.createStubInstance(GLSPActionDispatcher));
-    container.bind(TYPES.IFeedbackActionDispatcher).toConstantValue(sinon.createStubInstance(FeedbackActionDispatcher));
+    const stub = sinon.createStubInstance(FeedbackActionDispatcher);
+    stub.createEmitter.returns(new FeedbackEmitter(stub));
+    container.bind(TYPES.IFeedbackActionDispatcher).toConstantValue(stub);
     const typeHintProvider = container.resolve(TypeHintProvider);
 
     describe('getShapeTypeHint', () => {

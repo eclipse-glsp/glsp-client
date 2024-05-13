@@ -28,7 +28,6 @@ import {
     LazyInjector,
     SelectAction,
     SelectAllAction,
-    Selectable,
     SprottySelectAllCommand,
     SprottySelectCommand,
     TYPES,
@@ -37,7 +36,7 @@ import {
     pluck
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable, postConstruct, preDestroy } from 'inversify';
-import { getElements, getMatchingElements } from '../utils/gmodel-util';
+import { SelectableElement, getElements, getMatchingElements } from '../utils/gmodel-util';
 import { IGModelRootListener } from './editor-context-service';
 import { IFeedbackActionDispatcher } from './feedback/feedback-action-dispatcher';
 import { IDiagramStartup } from './model';
@@ -164,7 +163,7 @@ export class SelectionService implements IGModelRootListener, Disposable, IDiagr
         return this.root;
     }
 
-    getSelectedElements(): Readonly<GModelElement & Selectable>[] {
+    getSelectedElements(): Readonly<SelectableElement>[] {
         return !this.root ? [] : getElements(this.root.index, Array.from(this.selectedElementIDs), isSelectable);
     }
 

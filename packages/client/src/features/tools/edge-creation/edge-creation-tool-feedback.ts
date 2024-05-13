@@ -18,27 +18,31 @@ import {
     AnchorComputerRegistry,
     Bounds,
     Disposable,
+    GConnectableElement,
+    GModelElement,
     MouseListener,
     MoveAction,
     Point,
     PolylineEdgeRouter,
-    GConnectableElement,
-    GModelElement,
     findChildrenAtPosition,
     findParentByFeature,
     isBoundsAware,
     isConnectable
 } from '@eclipse-glsp/sprotty';
+import { FeedbackEmitter } from '../../../base';
 import { IFeedbackActionDispatcher } from '../../../base/feedback/feedback-action-dispatcher';
 import { absoluteToParent, getAbsolutePosition, toAbsoluteBounds } from '../../../utils/viewpoint-util';
 import { FeedbackEdgeEnd, feedbackEdgeEndId } from './dangling-edge-feedback';
 
 export class FeedbackEdgeEndMovingMouseListener extends MouseListener implements Disposable {
+    protected feedback: FeedbackEmitter;
+
     constructor(
         protected anchorRegistry: AnchorComputerRegistry,
         protected feedbackDispatcher: IFeedbackActionDispatcher
     ) {
         super();
+        this.feedback = feedbackDispatcher.createEmitter();
     }
 
     override mouseMove(target: GModelElement, event: MouseEvent): Action[] {
@@ -57,14 +61,10 @@ export class FeedbackEdgeEndMovingMouseListener extends MouseListener implements
         if (endAtMousePosition instanceof GConnectableElement && edge.source && isBoundsAware(edge.source)) {
             const anchor = this.computeAbsoluteAnchor(endAtMousePosition, Bounds.center(toAbsoluteBounds(edge.source)));
             if (Point.euclideanDistance(anchor, edgeEnd.position) > 1) {
-                this.feedbackDispatcher.registerFeedback(this, [
-                    MoveAction.create([{ elementId: edgeEnd.id, toPosition: anchor }], { animate: false })
-                ]);
+                this.feedback.add(MoveAction.create([{ elementId: edgeEnd.id, toPosition: anchor }], { animate: false })).submit();
             }
         } else {
-            this.feedbackDispatcher.registerFeedback(this, [
-                MoveAction.create([{ elementId: edgeEnd.id, toPosition: position }], { animate: false })
-            ]);
+            this.feedback.add(MoveAction.create([{ elementId: edgeEnd.id, toPosition: position }], { animate: false })).submit();
         }
 
         return [];
@@ -87,6 +87,6 @@ export class FeedbackEdgeEndMovingMouseListener extends MouseListener implements
     }
 
     dispose(): void {
-        this.feedbackDispatcher.deregisterFeedback(this);
+        this.feedback.dispose();
     }
 }

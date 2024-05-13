@@ -35,8 +35,9 @@ import {
     isConnectable,
     moveFeature
 } from '@eclipse-glsp/sprotty';
-import { inject, injectable } from 'inversify';
+import { inject, injectable, postConstruct } from 'inversify';
 
+import { FeedbackEmitter } from '../../base';
 import { GLSPActionDispatcher } from '../../base/action-dispatcher';
 import { IFeedbackActionDispatcher } from '../../base/feedback/feedback-action-dispatcher';
 import { FeedbackCommand } from '../../base/feedback/feedback-command';
@@ -204,15 +205,21 @@ export class TypeHintProvider implements IActionHandler, ITypeHintProvider, IDia
     @inject(GLSPActionDispatcher)
     protected actionDispatcher: GLSPActionDispatcher;
 
+    protected typeHintsFeedback: FeedbackEmitter;
     protected shapeHints: Map<string, ShapeTypeHint> = new Map();
     protected edgeHints: Map<string, EdgeTypeHint> = new Map();
+
+    @postConstruct()
+    protected init(): void {
+        this.typeHintsFeedback = this.feedbackActionDispatcher.createEmitter();
+    }
 
     handle(action: SetTypeHintsAction): void {
         this.shapeHints.clear();
         this.edgeHints.clear();
         action.shapeHints.forEach(hint => this.shapeHints.set(hint.elementTypeId, hint));
         action.edgeHints.forEach(hint => this.edgeHints.set(hint.elementTypeId, hint));
-        this.feedbackActionDispatcher.registerFeedback(this, [ApplyTypeHintsAction.create()]);
+        this.typeHintsFeedback.add(ApplyTypeHintsAction.create()).submit();
     }
 
     getShapeTypeHint(input: GModelElement | GModelElementSchema | string): ShapeTypeHint | undefined {

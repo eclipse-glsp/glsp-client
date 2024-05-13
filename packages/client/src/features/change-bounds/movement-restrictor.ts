@@ -13,9 +13,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Bounds, BoundsAware, GModelElement, GNode, GParentElement, Point } from '@eclipse-glsp/sprotty';
+import { Bounds, GModelElement, GNode, GParentElement, Point } from '@eclipse-glsp/sprotty';
 import { injectable } from 'inversify';
 import { ModifyCSSFeedbackAction } from '../../base/feedback/css-feedback';
+import { BoundsAwareModelElement } from '../../utils';
 import { toAbsoluteBounds } from '../../utils/viewpoint-util';
 import { SResizeHandle, isBoundsAwareMoveable } from './model';
 
@@ -51,7 +52,7 @@ export class NoOverlapMovementRestrictor implements IMovementRestrictor {
             return false;
         }
         // Create ghost element at the newLocation
-        const ghostElement = Object.create(element) as GModelElement & BoundsAware;
+        const ghostElement = Object.create(element) as BoundsAwareModelElement;
         ghostElement.bounds = {
             x: newLocation.x,
             y: newLocation.y,
@@ -64,11 +65,11 @@ export class NoOverlapMovementRestrictor implements IMovementRestrictor {
             element.root.index
                 .all()
                 .filter(e => e.id !== ghostElement.id && e !== ghostElement.root && e instanceof GNode)
-                .map(e => e as GModelElement & BoundsAware)
+                .map(e => e as BoundsAwareModelElement)
         ).some(e => this.areOverlapping(e, ghostElement));
     }
 
-    protected areOverlapping(element1: GModelElement & BoundsAware, element2: GModelElement & BoundsAware): boolean {
+    protected areOverlapping(element1: BoundsAwareModelElement, element2: BoundsAwareModelElement): boolean {
         return Bounds.overlap(toAbsoluteBounds(element1), toAbsoluteBounds(element2));
     }
 }

@@ -14,24 +14,20 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import {
-    BoundsAware,
     GChildElement,
     GModelElement,
     GParentElement,
     Hoverable,
-    Locateable,
-    Selectable,
     hoverFeedbackFeature,
     isBoundsAware,
     isMoveable,
     isSelectable
 } from '@eclipse-glsp/sprotty';
+import { BoundsAwareModelElement, MoveableElement, ResizableModelElement } from '../../utils';
 
 export const resizeFeature = Symbol('resizeFeature');
 
-export interface Resizable extends BoundsAware, Selectable {}
-
-export function isResizable(element: GModelElement): element is GParentElement & Resizable {
+export function isResizable(element: GModelElement): element is ResizableModelElement {
     return isBoundsAware(element) && isSelectable(element) && element instanceof GParentElement && element.hasFeature(resizeFeature);
 }
 
@@ -43,15 +39,17 @@ export enum ResizeHandleLocation {
     BottomRight = 'bottom-right'
 }
 
-export function isBoundsAwareMoveable(element: GModelElement): element is GModelElement & Locateable & BoundsAware {
+export function isBoundsAwareMoveable(element: GModelElement): element is BoundsAwareModelElement & MoveableElement {
     return isMoveable(element) && isBoundsAware(element);
 }
 
 export class SResizeHandle extends GChildElement implements Hoverable {
     static readonly TYPE = 'resize-handle';
 
+    override readonly parent: ResizableModelElement;
+
     constructor(
-        readonly location?: ResizeHandleLocation,
+        readonly location: ResizeHandleLocation,
         override readonly type: string = SResizeHandle.TYPE,
         readonly hoverFeedback: boolean = false
     ) {
@@ -87,11 +85,25 @@ export class SResizeHandle extends GChildElement implements Hoverable {
     }
 }
 
-export function addResizeHandles(element: GParentElement): void {
-    element.add(new SResizeHandle(ResizeHandleLocation.TopLeft));
-    element.add(new SResizeHandle(ResizeHandleLocation.TopRight));
-    element.add(new SResizeHandle(ResizeHandleLocation.BottomLeft));
-    element.add(new SResizeHandle(ResizeHandleLocation.BottomRight));
+export function addResizeHandles(
+    element: ResizableModelElement,
+    locations: ResizeHandleLocation[] = [
+        ResizeHandleLocation.TopLeft,
+        ResizeHandleLocation.TopRight,
+        ResizeHandleLocation.BottomLeft,
+        ResizeHandleLocation.BottomRight
+    ]
+): void {
+    for (const location of Object.values(ResizeHandleLocation)) {
+        const existing = element.children.find(child => child instanceof SResizeHandle && child.location === location);
+        if (locations.includes(location) && !existing) {
+            // add missing handle
+            element.add(new SResizeHandle(location));
+        } else if (!locations.includes(location) && existing) {
+            // remove existing handle
+            element.remove(existing);
+        }
+    }
 }
 
 export function removeResizeHandles(element: GParentElement): void {

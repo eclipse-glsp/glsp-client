@@ -13,8 +13,9 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, BringToFrontAction, GModelElement, SelectAction, SelectMouseListener, Selectable } from '@eclipse-glsp/sprotty';
+import { Action, BringToFrontAction, GModelElement, SelectAction, SelectMouseListener } from '@eclipse-glsp/sprotty';
 import { Ranked } from '../../base/ranked';
+import { SelectableElement } from '../../utils';
 
 /**
  * Ranked select mouse listener that is executed before default mouse listeners when using the RankedMouseTool.
@@ -24,7 +25,7 @@ export class RankedSelectMouseListener extends SelectMouseListener implements Ra
     rank: number = Ranked.DEFAULT_RANK - 100; /* we want to be executed before all default mouse listeners */
 
     protected override handleSelectTarget(
-        selectableTarget: GModelElement & Selectable,
+        selectableTarget: SelectableElement,
         deselectedElements: GModelElement[],
         event: MouseEvent
     ): (Action | Promise<Action>)[] {
@@ -40,7 +41,7 @@ export class RankedSelectMouseListener extends SelectMouseListener implements Ra
         return result;
     }
 
-    protected override handleDeselectTarget(selectableTarget: GModelElement & Selectable, event: MouseEvent): (Action | Promise<Action>)[] {
+    protected override handleDeselectTarget(selectableTarget: SelectableElement, event: MouseEvent): (Action | Promise<Action>)[] {
         const result: Action[] = [];
         result.push(SelectAction.create({ selectedElementsIDs: [], deselectedElementsIDs: [selectableTarget.id] }));
         return result;

@@ -18,7 +18,6 @@ import {
     Action,
     ChangeBoundsOperation,
     Dimension,
-    DisposableCollection,
     ElementAndBounds,
     GModelElement,
     GParentElement,
@@ -30,13 +29,13 @@ import {
     SetBoundsAction,
     TYPES
 } from '@eclipse-glsp/sprotty';
-import { inject, injectable, optional } from 'inversify';
+import { inject, injectable, optional, postConstruct } from 'inversify';
 import { DebouncedFunc, debounce } from 'lodash';
+import { FeedbackEmitter } from '../../../base';
 import { EditorContextService } from '../../../base/editor-context-service';
 import { IFeedbackActionDispatcher } from '../../../base/feedback/feedback-action-dispatcher';
-import { SelectableBoundsAware, getElements, isSelectableAndBoundsAware, toElementAndBounds } from '../../../utils/gmodel-util';
+import { Resizable, SelectableBoundsAware, getElements, isSelectableAndBoundsAware, toElementAndBounds } from '../../../utils/gmodel-util';
 import { isValidMove, isValidSize, minHeight, minWidth } from '../../../utils/layout-utils';
-import { Resizable } from '../../change-bounds/model';
 import { GridSnapper } from '../../change-bounds/snap';
 
 export enum ResizeType {
@@ -79,7 +78,7 @@ export class ResizeElementHandler implements IActionHandler {
     protected feedbackDispatcher: IFeedbackActionDispatcher;
 
     protected debouncedChangeBounds?: DebouncedFunc<() => void>;
-    protected disposableFeedback = new DisposableCollection();
+    protected resizeFeedback: FeedbackEmitter;
 
     // Default x resize used if GridSnapper is not provided
     static readonly defaultResizeX = 20;
@@ -96,6 +95,11 @@ export class ResizeElementHandler implements IActionHandler {
         }
     }
 
+    @postConstruct()
+    protected init(): void {
+        this.resizeFeedback = this.feedbackDispatcher.createEmitter();
+    }
+
     handle(action: Action): void | Action | ICommand {
         if (ResizeElementAction.is(action)) {
             this.handleResizeElement(action);
@@ -106,11 +110,11 @@ export class ResizeElementHandler implements IActionHandler {
         const elements = getElements(this.editorContextService.modelRoot.index, action.elementIds, isSelectableAndBoundsAware);
         const elementAndBounds = this.computeElementAndBounds(elements, action);
 
-        this.disposableFeedback.push(this.feedbackDispatcher.registerFeedback(this, [SetBoundsAction.create(elementAndBounds)]));
+        this.resizeFeedback.add(SetBoundsAction.create(elementAndBounds)).submit();
 
         this.debouncedChangeBounds?.cancel();
         this.debouncedChangeBounds = debounce(() => {
-            this.disposableFeedback.dispose();
+            this.resizeFeedback.dispose();
             this.dispatcher.dispatchAll([ChangeBoundsOperation.create(elementAndBounds)]);
             this.debouncedChangeBounds = undefined;
         }, 300);

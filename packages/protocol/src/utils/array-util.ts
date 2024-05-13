@@ -193,3 +193,12 @@ export function partition<T>(source: T[], matchGuard: TypeGuard<T>): { match: T[
     });
     return { match, rest };
 }
+
+/**
+ * Helper function to create an array of values without any undefined values.
+ * @param values The values to create the array from.
+ * @returns The array of values without any undefined values.
+ */
+export function arrayOf<T>(...values: (T | undefined)[]): T[] {
+    return values.filter(element => element !== undefined) as T[];
+}

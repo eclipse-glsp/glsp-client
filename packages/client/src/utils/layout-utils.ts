@@ -13,19 +13,11 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import {
-    BoundsAware,
-    Dimension,
-    ElementAndBounds,
-    ElementMove,
-    ModelLayoutOptions,
-    Point,
-    GModelElement,
-    Writable
-} from '@eclipse-glsp/sprotty';
+import { Dimension, ElementAndBounds, ElementMove, GModelElement, ModelLayoutOptions, Point, Writable } from '@eclipse-glsp/sprotty';
 import { IMovementRestrictor } from '../features/change-bounds/movement-restrictor';
+import { BoundsAwareModelElement } from './gmodel-util';
 
-export function minWidth(element: GModelElement & BoundsAware): number {
+export function minWidth(element: BoundsAwareModelElement): number {
     const layoutOptions = getLayoutOptions(element);
     if (layoutOptions !== undefined && typeof layoutOptions.minWidth === 'number') {
         return layoutOptions.minWidth;
@@ -33,7 +25,7 @@ export function minWidth(element: GModelElement & BoundsAware): number {
     return 1;
 }
 
-export function minHeight(element: GModelElement & BoundsAware): number {
+export function minHeight(element: BoundsAwareModelElement): number {
     const layoutOptions = getLayoutOptions(element);
     if (layoutOptions !== undefined && typeof layoutOptions.minHeight === 'number') {
         return layoutOptions.minHeight;
@@ -49,19 +41,16 @@ export function getLayoutOptions(element: GModelElement): ModelLayoutOptions | u
     return undefined;
 }
 
-export function isValidSize(element: GModelElement & BoundsAware, size: Dimension): boolean {
+export function isValidSize(element: BoundsAwareModelElement, size: Dimension): boolean {
     return size.width >= minWidth(element) && size.height >= minHeight(element);
 }
 
-export function isValidMove(element: GModelElement & BoundsAware, newPosition?: Point, movementRestrictor?: IMovementRestrictor): boolean {
-    if (movementRestrictor) {
-        return movementRestrictor.validate(element, newPosition);
-    }
-    return true;
+export function isValidMove(element: GModelElement, newPosition?: Point, movementRestrictor?: IMovementRestrictor): boolean {
+    return movementRestrictor?.validate(element, newPosition) ?? true;
 }
 
 export function toValidElementMove(
-    element: GModelElement & BoundsAware,
+    element: BoundsAwareModelElement,
     move: ElementMove,
     movementRestrictor?: IMovementRestrictor
 ): ElementMove | undefined {
@@ -72,7 +61,7 @@ export function toValidElementMove(
 }
 
 export function toValidElementAndBounds(
-    element: GModelElement & BoundsAware,
+    element: BoundsAwareModelElement,
     bounds: Writable<ElementAndBounds>,
     movementRestrictor?: IMovementRestrictor
 ): ElementAndBounds | undefined {

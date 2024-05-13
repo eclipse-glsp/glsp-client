@@ -15,7 +15,6 @@
  ********************************************************************************/
 import {
     Action,
-    BoundsAware,
     DOMHelper,
     GModelElement,
     GModelRoot,
@@ -30,11 +29,12 @@ import { inject, injectable, optional } from 'inversify';
 import { DragAwareMouseListener } from '../../../base/drag-aware-mouse-listener';
 import { CursorCSS, cursorFeedbackAction } from '../../../base/feedback/css-feedback';
 import { EnableDefaultToolsAction } from '../../../base/tool-manager/tool';
+import { GEdge } from '../../../model';
+import { BoundsAwareModelElement, SelectableBoundsAware, isSelectableAndBoundsAware } from '../../../utils';
 import { getAbsolutePosition, toAbsoluteBounds } from '../../../utils/viewpoint-util';
 import { BaseEditTool } from '../base-tools';
 import { IMarqueeBehavior, MarqueeUtil } from './marquee-behavior';
 import { RemoveMarqueeAction } from './marquee-tool-feedback';
-import { GEdge } from '../../../model';
 
 @injectable()
 export class MarqueeMouseTool extends BaseEditTool {
@@ -53,7 +53,7 @@ export class MarqueeMouseTool extends BaseEditTool {
         this.toDisposeOnDisable.push(
             this.mouseTool.registerListener(new MarqueeMouseListener(this.domHelper, this.editorContext.modelRoot, this.marqueeBehavior)),
             this.keyTool.registerListener(this.shiftKeyListener),
-            this.registerFeedback([cursorFeedbackAction(CursorCSS.MARQUEE)], this, [cursorFeedbackAction()])
+            this.createFeedbackEmitter().add(cursorFeedbackAction(CursorCSS.MARQUEE), cursorFeedbackAction()).submit()
         );
     }
 }
@@ -61,7 +61,7 @@ export class MarqueeMouseTool extends BaseEditTool {
 export class MarqueeMouseListener extends DragAwareMouseListener {
     protected domHelper: DOMHelper;
     protected marqueeUtil: MarqueeUtil;
-    protected nodes: (GModelElement & BoundsAware)[];
+    protected nodes: BoundsAwareModelElement[];
     protected edges: SVGGElement[];
     protected previouslySelected: string[];
     protected isActive = false;
@@ -73,7 +73,7 @@ export class MarqueeMouseListener extends DragAwareMouseListener {
         this.nodes = Array.from(
             root.index
                 .all()
-                .map(e => e as GModelElement & BoundsAware)
+                .map(e => e as BoundsAwareModelElement)
                 .filter(e => isSelectable(e))
                 .filter(e => e instanceof GNode)
         );
@@ -94,7 +94,8 @@ export class MarqueeMouseListener extends DragAwareMouseListener {
             this.previouslySelected = Array.from(
                 target.root.index
                     .all()
-                    .map(e => e as GModelElement & BoundsAware)
+                    .filter(isSelectableAndBoundsAware)
+                    .map(e => e as SelectableBoundsAware)
                     .filter(e => isSelected(e))
                     .map(e => e.id)
             );

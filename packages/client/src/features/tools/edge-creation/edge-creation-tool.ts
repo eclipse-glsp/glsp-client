@@ -13,28 +13,29 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { inject, injectable } from 'inversify';
 import {
     Action,
     AnchorComputerRegistry,
     CreateEdgeOperation,
-    RequestCheckEdgeAction,
     GModelElement,
+    RequestCheckEdgeAction,
     TYPES,
     TriggerEdgeCreationAction,
     findParentByFeature,
     isConnectable,
     isCtrlOrCmd
 } from '@eclipse-glsp/sprotty';
+import { inject, injectable } from 'inversify';
+import { FeedbackEmitter } from '../../../base';
 import { GLSPActionDispatcher } from '../../../base/action-dispatcher';
 import { DragAwareMouseListener } from '../../../base/drag-aware-mouse-listener';
 import { CursorCSS, cursorFeedbackAction } from '../../../base/feedback/css-feedback';
 import { EnableDefaultToolsAction } from '../../../base/tool-manager/tool';
+import { GEdge } from '../../../model';
 import { ITypeHintProvider } from '../../hints/type-hint-provider';
 import { BaseCreationTool } from '../base-tools';
 import { DrawFeedbackEdgeAction, RemoveFeedbackEdgeAction } from './dangling-edge-feedback';
 import { FeedbackEdgeEndMovingMouseListener } from './edge-creation-tool-feedback';
-import { GEdge } from '../../../model';
 
 /**
  * Tool to create connections in a Diagram, by selecting a source and target node.
@@ -55,16 +56,16 @@ export class EdgeCreationTool extends BaseCreationTool<TriggerEdgeCreationAction
 
     doEnable(): void {
         const mouseMovingFeedback = new FeedbackEdgeEndMovingMouseListener(this.anchorRegistry, this.feedbackDispatcher);
+        const toolFeedback = this.createFeedbackEmitter()
+            .add(cursorFeedbackAction(CursorCSS.OPERATION_NOT_ALLOWED), cursorFeedbackAction())
+            .submit();
+        const creationListener = new EdgeCreationToolMouseListener(this.triggerAction, this.actionDispatcher, this.typeHintProvider, this);
         this.toDisposeOnDisable.push(
             mouseMovingFeedback,
-            this.mouseTool.registerListener(
-                new EdgeCreationToolMouseListener(this.triggerAction, this.actionDispatcher, this.typeHintProvider, this)
-            ),
             this.mouseTool.registerListener(mouseMovingFeedback),
-            this.registerFeedback([cursorFeedbackAction(CursorCSS.OPERATION_NOT_ALLOWED)], this, [
-                RemoveFeedbackEdgeAction.create(),
-                cursorFeedbackAction()
-            ])
+            creationListener,
+            this.mouseTool.registerListener(creationListener),
+            toolFeedback
         );
     }
 }
@@ -77,6 +78,8 @@ export class EdgeCreationToolMouseListener extends DragAwareMouseListener {
     protected allowedTarget = false;
     protected proxyEdge: GEdge;
     protected pendingDynamicCheck = false;
+    protected cursorFeedback: FeedbackEmitter;
+    protected feedbackEdgeFeedback: FeedbackEmitter;
 
     constructor(
         protected triggerAction: TriggerEdgeCreationAction,
@@ -87,14 +90,8 @@ export class EdgeCreationToolMouseListener extends DragAwareMouseListener {
         super();
         this.proxyEdge = new GEdge();
         this.proxyEdge.type = triggerAction.elementTypeId;
-    }
-
-    protected reinitialize(): void {
-        this.source = undefined;
-        this.target = undefined;
-        this.currentTarget = undefined;
-        this.allowedTarget = false;
-        this.tool.registerFeedback([RemoveFeedbackEdgeAction.create()]);
+        this.cursorFeedback = tool.createFeedbackEmitter();
+        this.feedbackEdgeFeedback = tool.createFeedbackEmitter();
     }
 
     override nonDraggingMouseUp(_element: GModelElement, event: MouseEvent): Action[] {
@@ -103,9 +100,12 @@ export class EdgeCreationToolMouseListener extends DragAwareMouseListener {
             if (!this.isSourceSelected()) {
                 if (this.currentTarget && this.allowedTarget) {
                     this.source = this.currentTarget.id;
-                    this.tool.registerFeedback([
-                        DrawFeedbackEdgeAction.create({ elementTypeId: this.triggerAction.elementTypeId, sourceId: this.source })
-                    ]);
+                    this.feedbackEdgeFeedback
+                        .add(
+                            DrawFeedbackEdgeAction.create({ elementTypeId: this.triggerAction.elementTypeId, sourceId: this.source }),
+                            RemoveFeedbackEdgeAction.create()
+                        )
+                        .submit();
                 }
             } else if (this.currentTarget && this.allowedTarget) {
                 this.target = this.currentTarget.id;
@@ -122,11 +122,11 @@ export class EdgeCreationToolMouseListener extends DragAwareMouseListener {
                 if (!isCtrlOrCmd(event)) {
                     result.push(EnableDefaultToolsAction.create());
                 } else {
-                    this.reinitialize();
+                    this.dispose();
                 }
             }
         } else if (event.button === 2) {
-            this.reinitialize();
+            this.dispose();
             result.push(EnableDefaultToolsAction.create());
         }
         return result;
@@ -202,5 +202,15 @@ export class EdgeCreationToolMouseListener extends DragAwareMouseListener {
     protected isDynamic(edgeTypeId: string): boolean {
         const typeHint = this.typeHintProvider.getEdgeTypeHint(edgeTypeId);
         return typeHint?.dynamic ?? false;
+    }
+
+    override dispose(): void {
+        this.source = undefined;
+        this.target = undefined;
+        this.currentTarget = undefined;
+        this.allowedTarget = false;
+        this.feedbackEdgeFeedback.dispose();
+        this.cursorFeedback.dispose();
+        super.dispose();
     }
 }

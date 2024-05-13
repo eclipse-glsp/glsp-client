@@ -23,7 +23,10 @@ const JSX = { createElement: svg };
 
 @injectable()
 export class SResizeHandleView implements IView {
-    render(handle: SResizeHandle, context: RenderingContext): VNode {
+    render(handle: SResizeHandle, context: RenderingContext): VNode | undefined {
+        if (context.targetKind === 'hidden') {
+            return undefined;
+        }
         const position = this.getPosition(handle);
         if (position !== undefined) {
             const node = (

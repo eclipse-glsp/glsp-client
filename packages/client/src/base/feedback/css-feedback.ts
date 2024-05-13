@@ -84,6 +84,10 @@ export enum CursorCSS {
     ELEMENT_DELETION = 'element-deletion-mode',
     RESIZE_NESW = 'resize-nesw-mode',
     RESIZE_NWSE = 'resize-nwse-mode',
+    RESIZE_NW = 'resize-nw-mode',
+    RESIZE_NE = 'resize-ne-mode',
+    RESIZE_SW = 'resize-sw-mode',
+    RESIZE_SE = 'resize-se-mode',
     MOVE = 'move-mode',
     MARQUEE = 'marquee-mode'
 }

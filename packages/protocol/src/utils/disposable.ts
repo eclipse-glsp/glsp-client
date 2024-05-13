@@ -96,4 +96,11 @@ export class DisposableCollection implements Disposable {
     get isDisposed(): boolean {
         return this.disposed;
     }
+
+    /**
+     * Removes all disposables in this collection WITHOUT triggering their disposal behavior.
+     */
+    clear(): void {
+        this.disposables.length = 0;
+    }
 }

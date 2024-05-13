@@ -16,4 +16,5 @@
 export * from './change-bounds-tool';
 export * from './change-bounds-tool-feedback';
 export * from './change-bounds-tool-module';
+export * from './change-bounds-tool-move-feedback';
 export * from './view';

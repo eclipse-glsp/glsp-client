@@ -13,35 +13,13 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import {
-    Action,
-    CommandExecutionContext,
-    CommandReturn,
-    Disposable,
-    ElementMove,
-    GChildElement,
-    GModelElement,
-    GModelRoot,
-    MoveAction,
-    Point,
-    TYPES,
-    findParentByFeature,
-    hasStringProp,
-    isMoveable,
-    isSelectable
-} from '@eclipse-glsp/sprotty';
+import { Action, CommandExecutionContext, CommandReturn, TYPES, hasStringProp } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
 
-import { DebouncedFunc, debounce } from 'lodash';
-import { DragAwareMouseListener } from '../../../base/drag-aware-mouse-listener';
-import { CursorCSS, cursorFeedbackAction } from '../../../base/feedback/css-feedback';
 import { FeedbackCommand } from '../../../base/feedback/feedback-command';
 import { OptionalAction } from '../../../base/model/glsp-model-source';
 import { forEachElement } from '../../../utils/gmodel-util';
-import { SResizeHandle, addResizeHandles, isResizable, removeResizeHandles } from '../../change-bounds/model';
-import { createMovementRestrictionFeedback, removeMovementRestrictionFeedback } from '../../change-bounds/movement-restrictor';
-import { PointPositionUpdater } from '../../change-bounds/point-position-updater';
-import { ChangeBoundsTool } from './change-bounds-tool';
+import { addResizeHandles, isResizable, removeResizeHandles } from '../../change-bounds/model';
 
 export interface ShowChangeBoundsToolResizeFeedbackAction extends Action {
     kind: typeof ShowChangeBoundsToolResizeFeedbackAction.KIND;
@@ -89,13 +67,11 @@ export class ShowChangeBoundsToolResizeFeedbackCommand extends FeedbackCommand {
     execute(context: CommandExecutionContext): CommandReturn {
         const index = context.root.index;
 
-        forEachElement(index, isResizable, removeResizeHandles);
+        forEachElement(index, isResizable, element => element.id !== this.action.elementId && removeResizeHandles(element));
 
-        if (this.action.elementId) {
-            const resizeElement = index.getById(this.action.elementId);
-            if (resizeElement && isResizable(resizeElement)) {
-                addResizeHandles(resizeElement);
-            }
+        const resizeElement = index.getById(this.action.elementId);
+        if (resizeElement && isResizable(resizeElement)) {
+            addResizeHandles(resizeElement);
         }
         return context.root;
     }
@@ -143,207 +119,5 @@ export namespace MoveFinishedEventAction {
 
     export function create(): MoveFinishedEventAction {
         return OptionalAction.mark({ kind: KIND });
-    }
-}
-
-/**
- * This mouse listener provides visual feedback for moving by sending client-side
- * `MoveAction`s while elements are selected and dragged. This will also update
- * their bounds, which is important, as it is not only required for rendering
- * the visual feedback but also the basis for sending the change to the server
- * (see also `tools/MoveTool`).
- */
-export class FeedbackMoveMouseListener extends DragAwareMouseListener implements Disposable {
-    protected rootElement?: GModelRoot;
-    protected positionUpdater;
-    protected elementId2startPos = new Map<string, Point>();
-    protected pendingMoveInitialized?: DebouncedFunc<() => void>;
-    protected moveInitialized = false;
-
-    constructor(protected tool: ChangeBoundsTool) {
-        super();
-        this.positionUpdater = new PointPositionUpdater(tool.positionSnapper);
-    }
-
-    override mouseDown(target: GModelElement, event: MouseEvent): Action[] {
-        if (event.button === 0 && !(target instanceof SResizeHandle)) {
-            const moveable = findParentByFeature(target, isMoveable);
-            if (moveable !== undefined && !(target instanceof SResizeHandle)) {
-                this.positionUpdater.updateLastDragPosition(event);
-                this.scheduleMoveInitialized();
-            } else {
-                this.positionUpdater.resetPosition();
-            }
-            this._isMouseDrag = false;
-        }
-        return [];
-    }
-
-    protected scheduleMoveInitialized(): void {
-        this.moveInitialized = false;
-        this.pendingMoveInitialized?.cancel();
-        this.pendingMoveInitialized = debounce(() => {
-            this.tool.registerFeedback([MoveInitializedEventAction.create()], this);
-            this.pendingMoveInitialized = undefined;
-            this.moveInitialized = true;
-        }, 750);
-        this.pendingMoveInitialized();
-    }
-
-    override mouseMove(target: GModelElement, event: MouseEvent): Action[] {
-        const result: Action[] = [];
-        if (event.buttons === 0) {
-            this.mouseUp(target, event);
-        } else if (!this.positionUpdater.isLastDragPositionUndefined()) {
-            if (this.elementId2startPos.size === 0) {
-                this.collectStartPositions(target.root);
-            }
-            this._isMouseDrag = true;
-            const moveAction = this.getElementMoves(target, event, false);
-            if (moveAction) {
-                this.pendingMoveInitialized?.cancel();
-                result.push(moveAction);
-                result.push(cursorFeedbackAction(CursorCSS.MOVE));
-                this.tool.registerFeedback(result, this);
-            }
-        }
-        return [];
-    }
-
-    protected collectStartPositions(root: GModelRoot): void {
-        this.rootElement = root;
-        const selectedElements = root.index.all().filter(element => isSelectable(element) && element.selected);
-        const elementsSet = new Set(selectedElements);
-        selectedElements
-            .filter(element => !this.isChildOfSelected(elementsSet, element))
-            .forEach(element => {
-                if (isMoveable(element)) {
-                    this.elementId2startPos.set(element.id, element.position);
-                }
-            });
-    }
-
-    protected isChildOfSelected(selectedElements: Set<GModelElement>, element: GModelElement): boolean {
-        while (element instanceof GChildElement) {
-            element = element.parent;
-            if (selectedElements.has(element)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    protected getElementMoves(target: GModelElement, event: MouseEvent, finished: boolean): MoveAction | undefined {
-        const delta = this.positionUpdater.updatePosition(target, event);
-        if (!delta) {
-            return undefined;
-        }
-        const elementMoves: ElementMove[] = this.getElementMovesForDelta(target, delta, finished);
-        if (elementMoves.length > 0) {
-            return MoveAction.create(elementMoves, { animate: false, finished });
-        } else {
-            return undefined;
-        }
-    }
-
-    protected getElementMovesForDelta(target: GModelElement, delta: Point, finished: boolean): ElementMove[] {
-        const elementMoves: ElementMove[] = [];
-        this.elementId2startPos.forEach((startPosition, elementId) => {
-            const element = target.root.index.getById(elementId);
-            if (element) {
-                if (isMoveable(element)) {
-                    const targetPosition = Point.add(element.position, delta);
-                    const toPosition = this.validateMove(startPosition, targetPosition, element, finished);
-                    elementMoves.push({ elementId: element.id, fromPosition: element.position, toPosition });
-                }
-            }
-        });
-        return elementMoves;
-    }
-
-    protected validateMove(startPosition: Point, toPosition: Point, element: GModelElement, isFinished: boolean): Point {
-        let newPosition = toPosition;
-        if (this.tool.movementRestrictor) {
-            const valid = this.tool.movementRestrictor.validate(element, toPosition);
-            let action;
-            if (!valid) {
-                action = createMovementRestrictionFeedback(element, this.tool.movementRestrictor);
-                if (isFinished) {
-                    newPosition = startPosition;
-                }
-            } else {
-                action = removeMovementRestrictionFeedback(element, this.tool.movementRestrictor);
-            }
-            this.tool.registerFeedback([action], this);
-        }
-        return newPosition;
-    }
-
-    override mouseEnter(target: GModelElement, event: MouseEvent): Action[] {
-        if (target instanceof GModelRoot && event.buttons === 0 && this.positionUpdater.isLastDragPositionUndefined()) {
-            this.mouseUp(target, event);
-        }
-        return [];
-    }
-
-    override nonDraggingMouseUp(element: GModelElement, event: MouseEvent): Action[] {
-        this.reset(true);
-        return [];
-    }
-
-    override draggingMouseUp(target: GModelElement, event: MouseEvent): Action[] {
-        const result: Action[] = [];
-        if (this.positionUpdater.isLastDragPositionUndefined()) {
-            this.reset(true);
-            return result;
-        } else {
-            const moveAction = this.getElementMoves(target, event, true);
-            if (moveAction) {
-                result.push(moveAction);
-            }
-            const resetFeedback: Action[] = [];
-            if (this.tool.movementRestrictor) {
-                resetFeedback.push(removeMovementRestrictionFeedback(target, this.tool.movementRestrictor));
-            }
-            resetFeedback.push(cursorFeedbackAction(CursorCSS.DEFAULT));
-            this.tool.deregisterFeedback(this, resetFeedback);
-        }
-        this.reset();
-        return result;
-    }
-
-    protected resetMoveFeedback(): ElementMove[] {
-        const elementMoves: ElementMove[] = [];
-        this.elementId2startPos.forEach((startPosition, elementId) => {
-            const element = this.rootElement!.index.getById(elementId);
-            if (element) {
-                if (isMoveable(element)) {
-                    elementMoves.push({ elementId: element.id, fromPosition: element.position, toPosition: startPosition });
-                }
-            }
-        });
-        return elementMoves;
-    }
-
-    protected reset(resetFeedback = false): void {
-        this.pendingMoveInitialized?.cancel();
-        if (this.rootElement && resetFeedback) {
-            const elementMoves: ElementMove[] = this.resetMoveFeedback();
-            if (elementMoves.length > 0) {
-                const moveAction = MoveAction.create(elementMoves, { animate: false, finished: true });
-                this.tool.deregisterFeedback(this, [moveAction]);
-            }
-        } else if (resetFeedback && this.moveInitialized) {
-            this.tool.deregisterFeedback(this, [MoveFinishedEventAction.create()]);
-        }
-        this.positionUpdater.resetPosition();
-        this._isMouseDrag = false;
-        this.moveInitialized = false;
-        this.rootElement = undefined;
-        this.elementId2startPos.clear();
-    }
-
-    dispose(): void {
-        this.reset(true);
     }
 }

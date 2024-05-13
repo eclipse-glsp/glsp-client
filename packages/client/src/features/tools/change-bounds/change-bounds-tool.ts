@@ -17,7 +17,6 @@ import { inject, injectable, optional } from 'inversify';
 
 import {
     Action,
-    Bounds,
     BoundsAware,
     ChangeBoundsOperation,
     ChangeRoutingPointsOperation,
@@ -36,35 +35,39 @@ import {
     Operation,
     Point,
     TYPES,
-    findParentByFeature,
-    isSelected
+    findParentByFeature
 } from '@eclipse-glsp/sprotty';
 import { DragAwareMouseListener } from '../../../base/drag-aware-mouse-listener';
 import { CursorCSS, applyCssClasses, cursorFeedbackAction, deleteCssClasses } from '../../../base/feedback/css-feedback';
+import { FeedbackEmitter } from '../../../base/feedback/feeback-emitter';
 import { ISelectionListener, SelectionService } from '../../../base/selection-service';
-import { PointPositionUpdater } from '../../../features/change-bounds/point-position-updater';
+import { isValidMove, isValidSize } from '../../../utils';
 import {
+    BoundsAwareModelElement,
+    ResizableModelElement,
     calcElementAndRoutingPoints,
     forEachElement,
+    getMatchingElements,
     isNonRoutableSelectedMovableBoundsAware,
     toElementAndBounds
 } from '../../../utils/gmodel-util';
-import { isValidMove, isValidSize } from '../../../utils/layout-utils';
-import { SetBoundsFeedbackAction } from '../../bounds/set-bounds-feedback-command';
-import { Resizable, ResizeHandleLocation, SResizeHandle, isBoundsAwareMoveable, isResizable } from '../../change-bounds/model';
+import { SetBoundsFeedbackAction } from '../../bounds';
+import { PointPositionUpdater } from '../../change-bounds';
+import { ResizeHandleLocation, SResizeHandle, isResizable } from '../../change-bounds/model';
 import {
     IMovementRestrictor,
     createMovementRestrictionFeedback,
     removeMovementRestrictionFeedback
 } from '../../change-bounds/movement-restrictor';
 import { PositionSnapper } from '../../change-bounds/position-snapper';
-import { getDirectionFrom } from '../../helper-lines/model';
+import { getDirectionFrom } from '../../helper-lines';
 import { BaseEditTool } from '../base-tools';
 import {
-    FeedbackMoveMouseListener,
     HideChangeBoundsToolResizeFeedbackAction,
+    MoveFinishedEventAction,
     ShowChangeBoundsToolResizeFeedbackAction
 } from './change-bounds-tool-feedback';
+import { FeedbackMoveMouseListener } from './change-bounds-tool-move-feedback';
 
 /**
  * The change bounds tool has the license to move multiple elements or resize a single element by implementing the ChangeBounds operation.
@@ -108,8 +111,6 @@ export class ChangeBoundsTool extends BaseEditTool {
         this.toDisposeOnDisable.push(
             this.mouseTool.registerListener(feedbackMoveMouseListener),
             this.mouseTool.registerListener(changeBoundsListener),
-            Disposable.create(() => this.deregisterFeedback(feedbackMoveMouseListener)),
-            Disposable.create(() => this.deregisterFeedback(changeBoundsListener, [HideChangeBoundsToolResizeFeedbackAction.create()])),
             this.selectionService.onSelectionChanged(change => changeBoundsListener.selectionChanged(change.root, change.selectedElements))
         );
     }
@@ -123,20 +124,34 @@ export class ChangeBoundsTool extends BaseEditTool {
     }
 }
 
+export interface ValidatedElementAndBounds extends ElementAndBounds {
+    valid: boolean;
+}
+
+export namespace ValidatedElementAndBounds {
+    export function isValid(move: ElementAndBounds): boolean {
+        return (move as ValidatedElementAndBounds).valid ?? true;
+    }
+}
+
 export class ChangeBoundsListener extends DragAwareMouseListener implements ISelectionListener, Disposable {
     static readonly CSS_CLASS_ACTIVE = 'active';
 
     // members for calculating the correct position change
-    protected initialBounds: Bounds | undefined;
-    protected pointPositionUpdater: PointPositionUpdater;
+    protected initialBounds: ElementAndBounds | undefined;
+    protected positionUpdater: PointPositionUpdater;
 
     // members for resize mode
-    protected activeResizeElement?: GModelElement;
+    protected activeResizeElement?: ResizableModelElement;
     protected activeResizeHandle?: SResizeHandle;
+    protected handleFeedback: FeedbackEmitter;
+    protected resizeFeedback: FeedbackEmitter;
 
     constructor(protected tool: ChangeBoundsTool) {
         super();
-        this.pointPositionUpdater = new PointPositionUpdater(tool.positionSnapper);
+        this.positionUpdater = new PointPositionUpdater(tool.positionSnapper);
+        this.handleFeedback = tool.createFeedbackEmitter();
+        this.resizeFeedback = tool.createFeedbackEmitter();
     }
 
     override mouseDown(target: GModelElement, event: MouseEvent): Action[] {
@@ -147,93 +162,157 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
             return [];
         }
         // check if we have a resize handle (only single-selection)
-        if (this.activeResizeElement && target instanceof SResizeHandle) {
-            this.activeResizeHandle = target;
-        } else {
-            this.setActiveResizeElement(target);
-        }
-        if (this.activeResizeElement) {
-            this.initPosition(event);
-        } else {
-            this.reset();
-        }
+        this.updateResizeElement(target, event);
         return [];
     }
 
-    override mouseMove(target: GModelElement, event: MouseEvent): Action[] {
-        super.mouseMove(target, event);
-        if (this.isMouseDrag && this.activeResizeHandle) {
-            // rely on the FeedbackMoveMouseListener to update the element bounds of selected elements
-            // consider resize handles ourselves
-            const actions: Action[] = [
-                cursorFeedbackAction(this.activeResizeHandle.isNwSeResize() ? CursorCSS.RESIZE_NWSE : CursorCSS.RESIZE_NESW),
-                applyCssClasses(this.activeResizeHandle, ChangeBoundsListener.CSS_CLASS_ACTIVE)
-            ];
-            const positionUpdate = this.pointPositionUpdater.updatePosition(
-                target,
-                event,
-                getDirectionFrom(this.activeResizeHandle.location)
-            );
-            if (positionUpdate) {
-                const resizeActions = this.handleResizeOnClient(positionUpdate);
-                actions.push(...resizeActions);
+    protected updateResizeElement(target: GModelElement, event?: MouseEvent): boolean {
+        this.activeResizeHandle = target instanceof SResizeHandle ? target : undefined;
+        this.activeResizeElement = this.activeResizeHandle?.parent ?? this.findResizeElement(target);
+        if (this.activeResizeElement) {
+            if (event) {
+                this.positionUpdater.updateLastDragPosition(event);
             }
-            this.tool.registerFeedback(actions, this);
+            this.initialBounds = {
+                newSize: this.activeResizeElement.bounds,
+                newPosition: this.activeResizeElement.bounds,
+                elementId: this.activeResizeElement.id
+            };
+            this.handleFeedback.add(
+                ShowChangeBoundsToolResizeFeedbackAction.create(this.activeResizeElement.id),
+                HideChangeBoundsToolResizeFeedbackAction.create()
+            );
+            this.handleFeedback.submit();
+            return true;
+        } else {
+            this.positionUpdater.resetPosition();
+            this.handleFeedback.dispose();
+            return false;
         }
-        return [];
+    }
+
+    protected findResizeElement(target: GModelElement): ResizableModelElement | undefined {
+        // check if we have a selected, moveable element (multi-selection allowed)
+        // but only allow one element to have the element resize handles
+        return findParentByFeature(target, isResizable);
+    }
+
+    protected override draggingMouseMove(target: GModelElement, event: MouseEvent): Action[] {
+        // rely on the FeedbackMoveMouseListener to update the element bounds of selected elements
+        // consider resize handles ourselves
+        if (this.activeResizeHandle && !this.positionUpdater.isLastDragPositionUndefined()) {
+            if (!this.initialBounds) {
+                const element = this.activeResizeHandle.parent;
+                this.initialBounds = { elementId: element.id, newSize: element.bounds, newPosition: element.bounds };
+            }
+            const positionUpdate = this.positionUpdater.updatePosition(target, event, getDirectionFrom(this.activeResizeHandle.location));
+            if (positionUpdate) {
+                const resizeActions = this.handleResizeOnClient(positionUpdate).filter(action => action);
+                if (resizeActions.length > 0) {
+                    this.resizeFeedback.add(SetBoundsFeedbackAction.create(resizeActions), () => this.resetBoundsAction());
+                    this.addResizeFeedback(resizeActions, this.activeResizeHandle, target, event);
+                    this.resizeFeedback.submit();
+                }
+            }
+        }
+        return super.draggingMouseMove(target, event);
+    }
+
+    protected filterResizeOnClient(resize: ValidatedElementAndBounds, positionUpdate: Point): boolean {
+        return true;
+    }
+
+    protected addResizeFeedback(
+        resizeActions: ValidatedElementAndBounds[],
+        handle: SResizeHandle,
+        target: GModelElement,
+        event: MouseEvent
+    ): void {
+        // handle feedback
+        this.resizeFeedback.add(
+            applyCssClasses(handle, ChangeBoundsListener.CSS_CLASS_ACTIVE),
+            deleteCssClasses(handle, ChangeBoundsListener.CSS_CLASS_ACTIVE)
+        );
+
+        // cursor feedback
+        const cursorClass = handle.isNeResize()
+            ? CursorCSS.RESIZE_NE
+            : handle.isNwResize()
+              ? CursorCSS.RESIZE_NW
+              : handle.isSeResize()
+                ? CursorCSS.RESIZE_SE
+                : CursorCSS.RESIZE_SW;
+        this.resizeFeedback.add(cursorFeedbackAction(cursorClass), cursorFeedbackAction(CursorCSS.DEFAULT));
+
+        // restriction feedback
+        resizeActions.forEach(elementResize => {
+            const element = handle.root.index.getById(elementResize.elementId);
+            if (element && this.tool.movementRestrictor) {
+                if (!elementResize.valid) {
+                    this.resizeFeedback.add(createMovementRestrictionFeedback(element, this.tool.movementRestrictor), () =>
+                        removeMovementRestrictionFeedback(element, this.tool.movementRestrictor!)
+                    );
+                } else {
+                    this.resizeFeedback.add(removeMovementRestrictionFeedback(element, this.tool.movementRestrictor!));
+                }
+            }
+        });
+    }
+
+    protected resetBoundsAction(): Action[] {
+        // reset the bounds to the initial bounds and ensure that we do not show helper line feedback anymore (MoveFinishedEventAction)
+        return this.initialBounds
+            ? [SetBoundsFeedbackAction.create([this.initialBounds]), MoveFinishedEventAction.create()]
+            : [MoveFinishedEventAction.create()];
     }
 
     override draggingMouseUp(target: GModelElement, _event: MouseEvent): Action[] {
-        if (this.pointPositionUpdater.isLastDragPositionUndefined()) {
-            this.resetPosition();
+        if (this.positionUpdater.isLastDragPositionUndefined()) {
             return [];
         }
         const actions: Action[] = [];
-
         if (this.activeResizeHandle) {
-            // Resize
-            actions.push(...this.handleResize(this.activeResizeHandle));
+            actions.push(...this.handleResizeOnServer(this.activeResizeHandle));
         } else {
-            // Move
             actions.push(...this.handleMoveOnServer(target));
         }
-        this.resetPosition();
-        this.tool.deregisterFeedback(this, [cursorFeedbackAction(CursorCSS.DEFAULT)]);
+        this.disposeAllButHandles();
         return actions;
+    }
+
+    override nonDraggingMouseUp(element: GModelElement, event: MouseEvent): Action[] {
+        this.disposeAllButHandles();
+        return super.nonDraggingMouseUp(element, event);
     }
 
     protected handleMoveOnServer(target: GModelElement): Action[] {
         const operations: Operation[] = [];
-
         operations.push(...this.handleMoveElementsOnServer(target));
         operations.push(...this.handleMoveRoutingPointsOnServer(target));
-        if (operations.length > 0) {
-            return [CompoundOperation.create(operations)];
-        }
-        return operations;
+        return operations.length > 0 ? [CompoundOperation.create(operations)] : [];
     }
 
     protected handleMoveElementsOnServer(target: GModelElement): Operation[] {
-        const result: Operation[] = [];
-        const newBounds: ElementAndBounds[] = [];
-        const selectedElements: (GModelElement & BoundsAware)[] = [];
-        forEachElement(target.index, isNonRoutableSelectedMovableBoundsAware, element => {
-            selectedElements.push(element);
-        });
+        const selectedElements = getMatchingElements(target.index, isNonRoutableSelectedMovableBoundsAware);
+        const selectionSet: Set<BoundsAwareModelElement> = new Set(selectedElements);
+        const newBounds: ElementAndBounds[] = selectedElements
+            .filter(element => this.isValidElement(element, selectionSet))
+            .map(toElementAndBounds);
+        return newBounds.length > 0 ? [ChangeBoundsOperation.create(newBounds)] : [];
+    }
 
-        const selectionSet: Set<GModelElement & BoundsAware> = new Set(selectedElements);
-        selectedElements
-            .filter(element => !this.isChildOfSelected(selectionSet, element))
-            .map(element => this.createElementAndBounds(element))
-            .forEach(bounds => newBounds.push(...bounds));
-
-        if (newBounds.length > 0) {
-            result.push(ChangeBoundsOperation.create(newBounds));
-        }
-        return result;
+    protected isValidElement(element: BoundsAwareModelElement, selectedElements: Set<BoundsAwareModelElement> = new Set()): boolean {
+        return (
+            this.isValidMove(element, element.bounds) &&
+            this.isValidSize(element, element.bounds) &&
+            !this.isChildOfSelected(selectedElements, element)
+        );
     }
 
     protected isChildOfSelected(selectedElements: Set<GModelElement>, element: GModelElement): boolean {
+        if (selectedElements.size === 0) {
+            return false;
+        }
         while (element instanceof GChildElement) {
             element = element.parent;
             if (selectedElements.has(element)) {
@@ -262,217 +341,129 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
         return newRoutingPoints.length > 0 ? [ChangeRoutingPointsOperation.create(newRoutingPoints)] : [];
     }
 
-    protected handleResize(activeResizeHandle: SResizeHandle): Action[] {
-        const actions: Action[] = [];
-        actions.push(cursorFeedbackAction(CursorCSS.DEFAULT));
-        actions.push(deleteCssClasses(activeResizeHandle, ChangeBoundsListener.CSS_CLASS_ACTIVE));
-        const resizeElement = findParentByFeature(activeResizeHandle, isResizable);
-        if (this.isActiveResizeElement(resizeElement)) {
-            this.createChangeBoundsAction(resizeElement).forEach(action => actions.push(action));
+    protected handleResizeOnServer(activeResizeHandle: SResizeHandle): Action[] {
+        if (this.isValidElement(activeResizeHandle.parent) && this.initialBounds) {
+            const elementAndBounds = toElementAndBounds(activeResizeHandle.parent);
+            if (!this.initialBounds.newPosition || !elementAndBounds.newPosition) {
+                return [];
+            }
+            if (
+                !Point.equals(this.initialBounds.newPosition, elementAndBounds.newPosition) ||
+                !Dimension.equals(this.initialBounds.newSize, elementAndBounds.newSize)
+            ) {
+                // UX: we do not want the element positions to be reset to their start as they will be moved to their start and
+                // only afterwards moved by the move action again, leading to a ping-pong movement.
+                // We therefore clear our element map so that they cannot be reset.
+                this.initialBounds = undefined;
+                return [ChangeBoundsOperation.create([elementAndBounds])];
+            }
         }
-        return actions;
+        return [];
     }
 
     selectionChanged(root: GModelRoot, selectedElements: string[]): void {
-        if (this.activeResizeElement) {
-            if (selectedElements.includes(this.activeResizeElement.id)) {
-                // our active element is still selected, nothing to do
+        if (this.activeResizeElement && selectedElements.includes(this.activeResizeElement.id)) {
+            // our active element is still selected, nothing to do
+            return;
+        }
+
+        // try to find some other selected element and mark that active
+        for (const elementId of selectedElements.reverse()) {
+            const element = root.index.getById(elementId);
+            if (element && this.updateResizeElement(element)) {
                 return;
             }
-
-            // try to find some other selected element and mark that active
-            for (const elementId of selectedElements.reverse()) {
-                const element = root.index.getById(elementId);
-                if (element && this.setActiveResizeElement(element)) {
-                    return;
-                }
-            }
-            this.reset();
         }
-    }
-
-    protected setActiveResizeElement(target: GModelElement): boolean {
-        // check if we have a selected, moveable element (multi-selection allowed)
-        const moveableElement = findParentByFeature(target, isBoundsAwareMoveable);
-        if (isSelected(moveableElement)) {
-            // only allow one element to have the element resize handles
-            this.activeResizeElement = moveableElement;
-            if (isResizable(this.activeResizeElement)) {
-                this.tool.registerFeedback(
-                    [ShowChangeBoundsToolResizeFeedbackAction.create(this.activeResizeElement.id)],
-                    this.activeResizeElement
-                );
-            }
-            return true;
-        }
-        return false;
+        this.updateResizeElement(root);
+        this.disposeAllButHandles();
     }
 
     protected isActiveResizeElement(element?: GModelElement): element is GParentElement & BoundsAware {
         return element !== undefined && this.activeResizeElement !== undefined && element.id === this.activeResizeElement.id;
     }
 
-    protected initPosition(event: MouseEvent): void {
-        this.pointPositionUpdater.updateLastDragPosition(event);
-        if (this.activeResizeHandle) {
-            const resizeElement = findParentByFeature(this.activeResizeHandle, isResizable);
-            this.initialBounds = {
-                x: resizeElement!.bounds.x,
-                y: resizeElement!.bounds.y,
-                width: resizeElement!.bounds.width,
-                height: resizeElement!.bounds.height
-            };
-        }
-    }
-
-    dispose(): void {
-        this.reset(true);
-    }
-
-    protected reset(resetBounds = false): void {
-        this.resetFeedback(resetBounds);
-        this.resetPosition();
-    }
-
-    protected resetFeedback(resetBounds = false): void {
-        const resetFeedback: Action[] = [];
-        if (this.activeResizeElement && isResizable(this.activeResizeElement)) {
-            if (this.initialBounds && this.activeResizeHandle && resetBounds) {
-                // we only reset the bounds if an active resize operation was cancelled due to the tool being disabled
-                resetFeedback.push(
-                    SetBoundsFeedbackAction.create([
-                        {
-                            elementId: this.activeResizeElement.id,
-                            newPosition: this.initialBounds,
-                            newSize: this.initialBounds
-                        }
-                    ])
-                );
-            }
-            this.tool.deregisterFeedback(this.activeResizeElement, [HideChangeBoundsToolResizeFeedbackAction.create()]);
-        }
-        resetFeedback.push(cursorFeedbackAction(CursorCSS.DEFAULT));
-        this.tool.deregisterFeedback(this, resetFeedback);
-    }
-
-    protected resetPosition(): void {
-        this.activeResizeHandle = undefined;
-        this.pointPositionUpdater.resetPosition();
-    }
-
-    protected handleResizeOnClient(positionUpdate: Point): Action[] {
+    protected handleResizeOnClient(positionUpdate: Point): ValidatedElementAndBounds[] {
         if (!this.activeResizeHandle) {
             return [];
         }
 
-        const resizeElement = findParentByFeature(this.activeResizeHandle, isResizable);
-        if (this.isActiveResizeElement(resizeElement)) {
+        if (this.isActiveResizeElement(this.activeResizeHandle.parent)) {
             switch (this.activeResizeHandle.location) {
                 case ResizeHandleLocation.TopLeft:
-                    return this.handleTopLeftResize(resizeElement, positionUpdate);
+                    return this.handleTopLeftResize(this.activeResizeHandle.parent, positionUpdate);
                 case ResizeHandleLocation.TopRight:
-                    return this.handleTopRightResize(resizeElement, positionUpdate);
+                    return this.handleTopRightResize(this.activeResizeHandle.parent, positionUpdate);
                 case ResizeHandleLocation.BottomLeft:
-                    return this.handleBottomLeftResize(resizeElement, positionUpdate);
+                    return this.handleBottomLeftResize(this.activeResizeHandle.parent, positionUpdate);
                 case ResizeHandleLocation.BottomRight:
-                    return this.handleBottomRightResize(resizeElement, positionUpdate);
+                    return this.handleBottomRightResize(this.activeResizeHandle.parent, positionUpdate);
             }
         }
         return [];
     }
 
-    protected handleTopLeftResize(resizeElement: GParentElement & Resizable, positionUpdate: Point): Action[] {
+    protected handleTopLeftResize(resizeElement: ResizableModelElement, positionUpdate: Point): ValidatedElementAndBounds[] {
         return this.createSetBoundsAction(
             resizeElement,
-            resizeElement.bounds.x + positionUpdate.x,
-            resizeElement.bounds.y + positionUpdate.y,
-            resizeElement.bounds.width - positionUpdate.x,
-            resizeElement.bounds.height - positionUpdate.y
+            { x: resizeElement.bounds.x + positionUpdate.x, y: resizeElement.bounds.y + positionUpdate.y },
+            { width: resizeElement.bounds.width - positionUpdate.x, height: resizeElement.bounds.height - positionUpdate.y }
         );
     }
 
-    protected handleTopRightResize(resizeElement: GParentElement & Resizable, positionUpdate: Point): Action[] {
+    protected handleTopRightResize(resizeElement: ResizableModelElement, positionUpdate: Point): ValidatedElementAndBounds[] {
         return this.createSetBoundsAction(
             resizeElement,
-            resizeElement.bounds.x,
-            resizeElement.bounds.y + positionUpdate.y,
-            resizeElement.bounds.width + positionUpdate.x,
-            resizeElement.bounds.height - positionUpdate.y
+            { x: resizeElement.bounds.x, y: resizeElement.bounds.y + positionUpdate.y },
+            { width: resizeElement.bounds.width + positionUpdate.x, height: resizeElement.bounds.height - positionUpdate.y }
         );
     }
 
-    protected handleBottomLeftResize(resizeElement: GParentElement & Resizable, positionUpdate: Point): Action[] {
+    protected handleBottomLeftResize(resizeElement: ResizableModelElement, positionUpdate: Point): ValidatedElementAndBounds[] {
         return this.createSetBoundsAction(
             resizeElement,
-            resizeElement.bounds.x + positionUpdate.x,
-            resizeElement.bounds.y,
-            resizeElement.bounds.width - positionUpdate.x,
-            resizeElement.bounds.height + positionUpdate.y
+            { x: resizeElement.bounds.x + positionUpdate.x, y: resizeElement.bounds.y },
+            { width: resizeElement.bounds.width - positionUpdate.x, height: resizeElement.bounds.height + positionUpdate.y }
         );
     }
 
-    protected handleBottomRightResize(resizeElement: GParentElement & Resizable, positionUpdate: Point): Action[] {
+    protected handleBottomRightResize(resizeElement: ResizableModelElement, positionUpdate: Point): ValidatedElementAndBounds[] {
         return this.createSetBoundsAction(
             resizeElement,
-            resizeElement.bounds.x,
-            resizeElement.bounds.y,
-            resizeElement.bounds.width + positionUpdate.x,
-            resizeElement.bounds.height + positionUpdate.y
+            { x: resizeElement.bounds.x, y: resizeElement.bounds.y },
+            { width: resizeElement.bounds.width + positionUpdate.x, height: resizeElement.bounds.height + positionUpdate.y }
         );
     }
 
-    protected createChangeBoundsAction(element: GModelElement & BoundsAware): Action[] {
-        if (this.isValidBoundChange(element, element.bounds, element.bounds)) {
-            return [ChangeBoundsOperation.create([toElementAndBounds(element)])];
-        } else if (this.initialBounds) {
-            const actions: Action[] = [];
-            if (this.tool.movementRestrictor) {
-                actions.push(removeMovementRestrictionFeedback(element, this.tool.movementRestrictor));
-            }
-            actions.push(
-                SetBoundsFeedbackAction.create([{ elementId: element.id, newPosition: this.initialBounds, newSize: this.initialBounds }])
-            );
-            return actions;
+    protected createSetBoundsAction(element: BoundsAwareModelElement, newPosition: Point, newSize: Dimension): ValidatedElementAndBounds[] {
+        if (!isValidSize(element, newSize)) {
+            // we are not allowing any invalid sizes (breaking min size), not even during client feedback
+            return [];
         }
-        return [];
+        const valid = this.isValidMove(element, newPosition);
+        return [{ elementId: element.id, newPosition, newSize, valid }];
     }
 
-    protected createElementAndBounds(element: GModelElement & BoundsAware): ElementAndBounds[] {
-        if (this.isValidBoundChange(element, element.bounds, element.bounds)) {
-            return [toElementAndBounds(element)];
-        }
-        return [];
-    }
-
-    protected createSetBoundsAction(element: GModelElement & BoundsAware, x: number, y: number, width: number, height: number): Action[] {
-        const newPosition = { x, y };
-        const newSize = { width, height };
-        const result: Action[] = [];
-
-        if (this.isValidBoundChange(element, newPosition, newSize)) {
-            if (this.tool.movementRestrictor) {
-                result.push(removeMovementRestrictionFeedback(element, this.tool.movementRestrictor));
-            }
-            result.push(SetBoundsFeedbackAction.create([{ elementId: element.id, newPosition, newSize }]));
-        } else if (this.isValidSize(element, newSize)) {
-            if (this.tool.movementRestrictor) {
-                result.push(createMovementRestrictionFeedback(element, this.tool.movementRestrictor));
-            }
-            result.push(SetBoundsFeedbackAction.create([{ elementId: element.id, newPosition, newSize }]));
-        }
-
-        return result;
-    }
-
-    protected isValidBoundChange(element: GModelElement & BoundsAware, newPosition: Point, newSize: Dimension): boolean {
-        return this.isValidSize(element, newSize) && this.isValidMove(element, newPosition);
-    }
-
-    protected isValidSize(element: GModelElement & BoundsAware, size: Dimension): boolean {
+    protected isValidSize(element: BoundsAwareModelElement, size: Dimension): boolean {
         return isValidSize(element, size);
     }
 
-    protected isValidMove(element: GModelElement & BoundsAware, newPosition: Point): boolean {
+    protected isValidMove(element: BoundsAwareModelElement, newPosition: Point): boolean {
         return isValidMove(element, newPosition, this.tool.movementRestrictor);
+    }
+
+    protected disposeAllButHandles(): void {
+        // We do not dispose the handle feedback as we want to keep showing the handles on selected elements
+        // this.handleFeedback.dispose();
+        this.resizeFeedback.dispose();
+        this.positionUpdater.resetPosition();
+        this.activeResizeElement = undefined;
+        this.activeResizeHandle = undefined;
+        this.initialBounds = undefined;
+        super.dispose();
+    }
+
+    override dispose(): void {
+        this.handleFeedback.dispose();
+        this.disposeAllButHandles();
     }
 }
