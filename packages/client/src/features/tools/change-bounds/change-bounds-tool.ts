@@ -276,12 +276,12 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
         } else {
             actions.push(...this.handleMoveOnServer(target));
         }
-        this.dispose();
+        this.disposeAllButHandles();
         return actions;
     }
 
     override nonDraggingMouseUp(element: GModelElement, event: MouseEvent): Action[] {
-        this.dispose();
+        this.disposeAllButHandles();
         return super.nonDraggingMouseUp(element, event);
     }
 
@@ -375,7 +375,7 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
             }
         }
         this.updateResizeElement(root);
-        this.dispose();
+        this.disposeAllButHandles();
     }
 
     protected isActiveResizeElement(element?: GModelElement): element is GParentElement & BoundsAware {
@@ -451,7 +451,7 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
         return isValidMove(element, newPosition, this.tool.movementRestrictor);
     }
 
-    override dispose(): void {
+    protected disposeAllButHandles(): void {
         // We do not dispose the handle feedback as we want to keep showing the handles on selected elements
         // this.handleFeedback.dispose();
         this.resizeFeedback.dispose();
@@ -460,5 +460,10 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
         this.activeResizeHandle = undefined;
         this.initialBounds = undefined;
         super.dispose();
+    }
+
+    override dispose(): void {
+        this.handleFeedback.dispose();
+        this.disposeAllButHandles();
     }
 }

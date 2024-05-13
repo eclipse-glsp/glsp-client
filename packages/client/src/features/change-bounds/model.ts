@@ -85,11 +85,25 @@ export class SResizeHandle extends GChildElement implements Hoverable {
     }
 }
 
-export function addResizeHandles(element: ResizableModelElement): void {
-    element.add(new SResizeHandle(ResizeHandleLocation.TopLeft));
-    element.add(new SResizeHandle(ResizeHandleLocation.TopRight));
-    element.add(new SResizeHandle(ResizeHandleLocation.BottomLeft));
-    element.add(new SResizeHandle(ResizeHandleLocation.BottomRight));
+export function addResizeHandles(
+    element: ResizableModelElement,
+    locations: ResizeHandleLocation[] = [
+        ResizeHandleLocation.TopLeft,
+        ResizeHandleLocation.TopRight,
+        ResizeHandleLocation.BottomLeft,
+        ResizeHandleLocation.BottomRight
+    ]
+): void {
+    for (const location of Object.values(ResizeHandleLocation)) {
+        const existing = element.children.find(child => child instanceof SResizeHandle && child.location === location);
+        if (locations.includes(location) && !existing) {
+            // add missing handle
+            element.add(new SResizeHandle(location));
+        } else if (!locations.includes(location) && existing) {
+            // remove existing handle
+            element.remove(existing);
+        }
+    }
 }
 
 export function removeResizeHandles(element: GParentElement): void {

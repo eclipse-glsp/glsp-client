@@ -48,8 +48,8 @@ export abstract class BaseEditTool implements Tool {
         return true;
     }
 
-    dispatchActions(actions: Action[]): void {
-        this.actionDispatcher.dispatchAll(actions);
+    dispatchActions(actions: Action[]): Promise<void> {
+        return this.actionDispatcher.dispatchAll(actions);
     }
 
     createFeedbackEmitter(): FeedbackEmitter {

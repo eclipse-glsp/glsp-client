@@ -388,6 +388,12 @@ export function getDescendantIds(element?: GModelElement, skip?: (t: GModelEleme
     return ids;
 }
 
+/**
+ * Returns a filter function that checks if the given element is not a descendant of any of the given elements.
+ *
+ * @param elements  The elements that the element should not be a descendant of.
+ * @returns the filter function
+ */
 export function isNotDescendantOfAnyElement<T extends GModelElement>(elements: FluentIterable<T>): (element: T) => boolean {
     const elementsSet = new Set<GModelElement>(elements);
     return (element: T): boolean => {
@@ -402,6 +408,11 @@ export function isNotDescendantOfAnyElement<T extends GModelElement>(elements: F
     };
 }
 
+/**
+ * Removes any descendants of the given elements from the given elements.
+ * @param elements The elements to filter.
+ * @returns the filtered elements
+ */
 export function removeDescendants<T extends GModelElement>(elements: FluentIterable<T>): FluentIterable<T> {
     return elements.filter(isNotDescendantOfAnyElement(elements));
 }

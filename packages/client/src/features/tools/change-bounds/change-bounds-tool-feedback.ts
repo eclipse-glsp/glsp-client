@@ -67,13 +67,11 @@ export class ShowChangeBoundsToolResizeFeedbackCommand extends FeedbackCommand {
     execute(context: CommandExecutionContext): CommandReturn {
         const index = context.root.index;
 
-        forEachElement(index, isResizable, removeResizeHandles);
+        forEachElement(index, isResizable, element => element.id !== this.action.elementId && removeResizeHandles(element));
 
-        if (this.action.elementId) {
-            const resizeElement = index.getById(this.action.elementId);
-            if (resizeElement && isResizable(resizeElement)) {
-                addResizeHandles(resizeElement);
-            }
+        const resizeElement = index.getById(this.action.elementId);
+        if (resizeElement && isResizable(resizeElement)) {
+            addResizeHandles(resizeElement);
         }
         return context.root;
     }

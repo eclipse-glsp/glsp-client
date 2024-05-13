@@ -18,6 +18,7 @@ import {
     CreateNodeOperation,
     GModelElement,
     GNode,
+    GhostElement,
     Point,
     TYPES,
     TriggerNodeCreationAction,
@@ -60,16 +61,10 @@ export class NodeCreationTool extends BaseCreationTool<TriggerNodeCreationAction
         const ghostElementId = ghostElement ? getTemplateElementId(ghostElement.template) : undefined;
         if (ghostElement && ghostElementId) {
             trackingListener = new MouseTrackingElementPositionListener(ghostElementId, this, 'middle');
-            const ghostElementFeedback = this.createFeedbackEmitter()
-                .add(
-                    AddTemplateElementsAction.create({ templates: [ghostElement.template], addClasses: [CSS_HIDDEN, CSS_GHOST_ELEMENT] }),
-                    RemoveTemplateElementsAction.create({ templates: [ghostElement.template] })
-                )
-                .submit();
-            this.toDisposeOnDisable.push(ghostElementFeedback, trackingListener, this.mouseTool.registerListener(trackingListener));
+            this.toDisposeOnDisable.push(trackingListener, this.mouseTool.registerListener(trackingListener));
         }
 
-        const toolListener = new NodeCreationToolMouseListener(this.triggerAction, this, ghostElementId);
+        const toolListener = new NodeCreationToolMouseListener(this.triggerAction, this, ghostElement);
         this.toDisposeOnDisable.push(
             toolListener,
             this.mouseTool.registerListener(toolListener),
@@ -81,14 +76,21 @@ export class NodeCreationTool extends BaseCreationTool<TriggerNodeCreationAction
 export class NodeCreationToolMouseListener extends DragAwareMouseListener {
     protected container?: GModelElement & Containable;
     protected cursorFeedback: FeedbackEmitter;
+    protected ghostElementFeedback: FeedbackEmitter;
+    protected ghostElementId?: string;
 
     constructor(
         protected triggerAction: TriggerNodeCreationAction,
         protected tool: NodeCreationTool,
-        protected ghostElementId?: string
+        protected ghostElement?: GhostElement
     ) {
         super();
         this.cursorFeedback = tool.createFeedbackEmitter();
+        this.ghostElementFeedback = tool.createFeedbackEmitter();
+        if (ghostElement) {
+            this.ghostElementId = getTemplateElementId(ghostElement.template);
+        }
+        this.createGhostElement();
     }
 
     protected creationAllowed(elementTypeId: string): boolean | undefined {
@@ -112,12 +114,28 @@ export class NodeCreationToolMouseListener extends DragAwareMouseListener {
                 result.push(CreateNodeOperation.create(this.elementTypeId, { location, containerId, args: this.triggerAction.args }));
             }
             if (!isCtrlOrCmd(event)) {
+                // we no longer want to show the ghost element AFTER the next update
+                this.ghostElementFeedback.discard();
                 result.push(EnableDefaultToolsAction.create());
             } else {
-                this.dispose();
+                // we continue in stamp mode so we keep the ghost but dispose everything else
+                this.disposeAllButGhostElement();
             }
         }
         return result;
+    }
+
+    protected createGhostElement(): void {
+        if (!this.ghostElement) {
+            return;
+        }
+        const templates = [this.ghostElement.template];
+        this.ghostElementFeedback
+            .add(
+                AddTemplateElementsAction.create({ templates, addClasses: [CSS_HIDDEN, CSS_GHOST_ELEMENT] }),
+                RemoveTemplateElementsAction.create({ templates })
+            )
+            .submit();
     }
 
     protected getGhostElement(): MoveableElement | undefined {
@@ -153,8 +171,13 @@ export class NodeCreationToolMouseListener extends DragAwareMouseListener {
         return [];
     }
 
-    override dispose(): void {
+    protected disposeAllButGhostElement(): void {
         this.cursorFeedback.dispose();
         super.dispose();
+    }
+
+    override dispose(): void {
+        this.ghostElementFeedback.dispose();
+        this.disposeAllButGhostElement();
     }
 }

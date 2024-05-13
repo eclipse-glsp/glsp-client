@@ -34,7 +34,7 @@ export class FeedbackEmitter implements IFeedbackEmitter, Disposable {
      * @param action feedback action
      * @param cleanupAction action that undoes the feedback action. This is only triggered when {@link revert} is called.
      */
-    add(action: Action, cleanupAction?: MaybeActions): FeedbackEmitter {
+    add(action: Action, cleanupAction?: MaybeActions): this {
         const idx = this.feedbackActions.length;
         this.feedbackActions[idx] = action;
         if (cleanupAction) {
@@ -51,7 +51,7 @@ export class FeedbackEmitter implements IFeedbackEmitter, Disposable {
      *
      * @param action feedback action
      */
-    remove(action: Action): FeedbackEmitter {
+    remove(action: Action): this {
         const idx = this.feedbackActions.indexOf(action);
         if (idx) {
             delete this.feedbackActions[idx];
@@ -63,7 +63,7 @@ export class FeedbackEmitter implements IFeedbackEmitter, Disposable {
     /**
      * Clears any, not yet registered feedback actions and their corresponding cleanup actions.
      */
-    clear(): FeedbackEmitter {
+    clear(): this {
         this.feedbackActions = [];
         this.cleanupActions = [];
         return this;
@@ -72,7 +72,7 @@ export class FeedbackEmitter implements IFeedbackEmitter, Disposable {
     /**
      * Registers any pending actions as feedback. Any previously submitted feedback becomes invalid.
      */
-    submit(): FeedbackEmitter {
+    submit(): this {
         // with 'arrayOf' we skip undefined entries that are created for non-cleanup actions
         const actions = arrayOf(...this.feedbackActions);
         const cleanupActions = arrayOf(...this.cleanupActions);
@@ -82,10 +82,20 @@ export class FeedbackEmitter implements IFeedbackEmitter, Disposable {
     }
 
     /**
+     * Removes the registered feedback WITHOUT calling any potential cleanup actions
+     * Any pending actions can still be registerd with the {@link submit} method.
+     */
+    discard(): this {
+        this.feedbackDispatcher.deregisterFeedback(this);
+        this.deregistration = undefined;
+        return this;
+    }
+
+    /**
      * Removes the registered feedback and calls the registered cleanup actions.
      * Any pending actions can still be registerd with the {@link submit} method.
      */
-    revert(): FeedbackEmitter {
+    revert(): this {
         this.deregistration?.dispose();
         this.deregistration = undefined;
         return this;
@@ -94,7 +104,7 @@ export class FeedbackEmitter implements IFeedbackEmitter, Disposable {
     /**
      * Disposes any registered feedback and any pending, not yet registered feedback actions.
      */
-    dispose(): FeedbackEmitter {
+    dispose(): this {
         this.revert();
         this.clear();
         return this;
