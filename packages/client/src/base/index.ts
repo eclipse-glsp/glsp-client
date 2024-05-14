@@ -28,5 +28,5 @@ export * from './ranked';
 export * from './selection-clearing-mouse-listener';
 export * from './selection-service';
 export * from './tool-manager';
-export * from './ui-extension-registry';
+export * from './ui-extension';
 export * from './view';

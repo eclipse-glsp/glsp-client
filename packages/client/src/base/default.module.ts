@@ -51,7 +51,7 @@ import { SelectionClearingMouseListener } from './selection-clearing-mouse-liste
 import { SelectionService } from './selection-service';
 import { EnableDefaultToolsAction, EnableToolsAction } from './tool-manager/tool';
 import { DefaultToolsEnablingKeyListener, ToolManager, ToolManagerActionHandler } from './tool-manager/tool-manager';
-import { GLSPUIExtensionRegistry } from './ui-extension-registry';
+import { GLSPUIExtensionRegistry } from './ui-extension/ui-extension-registry';
 import { GLSPKeyTool } from './view/key-tool';
 import { GLSPMouseTool } from './view/mouse-tool';
 import { GViewRegistry } from './view/view-registry';

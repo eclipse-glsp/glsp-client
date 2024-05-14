@@ -13,18 +13,19 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import '../css/ui-extension.css';
 
+import { AbstractUIExtension } from '@eclipse-glsp/sprotty';
 import { injectable } from 'inversify';
-import { AbstractUIExtension as SprottyAbstractUIExtension } from 'sprotty';
 
 export const CSS_UI_EXTENSION_CLASS = 'ui-extension';
 export const CSS_HIDDEN_EXTENSION_CLASS = 'hidden';
 
-// An override to enables more fine-grained control of the container structure for the UI extension.
-
+/**
+ * Reusable abstract base implementation for UI extensions.
+ * Intended for UI extensions that directly interact with the DOM API to create and manage UI elements.
+ */
 @injectable()
-export abstract class AbstractUIExtension extends SprottyAbstractUIExtension {
+export abstract class GLSPAbstractUIExtension extends AbstractUIExtension {
     protected get diagramContainerId(): string {
         return this.options.baseDiv;
     }

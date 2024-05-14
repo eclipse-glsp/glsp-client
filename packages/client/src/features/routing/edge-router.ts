@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2022-2023 EclipseSource and others.
+ * Copyright (c) 2024 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -14,9 +14,64 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { ManhattanEdgeRouter, ResolvedHandleMove, GRoutableElement, almostEquals } from '@eclipse-glsp/sprotty';
+import {
+    AbstractEdgeRouter,
+    BezierEdgeRouter,
+    GConnectableElement,
+    GParentElement,
+    GRoutableElement,
+    ManhattanEdgeRouter,
+    Point,
+    PolylineEdgeRouter,
+    ResolvedHandleMove,
+    almostEquals
+} from '@eclipse-glsp/sprotty';
+import { injectable } from 'inversify';
 
+@injectable()
+export abstract class GLSPAbstractEdgeRouter extends AbstractEdgeRouter {
+    override getTranslatedAnchor(
+        connectable: GConnectableElement,
+        refPoint: Point,
+        refContainer: GParentElement,
+        edge: GRoutableElement,
+        anchorCorrection?: number | undefined
+    ): Point {
+        // users may define all kinds of anchors and anchor computers, we want to make sure we return a valid one in any case
+        const anchor = super.getTranslatedAnchor(connectable, refPoint, refContainer, edge, anchorCorrection);
+        return Point.isValid(anchor) ? anchor : refPoint;
+    }
+}
+
+@injectable()
+export class GLSPPolylineEdgeRouter extends PolylineEdgeRouter {
+    override getTranslatedAnchor(
+        connectable: GConnectableElement,
+        refPoint: Point,
+        refContainer: GParentElement,
+        edge: GRoutableElement,
+        anchorCorrection?: number | undefined
+    ): Point {
+        // users may define all kinds of anchors and anchor computers, we want to make sure we return a valid one in any case
+        const anchor = super.getTranslatedAnchor(connectable, refPoint, refContainer, edge, anchorCorrection);
+        return Point.isValid(anchor) ? anchor : refPoint;
+    }
+}
+
+@injectable()
 export class GLSPManhattanEdgeRouter extends ManhattanEdgeRouter {
+    override getTranslatedAnchor(
+        connectable: GConnectableElement,
+        refPoint: Point,
+        refContainer: GParentElement,
+        edge: GRoutableElement,
+        anchorCorrection?: number | undefined
+    ): Point {
+        // users may define all kinds of anchors and anchor computers, we want to make sure we return a valid one in any case
+        const anchor = super.getTranslatedAnchor(connectable, refPoint, refContainer, edge, anchorCorrection);
+        return Point.isValid(anchor) ? anchor : refPoint;
+    }
+
     protected override applyInnerHandleMoves(edge: GRoutableElement, moves: ResolvedHandleMove[]): void {
         const route = this.route(edge);
         const routingPoints = edge.routingPoints;
@@ -55,5 +110,20 @@ export class GLSPManhattanEdgeRouter extends ManhattanEdgeRouter {
                     break;
             }
         });
+    }
+}
+
+@injectable()
+export class GLSPBezierEdgeRouter extends BezierEdgeRouter {
+    override getTranslatedAnchor(
+        connectable: GConnectableElement,
+        refPoint: Point,
+        refContainer: GParentElement,
+        edge: GRoutableElement,
+        anchorCorrection?: number | undefined
+    ): Point {
+        // users may define all kinds of anchors and anchor computers, we want to make sure we return a valid one in any case
+        const anchor = super.getTranslatedAnchor(connectable, refPoint, refContainer, edge, anchorCorrection);
+        return Point.isValid(anchor) ? anchor : refPoint;
     }
 }
