@@ -69,22 +69,11 @@ export type MoveableElements =
 
 export interface TrackedElementMove extends ResolvedElementMove {
     moveVector: Vector;
+    sourceVector: Vector;
     valid: boolean;
 }
 
 export type TypedElementMove<T extends MoveableElement> = TrackedElementMove & { element: T };
-
-export namespace ElementMovement {
-    export function empty<T extends MoveableElement>(element: T, point = Point.ORIGIN): TypedElementMove<T> {
-        return {
-            element,
-            fromPosition: point,
-            toPosition: point,
-            moveVector: Vector.ZERO,
-            valid: true
-        };
-    }
-}
 
 export interface TrackedMove extends Movement {
     elementMoves: TrackedElementMove[];
@@ -106,12 +95,12 @@ export interface ResizeOptions extends ElementTrackingOptions {
     symmetric: boolean | MouseEvent | KeyboardEvent | any;
 
     /**
-     * Avoids resizes smaller than the minimum size which will yield invalid sizes.
-     * The minimum size takes precedence over the snapped (grid) position.
+     * Avoids resizes smaller than the minimum size which will result in invalid sizes.
+     * Please note that the snapping will be applied before the constraining so an element may still be resized to an unsnapped size.
      *
      * Default: true.
      */
-    capAtMinimumSize: boolean;
+    constrainResize: boolean;
 
     /** Skip resizes that produce an invalid size. Default: false. */
     skipInvalidSize: boolean;
@@ -126,7 +115,7 @@ export const DEFAULT_RESIZE_OPTIONS: ResizeOptions = {
     validate: true,
     symmetric: true,
 
-    capAtMinimumSize: true,
+    constrainResize: true,
 
     skipStatic: true,
     skipInvalidSize: false,
@@ -231,7 +220,7 @@ export class ChangeBoundsTracker {
     protected calculateElementMove<T extends MoveableElement>(element: T, vector: Vector, options: MoveOptions): TypedElementMove<T> {
         const fromPosition = element.position;
         const toPosition = Point.add(fromPosition, vector);
-        const move: TypedElementMove<T> = { element, fromPosition, toPosition, valid: true, moveVector: Vector.ZERO };
+        const move: TypedElementMove<T> = { element, fromPosition, toPosition, valid: true, moveVector: vector, sourceVector: vector };
 
         if (options.snap) {
             move.toPosition = this.snapPosition(move, options);
@@ -276,21 +265,14 @@ export class ChangeBoundsTracker {
             return resize;
         }
 
-        // symmetic handle move applies the diagram movement to the opposite handle
-        const symmetricHandleMove = options.symmetric
-            ? this.calculateHandleMove(handleMove.element.opposite(), Vector.reverse(update.vector), options)
-            : undefined;
-
         // calculate resize for each element (typically only one element is resized at a time but customizations are possible)
         const elementsToResize = this.getResizeableElements(handle, options);
         for (const element of elementsToResize) {
-            const elementResize = this.calculateElementResize(element, handleMove, options, symmetricHandleMove);
+            const elementResize = this.calculateElementResize(element, handleMove, options);
             if (!this.skipElementResize(elementResize, options)) {
                 resize.elementResizes.push(elementResize);
                 resize.valid.move = resize.valid.move && elementResize.valid.move;
                 resize.valid.size = resize.valid.size && elementResize.valid.size;
-                // handleMove.toPosition = SResizeHandle.getHandlePosition(elementResize.toBounds, handle.location);
-                // handleMove.moveVector = Point.vector(handleMove.fromPosition, handleMove.toPosition);
             }
         }
         return resize;
@@ -326,11 +308,10 @@ export class ChangeBoundsTracker {
     protected calculateElementResize(
         element: ResizableModelElement,
         handleMove: TrackedHandleMove,
-        options: ResizeOptions,
-        symmetricHandleMove?: TrackedHandleMove
+        options: ResizeOptions
     ): TrackedElementResize {
         const fromBounds = element.bounds;
-        const toBounds = this.calculateElementBounds(element, handleMove, options, symmetricHandleMove);
+        const toBounds = this.calculateElementBounds(element, handleMove, options);
         const resize: TrackedElementResize = { element, fromBounds, toBounds, valid: { size: true, move: true } };
 
         if (options.validate) {
@@ -341,32 +322,70 @@ export class ChangeBoundsTracker {
         return resize;
     }
 
-    private calculateElementBounds(
-        element: ResizableModelElement,
-        handleMove: TrackedHandleMove,
-        options: ResizeOptions,
-        symmetricHandleMove?: TrackedHandleMove
-    ): Bounds {
-        if (options.capAtMinimumSize) {
-            const minimum = this.manager.getMinimumSize(element);
-            const vector = this.capMoveVector(element.bounds, handleMove, minimum);
-            let toBounds = this.calculateBounds(element.bounds, handleMove.element.location, vector);
-            if (symmetricHandleMove) {
-                const symmetricVector = this.capMoveVector(toBounds, symmetricHandleMove, minimum);
-                toBounds = this.calculateBounds(toBounds, symmetricHandleMove.element.location, symmetricVector);
-            }
+    protected calculateElementBounds(element: ResizableModelElement, handleMove: TrackedHandleMove, options: ResizeOptions): Bounds {
+        let toBounds = this.calculateBounds(element.bounds, handleMove);
+        if (options.symmetric) {
+            const symmetricHandleMove = this.calculateSymmetricHandleMove(handleMove, options);
+            toBounds = this.calculateBounds(toBounds, symmetricHandleMove);
+        }
+        if (!options.constrainResize || this.manager.hasValidSize(element, toBounds)) {
             return toBounds;
-        } else {
-            const vector = handleMove.moveVector;
-            let toBounds = this.calculateBounds(element.bounds, handleMove.element.location, vector);
-            if (symmetricHandleMove) {
-                toBounds = this.calculateBounds(toBounds, symmetricHandleMove.element.location, symmetricHandleMove.moveVector);
-            }
-            return toBounds;
+        }
+
+        // we need to adjust to the minimum size but it is not enough to simply set the size
+        // we need to make sure that the element is still at the expected position
+        // we therefore constrain the movement vector to actually avoid going below the minimum size
+        const minimum = this.manager.getMinimumSize(element);
+        handleMove.moveVector = this.constrainResizeVector(element.bounds, handleMove, minimum);
+        if (options.symmetric) {
+            // if we have symmetric resize we want to distribute the constrained movement vector to both sides
+            // but only for the dimension that was actually resized beyond the minimum
+            handleMove.moveVector.x = element.bounds.width > minimum.width ? handleMove.moveVector.x / 2 : handleMove.moveVector.x;
+            handleMove.moveVector.y = element.bounds.height > minimum.height ? handleMove.moveVector.y / 2 : handleMove.moveVector.y;
+        }
+        toBounds = this.calculateBounds(element.bounds, handleMove);
+        if (options.symmetric) {
+            // since we already distributed the available movement vector, we do not want to snap the symmetric handle move
+            const symmetricHandleMove = this.calculateSymmetricHandleMove(handleMove, { ...options, snap: false });
+            toBounds = this.calculateBounds(toBounds, symmetricHandleMove);
+        }
+        return toBounds;
+    }
+
+    protected calculateSymmetricHandleMove(handleMove: TrackedHandleMove, options: ResizeOptions): TrackedHandleMove {
+        const moveOptions = this.resolveMoveOptions({ ...options, validate: false, restrict: false });
+        return this.calculateElementMove(handleMove.element.opposite(), Vector.reverse(handleMove.moveVector), moveOptions);
+    }
+
+    protected calculateBounds(src: Readonly<Bounds>, handleMove?: TrackedHandleMove): Bounds {
+        if (!handleMove || Vector.isZero(handleMove.moveVector)) {
+            return src;
+        }
+        return this.doCalculateBounds(src, handleMove.moveVector, handleMove.element.location);
+    }
+
+    protected doCalculateBounds(src: Readonly<Bounds>, vector: Vector, location: ResizeHandleLocation): Bounds {
+        switch (location) {
+            case ResizeHandleLocation.TopLeft:
+                return { x: src.x + vector.x, y: src.y + vector.y, width: src.width - vector.x, height: src.height - vector.y };
+            case ResizeHandleLocation.Top:
+                return { ...src, y: src.y + vector.y, height: src.height - vector.y };
+            case ResizeHandleLocation.TopRight:
+                return { ...src, y: src.y + vector.y, width: src.width + vector.x, height: src.height - vector.y };
+            case ResizeHandleLocation.Right:
+                return { ...src, width: src.width + vector.x };
+            case ResizeHandleLocation.BottomRight:
+                return { ...src, width: src.width + vector.x, height: src.height + vector.y };
+            case ResizeHandleLocation.Bottom:
+                return { ...src, height: src.height + vector.y };
+            case ResizeHandleLocation.BottomLeft:
+                return { ...src, x: src.x + vector.x, width: src.width - vector.x, height: src.height + vector.y };
+            case ResizeHandleLocation.Left:
+                return { ...src, x: src.x + vector.x, width: src.width - vector.x };
         }
     }
 
-    protected capMoveVector(src: Bounds, handleMove: TrackedHandleMove, minimum: Dimension): Vector {
+    protected constrainResizeVector(src: Readonly<Bounds>, handleMove: TrackedHandleMove, minimum: Dimension): Vector {
         const vector = handleMove.moveVector as Writable<Vector>;
         switch (handleMove.element.location) {
             case ResizeHandleLocation.TopLeft:
@@ -399,30 +418,6 @@ export class ChangeBoundsTracker {
                 break;
         }
         return vector;
-    }
-
-    protected calculateBounds(src: Bounds, location: ResizeHandleLocation, vector: Vector): Writable<Bounds> {
-        if (Vector.isZero(vector)) {
-            return src;
-        }
-        switch (location) {
-            case ResizeHandleLocation.TopLeft:
-                return { x: src.x + vector.x, y: src.y + vector.y, width: src.width - vector.x, height: src.height - vector.y };
-            case ResizeHandleLocation.Top:
-                return { ...src, y: src.y + vector.y, height: src.height - vector.y };
-            case ResizeHandleLocation.TopRight:
-                return { ...src, y: src.y + vector.y, width: src.width + vector.x, height: src.height - vector.y };
-            case ResizeHandleLocation.Right:
-                return { ...src, width: src.width + vector.x };
-            case ResizeHandleLocation.BottomRight:
-                return { ...src, width: src.width + vector.x, height: src.height + vector.y };
-            case ResizeHandleLocation.Bottom:
-                return { ...src, height: src.height + vector.y };
-            case ResizeHandleLocation.BottomLeft:
-                return { ...src, x: src.x + vector.x, width: src.width - vector.x, height: src.height + vector.y };
-            case ResizeHandleLocation.Left:
-                return { ...src, x: src.x + vector.x, width: src.width - vector.x };
-        }
     }
 
     dispose(): void {

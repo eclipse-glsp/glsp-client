@@ -37,9 +37,16 @@ import {
     TYPES,
     findParentByFeature
 } from '@eclipse-glsp/sprotty';
-import { ChangeBoundsManager, ChangeBoundsTracker, TrackedElementResize, TrackedResize } from '..';
+import { CSS_RESIZE_MODE, ChangeBoundsManager, ChangeBoundsTracker, TrackedElementResize, TrackedResize } from '..';
 import { DragAwareMouseListener } from '../../../base/drag-aware-mouse-listener';
-import { CursorCSS, applyCssClasses, cursorFeedbackAction, deleteCssClasses, toggleCssClasses } from '../../../base/feedback/css-feedback';
+import {
+    CursorCSS,
+    ModifyCSSFeedbackAction,
+    applyCssClasses,
+    cursorFeedbackAction,
+    deleteCssClasses,
+    toggleCssClasses
+} from '../../../base/feedback/css-feedback';
 import { FeedbackEmitter } from '../../../base/feedback/feeback-emitter';
 import { ISelectionListener, SelectionService } from '../../../base/selection-service';
 import {
@@ -125,7 +132,7 @@ export class ChangeBoundsTool extends BaseEditTool {
     }
 }
 
-export class ChangeBoundsListener extends DragAwareMouseListener implements ISelectionListener, Disposable {
+export class ChangeBoundsListener extends DragAwareMouseListener implements ISelectionListener {
     static readonly CSS_CLASS_ACTIVE = 'active';
 
     // members for calculating the correct position change
@@ -183,8 +190,7 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
             this.handleFeedback.submit();
             return true;
         } else {
-            this.tracker.stopTracking();
-            this.handleFeedback.dispose();
+            this.dispose();
             return false;
         }
     }
@@ -199,19 +205,14 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
         // rely on the FeedbackMoveMouseListener to update the element bounds of selected elements
         // consider resize handles ourselves
         if (this.activeResizeHandle && this.tracker.isTracking()) {
-            const resize = this.tracker.resizeElements(this.activeResizeHandle, {
-                snap: event,
-                symmetric: event,
-                restrict: event,
-                skipStatic: false
-            });
+            const resize = this.tracker.resizeElements(this.activeResizeHandle, { snap: event, symmetric: event, restrict: event });
             this.addResizeFeedback(resize, target, event);
-            if (resize.elementResizes.length > 0) {
-                const resizeAction = this.resizeBoundsAction(resize);
+            const resizeAction = this.resizeBoundsAction(resize);
+            if (resizeAction.bounds.length > 0) {
                 this.resizeFeedback.add(resizeAction, () => this.resetBounds());
-                if (resizeAction.bounds.length > 0) {
-                    this.tracker.updateTrackingPosition(resize.handleMove.moveVector);
-                }
+                this.tracker.updateTrackingPosition(resize.handleMove.moveVector);
+            } else {
+                this.resizeFeedback.add(undefined, () => this.resetBounds());
             }
             this.resizeFeedback.submit();
         }
@@ -238,6 +239,12 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
         this.resizeFeedback.add(
             applyCssClasses(handle, ChangeBoundsListener.CSS_CLASS_ACTIVE),
             deleteCssClasses(handle, ChangeBoundsListener.CSS_CLASS_ACTIVE)
+        );
+
+        // graph feedback
+        this.resizeFeedback.add(
+            ModifyCSSFeedbackAction.create({ add: [CSS_RESIZE_MODE] }),
+            ModifyCSSFeedbackAction.create({ remove: [CSS_RESIZE_MODE] })
         );
 
         // cursor feedback
@@ -300,13 +307,13 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
         const selectedElements = getMatchingElements(target.index, isNonRoutableSelectedMovableBoundsAware);
         const selectionSet: Set<BoundsAwareModelElement> = new Set(selectedElements);
         const newBounds: ElementAndBounds[] = selectedElements
-            .filter(element => this.isValidElement(element, selectionSet))
+            .filter(element => this.isValidMove(element, selectionSet))
             .map(toElementAndBounds);
         return newBounds.length > 0 ? [ChangeBoundsOperation.create(newBounds)] : [];
     }
 
-    protected isValidElement(element: BoundsAwareModelElement, selectedElements: Set<BoundsAwareModelElement> = new Set()): boolean {
-        return this.tool.changeBoundsManager.isValid(element) && !this.isChildOfSelected(selectedElements, element);
+    protected isValidMove(element: BoundsAwareModelElement, selectedElements: Set<BoundsAwareModelElement> = new Set()): boolean {
+        return this.tool.changeBoundsManager.hasValidPosition(element) && !this.isChildOfSelected(selectedElements, element);
     }
 
     protected isChildOfSelected(selectedElements: Set<GModelElement>, element: GModelElement): boolean {
@@ -342,7 +349,7 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
     }
 
     protected handleResizeOnServer(activeResizeHandle: SResizeHandle): Action[] {
-        if (this.tool.changeBoundsManager.isValid(activeResizeHandle.parent) && this.initialBounds) {
+        if (this.initialBounds && this.isValidResize(activeResizeHandle.parent)) {
             const elementAndBounds = toElementAndBounds(activeResizeHandle.parent);
             if (!this.initialBounds.newPosition || !elementAndBounds.newPosition) {
                 return [];
@@ -361,6 +368,10 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
         return [];
     }
 
+    protected isValidResize(element: BoundsAwareModelElement): boolean {
+        return this.tool.changeBoundsManager.isValid(element);
+    }
+
     selectionChanged(root: GModelRoot, selectedElements: string[]): void {
         if (this.activeResizeElement && selectedElements.includes(this.activeResizeElement.id)) {
             // our active element is still selected, nothing to do
@@ -374,8 +385,7 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
                 return;
             }
         }
-        this.updateResizeElement(root);
-        this.disposeAllButHandles();
+        this.dispose();
     }
 
     protected isActiveResizeElement(element?: GModelElement): element is GParentElement & BoundsAware {

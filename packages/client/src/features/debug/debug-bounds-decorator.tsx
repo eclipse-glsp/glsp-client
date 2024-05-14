@@ -15,7 +15,7 @@
  ********************************************************************************/
 /* eslint-disable max-len */
 
-import { Bounds, GModelElement, IVNodePostprocessor, Point, TYPES, isBoundsAware, setClass, svg } from '@eclipse-glsp/sprotty';
+import { Bounds, GModelElement, IVNodePostprocessor, Point, TYPES, isSizeable, setClass, svg } from '@eclipse-glsp/sprotty';
 import { inject, injectable, optional } from 'inversify';
 import { VNode } from 'snabbdom';
 import { GGraph } from '../../model';
@@ -33,8 +33,8 @@ export class DebugBoundsDecorator implements IVNodePostprocessor {
         if (!this.debugManager?.isDebugEnabled) {
             return vnode;
         }
-        if (isBoundsAware(element)) {
-            this.decorateBoundsAware(vnode, element);
+        if (isSizeable(element)) {
+            this.decorateSizeable(vnode, element);
         }
         if (element instanceof GGraph) {
             this.decorateGraph(vnode, element);
@@ -67,7 +67,7 @@ export class DebugBoundsDecorator implements IVNodePostprocessor {
         );
     }
 
-    protected decorateBoundsAware(vnode: VNode, element: BoundsAwareModelElement): void {
+    protected decorateSizeable(vnode: VNode, element: BoundsAwareModelElement): void {
         setClass(vnode, 'debug-bounds', true);
         vnode.children?.push(this.renderTopLeftCorner(element));
         vnode.children?.push(this.renderTopRightCorner(element));

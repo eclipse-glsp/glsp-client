@@ -14,6 +14,9 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 /* eslint-disable @typescript-eslint/no-shadow */
+/* eslint-disable import/no-deprecated */
+/* eslint-disable deprecation/deprecation */
+
 import { GModelElement, ISnapper, Point, Writable } from '@eclipse-glsp/sprotty';
 import { calculateDeltaBetweenPoints } from '../../utils/gmodel-util';
 import { isMouseEvent } from '../../utils/html-utils';

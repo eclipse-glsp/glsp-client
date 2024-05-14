@@ -32,9 +32,12 @@ export class FeedbackEmitter implements IFeedbackEmitter, Disposable {
      * once the {@link submit} method is called.
      *
      * @param action feedback action
-     * @param cleanupAction action that undoes the feedback action. This is only triggered when {@link revert} is called.
+     * @param cleanupAction action that undoes the feedback action. This is only triggered when {@link revert} or {@link dispose} is called.
      */
-    add(action: Action, cleanupAction?: MaybeActions): this {
+    add(action?: Action, cleanupAction?: MaybeActions): this {
+        if (!action && !cleanupAction) {
+            return this;
+        }
         const idx = this.feedbackActions.length;
         this.feedbackActions[idx] = action;
         if (cleanupAction) {
@@ -73,7 +76,7 @@ export class FeedbackEmitter implements IFeedbackEmitter, Disposable {
      * Registers any pending actions as feedback. Any previously submitted feedback becomes invalid.
      */
     submit(): this {
-        // with 'arrayOf' we skip undefined entries that are created for non-cleanup actions
+        // with 'arrayOf' we skip undefined entries that are created for non-cleanup actions or cleanup-only actions
         const actions = arrayOf(...this.feedbackActions);
         const cleanupActions = arrayOf(...this.cleanupActions);
         this.deregistration = this.feedbackDispatcher.registerFeedback(this, actions, () => cleanupActions.flatMap(MaybeActions.asArray));

@@ -17,9 +17,14 @@
 
 import { Point } from 'sprotty-protocol/lib/utils/geometry';
 import { AnyObject, Movement, Vector, hasNumberProp } from './utils';
+import { equalUpTo } from './utils/math-util';
 
 declare module 'sprotty-protocol/lib/utils/geometry' {
     namespace Point {
+        /**
+         * Type guard to check if the given object is a point.
+         * @param point the object to be checked
+         */
         function is(point: any): point is Point;
         /**
          * The absolute variant of that point, i.e., each coordinate uses its absolute value.
@@ -33,6 +38,15 @@ declare module 'sprotty-protocol/lib/utils/geometry' {
          * @param point the point to be checked for validity
          */
         function isValid(point?: Point): point is Point;
+
+        /**
+         * Checks whether the given points are equal up to a certain epsilon.
+         * @param one the first point
+         * @param other the second point
+         * @param eps the epsilon value
+         */
+        function equals(one: Point, other: Point, eps?: number): boolean;
+
         /**
          * The absolute variant of that point, i.e., each coordinate uses its absolute value.
          *
@@ -134,5 +148,7 @@ Point.moveTowards = (from: Point, vector: Vector): Movement => {
     const dir = Vector.direction(vector);
     return { from, to, vector, direction: dir };
 };
+
+Point.equals = (one: Point, other: Point, eps?: number): boolean => equalUpTo(one.x, other.x, eps) && equalUpTo(one.y, other.y, eps);
 
 export { Point };

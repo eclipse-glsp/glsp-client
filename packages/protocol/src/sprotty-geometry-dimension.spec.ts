@@ -83,6 +83,27 @@ describe('Dimension', () => {
             const isEqual = Dimension.equals(dimension1, dimension2);
             expect(isEqual).to.be.false;
         });
+
+        it('should return false if the dimensions have different width', () => {
+            const dimension1: Dimension = { width: 10, height: 20 };
+            const dimension2: Dimension = { width: 5, height: 20 };
+            const isEqual = Dimension.equals(dimension1, dimension2);
+            expect(isEqual).to.be.false;
+        });
+
+        it('should return false if the dimensions have different height', () => {
+            const dimension1: Dimension = { width: 10, height: 20 };
+            const dimension2: Dimension = { width: 10, height: 10 };
+            const isEqual = Dimension.equals(dimension1, dimension2);
+            expect(isEqual).to.be.false;
+        });
+
+        it('should consider epsilon', () => {
+            const dimension1: Dimension = { width: 10, height: 20 };
+            const dimension2: Dimension = { width: 10.0001, height: 20.0001 };
+            const isEqual = Dimension.equals(dimension1, dimension2, 0.001);
+            expect(isEqual).to.be.true;
+        });
     });
 
     describe('fromPoint', () => {
@@ -90,6 +111,14 @@ describe('Dimension', () => {
             const point = { x: 10, y: 20 };
             const dimension = Dimension.fromPoint(point);
             expect(dimension).to.deep.equal({ width: 10, height: 20 });
+        });
+    });
+
+    describe('area', () => {
+        it('should compute the area of the dimension', () => {
+            const dimension: Dimension = { width: 10, height: 20 };
+            const area = Dimension.area(dimension);
+            expect(area).to.equal(200);
         });
     });
 });

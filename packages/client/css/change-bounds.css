@@ -31,10 +31,19 @@
 }
 
 .sprotty-resize-handle.resize-not-allowed {
-    fill: var(--glsp-error-foreground) !important;
+    fill: var(--glsp-error-foreground);
 }
 
 .sprotty g .resize-not-allowed > .sprotty-node {
-    stroke: var(--glsp-error-foreground) !important;
+    stroke: var(--glsp-error-foreground);
     stroke-width: 1.5px;
+}
+
+.move-mode .sprotty-projection-bar,
+.resize-mode .sprotty-projection-bar {
+    /**
+     * We are using mouse events (offsetX, offsetY) in the GLSPMousePositionTracker to calculate the diagram position relative to the parent.
+     * Other elements result in relative coordinates different from the graph and will therefore interfere with the correct position calculation.
+     */
+    pointer-events: none;
 }

@@ -18,8 +18,15 @@ import { Action, Dimension, GModelElement, MoveAction, Point, isBoundsAware, isM
 import { DragAwareMouseListener } from '../../base/drag-aware-mouse-listener';
 import { CSS_HIDDEN, ModifyCSSFeedbackAction } from '../../base/feedback/css-feedback';
 import { FeedbackEmitter } from '../../base/feedback/feeback-emitter';
-import { getAbsolutePosition } from '../../utils';
-import { ChangeBoundsManager, ChangeBoundsTracker, FeedbackAwareTool, MoveFinishedEventAction, TrackedElementMove } from '../tools';
+import { MoveableElement, getAbsolutePosition } from '../../utils';
+import {
+    CSS_RESIZE_MODE,
+    ChangeBoundsManager,
+    ChangeBoundsTracker,
+    FeedbackAwareTool,
+    MoveFinishedEventAction,
+    TrackedElementMove
+} from '../tools';
 
 export interface PositioningTool extends FeedbackAwareTool {
     readonly changeBoundsManager: ChangeBoundsManager;
@@ -39,42 +46,56 @@ export class MouseTrackingElementPositionListener extends DragAwareMouseListener
         this.moveGhostFeedback = this.tool.createFeedbackEmitter();
     }
 
+    protected getTrackedElement(target: GModelElement, event: MouseEvent): MoveableElement | undefined {
+        const element = target.root.index.getById(this.elementId);
+        return !element || !isMoveable(element) ? undefined : element;
+    }
+
     override mouseMove(target: GModelElement, event: MouseEvent): Action[] {
         super.mouseMove(target, event);
-        const element = target.root.index.getById(this.elementId);
-        if (!element || !isMoveable(element)) {
+        const element = this.getTrackedElement(target, event);
+        if (!element) {
             return [];
         }
         if (!this.tracker.isTracking()) {
-            this.tracker.startTracking();
-            const mousePosition = getAbsolutePosition(target, event);
-            element.position =
-                this.cursorPosition === 'middle' && isBoundsAware(element)
-                    ? Point.subtract(mousePosition, Dimension.center(element.bounds))
-                    : mousePosition;
+            this.initialize(element, target, event);
         }
-        // we only validate if we use the position already as a target, otherwise we need to re-evaluate after moving to the center anyway
         const move = this.tracker.moveElements([element], { snap: event, restrict: event, validate: true });
         const elementMove = move.elementMoves[0];
         if (!elementMove) {
             return [];
         }
-        this.addMoveFeeback(elementMove);
         // since we are moving a ghost element that is feedback-only and will be removed anyway,
         // we just send a MoveFinishedEventAction instead of reseting the position with a MoveAction and the finished flag set to true.
-        this.moveGhostFeedback
-            .add(
-                MoveAction.create([{ elementId: this.elementId, toPosition: elementMove.toPosition }], { animate: false }),
-                MoveFinishedEventAction.create()
-            )
-            .submit();
+        this.moveGhostFeedback.add(
+            MoveAction.create([{ elementId: this.elementId, toPosition: elementMove.toPosition }], { animate: false }),
+            MoveFinishedEventAction.create()
+        );
+        this.addMoveFeeback(elementMove);
+        this.moveGhostFeedback.submit();
         this.tracker.updateTrackingPosition(elementMove.moveVector);
         return [];
+    }
+
+    protected initialize(element: MoveableElement, target: GModelElement, event: MouseEvent): void {
+        this.tracker.startTracking();
+        element.position = this.initializeElementPosition(element, target, event);
+    }
+
+    protected initializeElementPosition(element: MoveableElement, target: GModelElement, event: MouseEvent): Point {
+        const mousePosition = getAbsolutePosition(target, event);
+        return this.cursorPosition === 'middle' && isBoundsAware(element)
+            ? Point.subtract(mousePosition, Dimension.center(element.bounds))
+            : mousePosition;
     }
 
     protected addMoveFeeback(move: TrackedElementMove): void {
         this.tool.changeBoundsManager.addRestrictionFeedback(this.moveGhostFeedback, move);
         this.moveGhostFeedback.add(ModifyCSSFeedbackAction.create({ elements: [move.element.id], remove: [CSS_HIDDEN] }));
+        this.moveGhostFeedback.add(
+            ModifyCSSFeedbackAction.create({ add: [CSS_RESIZE_MODE] }),
+            ModifyCSSFeedbackAction.create({ remove: [CSS_RESIZE_MODE] })
+        );
     }
 
     override dispose(): void {

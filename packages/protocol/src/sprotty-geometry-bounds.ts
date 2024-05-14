@@ -49,7 +49,7 @@ declare module 'sprotty-protocol/lib/utils/geometry' {
          * @param right right bounds
          * @returns true if the two bounds are equal
          */
-        function equals(left: Bounds, right: Bounds): boolean;
+        function equals(left: Bounds, right: Bounds, eps?: number): boolean;
 
         /**
          * Returns the x-coordinate of the left edge of the bounds.
@@ -259,7 +259,8 @@ Bounds.overlap = (one: Bounds, other: Bounds, touch?: boolean): boolean => {
               otherBottomRight.y > oneTopLeft.y;
 };
 
-Bounds.equals = (left: Bounds, right: Bounds): boolean => Point.equals(left, right) && Dimension.equals(left, right);
+Bounds.equals = (left: Bounds, right: Bounds, eps?: number): boolean =>
+    Point.equals(left, right, eps) && Dimension.equals(left, right, eps);
 
 Bounds.left = (bounds: Bounds): number => bounds.x;
 

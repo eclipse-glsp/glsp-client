@@ -52,5 +52,7 @@ export const boundsModule = new FeatureModule((bind, _unbind, isBound, _rebind) 
     configureLayout(context, HBoxLayouter.KIND, HBoxLayouterExt);
     configureLayout(context, FreeFormLayouter.KIND, FreeFormLayouter);
 
+    // backwards compatibility
+    // eslint-disable-next-line deprecation/deprecation
     bind(PositionSnapper).toSelf();
 });

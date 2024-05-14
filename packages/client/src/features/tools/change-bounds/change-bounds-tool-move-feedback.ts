@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, Disposable, ElementMove, GModelElement, GModelRoot, MoveAction, Point, findParentByFeature } from '@eclipse-glsp/sprotty';
+import { Action, ElementMove, GModelElement, GModelRoot, MoveAction, Point, findParentByFeature } from '@eclipse-glsp/sprotty';
 
 import { DebouncedFunc, debounce } from 'lodash';
 import { ChangeBoundsTracker, TrackedMove } from '.';
@@ -32,7 +32,7 @@ import { MoveFinishedEventAction, MoveInitializedEventAction } from './change-bo
  * the visual feedback but also the basis for sending the change to the server
  * (see also `tools/MoveTool`).
  */
-export class FeedbackMoveMouseListener extends DragAwareMouseListener implements Disposable {
+export class FeedbackMoveMouseListener extends DragAwareMouseListener {
     protected rootElement?: GModelRoot;
     protected tracker: ChangeBoundsTracker;
     protected elementId2startPos = new Map<string, Point>();

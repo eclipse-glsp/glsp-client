@@ -40,7 +40,7 @@ export class MovementKeyTool implements Tool {
     @inject(SelectionService) selectionService: SelectionService;
     @inject(TYPES.ISnapper) @optional() readonly snapper?: ISnapper;
     @inject(TYPES.IActionDispatcher) readonly actionDispatcher: GLSPActionDispatcher;
-    @optional() @inject(TYPES.Grid) protected grid: Grid;
+    @inject(TYPES.Grid) @optional() protected grid: Grid;
     @inject(TYPES.IChangeBoundsManager) readonly changeBoundsManager: ChangeBoundsManager;
 
     get id(): string {
@@ -116,20 +116,22 @@ export class MoveKeyListener extends KeyListener implements AccessibleKeyShortcu
     }
 
     protected matchesMoveUpKeystroke(event: KeyboardEvent): boolean {
-        return matchesKeystroke(event, 'ArrowUp') || matchesKeystroke(event, 'ArrowUp', this.tool.changeBoundsManager.unsnapModifier());
+        const unsnap = this.tool.changeBoundsManager.unsnapModifier();
+        return matchesKeystroke(event, 'ArrowUp') || (!!unsnap && matchesKeystroke(event, 'ArrowUp', unsnap));
     }
 
     protected matchesMoveDownKeystroke(event: KeyboardEvent): boolean {
-        return matchesKeystroke(event, 'ArrowDown') || matchesKeystroke(event, 'ArrowDown', this.tool.changeBoundsManager.unsnapModifier());
+        const unsnap = this.tool.changeBoundsManager.unsnapModifier();
+        return matchesKeystroke(event, 'ArrowDown') || (!!unsnap && matchesKeystroke(event, 'ArrowDown', unsnap));
     }
 
     protected matchesMoveRightKeystroke(event: KeyboardEvent): boolean {
-        return (
-            matchesKeystroke(event, 'ArrowRight') || matchesKeystroke(event, 'ArrowRight', this.tool.changeBoundsManager.unsnapModifier())
-        );
+        const unsnap = this.tool.changeBoundsManager.unsnapModifier();
+        return matchesKeystroke(event, 'ArrowRight') || (!!unsnap && matchesKeystroke(event, 'ArrowRight', unsnap));
     }
 
     protected matchesMoveLeftKeystroke(event: KeyboardEvent): boolean {
-        return matchesKeystroke(event, 'ArrowLeft') || matchesKeystroke(event, 'ArrowLeft', this.tool.changeBoundsManager.unsnapModifier());
+        const unsnap = this.tool.changeBoundsManager.unsnapModifier();
+        return matchesKeystroke(event, 'ArrowLeft') || (!!unsnap && matchesKeystroke(event, 'ArrowLeft', unsnap));
     }
 }
