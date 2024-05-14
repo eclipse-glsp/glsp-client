@@ -42,6 +42,7 @@ import { DebugManager } from '../debug';
 import { GridManager } from '../grid';
 import { MouseDeleteTool } from '../tools/deletion/delete-tool';
 import { MarqueeMouseTool } from '../tools/marquee-selection/marquee-mouse-tool';
+import { OriginViewportAction } from '../viewport';
 
 const CLICKED_CSS_CLASS = 'clicked';
 const SEARCH_ICON_ID = 'search';
@@ -213,6 +214,9 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
         const validateActionButton = this.createValidateButton();
         headerTools.appendChild(validateActionButton);
 
+        const resetViewportButton = this.createResetViewportButton();
+        headerTools.appendChild(resetViewportButton);
+
         if (this.gridManager) {
             const toggleGridButton = this.createToggleGridButton();
             headerTools.appendChild(toggleGridButton);
@@ -269,6 +273,18 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
         validateActionButton.ariaLabel = validateActionButton.title;
         validateActionButton.tabIndex = 1;
         return validateActionButton;
+    }
+
+    protected createResetViewportButton(): HTMLElement {
+        const resetViewportButton = createIcon('screen-normal');
+        resetViewportButton.title = 'Reset Viewport';
+        resetViewportButton.onclick = _event => {
+            this.actionDispatcher.dispatch(OriginViewportAction.create());
+            resetViewportButton.focus();
+        };
+        resetViewportButton.ariaLabel = resetViewportButton.title;
+        resetViewportButton.tabIndex = 1;
+        return resetViewportButton;
     }
 
     protected createToggleGridButton(): HTMLElement {

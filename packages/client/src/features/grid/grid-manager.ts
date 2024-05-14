@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2024 EclipseSource and others.
+ * Copyright (c) 2024 Axon Ivy AG and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -28,7 +28,7 @@ export class GridManager implements IActionHandler {
     @inject(TYPES.IFeedbackActionDispatcher)
     protected feedbackDispatcher: IFeedbackActionDispatcher;
 
-    @inject(Grid)
+    @inject(TYPES.Grid)
     public readonly grid: Grid;
 
     get isGridVisible(): boolean {

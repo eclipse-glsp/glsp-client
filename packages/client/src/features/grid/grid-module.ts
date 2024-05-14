@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2023 EclipseSource and others.
+ * Copyright (c) 2023 Axon Ivy AG and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -14,10 +14,18 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { FeatureModule, SetViewportAction, TYPES, bindAsService, configureActionHandler, configureCommand } from '@eclipse-glsp/sprotty';
+import {
+    FeatureModule,
+    GGraphView,
+    TYPES,
+    bindAsService,
+    bindOrRebind,
+    configureActionHandler,
+    configureCommand
+} from '@eclipse-glsp/sprotty';
 import '../../../css/grid.css';
-import { Grid } from './grid';
-import { GridBackground } from './grid-background';
+import { GLSPProjectionView } from '../../views';
+import { GridGraphView, GridProjectionGraphView } from './grid-graph-view';
 import { GridManager } from './grid-manager';
 import { ShowGridAction, ShowGridCommand } from './grid-model';
 import { GridSnapper } from './grid-snapper';
@@ -25,7 +33,7 @@ import { GridSnapper } from './grid-snapper';
 export const gridModule = new FeatureModule((bind, unbind, isBound, rebind) => {
     const context = { bind, unbind, isBound, rebind };
 
-    bind(Grid).toConstantValue({ x: 10, y: 10 });
+    bind(TYPES.Grid).toConstantValue({ x: 10, y: 10 });
 
     configureCommand(context, ShowGridCommand);
 
@@ -34,7 +42,6 @@ export const gridModule = new FeatureModule((bind, unbind, isBound, rebind) => {
 
     bind(TYPES.ISnapper).to(GridSnapper);
 
-    bind(GridBackground).toSelf().inSingletonScope();
-    configureActionHandler(context, SetViewportAction.KIND, GridBackground);
-    bind(TYPES.IDiagramStartup).toService(GridBackground);
+    bindOrRebind(context, GGraphView).to(GridGraphView);
+    bindOrRebind(context, GLSPProjectionView).to(GridProjectionGraphView);
 });

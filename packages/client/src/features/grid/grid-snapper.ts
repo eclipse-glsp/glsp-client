@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { GModelElement, ISnapper, Point, SprottyCenterGridSnapper } from '@eclipse-glsp/sprotty';
+import { CenterGridSnapper, GModelElement, ISnapper, Point, TYPES } from '@eclipse-glsp/sprotty';
 import { inject, injectable, optional } from 'inversify';
 import { Grid } from './grid';
 
@@ -30,13 +30,13 @@ import { Grid } from './grid';
  *
  * or use the `Grid` to define the grid size more generically:
  * ```ts
- * bind(Grid).toConstantValue({ x: 25, y: 25 });
+ * bind(TYPES.Grid).toConstantValue({ x: 25, y: 25 });
  * bind(TYPES.ISnapper).to(GridSnapper);
  * ```
  */
 @injectable()
 export class GridSnapper implements ISnapper {
-    constructor(@optional() @inject(Grid) public readonly grid: Grid = { x: 10, y: 10 }) {}
+    constructor(@optional() @inject(TYPES.Grid) public readonly grid: Grid = { x: 10, y: 10 }) {}
 
     snap(position: Point, _element: GModelElement): Point {
         return Point.snapToGrid(position, this.grid);
@@ -44,8 +44,8 @@ export class GridSnapper implements ISnapper {
 }
 
 @injectable()
-export class CenterGridSnapper extends SprottyCenterGridSnapper {
-    constructor(@optional() @inject(Grid) public readonly grid: Grid = { x: 10, y: 10 }) {
+export class GLSPCenterGridSnapper extends CenterGridSnapper {
+    constructor(@optional() @inject(TYPES.Grid) public readonly grid: Grid = { x: 10, y: 10 }) {
         super();
     }
 

@@ -86,7 +86,7 @@ export class HelperLineManager implements IActionHandler, ISelectionListener, IH
     @inject(TYPES.IFeedbackActionDispatcher) protected feedbackDispatcher: IFeedbackActionDispatcher;
     @inject(SelectionService) protected selectionService: SelectionService;
     @optional() @inject(TYPES.IHelperLineOptions) protected userOptions?: IHelperLineOptions;
-    @optional() @inject(Grid) protected grid?: Grid;
+    @optional() @inject(TYPES.Grid) protected grid?: Grid;
 
     protected options: Required<IHelperLineOptions>;
     protected feedback: FeedbackEmitter;

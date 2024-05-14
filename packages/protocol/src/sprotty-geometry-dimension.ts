@@ -20,6 +20,11 @@ import { Dimension, Point } from 'sprotty-protocol/lib/utils/geometry';
 declare module 'sprotty-protocol/lib/utils/geometry' {
     namespace Dimension {
         /**
+         * The smallest valid dimension with width, and height set to 0.
+         */
+        const ZERO: Dimension;
+
+        /**
          * Applies the given function to the `width` and `height` of the given dimensional object to create a new dimensional object.
          *
          * @param dimension source dimension
@@ -75,8 +80,20 @@ declare module 'sprotty-protocol/lib/utils/geometry' {
          * @returns true if the dimensions are equal, false otherwise
          */
         function equals(left: Dimension, right: Dimension): boolean;
+
+        /**
+         * Creates a new dimension from the given point. The `width` and `height` of the new dimension are the `x` and `y` of the point.
+         * @param point the point
+         * @returns new dimension
+         */
+        function fromPoint(point: Point): Dimension;
     }
 }
+
+(Dimension as any).ZERO = Object.freeze({
+    width: 0,
+    height: 0
+});
 
 Dimension.center = (d: Dimension): Point => ({ x: d.width * 0.5, y: d.height * 0.5 });
 Dimension.add = (d: Dimension, a: Dimension): Dimension => ({ width: d.width + a.width, height: d.height + a.height });
@@ -90,5 +107,6 @@ Dimension.map = <T extends Dimension>(dimension: T, callbackfn: (value: number, 
     height: callbackfn(dimension.height, 'height')
 });
 Dimension.equals = (left: Dimension, right: Dimension): boolean => left.width === right.width && left.height === right.height;
+Dimension.fromPoint = (point: Point): Dimension => ({ width: point.x, height: point.y });
 
 export { Dimension };

@@ -86,7 +86,10 @@ export class ResizeElementHandler implements IActionHandler {
     // Default y resize used if grid is not provided
     static readonly defaultResizeY = 20;
 
-    @optional() @inject(Grid) protected grid: Grid = { x: ResizeElementHandler.defaultResizeX, y: ResizeElementHandler.defaultResizeY };
+    @optional() @inject(TYPES.Grid) protected grid: Grid = {
+        x: ResizeElementHandler.defaultResizeX,
+        y: ResizeElementHandler.defaultResizeY
+    };
 
     protected isEditMode = false;
 

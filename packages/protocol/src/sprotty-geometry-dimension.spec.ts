@@ -84,4 +84,12 @@ describe('Dimension', () => {
             expect(isEqual).to.be.false;
         });
     });
+
+    describe('fromPoint', () => {
+        it('should create a new dimension from the given point', () => {
+            const point = { x: 10, y: 20 };
+            const dimension = Dimension.fromPoint(point);
+            expect(dimension).to.deep.equal({ width: 10, height: 20 });
+        });
+    });
 });

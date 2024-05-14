@@ -233,6 +233,10 @@ export class KeyboardToolPalette extends ToolPalette {
         this.headerToolsButtonMapping.set(mappingIndex++, this.validateToolButton);
         headerTools.appendChild(this.validateToolButton);
 
+        const resetViewportButton = this.createResetViewportButton();
+        this.headerToolsButtonMapping.set(mappingIndex++, resetViewportButton);
+        headerTools.appendChild(resetViewportButton);
+
         if (this.gridManager) {
             const toggleGridButton = this.createToggleGridButton();
             this.headerToolsButtonMapping.set(mappingIndex++, toggleGridButton);

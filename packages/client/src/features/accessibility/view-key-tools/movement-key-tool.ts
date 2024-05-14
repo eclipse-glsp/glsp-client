@@ -34,18 +34,22 @@ export class MovementKeyTool implements Tool {
 
     isEditTool = true;
 
-    protected readonly movementKeyListener = new MoveKeyListener(this);
+    protected movementKeyListener: MoveKeyListener;
 
     @inject(KeyTool) protected readonly keytool: KeyTool;
     @inject(SelectionService) selectionService: SelectionService;
     @inject(TYPES.ISnapper) @optional() readonly snapper?: ISnapper;
     @inject(TYPES.IActionDispatcher) readonly actionDispatcher: GLSPActionDispatcher;
+    @optional() @inject(TYPES.Grid) protected grid: Grid;
 
     get id(): string {
         return MovementKeyTool.ID;
     }
 
     enable(): void {
+        if (!this.movementKeyListener) {
+            this.movementKeyListener = new MoveKeyListener(this, this.grid);
+        }
         this.keytool.register(this.movementKeyListener);
         this.movementKeyListener.registerShortcutKey();
     }
@@ -64,9 +68,10 @@ export class MoveKeyListener extends KeyListener implements AccessibleKeyShortcu
 
     protected readonly token = MoveKeyListener.name;
 
-    @optional() @inject(Grid) protected grid: Grid = { x: MoveKeyListener.defaultMoveX, y: MoveKeyListener.defaultMoveY };
-
-    constructor(protected readonly tool: MovementKeyTool) {
+    constructor(
+        protected readonly tool: MovementKeyTool,
+        protected grid: Grid = { x: MoveKeyListener.defaultMoveX, y: MoveKeyListener.defaultMoveY }
+    ) {
         super();
     }
 
