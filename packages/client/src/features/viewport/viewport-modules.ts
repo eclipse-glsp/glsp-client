@@ -27,10 +27,11 @@ import {
     ZoomMouseListener
 } from '@eclipse-glsp/sprotty';
 import { EnableDefaultToolsAction, EnableToolsAction } from '../../base/tool-manager/tool';
-import { GLSPScrollMouseListener } from './glsp-scroll-mouse-listener';
-import { RestoreViewportHandler } from './viewport-handler';
-import { RepositionCommand } from './reposition';
 import { FocusDomAction } from '../accessibility/actions';
+import { GLSPScrollMouseListener } from './glsp-scroll-mouse-listener';
+import { OriginViewportCommand } from './origin-viewport';
+import { RepositionCommand } from './reposition';
+import { RestoreViewportHandler } from './viewport-handler';
 
 export const viewportModule = new FeatureModule((bind, _unbind, isBound) => {
     const context = { bind, isBound };
@@ -39,6 +40,7 @@ export const viewportModule = new FeatureModule((bind, _unbind, isBound) => {
     configureCommand(context, GetViewportCommand);
     configureCommand(context, SetViewportCommand);
     configureCommand(context, RepositionCommand);
+    configureCommand(context, OriginViewportCommand);
 
     bindAsService(context, TYPES.MouseListener, ZoomMouseListener);
     bindAsService(context, TYPES.MouseListener, GLSPScrollMouseListener);

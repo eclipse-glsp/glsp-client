@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2023 EclipseSource and others.
+ * Copyright (c) 2023 Axon Ivy AG and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,8 +13,22 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-export * from './glsp-scroll-mouse-listener';
-export * from './origin-viewport';
-export * from './reposition';
-export * from './viewport-handler';
-export * from './viewport-modules';
+
+import { FeatureModule, TYPES, bindAsService, configureActionHandler, configureCommand } from '@eclipse-glsp/sprotty';
+import '../../../css/grid.css';
+import { GridManager } from './grid-manager';
+import { ShowGridAction, ShowGridCommand } from './grid-model';
+import { GridSnapper } from './grid-snapper';
+
+export const gridModule = new FeatureModule((bind, unbind, isBound, rebind) => {
+    const context = { bind, unbind, isBound, rebind };
+
+    bind(TYPES.Grid).toConstantValue({ x: 10, y: 10 });
+
+    configureCommand(context, ShowGridCommand);
+
+    bindAsService(bind, TYPES.IGridManager, GridManager);
+    configureActionHandler(context, ShowGridAction.KIND, GridManager);
+
+    bind(TYPES.ISnapper).to(GridSnapper);
+});

@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2023 EclipseSource and others.
+ * Copyright (c) 2022-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,8 +13,18 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-export * from './glsp-scroll-mouse-listener';
-export * from './origin-viewport';
-export * from './reposition';
-export * from './viewport-handler';
-export * from './viewport-modules';
+
+import { GModelElement } from '@eclipse-glsp/sprotty';
+import { expect } from 'chai';
+import { GridSnapper } from './grid-snapper';
+
+describe('GridSnapper', () => {
+    it('snap', () => {
+        const element = new GModelElement();
+        const snapper = new GridSnapper();
+        expect(snapper.snap({ x: 0, y: 0 }, element)).to.be.deep.equals({ x: 0, y: 0 });
+        expect(snapper.snap({ x: 4, y: 5 }, element)).to.be.deep.equals({ x: 0, y: 10 });
+        expect(snapper.snap({ x: 8, y: 11 }, element)).to.be.deep.equals({ x: 10, y: 10 });
+        expect(snapper.snap({ x: -7, y: -4 }, element)).to.be.deep.equals({ x: -10, y: -0 });
+    });
+});

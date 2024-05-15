@@ -50,6 +50,16 @@ export interface Constructor<T, A extends any[] = any[]> {
 export type Writable<T> = { -readonly [P in keyof T]: Writable<T[P]> };
 
 /**
+ * Utility type to extract all key of type `V` from a given type `T`.
+ */
+export type KeysOfType<T, V> = { [K in keyof T]: T[K] extends V ? K : never }[keyof T];
+
+/**
+ * Utility type to extract all properties of type `V` from a given type `T`.
+ */
+export type PropertiesOfType<T, V> = Pick<T, KeysOfType<T, V>>;
+
+/**
  * Utility type to describe a value as might be provided as a promise.
  */
 export type MaybePromise<T> = T | PromiseLike<T>;

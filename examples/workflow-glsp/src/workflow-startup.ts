@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2023 EclipseSource and others.
+ * Copyright (c) 2024 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,8 +13,18 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-export * from './glsp-scroll-mouse-listener';
-export * from './origin-viewport';
-export * from './reposition';
-export * from './viewport-handler';
-export * from './viewport-modules';
+
+import { GridManager, IDiagramStartup } from '@eclipse-glsp/client';
+import { MaybePromise, TYPES } from '@eclipse-glsp/sprotty';
+import { inject, injectable, optional } from 'inversify';
+
+@injectable()
+export class WorkflowStartup implements IDiagramStartup {
+    rank = -1;
+
+    @inject(TYPES.IGridManager) @optional() protected gridManager?: GridManager;
+
+    preRequestModel(): MaybePromise<void> {
+        this.gridManager?.setGridVisible(true);
+    }
+}

@@ -36,7 +36,7 @@ import { EditorContextService } from '../../../base/editor-context-service';
 import { IFeedbackActionDispatcher } from '../../../base/feedback/feedback-action-dispatcher';
 import { Resizable, SelectableBoundsAware, getElements, isSelectableAndBoundsAware, toElementAndBounds } from '../../../utils/gmodel-util';
 import { isValidMove, isValidSize, minHeight, minWidth } from '../../../utils/layout-utils';
-import { GridSnapper } from '../../change-bounds/snap';
+import { Grid } from '../../grid';
 
 export enum ResizeType {
     Increase,
@@ -80,20 +80,20 @@ export class ResizeElementHandler implements IActionHandler {
     protected debouncedChangeBounds?: DebouncedFunc<() => void>;
     protected resizeFeedback: FeedbackEmitter;
 
-    // Default x resize used if GridSnapper is not provided
+    // Default x resize used if grid is not provided
     static readonly defaultResizeX = 20;
 
-    // Default y resize used if GridSnapper is not provided
+    // Default y resize used if grid is not provided
     static readonly defaultResizeY = 20;
-    protected grid = { x: ResizeElementHandler.defaultResizeX, y: ResizeElementHandler.defaultResizeY };
+
+    @inject(TYPES.Grid) @optional() protected grid: Grid = {
+        x: ResizeElementHandler.defaultResizeX,
+        y: ResizeElementHandler.defaultResizeY
+    };
 
     protected isEditMode = false;
 
-    constructor(@inject(TYPES.ISnapper) @optional() protected readonly snapper?: ISnapper) {
-        if (snapper instanceof GridSnapper) {
-            this.grid = snapper.grid;
-        }
-    }
+    constructor(@inject(TYPES.ISnapper) @optional() protected readonly snapper?: ISnapper) {}
 
     @postConstruct()
     protected init(): void {

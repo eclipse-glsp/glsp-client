@@ -266,12 +266,12 @@ export {
     SBezierControlHandleView as GBezierControlHandleView,
     SBezierCreateHandleView as GBezierCreateHandleView,
     SCompartmentView as GCompartmentView,
-    SGraphView as GGraphView,
     SLabelView as GLabelView,
     SRoutingHandleView as GRoutingHandleView,
     JumpingPolylineEdgeView,
     PolylineEdgeView,
-    PolylineEdgeViewWithGapsOnIntersections
+    PolylineEdgeViewWithGapsOnIntersections,
+    SGraphView
 } from 'sprotty/lib/graph/views';
 
 // ------------------ Library ------------------

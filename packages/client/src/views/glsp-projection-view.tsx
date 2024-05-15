@@ -16,19 +16,25 @@
 
 import {
     Bounds,
+    Dimension,
     EdgeRouterRegistry,
     GViewportRootElement,
     IViewArgs,
+    Point,
     ProjectedViewportView,
     ProjectionParams,
     RenderingContext,
+    SGraphImpl,
+    TYPES,
     ViewProjection,
+    Writable,
     html,
     setAttr,
     setClass
 } from '@eclipse-glsp/sprotty';
-import { inject, injectable } from 'inversify';
+import { inject, injectable, optional } from 'inversify';
 import { VNode, VNodeStyle, h } from 'snabbdom';
+import { GridManager, GridStyle } from '../features';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const JSX = { createElement: html };
@@ -39,15 +45,12 @@ const JSX = { createElement: html };
 @injectable()
 export class GLSPProjectionView extends ProjectedViewportView {
     @inject(EdgeRouterRegistry) edgeRouterRegistry: EdgeRouterRegistry;
+    @inject(TYPES.IGridManager) @optional() protected gridManager?: GridManager;
 
     override render(model: Readonly<GViewportRootElement>, context: RenderingContext, args?: IViewArgs): VNode {
-        const svgElem = this.renderSvg(model, context, args);
-        if (svgElem.data) {
-            svgElem.data!.class = { 'sprotty-graph': true };
-        }
         const rootNode: VNode = (
             <div class-sprotty-graph={false} style={{ width: '100%', height: '100%' }}>
-                {svgElem}
+                {this.renderSvg(model, context, args)}
                 {this.renderProjections(model, context, args)}
             </div>
         );
@@ -63,10 +66,34 @@ export class GLSPProjectionView extends ProjectedViewportView {
         const ns = 'http://www.w3.org/2000/svg';
         const svg = h(
             'svg',
-            { ns, style: { height: '100%' } },
+            { ns, style: { height: '100%', ...this.getGridStyle(model, context) }, class: { 'sprotty-graph': true } },
             h('g', { ns, attrs: { transform } }, context.renderChildren(model, { edgeRouting }))
         );
         return svg;
+    }
+
+    protected getGridStyle(model: Readonly<SGraphImpl>, context: RenderingContext): GridStyle {
+        if (!this.gridManager?.isGridVisible) {
+            return {};
+        }
+        const bounds = this.getBackgroundBounds(model, context, this.gridManager);
+        return {
+            backgroundPosition: `${bounds.x}px ${bounds.y}px`,
+            backgroundSize: `${bounds.width}px ${bounds.height}px`,
+            // we do not set the background image directly in the style object, because we want to toggle it on and off via CSS
+            '--grid-background-image': this.getBackgroundImage(model, context, this.gridManager)
+        };
+    }
+
+    protected getBackgroundBounds(viewport: Readonly<SGraphImpl>, context: RenderingContext, gridManager: GridManager): Writable<Bounds> {
+        const position = Point.multiplyScalar(Point.subtract(gridManager.grid, viewport.scroll), viewport.zoom);
+        const size = Dimension.fromPoint(Point.multiplyScalar(gridManager.grid, viewport.zoom));
+        return { ...position, ...size };
+    }
+
+    protected getBackgroundImage(model: Readonly<SGraphImpl>, context: RenderingContext, gridManager: GridManager): string {
+        // eslint-disable-next-line max-len
+        return `url('data:image/svg+xml;utf8, <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${gridManager.grid.x} ${gridManager.grid.y}"><rect width="${gridManager.grid.x}" height="${gridManager.grid.y}" x="0" y="0" fill="none" stroke="black" stroke-width="1" stroke-opacity="0.10" /></svg>')`;
     }
 
     protected override renderProjectionBar(

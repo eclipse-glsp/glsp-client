@@ -26,23 +26,27 @@ import {
     SetContextActions,
     SetModelAction,
     SetUIExtensionVisibilityAction,
+    TYPES,
     TriggerNodeCreationAction,
     UpdateModelAction,
     codiconCSSClasses,
     matchesKeystroke
 } from '@eclipse-glsp/sprotty';
-import { inject, injectable, postConstruct } from 'inversify';
+import { inject, injectable, optional, postConstruct } from 'inversify';
 import { GLSPActionDispatcher } from '../../base/action-dispatcher';
 import { EditorContextService, IEditModeListener } from '../../base/editor-context-service';
 import { FocusTracker } from '../../base/focus/focus-tracker';
 import { IDiagramStartup } from '../../base/model/diagram-loader';
 import { EnableDefaultToolsAction, EnableToolsAction } from '../../base/tool-manager/tool';
+import { DebugManager } from '../debug';
+import { GridManager } from '../grid';
 import { MouseDeleteTool } from '../tools/deletion/delete-tool';
 import { MarqueeMouseTool } from '../tools/marquee-selection/marquee-mouse-tool';
+import { OriginViewportAction } from '../viewport';
 
 const CLICKED_CSS_CLASS = 'clicked';
 const SEARCH_ICON_ID = 'search';
-const PALETTE_ICON_ID = 'symbol-color';
+const PALETTE_ICON_ID = 'tools';
 const CHEVRON_DOWN_ICON_ID = 'chevron-right';
 const PALETTE_HEIGHT = '500px';
 
@@ -73,6 +77,14 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
 
     @inject(FocusTracker)
     protected focusTracker: FocusTracker;
+
+    @inject(TYPES.IGridManager)
+    @optional()
+    protected gridManager?: GridManager;
+
+    @inject(TYPES.IDebugManager)
+    @optional()
+    protected debugManager?: DebugManager;
 
     protected paletteItems: PaletteItem[];
     protected paletteItemsCopy: PaletteItem[] = [];
@@ -202,6 +214,19 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
         const validateActionButton = this.createValidateButton();
         headerTools.appendChild(validateActionButton);
 
+        const resetViewportButton = this.createResetViewportButton();
+        headerTools.appendChild(resetViewportButton);
+
+        if (this.gridManager) {
+            const toggleGridButton = this.createToggleGridButton();
+            headerTools.appendChild(toggleGridButton);
+        }
+
+        if (this.debugManager) {
+            const toggleDebugButton = this.createToggleDebugButton();
+            headerTools.appendChild(toggleDebugButton);
+        }
+
         // Create button for Search
         const searchIcon = this.createSearchButton();
         headerTools.appendChild(searchIcon);
@@ -250,6 +275,58 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
         return validateActionButton;
     }
 
+    protected createResetViewportButton(): HTMLElement {
+        const resetViewportButton = createIcon('screen-normal');
+        resetViewportButton.title = 'Reset Viewport';
+        resetViewportButton.onclick = _event => {
+            this.actionDispatcher.dispatch(OriginViewportAction.create());
+            resetViewportButton.focus();
+        };
+        resetViewportButton.ariaLabel = resetViewportButton.title;
+        resetViewportButton.tabIndex = 1;
+        return resetViewportButton;
+    }
+
+    protected createToggleGridButton(): HTMLElement {
+        const toggleGridButton = createIcon('symbol-numeric');
+        toggleGridButton.title = 'Toggle Grid';
+        toggleGridButton.onclick = () => {
+            if (this.gridManager?.isGridVisible) {
+                toggleGridButton.classList.remove(CLICKED_CSS_CLASS);
+                this.gridManager?.setGridVisible(false);
+            } else {
+                toggleGridButton.classList.add(CLICKED_CSS_CLASS);
+                this.gridManager?.setGridVisible(true);
+            }
+        };
+        if (this.gridManager?.isGridVisible) {
+            toggleGridButton.classList.add(CLICKED_CSS_CLASS);
+        }
+        toggleGridButton.ariaLabel = toggleGridButton.title;
+        toggleGridButton.tabIndex = 1;
+        return toggleGridButton;
+    }
+
+    protected createToggleDebugButton(): HTMLElement {
+        const toggleDebugButton = createIcon('debug');
+        toggleDebugButton.title = 'Debug Mode';
+        toggleDebugButton.onclick = () => {
+            if (this.debugManager?.isDebugEnabled) {
+                toggleDebugButton.classList.remove(CLICKED_CSS_CLASS);
+                this.debugManager?.setDebugEnabled(false);
+            } else {
+                toggleDebugButton.classList.add(CLICKED_CSS_CLASS);
+                this.debugManager?.setDebugEnabled(true);
+            }
+        };
+        if (this.debugManager?.isDebugEnabled) {
+            toggleDebugButton.classList.add(CLICKED_CSS_CLASS);
+        }
+        toggleDebugButton.ariaLabel = toggleDebugButton.title;
+        toggleDebugButton.tabIndex = 1;
+        return toggleDebugButton;
+    }
+
     protected createSearchButton(): HTMLElement {
         const searchIcon = createIcon(SEARCH_ICON_ID);
         searchIcon.onclick = _ev => {
@@ -275,7 +352,7 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
         searchField.classList.add('search-input');
         searchField.id = this.containerElement.id + '_search_field';
         searchField.type = 'text';
-        searchField.placeholder = ' Search...';
+        searchField.placeholder = 'Search...';
         searchField.style.display = 'none';
         searchField.onkeyup = () => this.requestFilterUpdate(this.searchField.value);
         searchField.onkeydown = ev => this.clearOnEscape(ev);

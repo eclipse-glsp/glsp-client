@@ -14,13 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-.accessibility-tool-palette.tool-palette {
-    top: 48px;
-    width: 240px;
-}
-
 .accessibility-tool-palette .header-tools i {
-    margin-right: 0.5em;
     position: relative;
 }
 

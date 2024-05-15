@@ -14,30 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 /* eslint-disable @typescript-eslint/no-shadow */
-import { GModelElement, ISnapper, KeyboardModifier, Point } from '@eclipse-glsp/sprotty';
-import { injectable } from 'inversify';
-
-/**
- * A {@link ISnapper} implementation that snaps all elements onto a fixed gride size.
- * The default grid size is 10x10 pixel.
- * To configure a custom grid size  bind the `TYPES.ISnapper` service identifier
- * to constant value, e.g:
- *
- * ```ts
- * bind(TYPES.ISnapper).toConstantValue(new GridSnapper({x:25 ,y:25 }));
- * ```
- */
-@injectable()
-export class GridSnapper implements ISnapper {
-    constructor(public grid: { x: number; y: number } = { x: 10, y: 10 }) {}
-
-    snap(position: Point, _element: GModelElement): Point {
-        return {
-            x: Math.round(position.x / this.grid.x) * this.grid.x,
-            y: Math.round(position.y / this.grid.y) * this.grid.y
-        };
-    }
-}
+import { KeyboardModifier } from '@eclipse-glsp/sprotty';
 
 export function useSnap(event: MouseEvent | KeyboardEvent): boolean {
     return !event.shiftKey;
