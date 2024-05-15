@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { Bounds, Dimension, IActionHandler, Point, PropertiesOfType, SGraphImpl, TYPES, Writable } from '@eclipse-glsp/sprotty';
+import { IActionHandler, PropertiesOfType, TYPES } from '@eclipse-glsp/sprotty';
 import { inject, injectable, postConstruct } from 'inversify';
 import { FeedbackEmitter, IFeedbackActionDispatcher } from '../../base';
 import { Grid } from './grid';
@@ -56,29 +56,5 @@ export class GridManager implements IActionHandler {
 
     toggleGridVisible(): void {
         this.setGridVisible(!this._gridVisible);
-    }
-
-    getGridStyle(model: Readonly<SGraphImpl>): GridStyle {
-        if (!this.isGridVisible) {
-            return {};
-        }
-        const bounds = this.getBackgroundBounds(model);
-        return {
-            backgroundPosition: `${bounds.x}px ${bounds.y}px`,
-            backgroundSize: `${bounds.width}px ${bounds.height}px`,
-            // we do not set the background image directly in the style object, because we want to toggle it on and off via CSS
-            '--grid-background-image': this.getBackgroundImage(model)
-        };
-    }
-
-    protected getBackgroundBounds(viewport: Readonly<SGraphImpl>): Writable<Bounds> {
-        const position = Point.multiplyScalar(Point.subtract(this.grid, viewport.scroll), viewport.zoom);
-        const size = Dimension.fromPoint(Point.multiplyScalar(this.grid, viewport.zoom));
-        return { ...position, ...size };
-    }
-
-    protected getBackgroundImage(model: Readonly<SGraphImpl>): string {
-        // eslint-disable-next-line max-len
-        return `url('data:image/svg+xml;utf8, <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${this.grid.x} ${this.grid.y}"><rect width="${this.grid.x}" height="${this.grid.y}" x="0" y="0" fill="none" stroke="black" stroke-width="1" stroke-opacity="0.10" /></svg>')`;
     }
 }
