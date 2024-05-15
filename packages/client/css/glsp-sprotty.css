@@ -325,3 +325,8 @@
     stroke: rgb(218, 89, 15) !important;
     stroke: #130bf7 !important;
 }
+
+.ui-extension.hidden {
+    display: none;
+    opacity: 0;
+}

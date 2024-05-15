@@ -13,21 +13,5 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-
-import { IUIExtension, LazyInjector, MaybePromise, TYPES, UIExtensionRegistry } from '@eclipse-glsp/sprotty';
-import { inject, injectable, optional } from 'inversify';
-import { IDiagramStartup } from './model';
-
-@injectable()
-export class GLSPUIExtensionRegistry extends UIExtensionRegistry implements IDiagramStartup {
-    @inject(LazyInjector)
-    protected lazyInjector: LazyInjector;
-
-    constructor(@optional() extensions: IUIExtension[] = []) {
-        super(extensions);
-    }
-
-    preLoadDiagram(): MaybePromise<void> {
-        this.lazyInjector.getAll<IUIExtension>(TYPES.IUIExtension).forEach(extension => this.register(extension.id(), extension));
-    }
-}
+export * from './ui-extension';
+export * from './ui-extension-registry';
