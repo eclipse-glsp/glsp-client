@@ -44,7 +44,7 @@ import * as messages from '../toast/messages.json';
 import { ShowToastMessageAction } from '../toast/toast-handler';
 
 const SEARCH_ICON_ID = 'search';
-const PALETTE_ICON_ID = 'symbol-color';
+const PALETTE_ICON_ID = 'tools';
 const CHEVRON_DOWN_ICON_ID = 'chevron-right';
 const PALETTE_HEIGHT = '500px';
 const SELECTION_TOOL_KEY: KeyCode[] = ['Digit1', 'Numpad1'];
@@ -341,7 +341,7 @@ export class KeyboardToolPalette extends ToolPalette {
         searchField.tabIndex = 21;
         searchField.id = this.containerElement.id + '_search_field';
         searchField.type = 'text';
-        searchField.placeholder = ' Search...';
+        searchField.placeholder = 'Search...';
         searchField.style.display = 'none';
         searchField.onkeyup = ev => {
             this.requestFilterUpdate(this.searchField.value);

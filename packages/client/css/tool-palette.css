@@ -17,8 +17,8 @@
 /* Css for main container */
 .tool-palette {
     position: absolute;
-    right: 40px;
-    top: 25px;
+    right: 45px;
+    top: 35px;
     text-align: center;
     width: fit-content;
     display: block;
@@ -38,6 +38,11 @@
     /* Firefox */
     -ms-user-select: none;
     /* Internet Explorer/Edge */
+
+    box-shadow:
+        4px 0 4px 0 rgba(0, 0, 0, 0.2),
+        0 4px 4px 0 rgba(0, 0, 0, 0.19);
+    font-size: 14px;
 }
 
 /* Css for header compartment */
@@ -45,34 +50,29 @@
 .palette-header {
     padding: 0.4em;
     text-align: left;
-    background: #cccccc;
+    background: rgb(151, 160, 165);
     border: 1px solid rgba(60, 60, 60, 0.6);
-    box-shadow:
-        0 4px 8px 0 rgba(0, 0, 0, 0.2),
-        0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    border-bottom: 0;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 20px;
+    gap: 6px;
 }
 
 .header-icon {
-    display: flex;
+    display: none;
     align-items: center;
-}
-
-.header-icon i {
-    margin-right: 0.2em;
 }
 
 .header-tools {
     display: flex;
     align-items: center;
+    gap: 3px;
 }
 
 .header-tools i {
-    border: 1px solid #cccccc;
+    border: 1px solid transparent;
     padding: 0.15em;
     margin-right: 0.15em;
 }
@@ -91,9 +91,6 @@
 .palette-body {
     background: rgba(100, 100, 100, 0.2);
     border: 1px solid rgba(60, 60, 60, 0.6);
-    box-shadow:
-        0 4px 8px 0 rgba(0, 0, 0, 0.2),
-        0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 
 .tool-group {
@@ -102,13 +99,13 @@
 }
 
 .group-header {
-    background: #cccccc;
+    background: rgb(187, 193, 196);
     display: flex;
     align-items: center;
 }
 
 .group-header:hover {
-    background: #aaaaaa;
+    background: rgb(187, 193, 196);
 }
 
 .group-header i {
@@ -116,7 +113,7 @@
 }
 
 .tool-button {
-    background: #ededee;
+    background: rgb(252, 253, 253);
     padding: 0.4em;
     display: flex;
     align-items: center;
@@ -127,11 +124,11 @@
 }
 
 .tool-button:hover {
-    background: #dfdfdf;
+    background: rgb(220, 223, 224);
 }
 
 .tool-button.clicked {
-    background: #bddaef;
+    background: rgb(163, 201, 219);
 }
 
 .tool-button.collapsed {
@@ -148,13 +145,19 @@
     right: 20px;
     top: 35px;
     z-index: 1000;
+    color: rgb(58, 63, 65);
+}
+
+.minimize-palette-button .codicon::before {
+    font-size: 20px;
 }
 
 .search-input {
-    background: #dfdfdf;
+    box-sizing: border-box;
+    background: rgb(252, 253, 253);
     color: black;
-    border: #bddaef;
-    padding-left: 3px;
+    border: 1px solid rgb(187, 193, 196);
+    padding: 4px;
     width: 100%;
-    margin: 3px;
+    margin: 3px 0;
 }

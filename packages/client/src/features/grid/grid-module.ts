@@ -14,18 +14,8 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import {
-    FeatureModule,
-    GGraphView,
-    TYPES,
-    bindAsService,
-    bindOrRebind,
-    configureActionHandler,
-    configureCommand
-} from '@eclipse-glsp/sprotty';
+import { FeatureModule, TYPES, bindAsService, configureActionHandler, configureCommand } from '@eclipse-glsp/sprotty';
 import '../../../css/grid.css';
-import { GLSPProjectionView } from '../../views';
-import { GridGraphView, GridProjectionGraphView } from './grid-graph-view';
 import { GridManager } from './grid-manager';
 import { ShowGridAction, ShowGridCommand } from './grid-model';
 import { GridSnapper } from './grid-snapper';
@@ -41,7 +31,4 @@ export const gridModule = new FeatureModule((bind, unbind, isBound, rebind) => {
     configureActionHandler(context, ShowGridAction.KIND, GridManager);
 
     bind(TYPES.ISnapper).to(GridSnapper);
-
-    bindOrRebind(context, GGraphView).to(GridGraphView);
-    bindOrRebind(context, GLSPProjectionView).to(GridProjectionGraphView);
 });

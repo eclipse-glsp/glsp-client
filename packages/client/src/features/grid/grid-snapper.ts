@@ -38,7 +38,7 @@ import { Grid } from './grid';
 export class GridSnapper implements ISnapper {
     constructor(@optional() @inject(TYPES.Grid) public readonly grid: Grid = { x: 10, y: 10 }) {}
 
-    snap(position: Point, _element: GModelElement): Point {
+    snap(position: Point, element: GModelElement): Point {
         return Point.snapToGrid(position, this.grid);
     }
 }

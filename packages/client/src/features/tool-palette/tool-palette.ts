@@ -46,7 +46,7 @@ import { OriginViewportAction } from '../viewport';
 
 const CLICKED_CSS_CLASS = 'clicked';
 const SEARCH_ICON_ID = 'search';
-const PALETTE_ICON_ID = 'symbol-color';
+const PALETTE_ICON_ID = 'tools';
 const CHEVRON_DOWN_ICON_ID = 'chevron-right';
 const PALETTE_HEIGHT = '500px';
 
@@ -352,7 +352,7 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
         searchField.classList.add('search-input');
         searchField.id = this.containerElement.id + '_search_field';
         searchField.type = 'text';
-        searchField.placeholder = ' Search...';
+        searchField.placeholder = 'Search...';
         searchField.style.display = 'none';
         searchField.onkeyup = () => this.requestFilterUpdate(this.searchField.value);
         searchField.onkeydown = ev => this.clearOnEscape(ev);

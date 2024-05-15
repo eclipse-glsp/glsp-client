@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2024 Axon Ivy AG and others.
+ * Copyright (c) 2024 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,8 +13,20 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-export * from './grid';
-export * from './grid-manager';
-export * from './grid-model';
-export * from './grid-module';
-export * from './grid-snapper';
+import { GGraphView, RenderingContext, SGraphImpl, TYPES } from '@eclipse-glsp/sprotty';
+import { inject, injectable, optional } from 'inversify';
+import { VNode } from 'snabbdom';
+import { GridManager } from '../features';
+
+@injectable()
+export class GLSPGraphView extends GGraphView {
+    @optional() @inject(TYPES.IGridManager) protected gridManager: GridManager;
+
+    override render(model: Readonly<SGraphImpl>, context: RenderingContext): VNode {
+        const graph = super.render(model, context);
+        if (graph.data) {
+            graph.data.style = { ...graph.data.style, ...this.gridManager.getGridStyle(model) };
+        }
+        return graph;
+    }
+}

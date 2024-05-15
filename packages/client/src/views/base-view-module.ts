@@ -27,9 +27,9 @@ import {
     GCompartment,
     GCompartmentView,
     GForeignObjectElement,
-    GGraphView,
     GHtmlRoot,
     GLabel,
+    GLabelView,
     GNode,
     GPort,
     GPreRenderedElement,
@@ -41,17 +41,17 @@ import {
     PreRenderedView,
     RectangularNode,
     RectangularNodeView,
-    GLabelView,
     SvgViewportView,
     configureModelElement,
     moveFeature,
     selectFeature
 } from '@eclipse-glsp/sprotty';
 import { GIssueMarker } from '../features/validation/issue-marker';
+import { GEdge, GGraph } from '../model';
 import { GEdgeView } from './gedge-view';
+import { GLSPGraphView } from './glsp-graph-view';
 import { GIssueMarkerView } from './issue-marker-view';
 import { RoundedCornerNodeView } from './rounded-corner-view';
-import { GEdge, GGraph } from '../model';
 
 export const baseViewModule = new FeatureModule((bind, unbind, isBound, rebind) => {
     const context = { bind, unbind, isBound, rebind };
@@ -73,7 +73,7 @@ export function configureDefaultModelElements(context: Pick<BindingContext, 'bin
     configureModelElement(context, DefaultTypes.SVG, GViewportRootElement, SvgViewportView);
 
     // graph elements
-    configureModelElement(context, DefaultTypes.GRAPH, GGraph, GGraphView);
+    configureModelElement(context, DefaultTypes.GRAPH, GGraph, GLSPGraphView);
     configureModelElement(context, DefaultTypes.NODE, GNode, RoundedCornerNodeView);
     configureModelElement(context, DefaultTypes.COMPARTMENT, GCompartment, GCompartmentView);
     configureModelElement(context, DefaultTypes.COMPARTMENT_HEADER, GCompartment, GCompartmentView);
