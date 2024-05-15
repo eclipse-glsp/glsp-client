@@ -22,7 +22,7 @@ import { inject, injectable, optional } from 'inversify';
 export class WorkflowStartup implements IDiagramStartup {
     rank = -1;
 
-    @optional() @inject(TYPES.IGridManager) protected gridManager?: GridManager;
+    @inject(TYPES.IGridManager) @optional() protected gridManager?: GridManager;
 
     preRequestModel(): MaybePromise<void> {
         this.gridManager?.setGridVisible(true);

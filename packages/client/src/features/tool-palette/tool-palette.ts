@@ -78,12 +78,12 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
     @inject(FocusTracker)
     protected focusTracker: FocusTracker;
 
-    @optional()
     @inject(TYPES.IGridManager)
+    @optional()
     protected gridManager?: GridManager;
 
-    @optional()
     @inject(TYPES.IDebugManager)
+    @optional()
     protected debugManager?: DebugManager;
 
     protected paletteItems: PaletteItem[];

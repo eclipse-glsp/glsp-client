@@ -49,7 +49,7 @@ import {
 import { GIssueMarker } from '../features/validation/issue-marker';
 import { GEdge, GGraph } from '../model';
 import { GEdgeView } from './gedge-view';
-import { GLSPGraphView } from './glsp-graph-view';
+import { GGraphView } from './ggraph-view';
 import { GIssueMarkerView } from './issue-marker-view';
 import { RoundedCornerNodeView } from './rounded-corner-view';
 
@@ -73,7 +73,7 @@ export function configureDefaultModelElements(context: Pick<BindingContext, 'bin
     configureModelElement(context, DefaultTypes.SVG, GViewportRootElement, SvgViewportView);
 
     // graph elements
-    configureModelElement(context, DefaultTypes.GRAPH, GGraph, GLSPGraphView);
+    configureModelElement(context, DefaultTypes.GRAPH, GGraph, GGraphView);
     configureModelElement(context, DefaultTypes.NODE, GNode, RoundedCornerNodeView);
     configureModelElement(context, DefaultTypes.COMPARTMENT, GCompartment, GCompartmentView);
     configureModelElement(context, DefaultTypes.COMPARTMENT_HEADER, GCompartment, GCompartmentView);

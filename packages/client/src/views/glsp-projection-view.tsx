@@ -41,7 +41,7 @@ const JSX = { createElement: html };
 @injectable()
 export class GLSPProjectionView extends ProjectedViewportView {
     @inject(EdgeRouterRegistry) edgeRouterRegistry: EdgeRouterRegistry;
-    @optional() @inject(TYPES.IGridManager) protected gridManager?: GridManager;
+    @inject(TYPES.IGridManager) @optional() protected gridManager?: GridManager;
 
     override render(model: Readonly<GViewportRootElement>, context: RenderingContext, args?: IViewArgs): VNode {
         const rootNode: VNode = (
