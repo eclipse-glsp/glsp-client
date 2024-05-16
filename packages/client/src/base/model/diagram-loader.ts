@@ -192,7 +192,11 @@ export class DiagramLoader {
 
     protected async invokeStartupHook(hook: keyof Omit<IDiagramStartup, 'rank'>): Promise<void> {
         for (const startup of this.diagramStartups) {
-            await startup[hook]?.();
+            try {
+                await startup[hook]?.();
+            } catch (err) {
+                console.error(`Error invoking diagram startup hook '${hook}':`, '\n', err);
+            }
         }
     }
 
