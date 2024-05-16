@@ -14,15 +14,18 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import {
+    Bounds,
     GChildElement,
     GModelElement,
     GParentElement,
     Hoverable,
+    Point,
     hoverFeedbackFeature,
     isBoundsAware,
     isMoveable,
     isSelectable
 } from '@eclipse-glsp/sprotty';
+import { CursorCSS } from '../../base';
 import { BoundsAwareModelElement, MoveableElement, ResizableModelElement } from '../../utils';
 
 export const resizeFeature = Symbol('resizeFeature');
@@ -34,9 +37,36 @@ export function isResizable(element: GModelElement): element is ResizableModelEl
 // eslint-disable-next-line no-shadow
 export enum ResizeHandleLocation {
     TopLeft = 'top-left',
+    Top = 'top',
     TopRight = 'top-right',
+    Right = 'right',
+    BottomRight = 'bottom-right',
+    Bottom = 'bottom',
     BottomLeft = 'bottom-left',
-    BottomRight = 'bottom-right'
+    Left = 'left'
+}
+
+export namespace ResizeHandleLocation {
+    export function opposite(location: ResizeHandleLocation): ResizeHandleLocation {
+        switch (location) {
+            case ResizeHandleLocation.TopLeft:
+                return ResizeHandleLocation.BottomRight;
+            case ResizeHandleLocation.Top:
+                return ResizeHandleLocation.Bottom;
+            case ResizeHandleLocation.TopRight:
+                return ResizeHandleLocation.BottomLeft;
+            case ResizeHandleLocation.Right:
+                return ResizeHandleLocation.Left;
+            case ResizeHandleLocation.BottomRight:
+                return ResizeHandleLocation.TopLeft;
+            case ResizeHandleLocation.Bottom:
+                return ResizeHandleLocation.Top;
+            case ResizeHandleLocation.BottomLeft:
+                return ResizeHandleLocation.TopRight;
+            case ResizeHandleLocation.Left:
+                return ResizeHandleLocation.Right;
+        }
+    }
 }
 
 export function isBoundsAwareMoveable(element: GModelElement): element is BoundsAwareModelElement & MoveableElement {
@@ -64,16 +94,32 @@ export class SResizeHandle extends GChildElement implements Hoverable {
         return this.location === ResizeHandleLocation.TopLeft;
     }
 
-    isSeResize(): boolean {
-        return this.location === ResizeHandleLocation.BottomRight;
+    isNResize(): boolean {
+        return this.location === ResizeHandleLocation.Top;
     }
 
     isNeResize(): boolean {
         return this.location === ResizeHandleLocation.TopRight;
     }
 
+    isEResize(): boolean {
+        return this.location === ResizeHandleLocation.Right;
+    }
+
+    isSeResize(): boolean {
+        return this.location === ResizeHandleLocation.BottomRight;
+    }
+
+    isSResize(): boolean {
+        return this.location === ResizeHandleLocation.Bottom;
+    }
+
     isSwResize(): boolean {
         return this.location === ResizeHandleLocation.BottomLeft;
+    }
+
+    isWResize(): boolean {
+        return this.location === ResizeHandleLocation.Left;
     }
 
     isNwSeResize(): boolean {
@@ -83,18 +129,72 @@ export class SResizeHandle extends GChildElement implements Hoverable {
     isNeSwResize(): boolean {
         return this.isNeResize() || this.isSwResize();
     }
+
+    static getHandlePosition(handle: SResizeHandle): Point;
+    static getHandlePosition(parent: ResizableModelElement, location: ResizeHandleLocation): Point;
+    static getHandlePosition(bounds: Bounds, location: ResizeHandleLocation): Point;
+    static getHandlePosition(first: ResizableModelElement | SResizeHandle | Bounds, second?: ResizeHandleLocation): Point {
+        const bounds = SResizeHandle.is(first) ? first.parent.bounds : first instanceof GModelElement ? first.bounds : first;
+        const location = SResizeHandle.is(first) ? first.location : second!;
+        switch (location) {
+            case ResizeHandleLocation.TopLeft:
+                return Bounds.topLeft(bounds);
+            case ResizeHandleLocation.Top:
+                return Bounds.topCenter(bounds);
+            case ResizeHandleLocation.TopRight:
+                return Bounds.topRight(bounds);
+            case ResizeHandleLocation.Right:
+                return Bounds.middleRight(bounds);
+            case ResizeHandleLocation.BottomRight:
+                return Bounds.bottomRight(bounds);
+            case ResizeHandleLocation.Bottom:
+                return Bounds.bottomCenter(bounds);
+            case ResizeHandleLocation.BottomLeft:
+                return Bounds.bottomLeft(bounds);
+            case ResizeHandleLocation.Left:
+                return Bounds.middleLeft(bounds);
+        }
+    }
+
+    static getCursorCss(handle: SResizeHandle): string {
+        switch (handle.location) {
+            case ResizeHandleLocation.TopLeft:
+                return CursorCSS.RESIZE_NW;
+            case ResizeHandleLocation.Top:
+                return CursorCSS.RESIZE_N;
+            case ResizeHandleLocation.TopRight:
+                return CursorCSS.RESIZE_NE;
+            case ResizeHandleLocation.Right:
+                return CursorCSS.RESIZE_E;
+            case ResizeHandleLocation.BottomRight:
+                return CursorCSS.RESIZE_SE;
+            case ResizeHandleLocation.Bottom:
+                return CursorCSS.RESIZE_S;
+            case ResizeHandleLocation.BottomLeft:
+                return CursorCSS.RESIZE_SW;
+            case ResizeHandleLocation.Left:
+                return CursorCSS.RESIZE_W;
+        }
+    }
+
+    static is(handle: unknown): handle is SResizeHandle {
+        return typeof handle === 'object' && !!handle && 'type' in handle && handle.type === SResizeHandle.TYPE;
+    }
 }
 
 export function addResizeHandles(
     element: ResizableModelElement,
     locations: ResizeHandleLocation[] = [
         ResizeHandleLocation.TopLeft,
-        ResizeHandleLocation.TopRight,
+        ResizeHandleLocation.Top,
         ResizeHandleLocation.BottomLeft,
         ResizeHandleLocation.BottomRight
     ]
 ): void {
     for (const location of Object.values(ResizeHandleLocation)) {
+        if (typeof location === 'function') {
+            continue;
+        }
         const existing = element.children.find(child => child instanceof SResizeHandle && child.location === location);
         if (locations.includes(location) && !existing) {
             // add missing handle

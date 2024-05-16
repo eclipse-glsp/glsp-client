@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2023 EclipseSource and others.
+ * Copyright (c) 2024 Axon Ivy AG and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,12 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-export * from './bounds-module';
-export * from './freeform-layout';
-export * from './glsp-hidden-bounds-updater';
-export * from './hbox-layout';
-export * from './layout-data';
-export * from './layouter';
-export * from './local-bounds';
-export * from './set-bounds-feedback-command';
-export * from './vbox-layout';
+
+export function equalUpTo(one: number, other: number, epsilon: number = Number.EPSILON): boolean {
+    return Math.abs(one - other) <= epsilon;
+}

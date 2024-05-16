@@ -19,4 +19,5 @@ export * from './event';
 export * from './geometry-movement';
 export * from './geometry-util';
 export * from './geometry-vector';
+export * from './math-util';
 export * from './type-util';

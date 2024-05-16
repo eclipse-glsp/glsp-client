@@ -16,6 +16,7 @@
 /* eslint-disable @typescript-eslint/no-shadow */
 
 import { Dimension, Point } from 'sprotty-protocol/lib/utils/geometry';
+import { equalUpTo } from './utils/math-util';
 
 declare module 'sprotty-protocol/lib/utils/geometry' {
     namespace Dimension {
@@ -77,9 +78,10 @@ declare module 'sprotty-protocol/lib/utils/geometry' {
          * Checks if two dimensions are equal. Two dimensions are equal if their `width` and `height` are equal.
          * @param left the left dimension
          * @param right the right dimension
+         * @param eps @param eps the epsilon for the comparison
          * @returns true if the dimensions are equal, false otherwise
          */
-        function equals(left: Dimension, right: Dimension): boolean;
+        function equals(left: Dimension, right: Dimension, eps?: number): boolean;
 
         /**
          * Creates a new dimension from the given point. The `width` and `height` of the new dimension are the `x` and `y` of the point.
@@ -87,6 +89,13 @@ declare module 'sprotty-protocol/lib/utils/geometry' {
          * @returns new dimension
          */
         function fromPoint(point: Point): Dimension;
+
+        /**
+         * Computes the area of the given dimension.
+         * @param dimension the dimension
+         * @returns the area of the dimension
+         */
+        function area(dimension: Dimension): number;
     }
 }
 
@@ -106,7 +115,9 @@ Dimension.map = <T extends Dimension>(dimension: T, callbackfn: (value: number, 
     width: callbackfn(dimension.width, 'width'),
     height: callbackfn(dimension.height, 'height')
 });
-Dimension.equals = (left: Dimension, right: Dimension): boolean => left.width === right.width && left.height === right.height;
+Dimension.equals = (left: Dimension, right: Dimension, eps?: number): boolean =>
+    equalUpTo(left.width, right.width, eps) && equalUpTo(left.height, right.height, eps);
 Dimension.fromPoint = (point: Point): Dimension => ({ width: point.x, height: point.y });
+Dimension.area = (dimension: Dimension): number => dimension.width * dimension.height;
 
 export { Dimension };

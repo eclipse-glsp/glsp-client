@@ -82,6 +82,30 @@ export interface ElementAndRoutingPoints {
 }
 
 /**
+ * Data provided by the layouter.
+ */
+export interface LayoutData {
+    /**
+     * The computed minimum size of the element.
+     */
+    computedDimensions?: Dimension;
+}
+
+/**
+ * The `ElementAndLayoutData` type is used to associate new layout data with a model element, which is referenced via its id.
+ */
+export interface ElementAndLayoutData {
+    /**
+     * The identifier of the element.
+     */
+    elementId: string;
+    /**
+     * The data provided by the layouter.
+     */
+    layoutData: LayoutData;
+}
+
+/**
  * The `EditorContext` may be used to represent the current state of the editor for particular actions.
  * It encompasses the last recorded mouse position, the list of selected elements, and may contain
  * custom arguments to encode additional state information.

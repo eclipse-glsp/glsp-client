@@ -33,6 +33,10 @@ export function minHeight(element: BoundsAwareModelElement): number {
     return 1;
 }
 
+export function minDimensions(element: BoundsAwareModelElement): Dimension {
+    return { width: minWidth(element), height: minHeight(element) };
+}
+
 export function getLayoutOptions(element: GModelElement): ModelLayoutOptions | undefined {
     const layoutOptions = (element as any).layoutOptions;
     if (layoutOptions !== undefined) {

@@ -137,9 +137,12 @@ export function isNotUndefined<T>(element: T | undefined): element is T {
  * @param element The element to which the css classes should be added.
  * @param cssClasses The set of css classes as string array.
  */
-export function addCssClasses(element: GModelElement, cssClasses: string[]): void {
+export function addCssClasses(element: GModelElement, cssClasses: string[]): void;
+export function addCssClasses(element: GModelElement, ...cssClasses: string[]): void;
+export function addCssClasses(element: GModelElement, ...cssClasses: string[] | [string[]]): void {
+    const classes = Array.isArray(cssClasses[0]) ? cssClasses[0] : cssClasses;
     const elementCssClasses: string[] = element.cssClasses ?? [];
-    distinctAdd(elementCssClasses, ...cssClasses);
+    distinctAdd(elementCssClasses, ...classes);
     element.cssClasses = elementCssClasses;
 }
 
@@ -148,11 +151,44 @@ export function addCssClasses(element: GModelElement, cssClasses: string[]): voi
  * @param element The element from which the css classes should be removed.
  * @param cssClasses The set of css classes as string array.
  */
-export function removeCssClasses(root: GModelElement, cssClasses: string[]): void {
-    if (!root.cssClasses || root.cssClasses.length === 0) {
+export function removeCssClasses(element: GModelElement, cssClasses: string[]): void;
+export function removeCssClasses(element: GModelElement, ...cssClasses: string[]): void;
+export function removeCssClasses(element: GModelElement, ...cssClasses: string[] | [string[]]): void {
+    if (!element.cssClasses || element.cssClasses.length === 0) {
         return;
     }
-    remove(root.cssClasses, ...cssClasses);
+    const classes = Array.isArray(cssClasses[0]) ? cssClasses[0] : cssClasses;
+    remove(element.cssClasses, ...classes);
+}
+
+/**
+ * Adds a css classs to a set of {@link GModelElement}s.
+ *
+ * @param elements The elements to which the css class should be added.
+ * @param cssClass The css class to add.
+ */
+export function addCssClassToElements(elements: GModelElement[], ...cssClasses: string[]): void {
+    for (const element of elements) {
+        addCssClasses(element, cssClasses);
+    }
+}
+
+/**
+ * Removes a css class from a set of {@link GModelElement}s.
+ * @param elements The elements from which the css class should be removed.
+ * @param cssClass The css class to remove.
+ */
+export function removeCssClassOfElements(elements: GModelElement[], ...cssClasses: string[]): void {
+    for (const element of elements) {
+        removeCssClasses(element, cssClasses);
+    }
+}
+
+/**
+ * Toggles a css class on a {@link GModelElement} based on the given toggle flag.
+ */
+export function toggleCssClass(element: GModelElement, cssClass: string, toggle: boolean): void {
+    return toggle ? addCssClasses(element, cssClass) : removeCssClasses(element, cssClass);
 }
 
 export function isNonRoutableSelectedMovableBoundsAware(element: GModelElement): element is SelectableBoundsAware {

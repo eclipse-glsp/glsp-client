@@ -27,6 +27,7 @@ import {
     Point,
     TYPES,
     Viewport,
+    equalUpTo,
     findParentByFeature,
     isBoundsAware,
     isDecoration,
@@ -293,7 +294,7 @@ export class DrawHelperLinesFeedbackCommand extends FeedbackCommand {
     }
 
     protected isMatch(leftCoordinate: number, rightCoordinate: number, epsilon: number): boolean {
-        return Math.abs(leftCoordinate - rightCoordinate) <= epsilon;
+        return equalUpTo(leftCoordinate, rightCoordinate, epsilon);
     }
 
     protected log(message: string, ...params: any[]): void {

@@ -13,16 +13,22 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, BringToFrontAction, GModelElement, SelectAction, SelectMouseListener } from '@eclipse-glsp/sprotty';
+import { Action, BringToFrontAction, GModelElement, SelectAction, SelectMouseListener, TYPES } from '@eclipse-glsp/sprotty';
+import { inject, injectable, optional } from 'inversify';
 import { Ranked } from '../../base/ranked';
 import { SelectableElement } from '../../utils';
+import { SResizeHandle } from '../change-bounds';
+import { ChangeBoundsManager } from '../tools';
 
 /**
  * Ranked select mouse listener that is executed before default mouse listeners when using the RankedMouseTool.
  * This ensures that default mouse listeners are working on a model that has selection changes already applied.
  */
+@injectable()
 export class RankedSelectMouseListener extends SelectMouseListener implements Ranked {
     rank: number = Ranked.DEFAULT_RANK - 100; /* we want to be executed before all default mouse listeners */
+
+    @inject(TYPES.IChangeBoundsManager) @optional() readonly changeBoundsManager?: ChangeBoundsManager;
 
     protected override handleSelectTarget(
         selectableTarget: SelectableElement,
@@ -51,5 +57,13 @@ export class RankedSelectMouseListener extends SelectMouseListener implements Ra
         const result: Action[] = [];
         result.push(SelectAction.create({ selectedElementsIDs: [], deselectedElementsIDs: deselectedElements.map(e => e.id) }));
         return result;
+    }
+
+    protected override handleButton(target: GModelElement, event: MouseEvent): (Action | Promise<Action>)[] | undefined {
+        if (target instanceof SResizeHandle && this.changeBoundsManager?.useSymmetricResize(event)) {
+            // avoid de-selecting elements when resizing with a modifier key
+            return [];
+        }
+        return super.handleButton(target, event);
     }
 }

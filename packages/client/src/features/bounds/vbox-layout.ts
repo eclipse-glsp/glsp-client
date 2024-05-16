@@ -13,22 +13,23 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { injectable } from 'inversify';
 import {
     Bounds,
     BoundsData,
     Dimension,
     GChildElement,
-    LayoutContainer,
-    Point,
     GModelElement,
     GParentElement,
+    LayoutContainer,
+    Point,
     StatefulLayouter,
     VBoxLayoutOptions,
     VBoxLayouter,
     isBoundsAware,
     isLayoutableChild
 } from '@eclipse-glsp/sprotty';
+import { injectable } from 'inversify';
+import { LayoutAware } from './layout-data';
 
 export interface VBoxLayoutOptionsExt extends VBoxLayoutOptions {
     hGrab: boolean;
@@ -79,7 +80,9 @@ export class VBoxLayouterExt extends VBoxLayouter {
 
         if (maxWidth > 0 && maxHeight > 0) {
             const offset = this.layoutChildren(container, layouter, options, width, height, grabHeight, grabbingChildren);
-            boundsData.bounds = this.getFinalContainerBounds(container, offset, options, childrenSize.width, childrenSize.height);
+            const computed = this.getComputedContainerDimensions(options, childrenSize.width, childrenSize.height);
+            LayoutAware.setComputedDimensions(boundsData, computed);
+            boundsData.bounds = this.getFinalContainerBounds(container, offset, options, computed.width, computed.height);
             boundsData.boundsChanged = true;
         }
     }
@@ -223,24 +226,29 @@ export class VBoxLayouterExt extends VBoxLayouter {
         return (element as any).layoutOptions;
     }
 
+    protected getComputedContainerDimensions(options: VBoxLayoutOptionsExt, maxWidth: number, maxHeight: number): Dimension {
+        return {
+            width: maxWidth + options.paddingLeft + options.paddingRight,
+            height: maxHeight + options.paddingTop + options.paddingBottom
+        };
+    }
+
     protected override getFinalContainerBounds(
         container: GParentElement & LayoutContainer,
         lastOffset: Point,
         options: VBoxLayoutOptionsExt,
-        maxWidth: number,
-        maxHeight: number
+        computedWidth: number,
+        computedHeight: number
     ): Bounds {
         const elementOptions = this.getElementLayoutOptions(container);
         const width = elementOptions?.prefWidth ?? options.minWidth;
         const height = elementOptions?.prefHeight ?? options.minHeight;
-
         const result = {
             x: container.bounds.x,
             y: container.bounds.y,
-            width: Math.max(width, maxWidth + options.paddingLeft + options.paddingRight),
-            height: Math.max(height, maxHeight + options.paddingTop + options.paddingBottom)
+            width: Math.max(width, computedWidth),
+            height: Math.max(height, computedHeight)
         };
-
         return result;
     }
 

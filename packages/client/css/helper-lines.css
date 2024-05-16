@@ -16,8 +16,8 @@
 
 .helper-line {
     pointer-events: none;
-    stroke: red;
-    stroke-width: 1px;
+    stroke: #1d80d1;
+    stroke-width: 1;
     opacity: 1;
 }
 
@@ -28,6 +28,6 @@
     stroke-linejoin: miter;
     stroke-linecap: round;
     stroke: darkblue;
-    stroke-width: 1px;
+    stroke-width: 0.5;
     stroke-dasharray: 2;
 }

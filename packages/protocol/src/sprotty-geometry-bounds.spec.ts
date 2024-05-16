@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { expect } from 'chai';
-import { Point } from 'sprotty-protocol';
+import { Dimension, Point } from 'sprotty-protocol';
 import { Bounds } from './sprotty-geometry-bounds';
 
 describe('Bounds', () => {
@@ -282,6 +282,38 @@ describe('Bounds', () => {
             const rankFunc = (bounds: Bounds): number => bounds.x;
             const sortedBounds = Bounds.sortBy(rankFunc, bounds1, bounds2, bounds3);
             expect(sortedBounds).to.deep.equal([bounds1, bounds2, bounds3]);
+        });
+    });
+
+    describe('move', () => {
+        it('should move the bounds by the given delta', () => {
+            const bounds: Bounds = { x: 10, y: 20, width: 100, height: 200 };
+            const delta: Point = { x: 10, y: 20 };
+            const result = Bounds.move(bounds, delta);
+            expect(result).to.deep.equal({ x: 20, y: 40, width: 100, height: 200 });
+        });
+
+        it('should move the bounds by the given delta with negative values', () => {
+            const bounds: Bounds = { x: 10, y: 20, width: 100, height: 200 };
+            const delta: Point = { x: -10, y: -20 };
+            const result = Bounds.move(bounds, delta);
+            expect(result).to.deep.equal({ x: 0, y: 0, width: 100, height: 200 });
+        });
+    });
+
+    describe('resize', () => {
+        it('should resize the bounds by the given delta', () => {
+            const bounds: Bounds = { x: 10, y: 20, width: 100, height: 200 };
+            const delta: Dimension = { width: 10, height: 20 };
+            const result = Bounds.resize(bounds, delta);
+            expect(result).to.deep.equal({ x: 10, y: 20, width: 110, height: 220 });
+        });
+
+        it('should resize the bounds by the given delta with negative values', () => {
+            const bounds: Bounds = { x: 10, y: 20, width: 100, height: 200 };
+            const delta: Dimension = { width: -10, height: -20 };
+            const result = Bounds.resize(bounds, delta);
+            expect(result).to.deep.equal({ x: 10, y: 20, width: 90, height: 180 });
         });
     });
 });

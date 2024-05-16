@@ -18,6 +18,7 @@ import {
     FeatureModule,
     KeyTool,
     LocationPostprocessor,
+    MousePositionTracker,
     MouseTool,
     MoveCommand,
     SetDirtyStateAction,
@@ -47,6 +48,7 @@ import { DiagramLoader } from './model/diagram-loader';
 import { GLSPModelSource } from './model/glsp-model-source';
 import { DefaultModelInitializationConstraint, ModelInitializationConstraint } from './model/model-initialization-constraint';
 import { GModelRegistry } from './model/model-registry';
+import { GLSPMousePositionTracker } from './mouse-position-tracker';
 import { SelectionClearingMouseListener } from './selection-clearing-mouse-listener';
 import { SelectionService } from './selection-service';
 import { EnableDefaultToolsAction, EnableToolsAction } from './tool-manager/tool';
@@ -85,7 +87,8 @@ export const defaultModule = new FeatureModule((bind, unbind, isBound, rebind, .
     bind(GLSPMouseTool).toSelf().inSingletonScope();
     bindOrRebind(context, MouseTool).toService(GLSPMouseTool);
     bind(TYPES.IDiagramStartup).toService(GLSPMouseTool);
-
+    bind(GLSPMousePositionTracker).toSelf().inSingletonScope();
+    bindOrRebind(context, MousePositionTracker).toService(GLSPMousePositionTracker);
     bind(GLSPKeyTool).toSelf().inSingletonScope();
     bindOrRebind(context, KeyTool).toService(GLSPKeyTool);
     bind(TYPES.IDiagramStartup).toService(GLSPKeyTool);

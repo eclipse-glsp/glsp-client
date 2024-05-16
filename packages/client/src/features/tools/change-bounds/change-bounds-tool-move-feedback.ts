@@ -13,28 +13,17 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, Disposable, ElementMove, GModelElement, GModelRoot, MoveAction, Point, findParentByFeature } from '@eclipse-glsp/sprotty';
+import { Action, ElementMove, GModelElement, GModelRoot, MoveAction, Point, findParentByFeature } from '@eclipse-glsp/sprotty';
 
 import { DebouncedFunc, debounce } from 'lodash';
+import { ChangeBoundsTracker, TrackedMove } from '.';
 import { DragAwareMouseListener } from '../../../base/drag-aware-mouse-listener';
 import { CursorCSS, cursorFeedbackAction } from '../../../base/feedback/css-feedback';
 import { FeedbackEmitter } from '../../../base/feedback/feeback-emitter';
 import { MoveableElement, filter, getElements, isNonRoutableSelectedMovableBoundsAware, removeDescendants } from '../../../utils';
-import { PointPositionUpdater } from '../../change-bounds';
 import { SResizeHandle } from '../../change-bounds/model';
-import { createMovementRestrictionFeedback, removeMovementRestrictionFeedback } from '../../change-bounds/movement-restrictor';
 import { ChangeBoundsTool } from './change-bounds-tool';
 import { MoveFinishedEventAction, MoveInitializedEventAction } from './change-bounds-tool-feedback';
-
-export interface ValidatedElementMove extends ElementMove {
-    valid: boolean;
-}
-
-export namespace ValidatedElementMove {
-    export function isValid(move: ElementMove): boolean {
-        return (move as ValidatedElementMove).valid ?? true;
-    }
-}
 
 /**
  * This mouse listener provides visual feedback for moving by sending client-side
@@ -43,9 +32,9 @@ export namespace ValidatedElementMove {
  * the visual feedback but also the basis for sending the change to the server
  * (see also `tools/MoveTool`).
  */
-export class FeedbackMoveMouseListener extends DragAwareMouseListener implements Disposable {
+export class FeedbackMoveMouseListener extends DragAwareMouseListener {
     protected rootElement?: GModelRoot;
-    protected positionUpdater;
+    protected tracker: ChangeBoundsTracker;
     protected elementId2startPos = new Map<string, Point>();
 
     protected pendingMoveInitialized?: DebouncedFunc<() => void>;
@@ -55,7 +44,7 @@ export class FeedbackMoveMouseListener extends DragAwareMouseListener implements
 
     constructor(protected tool: ChangeBoundsTool) {
         super();
-        this.positionUpdater = new PointPositionUpdater(tool.positionSnapper);
+        this.tracker = tool.createChangeBoundsTracker();
         this.moveInitializedFeedback = tool.createFeedbackEmitter();
         this.moveFeedback = tool.createFeedbackEmitter();
     }
@@ -66,7 +55,7 @@ export class FeedbackMoveMouseListener extends DragAwareMouseListener implements
             this.initializeMove(target, event);
             return [];
         }
-        this.positionUpdater.resetPosition();
+        this.tracker.stopTracking();
         return [];
     }
 
@@ -77,10 +66,10 @@ export class FeedbackMoveMouseListener extends DragAwareMouseListener implements
         }
         const moveable = findParentByFeature(target, this.isValidMoveable);
         if (moveable !== undefined) {
-            this.positionUpdater.updateLastDragPosition(event);
+            this.tracker.startTracking();
             this.scheduleMoveInitialized();
         } else {
-            this.positionUpdater.resetPosition();
+            this.tracker.stopTracking();
         }
     }
 
@@ -113,7 +102,7 @@ export class FeedbackMoveMouseListener extends DragAwareMouseListener implements
     override nonDraggingMouseUp(element: GModelElement, event: MouseEvent): Action[] {
         // should reset everything that may have happend on mouse down
         this.moveInitializedFeedback.dispose();
-        this.positionUpdater.resetPosition();
+        this.tracker.stopTracking();
         return [];
     }
 
@@ -121,7 +110,7 @@ export class FeedbackMoveMouseListener extends DragAwareMouseListener implements
         super.mouseMove(target, event);
         if (event.buttons === 0) {
             return this.mouseUp(target, event);
-        } else if (!this.positionUpdater.isLastDragPositionUndefined()) {
+        } else if (this.tracker.isTracking()) {
             return this.moveElements(target, event);
         }
         return [];
@@ -131,35 +120,34 @@ export class FeedbackMoveMouseListener extends DragAwareMouseListener implements
         if (this.elementId2startPos.size === 0) {
             this.initializeElementsToMove(target.root);
         }
-        const moveAction = this.getElementMoves(target, event, false);
-        if (!moveAction) {
+        const elementsToMove = this.getElementsToMove(target);
+        const move = this.tracker.moveElements(elementsToMove, { snap: event, restrict: event });
+        if (move.elementMoves.length === 0) {
             return [];
         }
         // cancel any pending move
         this.pendingMoveInitialized?.cancel();
-        this.moveFeedback.add(moveAction, () => this.resetElementPositions(target));
-        this.addMovementFeedback(moveAction, target);
+        this.moveFeedback.add(this.createMoveAction(move), () => this.resetElementPositions(target));
+        this.addMovementFeedback(move, target, event);
+        this.tracker.updateTrackingPosition(move);
         this.moveFeedback.submit();
         return [];
     }
 
-    protected addMovementFeedback(movement: MoveAction, ctx: GModelElement): void {
+    protected createMoveAction(trackedMove: TrackedMove): Action {
+        // we never want to animate the move action as this interferes with the move feedback
+        return MoveAction.create(
+            trackedMove.elementMoves.map(move => ({ elementId: move.element.id, toPosition: move.toPosition })),
+            { animate: false }
+        );
+    }
+
+    protected addMovementFeedback(trackedMove: TrackedMove, ctx: GModelElement, event: MouseEvent): void {
         // cursor feedback
         this.moveFeedback.add(cursorFeedbackAction(CursorCSS.MOVE), cursorFeedbackAction(CursorCSS.DEFAULT));
 
         // restriction feedback
-        movement.moves.forEach(move => {
-            const element = ctx.root.index.getById(move.elementId);
-            if (element && this.tool.movementRestrictor) {
-                if (!ValidatedElementMove.isValid(move)) {
-                    this.moveFeedback.add(createMovementRestrictionFeedback(element, this.tool.movementRestrictor), () =>
-                        removeMovementRestrictionFeedback(element, this.tool.movementRestrictor!)
-                    );
-                } else {
-                    this.moveFeedback.add(removeMovementRestrictionFeedback(element, this.tool.movementRestrictor));
-                }
-            }
-        });
+        trackedMove.elementMoves.forEach(move => this.tool.changeBoundsManager.addRestrictionFeedback(this.moveFeedback, move));
     }
 
     protected initializeElementsToMove(root: GModelRoot): void {
@@ -175,45 +163,6 @@ export class FeedbackMoveMouseListener extends DragAwareMouseListener implements
 
     protected getElementsToMove(context: GModelElement): MoveableElement[] {
         return getElements(context.root.index, Array.from(this.elementId2startPos.keys()), this.isValidMoveable);
-    }
-
-    protected getElementMoves(target: GModelElement, event: MouseEvent, finished: boolean): MoveAction | undefined {
-        const delta = this.positionUpdater.updatePosition(target, event);
-        if (!delta) {
-            return undefined;
-        }
-        const elementMoves: ElementMove[] = this.getElementMovesForDelta(target, delta, finished).filter(move =>
-            this.filterElementMove(move)
-        );
-        if (elementMoves.length > 0) {
-            // we never want to animate the move action as this interferes with the move feedback
-            return MoveAction.create(elementMoves, { animate: false, finished });
-        } else {
-            return undefined;
-        }
-    }
-
-    protected filterElementMove(elementMove: ValidatedElementMove): boolean {
-        return !!elementMove.fromPosition && !Point.equals(elementMove.fromPosition, elementMove.toPosition);
-    }
-
-    protected getElementMovesForDelta(target: GModelElement, delta: Point, finished: boolean): ValidatedElementMove[] {
-        return this.getElementsToMove(target).flatMap<ValidatedElementMove>(element => {
-            const startPosition = this.elementId2startPos.get(element.id);
-            if (!startPosition) {
-                return [];
-            }
-            const targetPosition = Point.add(element.position, delta);
-            const valid = this.tool.movementRestrictor?.validate(element, targetPosition) ?? true;
-            return [this.createElementMove(element, targetPosition, valid, finished)];
-        });
-    }
-
-    protected createElementMove(element: MoveableElement, toPosition: Point, valid: boolean, finished: boolean): ValidatedElementMove {
-        // if we are finished and have an invalid move, we want to move the element back to its start position
-        return !valid && finished
-            ? { elementId: element.id, fromPosition: element.position, toPosition: element.position, valid }
-            : { elementId: element.id, fromPosition: element.position, toPosition, valid };
     }
 
     protected resetElementPositions(context: GModelElement): MoveAction | undefined {
@@ -233,12 +182,13 @@ export class FeedbackMoveMouseListener extends DragAwareMouseListener implements
     }
 
     override draggingMouseUp(target: GModelElement, event: MouseEvent): Action[] {
-        if (this.positionUpdater.isLastDragPositionUndefined()) {
+        if (!this.tracker.isTracking()) {
             return [];
         }
         // only reset the move of invalid elements, the others will be handled by the change bounds tool itself
-        const moves = this.getElementMovesForDelta(target, Point.ORIGIN, false);
-        moves.filter(move => move.valid).forEach(move => this.elementId2startPos.delete(move.elementId));
+        this.getElementsToMove(target)
+            .filter(element => this.tool.changeBoundsManager.isValid(element))
+            .forEach(element => this.elementId2startPos.delete(element.id));
         this.dispose();
         return [];
     }
@@ -247,7 +197,7 @@ export class FeedbackMoveMouseListener extends DragAwareMouseListener implements
         this.pendingMoveInitialized?.cancel();
         this.moveInitializedFeedback.dispose();
         this.moveFeedback.dispose();
-        this.positionUpdater.resetPosition();
+        this.tracker.dispose();
         this.elementId2startPos.clear();
         super.dispose();
     }

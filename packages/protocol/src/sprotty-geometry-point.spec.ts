@@ -113,4 +113,18 @@ describe('Point', () => {
             expect(Point.moveTowards(from, vector)).to.deep.equal(expectedMovement);
         });
     });
+
+    describe('equals', () => {
+        it('returns true for equal points', () => {
+            expect(Point.equals({ x: 1, y: 2 }, { x: 1, y: 2 })).to.be.true;
+        });
+
+        it('returns false for different points', () => {
+            expect(Point.equals({ x: 1, y: 2 }, { x: 1, y: 3 })).to.be.false;
+        });
+
+        it('returns true up to an epsilon', () => {
+            expect(Point.equals({ x: 1, y: 2 }, { x: 1.0001, y: 2.0001 }, 0.001)).to.be.true;
+        });
+    });
 });

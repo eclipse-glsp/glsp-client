@@ -18,3 +18,4 @@ export * from './movement-restrictor';
 export * from './point-position-updater';
 export * from './position-snapper';
 export * from './snap';
+export * from './tracker';

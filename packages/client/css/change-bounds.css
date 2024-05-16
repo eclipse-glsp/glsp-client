@@ -2,14 +2,48 @@
     cursor: nw-resize;
 }
 
+.sprotty-resize-handle[data-kind='top'] {
+    cursor: n-resize;
+}
+
 .sprotty-resize-handle[data-kind='top-right'] {
     cursor: ne-resize;
+}
+
+.sprotty-resize-handle[data-kind='right'] {
+    cursor: e-resize;
+}
+
+.sprotty-resize-handle[data-kind='bottom-right'] {
+    cursor: se-resize;
+}
+
+.sprotty-resize-handle[data-kind='bottom'] {
+    cursor: s-resize;
 }
 
 .sprotty-resize-handle[data-kind='bottom-left'] {
     cursor: sw-resize;
 }
 
-.sprotty-resize-handle[data-kind='bottom-right'] {
-    cursor: se-resize;
+.sprotty-resize-handle[data-kind='left'] {
+    cursor: w-resize;
+}
+
+.sprotty-resize-handle.resize-not-allowed {
+    fill: var(--glsp-error-foreground);
+}
+
+.sprotty g .resize-not-allowed > .sprotty-node {
+    stroke: var(--glsp-error-foreground);
+    stroke-width: 1.5px;
+}
+
+.move-mode .sprotty-projection-bar,
+.resize-mode .sprotty-projection-bar {
+    /**
+     * We are using mouse events (offsetX, offsetY) in the GLSPMousePositionTracker to calculate the diagram position relative to the parent.
+     * Other elements result in relative coordinates different from the graph and will therefore interfere with the correct position calculation.
+     */
+    pointer-events: none;
 }

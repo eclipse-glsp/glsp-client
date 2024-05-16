@@ -56,6 +56,10 @@ export class MarqueeMouseTool extends BaseEditTool {
             this.createFeedbackEmitter().add(cursorFeedbackAction(CursorCSS.MARQUEE), cursorFeedbackAction()).submit()
         );
     }
+
+    override get isEditTool(): boolean {
+        return false;
+    }
 }
 
 export class MarqueeMouseListener extends DragAwareMouseListener {

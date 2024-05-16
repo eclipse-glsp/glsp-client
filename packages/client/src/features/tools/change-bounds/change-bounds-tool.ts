@@ -37,11 +37,18 @@ import {
     TYPES,
     findParentByFeature
 } from '@eclipse-glsp/sprotty';
+import { CSS_RESIZE_MODE, ChangeBoundsManager, ChangeBoundsTracker, TrackedElementResize, TrackedResize } from '..';
 import { DragAwareMouseListener } from '../../../base/drag-aware-mouse-listener';
-import { CursorCSS, applyCssClasses, cursorFeedbackAction, deleteCssClasses } from '../../../base/feedback/css-feedback';
+import {
+    CursorCSS,
+    ModifyCSSFeedbackAction,
+    applyCssClasses,
+    cursorFeedbackAction,
+    deleteCssClasses,
+    toggleCssClasses
+} from '../../../base/feedback/css-feedback';
 import { FeedbackEmitter } from '../../../base/feedback/feeback-emitter';
 import { ISelectionListener, SelectionService } from '../../../base/selection-service';
-import { isValidMove, isValidSize } from '../../../utils';
 import {
     BoundsAwareModelElement,
     ResizableModelElement,
@@ -51,16 +58,13 @@ import {
     isNonRoutableSelectedMovableBoundsAware,
     toElementAndBounds
 } from '../../../utils/gmodel-util';
-import { SetBoundsFeedbackAction } from '../../bounds';
-import { PointPositionUpdater } from '../../change-bounds';
-import { ResizeHandleLocation, SResizeHandle, isResizable } from '../../change-bounds/model';
+import { LocalRequestBoundsAction, SetBoundsFeedbackAction } from '../../bounds';
+import { SResizeHandle, isResizable } from '../../change-bounds/model';
 import {
     IMovementRestrictor,
-    createMovementRestrictionFeedback,
+    movementRestrictionFeedback,
     removeMovementRestrictionFeedback
 } from '../../change-bounds/movement-restrictor';
-import { PositionSnapper } from '../../change-bounds/position-snapper';
-import { getDirectionFrom } from '../../helper-lines';
 import { BaseEditTool } from '../base-tools';
 import {
     HideChangeBoundsToolResizeFeedbackAction,
@@ -89,7 +93,7 @@ export class ChangeBoundsTool extends BaseEditTool {
     @inject(SelectionService) protected selectionService: SelectionService;
     @inject(EdgeRouterRegistry) @optional() readonly edgeRouterRegistry?: EdgeRouterRegistry;
     @inject(TYPES.IMovementRestrictor) @optional() readonly movementRestrictor?: IMovementRestrictor;
-    @inject(PositionSnapper) readonly positionSnapper: PositionSnapper;
+    @inject(TYPES.IChangeBoundsManager) readonly changeBoundsManager: ChangeBoundsManager;
 
     get id(): string {
         return ChangeBoundsTool.ID;
@@ -115,6 +119,10 @@ export class ChangeBoundsTool extends BaseEditTool {
         );
     }
 
+    createChangeBoundsTracker(): ChangeBoundsTracker {
+        return this.changeBoundsManager.createTracker();
+    }
+
     protected createMoveMouseListener(): MouseListener {
         return new FeedbackMoveMouseListener(this);
     }
@@ -124,22 +132,12 @@ export class ChangeBoundsTool extends BaseEditTool {
     }
 }
 
-export interface ValidatedElementAndBounds extends ElementAndBounds {
-    valid: boolean;
-}
-
-export namespace ValidatedElementAndBounds {
-    export function isValid(move: ElementAndBounds): boolean {
-        return (move as ValidatedElementAndBounds).valid ?? true;
-    }
-}
-
-export class ChangeBoundsListener extends DragAwareMouseListener implements ISelectionListener, Disposable {
+export class ChangeBoundsListener extends DragAwareMouseListener implements ISelectionListener {
     static readonly CSS_CLASS_ACTIVE = 'active';
 
     // members for calculating the correct position change
     protected initialBounds: ElementAndBounds | undefined;
-    protected positionUpdater: PointPositionUpdater;
+    protected tracker: ChangeBoundsTracker;
 
     // members for resize mode
     protected activeResizeElement?: ResizableModelElement;
@@ -149,7 +147,7 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
 
     constructor(protected tool: ChangeBoundsTool) {
         super();
-        this.positionUpdater = new PointPositionUpdater(tool.positionSnapper);
+        this.tracker = tool.createChangeBoundsTracker();
         this.handleFeedback = tool.createFeedbackEmitter();
         this.resizeFeedback = tool.createFeedbackEmitter();
     }
@@ -171,22 +169,28 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
         this.activeResizeElement = this.activeResizeHandle?.parent ?? this.findResizeElement(target);
         if (this.activeResizeElement) {
             if (event) {
-                this.positionUpdater.updateLastDragPosition(event);
+                this.tracker.startTracking();
             }
             this.initialBounds = {
                 newSize: this.activeResizeElement.bounds,
                 newPosition: this.activeResizeElement.bounds,
                 elementId: this.activeResizeElement.id
             };
+            // we trigger the local bounds calculation once to get the correct layout information for reszing
+            // for any sub-sequent calls the layout information will be updated automatically
+            this.tool
+                .createFeedbackEmitter()
+                .add(LocalRequestBoundsAction.create(target.root, [this.activeResizeElement.id]))
+                .submit()
+                .dispose();
             this.handleFeedback.add(
-                ShowChangeBoundsToolResizeFeedbackAction.create(this.activeResizeElement.id),
+                ShowChangeBoundsToolResizeFeedbackAction.create({ elementId: this.activeResizeElement.id }),
                 HideChangeBoundsToolResizeFeedbackAction.create()
             );
             this.handleFeedback.submit();
             return true;
         } else {
-            this.positionUpdater.resetPosition();
-            this.handleFeedback.dispose();
+            this.dispose();
             return false;
         }
     }
@@ -200,74 +204,81 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
     protected override draggingMouseMove(target: GModelElement, event: MouseEvent): Action[] {
         // rely on the FeedbackMoveMouseListener to update the element bounds of selected elements
         // consider resize handles ourselves
-        if (this.activeResizeHandle && !this.positionUpdater.isLastDragPositionUndefined()) {
-            if (!this.initialBounds) {
-                const element = this.activeResizeHandle.parent;
-                this.initialBounds = { elementId: element.id, newSize: element.bounds, newPosition: element.bounds };
+        if (this.activeResizeHandle && this.tracker.isTracking()) {
+            const resize = this.tracker.resizeElements(this.activeResizeHandle, { snap: event, symmetric: event, restrict: event });
+            this.addResizeFeedback(resize, target, event);
+            const resizeAction = this.resizeBoundsAction(resize);
+            if (resizeAction.bounds.length > 0) {
+                this.resizeFeedback.add(resizeAction, () => this.resetBounds());
+                this.tracker.updateTrackingPosition(resize.handleMove.moveVector);
+            } else {
+                this.resizeFeedback.add(undefined, () => this.resetBounds());
             }
-            const positionUpdate = this.positionUpdater.updatePosition(target, event, getDirectionFrom(this.activeResizeHandle.location));
-            if (positionUpdate) {
-                const resizeActions = this.handleResizeOnClient(positionUpdate).filter(action => action);
-                if (resizeActions.length > 0) {
-                    this.resizeFeedback.add(SetBoundsFeedbackAction.create(resizeActions), () => this.resetBoundsAction());
-                    this.addResizeFeedback(resizeActions, this.activeResizeHandle, target, event);
-                    this.resizeFeedback.submit();
-                }
-            }
+            this.resizeFeedback.submit();
         }
         return super.draggingMouseMove(target, event);
     }
 
-    protected filterResizeOnClient(resize: ValidatedElementAndBounds, positionUpdate: Point): boolean {
-        return true;
+    protected resizeBoundsAction(resize: TrackedResize): SetBoundsFeedbackAction {
+        // we do not want to resize elements beyond their valid size, not even for feedback, as the next layout cycle usually corrects this
+        const elementResizes = resize.elementResizes.filter(elementResize => elementResize.valid.size);
+        return SetBoundsFeedbackAction.create(elementResizes.map(elementResize => this.toElementAndBounds(elementResize)));
     }
 
-    protected addResizeFeedback(
-        resizeActions: ValidatedElementAndBounds[],
-        handle: SResizeHandle,
-        target: GModelElement,
-        event: MouseEvent
-    ): void {
+    protected toElementAndBounds(elementResize: TrackedElementResize): ElementAndBounds {
+        return {
+            elementId: elementResize.element.id,
+            newSize: elementResize.toBounds,
+            newPosition: elementResize.toBounds
+        };
+    }
+
+    protected addResizeFeedback(resize: TrackedResize, target: GModelElement, event: MouseEvent): void {
+        const handle = resize.handleMove.element;
         // handle feedback
         this.resizeFeedback.add(
             applyCssClasses(handle, ChangeBoundsListener.CSS_CLASS_ACTIVE),
             deleteCssClasses(handle, ChangeBoundsListener.CSS_CLASS_ACTIVE)
         );
 
+        // graph feedback
+        this.resizeFeedback.add(
+            ModifyCSSFeedbackAction.create({ add: [CSS_RESIZE_MODE] }),
+            ModifyCSSFeedbackAction.create({ remove: [CSS_RESIZE_MODE] })
+        );
+
         // cursor feedback
-        const cursorClass = handle.isNeResize()
-            ? CursorCSS.RESIZE_NE
-            : handle.isNwResize()
-              ? CursorCSS.RESIZE_NW
-              : handle.isSeResize()
-                ? CursorCSS.RESIZE_SE
-                : CursorCSS.RESIZE_SW;
+        const cursorClass = SResizeHandle.getCursorCss(resize.handleMove.element);
         this.resizeFeedback.add(cursorFeedbackAction(cursorClass), cursorFeedbackAction(CursorCSS.DEFAULT));
 
-        // restriction feedback
-        resizeActions.forEach(elementResize => {
-            const element = handle.root.index.getById(elementResize.elementId);
-            if (element && this.tool.movementRestrictor) {
-                if (!elementResize.valid) {
-                    this.resizeFeedback.add(createMovementRestrictionFeedback(element, this.tool.movementRestrictor), () =>
-                        removeMovementRestrictionFeedback(element, this.tool.movementRestrictor!)
-                    );
-                } else {
-                    this.resizeFeedback.add(removeMovementRestrictionFeedback(element, this.tool.movementRestrictor!));
-                }
+        const movementRestrictor = this.tool.changeBoundsManager.movementRestrictor;
+        resize.elementResizes.forEach(elementResize => {
+            if (movementRestrictor) {
+                this.resizeFeedback.add(
+                    movementRestrictionFeedback(elementResize.element, movementRestrictor, elementResize.valid.move),
+                    removeMovementRestrictionFeedback(elementResize.element, movementRestrictor)
+                );
             }
+            this.resizeFeedback.add(
+                toggleCssClasses(elementResize.element, !elementResize.valid.size, 'resize-not-allowed'),
+                deleteCssClasses(elementResize.element, 'resize-not-allowed')
+            );
         });
+        this.resizeFeedback.add(
+            toggleCssClasses(resize.handleMove.element, !resize.valid.size, 'resize-not-allowed'),
+            deleteCssClasses(resize.handleMove.element, 'resize-not-allowed')
+        );
     }
 
-    protected resetBoundsAction(): Action[] {
+    protected resetBounds(): Action[] {
         // reset the bounds to the initial bounds and ensure that we do not show helper line feedback anymore (MoveFinishedEventAction)
         return this.initialBounds
             ? [SetBoundsFeedbackAction.create([this.initialBounds]), MoveFinishedEventAction.create()]
             : [MoveFinishedEventAction.create()];
     }
 
-    override draggingMouseUp(target: GModelElement, _event: MouseEvent): Action[] {
-        if (this.positionUpdater.isLastDragPositionUndefined()) {
+    override draggingMouseUp(target: GModelElement, event: MouseEvent): Action[] {
+        if (!this.tracker.isTracking()) {
             return [];
         }
         const actions: Action[] = [];
@@ -296,17 +307,13 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
         const selectedElements = getMatchingElements(target.index, isNonRoutableSelectedMovableBoundsAware);
         const selectionSet: Set<BoundsAwareModelElement> = new Set(selectedElements);
         const newBounds: ElementAndBounds[] = selectedElements
-            .filter(element => this.isValidElement(element, selectionSet))
+            .filter(element => this.isValidMove(element, selectionSet))
             .map(toElementAndBounds);
         return newBounds.length > 0 ? [ChangeBoundsOperation.create(newBounds)] : [];
     }
 
-    protected isValidElement(element: BoundsAwareModelElement, selectedElements: Set<BoundsAwareModelElement> = new Set()): boolean {
-        return (
-            this.isValidMove(element, element.bounds) &&
-            this.isValidSize(element, element.bounds) &&
-            !this.isChildOfSelected(selectedElements, element)
-        );
+    protected isValidMove(element: BoundsAwareModelElement, selectedElements: Set<BoundsAwareModelElement> = new Set()): boolean {
+        return this.tool.changeBoundsManager.hasValidPosition(element) && !this.isChildOfSelected(selectedElements, element);
     }
 
     protected isChildOfSelected(selectedElements: Set<GModelElement>, element: GModelElement): boolean {
@@ -342,7 +349,7 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
     }
 
     protected handleResizeOnServer(activeResizeHandle: SResizeHandle): Action[] {
-        if (this.isValidElement(activeResizeHandle.parent) && this.initialBounds) {
+        if (this.initialBounds && this.isValidResize(activeResizeHandle.parent)) {
             const elementAndBounds = toElementAndBounds(activeResizeHandle.parent);
             if (!this.initialBounds.newPosition || !elementAndBounds.newPosition) {
                 return [];
@@ -361,6 +368,10 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
         return [];
     }
 
+    protected isValidResize(element: BoundsAwareModelElement): boolean {
+        return this.tool.changeBoundsManager.isValid(element);
+    }
+
     selectionChanged(root: GModelRoot, selectedElements: string[]): void {
         if (this.activeResizeElement && selectedElements.includes(this.activeResizeElement.id)) {
             // our active element is still selected, nothing to do
@@ -374,88 +385,18 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
                 return;
             }
         }
-        this.updateResizeElement(root);
-        this.disposeAllButHandles();
+        this.dispose();
     }
 
     protected isActiveResizeElement(element?: GModelElement): element is GParentElement & BoundsAware {
         return element !== undefined && this.activeResizeElement !== undefined && element.id === this.activeResizeElement.id;
     }
 
-    protected handleResizeOnClient(positionUpdate: Point): ValidatedElementAndBounds[] {
-        if (!this.activeResizeHandle) {
-            return [];
-        }
-
-        if (this.isActiveResizeElement(this.activeResizeHandle.parent)) {
-            switch (this.activeResizeHandle.location) {
-                case ResizeHandleLocation.TopLeft:
-                    return this.handleTopLeftResize(this.activeResizeHandle.parent, positionUpdate);
-                case ResizeHandleLocation.TopRight:
-                    return this.handleTopRightResize(this.activeResizeHandle.parent, positionUpdate);
-                case ResizeHandleLocation.BottomLeft:
-                    return this.handleBottomLeftResize(this.activeResizeHandle.parent, positionUpdate);
-                case ResizeHandleLocation.BottomRight:
-                    return this.handleBottomRightResize(this.activeResizeHandle.parent, positionUpdate);
-            }
-        }
-        return [];
-    }
-
-    protected handleTopLeftResize(resizeElement: ResizableModelElement, positionUpdate: Point): ValidatedElementAndBounds[] {
-        return this.createSetBoundsAction(
-            resizeElement,
-            { x: resizeElement.bounds.x + positionUpdate.x, y: resizeElement.bounds.y + positionUpdate.y },
-            { width: resizeElement.bounds.width - positionUpdate.x, height: resizeElement.bounds.height - positionUpdate.y }
-        );
-    }
-
-    protected handleTopRightResize(resizeElement: ResizableModelElement, positionUpdate: Point): ValidatedElementAndBounds[] {
-        return this.createSetBoundsAction(
-            resizeElement,
-            { x: resizeElement.bounds.x, y: resizeElement.bounds.y + positionUpdate.y },
-            { width: resizeElement.bounds.width + positionUpdate.x, height: resizeElement.bounds.height - positionUpdate.y }
-        );
-    }
-
-    protected handleBottomLeftResize(resizeElement: ResizableModelElement, positionUpdate: Point): ValidatedElementAndBounds[] {
-        return this.createSetBoundsAction(
-            resizeElement,
-            { x: resizeElement.bounds.x + positionUpdate.x, y: resizeElement.bounds.y },
-            { width: resizeElement.bounds.width - positionUpdate.x, height: resizeElement.bounds.height + positionUpdate.y }
-        );
-    }
-
-    protected handleBottomRightResize(resizeElement: ResizableModelElement, positionUpdate: Point): ValidatedElementAndBounds[] {
-        return this.createSetBoundsAction(
-            resizeElement,
-            { x: resizeElement.bounds.x, y: resizeElement.bounds.y },
-            { width: resizeElement.bounds.width + positionUpdate.x, height: resizeElement.bounds.height + positionUpdate.y }
-        );
-    }
-
-    protected createSetBoundsAction(element: BoundsAwareModelElement, newPosition: Point, newSize: Dimension): ValidatedElementAndBounds[] {
-        if (!isValidSize(element, newSize)) {
-            // we are not allowing any invalid sizes (breaking min size), not even during client feedback
-            return [];
-        }
-        const valid = this.isValidMove(element, newPosition);
-        return [{ elementId: element.id, newPosition, newSize, valid }];
-    }
-
-    protected isValidSize(element: BoundsAwareModelElement, size: Dimension): boolean {
-        return isValidSize(element, size);
-    }
-
-    protected isValidMove(element: BoundsAwareModelElement, newPosition: Point): boolean {
-        return isValidMove(element, newPosition, this.tool.movementRestrictor);
-    }
-
     protected disposeAllButHandles(): void {
         // We do not dispose the handle feedback as we want to keep showing the handles on selected elements
         // this.handleFeedback.dispose();
         this.resizeFeedback.dispose();
-        this.positionUpdater.resetPosition();
+        this.tracker.dispose();
         this.activeResizeElement = undefined;
         this.activeResizeHandle = undefined;
         this.initialBounds = undefined;

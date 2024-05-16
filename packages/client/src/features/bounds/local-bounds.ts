@@ -31,6 +31,7 @@ import {
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
 import { ServerAction } from '../../base/model/glsp-model-source';
+import { LayoutAware } from './layout-data';
 
 export interface LocalRequestBoundsAction extends RequestBoundsAction {
     elementIDs?: string[];
@@ -41,9 +42,11 @@ export namespace LocalRequestBoundsAction {
         return RequestBoundsAction.is(object) && !ServerAction.is(object) && hasArrayProp(object, 'elementIDs', true);
     }
 
-    export function create(newRoot: GModelRootSchema, elementIDs?: string[]): LocalRequestBoundsAction {
+    export function create(newRoot: GModelRoot, elementIDs?: string[]): LocalRequestBoundsAction;
+    export function create(newRoot: GModelRootSchema, elementIDs?: string[]): LocalRequestBoundsAction;
+    export function create(newRoot: GModelRoot | GModelRootSchema, elementIDs?: string[]): LocalRequestBoundsAction {
         return {
-            ...RequestBoundsAction.create(newRoot),
+            ...RequestBoundsAction.create(newRoot as unknown as GModelRootSchema),
             elementIDs
         };
     }
@@ -55,7 +58,7 @@ export namespace LocalRequestBoundsAction {
         elementIDs?: string[]
     ): CommandResult {
         // do not modify the main model (modelChanged = false) but request local bounds calculation on hidden model
-        actionDispatcher.dispatch(LocalRequestBoundsAction.create(root as unknown as GModelRootSchema, elementIDs));
+        actionDispatcher.dispatch(LocalRequestBoundsAction.create(root, elementIDs));
         return {
             model: root,
             modelChanged: false,
@@ -65,7 +68,7 @@ export namespace LocalRequestBoundsAction {
 }
 
 export namespace LocalComputedBoundsAction {
-    export function is(object: unknown): object is RequestBoundsAction {
+    export function is(object: unknown): object is ComputedBoundsAction & ServerAction {
         return ComputedBoundsAction.is(object) && ServerAction.is(object);
     }
 
@@ -94,8 +97,21 @@ export class LocalComputedBoundsCommand extends Command {
             }
             // apply computed bounds from the hidden model and return updated model to render new main model
             this.computedBoundsApplicator.apply(context.root as unknown as GModelRootSchema, this.action);
+            this.action.layoutData?.forEach(({ elementId, layoutData }) => {
+                const element = context.root.index.getById(elementId);
+                if (element !== undefined) {
+                    LayoutAware.setLayoutData(element, layoutData);
+                }
+            });
             return context.root;
         }
+
+        this.action.layoutData?.forEach(({ elementId, layoutData }) => {
+            const element = context.root.index.getById(elementId);
+            if (element !== undefined) {
+                LayoutAware.setLayoutData(element, layoutData);
+            }
+        });
 
         // computed bounds action from server -> we do not care and do not trigger any update of the main model
         return {

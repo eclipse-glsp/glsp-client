@@ -16,10 +16,16 @@
 /* eslint-disable @typescript-eslint/no-shadow */
 import { KeyboardModifier } from '@eclipse-glsp/sprotty';
 
+/**
+ * @deprecated Use {@link ChangeBoundsManager.useSnap} instead which may be customized.
+ */
 export function useSnap(event: MouseEvent | KeyboardEvent): boolean {
     return !event.shiftKey;
 }
 
+/**
+ * @deprecated Use {@link ChangeBoundsManager.unsnapModifier} instead which may be customized.
+ */
 export function unsnapModifier(): KeyboardModifier {
     return 'shift';
 }

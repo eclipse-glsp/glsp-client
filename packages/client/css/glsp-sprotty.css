@@ -152,16 +152,32 @@
     cursor: nw-resize;
 }
 
+.sprotty .resize-w-mode {
+    cursor: n-resize;
+}
+
 .sprotty .resize-ne-mode {
     cursor: ne-resize;
+}
+
+.sprotty .resize-e-mode {
+    cursor: e-resize;
+}
+
+.sprotty .resize-se-mode {
+    cursor: se-resize;
+}
+
+.sprotty .resize-s-mode {
+    cursor: s-resize;
 }
 
 .sprotty .resize-sw-mode {
     cursor: sw-resize;
 }
 
-.sprotty .resize-se-mode {
-    cursor: se-resize;
+.sprotty .resize-w-mode {
+    cursor: w-resize;
 }
 
 .sprotty .element-deletion-mode {

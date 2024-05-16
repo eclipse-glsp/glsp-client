@@ -19,12 +19,14 @@ import { inject, injectable } from 'inversify';
 import { FeedbackCommand } from '../../../base/feedback/feedback-command';
 import { OptionalAction } from '../../../base/model/glsp-model-source';
 import { forEachElement } from '../../../utils/gmodel-util';
-import { addResizeHandles, isResizable, removeResizeHandles } from '../../change-bounds/model';
+import { ResizeHandleLocation, addResizeHandles, isResizable, removeResizeHandles } from '../../change-bounds/model';
+import { ChangeBoundsManager } from './change-bounds-manager';
 
 export interface ShowChangeBoundsToolResizeFeedbackAction extends Action {
     kind: typeof ShowChangeBoundsToolResizeFeedbackAction.KIND;
 
     elementId: string;
+    resizeLocations?: ResizeHandleLocation[];
 }
 
 export namespace ShowChangeBoundsToolResizeFeedbackAction {
@@ -34,10 +36,16 @@ export namespace ShowChangeBoundsToolResizeFeedbackAction {
         return Action.hasKind(object, KIND) && hasStringProp(object, 'elementId');
     }
 
-    export function create(elementId: string): ShowChangeBoundsToolResizeFeedbackAction {
+    /** @deprecated Use the create method with the options object parameter instead and set the 'elementId' parameter. */
+    export function create(elementId: string): ShowChangeBoundsToolResizeFeedbackAction;
+    export function create(options: Omit<ShowChangeBoundsToolResizeFeedbackAction, 'kind'>): ShowChangeBoundsToolResizeFeedbackAction;
+    export function create(
+        options: Omit<ShowChangeBoundsToolResizeFeedbackAction, 'kind'> | string
+    ): ShowChangeBoundsToolResizeFeedbackAction {
+        const opts = typeof options === 'string' ? { elementId: options } : options;
         return {
             kind: KIND,
-            elementId
+            ...opts
         };
     }
 }
@@ -63,15 +71,18 @@ export class ShowChangeBoundsToolResizeFeedbackCommand extends FeedbackCommand {
     static readonly KIND = ShowChangeBoundsToolResizeFeedbackAction.KIND;
 
     @inject(TYPES.Action) protected action: ShowChangeBoundsToolResizeFeedbackAction;
+    @inject(TYPES.IChangeBoundsManager) protected changeBoundsManager: ChangeBoundsManager;
 
     execute(context: CommandExecutionContext): CommandReturn {
         const index = context.root.index;
 
         forEachElement(index, isResizable, element => element.id !== this.action.elementId && removeResizeHandles(element));
 
-        const resizeElement = index.getById(this.action.elementId);
-        if (resizeElement && isResizable(resizeElement)) {
-            addResizeHandles(resizeElement);
+        if (this.action.elementId) {
+            const resizeElement = index.getById(this.action.elementId);
+            if (resizeElement && isResizable(resizeElement)) {
+                addResizeHandles(resizeElement, this.action.resizeLocations ?? this.changeBoundsManager.defaultResizeLocations());
+            }
         }
         return context.root;
     }
