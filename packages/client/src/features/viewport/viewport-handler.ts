@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2023 Business Informatics Group (TU Wien) and others.
+ * Copyright (c) 2023-2024 Business Informatics Group (TU Wien) and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,8 +13,9 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, IActionHandler, TYPES, ViewerOptions } from '@eclipse-glsp/sprotty';
+import { Action, DOMHelper, IActionHandler, TYPES } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
+import { EditorContextService } from '../../base';
 import { FocusTracker } from '../../base/focus/focus-tracker';
 import { IDiagramStartup } from '../../base/model/diagram-loader';
 import { EnableDefaultToolsAction } from '../../base/tool-manager/tool';
@@ -25,18 +26,24 @@ import { FocusDomAction } from '../accessibility/actions';
  */
 @injectable()
 export class RestoreViewportHandler implements IActionHandler, IDiagramStartup {
-    protected readonly graphSelector = '[data-svg-metadata-type="graph"]';
-
-    @inject(TYPES.ViewerOptions)
-    protected options: ViewerOptions;
+    @inject(TYPES.DOMHelper)
+    protected domHelper: DOMHelper;
 
     @inject(FocusTracker)
     protected focusTracker: FocusTracker;
+
+    @inject(EditorContextService)
+    protected editorContext: EditorContextService;
 
     handle(action: Action): void | Action {
         if (EnableDefaultToolsAction.is(action) || (FocusDomAction.is(action) && action.id === 'graph')) {
             this.focusGraph();
         }
+    }
+
+    get graphSelector(): string {
+        const rootId = this.domHelper.createUniqueDOMElementId(this.editorContext.modelRoot);
+        return `#${rootId}`;
     }
 
     async postRequestModel(): Promise<void> {
@@ -51,7 +58,6 @@ export class RestoreViewportHandler implements IActionHandler, IDiagramStartup {
         }
     }
 
-    // https://stackoverflow.com/questions/5525071/how-to-wait-until-an-element-exists
     protected waitForElement(selector: string): Promise<Element | null> {
         return new Promise(resolve => {
             if (document.querySelector(selector)) {
