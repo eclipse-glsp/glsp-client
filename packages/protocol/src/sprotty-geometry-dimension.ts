@@ -78,7 +78,7 @@ declare module 'sprotty-protocol/lib/utils/geometry' {
          * Checks if two dimensions are equal. Two dimensions are equal if their `width` and `height` are equal.
          * @param left the left dimension
          * @param right the right dimension
-         * @param eps the epsilon value
+         * @param eps @param eps the epsilon for the comparison
          * @returns true if the dimensions are equal, false otherwise
          */
         function equals(left: Dimension, right: Dimension, eps?: number): boolean;

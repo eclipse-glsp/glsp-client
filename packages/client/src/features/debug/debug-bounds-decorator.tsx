@@ -15,7 +15,7 @@
  ********************************************************************************/
 /* eslint-disable max-len */
 
-import { Bounds, GModelElement, IVNodePostprocessor, Point, TYPES, isSizeable, setClass, svg } from '@eclipse-glsp/sprotty';
+import { Bounds, GModelElement, IVNodePostprocessor, Point, TYPES, isDecoration, isSizeable, setClass, svg } from '@eclipse-glsp/sprotty';
 import { inject, injectable, optional } from 'inversify';
 import { VNode } from 'snabbdom';
 import { GGraph } from '../../model';
@@ -25,6 +25,8 @@ import { DebugManager } from './debug-manager';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const JSX = { createElement: svg };
 
+export const CSS_DEBUG_BOUNDS = 'debug-bounds';
+
 @injectable()
 export class DebugBoundsDecorator implements IVNodePostprocessor {
     @inject(TYPES.IDebugManager) @optional() protected debugManager?: DebugManager;
@@ -33,10 +35,10 @@ export class DebugBoundsDecorator implements IVNodePostprocessor {
         if (!this.debugManager?.isDebugEnabled) {
             return vnode;
         }
-        if (isSizeable(element)) {
+        if (isSizeable(element) && this.shouldDecorateSizeable(element)) {
             this.decorateSizeable(vnode, element);
         }
-        if (element instanceof GGraph) {
+        if (element instanceof GGraph && this.shouldDecorateGraph(element)) {
             this.decorateGraph(vnode, element);
         }
         return vnode;
@@ -48,8 +50,12 @@ export class DebugBoundsDecorator implements IVNodePostprocessor {
         return 5;
     }
 
+    protected shouldDecorateGraph(graph: GGraph): boolean {
+        return true;
+    }
+
     protected decorateGraph(vnode: VNode, graph: GGraph): void {
-        setClass(vnode, 'debug-bounds', true);
+        setClass(vnode, CSS_DEBUG_BOUNDS, true);
         const svgChild = vnode.children?.find(child => typeof child !== 'string' && child.sel === 'svg') as VNode | undefined;
         const group = svgChild?.children?.find(child => typeof child !== 'string' && child.sel === 'g') as VNode | undefined;
         group?.children?.push(this.renderOrigin(graph));
@@ -67,8 +73,12 @@ export class DebugBoundsDecorator implements IVNodePostprocessor {
         );
     }
 
+    protected shouldDecorateSizeable(element: BoundsAwareModelElement): boolean {
+        return !isDecoration(element);
+    }
+
     protected decorateSizeable(vnode: VNode, element: BoundsAwareModelElement): void {
-        setClass(vnode, 'debug-bounds', true);
+        setClass(vnode, CSS_DEBUG_BOUNDS, true);
         vnode.children?.push(this.renderTopLeftCorner(element));
         vnode.children?.push(this.renderTopRightCorner(element));
         vnode.children?.push(this.renderBottomLeftCorner(element));

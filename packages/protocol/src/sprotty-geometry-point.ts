@@ -43,7 +43,7 @@ declare module 'sprotty-protocol/lib/utils/geometry' {
          * Checks whether the given points are equal up to a certain epsilon.
          * @param one the first point
          * @param other the second point
-         * @param eps the epsilon value
+         * @param eps @param eps the epsilon for the comparison
          */
         function equals(one: Point, other: Point, eps?: number): boolean;
 

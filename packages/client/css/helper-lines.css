@@ -16,8 +16,8 @@
 
 .helper-line {
     pointer-events: none;
-    stroke: #f7086c;
-    stroke-width: 0.5;
+    stroke: #1d80d1;
+    stroke-width: 1;
     opacity: 1;
 }
 

@@ -47,6 +47,7 @@ declare module 'sprotty-protocol/lib/utils/geometry' {
          * Checks whether the two bounds are equal.
          * @param left left bounds
          * @param right right bounds
+         * @param eps the epsilon for the comparison
          * @returns true if the two bounds are equal
          */
         function equals(left: Bounds, right: Bounds, eps?: number): boolean;
