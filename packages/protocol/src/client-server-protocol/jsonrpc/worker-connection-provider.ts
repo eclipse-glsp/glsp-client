@@ -13,9 +13,25 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-export * from './base-jsonrpc-glsp-client';
-export * from './glsp-jsonrpc-client';
-export * from './glsp-jsonrpc-server';
-export * from './websocket-connection';
-export * from './worker-connection-provider';
-export * from './ws-connection-provider';
+import { BrowserMessageReader, BrowserMessageWriter, MessageConnection, createMessageConnection } from 'vscode-jsonrpc/browser';
+import { GLSPConnectionHandler } from './ws-connection-provider';
+
+export class GLSPWebWorkerProvider {
+    protected worker: Worker;
+
+    constructor(protected url: string) {}
+
+    protected createWebWorker(url: string): Worker {
+        return new Worker(url);
+    }
+
+    listen(handler: GLSPConnectionHandler): MessageConnection {
+        this.worker = this.createWebWorker(this.url);
+        const wwConnection = createMessageConnection(new BrowserMessageReader(this.worker), new BrowserMessageWriter(this.worker));
+
+        handler.logger?.warn('GLSPWebWorkerProvider Initializing!');
+        handler.onConnection?.(wwConnection);
+
+        return wwConnection;
+    }
+}
