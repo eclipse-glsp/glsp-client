@@ -25,7 +25,6 @@ import {
     ProjectionParams,
     RenderingContext,
     SGraphImpl,
-    TYPES,
     ViewProjection,
     Writable,
     html,
@@ -45,7 +44,7 @@ const JSX = { createElement: html };
 @injectable()
 export class GLSPProjectionView extends ProjectedViewportView {
     @inject(EdgeRouterRegistry) edgeRouterRegistry: EdgeRouterRegistry;
-    @inject(TYPES.IGridManager) @optional() protected gridManager?: GridManager;
+    @inject(GridManager) @optional() protected gridManager?: GridManager;
 
     override render(model: Readonly<GViewportRootElement>, context: RenderingContext, args?: IViewArgs): VNode {
         const rootNode: VNode = (
@@ -73,7 +72,7 @@ export class GLSPProjectionView extends ProjectedViewportView {
     }
 
     protected getGridStyle(model: Readonly<SGraphImpl>, context: RenderingContext): GridStyle {
-        if (!this.gridManager?.isGridVisible) {
+        if (context.targetKind === 'hidden' || !this.gridManager?.isGridVisible) {
             return {};
         }
         const bounds = this.getBackgroundBounds(model, context, this.gridManager);

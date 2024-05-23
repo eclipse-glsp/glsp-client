@@ -17,8 +17,8 @@ import { Action, Disposable, DisposableCollection, IActionHandler, TYPES } from 
 import { inject, injectable } from 'inversify';
 import { GLSPActionDispatcher } from '../../base/action-dispatcher';
 import { EditorContextService } from '../../base/editor-context-service';
-import { FeedbackEmitter } from '../../base/feedback/feeback-emitter';
 import { IFeedbackActionDispatcher, IFeedbackEmitter, MaybeActions } from '../../base/feedback/feedback-action-dispatcher';
+import { FeedbackEmitter } from '../../base/feedback/feedback-emitter';
 import { EnableToolsAction, Tool } from '../../base/tool-manager/tool';
 import { GLSPKeyTool } from '../../base/view/key-tool';
 import { GLSPMouseTool } from '../../base/view/mouse-tool';

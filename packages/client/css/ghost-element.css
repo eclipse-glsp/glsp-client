@@ -25,3 +25,10 @@
     height: 0;
     visibility: hidden;
 }
+
+.sprotty-node.insert-indicator:not(.selected) {
+    pointer-events: none;
+    fill: none;
+    stroke: black; /* same color as default color for edges */
+    stroke-width: 1.5px;
+}

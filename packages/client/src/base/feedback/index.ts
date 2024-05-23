@@ -14,8 +14,9 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 export * from './css-feedback';
-export * from './feeback-emitter';
 export * from './feedback-action-dispatcher';
+export * from './feedback-action-dispatcher-default';
 export * from './feedback-command';
+export * from './feedback-emitter';
 export * from './set-model-command';
 export * from './update-model-command';

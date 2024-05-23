@@ -18,8 +18,8 @@ import { AssertionError, expect } from 'chai';
 import { Container, injectable } from 'inversify';
 import * as sinon from 'sinon';
 import { defaultModule } from './default.module';
-import { FeedbackEmitter } from './feedback/feeback-emitter';
 import { IFeedbackActionDispatcher, IFeedbackEmitter } from './feedback/feedback-action-dispatcher';
+import { FeedbackEmitter } from './feedback/feedback-emitter';
 import { ISelectionListener, SelectFeedbackAction, SelectionService } from './selection-service';
 
 @injectable()

@@ -18,6 +18,20 @@ import { Dimension, Point } from 'sprotty-protocol';
 import { Bounds } from './sprotty-geometry-bounds';
 
 describe('Bounds', () => {
+    describe('is', () => {
+        it('should return true if the given object is a bounds', () => {
+            const bounds: Bounds = { x: 0, y: 0, width: 100, height: 100 };
+            const result = Bounds.is(bounds);
+            expect(result).to.be.true;
+        });
+
+        it('should return false if the given object is not a bounds', () => {
+            const bounds = { y: 0, width: 100, height: 100 };
+            const result = Bounds.is(bounds);
+            expect(result).to.be.false;
+        });
+    });
+
     describe('encompasses', () => {
         it('should return true if the outer bounds completely encompass the inner bounds', () => {
             const outer: Bounds = { x: 0, y: 0, width: 100, height: 100 };
@@ -271,6 +285,22 @@ describe('Bounds', () => {
             const bottomRight: Point = { x: 110, y: 220 };
             const result = Bounds.from(topLeft, bottomRight);
             expect(result).to.deep.equal({ x: 10, y: 20, width: 100, height: 200 });
+        });
+    });
+
+    describe('position', () => {
+        it('should return the position of the bounds', () => {
+            const bounds: Bounds = { x: 10, y: 20, width: 30, height: 40 };
+            const result = Bounds.position(bounds);
+            expect(result).to.deep.equal({ x: 10, y: 20 });
+        });
+    });
+
+    describe('dimension', () => {
+        it('should create a new dimension from the given bounds', () => {
+            const bounds = { x: 10, y: 20, width: 30, height: 40 };
+            const dimension = Bounds.dimension(bounds);
+            expect(dimension).to.deep.equal({ width: 30, height: 40 });
         });
     });
 

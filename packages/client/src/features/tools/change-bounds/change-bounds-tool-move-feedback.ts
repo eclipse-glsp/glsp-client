@@ -19,7 +19,7 @@ import { DebouncedFunc, debounce } from 'lodash';
 import { ChangeBoundsTracker, TrackedMove } from '.';
 import { DragAwareMouseListener } from '../../../base/drag-aware-mouse-listener';
 import { CursorCSS, cursorFeedbackAction } from '../../../base/feedback/css-feedback';
-import { FeedbackEmitter } from '../../../base/feedback/feeback-emitter';
+import { FeedbackEmitter } from '../../../base/feedback/feedback-emitter';
 import { MoveableElement, filter, getElements, isNonRoutableSelectedMovableBoundsAware, removeDescendants } from '../../../utils';
 import { SResizeHandle } from '../../change-bounds/model';
 import { ChangeBoundsTool } from './change-bounds-tool';
@@ -128,7 +128,7 @@ export class FeedbackMoveMouseListener extends DragAwareMouseListener {
         // cancel any pending move
         this.pendingMoveInitialized?.cancel();
         this.moveFeedback.add(this.createMoveAction(move), () => this.resetElementPositions(target));
-        this.addMovementFeedback(move, target, event);
+        this.addMoveFeedback(move, target, event);
         this.tracker.updateTrackingPosition(move);
         this.moveFeedback.submit();
         return [];
@@ -142,12 +142,8 @@ export class FeedbackMoveMouseListener extends DragAwareMouseListener {
         );
     }
 
-    protected addMovementFeedback(trackedMove: TrackedMove, ctx: GModelElement, event: MouseEvent): void {
-        // cursor feedback
-        this.moveFeedback.add(cursorFeedbackAction(CursorCSS.MOVE), cursorFeedbackAction(CursorCSS.DEFAULT));
-
-        // restriction feedback
-        trackedMove.elementMoves.forEach(move => this.tool.changeBoundsManager.addRestrictionFeedback(this.moveFeedback, move));
+    protected addMoveFeedback(trackedMove: TrackedMove, ctx: GModelElement, event: MouseEvent): void {
+        this.tool.changeBoundsManager.addMoveFeedback(this.moveFeedback, trackedMove, ctx, event);
     }
 
     protected initializeElementsToMove(root: GModelRoot): void {

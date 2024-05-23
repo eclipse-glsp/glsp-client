@@ -27,11 +27,13 @@ import {
     Vector,
     Writable,
     hasBooleanProp,
+    hasObjectProp,
+    isBoundsAware,
     isMoveable
 } from '@eclipse-glsp/sprotty';
-import { ChangeBoundsManager } from '..';
 import { BoundsAwareModelElement, MoveableElement, ResizableModelElement, getElements } from '../../../utils';
 import { DiagramMovementCalculator, ResizeHandleLocation, SResizeHandle } from '../../change-bounds';
+import { ChangeBoundsManager } from './change-bounds-manager';
 
 export interface ElementTrackingOptions {
     /** Snap position. Default: true. */
@@ -71,6 +73,17 @@ export interface TrackedElementMove extends ResolvedElementMove {
     moveVector: Vector;
     sourceVector: Vector;
     valid: boolean;
+}
+
+export namespace TrackedElementMove {
+    export function is(obj: any): obj is TrackedElementMove {
+        return (
+            hasObjectProp(obj, 'element') &&
+            hasObjectProp(obj, 'fromPosition') &&
+            hasObjectProp(obj, 'toPosition') &&
+            hasBooleanProp(obj, 'valid')
+        );
+    }
 }
 
 export type TypedElementMove<T extends MoveableElement> = TrackedElementMove & { element: T };
@@ -134,6 +147,14 @@ export interface TrackedElementResize {
     };
 }
 
+export namespace TrackedElementResize {
+    export function is(obj: any): obj is TrackedElementResize {
+        return (
+            isBoundsAware(obj.element) && hasObjectProp(obj, 'fromBounds') && hasObjectProp(obj, 'toBounds') && hasObjectProp(obj, 'valid')
+        );
+    }
+}
+
 export interface TrackedResize extends Movement {
     handleMove: TrackedHandleMove;
     elementResizes: TrackedElementResize[];
@@ -179,7 +200,7 @@ export class ChangeBoundsTracker {
         const update = this.calculateDiagramMovement();
         const move: TrackedMove = { ...update, elementMoves: [], valid: true, options };
 
-        if (Vector.isZero(update.vector)) {
+        if (Vector.isZero(update.vector) && options.skipStatic) {
             // no movement detected so elements won't be moved, exit early
             return move;
         }
@@ -260,13 +281,13 @@ export class ChangeBoundsTracker {
         const update = this.calculateDiagramMovement();
         const handleMove = this.calculateHandleMove(new MoveableResizeHandle(handle), update.vector, options);
         const resize: TrackedResize = { ...update, valid: { move: true, size: true }, options, handleMove, elementResizes: [] };
-        if (Vector.isZero(handleMove.moveVector)) {
+        if (Vector.isZero(handleMove.moveVector) && options.skipStatic) {
             // no movement detected so elements won't be moved, exit early
             return resize;
         }
 
         // calculate resize for each element (typically only one element is resized at a time but customizations are possible)
-        const elementsToResize = this.getResizeableElements(handle, options);
+        const elementsToResize = this.getResizableElements(handle, options);
         for (const element of elementsToResize) {
             const elementResize = this.calculateElementResize(element, handleMove, options);
             if (!this.skipElementResize(elementResize, options)) {
@@ -293,7 +314,7 @@ export class ChangeBoundsTracker {
         return this.calculateElementMove(handle, diagramMovement, moveOptions);
     }
 
-    protected getResizeableElements(handle: SResizeHandle, options: ResizeOptions): ResizableModelElement[] {
+    protected getResizableElements(handle: SResizeHandle, options: ResizeOptions): ResizableModelElement[] {
         return [handle.parent];
     }
 

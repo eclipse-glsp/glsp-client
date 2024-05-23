@@ -13,14 +13,14 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Bounds, Dimension, Point, RenderingContext, SGraphImpl, SGraphView, TYPES, Writable } from '@eclipse-glsp/sprotty';
+import { Bounds, Dimension, Point, RenderingContext, SGraphImpl, SGraphView, Writable } from '@eclipse-glsp/sprotty';
 import { inject, injectable, optional } from 'inversify';
 import { VNode } from 'snabbdom';
 import { GridManager, GridStyle } from '../features';
 
 @injectable()
 export class GGraphView extends SGraphView {
-    @inject(TYPES.IGridManager) @optional() protected gridManager?: GridManager;
+    @inject(GridManager) @optional() protected gridManager?: GridManager;
 
     override render(model: Readonly<SGraphImpl>, context: RenderingContext): VNode {
         const graph = super.render(model, context);
@@ -31,7 +31,7 @@ export class GGraphView extends SGraphView {
     }
 
     protected getGridStyle(model: Readonly<SGraphImpl>, context: RenderingContext): GridStyle {
-        if (!this.gridManager?.isGridVisible) {
+        if (context.targetKind === 'hidden' || !this.gridManager?.isGridVisible) {
             return {};
         }
         const bounds = this.getBackgroundBounds(model, context, this.gridManager);

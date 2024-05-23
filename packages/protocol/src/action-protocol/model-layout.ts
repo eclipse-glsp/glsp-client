@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import * as sprotty from 'sprotty-protocol/lib/actions';
-import { GModelRootSchema } from '..';
+import { GModelRootSchema } from '../model';
 import { hasArrayProp, hasObjectProp } from '../utils/type-util';
 import { Action, Operation, RequestAction, ResponseAction } from './base-protocol';
 import { Args, ElementAndAlignment, ElementAndBounds, ElementAndLayoutData, ElementAndRoutingPoints } from './types';

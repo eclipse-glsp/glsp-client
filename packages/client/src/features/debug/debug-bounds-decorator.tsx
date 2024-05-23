@@ -15,7 +15,7 @@
  ********************************************************************************/
 /* eslint-disable max-len */
 
-import { Bounds, GModelElement, IVNodePostprocessor, Point, TYPES, isDecoration, isSizeable, setClass, svg } from '@eclipse-glsp/sprotty';
+import { Bounds, GModelElement, IVNodePostprocessor, Point, isDecoration, isSizeable, setClass, svg } from '@eclipse-glsp/sprotty';
 import { inject, injectable, optional } from 'inversify';
 import { VNode } from 'snabbdom';
 import { GGraph } from '../../model';
@@ -29,7 +29,7 @@ export const CSS_DEBUG_BOUNDS = 'debug-bounds';
 
 @injectable()
 export class DebugBoundsDecorator implements IVNodePostprocessor {
-    @inject(TYPES.IDebugManager) @optional() protected debugManager?: DebugManager;
+    @inject(DebugManager) @optional() protected debugManager?: DebugManager;
 
     decorate(vnode: VNode, element: GModelElement): VNode {
         if (!this.debugManager?.isDebugEnabled) {
@@ -87,7 +87,7 @@ export class DebugBoundsDecorator implements IVNodePostprocessor {
     }
 
     protected renderTopLeftCorner(element: BoundsAwareModelElement): VNode {
-        const position = Bounds.topLeft(element.bounds);
+        const position = Bounds.position(element.bounds);
         const topLeft = Bounds.topLeft(element.bounds);
         const corner = Point.subtract(topLeft, position);
         return (
@@ -104,7 +104,7 @@ export class DebugBoundsDecorator implements IVNodePostprocessor {
     }
 
     protected renderTopRightCorner(element: BoundsAwareModelElement): VNode {
-        const position = Bounds.topLeft(element.bounds);
+        const position = Bounds.position(element.bounds);
         const topRight = Bounds.topRight(element.bounds);
         const corner = Point.subtract(topRight, position);
         return (
@@ -121,7 +121,7 @@ export class DebugBoundsDecorator implements IVNodePostprocessor {
     }
 
     protected renderBottomLeftCorner(element: BoundsAwareModelElement): VNode {
-        const position = Bounds.topLeft(element.bounds);
+        const position = Bounds.position(element.bounds);
         const bottomLeft = Bounds.bottomLeft(element.bounds);
         const corner = Point.subtract(bottomLeft, position);
         return (
@@ -138,7 +138,7 @@ export class DebugBoundsDecorator implements IVNodePostprocessor {
     }
 
     protected renderBottomRightCorner(element: BoundsAwareModelElement): VNode {
-        const position = Bounds.topLeft(element.bounds);
+        const position = Bounds.position(element.bounds);
         const bottomRight = Bounds.bottomRight(element.bounds);
         const corner = Point.subtract(bottomRight, position);
         return (
@@ -156,7 +156,7 @@ export class DebugBoundsDecorator implements IVNodePostprocessor {
 
     protected renderCenter(element: BoundsAwareModelElement): VNode {
         const bounds = element.bounds;
-        const position = Bounds.topLeft(bounds);
+        const position = Bounds.position(bounds);
         const center = Bounds.center(bounds);
         const corner = Point.subtract(center, position);
         return (

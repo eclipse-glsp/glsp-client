@@ -41,7 +41,7 @@ export class MovementKeyTool implements Tool {
     @inject(TYPES.ISnapper) @optional() readonly snapper?: ISnapper;
     @inject(TYPES.IActionDispatcher) readonly actionDispatcher: GLSPActionDispatcher;
     @inject(TYPES.Grid) @optional() protected grid: Grid;
-    @inject(TYPES.IChangeBoundsManager) readonly changeBoundsManager: ChangeBoundsManager;
+    @inject(ChangeBoundsManager) readonly changeBoundsManager: ChangeBoundsManager;
 
     get id(): string {
         return MovementKeyTool.ID;

@@ -25,13 +25,14 @@ import {
     isConnectable,
     isCtrlOrCmd
 } from '@eclipse-glsp/sprotty';
-import { inject, injectable } from 'inversify';
+import { inject, injectable, optional } from 'inversify';
 import { FeedbackEmitter } from '../../../base';
 import { GLSPActionDispatcher } from '../../../base/action-dispatcher';
 import { DragAwareMouseListener } from '../../../base/drag-aware-mouse-listener';
 import { CursorCSS, cursorFeedbackAction } from '../../../base/feedback/css-feedback';
 import { EnableDefaultToolsAction } from '../../../base/tool-manager/tool';
 import { GEdge } from '../../../model';
+import { Grid } from '../../grid';
 import { ITypeHintProvider } from '../../hints/type-hint-provider';
 import { BaseCreationTool } from '../base-tools';
 import { DrawFeedbackEdgeAction, RemoveFeedbackEdgeAction } from './dangling-edge-feedback';
@@ -45,8 +46,8 @@ export class EdgeCreationTool extends BaseCreationTool<TriggerEdgeCreationAction
     static ID = 'tool_create_edge';
 
     @inject(AnchorComputerRegistry) protected anchorRegistry: AnchorComputerRegistry;
-
     @inject(TYPES.ITypeHintProvider) protected typeHintProvider: ITypeHintProvider;
+    @optional() @inject(TYPES.Grid) protected grid: Grid;
 
     protected isTriggerAction = TriggerEdgeCreationAction.is;
 
@@ -59,7 +60,13 @@ export class EdgeCreationTool extends BaseCreationTool<TriggerEdgeCreationAction
         const toolFeedback = this.createFeedbackEmitter()
             .add(cursorFeedbackAction(CursorCSS.OPERATION_NOT_ALLOWED), cursorFeedbackAction())
             .submit();
-        const creationListener = new EdgeCreationToolMouseListener(this.triggerAction, this.actionDispatcher, this.typeHintProvider, this);
+        const creationListener = new EdgeCreationToolMouseListener(
+            this.triggerAction,
+            this.actionDispatcher,
+            this.typeHintProvider,
+            this,
+            this.grid?.x / 2
+        );
         this.toDisposeOnDisable.push(
             mouseMovingFeedback,
             this.mouseTool.registerListener(mouseMovingFeedback),
@@ -70,7 +77,6 @@ export class EdgeCreationTool extends BaseCreationTool<TriggerEdgeCreationAction
     }
 }
 
-@injectable()
 export class EdgeCreationToolMouseListener extends DragAwareMouseListener {
     protected source?: string;
     protected target?: string;
@@ -85,9 +91,10 @@ export class EdgeCreationToolMouseListener extends DragAwareMouseListener {
         protected triggerAction: TriggerEdgeCreationAction,
         protected actionDispatcher: GLSPActionDispatcher,
         protected typeHintProvider: ITypeHintProvider,
-        protected tool: EdgeCreationTool
+        protected tool: EdgeCreationTool,
+        protected dragSensitivity?: number
     ) {
-        super();
+        super(dragSensitivity);
         this.proxyEdge = new GEdge();
         this.proxyEdge.type = triggerAction.elementTypeId;
         this.cursorFeedback = tool.createFeedbackEmitter();

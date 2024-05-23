@@ -23,7 +23,7 @@ import { SResizeHandleView } from './view';
 
 export const changeBoundsToolModule = new FeatureModule((bind, unbind, isBound, rebind) => {
     const context = { bind, unbind, isBound, rebind };
-    bindAsService(context, TYPES.IChangeBoundsManager, ChangeBoundsManager);
+    bind(ChangeBoundsManager).toSelf().inSingletonScope();
     bindAsService(context, TYPES.IDefaultTool, ChangeBoundsTool);
     configureCommand(context, ShowChangeBoundsToolResizeFeedbackCommand);
     configureCommand(context, HideChangeBoundsToolResizeFeedbackCommand);

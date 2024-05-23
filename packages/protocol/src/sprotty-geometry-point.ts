@@ -16,8 +16,10 @@
 /* eslint-disable @typescript-eslint/no-shadow */
 
 import { Point } from 'sprotty-protocol/lib/utils/geometry';
-import { AnyObject, Movement, Vector, hasNumberProp } from './utils';
+import { Movement } from './utils/geometry-movement';
+import { Vector } from './utils/geometry-vector';
 import { equalUpTo } from './utils/math-util';
+import { AnyObject, hasNumberProp } from './utils/type-util';
 
 declare module 'sprotty-protocol/lib/utils/geometry' {
     namespace Point {

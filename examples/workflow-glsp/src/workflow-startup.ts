@@ -15,14 +15,14 @@
  ********************************************************************************/
 
 import { GridManager, IDiagramStartup } from '@eclipse-glsp/client';
-import { MaybePromise, TYPES } from '@eclipse-glsp/sprotty';
+import { MaybePromise } from '@eclipse-glsp/sprotty';
 import { inject, injectable, optional } from 'inversify';
 
 @injectable()
 export class WorkflowStartup implements IDiagramStartup {
     rank = -1;
 
-    @inject(TYPES.IGridManager) @optional() protected gridManager?: GridManager;
+    @inject(GridManager) @optional() protected gridManager?: GridManager;
 
     preRequestModel(): MaybePromise<void> {
         this.gridManager?.setGridVisible(true);

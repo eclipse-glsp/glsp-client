@@ -15,7 +15,10 @@
  ********************************************************************************/
 /* eslint-disable @typescript-eslint/no-shadow */
 
-import { Bounds, Dimension, Point } from 'sprotty-protocol/lib/utils/geometry';
+import { Bounds } from 'sprotty-protocol/lib/utils/geometry';
+import { Dimension } from './sprotty-geometry-dimension';
+import { Point } from './sprotty-geometry-point';
+import { AnyObject, hasNumberProp } from './utils';
 
 declare module 'sprotty-protocol/lib/utils/geometry' {
     namespace Bounds {
@@ -23,6 +26,12 @@ declare module 'sprotty-protocol/lib/utils/geometry' {
          * The empty bounds with valid dimensions. It has x, y, width, and height set to 0.
          */
         const ZERO: Bounds;
+
+        /**
+         * Type guard to check if the given object is a bound.
+         * @param bounds the object to be checked
+         */
+        function is(bounds: any): bounds is Bounds;
 
         /**
          * Checks whether the inner bounds are compeletely encompassed by the outer bounds.
@@ -209,6 +218,21 @@ declare module 'sprotty-protocol/lib/utils/geometry' {
         function from(topLeft: Point, bottomRight: Point): Bounds;
 
         /**
+         * Creates a new point from the given bounds by removing the `width` and `height` of the bounds.
+         * This is the same as the top-left point but this method may carry more semantics.
+         * @param bounds the bounds
+         * @returns new point
+         */
+        function position(bounds: Bounds): Point;
+
+        /**
+         * Creates a new dimension from the given bounds by removing the `x` and `y` of the bounds.
+         * @param bounds the bounds
+         * @returns new dimension
+         */
+        function dimension(bounds: Bounds): Dimension;
+
+        /**
          * Sorts the given bounds by the given rank function.
          * @param rankFunc the rank function
          * @param bounds the bounds to sort
@@ -240,6 +264,13 @@ declare module 'sprotty-protocol/lib/utils/geometry' {
     width: 0,
     height: 0
 });
+
+Bounds.is = (bounds: any): bounds is Bounds =>
+    AnyObject.is(bounds) &&
+    hasNumberProp(bounds, 'x') &&
+    hasNumberProp(bounds, 'y') &&
+    hasNumberProp(bounds, 'width') &&
+    hasNumberProp(bounds, 'height');
 
 Bounds.encompasses = (outer: Bounds, inner: Bounds): boolean =>
     Bounds.includes(outer, Bounds.topLeft(inner)) && Bounds.includes(outer, Bounds.bottomRight(inner));
@@ -310,6 +341,10 @@ Bounds.from = (topLeft: Point, bottomRight: Point): Bounds => ({
     width: bottomRight.x - topLeft.x,
     height: bottomRight.y - topLeft.y
 });
+
+Bounds.position = Bounds.topLeft;
+
+Bounds.dimension = (bounds: Bounds): Dimension => ({ width: bounds.width, height: bounds.height });
 
 Bounds.move = Bounds.translate;
 

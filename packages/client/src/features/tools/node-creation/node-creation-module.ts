@@ -13,15 +13,27 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { FeatureModule, TYPES, TriggerNodeCreationAction, bindAsService, configureActionHandler } from '@eclipse-glsp/sprotty';
+import {
+    FeatureModule,
+    TYPES,
+    TriggerNodeCreationAction,
+    bindAsService,
+    configureActionHandler,
+    configureModelElement
+} from '@eclipse-glsp/sprotty';
 import { elementTemplateModule } from '../../element-template/element-template-module';
+import { ContainerManager } from './container-manager';
+import { InsertIndicator } from './insert-indicator';
 import { NodeCreationTool } from './node-creation-tool';
+import { InsertIndicatorView } from './node-creation-views';
 
 export const nodeCreationToolModule = new FeatureModule(
     (bind, unbind, isBound, rebind) => {
         const context = { bind, unbind, isBound, rebind };
+        bind(ContainerManager).toSelf().inSingletonScope();
         bindAsService(context, TYPES.ITool, NodeCreationTool);
         configureActionHandler(context, TriggerNodeCreationAction.KIND, NodeCreationTool);
+        configureModelElement(context, InsertIndicator.TYPE, InsertIndicator, InsertIndicatorView);
     },
     { requires: elementTemplateModule }
 );

@@ -17,10 +17,14 @@
 import { Action, Disposable, arrayOf } from '@eclipse-glsp/sprotty';
 import { IFeedbackActionDispatcher, IFeedbackEmitter, MaybeActions } from './feedback-action-dispatcher';
 
+// counter for internal id, mainly useful for debugging
+let idCounter = 0;
+
 /**
  * A helper object to collect, submit and undo feedback consisting of several actions.
  */
 export class FeedbackEmitter implements IFeedbackEmitter, Disposable {
+    protected id = idCounter++;
     protected feedbackActions: (Action | undefined)[] = [];
     protected cleanupActions: MaybeActions[] = [];
     protected deregistration?: Disposable;
@@ -47,6 +51,17 @@ export class FeedbackEmitter implements IFeedbackEmitter, Disposable {
     }
 
     /**
+     * Merges the feedback of another emitter into this emitter.
+     *
+     * @param feedback feedback to merge
+     */
+    merge(feedback: FeedbackEmitter): this {
+        this.feedbackActions.push(...feedback.feedbackActions);
+        this.cleanupActions.push(...feedback.cleanupActions);
+        return this;
+    }
+
+    /**
      * Removes the action as part of this emitters feedback. If the action cannot be found, this is a no-op.
      * Please note that this also removed the corresponding cleanup action.
      * If the feedback has already been submitted as part of the {@link submit} method, the whole feedback must be de-registered
@@ -56,9 +71,9 @@ export class FeedbackEmitter implements IFeedbackEmitter, Disposable {
      */
     remove(action: Action): this {
         const idx = this.feedbackActions.indexOf(action);
-        if (idx) {
-            delete this.feedbackActions[idx];
-            delete this.cleanupActions[idx];
+        if (idx >= 0) {
+            this.feedbackActions.splice(idx, 1);
+            this.cleanupActions.splice(idx, 1);
         }
         return this;
     }
@@ -79,8 +94,12 @@ export class FeedbackEmitter implements IFeedbackEmitter, Disposable {
         // with 'arrayOf' we skip undefined entries that are created for non-cleanup actions or cleanup-only actions
         const actions = arrayOf(...this.feedbackActions);
         const cleanupActions = arrayOf(...this.cleanupActions);
-        this.deregistration = this.feedbackDispatcher.registerFeedback(this, actions, () => cleanupActions.flatMap(MaybeActions.asArray));
-        this.clear();
+        if (actions.length > 0 || cleanupActions.length > 0) {
+            this.deregistration = this.feedbackDispatcher.registerFeedback(this, actions, () =>
+                cleanupActions.flatMap(MaybeActions.asArray)
+            );
+            this.clear();
+        }
         return this;
     }
 

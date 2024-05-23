@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { Point } from 'sprotty-protocol/lib/utils/geometry';
+import { Point } from '../sprotty-geometry-point';
 import { Direction } from './geometry-util';
 import { Vector } from './geometry-vector';
 import { AnyObject, hasObjectProp } from './type-util';
