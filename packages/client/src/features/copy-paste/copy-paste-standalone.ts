@@ -35,15 +35,12 @@ export class CopyPasteStartup implements IDiagramStartup, Disposable {
         }
         const copyListener = (e: ClipboardEvent): void => {
             this.copyPasteHandler?.handleCopy(e);
-            e.preventDefault();
         };
         const cutListener = (e: ClipboardEvent): void => {
             this.copyPasteHandler?.handleCut(e);
-            e.preventDefault();
         };
         const pasteListener = (e: ClipboardEvent): void => {
             this.copyPasteHandler?.handlePaste(e);
-            e.preventDefault();
         };
         window.addEventListener('copy', copyListener);
         window.addEventListener('cut', cutListener);
