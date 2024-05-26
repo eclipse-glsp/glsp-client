@@ -26,7 +26,6 @@ import {
     SetContextActions,
     SetModelAction,
     SetUIExtensionVisibilityAction,
-    TYPES,
     TriggerNodeCreationAction,
     UpdateModelAction,
     codiconCSSClasses,
@@ -78,11 +77,11 @@ export class ToolPalette extends AbstractUIExtension implements IActionHandler, 
     @inject(FocusTracker)
     protected focusTracker: FocusTracker;
 
-    @inject(TYPES.IGridManager)
+    @inject(GridManager)
     @optional()
     protected gridManager?: GridManager;
 
-    @inject(TYPES.IDebugManager)
+    @inject(DebugManager)
     @optional()
     protected debugManager?: DebugManager;
 

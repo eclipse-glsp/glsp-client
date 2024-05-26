@@ -13,5 +13,8 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+export * from './container-manager';
+export * from './insert-indicator';
 export * from './node-creation-module';
 export * from './node-creation-tool';
+export * from './node-creation-views';

@@ -16,13 +16,14 @@
 import {
     Action,
     CreateNodeOperation,
+    Disposable,
+    DisposableCollection,
     GModelElement,
-    GNode,
     GhostElement,
+    IModelFactory,
     Point,
     TYPES,
     TriggerNodeCreationAction,
-    findParentByFeature,
     isCtrlOrCmd,
     isMoveable
 } from '@eclipse-glsp/sprotty';
@@ -32,14 +33,14 @@ import { FeedbackEmitter } from '../../../base';
 import { DragAwareMouseListener } from '../../../base/drag-aware-mouse-listener';
 import { CSS_GHOST_ELEMENT, CSS_HIDDEN, CursorCSS, cursorFeedbackAction } from '../../../base/feedback/css-feedback';
 import { EnableDefaultToolsAction } from '../../../base/tool-manager/tool';
-import { MoveableElement, isValidMove } from '../../../utils';
-import { getAbsolutePosition } from '../../../utils/viewpoint-util';
-import { RemoveTemplateElementsAction } from '../../element-template';
+import { MoveableElement } from '../../../utils/gmodel-util';
 import { AddTemplateElementsAction, getTemplateElementId } from '../../element-template/add-template-element';
 import { MouseTrackingElementPositionListener, PositioningTool } from '../../element-template/mouse-tracking-element-position-listener';
-import { Containable, isContainable } from '../../hints/model';
+import { RemoveTemplateElementsAction } from '../../element-template/remove-template-element';
 import { BaseCreationTool } from '../base-tools';
-import { ChangeBoundsManager } from '../change-bounds';
+import { ChangeBoundsManager, TrackedMove } from '../change-bounds';
+import { ContainerManager, TrackedInsert } from './container-manager';
+import { InsertIndicator } from './insert-indicator';
 
 @injectable()
 export class NodeCreationTool extends BaseCreationTool<TriggerNodeCreationAction> implements PositioningTool {
@@ -47,52 +48,80 @@ export class NodeCreationTool extends BaseCreationTool<TriggerNodeCreationAction
 
     protected isTriggerAction = TriggerNodeCreationAction.is;
 
-    @inject(TYPES.IChangeBoundsManager) readonly changeBoundsManager: ChangeBoundsManager;
+    @inject(ChangeBoundsManager) readonly changeBoundsManager: ChangeBoundsManager;
+    @inject(ContainerManager) readonly containerManager: ContainerManager;
+    @inject(TYPES.IModelFactory) modelFactory: IModelFactory;
 
     get id(): string {
         return NodeCreationTool.ID;
     }
 
     doEnable(): void {
-        let trackingListener: MouseTrackingElementPositionListener | undefined;
-        const ghostElement = this.triggerAction.ghostElement;
-        const ghostElementId = ghostElement ? getTemplateElementId(ghostElement.template) : undefined;
-        if (ghostElement && ghostElementId) {
-            trackingListener = new MouseTrackingElementPositionListener(ghostElementId, this, 'middle');
-            this.toDisposeOnDisable.push(trackingListener, this.mouseTool.registerListener(trackingListener));
-        }
+        const ghostElement = this.triggerAction.ghostElement ?? { template: this.modelFactory.createSchema(this.createInsertIndicator()) };
+        this.toDisposeOnDisable.push(this.createGhostElementTracker(ghostElement, 'middle'));
+        this.toDisposeOnDisable.push(this.createNodeCreationListener(ghostElement));
+        this.toDisposeOnDisable.push(this.createNodeCreationCursorFeedback().submit());
+    }
 
-        const toolListener = new NodeCreationToolMouseListener(this.triggerAction, this, ghostElement);
-        this.toDisposeOnDisable.push(
-            toolListener,
-            this.mouseTool.registerListener(toolListener),
-            this.createFeedbackEmitter().add(cursorFeedbackAction(CursorCSS.NODE_CREATION), cursorFeedbackAction()).submit()
+    protected createInsertIndicator(): GModelElement {
+        return new InsertIndicator();
+    }
+
+    protected createGhostElementTracker(ghostElement: GhostElement, position: 'top-left' | 'middle'): Disposable {
+        const trackingListener = new NodeInsertTrackingListener(
+            getTemplateElementId(ghostElement.template),
+            this.triggerAction.elementTypeId,
+            this,
+            position
         );
+        return new DisposableCollection(trackingListener, this.mouseTool.registerListener(trackingListener));
+    }
+
+    protected createNodeCreationListener(ghostElement: GhostElement): Disposable {
+        const toolListener = new NodeCreationToolMouseListener(this.triggerAction, this, ghostElement);
+        return new DisposableCollection(toolListener, this.mouseTool.registerListener(toolListener));
+    }
+
+    protected createNodeCreationCursorFeedback(): FeedbackEmitter {
+        return this.createFeedbackEmitter().add(cursorFeedbackAction(CursorCSS.NODE_CREATION), cursorFeedbackAction());
+    }
+}
+
+export class NodeInsertTrackingListener extends MouseTrackingElementPositionListener {
+    constructor(
+        elementId: string,
+        protected elementTypeId: string,
+        protected override tool: NodeCreationTool,
+        cursorPosition: 'top-left' | 'middle' = 'top-left'
+    ) {
+        super(elementId, tool, cursorPosition);
+    }
+
+    protected override addMoveFeedback(move: TrackedMove, ctx: GModelElement, event: MouseEvent): void {
+        super.addMoveFeedback(move, ctx, event);
+
+        const element = move.elementMoves[0].element;
+        const location = move.elementMoves[0].toPosition;
+        const insert = this.tool.containerManager.insert(element, location, this.elementTypeId, { evt: event });
+        this.tool.containerManager.addInsertFeedback(this.moveGhostFeedback, insert, ctx, event);
     }
 }
 
 export class NodeCreationToolMouseListener extends DragAwareMouseListener {
-    protected container?: GModelElement & Containable;
     protected cursorFeedback: FeedbackEmitter;
     protected ghostElementFeedback: FeedbackEmitter;
-    protected ghostElementId?: string;
+    protected ghostElementId: string;
 
     constructor(
         protected triggerAction: TriggerNodeCreationAction,
         protected tool: NodeCreationTool,
-        protected ghostElement?: GhostElement
+        protected ghostElement: GhostElement
     ) {
         super();
         this.cursorFeedback = tool.createFeedbackEmitter();
         this.ghostElementFeedback = tool.createFeedbackEmitter();
-        if (ghostElement) {
-            this.ghostElementId = getTemplateElementId(ghostElement.template);
-        }
-        this.createGhostElement();
-    }
-
-    protected creationAllowed(elementTypeId: string): boolean | undefined {
-        return this.container && this.container.isContainableElement(elementTypeId);
+        this.ghostElementId = getTemplateElementId(ghostElement.template);
+        this.createGhostElement(ghostElement);
     }
 
     get elementTypeId(): string {
@@ -101,78 +130,57 @@ export class NodeCreationToolMouseListener extends DragAwareMouseListener {
 
     override nonDraggingMouseUp(target: GModelElement, event: MouseEvent): Action[] {
         const result: Action[] = [];
-        if (this.container === undefined) {
-            this.mouseOver(target, event);
+
+        const insert = this.getTrackedInsert(target, event);
+        if (insert.valid) {
+            result.push(
+                CreateNodeOperation.create(this.elementTypeId, {
+                    location: insert.location,
+                    containerId: insert.container?.id,
+                    args: this.triggerAction.args
+                })
+            );
+        }
+        if (isCtrlOrCmd(event)) {
+            // we continue in stamp mode so we keep the ghost but dispose everything else
+            this.disposeAllButGhostElement();
+            return result;
         }
 
-        if (this.creationAllowed(this.elementTypeId)) {
-            const location = this.getValidInsertPosition(target, event);
-            if (location) {
-                const containerId = this.container?.id;
-                result.push(CreateNodeOperation.create(this.elementTypeId, { location, containerId, args: this.triggerAction.args }));
-            }
-            if (!isCtrlOrCmd(event)) {
-                // we no longer want to show the ghost element AFTER the next update
-                this.ghostElementFeedback.discard();
-                result.push(EnableDefaultToolsAction.create());
-            } else {
-                // we continue in stamp mode so we keep the ghost but dispose everything else
-                this.disposeAllButGhostElement();
-            }
+        if (insert.valid) {
+            // we keep the ghost element until the next update to avoid flickering during insert
+            this.ghostElementFeedback.discard();
+        } else {
+            this.dispose();
         }
+        result.push(EnableDefaultToolsAction.create());
         return result;
     }
 
-    protected createGhostElement(): void {
-        if (!this.ghostElement) {
-            return;
-        }
-        const templates = [this.ghostElement.template];
-        this.ghostElementFeedback
-            .add(
-                AddTemplateElementsAction.create({ templates, addClasses: [CSS_HIDDEN, CSS_GHOST_ELEMENT] }),
-                RemoveTemplateElementsAction.create({ templates })
-            )
-            .submit();
+    protected createGhostElement(ghostElement: GhostElement): string {
+        const templates = [ghostElement.template];
+        this.ghostElementFeedback.add(
+            AddTemplateElementsAction.create({ templates, addClasses: [CSS_HIDDEN, CSS_GHOST_ELEMENT] }),
+            RemoveTemplateElementsAction.create({ templates })
+        );
+        this.ghostElementFeedback.submit();
+        return getTemplateElementId(ghostElement.template);
     }
 
-    protected getGhostElement(): MoveableElement | undefined {
-        if (!this.ghostElementId) {
-            return undefined;
-        }
-        const ghostElement = this.container?.index.getById(this.ghostElementId);
+    protected getGhostElement(ctx: GModelElement, event: MouseEvent): MoveableElement | undefined {
+        const ghostElement = ctx.index.getById(this.ghostElementId);
         return ghostElement && isMoveable(ghostElement) ? ghostElement : undefined;
     }
 
-    protected getValidInsertPosition(target: GModelElement, event: MouseEvent): Point | undefined {
-        const ghostElement = this.getGhostElement();
-        if (ghostElement) {
-            return isValidMove(ghostElement, ghostElement.position, this.tool.changeBoundsManager.movementRestrictor)
-                ? ghostElement.position
-                : undefined;
+    protected getTrackedInsert(ctx: GModelElement, event: MouseEvent): TrackedInsert {
+        const ghostElement = this.getGhostElement(ctx, event);
+        if (!ghostElement) {
+            return { elementTypeId: this.elementTypeId, location: Point.ORIGIN, valid: false };
         }
-        const location = getAbsolutePosition(target, event);
-
-        // Create a 0-bounds proxy element for snapping
-        const elementProxy = new GNode();
-        elementProxy.size = { width: 0, height: 0 };
-        return this.tool.changeBoundsManager.snapPosition(elementProxy, location);
-    }
-
-    override mouseOver(target: GModelElement, event: MouseEvent): Action[] {
-        const currentContainer = findParentByFeature(target, isContainable);
-        if (!this.container || currentContainer !== this.container) {
-            this.container = currentContainer;
-            const feedback = this.creationAllowed(this.elementTypeId)
-                ? cursorFeedbackAction(CursorCSS.NODE_CREATION)
-                : cursorFeedbackAction(CursorCSS.OPERATION_NOT_ALLOWED);
-            this.cursorFeedback.add(feedback).submit();
-        }
-        return [];
+        return this.tool.containerManager.insert(ghostElement, ghostElement.position, this.elementTypeId, { evt: event });
     }
 
     protected disposeAllButGhostElement(): void {
-        this.cursorFeedback.dispose();
         super.dispose();
     }
 

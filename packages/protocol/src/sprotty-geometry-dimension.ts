@@ -16,6 +16,7 @@
 /* eslint-disable @typescript-eslint/no-shadow */
 
 import { Dimension, Point } from 'sprotty-protocol/lib/utils/geometry';
+import { AnyObject, hasNumberProp } from './utils';
 import { equalUpTo } from './utils/math-util';
 
 declare module 'sprotty-protocol/lib/utils/geometry' {
@@ -26,6 +27,12 @@ declare module 'sprotty-protocol/lib/utils/geometry' {
         const ZERO: Dimension;
 
         /**
+         * Type guard to check if the given object is a bound.
+         * @param dimension the object to be checked
+         */
+        function is(dimension: any): dimension is Dimension;
+
+        /**
          * Applies the given function to the `width` and `height` of the given dimensional object to create a new dimensional object.
          *
          * @param dimension source dimension
@@ -33,6 +40,7 @@ declare module 'sprotty-protocol/lib/utils/geometry' {
          * @returns new dimension
          */
         function map<T extends Dimension>(dimension: T, callbackfn: (value: number, key: keyof Dimension) => number): T;
+
         /**
          * Returns the center point of the given dimension.
          *
@@ -104,6 +112,8 @@ declare module 'sprotty-protocol/lib/utils/geometry' {
     height: 0
 });
 
+Dimension.is = (dimension: any): dimension is Dimension =>
+    AnyObject.is(dimension) && hasNumberProp(dimension, 'width') && hasNumberProp(dimension, 'height');
 Dimension.center = (d: Dimension): Point => ({ x: d.width * 0.5, y: d.height * 0.5 });
 Dimension.add = (d: Dimension, a: Dimension): Dimension => ({ width: d.width + a.width, height: d.height + a.height });
 Dimension.subtract = (d: Dimension, a: Dimension): Dimension => ({ width: d.width - a.width, height: d.height - a.height });

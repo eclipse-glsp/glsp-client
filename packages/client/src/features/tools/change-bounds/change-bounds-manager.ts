@@ -28,19 +28,32 @@ import {
     isLocateable
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable, optional } from 'inversify';
-import { FeedbackEmitter } from '../../../base';
+import {
+    CursorCSS,
+    FeedbackEmitter,
+    ModifyCSSFeedbackAction,
+    applyCssClasses,
+    cursorFeedbackAction,
+    deleteCssClasses,
+    toggleCssClasses
+} from '../../../base';
 import { isValidMove, minDimensions } from '../../../utils';
 import { LayoutAware } from '../../bounds/layout-data';
 import {
     IMovementRestrictor,
     ResizeHandleLocation,
+    SResizeHandle,
     movementRestrictionFeedback,
     removeMovementRestrictionFeedback
 } from '../../change-bounds';
+import { GridManager } from '../../grid';
 import { IHelperLineManager } from '../../helper-lines';
-import { ChangeBoundsTracker, TrackedElementMove } from './change-bounds-tracker';
+import { InsertIndicator } from '../node-creation/insert-indicator';
+import { ChangeBoundsTracker, TrackedElementMove, TrackedElementResize, TrackedMove, TrackedResize } from './change-bounds-tracker';
 
 export const CSS_RESIZE_MODE = 'resize-mode';
+export const CSS_RESTRICTED_RESIZE = 'resize-not-allowed';
+export const CSS_ACTIVE_HANDLE = 'active';
 
 @injectable()
 export class ChangeBoundsManager {
@@ -48,7 +61,8 @@ export class ChangeBoundsManager {
         @inject(MousePositionTracker) readonly positionTracker: MousePositionTracker,
         @optional() @inject(TYPES.IMovementRestrictor) readonly movementRestrictor?: IMovementRestrictor,
         @optional() @inject(TYPES.ISnapper) readonly snapper?: ISnapper,
-        @optional() @inject(TYPES.IHelperLineManager) readonly helperLineManager?: IHelperLineManager
+        @optional() @inject(TYPES.IHelperLineManager) readonly helperLineManager?: IHelperLineManager,
+        @optional() @inject(GridManager) protected gridManager?: GridManager
     ) {}
 
     unsnapModifier(): KeyboardModifier | undefined {
@@ -102,7 +116,7 @@ export class ChangeBoundsManager {
     }
 
     restrictMovement(element: GModelElement, movement: Movement): Movement {
-        const minimumMovement = this.helperLineManager?.getMinimumMoveVector(element, true, movement.direction);
+        const minimumMovement = this.getMinimumMovement(element, movement);
         if (!minimumMovement) {
             return movement;
         }
@@ -116,23 +130,67 @@ export class ChangeBoundsManager {
         return Point.move(movement.from, targetPosition);
     }
 
-    addRestrictionFeedback(feedback: FeedbackEmitter, move: TrackedElementMove): FeedbackEmitter {
-        if (this.movementRestrictor) {
+    protected getMinimumMovement(element: GModelElement, movement: Movement): Vector | undefined {
+        return element instanceof InsertIndicator && this.gridManager
+            ? this.gridManager.grid
+            : this.helperLineManager?.getMinimumMoveVector(element, true, movement.direction);
+    }
+
+    addMoveFeedback(feedback: FeedbackEmitter, trackedMove: TrackedMove, ctx?: GModelElement, event?: MouseEvent): FeedbackEmitter {
+        // cursor feedback on graph
+        feedback.add(cursorFeedbackAction(CursorCSS.MOVE), cursorFeedbackAction(CursorCSS.DEFAULT));
+
+        // restriction feedback on each element
+        trackedMove.elementMoves.forEach(move => this.addMoveRestrictionFeedback(feedback, move, ctx, event));
+
+        return feedback;
+    }
+
+    addResizeFeedback(feedback: FeedbackEmitter, resize: TrackedResize, ctx?: GModelElement, event?: MouseEvent): FeedbackEmitter {
+        // graph feedback
+        feedback.add(
+            ModifyCSSFeedbackAction.create({ add: [CSS_RESIZE_MODE] }),
+            ModifyCSSFeedbackAction.create({ remove: [CSS_RESIZE_MODE] })
+        );
+
+        // cursor feedback on graph
+        const cursorClass = SResizeHandle.getCursorCss(resize.handleMove.element);
+        feedback.add(cursorFeedbackAction(cursorClass), cursorFeedbackAction(CursorCSS.DEFAULT));
+
+        // handle feedback
+        const handle = resize.handleMove.element;
+        feedback.add(applyCssClasses(handle, CSS_ACTIVE_HANDLE), deleteCssClasses(handle, CSS_ACTIVE_HANDLE));
+        feedback.add(toggleCssClasses(handle, !resize.valid.size, CSS_RESTRICTED_RESIZE), deleteCssClasses(handle, CSS_RESTRICTED_RESIZE));
+
+        // restriction feedback on each element
+        resize.elementResizes.forEach(elementResize => {
+            this.addMoveRestrictionFeedback(feedback, elementResize, ctx, event);
             feedback.add(
-                movementRestrictionFeedback(move.element, this.movementRestrictor!, move.valid),
-                removeMovementRestrictionFeedback(move.element, this.movementRestrictor!)
+                toggleCssClasses(elementResize.element, !elementResize.valid.size, CSS_RESTRICTED_RESIZE),
+                deleteCssClasses(elementResize.element, CSS_RESTRICTED_RESIZE)
+            );
+        });
+        return feedback;
+    }
+
+    addMoveRestrictionFeedback(
+        feedback: FeedbackEmitter,
+        change: TrackedElementResize | TrackedElementMove,
+        ctx?: GModelElement,
+        event?: MouseEvent
+    ): FeedbackEmitter {
+        if (this.movementRestrictor) {
+            const valid = TrackedElementMove.is(change) ? change.valid : change.valid.move;
+            feedback.add(
+                movementRestrictionFeedback(change.element, this.movementRestrictor, valid),
+                removeMovementRestrictionFeedback(change.element, this.movementRestrictor)
             );
         }
         return feedback;
     }
 
     defaultResizeLocations(): ResizeHandleLocation[] {
-        return [
-            ResizeHandleLocation.TopLeft,
-            ResizeHandleLocation.TopRight,
-            ResizeHandleLocation.BottomRight,
-            ResizeHandleLocation.BottomLeft
-        ];
+        return ResizeHandleLocation.CORNERS;
     }
 
     useSymmetricResize(arg: MouseEvent | KeyboardEvent | any): boolean {

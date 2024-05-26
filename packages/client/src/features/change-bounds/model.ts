@@ -15,6 +15,7 @@
  ********************************************************************************/
 import {
     Bounds,
+    Direction,
     GChildElement,
     GModelElement,
     GParentElement,
@@ -47,6 +48,20 @@ export enum ResizeHandleLocation {
 }
 
 export namespace ResizeHandleLocation {
+    export const CORNERS: ResizeHandleLocation[] = [
+        ResizeHandleLocation.TopLeft,
+        ResizeHandleLocation.TopRight,
+        ResizeHandleLocation.BottomRight,
+        ResizeHandleLocation.BottomLeft
+    ];
+    export const CROSS: ResizeHandleLocation[] = [
+        ResizeHandleLocation.Top,
+        ResizeHandleLocation.Right,
+        ResizeHandleLocation.Bottom,
+        ResizeHandleLocation.Left
+    ];
+    export const ALL = Object.values(ResizeHandleLocation).filter(value => typeof value !== 'function') as ResizeHandleLocation[];
+
     export function opposite(location: ResizeHandleLocation): ResizeHandleLocation {
         switch (location) {
             case ResizeHandleLocation.TopLeft:
@@ -65,6 +80,27 @@ export namespace ResizeHandleLocation {
                 return ResizeHandleLocation.TopRight;
             case ResizeHandleLocation.Left:
                 return ResizeHandleLocation.Right;
+        }
+    }
+
+    export function direction(location: ResizeHandleLocation): Direction[] {
+        switch (location) {
+            case ResizeHandleLocation.TopLeft:
+                return [Direction.Up, Direction.Left];
+            case ResizeHandleLocation.Top:
+                return [Direction.Up];
+            case ResizeHandleLocation.TopRight:
+                return [Direction.Up, Direction.Right];
+            case ResizeHandleLocation.Right:
+                return [Direction.Right];
+            case ResizeHandleLocation.BottomRight:
+                return [Direction.Down, Direction.Right];
+            case ResizeHandleLocation.Bottom:
+                return [Direction.Down];
+            case ResizeHandleLocation.BottomLeft:
+                return [Direction.Down, Direction.Left];
+            case ResizeHandleLocation.Left:
+                return [Direction.Left];
         }
     }
 }
@@ -182,19 +218,8 @@ export class SResizeHandle extends GChildElement implements Hoverable {
     }
 }
 
-export function addResizeHandles(
-    element: ResizableModelElement,
-    locations: ResizeHandleLocation[] = [
-        ResizeHandleLocation.TopLeft,
-        ResizeHandleLocation.Top,
-        ResizeHandleLocation.BottomLeft,
-        ResizeHandleLocation.BottomRight
-    ]
-): void {
-    for (const location of Object.values(ResizeHandleLocation)) {
-        if (typeof location === 'function') {
-            continue;
-        }
+export function addResizeHandles(element: ResizableModelElement, locations: ResizeHandleLocation[] = ResizeHandleLocation.CORNERS): void {
+    for (const location of ResizeHandleLocation.ALL) {
         const existing = element.children.find(child => child instanceof SResizeHandle && child.location === location);
         if (locations.includes(location) && !existing) {
             // add missing handle

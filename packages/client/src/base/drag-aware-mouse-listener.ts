@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, Disposable, GModelElement, MouseListener } from '@eclipse-glsp/sprotty';
+import { Action, Disposable, GModelElement, MouseListener, Point } from '@eclipse-glsp/sprotty';
 
 /**
  * A mouse listener that is aware of prior mouse dragging.
@@ -27,13 +27,28 @@ export class DragAwareMouseListener extends MouseListener implements Disposable 
     protected _isMouseDown = false;
     protected _isMouseDrag = false;
 
+    protected _dragStart?: Point;
+    protected _dragSensitivity = 0;
+
+    constructor(dragSensitivity = 0) {
+        super();
+        this._dragSensitivity = dragSensitivity;
+    }
+
     override mouseDown(target: GModelElement, event: MouseEvent): Action[] {
         this._isMouseDown = true;
+        this._dragStart = this._dragSensitivity > 0 ? { x: event.clientX, y: event.clientY } : undefined;
         return [];
     }
 
     override mouseMove(target: GModelElement, event: MouseEvent): Action[] {
         if (this._isMouseDown) {
+            if (this._dragStart) {
+                const dragDistance = Point.maxDistance(this._dragStart, { x: event.clientX, y: event.clientY });
+                if (dragDistance < this._dragSensitivity) {
+                    return this.nonDraggingMouseMove(target, event);
+                }
+            }
             this._isMouseDrag = true;
             return this.draggingMouseMove(target, event);
         }
@@ -50,6 +65,7 @@ export class DragAwareMouseListener extends MouseListener implements Disposable 
 
     override mouseUp(element: GModelElement, event: MouseEvent): Action[] {
         this._isMouseDown = false;
+        this._dragStart = undefined;
         if (this._isMouseDrag) {
             this._isMouseDrag = false;
             return this.draggingMouseUp(element, event);

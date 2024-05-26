@@ -16,4 +16,5 @@
 export * from './action-override';
 export * from './feature-modules';
 export * from './re-exports';
+export * from './svg-views-override';
 export * from './types';

@@ -24,7 +24,12 @@ export interface Containable {
     isContainableElement(input: GModelElement | GModelElementSchema | string): boolean;
 }
 
-export function isContainable(element: GModelElement): element is GModelElement & Containable {
+/**
+ * A union type for all elements that can contain other elements.
+ */
+export type ContainerElement = GModelElement & Containable;
+
+export function isContainable(element: GModelElement): element is ContainerElement {
     return element.hasFeature(containerFeature);
 }
 

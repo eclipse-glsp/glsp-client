@@ -17,6 +17,24 @@ import { expect } from 'chai';
 import { Dimension } from './sprotty-geometry-dimension';
 
 describe('Dimension', () => {
+    describe('ZERO', () => {
+        it('should have width and height set to 0', () => {
+            expect(Dimension.ZERO).to.deep.equal({ width: 0, height: 0 });
+        });
+    });
+
+    describe('is', () => {
+        it('should return true if the given object is a dimension', () => {
+            const dimension: Dimension = { width: 10, height: 20 };
+            expect(Dimension.is(dimension)).to.be.true;
+        });
+
+        it('should return false if the given object is not a dimension', () => {
+            const dimension = { height: 20 };
+            expect(Dimension.is(dimension)).to.be.false;
+        });
+    });
+
     describe('map', () => {
         it('should apply the given function to width and height', () => {
             const dimension: Dimension = { width: 10, height: 20 };

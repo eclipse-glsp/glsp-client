@@ -292,7 +292,7 @@ export {
     RectangularPort
 } from 'sprotty/lib/lib/model';
 export * from 'sprotty/lib/lib/modules';
-export * from 'sprotty/lib/lib/svg-views';
+export { EmptyGroupView, RectangularNodeView, SvgViewportView } from 'sprotty/lib/lib/svg-views';
 
 // ------------------ Model Source ------------------
 export * from 'sprotty/lib/model-source/commit-model';

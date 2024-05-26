@@ -14,28 +14,30 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import {
+    DiamondNode,
+    EditableLabel,
+    GChildElement,
+    GEdge,
+    GModelElement,
+    GShapeElement,
+    LayoutContainer,
+    Nameable,
+    RectangularNode,
+    ResizableModelElement,
+    ResizeHandleLocation,
+    WithEditableLabel,
     boundsFeature,
     connectableFeature,
     deletableFeature,
-    DiamondNode,
-    EditableLabel,
     fadeFeature,
-    GEdge,
     hoverFeedbackFeature,
     isEditableLabel,
-    layoutableChildFeature,
-    LayoutContainer,
     layoutContainerFeature,
+    layoutableChildFeature,
     moveFeature,
-    Nameable,
     nameFeature,
     popupFeature,
-    RectangularNode,
-    GChildElement,
     selectFeature,
-    GModelElement,
-    GShapeElement,
-    WithEditableLabel,
     withEditLabelFeature
 } from '@eclipse-glsp/client';
 
@@ -79,7 +81,7 @@ export class WeightedEdge extends GEdge {
     probability?: string;
 }
 
-export class ActivityNode extends DiamondNode {
+export class ControlNode extends DiamondNode implements ResizableModelElement {
     nodeType: string = ActivityNode.Type.UNDEFINED;
     override size = {
         width: 32,
@@ -87,6 +89,12 @@ export class ActivityNode extends DiamondNode {
     };
     override strokeWidth = 1;
 }
+
+export class BranchingNode extends ControlNode {
+    resizeLocations = ResizeHandleLocation.CROSS;
+}
+
+export class SynchronizationNode extends ControlNode {}
 
 export namespace ActivityNode {
     export namespace Type {

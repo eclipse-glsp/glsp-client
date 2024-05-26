@@ -17,16 +17,12 @@
 import { Action, Dimension, GModelElement, MoveAction, Point, isBoundsAware, isMoveable } from '@eclipse-glsp/sprotty';
 import { DragAwareMouseListener } from '../../base/drag-aware-mouse-listener';
 import { CSS_HIDDEN, ModifyCSSFeedbackAction } from '../../base/feedback/css-feedback';
-import { FeedbackEmitter } from '../../base/feedback/feeback-emitter';
+import { FeedbackEmitter } from '../../base/feedback/feedback-emitter';
 import { MoveableElement, getAbsolutePosition } from '../../utils';
-import {
-    CSS_RESIZE_MODE,
-    ChangeBoundsManager,
-    ChangeBoundsTracker,
-    FeedbackAwareTool,
-    MoveFinishedEventAction,
-    TrackedElementMove
-} from '../tools';
+import { FeedbackAwareTool } from '../tools/base-tools';
+import { ChangeBoundsManager } from '../tools/change-bounds/change-bounds-manager';
+import { MoveFinishedEventAction } from '../tools/change-bounds/change-bounds-tool-feedback';
+import { ChangeBoundsTracker, TrackedMove } from '../tools/change-bounds/change-bounds-tracker';
 
 export interface PositioningTool extends FeedbackAwareTool {
     readonly changeBoundsManager: ChangeBoundsManager;
@@ -51,16 +47,16 @@ export class MouseTrackingElementPositionListener extends DragAwareMouseListener
         return !element || !isMoveable(element) ? undefined : element;
     }
 
-    override mouseMove(target: GModelElement, event: MouseEvent): Action[] {
-        super.mouseMove(target, event);
-        const element = this.getTrackedElement(target, event);
+    override mouseMove(ctx: GModelElement, event: MouseEvent): Action[] {
+        super.mouseMove(ctx, event);
+        const element = this.getTrackedElement(ctx, event);
         if (!element) {
             return [];
         }
         if (!this.tracker.isTracking()) {
-            this.initialize(element, target, event);
+            this.initialize(element, ctx, event);
         }
-        const move = this.tracker.moveElements([element], { snap: event, restrict: event, validate: true });
+        const move = this.tracker.moveElements([element], { snap: event, restrict: event });
         const elementMove = move.elementMoves[0];
         if (!elementMove) {
             return [];
@@ -71,7 +67,7 @@ export class MouseTrackingElementPositionListener extends DragAwareMouseListener
             MoveAction.create([{ elementId: this.elementId, toPosition: elementMove.toPosition }], { animate: false }),
             MoveFinishedEventAction.create()
         );
-        this.addMoveFeeback(elementMove);
+        this.addMoveFeedback(move, ctx, event);
         this.moveGhostFeedback.submit();
         this.tracker.updateTrackingPosition(elementMove.moveVector);
         return [];
@@ -89,13 +85,9 @@ export class MouseTrackingElementPositionListener extends DragAwareMouseListener
             : mousePosition;
     }
 
-    protected addMoveFeeback(move: TrackedElementMove): void {
-        this.tool.changeBoundsManager.addRestrictionFeedback(this.moveGhostFeedback, move);
-        this.moveGhostFeedback.add(ModifyCSSFeedbackAction.create({ elements: [move.element.id], remove: [CSS_HIDDEN] }));
-        this.moveGhostFeedback.add(
-            ModifyCSSFeedbackAction.create({ add: [CSS_RESIZE_MODE] }),
-            ModifyCSSFeedbackAction.create({ remove: [CSS_RESIZE_MODE] })
-        );
+    protected addMoveFeedback(move: TrackedMove, ctx: GModelElement, event: MouseEvent): void {
+        this.moveGhostFeedback.add(ModifyCSSFeedbackAction.create({ elements: [this.elementId], remove: [CSS_HIDDEN] }));
+        this.tool.changeBoundsManager.addMoveFeedback(this.moveGhostFeedback, move, ctx, event);
     }
 
     override dispose(): void {

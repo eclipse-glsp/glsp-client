@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, BringToFrontAction, GModelElement, SelectAction, SelectMouseListener, TYPES } from '@eclipse-glsp/sprotty';
+import { Action, BringToFrontAction, GModelElement, SelectAction, SelectMouseListener } from '@eclipse-glsp/sprotty';
 import { inject, injectable, optional } from 'inversify';
 import { Ranked } from '../../base/ranked';
 import { SelectableElement } from '../../utils';
@@ -28,7 +28,7 @@ import { ChangeBoundsManager } from '../tools';
 export class RankedSelectMouseListener extends SelectMouseListener implements Ranked {
     rank: number = Ranked.DEFAULT_RANK - 100; /* we want to be executed before all default mouse listeners */
 
-    @inject(TYPES.IChangeBoundsManager) @optional() readonly changeBoundsManager?: ChangeBoundsManager;
+    @inject(ChangeBoundsManager) @optional() readonly changeBoundsManager?: ChangeBoundsManager;
 
     protected override handleSelectTarget(
         selectableTarget: SelectableElement,

@@ -37,7 +37,7 @@ import { Container } from 'inversify';
 import * as sinon from 'sinon';
 import { FeedbackEmitter } from '../../base';
 import { GLSPActionDispatcher } from '../../base/action-dispatcher';
-import { FeedbackActionDispatcher } from '../../base/feedback/feedback-action-dispatcher';
+import { FeedbackActionDispatcher } from '../../base/feedback/feedback-action-dispatcher-default';
 import { GEdge } from '../../model';
 import { isResizable } from '../change-bounds/model';
 import { isReconnectable } from '../reconnect/model';

@@ -41,13 +41,13 @@ import {
     typeGuard
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
-import { ChangeBoundsManager, ChangeBoundsTracker, MoveableRoutingHandle } from '..';
 import { FeedbackEmitter } from '../../../base';
 import { IFeedbackActionDispatcher } from '../../../base/feedback/feedback-action-dispatcher';
 import { FeedbackCommand } from '../../../base/feedback/feedback-command';
 import { forEachElement, getMatchingElements, isRoutable, isRoutingHandle } from '../../../utils/gmodel-util';
 import { getAbsolutePosition, toAbsoluteBounds } from '../../../utils/viewpoint-util';
 import { addReconnectHandles, removeReconnectHandles } from '../../reconnect/model';
+import { ChangeBoundsManager, ChangeBoundsTracker, MoveableRoutingHandle } from '../change-bounds';
 import { FeedbackEdgeEnd, feedbackEdgeEndId, feedbackEdgeId } from '../edge-creation/dangling-edge-feedback';
 import { FeedbackEdgeEndMovingMouseListener } from '../edge-creation/edge-creation-tool-feedback';
 

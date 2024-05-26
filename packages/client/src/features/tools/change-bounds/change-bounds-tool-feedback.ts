@@ -71,7 +71,7 @@ export class ShowChangeBoundsToolResizeFeedbackCommand extends FeedbackCommand {
     static readonly KIND = ShowChangeBoundsToolResizeFeedbackAction.KIND;
 
     @inject(TYPES.Action) protected action: ShowChangeBoundsToolResizeFeedbackAction;
-    @inject(TYPES.IChangeBoundsManager) protected changeBoundsManager: ChangeBoundsManager;
+    @inject(ChangeBoundsManager) protected changeBoundsManager: ChangeBoundsManager;
 
     execute(context: CommandExecutionContext): CommandReturn {
         const index = context.root.index;
@@ -81,7 +81,10 @@ export class ShowChangeBoundsToolResizeFeedbackCommand extends FeedbackCommand {
         if (this.action.elementId) {
             const resizeElement = index.getById(this.action.elementId);
             if (resizeElement && isResizable(resizeElement)) {
-                addResizeHandles(resizeElement, this.action.resizeLocations ?? this.changeBoundsManager.defaultResizeLocations());
+                addResizeHandles(
+                    resizeElement,
+                    this.action.resizeLocations ?? resizeElement.resizeLocations ?? this.changeBoundsManager.defaultResizeLocations()
+                );
             }
         }
         return context.root;

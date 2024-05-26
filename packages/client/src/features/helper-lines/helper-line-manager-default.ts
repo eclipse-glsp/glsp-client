@@ -30,6 +30,7 @@ import { FeedbackEmitter } from '../../base';
 import { IFeedbackActionDispatcher } from '../../base/feedback/feedback-action-dispatcher';
 import { ISelectionListener, SelectionService } from '../../base/selection-service';
 import { SetBoundsFeedbackAction } from '../bounds/set-bounds-feedback-command';
+import { ResizeHandleLocation, SResizeHandle } from '../change-bounds/model';
 import { Grid } from '../grid';
 import { MoveFinishedEventAction, MoveInitializedEventAction } from '../tools/change-bounds/change-bounds-tool-feedback';
 import {
@@ -165,32 +166,87 @@ export class HelperLineManager implements IActionHandler, ISelectionListener, IH
         if (!isSnap) {
             return 0;
         }
-        return direction === Direction.Left || direction === Direction.Right
-            ? this.options.minimumMoveDelta.x
-            : this.options.minimumMoveDelta.y;
+        const minimumMoveDelta = this.options.minimumMoveDelta;
+        return direction === Direction.Left || direction === Direction.Right ? minimumMoveDelta.x : minimumMoveDelta.y;
     }
 
-    getMinimumMoveVector(element: GModelElement, isSnap: boolean, directions: Direction[]): Vector | undefined {
+    getMinimumMoveVector(element: GModelElement, isSnap: boolean, move: Direction[]): Vector | undefined {
         if (!isSnap) {
             return undefined;
         }
 
-        const helperLines = element.root.children.filter(child => isHelperLine(child)) as HelperLine[];
-        if (helperLines.length === 0) {
+        const state = this.getHelperLineState(element);
+        if (state.helperLines.length === 0) {
             return undefined;
         }
 
         const minimum: Writable<Vector> = { ...Vector.ZERO };
-        if (directions.includes(Direction.Left) && helperLines.some(line => line.isLeft || line.isCenter)) {
+        const resize =
+            element instanceof SResizeHandle
+                ? ResizeHandleLocation.direction(element.location)
+                : [Direction.Left, Direction.Right, Direction.Up, Direction.Down];
+
+        if ((state.types.left || state.types.center) && move.includes(Direction.Left) && resize.includes(Direction.Left)) {
             minimum.x = this.getMinimumMoveDelta(element, isSnap, Direction.Left);
-        } else if (directions.includes(Direction.Right) && helperLines.some(line => line.isRight || line.isCenter)) {
+        } else if ((state.types.right || state.types.center) && move.includes(Direction.Right) && resize.includes(Direction.Right)) {
             minimum.x = this.getMinimumMoveDelta(element, isSnap, Direction.Right);
         }
-        if (directions.includes(Direction.Up) && helperLines.some(line => line.isTop || line.isMiddle)) {
+        if ((state.types.top || state.types.middle) && move.includes(Direction.Up) && resize.includes(Direction.Up)) {
             minimum.y = this.getMinimumMoveDelta(element, isSnap, Direction.Up);
-        } else if (directions.includes(Direction.Down) && helperLines.some(line => line.isBottom || line.isMiddle)) {
+        } else if ((state.types.bottom || state.types.middle) && move.includes(Direction.Down) && resize.includes(Direction.Down)) {
             minimum.y = this.getMinimumMoveDelta(element, isSnap, Direction.Down);
         }
         return Vector.isZero(minimum) ? undefined : minimum;
     }
+
+    protected getHelperLineState(element: GModelElement): HelperLineState {
+        const helperLines = element.root.children.filter(isHelperLine) || [];
+        const types = {
+            left: false,
+            right: false,
+            top: false,
+            bottom: false,
+            center: false,
+            middle: false
+        };
+        for (const line of helperLines) {
+            switch (line.lineType) {
+                case HelperLineType.Left:
+                case HelperLineType.LeftRight:
+                    types.left = true;
+                    break;
+                case HelperLineType.Right:
+                case HelperLineType.RightLeft:
+                    types.right = true;
+                    break;
+                case HelperLineType.Top:
+                case HelperLineType.TopBottom:
+                    types.top = true;
+                    break;
+                case HelperLineType.Bottom:
+                case HelperLineType.BottomTop:
+                    types.bottom = true;
+                    break;
+                case HelperLineType.Center:
+                    types.center = true;
+                    break;
+                case HelperLineType.Middle:
+                    types.middle = true;
+                    break;
+            }
+        }
+        return { helperLines, types };
+    }
+}
+
+export interface HelperLineState {
+    helperLines: HelperLine[];
+    types: {
+        left: boolean;
+        right: boolean;
+        top: boolean;
+        bottom: boolean;
+        center: boolean;
+        middle: boolean;
+    };
 }

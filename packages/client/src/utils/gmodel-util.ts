@@ -40,6 +40,7 @@ import {
     isSelected,
     remove
 } from '@eclipse-glsp/sprotty';
+import { ResizeHandleLocation } from '../features';
 
 /**
  * Helper type to represent a filter predicate for {@link GModelElement}s. This is used to retrieve
@@ -253,7 +254,9 @@ export type MoveableElement = GModelElement & Locateable;
 
 export interface Resizable extends BoundsAware, Selectable {}
 
-export interface ResizableModelElement extends GParentElement, Resizable {}
+export interface ResizableModelElement extends GParentElement, Resizable {
+    resizeLocations?: ResizeHandleLocation[];
+}
 
 /**
  * Helper function to translate a given {@link GModelElement} into its corresponding {@link ElementAndBounds} representation.

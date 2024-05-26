@@ -37,17 +37,8 @@ import {
     TYPES,
     findParentByFeature
 } from '@eclipse-glsp/sprotty';
-import { CSS_RESIZE_MODE, ChangeBoundsManager, ChangeBoundsTracker, TrackedElementResize, TrackedResize } from '..';
 import { DragAwareMouseListener } from '../../../base/drag-aware-mouse-listener';
-import {
-    CursorCSS,
-    ModifyCSSFeedbackAction,
-    applyCssClasses,
-    cursorFeedbackAction,
-    deleteCssClasses,
-    toggleCssClasses
-} from '../../../base/feedback/css-feedback';
-import { FeedbackEmitter } from '../../../base/feedback/feeback-emitter';
+import { FeedbackEmitter } from '../../../base/feedback/feedback-emitter';
 import { ISelectionListener, SelectionService } from '../../../base/selection-service';
 import {
     BoundsAwareModelElement,
@@ -60,18 +51,16 @@ import {
 } from '../../../utils/gmodel-util';
 import { LocalRequestBoundsAction, SetBoundsFeedbackAction } from '../../bounds';
 import { SResizeHandle, isResizable } from '../../change-bounds/model';
-import {
-    IMovementRestrictor,
-    movementRestrictionFeedback,
-    removeMovementRestrictionFeedback
-} from '../../change-bounds/movement-restrictor';
+import { IMovementRestrictor } from '../../change-bounds/movement-restrictor';
 import { BaseEditTool } from '../base-tools';
+import { CSS_ACTIVE_HANDLE, ChangeBoundsManager } from './change-bounds-manager';
 import {
     HideChangeBoundsToolResizeFeedbackAction,
     MoveFinishedEventAction,
     ShowChangeBoundsToolResizeFeedbackAction
 } from './change-bounds-tool-feedback';
 import { FeedbackMoveMouseListener } from './change-bounds-tool-move-feedback';
+import { ChangeBoundsTracker, TrackedElementResize, TrackedResize } from './change-bounds-tracker';
 
 /**
  * The change bounds tool has the license to move multiple elements or resize a single element by implementing the ChangeBounds operation.
@@ -93,7 +82,7 @@ export class ChangeBoundsTool extends BaseEditTool {
     @inject(SelectionService) protected selectionService: SelectionService;
     @inject(EdgeRouterRegistry) @optional() readonly edgeRouterRegistry?: EdgeRouterRegistry;
     @inject(TYPES.IMovementRestrictor) @optional() readonly movementRestrictor?: IMovementRestrictor;
-    @inject(TYPES.IChangeBoundsManager) readonly changeBoundsManager: ChangeBoundsManager;
+    @inject(ChangeBoundsManager) readonly changeBoundsManager: ChangeBoundsManager;
 
     get id(): string {
         return ChangeBoundsTool.ID;
@@ -133,7 +122,7 @@ export class ChangeBoundsTool extends BaseEditTool {
 }
 
 export class ChangeBoundsListener extends DragAwareMouseListener implements ISelectionListener {
-    static readonly CSS_CLASS_ACTIVE = 'active';
+    static readonly CSS_CLASS_ACTIVE = CSS_ACTIVE_HANDLE;
 
     // members for calculating the correct position change
     protected initialBounds: ElementAndBounds | undefined;
@@ -206,15 +195,13 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
         // consider resize handles ourselves
         if (this.activeResizeHandle && this.tracker.isTracking()) {
             const resize = this.tracker.resizeElements(this.activeResizeHandle, { snap: event, symmetric: event, restrict: event });
-            this.addResizeFeedback(resize, target, event);
             const resizeAction = this.resizeBoundsAction(resize);
             if (resizeAction.bounds.length > 0) {
                 this.resizeFeedback.add(resizeAction, () => this.resetBounds());
                 this.tracker.updateTrackingPosition(resize.handleMove.moveVector);
-            } else {
-                this.resizeFeedback.add(undefined, () => this.resetBounds());
+                this.addResizeFeedback(resize, target, event);
+                this.resizeFeedback.submit();
             }
-            this.resizeFeedback.submit();
         }
         return super.draggingMouseMove(target, event);
     }
@@ -234,40 +221,7 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
     }
 
     protected addResizeFeedback(resize: TrackedResize, target: GModelElement, event: MouseEvent): void {
-        const handle = resize.handleMove.element;
-        // handle feedback
-        this.resizeFeedback.add(
-            applyCssClasses(handle, ChangeBoundsListener.CSS_CLASS_ACTIVE),
-            deleteCssClasses(handle, ChangeBoundsListener.CSS_CLASS_ACTIVE)
-        );
-
-        // graph feedback
-        this.resizeFeedback.add(
-            ModifyCSSFeedbackAction.create({ add: [CSS_RESIZE_MODE] }),
-            ModifyCSSFeedbackAction.create({ remove: [CSS_RESIZE_MODE] })
-        );
-
-        // cursor feedback
-        const cursorClass = SResizeHandle.getCursorCss(resize.handleMove.element);
-        this.resizeFeedback.add(cursorFeedbackAction(cursorClass), cursorFeedbackAction(CursorCSS.DEFAULT));
-
-        const movementRestrictor = this.tool.changeBoundsManager.movementRestrictor;
-        resize.elementResizes.forEach(elementResize => {
-            if (movementRestrictor) {
-                this.resizeFeedback.add(
-                    movementRestrictionFeedback(elementResize.element, movementRestrictor, elementResize.valid.move),
-                    removeMovementRestrictionFeedback(elementResize.element, movementRestrictor)
-                );
-            }
-            this.resizeFeedback.add(
-                toggleCssClasses(elementResize.element, !elementResize.valid.size, 'resize-not-allowed'),
-                deleteCssClasses(elementResize.element, 'resize-not-allowed')
-            );
-        });
-        this.resizeFeedback.add(
-            toggleCssClasses(resize.handleMove.element, !resize.valid.size, 'resize-not-allowed'),
-            deleteCssClasses(resize.handleMove.element, 'resize-not-allowed')
-        );
+        this.tool.changeBoundsManager.addResizeFeedback(this.resizeFeedback, resize, target, event);
     }
 
     protected resetBounds(): Action[] {

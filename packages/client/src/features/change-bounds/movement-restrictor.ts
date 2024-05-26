@@ -13,12 +13,12 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Bounds, GModelElement, GNode, GParentElement, Point } from '@eclipse-glsp/sprotty';
+import { Bounds, Dimension, GModelElement, GNode, GParentElement, Point, isBoundsAware, isMoveable } from '@eclipse-glsp/sprotty';
 import { injectable } from 'inversify';
 import { ModifyCSSFeedbackAction } from '../../base/feedback/css-feedback';
 import { BoundsAwareModelElement } from '../../utils';
 import { toAbsoluteBounds } from '../../utils/viewpoint-util';
-import { SResizeHandle, isBoundsAwareMoveable } from './model';
+import { SResizeHandle } from './model';
 
 /**
  * A `MovementRestrictor` is an optional service that can be used by tools to validate
@@ -48,25 +48,25 @@ export class NoOverlapMovementRestrictor implements IMovementRestrictor {
     cssClasses = ['movement-not-allowed'];
 
     validate(element: GModelElement, newLocation?: Point): boolean {
-        if (!isBoundsAwareMoveable(element) || !newLocation) {
+        if (!isMoveable(element) || !newLocation) {
             return false;
         }
         // Create ghost element at the newLocation
+        const dimensions: Dimension = isBoundsAware(element) ? element.bounds : { width: 1, height: 1 };
         const ghostElement = Object.create(element) as BoundsAwareModelElement;
-        ghostElement.bounds = {
-            x: newLocation.x,
-            y: newLocation.y,
-            width: element.bounds.width,
-            height: element.bounds.height
-        };
+        ghostElement.bounds = { ...dimensions, ...newLocation };
         ghostElement.type = 'Ghost';
         ghostElement.id = element.id;
         return !Array.from(
             element.root.index
                 .all()
-                .filter(e => e.id !== ghostElement.id && e !== ghostElement.root && e instanceof GNode)
-                .map(e => e as BoundsAwareModelElement)
+                .filter(node => node.id !== ghostElement.id && node !== ghostElement.root && node instanceof GNode)
+                .map(node => node as BoundsAwareModelElement)
         ).some(e => this.areOverlapping(e, ghostElement));
+    }
+
+    protected isBoundsRelevant(element: GModelElement, ghostElement: BoundsAwareModelElement): element is BoundsAwareModelElement {
+        return element.id !== ghostElement.id && element !== ghostElement.root && element instanceof GNode && isBoundsAware(element);
     }
 
     protected areOverlapping(element1: BoundsAwareModelElement, element2: BoundsAwareModelElement): boolean {
