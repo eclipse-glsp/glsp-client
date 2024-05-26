@@ -32,7 +32,8 @@
 
 import { getServiceIdentifierAsString, interfaces } from 'inversify';
 import { NOT_REGISTERED } from 'inversify/lib/constants/error_msgs';
-import { AnyObject, MaybeArray } from '../utils';
+import { MaybeArray } from '../utils/array-util';
+import { AnyObject } from '../utils/type-util';
 import { BindingContext } from './inversify-util';
 
 /**

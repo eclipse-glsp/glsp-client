@@ -39,7 +39,7 @@ import { inject, injectable, postConstruct, preDestroy } from 'inversify';
 import { SelectableElement, getElements, getMatchingElements } from '../utils/gmodel-util';
 import { IGModelRootListener } from './editor-context-service';
 import { IFeedbackActionDispatcher } from './feedback/feedback-action-dispatcher';
-import { IDiagramStartup } from './model';
+import { IDiagramStartup } from './model/diagram-loader';
 
 export interface ISelectionListener {
     selectionChanged(root: Readonly<GModelRoot>, selectedElements: string[], deselectedElements?: string[]): void;

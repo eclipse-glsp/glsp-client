@@ -28,26 +28,26 @@ import {
     isLocateable
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable, optional } from 'inversify';
+
 import {
     CursorCSS,
-    FeedbackEmitter,
     ModifyCSSFeedbackAction,
     applyCssClasses,
     cursorFeedbackAction,
     deleteCssClasses,
     toggleCssClasses
-} from '../../../base';
-import { isValidMove, minDimensions } from '../../../utils';
+} from '../../../base/feedback/css-feedback';
+import { FeedbackEmitter } from '../../../base/feedback/feedback-emitter';
+import { isValidMove, minDimensions } from '../../../utils/layout-utils';
 import { LayoutAware } from '../../bounds/layout-data';
+import { ResizeHandleLocation, SResizeHandle } from '../../change-bounds/model';
 import {
     IMovementRestrictor,
-    ResizeHandleLocation,
-    SResizeHandle,
     movementRestrictionFeedback,
     removeMovementRestrictionFeedback
-} from '../../change-bounds';
-import { GridManager } from '../../grid';
-import { IHelperLineManager } from '../../helper-lines';
+} from '../../change-bounds/movement-restrictor';
+import { GridManager } from '../../grid/grid-manager';
+import { IHelperLineManager } from '../../helper-lines/helper-line-manager';
 import { InsertIndicator } from '../node-creation/insert-indicator';
 import { ChangeBoundsTracker, TrackedElementMove, TrackedElementResize, TrackedMove, TrackedResize } from './change-bounds-tracker';
 

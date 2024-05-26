@@ -16,8 +16,8 @@
 /* eslint-disable @typescript-eslint/no-shadow */
 
 import { Dimension, Point } from 'sprotty-protocol/lib/utils/geometry';
-import { AnyObject, hasNumberProp } from './utils';
 import { equalUpTo } from './utils/math-util';
+import { AnyObject, hasNumberProp } from './utils/type-util';
 
 declare module 'sprotty-protocol/lib/utils/geometry' {
     namespace Dimension {

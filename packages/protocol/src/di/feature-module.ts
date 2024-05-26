@@ -15,7 +15,7 @@
  ********************************************************************************/
 
 import { ContainerModule, interfaces } from 'inversify';
-import { MaybeArray, asArray } from '../utils';
+import { MaybeArray, asArray } from '../utils/array-util';
 import { BindingContext } from './inversify-util';
 
 /**

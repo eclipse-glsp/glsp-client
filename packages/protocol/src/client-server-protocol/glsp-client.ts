@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020-2023 EclipseSource and others.
+ * Copyright (c) 2020-2024 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -15,11 +15,11 @@
  ********************************************************************************/
 import * as uuid from 'uuid';
 
-import { ActionMessage } from '../action-protocol';
+import { ActionMessage } from '../action-protocol/base-protocol';
 import { Disposable } from '../utils/disposable';
 import { Event } from '../utils/event';
-import { DisposeClientSessionParameters, InitializeClientSessionParameters, InitializeParameters, InitializeResult } from './types';
 import { AnyObject, hasStringProp } from '../utils/type-util';
+import { DisposeClientSessionParameters, InitializeClientSessionParameters, InitializeParameters, InitializeResult } from './types';
 
 export class ApplicationIdProvider {
     private static _applicationId?: string;

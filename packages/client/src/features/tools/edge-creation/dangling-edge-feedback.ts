@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2023 EclipseSource and others.
+ * Copyright (c) 2019-2024 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -32,7 +32,7 @@ import {
     isConnectable
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
-import { feedbackFeature } from '../../../base';
+import { feedbackFeature } from '../../../base/feedback/feedback-action-dispatcher';
 import { FeedbackCommand } from '../../../base/feedback/feedback-command';
 import { isRoutable } from '../../../utils/gmodel-util';
 import { toAbsolutePosition } from '../../../utils/viewpoint-util';

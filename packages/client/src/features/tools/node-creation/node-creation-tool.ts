@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020-2023 EclipseSource and others.
+ * Copyright (c) 2020-2024 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -29,16 +29,17 @@ import {
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
 import '../../../../css/ghost-element.css';
-import { FeedbackEmitter } from '../../../base';
 import { DragAwareMouseListener } from '../../../base/drag-aware-mouse-listener';
 import { CSS_GHOST_ELEMENT, CSS_HIDDEN, CursorCSS, cursorFeedbackAction } from '../../../base/feedback/css-feedback';
+import { FeedbackEmitter } from '../../../base/feedback/feedback-emitter';
 import { EnableDefaultToolsAction } from '../../../base/tool-manager/tool';
 import { MoveableElement } from '../../../utils/gmodel-util';
 import { AddTemplateElementsAction, getTemplateElementId } from '../../element-template/add-template-element';
 import { MouseTrackingElementPositionListener, PositioningTool } from '../../element-template/mouse-tracking-element-position-listener';
 import { RemoveTemplateElementsAction } from '../../element-template/remove-template-element';
 import { BaseCreationTool } from '../base-tools';
-import { ChangeBoundsManager, TrackedMove } from '../change-bounds';
+import { ChangeBoundsManager } from '../change-bounds/change-bounds-manager';
+import { TrackedMove } from '../change-bounds/change-bounds-tracker';
 import { ContainerManager, TrackedInsert } from './container-manager';
 import { InsertIndicator } from './insert-indicator';
 

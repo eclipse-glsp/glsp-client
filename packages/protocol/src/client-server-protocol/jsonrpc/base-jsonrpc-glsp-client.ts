@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2023 EclipseSource and others.
+ * Copyright (c) 2019-2024 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -15,7 +15,7 @@
  ********************************************************************************/
 import { injectable } from 'inversify';
 import { Disposable, Message, MessageConnection } from 'vscode-jsonrpc';
-import { ActionMessage } from '../../action-protocol';
+import { ActionMessage } from '../../action-protocol/base-protocol';
 import { Emitter, Event } from '../../utils/event';
 import { ActionMessageHandler, ClientState, GLSPClient } from '../glsp-client';
 import { GLSPClientProxy } from '../glsp-server';

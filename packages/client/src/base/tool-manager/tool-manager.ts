@@ -29,7 +29,7 @@ import {
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
 import { EditorContextService, IEditModeListener } from '../editor-context-service';
-import { IDiagramStartup } from '../model';
+import { IDiagramStartup } from '../model/diagram-loader';
 import { Ranked } from '../ranked';
 import { EnableDefaultToolsAction, EnableToolsAction, Tool } from './tool';
 /**

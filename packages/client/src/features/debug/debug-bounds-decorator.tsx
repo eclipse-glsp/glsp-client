@@ -19,7 +19,7 @@ import { Bounds, GModelElement, IVNodePostprocessor, Point, isDecoration, isSize
 import { inject, injectable, optional } from 'inversify';
 import { VNode } from 'snabbdom';
 import { GGraph } from '../../model';
-import { BoundsAwareModelElement } from '../../utils';
+import { BoundsAwareModelElement } from '../../utils/gmodel-util';
 import { DebugManager } from './debug-manager';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

@@ -16,7 +16,7 @@
 
 import { IUIExtension, LazyInjector, MaybePromise, TYPES, UIExtensionRegistry } from '@eclipse-glsp/sprotty';
 import { inject, injectable, optional } from 'inversify';
-import { IDiagramStartup } from '../model';
+import { IDiagramStartup } from '../model/diagram-loader';
 
 @injectable()
 export class GLSPUIExtensionRegistry extends UIExtensionRegistry implements IDiagramStartup {

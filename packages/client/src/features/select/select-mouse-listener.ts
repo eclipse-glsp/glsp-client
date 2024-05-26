@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2023 EclipseSource and others.
+ * Copyright (c) 2019-2024 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -16,9 +16,9 @@
 import { Action, BringToFrontAction, GModelElement, SelectAction, SelectMouseListener } from '@eclipse-glsp/sprotty';
 import { inject, injectable, optional } from 'inversify';
 import { Ranked } from '../../base/ranked';
-import { SelectableElement } from '../../utils';
-import { SResizeHandle } from '../change-bounds';
-import { ChangeBoundsManager } from '../tools';
+import { SelectableElement } from '../../utils/gmodel-util';
+import { SResizeHandle } from '../change-bounds/model';
+import { ChangeBoundsManager } from '../tools/change-bounds/change-bounds-manager';
 
 /**
  * Ranked select mouse listener that is executed before default mouse listeners when using the RankedMouseTool.

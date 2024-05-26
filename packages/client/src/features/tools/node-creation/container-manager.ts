@@ -16,10 +16,10 @@
 
 import { GModelElement, Point, findChildrenAtPosition } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
-import { CSS_GHOST_ELEMENT, CursorCSS, FeedbackEmitter, cursorFeedbackAction } from '../../../base';
-import { ContainerElement, isContainable } from '../../hints';
-import { ChangeBoundsManager } from '../change-bounds';
-
+import { CSS_GHOST_ELEMENT, CursorCSS, cursorFeedbackAction } from '../../../base/feedback/css-feedback';
+import { FeedbackEmitter } from '../../../base/feedback/feedback-emitter';
+import { ContainerElement, isContainable } from '../../hints/model';
+import { ChangeBoundsManager } from '../change-bounds/change-bounds-manager';
 export interface TrackedInsert {
     elementTypeId: string;
     location: Point;

@@ -17,8 +17,8 @@
 import { IView, RenderingContext, TYPES, setClass, svg } from '@eclipse-glsp/sprotty';
 import { inject, injectable, optional } from 'inversify';
 import { VNode } from 'snabbdom';
-import { GArgument } from '../../../utils';
-import { Grid } from '../../grid';
+import { GArgument } from '../../../utils/argument-utils';
+import { Grid } from '../../grid/grid';
 import { ARG_LENGTH, InsertIndicator } from './insert-indicator';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

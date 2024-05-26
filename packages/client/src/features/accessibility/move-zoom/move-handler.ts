@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2023 Business Informatics Group (TU Wien) and others.
+ * Copyright (c) 2023-2024 Business Informatics Group (TU Wien) and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -35,9 +35,9 @@ import {
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable, optional, postConstruct } from 'inversify';
 import { DebouncedFunc, debounce } from 'lodash';
-import { FeedbackEmitter } from '../../../base';
 import { EditorContextService } from '../../../base/editor-context-service';
 import { IFeedbackActionDispatcher } from '../../../base/feedback/feedback-action-dispatcher';
+import { FeedbackEmitter } from '../../../base/feedback/feedback-emitter';
 import { SelectableBoundsAware, getElements, isSelectableAndBoundsAware } from '../../../utils/gmodel-util';
 import { isValidMove } from '../../../utils/layout-utils';
 import { outsideOfViewport } from '../../../utils/viewpoint-util';

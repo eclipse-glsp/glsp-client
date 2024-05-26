@@ -16,7 +16,7 @@
 import { Bounds, Dimension, Point, RenderingContext, SGraphImpl, SGraphView, Writable } from '@eclipse-glsp/sprotty';
 import { inject, injectable, optional } from 'inversify';
 import { VNode } from 'snabbdom';
-import { GridManager, GridStyle } from '../features';
+import { GridManager, GridStyle } from '../features/grid/grid-manager';
 
 @injectable()
 export class GGraphView extends SGraphView {

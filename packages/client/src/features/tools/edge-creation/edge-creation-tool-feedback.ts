@@ -29,8 +29,8 @@ import {
     isBoundsAware,
     isConnectable
 } from '@eclipse-glsp/sprotty';
-import { FeedbackEmitter } from '../../../base';
 import { IFeedbackActionDispatcher } from '../../../base/feedback/feedback-action-dispatcher';
+import { FeedbackEmitter } from '../../../base/feedback/feedback-emitter';
 import { absoluteToParent, getAbsolutePosition, toAbsoluteBounds } from '../../../utils/viewpoint-util';
 import { FeedbackEdgeEnd, feedbackEdgeEndId } from './dangling-edge-feedback';
 

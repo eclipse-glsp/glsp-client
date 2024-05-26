@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2023 EclipseSource and others.
+ * Copyright (c) 2019-2024 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -16,7 +16,7 @@
 import { Bounds, Dimension, GModelElement, GNode, GParentElement, Point, isBoundsAware, isMoveable } from '@eclipse-glsp/sprotty';
 import { injectable } from 'inversify';
 import { ModifyCSSFeedbackAction } from '../../base/feedback/css-feedback';
-import { BoundsAwareModelElement } from '../../utils';
+import { BoundsAwareModelElement } from '../../utils/gmodel-util';
 import { toAbsoluteBounds } from '../../utils/viewpoint-util';
 import { SResizeHandle } from './model';
 

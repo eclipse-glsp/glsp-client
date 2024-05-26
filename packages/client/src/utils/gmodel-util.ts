@@ -40,7 +40,7 @@ import {
     isSelected,
     remove
 } from '@eclipse-glsp/sprotty';
-import { ResizeHandleLocation } from '../features';
+import { ResizeHandleLocation } from '../features/change-bounds/model';
 
 /**
  * Helper type to represent a filter predicate for {@link GModelElement}s. This is used to retrieve

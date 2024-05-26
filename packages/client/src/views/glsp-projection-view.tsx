@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2017-2023 TypeFox and others.
+ * Copyright (c) 2017-2024 TypeFox and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -33,7 +33,7 @@ import {
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable, optional } from 'inversify';
 import { VNode, VNodeStyle, h } from 'snabbdom';
-import { GridManager, GridStyle } from '../features';
+import { GridManager, GridStyle } from '../features/grid/grid-manager';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const JSX = { createElement: html };

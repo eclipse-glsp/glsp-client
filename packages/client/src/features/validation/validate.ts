@@ -28,10 +28,10 @@ import {
     hasArrayProp
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable, optional } from 'inversify';
-import { FeedbackEmitter } from '../../base';
 import { EditorContextService } from '../../base/editor-context-service';
 import { IFeedbackActionDispatcher, IFeedbackEmitter } from '../../base/feedback/feedback-action-dispatcher';
 import { FeedbackCommand } from '../../base/feedback/feedback-command';
+import { FeedbackEmitter } from '../../base/feedback/feedback-emitter';
 import { removeCssClasses } from '../../utils/gmodel-util';
 import { GIssueMarker, createGIssue, getGIssueMarker, getOrCreateGIssueMarker, getSeverity } from './issue-marker';
 

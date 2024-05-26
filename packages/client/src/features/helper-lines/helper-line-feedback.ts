@@ -46,7 +46,7 @@ import {
     isVisibleOnCanvas
 } from '../../utils/gmodel-util';
 import { getViewportBounds, toAbsoluteBounds } from '../../utils/viewpoint-util';
-import { feedbackEdgeEndId, feedbackEdgeId } from '../tools';
+import { feedbackEdgeEndId, feedbackEdgeId } from '../tools/edge-creation/dangling-edge-feedback';
 import { HelperLine, HelperLineType, SelectionBounds, isHelperLine, isSelectionBounds } from './model';
 
 export type ViewportLineType = typeof HelperLineType.Center | typeof HelperLineType.Middle | string;

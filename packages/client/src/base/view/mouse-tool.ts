@@ -25,7 +25,7 @@ import {
     TYPES
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable, optional } from 'inversify';
-import { IDiagramStartup } from '../model';
+import { IDiagramStartup } from '../model/diagram-loader';
 import { Ranked } from '../ranked';
 
 /**

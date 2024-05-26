@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2021-2023 EclipseSource and others.
+ * Copyright (c) 2021-2024 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -30,7 +30,7 @@ import { DragAwareMouseListener } from '../../../base/drag-aware-mouse-listener'
 import { CursorCSS, cursorFeedbackAction } from '../../../base/feedback/css-feedback';
 import { EnableDefaultToolsAction } from '../../../base/tool-manager/tool';
 import { GEdge } from '../../../model';
-import { BoundsAwareModelElement, SelectableBoundsAware, isSelectableAndBoundsAware } from '../../../utils';
+import { BoundsAwareModelElement, SelectableBoundsAware, isSelectableAndBoundsAware } from '../../../utils/gmodel-util';
 import { getAbsolutePosition, toAbsoluteBounds } from '../../../utils/viewpoint-util';
 import { BaseEditTool } from '../base-tools';
 import { IMarqueeBehavior, MarqueeUtil } from './marquee-behavior';

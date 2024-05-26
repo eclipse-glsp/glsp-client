@@ -16,8 +16,8 @@
 
 import { Action, CommandExecutionContext, CommandReturn, GModelRoot, TYPES, hasBooleanProp } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
-import { FeedbackCommand } from '../../base';
-import { addCssClasses, removeCssClasses } from '../../utils';
+import { FeedbackCommand } from '../../base/feedback/feedback-command';
+import { addCssClasses, removeCssClasses } from '../../utils/gmodel-util';
 
 export interface EnableDebugModeAction extends Action {
     kind: typeof EnableDebugModeAction.KIND;

@@ -16,7 +16,8 @@
 
 import { IActionHandler, PropertiesOfType, TYPES } from '@eclipse-glsp/sprotty';
 import { inject, injectable, postConstruct } from 'inversify';
-import { FeedbackEmitter, IFeedbackActionDispatcher } from '../../base';
+import { IFeedbackActionDispatcher } from '../../base/feedback/feedback-action-dispatcher';
+import { FeedbackEmitter } from '../../base/feedback/feedback-emitter';
 import { Grid } from './grid';
 import { ShowGridAction } from './grid-model';
 

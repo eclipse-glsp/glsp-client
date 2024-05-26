@@ -31,8 +31,9 @@ import {
     isBoundsAware,
     isMoveable
 } from '@eclipse-glsp/sprotty';
-import { BoundsAwareModelElement, MoveableElement, ResizableModelElement, getElements } from '../../../utils';
-import { DiagramMovementCalculator, ResizeHandleLocation, SResizeHandle } from '../../change-bounds';
+import { BoundsAwareModelElement, MoveableElement, ResizableModelElement, getElements } from '../../../utils/gmodel-util';
+import { ResizeHandleLocation, SResizeHandle } from '../../change-bounds/model';
+import { DiagramMovementCalculator } from '../../change-bounds/tracker';
 import { ChangeBoundsManager } from './change-bounds-manager';
 
 export interface ElementTrackingOptions {
