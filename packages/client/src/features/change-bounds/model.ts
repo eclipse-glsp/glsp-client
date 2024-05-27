@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2023 EclipseSource and others.
+ * Copyright (c) 2019-2024 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -26,8 +26,8 @@ import {
     isMoveable,
     isSelectable
 } from '@eclipse-glsp/sprotty';
-import { CursorCSS } from '../../base';
-import { BoundsAwareModelElement, MoveableElement, ResizableModelElement } from '../../utils';
+import { CursorCSS } from '../../base/feedback/css-feedback';
+import { BoundsAwareModelElement, MoveableElement, ResizableModelElement } from '../../utils/gmodel-util';
 
 export const resizeFeature = Symbol('resizeFeature');
 

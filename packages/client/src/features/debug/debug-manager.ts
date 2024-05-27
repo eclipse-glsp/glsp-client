@@ -16,7 +16,8 @@
 
 import { IActionHandler, TYPES } from '@eclipse-glsp/sprotty';
 import { inject, injectable, postConstruct } from 'inversify';
-import { FeedbackEmitter, IFeedbackActionDispatcher } from '../../base';
+import { IFeedbackActionDispatcher } from '../../base/feedback/feedback-action-dispatcher';
+import { FeedbackEmitter } from '../../base/feedback/feedback-emitter';
 import { EnableDebugModeAction } from './debug-model';
 
 @injectable()

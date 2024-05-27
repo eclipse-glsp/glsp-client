@@ -15,7 +15,7 @@
  ********************************************************************************/
 import { Disposable, KeyListener, KeyTool, LazyInjector, MaybePromise, TYPES } from '@eclipse-glsp/sprotty';
 import { inject, injectable, optional } from 'inversify';
-import { IDiagramStartup } from '../model';
+import { IDiagramStartup } from '../model/diagram-loader';
 
 @injectable()
 export class GLSPKeyTool extends KeyTool implements IDiagramStartup {

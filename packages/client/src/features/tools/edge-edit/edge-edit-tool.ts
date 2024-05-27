@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2023 EclipseSource and others.
+ * Copyright (c) 2019-2024 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -30,14 +30,14 @@ import {
     isSelected
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable, optional } from 'inversify';
-import { FeedbackEmitter } from '../../../base';
 import { DragAwareMouseListener } from '../../../base/drag-aware-mouse-listener';
 import { CursorCSS, cursorFeedbackAction } from '../../../base/feedback/css-feedback';
+import { FeedbackEmitter } from '../../../base/feedback/feedback-emitter';
 import { ISelectionListener, SelectionService } from '../../../base/selection-service';
 import { calcElementAndRoutingPoints, isRoutable, isRoutingHandle } from '../../../utils/gmodel-util';
 import { GReconnectHandle, isReconnectHandle, isReconnectable, isSourceRoutingHandle, isTargetRoutingHandle } from '../../reconnect/model';
 import { BaseEditTool } from '../base-tools';
-import { ChangeBoundsManager } from '../change-bounds';
+import { ChangeBoundsManager } from '../change-bounds/change-bounds-manager';
 import { DrawFeedbackEdgeAction, RemoveFeedbackEdgeAction, feedbackEdgeId } from '../edge-creation/dangling-edge-feedback';
 import {
     DrawFeedbackEdgeSourceAction,

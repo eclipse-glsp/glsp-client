@@ -24,9 +24,9 @@ import {
     isLayoutContainer
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
-import { Ranked } from '../../base';
 import { GLSPActionDispatcher } from '../../base/action-dispatcher';
 import { FeedbackCommand } from '../../base/feedback/feedback-command';
+import { Ranked } from '../../base/ranked';
 import { LocalRequestBoundsAction } from './local-bounds';
 
 export interface SetBoundsFeedbackAction extends Omit<SetBoundsAction, 'kind'> {

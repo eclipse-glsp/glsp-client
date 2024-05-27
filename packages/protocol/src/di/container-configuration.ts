@@ -15,7 +15,8 @@
  ********************************************************************************/
 
 import { Container, ContainerModule } from 'inversify';
-import { MaybeArray, asArray, distinctAdd, hasFunctionProp, hasNumberProp, remove } from '../utils';
+import { MaybeArray, asArray, distinctAdd, remove } from '../utils/array-util';
+import { hasFunctionProp, hasNumberProp } from '../utils/type-util';
 
 /**
  * Initializes a container with the given {@link ContainerConfiguration}. The container configuration

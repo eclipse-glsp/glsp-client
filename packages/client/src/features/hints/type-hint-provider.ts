@@ -37,10 +37,10 @@ import {
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable, postConstruct } from 'inversify';
 
-import { FeedbackEmitter } from '../../base';
 import { GLSPActionDispatcher } from '../../base/action-dispatcher';
 import { IFeedbackActionDispatcher } from '../../base/feedback/feedback-action-dispatcher';
 import { FeedbackCommand } from '../../base/feedback/feedback-command';
+import { FeedbackEmitter } from '../../base/feedback/feedback-emitter';
 import { IDiagramStartup } from '../../base/model/diagram-loader';
 import { GEdge } from '../../model';
 import { getElementTypeId } from '../../utils/gmodel-util';

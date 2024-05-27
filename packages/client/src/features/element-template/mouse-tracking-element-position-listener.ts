@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2023 EclipseSource and others.
+ * Copyright (c) 2023-2024 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -18,7 +18,8 @@ import { Action, Dimension, GModelElement, MoveAction, Point, isBoundsAware, isM
 import { DragAwareMouseListener } from '../../base/drag-aware-mouse-listener';
 import { CSS_HIDDEN, ModifyCSSFeedbackAction } from '../../base/feedback/css-feedback';
 import { FeedbackEmitter } from '../../base/feedback/feedback-emitter';
-import { MoveableElement, getAbsolutePosition } from '../../utils';
+import { MoveableElement } from '../../utils/gmodel-util';
+import { getAbsolutePosition } from '../../utils/viewpoint-util';
 import { FeedbackAwareTool } from '../tools/base-tools';
 import { ChangeBoundsManager } from '../tools/change-bounds/change-bounds-manager';
 import { MoveFinishedEventAction } from '../tools/change-bounds/change-bounds-tool-feedback';

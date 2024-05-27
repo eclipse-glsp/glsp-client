@@ -15,7 +15,7 @@
  ********************************************************************************/
 import { Action, DOMHelper, IActionHandler, TYPES } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
-import { EditorContextService } from '../../base';
+import { EditorContextService } from '../../base/editor-context-service';
 import { FocusTracker } from '../../base/focus/focus-tracker';
 import { IDiagramStartup } from '../../base/model/diagram-loader';
 import { EnableDefaultToolsAction } from '../../base/tool-manager/tool';

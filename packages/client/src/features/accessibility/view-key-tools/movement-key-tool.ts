@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2023 Business Informatics Group (TU Wien) and others.
+ * Copyright (c) 2023-2024 Business Informatics Group (TU Wien) and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -20,8 +20,8 @@ import { matchesKeystroke } from 'sprotty/lib/utils/keyboard';
 import { GLSPActionDispatcher } from '../../../base/action-dispatcher';
 import { SelectionService } from '../../../base/selection-service';
 import { Tool } from '../../../base/tool-manager/tool';
-import { Grid } from '../../grid';
-import { ChangeBoundsManager } from '../../tools';
+import { Grid } from '../../grid/grid';
+import { ChangeBoundsManager } from '../../tools/change-bounds/change-bounds-manager';
 import { AccessibleKeyShortcutProvider, SetAccessibleKeyShortcutAction } from '../key-shortcut/accessible-key-shortcut';
 import { MoveElementAction, MoveViewportAction } from '../move-zoom/move-handler';
 

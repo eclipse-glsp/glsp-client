@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2023 EclipseSource and others.
+ * Copyright (c) 2019-2024 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -16,14 +16,20 @@
 import { Action, ElementMove, GModelElement, GModelRoot, MoveAction, Point, findParentByFeature } from '@eclipse-glsp/sprotty';
 
 import { DebouncedFunc, debounce } from 'lodash';
-import { ChangeBoundsTracker, TrackedMove } from '.';
 import { DragAwareMouseListener } from '../../../base/drag-aware-mouse-listener';
 import { CursorCSS, cursorFeedbackAction } from '../../../base/feedback/css-feedback';
 import { FeedbackEmitter } from '../../../base/feedback/feedback-emitter';
-import { MoveableElement, filter, getElements, isNonRoutableSelectedMovableBoundsAware, removeDescendants } from '../../../utils';
+import {
+    MoveableElement,
+    filter,
+    getElements,
+    isNonRoutableSelectedMovableBoundsAware,
+    removeDescendants
+} from '../../../utils/gmodel-util';
 import { SResizeHandle } from '../../change-bounds/model';
 import { ChangeBoundsTool } from './change-bounds-tool';
 import { MoveFinishedEventAction, MoveInitializedEventAction } from './change-bounds-tool-feedback';
+import { ChangeBoundsTracker, TrackedMove } from './change-bounds-tracker';
 
 /**
  * This mouse listener provides visual feedback for moving by sending client-side

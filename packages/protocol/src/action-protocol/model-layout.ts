@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2021-2023 STMicroelectronics and others.
+ * Copyright (c) 2021-2024 STMicroelectronics and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import * as sprotty from 'sprotty-protocol/lib/actions';
-import { GModelRootSchema } from '../model';
+import { GModelRootSchema } from '../model/model-schema';
 import { hasArrayProp, hasObjectProp } from '../utils/type-util';
 import { Action, Operation, RequestAction, ResponseAction } from './base-protocol';
 import { Args, ElementAndAlignment, ElementAndBounds, ElementAndLayoutData, ElementAndRoutingPoints } from './types';

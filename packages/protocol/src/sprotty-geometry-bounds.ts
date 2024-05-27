@@ -18,7 +18,7 @@
 import { Bounds } from 'sprotty-protocol/lib/utils/geometry';
 import { Dimension } from './sprotty-geometry-dimension';
 import { Point } from './sprotty-geometry-point';
-import { AnyObject, hasNumberProp } from './utils';
+import { AnyObject, hasNumberProp } from './utils/type-util';
 
 declare module 'sprotty-protocol/lib/utils/geometry' {
     namespace Bounds {

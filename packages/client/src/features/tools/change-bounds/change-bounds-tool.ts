@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2023 EclipseSource and others.
+ * Copyright (c) 2019-2024 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -49,7 +49,8 @@ import {
     isNonRoutableSelectedMovableBoundsAware,
     toElementAndBounds
 } from '../../../utils/gmodel-util';
-import { LocalRequestBoundsAction, SetBoundsFeedbackAction } from '../../bounds';
+import { LocalRequestBoundsAction } from '../../bounds/local-bounds';
+import { SetBoundsFeedbackAction } from '../../bounds/set-bounds-feedback-command';
 import { SResizeHandle, isResizable } from '../../change-bounds/model';
 import { IMovementRestrictor } from '../../change-bounds/movement-restrictor';
 import { BaseEditTool } from '../base-tools';

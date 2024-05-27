@@ -18,7 +18,7 @@
 
 import { GModelElement } from '@eclipse-glsp/sprotty';
 import { expect } from 'chai';
-import { GridSnapper } from '../grid';
+import { GridSnapper } from './../grid/grid-snapper';
 import { PointPositionUpdater } from './point-position-updater';
 
 describe('PointPositionUpdater', () => {

@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2023 EclipseSource and others.
+ * Copyright (c) 2023-2024 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -35,7 +35,6 @@ import {
 import { expect } from 'chai';
 import { Container } from 'inversify';
 import * as sinon from 'sinon';
-import { FeedbackEmitter } from '../../base';
 import { GLSPActionDispatcher } from '../../base/action-dispatcher';
 import { FeedbackActionDispatcher } from '../../base/feedback/feedback-action-dispatcher-default';
 import { GEdge } from '../../model';
@@ -43,6 +42,7 @@ import { isResizable } from '../change-bounds/model';
 import { isReconnectable } from '../reconnect/model';
 import { Containable, isContainable, isReparentable } from './model';
 import { ApplyTypeHintsAction, ApplyTypeHintsCommand, ITypeHintProvider, TypeHintProvider } from './type-hint-provider';
+import { FeedbackEmitter } from '../../base/feedback/feedback-emitter';
 describe('TypeHintProvider', () => {
     const container = new Container();
     container.bind(GLSPActionDispatcher).toConstantValue(sinon.createStubInstance(GLSPActionDispatcher));

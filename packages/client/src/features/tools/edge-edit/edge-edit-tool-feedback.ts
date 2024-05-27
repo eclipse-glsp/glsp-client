@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2023 EclipseSource and others.
+ * Copyright (c) 2019-2024 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -41,13 +41,14 @@ import {
     typeGuard
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
-import { FeedbackEmitter } from '../../../base';
 import { IFeedbackActionDispatcher } from '../../../base/feedback/feedback-action-dispatcher';
 import { FeedbackCommand } from '../../../base/feedback/feedback-command';
+import { FeedbackEmitter } from '../../../base/feedback/feedback-emitter';
 import { forEachElement, getMatchingElements, isRoutable, isRoutingHandle } from '../../../utils/gmodel-util';
 import { getAbsolutePosition, toAbsoluteBounds } from '../../../utils/viewpoint-util';
 import { addReconnectHandles, removeReconnectHandles } from '../../reconnect/model';
-import { ChangeBoundsManager, ChangeBoundsTracker, MoveableRoutingHandle } from '../change-bounds';
+import { ChangeBoundsManager } from '../change-bounds/change-bounds-manager';
+import { ChangeBoundsTracker, MoveableRoutingHandle } from '../change-bounds/change-bounds-tracker';
 import { FeedbackEdgeEnd, feedbackEdgeEndId, feedbackEdgeId } from '../edge-creation/dangling-edge-feedback';
 import { FeedbackEdgeEndMovingMouseListener } from '../edge-creation/edge-creation-tool-feedback';
 

@@ -26,12 +26,12 @@ import {
     Writable
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable, optional, postConstruct } from 'inversify';
-import { FeedbackEmitter } from '../../base';
 import { IFeedbackActionDispatcher } from '../../base/feedback/feedback-action-dispatcher';
+import { FeedbackEmitter } from '../../base/feedback/feedback-emitter';
 import { ISelectionListener, SelectionService } from '../../base/selection-service';
 import { SetBoundsFeedbackAction } from '../bounds/set-bounds-feedback-command';
 import { ResizeHandleLocation, SResizeHandle } from '../change-bounds/model';
-import { Grid } from '../grid';
+import { Grid } from '../grid/grid';
 import { MoveFinishedEventAction, MoveInitializedEventAction } from '../tools/change-bounds/change-bounds-tool-feedback';
 import {
     AlignmentElementFilter,

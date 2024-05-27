@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2023 EclipseSource and others.
+ * Copyright (c) 2019-2024 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -37,11 +37,11 @@ import { EditorContextService, IEditModeListener } from '../../base/editor-conte
 import { FocusTracker } from '../../base/focus/focus-tracker';
 import { IDiagramStartup } from '../../base/model/diagram-loader';
 import { EnableDefaultToolsAction, EnableToolsAction } from '../../base/tool-manager/tool';
-import { DebugManager } from '../debug';
-import { GridManager } from '../grid';
+import { DebugManager } from '../debug/debug-manager';
+import { GridManager } from '../grid/grid-manager';
 import { MouseDeleteTool } from '../tools/deletion/delete-tool';
 import { MarqueeMouseTool } from '../tools/marquee-selection/marquee-mouse-tool';
-import { OriginViewportAction } from '../viewport';
+import { OriginViewportAction } from '../viewport/origin-viewport';
 
 const CLICKED_CSS_CLASS = 'clicked';
 const SEARCH_ICON_ID = 'search';

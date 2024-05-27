@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2023 EclipseSource and others.
+ * Copyright (c) 2019-2024 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -26,13 +26,13 @@ import {
     isCtrlOrCmd
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable, optional } from 'inversify';
-import { FeedbackEmitter } from '../../../base';
 import { GLSPActionDispatcher } from '../../../base/action-dispatcher';
 import { DragAwareMouseListener } from '../../../base/drag-aware-mouse-listener';
 import { CursorCSS, cursorFeedbackAction } from '../../../base/feedback/css-feedback';
+import { FeedbackEmitter } from '../../../base/feedback/feedback-emitter';
 import { EnableDefaultToolsAction } from '../../../base/tool-manager/tool';
 import { GEdge } from '../../../model';
-import { Grid } from '../../grid';
+import { Grid } from '../../grid/grid';
 import { ITypeHintProvider } from '../../hints/type-hint-provider';
 import { BaseCreationTool } from '../base-tools';
 import { DrawFeedbackEdgeAction, RemoveFeedbackEdgeAction } from './dangling-edge-feedback';
