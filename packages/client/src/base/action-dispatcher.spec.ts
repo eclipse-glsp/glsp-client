@@ -19,7 +19,7 @@ import { Container } from 'inversify';
 
 import { GLSPActionDispatcher } from './action-dispatcher';
 import { defaultModule } from './default.module';
-import { IDiagramOptions } from './model';
+import { IDiagramOptions } from './model/diagram-loader';
 
 const container = new Container();
 container.load(defaultModule);
