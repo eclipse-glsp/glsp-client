@@ -24,7 +24,6 @@ import {
     Nameable,
     RectangularNode,
     ResizableModelElement,
-    ResizeHandleLocation,
     WithEditableLabel,
     boundsFeature,
     connectableFeature,
@@ -90,9 +89,7 @@ export class ControlNode extends DiamondNode implements ResizableModelElement {
     override strokeWidth = 1;
 }
 
-export class BranchingNode extends ControlNode {
-    resizeLocations = ResizeHandleLocation.CROSS;
-}
+export class BranchingNode extends ControlNode {}
 
 export class SynchronizationNode extends ControlNode {}
 

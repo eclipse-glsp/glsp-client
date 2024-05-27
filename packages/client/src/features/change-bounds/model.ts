@@ -60,7 +60,7 @@ export namespace ResizeHandleLocation {
         ResizeHandleLocation.Bottom,
         ResizeHandleLocation.Left
     ];
-    export const ALL = Object.values(ResizeHandleLocation).filter(value => typeof value !== 'function') as ResizeHandleLocation[];
+    export const ALL: ResizeHandleLocation[] = [...ResizeHandleLocation.CORNERS, ...ResizeHandleLocation.CROSS];
 
     export function opposite(location: ResizeHandleLocation): ResizeHandleLocation {
         switch (location) {
