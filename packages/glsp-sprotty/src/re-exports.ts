@@ -105,6 +105,7 @@ export {
     LayoutContainer,
     LayoutableChild,
     ModelLayoutOptions,
+    alignFeature,
     boundsFeature,
     findChildrenAtPosition,
     getAbsoluteBounds,
