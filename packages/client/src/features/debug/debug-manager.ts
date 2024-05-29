@@ -32,19 +32,21 @@ export class DebugManager implements IActionHandler {
         return this._debugEnabled;
     }
 
-    handle(action: EnableDebugModeAction): void {
-        this._debugEnabled = action.enable;
-    }
-
     @postConstruct()
     protected init(): void {
         this.debugFeedback = this.feedbackDispatcher.createEmitter();
     }
 
-    setDebugEnabled(visible: boolean): void {
-        if (!visible) {
+    handle(action: EnableDebugModeAction): void {
+        this.setDebugEnabled(action.enable);
+    }
+
+    setDebugEnabled(enabled: boolean): void {
+        if (this._debugEnabled && !enabled) {
+            this._debugEnabled = false;
             this.debugFeedback.dispose();
-        } else {
+        } else if (!this._debugEnabled && enabled) {
+            this._debugEnabled = true;
             this.debugFeedback
                 .add(EnableDebugModeAction.create({ enable: true }), EnableDebugModeAction.create({ enable: false }))
                 .submit();

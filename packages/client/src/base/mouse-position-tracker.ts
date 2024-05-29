@@ -14,12 +14,35 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { MousePositionTracker } from '@eclipse-glsp/sprotty';
-import { injectable } from 'inversify';
+import {
+    Action,
+    DOMHelper,
+    GModelElement,
+    MousePositionTracker,
+    Point,
+    TYPES,
+    ViewerOptions,
+    getAbsoluteClientBounds
+} from '@eclipse-glsp/sprotty';
+import { inject, injectable } from 'inversify';
 import { Ranked } from './ranked';
 
 @injectable()
 export class GLSPMousePositionTracker extends MousePositionTracker implements Ranked {
     /* we want to be executed before all default mouse listeners since we are just tracking the position and others may need it */
     rank = Ranked.DEFAULT_RANK - 200;
+
+    @inject(TYPES.ViewerOptions) protected viewerOptions: ViewerOptions;
+    @inject(TYPES.DOMHelper) protected domHelper: DOMHelper;
+
+    override mouseMove(target: GModelElement, event: MouseEvent): (Action | Promise<Action>)[] {
+        // we cannot simply use the offsetX and offsetY properties of the event since they also consider nested HTML elements
+        // such as foreignObjects or the projection bars divs. Instead, we manually translate the client coordinates to the diagram
+        const clientToRoot = getAbsoluteClientBounds(target.root, this.domHelper, this.viewerOptions);
+        const clientToPosition = { x: event.clientX, y: event.clientY };
+        const rootToPosition = Point.subtract(clientToPosition, clientToRoot);
+        const positionOnDiagram = target.root.parentToLocal(rootToPosition);
+        this.lastPosition = positionOnDiagram;
+        return [];
+    }
 }
