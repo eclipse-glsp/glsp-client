@@ -56,24 +56,32 @@ export class EdgeCreationTool extends BaseCreationTool<TriggerEdgeCreationAction
     }
 
     doEnable(): void {
-        const mouseMovingFeedback = new FeedbackEdgeEndMovingMouseListener(this.anchorRegistry, this.feedbackDispatcher);
+        this.toolFeedback();
+        this.creationListener();
+        this.trackFeedbackEdge();
+    }
+
+    protected toolFeedback(): void {
         const toolFeedback = this.createFeedbackEmitter()
             .add(cursorFeedbackAction(CursorCSS.OPERATION_NOT_ALLOWED), cursorFeedbackAction())
             .submit();
+        this.toDisposeOnDisable.push(toolFeedback);
+    }
+
+    protected creationListener(): void {
         const creationListener = new EdgeCreationToolMouseListener(
             this.triggerAction,
             this.actionDispatcher,
             this.typeHintProvider,
             this,
-            this.grid?.x / 2
+            this.grid ? this.grid.x / 2 : undefined
         );
-        this.toDisposeOnDisable.push(
-            mouseMovingFeedback,
-            this.mouseTool.registerListener(mouseMovingFeedback),
-            creationListener,
-            this.mouseTool.registerListener(creationListener),
-            toolFeedback
-        );
+        this.toDisposeOnDisable.push(creationListener, this.mouseTool.registerListener(creationListener));
+    }
+
+    protected trackFeedbackEdge(): void {
+        const mouseMovingFeedback = new FeedbackEdgeEndMovingMouseListener(this.anchorRegistry, this.feedbackDispatcher);
+        this.toDisposeOnDisable.push(mouseMovingFeedback, this.mouseTool.registerListener(mouseMovingFeedback));
     }
 }
 

@@ -112,11 +112,9 @@ export class FeedbackMoveMouseListener extends DragAwareMouseListener {
         return [];
     }
 
-    override mouseMove(target: GModelElement, event: MouseEvent): Action[] {
-        super.mouseMove(target, event);
-        if (event.buttons === 0) {
-            return this.mouseUp(target, event);
-        } else if (this.tracker.isTracking()) {
+    override draggingMouseMove(target: GModelElement, event: MouseEvent): Action[] {
+        super.draggingMouseMove(target, event);
+        if (this.tracker.isTracking()) {
             return this.moveElements(target, event);
         }
         return [];

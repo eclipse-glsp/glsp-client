@@ -180,7 +180,7 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
             this.handleFeedback.submit();
             return true;
         } else {
-            this.dispose();
+            this.disposeResize();
             return false;
         }
     }
@@ -233,21 +233,19 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
     }
 
     override draggingMouseUp(target: GModelElement, event: MouseEvent): Action[] {
-        if (!this.tracker.isTracking()) {
-            return [];
-        }
         const actions: Action[] = [];
         if (this.activeResizeHandle) {
             actions.push(...this.handleResizeOnServer(this.activeResizeHandle));
         } else {
+            // since the move feedback is handled by another class we just see whether there is something to move
             actions.push(...this.handleMoveOnServer(target));
         }
-        this.disposeAllButHandles();
+        this.disposeResize({ keepHandles: true });
         return actions;
     }
 
     override nonDraggingMouseUp(element: GModelElement, event: MouseEvent): Action[] {
-        this.disposeAllButHandles();
+        this.disposeResize({ keepHandles: true });
         return super.nonDraggingMouseUp(element, event);
     }
 
@@ -347,19 +345,19 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
         return element !== undefined && this.activeResizeElement !== undefined && element.id === this.activeResizeElement.id;
     }
 
-    protected disposeAllButHandles(): void {
-        // We do not dispose the handle feedback as we want to keep showing the handles on selected elements
-        // this.handleFeedback.dispose();
+    protected disposeResize(opts: { keepHandles: boolean } = { keepHandles: false }): void {
+        if (!opts.keepHandles) {
+            this.handleFeedback.dispose();
+        }
         this.resizeFeedback.dispose();
         this.tracker.dispose();
         this.activeResizeElement = undefined;
         this.activeResizeHandle = undefined;
         this.initialBounds = undefined;
-        super.dispose();
     }
 
     override dispose(): void {
-        this.handleFeedback.dispose();
-        this.disposeAllButHandles();
+        this.disposeResize();
+        super.dispose();
     }
 }

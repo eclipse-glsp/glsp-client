@@ -80,6 +80,7 @@ export class EdgeEditTool extends BaseEditTool {
             this.mouseTool.registerListener(this.edgeEditListener),
             this.feedbackEdgeSourceMovingListener,
             this.feedbackEdgeTargetMovingListener,
+            this.feedbackMovingListener,
             this.selectionService.onSelectionChanged(change => this.edgeEditListener.selectionChanged(change.root, change.selectedElements))
         );
     }
@@ -110,10 +111,12 @@ export class EdgeEditListener extends DragAwareMouseListener implements ISelecti
     // active reconnect handle data
     protected reconnectMode?: 'NEW_SOURCE' | 'NEW_TARGET';
 
+    protected cursorFeedback: FeedbackEmitter;
     protected editFeedback: FeedbackEmitter;
 
     constructor(protected tool: EdgeEditTool) {
         super();
+        this.cursorFeedback = this.tool.createFeedbackEmitter();
         this.editFeedback = this.tool.createFeedbackEmitter();
     }
 
@@ -264,11 +267,11 @@ export class EdgeEditListener extends DragAwareMouseListener implements ISelecti
                         (this.reconnectMode === 'NEW_SOURCE' && currentTarget.canConnect(this.edge, 'source')) ||
                         (this.reconnectMode === 'NEW_TARGET' && currentTarget.canConnect(this.edge, 'target'))
                     ) {
-                        this.editFeedback.add(cursorFeedbackAction(CursorCSS.EDGE_RECONNECT), cursorFeedbackAction()).submit();
+                        this.cursorFeedback.add(cursorFeedbackAction(CursorCSS.EDGE_RECONNECT), cursorFeedbackAction()).submit();
                         return [];
                     }
                 }
-                this.editFeedback.add(cursorFeedbackAction(CursorCSS.OPERATION_NOT_ALLOWED), cursorFeedbackAction()).submit();
+                this.cursorFeedback.add(cursorFeedbackAction(CursorCSS.OPERATION_NOT_ALLOWED), cursorFeedbackAction()).submit();
             }
         }
         return [];
@@ -307,6 +310,7 @@ export class EdgeEditListener extends DragAwareMouseListener implements ISelecti
         this.reconnectMode = undefined;
         this.newConnectable = undefined;
         this.routingHandle = undefined;
+        this.cursorFeedback.dispose();
         this.editFeedback.dispose();
         this.tool.deregisterFeedbackListeners();
         super.dispose();

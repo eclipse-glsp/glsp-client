@@ -61,13 +61,22 @@ export class CircularNodeView extends SprottyCircularNodeView {
 
 /**
  * Creates a hidden rectangle with the bounds of the given element.
+ * This is typically used to fixate the size of an element and avoid size changes that may happen during rendering.
+ * Changes can happen if the resulting bounding box (BBox) of the rendered element is different form the given bounds.
+ * The created bounding rect needs to be placed within a root SVG group (g) element to take effect.
+ *
  * @param withBounds The element to create the hidden rectangle for.
+ * @param context The rendering context. If provided, a rect is only created if the context is 'hidden'.
  * @returns The hidden rectangle.
  */
-export function hiddenBoundingRect(withBounds: BoundsAware): VNode {
+export function hiddenBoundingRect(withBounds: BoundsAware): VNode;
+export function hiddenBoundingRect(withBounds: BoundsAware, context: RenderingContext): VNode | undefined;
+export function hiddenBoundingRect(withBounds: BoundsAware, context?: RenderingContext): VNode | undefined {
     // an element with attribute ATTR_BBOX_ELEMENT is used by the hidden bounds updater to determine the bounds if it is within a g-element
     // we set the fill to transparent since the SVG export uses the hidden rendering to generate the image and we do not want to be seen
-    return <rect attrs={{ [ATTR_BBOX_ELEMENT]: true }} {...Bounds.dimension(withBounds.bounds)} style={{ fill: 'transparent' }} />;
+    return !context || context.targetKind === 'hidden' ? (
+        <rect attrs={{ [ATTR_BBOX_ELEMENT]: true }} {...Bounds.dimension(withBounds.bounds)} style={{ fill: 'transparent' }} />
+    ) : undefined;
 }
 
 /**

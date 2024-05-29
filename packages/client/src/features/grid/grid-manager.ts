@@ -44,13 +44,15 @@ export class GridManager implements IActionHandler {
     }
 
     handle(action: ShowGridAction): void {
-        this._gridVisible = action.show;
+        this.setGridVisible(action.show);
     }
 
     setGridVisible(visible: boolean): void {
-        if (!visible) {
+        if (this._gridVisible && !visible) {
+            this._gridVisible = false;
             this.gridFeedback.dispose();
-        } else {
+        } else if (!this._gridVisible && visible) {
+            this._gridVisible = true;
             this.gridFeedback.add(ShowGridAction.create({ show: true }), ShowGridAction.create({ show: false })).submit();
         }
     }

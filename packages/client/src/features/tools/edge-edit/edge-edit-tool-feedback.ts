@@ -41,6 +41,7 @@ import {
     typeGuard
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
+import { DragAwareMouseListener } from '../../../base/drag-aware-mouse-listener';
 import { IFeedbackActionDispatcher } from '../../../base/feedback/feedback-action-dispatcher';
 import { FeedbackCommand } from '../../../base/feedback/feedback-command';
 import { FeedbackEmitter } from '../../../base/feedback/feedback-emitter';
@@ -254,7 +255,7 @@ export class FeedbackEdgeSourceMovingMouseListener extends MouseListener impleme
     }
 }
 
-export class FeedbackEdgeRouteMovingMouseListener extends MouseListener {
+export class FeedbackEdgeRouteMovingMouseListener extends DragAwareMouseListener {
     protected tracker: ChangeBoundsTracker;
 
     constructor(
@@ -266,7 +267,7 @@ export class FeedbackEdgeRouteMovingMouseListener extends MouseListener {
     }
 
     override mouseDown(target: GModelElement, event: MouseEvent): Action[] {
-        const result: Action[] = [];
+        const result = super.mouseDown(target, event);
         if (event.button === 0) {
             const routingHandle = findParentByFeature(target, isRoutingHandle);
             if (routingHandle !== undefined) {
@@ -279,11 +280,9 @@ export class FeedbackEdgeRouteMovingMouseListener extends MouseListener {
         return result;
     }
 
-    override mouseMove(target: GModelElement, event: MouseEvent): Action[] {
-        super.mouseMove(target, event);
-        if (event.buttons === 0) {
-            return this.mouseUp(target, event);
-        } else if (this.tracker.isTracking()) {
+    override draggingMouseMove(target: GModelElement, event: MouseEvent): Action[] {
+        super.draggingMouseMove(target, event);
+        if (this.tracker.isTracking()) {
             return this.moveRoutingHandles(target, event);
         }
         return [];
@@ -327,9 +326,23 @@ export class FeedbackEdgeRouteMovingMouseListener extends MouseListener {
         return undefined;
     }
 
-    override mouseUp(_target: GModelElement, _event: MouseEvent): Action[] {
-        this.tracker.dispose();
+    override nonDraggingMouseUp(element: GModelElement, event: MouseEvent): Action[] {
+        // should reset everything that may have happend on mouse down
+        this.tracker.stopTracking();
         return [];
+    }
+
+    override draggingMouseUp(_target: GModelElement, _event: MouseEvent): Action[] {
+        if (!this.tracker.isTracking()) {
+            return [];
+        }
+        this.dispose();
+        return [];
+    }
+
+    override dispose(): void {
+        this.tracker.dispose();
+        super.dispose();
     }
 }
 
