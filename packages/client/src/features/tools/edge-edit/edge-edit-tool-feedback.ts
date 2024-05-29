@@ -267,7 +267,7 @@ export class FeedbackEdgeRouteMovingMouseListener extends DragAwareMouseListener
     }
 
     override mouseDown(target: GModelElement, event: MouseEvent): Action[] {
-        const result: Action[] = [];
+        const result = super.mouseDown(target, event);
         if (event.button === 0) {
             const routingHandle = findParentByFeature(target, isRoutingHandle);
             if (routingHandle !== undefined) {
