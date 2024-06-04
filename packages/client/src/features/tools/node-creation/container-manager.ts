@@ -20,12 +20,6 @@ import { CSS_GHOST_ELEMENT, CursorCSS, cursorFeedbackAction } from '../../../bas
 import { FeedbackEmitter } from '../../../base/feedback/feedback-emitter';
 import { ContainerElement, isContainable } from '../../hints/model';
 import { ChangeBoundsManager } from '../change-bounds/change-bounds-manager';
-export interface TrackedInsert {
-    elementTypeId: string;
-    location: Point;
-    container?: GModelElement;
-    valid: boolean;
-}
 
 export interface InsertOptions extends Record<string, unknown> {
     /** Flag to indicate whether the location within a container needs to be valid. Default: false */
@@ -42,6 +36,14 @@ export const DEFAULT_INSERT_OPTIONS: InsertOptions = {
     validateLocationInContainer: false
 };
 
+export interface TrackedInsert {
+    elementTypeId: string;
+    location: Point;
+    container?: GModelElement;
+    valid: boolean;
+    options: InsertOptions;
+}
+
 @injectable()
 export class ContainerManager {
     @inject(ChangeBoundsManager) protected readonly changeBoundsManager: ChangeBoundsManager;
@@ -54,7 +56,7 @@ export class ContainerManager {
             // we need to check whether the location is valid either because we do not have a container or the option is set
             valid = opts?.validLocationOverwrite ?? this.changeBoundsManager.hasValidPosition(proxy, location);
         }
-        return { elementTypeId, container, location, valid };
+        return { elementTypeId, container, location, valid, options };
     }
 
     findContainer(location: Point, ctx: GModelElement, evt?: MouseEvent): ContainerElement | undefined {

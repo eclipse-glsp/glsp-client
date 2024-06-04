@@ -15,7 +15,10 @@
  ********************************************************************************/
 import {
     Action,
+    Args,
+    Bounds,
     CreateNodeOperation,
+    Dimension,
     Disposable,
     DisposableCollection,
     GModelElement,
@@ -24,6 +27,7 @@ import {
     Point,
     TYPES,
     TriggerNodeCreationAction,
+    isBoundsAware,
     isCtrlOrCmd,
     isMoveable
 } from '@eclipse-glsp/sprotty';
@@ -129,16 +133,16 @@ export class NodeCreationToolMouseListener extends DragAwareMouseListener {
         return this.triggerAction.elementTypeId;
     }
 
-    override nonDraggingMouseUp(target: GModelElement, event: MouseEvent): Action[] {
+    override nonDraggingMouseUp(ctx: GModelElement, event: MouseEvent): Action[] {
         const result: Action[] = [];
 
-        const insert = this.getTrackedInsert(target, event);
+        const insert = this.getTrackedInsert(ctx, event);
         if (insert.valid) {
             result.push(
                 CreateNodeOperation.create(this.elementTypeId, {
                     location: insert.location,
                     containerId: insert.container?.id,
-                    args: this.triggerAction.args
+                    args: this.getCreateNodeOperationArgs(insert, ctx, event)
                 })
             );
         }
@@ -156,6 +160,22 @@ export class NodeCreationToolMouseListener extends DragAwareMouseListener {
         }
         result.push(EnableDefaultToolsAction.create());
         return result;
+    }
+
+    protected getCreateNodeOperationArgs(insert: TrackedInsert, ctx: GModelElement, event: MouseEvent): Args | undefined {
+        let args = { ...this.triggerAction.args };
+        const ghostElement = this.getGhostElement(ctx, event);
+        if (ghostElement) {
+            const ghostDimensions = isBoundsAware(ghostElement) ? Bounds.dimension(ghostElement.bounds) : Dimension.ZERO;
+            args = {
+                ...args,
+                'ghost-x': ghostElement.position.x,
+                'ghost-y': ghostElement.position.y,
+                'ghost-width': ghostDimensions.width,
+                'ghost-height': ghostDimensions.height
+            };
+        }
+        return args;
     }
 
     protected createGhostElement(ghostElement: GhostElement): string {
@@ -176,7 +196,7 @@ export class NodeCreationToolMouseListener extends DragAwareMouseListener {
     protected getTrackedInsert(ctx: GModelElement, event: MouseEvent): TrackedInsert {
         const ghostElement = this.getGhostElement(ctx, event);
         if (!ghostElement) {
-            return { elementTypeId: this.elementTypeId, location: Point.ORIGIN, valid: false };
+            return { elementTypeId: this.elementTypeId, location: Point.ORIGIN, valid: false, options: { evt: event } };
         }
         return this.tool.containerManager.insert(ghostElement, ghostElement.position, this.elementTypeId, { evt: event });
     }

@@ -29,7 +29,7 @@ export class InsertIndicator extends GNode implements ArgsAware {
     override type: string = InsertIndicator.TYPE;
     override features?: FeatureSet = createFeatureSet(InsertIndicator.DEFAULT_FEATURES);
     override cssClasses: string[] = ['insert-indicator', 'sprotty-node'];
-    override size: Dimension = { width: 1, height: 1 };
+    override size: Dimension = Dimension.ZERO;
     args: Args = {};
 
     constructor(length?: number) {

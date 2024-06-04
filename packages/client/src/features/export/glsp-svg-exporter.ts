@@ -13,32 +13,33 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { ExportSvgAction, GModelRoot, RequestAction, SvgExporter } from '@eclipse-glsp/sprotty';
 import { injectable } from 'inversify';
 import { v4 as uuid } from 'uuid';
-import { ExportSvgAction, RequestAction, GModelRoot, SvgExporter } from '@eclipse-glsp/sprotty';
 
 @injectable()
 export class GLSPSvgExporter extends SvgExporter {
-    override export(root: GModelRoot, _request?: RequestAction<ExportSvgAction>): void {
+    override export(root: GModelRoot, request?: RequestAction<ExportSvgAction>): void {
         if (typeof document !== 'undefined') {
-            const svgElement = this.findSvgElement();
+            let svgElement = this.findSvgElement();
             if (svgElement) {
-                // createSvg requires the svg to have a non-empty id, so we generate one if necessary
-                const originalId = svgElement.id;
-                try {
-                    svgElement.id = originalId || uuid();
-                    // provide generated svg code with respective sizing for proper viewing in browser and remove undesired border
-                    const bounds = this.getBounds(root);
-                    const svg = this.createSvg(svgElement, root).replace(
-                        'style="',
-                        `style="width: ${bounds.width}px !important;height: ${bounds.height}px !important;border: none !important;`
-                    );
-                    // do not give request/response id here as otherwise the action is treated as an unrequested response
-                    this.actionDispatcher.dispatch(ExportSvgAction.create(svg));
-                } finally {
-                    svgElement.id = originalId;
-                }
+                svgElement = this.prepareSvgElement(svgElement, root, request);
+                const serializedSvg = this.createSvg(svgElement, root);
+                const svgExport = this.getSvgExport(serializedSvg, svgElement, root, request);
+                // do not give request/response id here as otherwise the action is treated as an unrequested response
+                this.actionDispatcher.dispatch(ExportSvgAction.create(svgExport));
             }
+        }
+    }
+
+    protected override createSvg(svgElement: SVGSVGElement, root: GModelRoot): string {
+        // createSvg requires the svg to have a non-empty id, so we generate one if necessary
+        const originalId = svgElement.id;
+        try {
+            svgElement.id = originalId || uuid();
+            return super.createSvg(svgElement, root);
+        } finally {
+            svgElement.id = originalId;
         }
     }
 
@@ -47,4 +48,72 @@ export class GLSPSvgExporter extends SvgExporter {
         // search for first svg element as hierarchy within Sprotty might change
         return div && div.querySelector('svg');
     }
+
+    protected prepareSvgElement(svgElement: SVGSVGElement, root: GModelRoot, request?: RequestAction<ExportSvgAction>): SVGSVGElement {
+        return svgElement;
+    }
+
+    protected override copyStyles(source: Element, target: Element, skippedProperties: string[]): void {
+        this.copyStyle(source, target, skippedProperties);
+
+        // IE doesn't retrun anything on source.children
+        for (let i = 0; i < source.childNodes.length; ++i) {
+            const sourceChild = source.childNodes[i];
+            const targetChild = target.childNodes[i];
+            if (sourceChild instanceof Element) {
+                this.copyStyles(sourceChild, targetChild as Element, []);
+            }
+        }
+    }
+
+    protected copyStyle(source: Element, target: Element, skippedProperties: string[]): void {
+        const sourceStyle = getComputedStyle(source);
+        const targetStyle = getComputedStyle(target);
+
+        let style = '';
+        for (let i = 0; i < sourceStyle.length; i++) {
+            const propertyName = sourceStyle[i];
+            if (!skippedProperties.includes(propertyName)) {
+                const propertyValue = sourceStyle.getPropertyValue(propertyName);
+                const propertyPriority = sourceStyle.getPropertyPriority(propertyName);
+                if (targetStyle.getPropertyValue(propertyName) !== propertyValue) {
+                    if (isElementCSSInlineStyle(target)) {
+                        // rather set the property directly on the element to keep other values intact
+                        target.style.setProperty(propertyName, propertyValue);
+                    } else {
+                        // collect all properties to set them at once
+                        style += `${propertyName}: ${propertyValue}${propertyPriority ? ' !' + propertyPriority : ''}; `;
+                    }
+                }
+            }
+        }
+        if (style !== '') {
+            target.setAttribute('style', style.trim());
+        }
+    }
+
+    protected getSvgExport(
+        serializedSvgElement: string,
+        svgElement: SVGElement,
+        root: GModelRoot,
+        request?: RequestAction<ExportSvgAction>
+    ): string {
+        const svgExportStyle = this.getSvgExportStyle(svgElement, root, request);
+        return svgExportStyle ? serializedSvgElement.replace('style="', `style="${svgExportStyle}`) : serializedSvgElement;
+    }
+
+    protected getSvgExportStyle(svgElement: SVGElement, root: GModelRoot, request?: RequestAction<ExportSvgAction>): string | undefined {
+        // provide generated svg code with respective sizing for proper viewing in browser and remove undesired border
+        const bounds = this.getBounds(root);
+        return (
+            `width: ${bounds.width}px !important;` +
+            `height: ${bounds.height}px !important;` +
+            'border: none !important;' +
+            'cursor: default !important;'
+        );
+    }
+}
+
+export function isElementCSSInlineStyle(element: any): element is ElementCSSInlineStyle {
+    return 'style' in element && element.style instanceof CSSStyleDeclaration;
 }

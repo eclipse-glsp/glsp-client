@@ -54,10 +54,11 @@ export class MouseTrackingElementPositionListener extends DragAwareMouseListener
         if (!element) {
             return [];
         }
-        if (!this.tracker.isTracking()) {
+        const isInitializing = !this.tracker.isTracking();
+        if (isInitializing) {
             this.initialize(element, ctx, event);
         }
-        const move = this.tracker.moveElements([element], { snap: event, restrict: event });
+        const move = this.tracker.moveElements([element], { snap: event, restrict: event, skipStatic: !isInitializing });
         const elementMove = move.elementMoves[0];
         if (!elementMove) {
             return [];
