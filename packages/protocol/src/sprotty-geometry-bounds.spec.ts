@@ -32,6 +32,26 @@ describe('Bounds', () => {
         });
     });
 
+    describe('isValid', () => {
+        it('should return true if the bounds are valid', () => {
+            const bounds: Bounds = { x: 0, y: 0, width: 100, height: 100 };
+            const result = Bounds.isValid(bounds);
+            expect(result).to.be.true;
+        });
+
+        it('should return false if a dimension is not valid', () => {
+            const bounds = { x: 0, y: 0, width: 100, height: -1 };
+            const result = Bounds.isValid(bounds);
+            expect(result).to.be.false;
+        });
+
+        it('should return false if a coordinate is not valid', () => {
+            const bounds = { x: 0, y: NaN, width: 100, height: 0 };
+            const result = Bounds.isValid(bounds);
+            expect(result).to.be.false;
+        });
+    });
+
     describe('encompasses', () => {
         it('should return true if the outer bounds completely encompass the inner bounds', () => {
             const outer: Bounds = { x: 0, y: 0, width: 100, height: 100 };

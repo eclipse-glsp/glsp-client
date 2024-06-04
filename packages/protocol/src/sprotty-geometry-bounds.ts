@@ -34,6 +34,14 @@ declare module 'sprotty-protocol/lib/utils/geometry' {
         function is(bounds: any): bounds is Bounds;
 
         /**
+         * Type guard to check if a bound is valid. For a bound to be valid it needs to be defined and have valid
+         * coordinates and dimensions.
+         *
+         * @param bounds the bounds to be checked for validity
+         */
+        function isValid(bounds?: Bounds): bounds is Bounds;
+
+        /**
          * Checks whether the inner bounds are compeletely encompassed by the outer bounds.
          *
          * @param outer outer bounds
@@ -271,6 +279,8 @@ Bounds.is = (bounds: any): bounds is Bounds =>
     hasNumberProp(bounds, 'y') &&
     hasNumberProp(bounds, 'width') &&
     hasNumberProp(bounds, 'height');
+
+Bounds.isValid = (bounds?: Bounds): bounds is Bounds => bounds !== undefined && Dimension.isValid(bounds) && Point.isValid(bounds);
 
 Bounds.encompasses = (outer: Bounds, inner: Bounds): boolean =>
     Bounds.includes(outer, Bounds.topLeft(inner)) && Bounds.includes(outer, Bounds.bottomRight(inner));

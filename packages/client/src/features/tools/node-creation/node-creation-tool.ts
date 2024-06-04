@@ -164,9 +164,6 @@ export class NodeCreationToolMouseListener extends DragAwareMouseListener {
 
     protected getCreateNodeOperationArgs(insert: TrackedInsert, ctx: GModelElement, event: MouseEvent): Args | undefined {
         let args = { ...this.triggerAction.args };
-        if (this.tool.changeBoundsManager.snapper) {
-            args = { ...args, snapper: this.tool.changeBoundsManager.snapper.constructor.name };
-        }
         const ghostElement = this.getGhostElement(ctx, event);
         if (ghostElement) {
             const ghostDimensions = isBoundsAware(ghostElement) ? Bounds.dimension(ghostElement.bounds) : Dimension.ZERO;
