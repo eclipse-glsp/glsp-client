@@ -77,7 +77,7 @@ export class GLSPSvgExporter extends SvgExporter {
                 const propertyValue = sourceStyle.getPropertyValue(propertyName);
                 const propertyPriority = sourceStyle.getPropertyPriority(propertyName);
                 if (targetStyle.getPropertyValue(propertyName) !== propertyValue) {
-                    if (isElementCSSInlineStyle(target)) {
+                    if (this.shouldUpdateStyle(target)) {
                         // rather set the property directly on the element to keep other values intact
                         target.style.setProperty(propertyName, propertyValue);
                     } else {
@@ -90,6 +90,11 @@ export class GLSPSvgExporter extends SvgExporter {
         if (style !== '') {
             target.setAttribute('style', style.trim());
         }
+    }
+
+    protected shouldUpdateStyle(element: any): element is ElementCSSInlineStyle {
+        // we want to simply update the style of elements and keep other values intact if they have a style property
+        return 'tagName' in element && 'style' in element;
     }
 
     protected getSvgExport(
@@ -112,8 +117,4 @@ export class GLSPSvgExporter extends SvgExporter {
             'cursor: default !important;'
         );
     }
-}
-
-export function isElementCSSInlineStyle(element: any): element is ElementCSSInlineStyle {
-    return 'style' in element && element.style instanceof CSSStyleDeclaration;
 }
