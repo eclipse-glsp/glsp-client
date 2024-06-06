@@ -27,12 +27,15 @@ import {
 import { ExportSvgActionHandler } from './export-svg-action-handler';
 import { GLSPSvgExporter } from './glsp-svg-exporter';
 
-export const exportModule = new FeatureModule((bind, _unbind, isBound) => {
-    const context = { bind, isBound };
-    bindAsService(context, TYPES.HiddenVNodePostprocessor, ExportSvgPostprocessor);
-    configureCommand(context, ExportSvgCommand);
-    bind(TYPES.SvgExporter).to(GLSPSvgExporter).inSingletonScope();
-});
+export const exportModule = new FeatureModule(
+    (bind, _unbind, isBound) => {
+        const context = { bind, isBound };
+        bindAsService(context, TYPES.HiddenVNodePostprocessor, ExportSvgPostprocessor);
+        configureCommand(context, ExportSvgCommand);
+        bind(TYPES.SvgExporter).to(GLSPSvgExporter).inSingletonScope();
+    },
+    { featureId: Symbol('export') }
+);
 
 /**
  * Feature module that is intended for the standalone deployment of GLSP (i.e. plain webapp)

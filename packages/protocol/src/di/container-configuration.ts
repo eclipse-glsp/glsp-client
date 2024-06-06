@@ -61,6 +61,10 @@ export function resolveContainerConfiguration(...containerConfigurations: Contai
                     if (existingIndex >= 0) {
                         modules[existingIndex] = replace;
                     } else {
+                        console.warn(
+                            `Could not find module to replace with feature id ${replace.featureId.toString()}.` +
+                                'Adding replacement module to the end of the resolved configurations.'
+                        );
                         distinctAdd(modules, replace);
                     }
                 });
