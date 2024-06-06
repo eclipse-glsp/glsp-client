@@ -20,15 +20,18 @@ import { GridManager } from './grid-manager';
 import { ShowGridAction, ShowGridCommand } from './grid-model';
 import { GridSnapper } from './grid-snapper';
 
-export const gridModule = new FeatureModule((bind, unbind, isBound, rebind) => {
-    const context = { bind, unbind, isBound, rebind };
+export const gridModule = new FeatureModule(
+    (bind, unbind, isBound, rebind) => {
+        const context = { bind, unbind, isBound, rebind };
 
-    bind(TYPES.Grid).toConstantValue({ x: 10, y: 10 });
+        bind(TYPES.Grid).toConstantValue({ x: 10, y: 10 });
 
-    configureCommand(context, ShowGridCommand);
+        configureCommand(context, ShowGridCommand);
 
-    bind(GridManager).toSelf().inSingletonScope();
-    configureActionHandler(context, ShowGridAction.KIND, GridManager);
+        bind(GridManager).toSelf().inSingletonScope();
+        configureActionHandler(context, ShowGridAction.KIND, GridManager);
 
-    bind(TYPES.ISnapper).to(GridSnapper);
-});
+        bind(TYPES.ISnapper).to(GridSnapper);
+    },
+    { featureId: Symbol('grid') }
+);

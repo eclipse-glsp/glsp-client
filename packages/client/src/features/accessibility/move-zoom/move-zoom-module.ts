@@ -21,10 +21,13 @@ import { ZoomElementAction, ZoomElementHandler, ZoomViewportAction, ZoomViewport
 /**
  * Handles move and zoom actions.
  */
-export const moveZoomModule = new FeatureModule((bind, unbind, isBound, rebind) => {
-    const context = { bind, unbind, isBound, rebind };
-    configureMoveZoom(context);
-});
+export const moveZoomModule = new FeatureModule(
+    (bind, unbind, isBound, rebind) => {
+        const context = { bind, unbind, isBound, rebind };
+        configureMoveZoom(context);
+    },
+    { featureId: Symbol('moveZoom') }
+);
 
 export function configureMoveZoom(context: BindingContext): void {
     context.bind(MoveViewportHandler).toSelf().inSingletonScope();

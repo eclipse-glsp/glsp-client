@@ -42,15 +42,18 @@ import { undoRedoModule } from './features/undo-redo/undo-redo-module';
 import { standaloneMarkerNavigatorModule } from './features/validation/validation-modules';
 import { standaloneViewportModule } from './features/viewport/viewport-modules';
 
-export const standaloneDefaultModule = new FeatureModule((bind, unbind, isBound, rebind) => {
-    const context = { bind, unbind, isBound, rebind };
-    bind(FallbackActionHandler).toSelf().inSingletonScope();
-    configureActionHandler(context, MessageAction.KIND, FallbackActionHandler);
-    configureActionHandler(context, StartProgressAction.KIND, FallbackActionHandler);
-    configureActionHandler(context, UpdateProgressAction.KIND, FallbackActionHandler);
-    configureActionHandler(context, EndProgressAction.KIND, FallbackActionHandler);
-    bindAsService(context, TYPES.KeyListener, LayoutKeyListener);
-});
+export const standaloneDefaultModule = new FeatureModule(
+    (bind, unbind, isBound, rebind) => {
+        const context = { bind, unbind, isBound, rebind };
+        bind(FallbackActionHandler).toSelf().inSingletonScope();
+        configureActionHandler(context, MessageAction.KIND, FallbackActionHandler);
+        configureActionHandler(context, StartProgressAction.KIND, FallbackActionHandler);
+        configureActionHandler(context, UpdateProgressAction.KIND, FallbackActionHandler);
+        configureActionHandler(context, EndProgressAction.KIND, FallbackActionHandler);
+        bindAsService(context, TYPES.KeyListener, LayoutKeyListener);
+    },
+    { featureId: Symbol('standaloneDefault') }
+);
 
 /**
  * A fallback action handler for actions sent by features that are currently not supported by

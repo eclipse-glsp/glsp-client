@@ -23,16 +23,19 @@ import {
     SwitchRoutingModeCommand
 } from './edge-edit-tool-feedback';
 
-export const edgeEditToolModule = new FeatureModule((bind, unbind, isBound, rebind) => {
-    const context = { bind, unbind, isBound, rebind };
-    bindAsService(context, TYPES.IDefaultTool, EdgeEditTool);
+export const edgeEditToolModule = new FeatureModule(
+    (bind, unbind, isBound, rebind) => {
+        const context = { bind, unbind, isBound, rebind };
+        bindAsService(context, TYPES.IDefaultTool, EdgeEditTool);
 
-    // reconnect edge tool feedback
-    configureCommand(context, ShowEdgeReconnectHandlesFeedbackCommand);
-    configureCommand(context, HideEdgeReconnectHandlesFeedbackCommand);
-    configureCommand(context, DrawFeedbackEdgeSourceCommand);
-    configureCommand(context, SwitchRoutingModeCommand);
+        // reconnect edge tool feedback
+        configureCommand(context, ShowEdgeReconnectHandlesFeedbackCommand);
+        configureCommand(context, HideEdgeReconnectHandlesFeedbackCommand);
+        configureCommand(context, DrawFeedbackEdgeSourceCommand);
+        configureCommand(context, SwitchRoutingModeCommand);
 
-    // dangling edge feedback
-    configureDanglingFeedbackEdge(context);
-});
+        // dangling edge feedback
+        configureDanglingFeedbackEdge(context);
+    },
+    { featureId: Symbol('edgeEditTool') }
+);

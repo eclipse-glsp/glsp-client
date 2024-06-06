@@ -17,17 +17,20 @@ import { ContextMenuProviderRegistry, FeatureModule, IContextMenuService, TYPES,
 import { GLSPContextMenuMouseListener } from './glsp-context-menu-mouse-listener';
 import { ServerContextMenuItemProvider } from './server-context-menu-provider';
 
-export const contextMenuModule = new FeatureModule(bind => {
-    bind(TYPES.IContextMenuServiceProvider).toProvider<IContextMenuService>(ctx => async () => {
-        if (ctx.container.isBound(TYPES.IContextMenuService)) {
-            return ctx.container.get<IContextMenuService>(TYPES.IContextMenuService);
-        }
-        console.warn("'TYPES.IContextMenuService' is not bound. Use no-op implementation instead");
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
-        return { show: () => {} };
-    });
+export const contextMenuModule = new FeatureModule(
+    bind => {
+        bind(TYPES.IContextMenuServiceProvider).toProvider<IContextMenuService>(ctx => async () => {
+            if (ctx.container.isBound(TYPES.IContextMenuService)) {
+                return ctx.container.get<IContextMenuService>(TYPES.IContextMenuService);
+            }
+            console.warn("'TYPES.IContextMenuService' is not bound. Use no-op implementation instead");
+            // eslint-disable-next-line @typescript-eslint/no-empty-function
+            return { show: () => {} };
+        });
 
-    bindAsService(bind, TYPES.MouseListener, GLSPContextMenuMouseListener);
-    bind(TYPES.IContextMenuProviderRegistry).to(ContextMenuProviderRegistry);
-    bindAsService(bind, TYPES.IContextMenuItemProvider, ServerContextMenuItemProvider);
-});
+        bindAsService(bind, TYPES.MouseListener, GLSPContextMenuMouseListener);
+        bind(TYPES.IContextMenuProviderRegistry).to(ContextMenuProviderRegistry);
+        bindAsService(bind, TYPES.IContextMenuItemProvider, ServerContextMenuItemProvider);
+    },
+    { featureId: Symbol('contextMenu') }
+);

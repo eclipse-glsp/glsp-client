@@ -53,10 +53,13 @@ import { GGraphView } from './ggraph-view';
 import { GIssueMarkerView } from './issue-marker-view';
 import { RoundedCornerNodeView } from './rounded-corner-view';
 
-export const baseViewModule = new FeatureModule((bind, unbind, isBound, rebind) => {
-    const context = { bind, unbind, isBound, rebind };
-    configureDefaultModelElements(context);
-});
+export const baseViewModule = new FeatureModule(
+    (bind, unbind, isBound, rebind) => {
+        const context = { bind, unbind, isBound, rebind };
+        configureDefaultModelElements(context);
+    },
+    { featureId: Symbol('baseView') }
+);
 
 export function configureDefaultModelElements(context: Pick<BindingContext, 'bind' | 'isBound'>): void {
     // HTML elements

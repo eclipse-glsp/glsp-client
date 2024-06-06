@@ -46,5 +46,5 @@ export const standaloneExportModule = new FeatureModule(
         bind(ExportSvgActionHandler).toSelf().inSingletonScope();
         configureActionHandler(context, ExportSvgAction.KIND, ExportSvgActionHandler);
     },
-    { requires: exportModule }
+    { featureId: Symbol('standaloneExport'), requires: exportModule }
 );

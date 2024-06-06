@@ -18,10 +18,13 @@ import '../../../css/tool-palette.css';
 import { EnableDefaultToolsAction } from '../../base/tool-manager/tool';
 import { ToolPalette } from './tool-palette';
 
-export const toolPaletteModule = new FeatureModule((bind, _unbind, isBound, _rebind) => {
-    bindAsService(bind, TYPES.IUIExtension, ToolPalette);
-    bind(TYPES.IDiagramStartup).toService(ToolPalette);
-    configureActionHandler({ bind, isBound }, EnableDefaultToolsAction.KIND, ToolPalette);
-    configureActionHandler({ bind, isBound }, UpdateModelAction.KIND, ToolPalette);
-    configureActionHandler({ bind, isBound }, SetModelAction.KIND, ToolPalette);
-});
+export const toolPaletteModule = new FeatureModule(
+    (bind, _unbind, isBound, _rebind) => {
+        bindAsService(bind, TYPES.IUIExtension, ToolPalette);
+        bind(TYPES.IDiagramStartup).toService(ToolPalette);
+        configureActionHandler({ bind, isBound }, EnableDefaultToolsAction.KIND, ToolPalette);
+        configureActionHandler({ bind, isBound }, UpdateModelAction.KIND, ToolPalette);
+        configureActionHandler({ bind, isBound }, SetModelAction.KIND, ToolPalette);
+    },
+    { featureId: Symbol('toolPalette') }
+);

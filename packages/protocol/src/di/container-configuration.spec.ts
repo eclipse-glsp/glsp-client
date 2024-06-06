@@ -15,53 +15,56 @@
  ********************************************************************************/
 import { expect } from 'chai';
 import { Container } from 'inversify';
-import * as sinon from 'sinon';
-import { initializeContainer } from './container-configuration';
+import { resolveContainerConfiguration } from './container-configuration';
 import { FeatureModule } from './feature-module';
 
-const sandbox = sinon.createSandbox();
-const container = new Container();
-const loadSpy = sandbox.spy(container, 'load');
-container.snapshot();
+const moduleA = new FeatureModule(() => {}, { featureId: Symbol('moduleA') });
+const moduleB = new FeatureModule(() => {}, { featureId: Symbol('moduleB') });
+const moduleC = new FeatureModule(() => {}, { featureId: Symbol('moduleC'), requires: [moduleA, moduleB] });
 
-const moduleA = new FeatureModule(() => {});
-const moduleB = new FeatureModule(() => {});
-const moduleC = new FeatureModule(() => {});
+FeatureModule.DEBUG_LOG_ENABLED = true;
+const container = new Container();
+container.load(moduleC);
 
 describe('Container configuration', () => {
-    describe('initializeContainer', () => {
-        beforeEach(() => {
-            sandbox.reset();
-            container.restore();
-            container.snapshot();
+    describe('resolveContainerConfiguration', () => {
+        it('should resolve the given container modules in incoming order', () => {
+            const result = resolveContainerConfiguration(moduleA, moduleB, moduleC);
+            expect(result).to.deep.equal([moduleA, moduleB, moduleC]);
         });
-        it('should load the given container modules', () => {
-            initializeContainer(container, moduleA, moduleB, moduleC);
-            expect(loadSpy.calledOnce).to.equal(true);
-            expect(loadSpy.firstCall.args).to.deep.equal([moduleA, moduleB, moduleC]);
+        it('should resolve the same container module only once', () => {
+            const result = resolveContainerConfiguration(moduleA, moduleA);
+            expect(result).to.deep.equal([moduleA]);
         });
-        it('should load the same container module only once', () => {
-            initializeContainer(container, moduleA, moduleA);
-            expect(loadSpy.calledOnce).to.equal(true);
-            expect(loadSpy.firstCall.args).to.deep.equal([moduleA]);
+        it('should resolve the given container modules and add configurations', () => {
+            const result = resolveContainerConfiguration(moduleA, { add: [moduleB, moduleC] });
+            expect(result).to.deep.equal([moduleA, moduleB, moduleC]);
         });
-        it('should load the given container modules and add configurations', () => {
-            initializeContainer(container, moduleA, { add: [moduleB, moduleC] });
-            expect(loadSpy.calledOnce).to.equal(true);
-            expect(loadSpy.firstCall.args).to.deep.equal([moduleA, moduleB, moduleC]);
-        });
-        it('should load the given container modules/add configurations and not load modules from remove configurations', () => {
-            initializeContainer(container, moduleA, {
+        it('should resolve the given container modules/add configurations and not load modules from remove configurations', () => {
+            const result = resolveContainerConfiguration(moduleA, {
                 add: [moduleB, moduleC],
                 remove: moduleA
             });
-            expect(loadSpy.calledOnce).to.equal(true);
-            expect(loadSpy.firstCall.args).to.deep.equal([moduleB, moduleC]);
+            expect(result).to.deep.equal([moduleB, moduleC]);
         });
-        it('should load a module from a remove configuration if it is added later again', () => {
-            initializeContainer(container, moduleA, { remove: moduleA }, moduleA);
-            expect(loadSpy.calledOnce).to.equal(true);
-            expect(loadSpy.firstCall.args).to.deep.equal([moduleA]);
+        it('should resolve a module from a remove configuration if it is re-added with a subsequent add configuration', () => {
+            const result = resolveContainerConfiguration(moduleA, { remove: moduleA }, moduleA);
+            expect(result).to.deep.equal([moduleA]);
+        });
+        it('should resolve a module from a replace configuration instead of a prior added module with the same feature id', () => {
+            const replaceModule = new FeatureModule(() => {}, { featureId: moduleA.featureId });
+            const result = resolveContainerConfiguration(moduleA, moduleB, { replace: replaceModule });
+            expect(result).to.deep.equal([replaceModule, moduleB]);
+        });
+        // eslint-disable-next-line max-len
+        it('should still resolve a module from a replace configuration if there is no prior added module with the same featureId to replace', () => {
+            const replaceModule = new FeatureModule(() => {}, { featureId: Symbol('replaceModule') });
+            const result = resolveContainerConfiguration(moduleA, moduleB, { replace: replaceModule });
+            expect(result).to.deep.equal([moduleA, moduleB, replaceModule]);
+        });
+        it('should throw an error for a configuration that resolves to multiple feature modules with the same featureId', () => {
+            const duplicateModule = new FeatureModule(() => {}, { featureId: moduleA.featureId });
+            expect(() => resolveContainerConfiguration(moduleA, duplicateModule)).to.throw();
         });
     });
 });

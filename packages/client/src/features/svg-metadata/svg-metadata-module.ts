@@ -17,7 +17,10 @@
 import { FeatureModule, TYPES } from '@eclipse-glsp/sprotty';
 import { MetadataPlacer } from './metadata-placer';
 
-export const svgMetadataModule = new FeatureModule(bind => {
-    bind(MetadataPlacer).toSelf().inSingletonScope();
-    bind(TYPES.IVNodePostprocessor).toService(MetadataPlacer);
-});
+export const svgMetadataModule = new FeatureModule(
+    bind => {
+        bind(MetadataPlacer).toSelf().inSingletonScope();
+        bind(TYPES.IVNodePostprocessor).toService(MetadataPlacer);
+    },
+    { featureId: Symbol('svgMetadata') }
+);

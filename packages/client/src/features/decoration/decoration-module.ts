@@ -17,6 +17,9 @@ import { FeatureModule, TYPES, bindAsService } from '@eclipse-glsp/sprotty';
 import '../../../css/decoration.css';
 import { GlspDecorationPlacer } from './decoration-placer';
 
-export const decorationModule = new FeatureModule(bind => {
-    bindAsService(bind, TYPES.IVNodePostprocessor, GlspDecorationPlacer);
-});
+export const decorationModule = new FeatureModule(
+    bind => {
+        bindAsService(bind, TYPES.IVNodePostprocessor, GlspDecorationPlacer);
+    },
+    { featureId: Symbol('decoration') }
+);

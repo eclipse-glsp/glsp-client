@@ -35,24 +35,27 @@ import { LocalComputedBoundsCommand } from './local-bounds';
 import { SetBoundsFeedbackCommand } from './set-bounds-feedback-command';
 import { VBoxLayouterExt } from './vbox-layout';
 
-export const boundsModule = new FeatureModule((bind, _unbind, isBound, _rebind) => {
-    const context = { bind, isBound };
-    configureCommand(context, SetBoundsCommand);
-    configureCommand(context, RequestBoundsCommand);
-    bind(HiddenBoundsUpdater).toSelf().inSingletonScope();
-    bindAsService(context, TYPES.HiddenVNodePostprocessor, GLSPHiddenBoundsUpdater);
+export const boundsModule = new FeatureModule(
+    (bind, _unbind, isBound, _rebind) => {
+        const context = { bind, isBound };
+        configureCommand(context, SetBoundsCommand);
+        configureCommand(context, RequestBoundsCommand);
+        bind(HiddenBoundsUpdater).toSelf().inSingletonScope();
+        bindAsService(context, TYPES.HiddenVNodePostprocessor, GLSPHiddenBoundsUpdater);
 
-    configureCommand(context, LocalComputedBoundsCommand);
-    configureCommand(context, SetBoundsFeedbackCommand);
+        configureCommand(context, LocalComputedBoundsCommand);
+        configureCommand(context, SetBoundsFeedbackCommand);
 
-    bind(TYPES.Layouter).to(LayouterExt).inSingletonScope();
-    bind(TYPES.LayoutRegistry).to(LayoutRegistry).inSingletonScope();
+        bind(TYPES.Layouter).to(LayouterExt).inSingletonScope();
+        bind(TYPES.LayoutRegistry).to(LayoutRegistry).inSingletonScope();
 
-    configureLayout(context, VBoxLayouter.KIND, VBoxLayouterExt);
-    configureLayout(context, HBoxLayouter.KIND, HBoxLayouterExt);
-    configureLayout(context, FreeFormLayouter.KIND, FreeFormLayouter);
+        configureLayout(context, VBoxLayouter.KIND, VBoxLayouterExt);
+        configureLayout(context, HBoxLayouter.KIND, HBoxLayouterExt);
+        configureLayout(context, FreeFormLayouter.KIND, FreeFormLayouter);
 
-    // backwards compatibility
-    // eslint-disable-next-line deprecation/deprecation
-    bind(PositionSnapper).toSelf();
-});
+        // backwards compatibility
+        // eslint-disable-next-line deprecation/deprecation
+        bind(PositionSnapper).toSelf();
+    },
+    { featureId: Symbol('bounds') }
+);

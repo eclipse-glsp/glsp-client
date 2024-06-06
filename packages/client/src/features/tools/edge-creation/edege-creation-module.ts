@@ -17,9 +17,12 @@ import { FeatureModule, TYPES, TriggerEdgeCreationAction, bindAsService, configu
 import { configureDanglingFeedbackEdge } from './dangling-edge-feedback';
 import { EdgeCreationTool } from './edge-creation-tool';
 
-export const edgeCreationToolModule = new FeatureModule((bind, unbind, isBound, rebind) => {
-    const context = { bind, unbind, isBound, rebind };
-    bindAsService(context, TYPES.ITool, EdgeCreationTool);
-    configureActionHandler(context, TriggerEdgeCreationAction.KIND, EdgeCreationTool);
-    configureDanglingFeedbackEdge(context);
-});
+export const edgeCreationToolModule = new FeatureModule(
+    (bind, unbind, isBound, rebind) => {
+        const context = { bind, unbind, isBound, rebind };
+        bindAsService(context, TYPES.ITool, EdgeCreationTool);
+        configureActionHandler(context, TriggerEdgeCreationAction.KIND, EdgeCreationTool);
+        configureDanglingFeedbackEdge(context);
+    },
+    { featureId: Symbol('edgeCreationTool') }
+);

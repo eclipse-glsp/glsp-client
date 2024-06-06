@@ -15,15 +15,20 @@
  ********************************************************************************/
 
 import { bindAsService, BindingContext, configureActionHandler, FeatureModule, TYPES } from '@eclipse-glsp/sprotty';
+import { KeyboardGridCellSelectedAction, KeyboardGridKeyboardEventAction } from '../keyboard-grid/action';
 import { DeselectKeyTool } from './deselect-key-tool';
 import { MovementKeyTool } from './movement-key-tool';
 import { ZoomKeyTool } from './zoom-key-tool';
-import { KeyboardGridCellSelectedAction, KeyboardGridKeyboardEventAction } from '../keyboard-grid/action';
 
-export const viewKeyToolsModule = new FeatureModule((bind, _unbind, isBound, rebind) => {
-    const context = { bind, isBound, rebind };
-    configureViewKeyTools(context);
-});
+export const viewKeyToolsModule = new FeatureModule(
+    (bind, _unbind, isBound, rebind) => {
+        const context = { bind, isBound, rebind };
+        configureViewKeyTools(context);
+    },
+    {
+        featureId: Symbol('viewKeyTools')
+    }
+);
 
 export function configureViewKeyTools(context: Pick<BindingContext, 'bind' | 'isBound'>): void {
     bindAsService(context, TYPES.IDefaultTool, MovementKeyTool);

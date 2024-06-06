@@ -17,8 +17,11 @@ import { FeatureModule, configureCommand } from '@eclipse-glsp/sprotty';
 import { AddTemplateElementsFeedbackCommand } from './add-template-element';
 import { RemoveTemplateElementsFeedbackCommand } from './remove-template-element';
 
-export const elementTemplateModule = new FeatureModule((bind, unbind, isBound, rebind) => {
-    const context = { bind, unbind, isBound, rebind };
-    configureCommand(context, AddTemplateElementsFeedbackCommand);
-    configureCommand(context, RemoveTemplateElementsFeedbackCommand);
-});
+export const elementTemplateModule = new FeatureModule(
+    (bind, unbind, isBound, rebind) => {
+        const context = { bind, unbind, isBound, rebind };
+        configureCommand(context, AddTemplateElementsFeedbackCommand);
+        configureCommand(context, RemoveTemplateElementsFeedbackCommand);
+    },
+    { featureId: Symbol('elementTemplate') }
+);

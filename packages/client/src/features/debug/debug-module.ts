@@ -20,13 +20,16 @@ import { DebugBoundsDecorator } from './debug-bounds-decorator';
 import { DebugManager } from './debug-manager';
 import { EnableDebugModeAction, EnableDebugModeCommand } from './debug-model';
 
-export const debugModule = new FeatureModule((bind, unbind, isBound, rebind) => {
-    const context = { bind, unbind, isBound, rebind };
+export const debugModule = new FeatureModule(
+    (bind, unbind, isBound, rebind) => {
+        const context = { bind, unbind, isBound, rebind };
 
-    configureCommand(context, EnableDebugModeCommand);
+        configureCommand(context, EnableDebugModeCommand);
 
-    bind(DebugManager).toSelf().inSingletonScope();
-    configureActionHandler(context, EnableDebugModeAction.KIND, DebugManager);
+        bind(DebugManager).toSelf().inSingletonScope();
+        configureActionHandler(context, EnableDebugModeAction.KIND, DebugManager);
 
-    bindAsService(context, TYPES.IVNodePostprocessor, DebugBoundsDecorator);
-});
+        bindAsService(context, TYPES.IVNodePostprocessor, DebugBoundsDecorator);
+    },
+    { featureId: Symbol('debug') }
+);

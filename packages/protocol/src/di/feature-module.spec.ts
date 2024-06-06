@@ -70,6 +70,11 @@ describe('FeatureModule', () => {
             expect(container.isBound(moduleWithUnmetRequirements.featureId)).to.be.false;
             expect(container.isBound('Foo')).to.be.false;
         });
+        it('Should throw an error if a feature module with the same featureId is already loaded', () => {
+            const loadedModule = new FeatureModule(() => {}, { featureId: moduleA.featureId });
+            container.load(loadedModule);
+            expect(() => container.load(moduleA)).to.throw();
+        });
     });
     describe('Multiple required modules', () => {
         it('Should load feature module with loaded required modules', () => {

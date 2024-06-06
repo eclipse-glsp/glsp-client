@@ -14,32 +14,35 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import {
-    TYPES,
-    bindAsService,
-    configureActionHandler,
-    TriggerNodeCreationAction,
-    FeatureModule,
     BindingContext,
-    TriggerEdgeCreationAction
+    FeatureModule,
+    TYPES,
+    TriggerEdgeCreationAction,
+    TriggerNodeCreationAction,
+    bindAsService,
+    configureActionHandler
 } from '@eclipse-glsp/sprotty';
-import { GlobalKeyListenerTool } from '../global-keylistener-tool';
-import { KeyboardPointer } from './keyboard-pointer';
-import { KeyboardGrid } from '../keyboard-grid/keyboard-grid';
-import { SetKeyboardPointerRenderPositionAction } from './actions';
+import { SetEdgeTargetSelectionAction } from '../edge-autocomplete/action';
 import { EdgeAutocompletePalette } from '../edge-autocomplete/edge-autocomplete-palette';
 import { EdgeAutocompletePaletteTool } from '../edge-autocomplete/edge-autocomplete-tool';
-import { SetEdgeTargetSelectionAction } from '../edge-autocomplete/action';
+import { GlobalKeyListenerTool } from '../global-keylistener-tool';
+import { EnableKeyboardGridAction, KeyboardGridCellSelectedAction } from '../keyboard-grid/action';
+import { KeyboardGrid } from '../keyboard-grid/keyboard-grid';
 import { GridSearchPalette } from '../keyboard-grid/keyboard-grid-search-palette';
 import { KeyboardNodeGrid } from '../keyboard-grid/keyboard-node-grid';
-import { EnableKeyboardGridAction, KeyboardGridCellSelectedAction } from '../keyboard-grid/action';
+import { SetKeyboardPointerRenderPositionAction } from './actions';
+import { KeyboardPointer } from './keyboard-pointer';
 
 /**
  * Handles the pointer used via grid to position new elements.
  */
-export const keyboardControlModule = new FeatureModule((bind, unbind, isBound, rebind) => {
-    const context = { bind, unbind, isBound, rebind };
-    configureKeyboardControlTools(context);
-});
+export const keyboardControlModule = new FeatureModule(
+    (bind, unbind, isBound, rebind) => {
+        const context = { bind, unbind, isBound, rebind };
+        configureKeyboardControlTools(context);
+    },
+    { featureId: Symbol('keyboardControl') }
+);
 
 export function configureKeyboardControlTools(context: BindingContext): void {
     bindAsService(context, TYPES.IDefaultTool, GlobalKeyListenerTool);

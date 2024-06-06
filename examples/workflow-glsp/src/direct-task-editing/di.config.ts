@@ -16,6 +16,9 @@
 import { bindAsService, FeatureModule, TYPES } from '@eclipse-glsp/client';
 import { TaskEditor } from './direct-task-editor';
 
-export const directTaskEditor = new FeatureModule((bind, _unbind, _isBound) => {
-    bindAsService(bind, TYPES.IUIExtension, TaskEditor);
-});
+export const directTaskEditor = new FeatureModule(
+    (bind, _unbind, _isBound) => {
+        bindAsService(bind, TYPES.IUIExtension, TaskEditor);
+    },
+    { featureId: Symbol('directTaskEditor') }
+);

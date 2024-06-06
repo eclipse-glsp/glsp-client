@@ -21,11 +21,14 @@ import { ChangeBoundsTool } from './change-bounds-tool';
 import { HideChangeBoundsToolResizeFeedbackCommand, ShowChangeBoundsToolResizeFeedbackCommand } from './change-bounds-tool-feedback';
 import { SResizeHandleView } from './view';
 
-export const changeBoundsToolModule = new FeatureModule((bind, unbind, isBound, rebind) => {
-    const context = { bind, unbind, isBound, rebind };
-    bind(ChangeBoundsManager).toSelf().inSingletonScope();
-    bindAsService(context, TYPES.IDefaultTool, ChangeBoundsTool);
-    configureCommand(context, ShowChangeBoundsToolResizeFeedbackCommand);
-    configureCommand(context, HideChangeBoundsToolResizeFeedbackCommand);
-    configureView(context, SResizeHandle.TYPE, SResizeHandleView);
-});
+export const changeBoundsToolModule = new FeatureModule(
+    (bind, unbind, isBound, rebind) => {
+        const context = { bind, unbind, isBound, rebind };
+        bind(ChangeBoundsManager).toSelf().inSingletonScope();
+        bindAsService(context, TYPES.IDefaultTool, ChangeBoundsTool);
+        configureCommand(context, ShowChangeBoundsToolResizeFeedbackCommand);
+        configureCommand(context, HideChangeBoundsToolResizeFeedbackCommand);
+        configureView(context, SResizeHandle.TYPE, SResizeHandleView);
+    },
+    { featureId: Symbol('changeBoundsTool') }
+);

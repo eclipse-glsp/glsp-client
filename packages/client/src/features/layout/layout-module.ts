@@ -21,8 +21,11 @@ import {
     ResizeElementsActionHandler
 } from './layout-elements-action';
 
-export const layoutModule = new FeatureModule((bind, _unbind, isBound) => {
-    const context = { bind, isBound };
-    configureActionHandler(context, ResizeElementsAction.KIND, ResizeElementsActionHandler);
-    configureActionHandler(context, AlignElementsAction.KIND, AlignElementsActionHandler);
-});
+export const layoutModule = new FeatureModule(
+    (bind, _unbind, isBound) => {
+        const context = { bind, isBound };
+        configureActionHandler(context, ResizeElementsAction.KIND, ResizeElementsActionHandler);
+        configureActionHandler(context, AlignElementsAction.KIND, AlignElementsActionHandler);
+    },
+    { featureId: Symbol('layout') }
+);

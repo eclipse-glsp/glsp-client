@@ -17,10 +17,13 @@ import { bindAsService, FeatureModule, TYPES } from '@eclipse-glsp/sprotty';
 import { LocalClipboardService, ServerCopyPasteHandler } from './copy-paste-handler';
 import { CopyPasteStartup } from './copy-paste-standalone';
 
-export const copyPasteModule = new FeatureModule((bind, _unbind, isBound) => {
-    bind(TYPES.ICopyPasteHandler).to(ServerCopyPasteHandler);
-    bind(TYPES.IAsyncClipboardService).to(LocalClipboardService).inSingletonScope();
-});
+export const copyPasteModule = new FeatureModule(
+    (bind, _unbind, isBound) => {
+        bind(TYPES.ICopyPasteHandler).to(ServerCopyPasteHandler);
+        bind(TYPES.IAsyncClipboardService).to(LocalClipboardService).inSingletonScope();
+    },
+    { featureId: Symbol('copyPaste') }
+);
 
 /**
  * Feature module that is intended for the standalone deployment of GLSP (i.e. plain webapp)
@@ -31,5 +34,8 @@ export const standaloneCopyPasteModule = new FeatureModule(
     (bind, _unbind, isBound) => {
         bindAsService(bind, TYPES.IDiagramStartup, CopyPasteStartup);
     },
-    { requires: copyPasteModule }
+    {
+        featureId: Symbol('standaloneCopyPaste'),
+        requires: copyPasteModule
+    }
 );

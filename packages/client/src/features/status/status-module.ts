@@ -18,9 +18,12 @@ import { FeatureModule, StatusAction, TYPES, bindAsService, configureActionHandl
 import '../../../css/status-overlay.css';
 import { StatusOverlay } from './status-overlay';
 
-export const statusModule = new FeatureModule((bind, unbind, isBound, rebind) => {
-    const context = { bind, unbind, isBound, rebind };
-    bindAsService(context, TYPES.IUIExtension, StatusOverlay);
-    bind(TYPES.IDiagramStartup).toService(StatusOverlay);
-    configureActionHandler(context, StatusAction.KIND, StatusOverlay);
-});
+export const statusModule = new FeatureModule(
+    (bind, unbind, isBound, rebind) => {
+        const context = { bind, unbind, isBound, rebind };
+        bindAsService(context, TYPES.IUIExtension, StatusOverlay);
+        bind(TYPES.IDiagramStartup).toService(StatusOverlay);
+        configureActionHandler(context, StatusAction.KIND, StatusOverlay);
+    },
+    { featureId: Symbol('status') }
+);

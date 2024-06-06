@@ -15,30 +15,35 @@
  ********************************************************************************/
 
 import { FeatureModule } from '@eclipse-glsp/sprotty';
+import { configureElementNavigationTool } from './element-navigation/element-navigation-module';
+import { configureFocusTrackerTool } from './focus-tracker/focus-tracker-module';
 import { configureShortcutHelpTool } from './key-shortcut/di.config';
+import { configureKeyboardControlTools } from './keyboard-pointer/keyboard-pointer-module';
+import { configureKeyboardToolPaletteTool } from './keyboard-tool-palette/keyboard-tool-palette-module';
 import { configureMoveZoom } from './move-zoom/move-zoom-module';
 import { configureResizeTools } from './resize-key-tool/resize-key-module';
 import { configureSearchPaletteModule } from './search/search-palette-module';
-import { configureViewKeyTools } from './view-key-tools/view-key-tools-module';
-import { configureKeyboardToolPaletteTool } from './keyboard-tool-palette/keyboard-tool-palette-module';
-import { configureKeyboardControlTools } from './keyboard-pointer/keyboard-pointer-module';
-import { configureElementNavigationTool } from './element-navigation/element-navigation-module';
-import { configureFocusTrackerTool } from './focus-tracker/focus-tracker-module';
 import { configureToastTool } from './toast/toast-module';
+import { configureViewKeyTools } from './view-key-tools/view-key-tools-module';
 
 /**
  * Enables the accessibility tools for a keyboard-only-usage
  */
-export const accessibilityModule = new FeatureModule((bind, unbind, isBound, rebind) => {
-    const context = { bind, unbind, isBound, rebind };
-    configureResizeTools(context);
-    configureViewKeyTools(context);
-    configureMoveZoom(context);
-    configureSearchPaletteModule(context);
-    configureShortcutHelpTool(context);
-    configureKeyboardToolPaletteTool(context);
-    configureKeyboardControlTools(context);
-    configureElementNavigationTool(context);
-    configureFocusTrackerTool(context);
-    configureToastTool(context);
-});
+export const accessibilityModule = new FeatureModule(
+    (bind, unbind, isBound, rebind) => {
+        const context = { bind, unbind, isBound, rebind };
+        configureResizeTools(context);
+        configureViewKeyTools(context);
+        configureMoveZoom(context);
+        configureSearchPaletteModule(context);
+        configureShortcutHelpTool(context);
+        configureKeyboardToolPaletteTool(context);
+        configureKeyboardControlTools(context);
+        configureElementNavigationTool(context);
+        configureFocusTrackerTool(context);
+        configureToastTool(context);
+    },
+    {
+        featureId: Symbol('accessibility')
+    }
+);

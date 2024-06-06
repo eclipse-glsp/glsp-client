@@ -20,13 +20,16 @@ import { DrawMarqueeCommand, MARQUEE, RemoveMarqueeCommand } from './marquee-too
 import { MarqueeNode } from './model';
 import { MarqueeView } from './view';
 
-export const marqueeSelectionToolModule = new FeatureModule((bind, unbind, isBound, rebind) => {
-    const context = { bind, unbind, isBound, rebind };
-    bindAsService(context, TYPES.IDefaultTool, MarqueeTool);
-    bindAsService(context, TYPES.ITool, MarqueeMouseTool);
+export const marqueeSelectionToolModule = new FeatureModule(
+    (bind, unbind, isBound, rebind) => {
+        const context = { bind, unbind, isBound, rebind };
+        bindAsService(context, TYPES.IDefaultTool, MarqueeTool);
+        bindAsService(context, TYPES.ITool, MarqueeMouseTool);
 
-    configureCommand(context, DrawMarqueeCommand);
-    configureCommand(context, RemoveMarqueeCommand);
+        configureCommand(context, DrawMarqueeCommand);
+        configureCommand(context, RemoveMarqueeCommand);
 
-    configureModelElement(context, MARQUEE, MarqueeNode, MarqueeView);
-});
+        configureModelElement(context, MARQUEE, MarqueeNode, MarqueeView);
+    },
+    { featureId: Symbol('marqueeSelectionTool') }
+);
