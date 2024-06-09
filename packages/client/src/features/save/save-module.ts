@@ -21,6 +21,9 @@ import { SaveModelKeyboardListener } from './save-keylistener';
  * When integrated into an application frame (e.g Theia/VS Code) this module is typically omitted and/or replaced
  * with an application native module.
  */
-export const saveModule = new FeatureModule(bind => {
-    bindAsService(bind, TYPES.KeyListener, SaveModelKeyboardListener);
-});
+export const saveModule = new FeatureModule(
+    bind => {
+        bindAsService(bind, TYPES.KeyListener, SaveModelKeyboardListener);
+    },
+    { featureId: Symbol('save') }
+);

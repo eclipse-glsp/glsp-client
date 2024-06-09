@@ -16,10 +16,13 @@
 import { FeatureModule, SetTypeHintsAction, TYPES, bindAsService, configureActionHandler, configureCommand } from '@eclipse-glsp/sprotty';
 import { ApplyTypeHintsCommand, TypeHintProvider } from './type-hint-provider';
 
-export const typeHintsModule = new FeatureModule((bind, unbind, isBound) => {
-    const context = { bind, unbind, isBound };
-    bindAsService(context, TYPES.ITypeHintProvider, TypeHintProvider);
-    bind(TYPES.IDiagramStartup).toService(TypeHintProvider);
-    configureActionHandler(context, SetTypeHintsAction.KIND, TypeHintProvider);
-    configureCommand(context, ApplyTypeHintsCommand);
-});
+export const typeHintsModule = new FeatureModule(
+    (bind, unbind, isBound) => {
+        const context = { bind, unbind, isBound };
+        bindAsService(context, TYPES.ITypeHintProvider, TypeHintProvider);
+        bind(TYPES.IDiagramStartup).toService(TypeHintProvider);
+        configureActionHandler(context, SetTypeHintsAction.KIND, TypeHintProvider);
+        configureCommand(context, ApplyTypeHintsCommand);
+    },
+    { featureId: Symbol('typeHints') }
+);

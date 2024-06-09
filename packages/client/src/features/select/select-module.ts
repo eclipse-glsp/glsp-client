@@ -18,13 +18,16 @@ import { SelectAllCommand, SelectCommand } from '../../base/selection-service';
 import { SelectFeedbackCommand } from './select-feedback-command';
 import { RankedSelectMouseListener } from './select-mouse-listener';
 
-export const selectModule = new FeatureModule((bind, _unbind, isBound) => {
-    const context = { bind, isBound };
-    configureCommand(context, SelectCommand);
-    configureCommand(context, SelectAllCommand);
-    configureCommand(context, SelectFeedbackCommand);
-    bindAsService(context, TYPES.MouseListener, RankedSelectMouseListener);
-});
+export const selectModule = new FeatureModule(
+    (bind, _unbind, isBound) => {
+        const context = { bind, isBound };
+        configureCommand(context, SelectCommand);
+        configureCommand(context, SelectAllCommand);
+        configureCommand(context, SelectFeedbackCommand);
+        bindAsService(context, TYPES.MouseListener, RankedSelectMouseListener);
+    },
+    { featureId: Symbol('select') }
+);
 
 /**
  * Feature module that is intended for the standalone deployment of GLSP (i.e. plain webapp)
@@ -35,5 +38,5 @@ export const standaloneSelectModule = new FeatureModule(
     bind => {
         bindAsService(bind, TYPES.KeyListener, SelectKeyboardListener);
     },
-    { requires: selectModule }
+    { featureId: Symbol('standaloneSelect'), requires: selectModule }
 );

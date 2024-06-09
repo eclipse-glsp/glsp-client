@@ -17,9 +17,12 @@ import { ApplyLabelEditCommand, FeatureModule, TYPES, bindAsService, configureCo
 import { DirectLabelEditTool } from './edit-label-tool';
 import { BalloonLabelValidationDecorator, ServerEditLabelValidator } from './edit-label-validator';
 
-export const labelEditModule = new FeatureModule((bind, _unbind, isBound, _rebind) => {
-    bind(TYPES.IEditLabelValidator).to(ServerEditLabelValidator);
-    bind(TYPES.IEditLabelValidationDecorator).to(BalloonLabelValidationDecorator);
-    bindAsService(bind, TYPES.IDefaultTool, DirectLabelEditTool);
-    configureCommand({ bind, isBound }, ApplyLabelEditCommand);
-});
+export const labelEditModule = new FeatureModule(
+    (bind, _unbind, isBound, _rebind) => {
+        bind(TYPES.IEditLabelValidator).to(ServerEditLabelValidator);
+        bind(TYPES.IEditLabelValidationDecorator).to(BalloonLabelValidationDecorator);
+        bindAsService(bind, TYPES.IDefaultTool, DirectLabelEditTool);
+        configureCommand({ bind, isBound }, ApplyLabelEditCommand);
+    },
+    { featureId: Symbol('labelEdit') }
+);

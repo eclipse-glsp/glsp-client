@@ -18,10 +18,13 @@ import { bindAsService, BindingContext, FeatureModule, TYPES } from '@eclipse-gl
 import { SearchAutocompletePalette } from './search-palette';
 import { SearchAutocompletePaletteTool } from './search-tool';
 
-export const searchPaletteModule = new FeatureModule((bind, _unbind, isBound, rebind) => {
-    const context = { bind, isBound, rebind };
-    configureSearchPaletteModule(context);
-});
+export const searchPaletteModule = new FeatureModule(
+    (bind, _unbind, isBound, rebind) => {
+        const context = { bind, isBound, rebind };
+        configureSearchPaletteModule(context);
+    },
+    { featureId: Symbol('searchPalette') }
+);
 
 export function configureSearchPaletteModule(context: Pick<BindingContext, 'bind'>): void {
     bindAsService(context, TYPES.IUIExtension, SearchAutocompletePalette);

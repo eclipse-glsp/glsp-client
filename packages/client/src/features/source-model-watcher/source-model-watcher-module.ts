@@ -16,6 +16,9 @@
 import { FeatureModule, SourceModelChangedAction, configureActionHandler } from '@eclipse-glsp/sprotty';
 import { SourceModelChangedActionHandler } from './source-model-changed-action-handler';
 
-export const sourceModelWatcherModule = new FeatureModule((bind, _unbind, isBound) => {
-    configureActionHandler({ bind, isBound }, SourceModelChangedAction.KIND, SourceModelChangedActionHandler);
-});
+export const sourceModelWatcherModule = new FeatureModule(
+    (bind, _unbind, isBound) => {
+        configureActionHandler({ bind, isBound }, SourceModelChangedAction.KIND, SourceModelChangedActionHandler);
+    },
+    { featureId: Symbol('sourceModelWatcher') }
+);

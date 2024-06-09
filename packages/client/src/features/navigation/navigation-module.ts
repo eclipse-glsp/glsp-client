@@ -17,11 +17,14 @@ import { FeatureModule, NavigateToExternalTargetAction, NavigateToTargetAction, 
 import { NavigateAction, NavigationActionHandler, ProcessNavigationArgumentsAction } from './navigation-action-handler';
 import { NavigationTargetResolver } from './navigation-target-resolver';
 
-export const navigationModule = new FeatureModule((bind, _unbind, isBound) => {
-    bind(NavigationTargetResolver).toSelf().inSingletonScope();
-    bind(NavigationActionHandler).toSelf().inSingletonScope();
-    configureActionHandler({ bind, isBound }, NavigateAction.KIND, NavigationActionHandler);
-    configureActionHandler({ bind, isBound }, NavigateToTargetAction.KIND, NavigationActionHandler);
-    configureActionHandler({ bind, isBound }, ProcessNavigationArgumentsAction.KIND, NavigationActionHandler);
-    configureActionHandler({ bind, isBound }, NavigateToExternalTargetAction.KIND, NavigationActionHandler);
-});
+export const navigationModule = new FeatureModule(
+    (bind, _unbind, isBound) => {
+        bind(NavigationTargetResolver).toSelf().inSingletonScope();
+        bind(NavigationActionHandler).toSelf().inSingletonScope();
+        configureActionHandler({ bind, isBound }, NavigateAction.KIND, NavigationActionHandler);
+        configureActionHandler({ bind, isBound }, NavigateToTargetAction.KIND, NavigationActionHandler);
+        configureActionHandler({ bind, isBound }, ProcessNavigationArgumentsAction.KIND, NavigationActionHandler);
+        configureActionHandler({ bind, isBound }, NavigateToExternalTargetAction.KIND, NavigationActionHandler);
+    },
+    { featureId: Symbol('navigation') }
+);

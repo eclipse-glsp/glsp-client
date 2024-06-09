@@ -33,7 +33,7 @@
     "watch": "tsc -w"
   },
   "dependencies": {
-    "@eclipse-glsp/protocol": "^2.2.0-next",
+    "@eclipse-glsp/protocol": "2.2.0-next",
     "autocompleter": "^9.1.0",
     "snabbdom": "^3.5.1",
     "sprotty": "1.0.0",

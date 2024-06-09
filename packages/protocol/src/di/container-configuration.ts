@@ -17,6 +17,7 @@
 import { Container, ContainerModule } from 'inversify';
 import { MaybeArray, asArray, distinctAdd, remove } from '../utils/array-util';
 import { hasFunctionProp, hasNumberProp } from '../utils/type-util';
+import { FeatureModule } from './feature-module';
 
 /**
  * Initializes a container with the given {@link ContainerConfiguration}. The container configuration
@@ -36,8 +37,10 @@ export function initializeContainer(container: Container, ...containerConfigurat
 /**
  * Processes the given container configurations and returns the corresponding set of {@link ContainerModule}s.
  * Container configurations are processed in the order they are passed. If a module is configured to be removed
- * it can be added again in a later configuration.
- * @param containerConfigurations The container configurations to resolves
+ * it can be added again in a later configuration. This also means in case of `replace` configurations that affect the same feature id
+ * the last configuration wins.
+ * @param containerConfigurations The container configurations to resolve
+ * @throws An error if featureModule ids are not unique in the resolved module array
  * @returns an Array of resolved container modules
  */
 export function resolveContainerConfiguration(...containerConfigurations: ContainerConfiguration): ContainerModule[] {
@@ -52,8 +55,39 @@ export function resolveContainerConfiguration(...containerConfigurations: Contai
             if (config.add) {
                 distinctAdd(modules, ...asArray(config.add));
             }
+            if (config.replace) {
+                asArray(config.replace).forEach(replace => {
+                    const existingIndex = modules.findIndex(m => m instanceof FeatureModule && m.featureId === replace.featureId);
+                    if (existingIndex >= 0) {
+                        modules[existingIndex] = replace;
+                    } else {
+                        console.warn(
+                            `Could not find module to replace with feature id ${replace.featureId.toString()}.` +
+                                'Adding replacement module to the end of the resolved configurations.'
+                        );
+                        distinctAdd(modules, replace);
+                    }
+                });
+            }
         }
     });
+
+    // Check for duplicate feature ids in resolved modules
+    const featureIds = new Set<symbol>();
+    const duplicates: FeatureModule[] = [];
+    modules.forEach(module => {
+        if (module instanceof FeatureModule) {
+            if (featureIds.has(module.featureId)) {
+                duplicates.push(module);
+            } else {
+                featureIds.add(module.featureId);
+            }
+        }
+    });
+    if (duplicates.length > 0) {
+        const culprits = duplicates.map(m => m.featureId).join(', ');
+        throw new Error(`Could not resolve container configuration. Non-unique feature ids found in container configuration: ${culprits}`);
+    }
     return modules;
 }
 /**
@@ -76,8 +110,15 @@ export type ContainerConfiguration = Array<ContainerModule | ModuleConfiguration
  * remove (i.e. not load) default modules.
  */
 export interface ModuleConfiguration {
-    /** Set of modules that should be loaded into the container. Loading */
+    /** Set of modules that should be loaded into the container. */
     add?: MaybeArray<ContainerModule>;
     /** Set of modules that should be loaded into the container */
     remove?: MaybeArray<ContainerModule>;
+    /**
+     * Set of feature modules that should be loaded into the container and
+     * replace potential already configured modules with the same feature id.
+     * When resolving the replacement module will be added at the index of the module it replaces.
+     * If there is no module to replace, the replacement module will be added to the end of the list (i.e. behaves like `add`).
+     */
+    replace?: MaybeArray<FeatureModule>;
 }

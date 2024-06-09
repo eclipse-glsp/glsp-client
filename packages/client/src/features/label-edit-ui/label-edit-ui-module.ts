@@ -16,9 +16,12 @@
 import { EditLabelAction, EditLabelActionHandler, FeatureModule, TYPES, configureActionHandler } from '@eclipse-glsp/sprotty';
 import { GlspEditLabelUI } from './label-edit-ui';
 
-export const labelEditUiModule = new FeatureModule((bind, unbind, isBound, rebind, ...rest) => {
-    const context = { bind, unbind, isBound, rebind };
-    configureActionHandler(context, EditLabelAction.KIND, EditLabelActionHandler);
-    bind(GlspEditLabelUI).toSelf().inSingletonScope();
-    bind(TYPES.IUIExtension).toService(GlspEditLabelUI);
-});
+export const labelEditUiModule = new FeatureModule(
+    (bind, unbind, isBound, rebind, ...rest) => {
+        const context = { bind, unbind, isBound, rebind };
+        configureActionHandler(context, EditLabelAction.KIND, EditLabelActionHandler);
+        bind(GlspEditLabelUI).toSelf().inSingletonScope();
+        bind(TYPES.IUIExtension).toService(GlspEditLabelUI);
+    },
+    { featureId: Symbol('labelEditUi') }
+);

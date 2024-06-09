@@ -29,10 +29,13 @@ import { EnableToolPaletteAction } from '../../tool-palette/tool-palette';
 import { FocusDomAction } from '../actions';
 import { KeyboardToolPalette } from './keyboard-tool-palette';
 
-export const keyboardToolPaletteModule = new FeatureModule((bind, unbind, isBound, rebind) => {
-    const context = { bind, unbind, isBound, rebind };
-    configureKeyboardToolPaletteTool(context);
-});
+export const keyboardToolPaletteModule = new FeatureModule(
+    (bind, unbind, isBound, rebind) => {
+        const context = { bind, unbind, isBound, rebind };
+        configureKeyboardToolPaletteTool(context);
+    },
+    { featureId: Symbol('keyboardToolPalette') }
+);
 
 export function configureKeyboardToolPaletteTool(context: BindingContext): void {
     bindAsService(context, TYPES.IUIExtension, KeyboardToolPalette);

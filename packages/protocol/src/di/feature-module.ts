@@ -31,6 +31,7 @@ export interface FeatureModuleOptions {
      */
     featureId?: symbol;
 }
+
 /**
  * A `FeatureModule` is a specialized {@link ContainerModule} that can declare dependencies to other {@link FeatureModule}.
  * A feature module will only be loaded into a container if all of its required modules haven been loaded before. T
@@ -39,6 +40,11 @@ export interface FeatureModuleOptions {
  */
 
 export class FeatureModule extends ContainerModule {
+    /**
+     * Global flag to enable/disable additional debug log output when loading feature modules
+     * Default is `false`.
+     */
+    public static DEBUG_LOG_ENABLED = false;
     readonly featureId: symbol;
 
     readonly requires?: MaybeArray<FeatureModule>;
@@ -47,6 +53,7 @@ export class FeatureModule extends ContainerModule {
         super((bind, unbind, isBound, ...rest) => {
             if (this.configure(bind, isBound)) {
                 registry(bind, unbind, isBound, ...rest);
+                this.debugLog(`Loading of feature module with id '${this.featureId.toString()}' completed`);
             }
         });
         this.featureId = options.featureId ?? this.createFeatureId();
@@ -65,11 +72,24 @@ export class FeatureModule extends ContainerModule {
      * @returns `true` if all requirements are met and the module is loaded. `false` otherwise
      */
     configure(bind: interfaces.Bind, isBound: interfaces.IsBound): boolean {
+        this.debugLog(`Trying to load feature module with id '${this.featureId.toString()}'`);
+        if (this.isLoaded({ isBound })) {
+            const message = `Could not load feature module. Another module with id '${this.featureId.toString()}' is already loaded`;
+            this.debugLog(message);
+            throw new Error(message);
+        }
         if (this.checkRequirements(isBound)) {
+            this.debugLog(`Requirements are met, continue loading of feature module with id '${this.featureId.toString()}'`);
             bind(this.featureId).toConstantValue(this.featureId);
             return true;
         }
         return false;
+    }
+
+    protected debugLog(message?: any, ...optionalParams: any[]): void {
+        if (FeatureModule.DEBUG_LOG_ENABLED) {
+            console.log(message, ...optionalParams);
+        }
     }
 
     /**
@@ -78,7 +98,19 @@ export class FeatureModule extends ContainerModule {
      * @returns `true` if all requirements are met, `false` otherwise
      */
     protected checkRequirements(isBound: interfaces.IsBound): boolean {
-        return this.requires ? asArray(this.requires).every(module => isBound(module.featureId)) : true;
+        const requires = asArray(this.requires ?? []);
+        if (requires.length === 0) {
+            return true;
+        }
+        const missing = requires.filter(module => !module.isLoaded({ isBound }));
+        if (missing.length > 0) {
+            this.debugLog(
+                // eslint-disable-next-line max-len
+                `Could not load feature module. Required modules are not loaded. Feature ids: ${missing.map(m => m.featureId.toString()).join(', ')}`
+            );
+            return false;
+        }
+        return true;
     }
 
     isLoaded(context: Pick<BindingContext, 'isBound'>): boolean {

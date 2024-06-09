@@ -31,17 +31,20 @@ import { HelperLineManager } from './helper-line-manager-default';
 import { HELPER_LINE, HelperLine, SELECTION_BOUNDS, SelectionBounds } from './model';
 import { HelperLineView, SelectionBoundsView } from './view';
 
-export const helperLineModule = new FeatureModule((bind, unbind, isBound, rebind) => {
-    const context = { bind, unbind, isBound, rebind };
-    configureModelElement(context, HELPER_LINE, HelperLine, HelperLineView);
-    configureModelElement(context, SELECTION_BOUNDS, SelectionBounds, SelectionBoundsView);
-    configureCommand(context, DrawHelperLinesFeedbackCommand);
-    configureCommand(context, RemoveHelperLinesFeedbackCommand);
+export const helperLineModule = new FeatureModule(
+    (bind, unbind, isBound, rebind) => {
+        const context = { bind, unbind, isBound, rebind };
+        configureModelElement(context, HELPER_LINE, HelperLine, HelperLineView);
+        configureModelElement(context, SELECTION_BOUNDS, SelectionBounds, SelectionBoundsView);
+        configureCommand(context, DrawHelperLinesFeedbackCommand);
+        configureCommand(context, RemoveHelperLinesFeedbackCommand);
 
-    bindAsService(bind, TYPES.IHelperLineManager, HelperLineManager);
-    configureActionHandler(context, SetBoundsAction.KIND, TYPES.IHelperLineManager);
-    configureActionHandler(context, SetBoundsFeedbackAction.KIND, TYPES.IHelperLineManager);
-    configureActionHandler(context, MoveAction.KIND, TYPES.IHelperLineManager);
-    configureActionHandler(context, MoveInitializedEventAction.KIND, TYPES.IHelperLineManager);
-    configureActionHandler(context, MoveFinishedEventAction.KIND, TYPES.IHelperLineManager);
-});
+        bindAsService(bind, TYPES.IHelperLineManager, HelperLineManager);
+        configureActionHandler(context, SetBoundsAction.KIND, TYPES.IHelperLineManager);
+        configureActionHandler(context, SetBoundsFeedbackAction.KIND, TYPES.IHelperLineManager);
+        configureActionHandler(context, MoveAction.KIND, TYPES.IHelperLineManager);
+        configureActionHandler(context, MoveInitializedEventAction.KIND, TYPES.IHelperLineManager);
+        configureActionHandler(context, MoveFinishedEventAction.KIND, TYPES.IHelperLineManager);
+    },
+    { featureId: Symbol('helperLine') }
+);

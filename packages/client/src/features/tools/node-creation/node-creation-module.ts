@@ -35,5 +35,8 @@ export const nodeCreationToolModule = new FeatureModule(
         configureActionHandler(context, TriggerNodeCreationAction.KIND, NodeCreationTool);
         configureModelElement(context, InsertIndicator.TYPE, InsertIndicator, InsertIndicatorView);
     },
-    { requires: elementTemplateModule }
+    {
+        featureId: Symbol('nodeCreationTool'),
+        requires: elementTemplateModule
+    }
 );

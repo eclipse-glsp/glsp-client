@@ -99,11 +99,11 @@ export function createWorkflowDiagramContainer(...containerConfiguration: Contai
 export function initializeWorkflowDiagramContainer(container: Container, ...containerConfiguration: ContainerConfiguration): Container {
     return initializeDiagramContainer(
         container,
+        ...containerConfiguration,
         directTaskEditor,
         helperLineModule,
         gridModule,
         debugModule,
-        workflowDiagramModule,
-        ...containerConfiguration
+        workflowDiagramModule
     );
 }

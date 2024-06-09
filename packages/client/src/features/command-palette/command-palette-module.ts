@@ -19,9 +19,12 @@ import { GlspCommandPalette } from './command-palette';
 import { CommandPaletteTool } from './command-palette-tool';
 import { ServerCommandPaletteActionProvider } from './server-command-palette-provider';
 
-export const commandPaletteModule = new FeatureModule(bind => {
-    bindAsService(bind, TYPES.IUIExtension, GlspCommandPalette);
-    bind(TYPES.ICommandPaletteActionProviderRegistry).to(CommandPaletteActionProviderRegistry).inSingletonScope();
-    bindAsService(bind, TYPES.ICommandPaletteActionProvider, ServerCommandPaletteActionProvider);
-    bindAsService(bind, TYPES.IDefaultTool, CommandPaletteTool);
-});
+export const commandPaletteModule = new FeatureModule(
+    bind => {
+        bindAsService(bind, TYPES.IUIExtension, GlspCommandPalette);
+        bind(TYPES.ICommandPaletteActionProviderRegistry).to(CommandPaletteActionProviderRegistry).inSingletonScope();
+        bindAsService(bind, TYPES.ICommandPaletteActionProvider, ServerCommandPaletteActionProvider);
+        bindAsService(bind, TYPES.IDefaultTool, CommandPaletteTool);
+    },
+    { featureId: Symbol('commandPalette') }
+);

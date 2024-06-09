@@ -21,10 +21,13 @@ import { ResizeKeyTool } from './resize-key-tool';
 /**
  * Handles resize actions.
  */
-export const resizeKeyModule = new FeatureModule((bind, unbind, isBound, rebind) => {
-    const context = { bind, unbind, isBound, rebind };
-    configureResizeTools(context);
-});
+export const resizeKeyModule = new FeatureModule(
+    (bind, unbind, isBound, rebind) => {
+        const context = { bind, unbind, isBound, rebind };
+        configureResizeTools(context);
+    },
+    { featureId: Symbol('resizeKey') }
+);
 
 export function configureResizeTools(context: BindingContext): void {
     context.bind(ResizeElementHandler).toSelf().inSingletonScope();

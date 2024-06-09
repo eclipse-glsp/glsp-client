@@ -33,25 +33,28 @@ import { OriginViewportCommand } from './origin-viewport';
 import { RepositionCommand } from './reposition';
 import { RestoreViewportHandler } from './viewport-handler';
 
-export const viewportModule = new FeatureModule((bind, _unbind, isBound) => {
-    const context = { bind, isBound };
-    configureCommand(context, CenterCommand);
-    configureCommand(context, FitToScreenCommand);
-    configureCommand(context, GetViewportCommand);
-    configureCommand(context, SetViewportCommand);
-    configureCommand(context, RepositionCommand);
-    configureCommand(context, OriginViewportCommand);
+export const viewportModule = new FeatureModule(
+    (bind, _unbind, isBound) => {
+        const context = { bind, isBound };
+        configureCommand(context, CenterCommand);
+        configureCommand(context, FitToScreenCommand);
+        configureCommand(context, GetViewportCommand);
+        configureCommand(context, SetViewportCommand);
+        configureCommand(context, RepositionCommand);
+        configureCommand(context, OriginViewportCommand);
 
-    bindAsService(context, TYPES.MouseListener, ZoomMouseListener);
-    bindAsService(context, TYPES.MouseListener, GLSPScrollMouseListener);
+        bindAsService(context, TYPES.MouseListener, ZoomMouseListener);
+        bindAsService(context, TYPES.MouseListener, GLSPScrollMouseListener);
 
-    configureActionHandler(context, EnableToolsAction.KIND, GLSPScrollMouseListener);
-    configureActionHandler(context, EnableDefaultToolsAction.KIND, GLSPScrollMouseListener);
+        configureActionHandler(context, EnableToolsAction.KIND, GLSPScrollMouseListener);
+        configureActionHandler(context, EnableDefaultToolsAction.KIND, GLSPScrollMouseListener);
 
-    bindAsService(context, TYPES.IDiagramStartup, RestoreViewportHandler);
-    configureActionHandler(context, EnableDefaultToolsAction.KIND, RestoreViewportHandler);
-    configureActionHandler(context, FocusDomAction.KIND, RestoreViewportHandler);
-});
+        bindAsService(context, TYPES.IDiagramStartup, RestoreViewportHandler);
+        configureActionHandler(context, EnableDefaultToolsAction.KIND, RestoreViewportHandler);
+        configureActionHandler(context, FocusDomAction.KIND, RestoreViewportHandler);
+    },
+    { featureId: Symbol('viewport') }
+);
 
 /**
  * Feature module that is intended for the standalone deployment of GLSP (i.e. plain webapp)
@@ -63,5 +66,5 @@ export const standaloneViewportModule = new FeatureModule(
         const context = { bind, isBound };
         bindAsService(context, TYPES.KeyListener, CenterKeyboardListener);
     },
-    { requires: viewportModule }
+    { featureId: Symbol('standaloneViewport'), requires: viewportModule }
 );

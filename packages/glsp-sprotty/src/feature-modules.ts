@@ -28,16 +28,16 @@ import sprottyUpdateModule from 'sprotty/lib/features/update/di.config';
 import sprottyZorderModule from 'sprotty/lib/features/zorder/di.config';
 import sprottyModelSourceModule from 'sprotty/lib/model-source/di.config';
 
-export const buttonModule = new FeatureModule(sprottyButtonModule.registry);
-export const edgeEditModule = new FeatureModule(sprottyEdgeEditModule.registry);
-export const edgeIntersectionModule = new FeatureModule(sprottyEdgeIntersectionModule.registry);
-export const edgeLayoutModule = new FeatureModule(sprottyEdgeLayoutModule.registry);
-export const expandModule = new FeatureModule(sprottyExpandModule.registry);
-export const fadeModule = new FeatureModule(sprottyFadeModule.registry);
-export const modelSourceModule = new FeatureModule(sprottyModelSourceModule.registry);
-export const moveModule = new FeatureModule(sprottyMoveModule.registry);
-export const openModule = new FeatureModule(sprottyOpenModule.registry);
-export const updateModule = new FeatureModule(sprottyUpdateModule.registry);
-export const zorderModule = new FeatureModule(sprottyZorderModule.registry);
+export const buttonModule = new FeatureModule(sprottyButtonModule.registry, { featureId: Symbol('button') });
+export const edgeEditModule = new FeatureModule(sprottyEdgeEditModule.registry, { featureId: Symbol('edgeEdit') });
+export const edgeIntersectionModule = new FeatureModule(sprottyEdgeIntersectionModule.registry, { featureId: Symbol('edgeIntersection') });
+export const edgeLayoutModule = new FeatureModule(sprottyEdgeLayoutModule.registry, { featureId: Symbol('edgeLayout') });
+export const expandModule = new FeatureModule(sprottyExpandModule.registry, { featureId: Symbol('expand') });
+export const fadeModule = new FeatureModule(sprottyFadeModule.registry, { featureId: Symbol('fade') });
+export const modelSourceModule = new FeatureModule(sprottyModelSourceModule.registry, { featureId: Symbol('modelSource') });
+export const moveModule = new FeatureModule(sprottyMoveModule.registry, { featureId: Symbol('move') });
+export const openModule = new FeatureModule(sprottyOpenModule.registry, { featureId: Symbol('open') });
+export const updateModule = new FeatureModule(sprottyUpdateModule.registry, { featureId: Symbol('update') });
+export const zorderModule = new FeatureModule(sprottyZorderModule.registry, { featureId: Symbol('zorder') });
 
 export { sprottyDefaultModule };

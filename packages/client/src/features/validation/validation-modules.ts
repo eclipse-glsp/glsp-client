@@ -25,19 +25,25 @@ import {
 } from './marker-navigator';
 import { ApplyMarkersCommand, DeleteMarkersCommand, SetMarkersActionHandler, ValidationFeedbackEmitter } from './validate';
 
-export const validationModule = new FeatureModule((bind, _unbind, isBound) => {
-    const context = { bind, isBound };
-    configureActionHandler(context, SetMarkersAction.KIND, SetMarkersActionHandler);
-    configureCommand(context, ApplyMarkersCommand);
-    configureCommand(context, DeleteMarkersCommand);
-    bind(ValidationFeedbackEmitter).toSelf().inSingletonScope();
-});
+export const validationModule = new FeatureModule(
+    (bind, _unbind, isBound) => {
+        const context = { bind, isBound };
+        configureActionHandler(context, SetMarkersAction.KIND, SetMarkersActionHandler);
+        configureCommand(context, ApplyMarkersCommand);
+        configureCommand(context, DeleteMarkersCommand);
+        bind(ValidationFeedbackEmitter).toSelf().inSingletonScope();
+    },
+    { featureId: Symbol('validation') }
+);
 
-export const markerNavigatorModule = new FeatureModule((bind, _unbind, isBound) => {
-    bind(GModelElementComparator).to(LeftToRightTopToBottomComparator).inSingletonScope();
-    bind(MarkerNavigator).toSelf().inSingletonScope();
-    configureActionHandler({ bind, isBound }, NavigateToMarkerAction.KIND, NavigateToMarkerActionHandler);
-});
+export const markerNavigatorModule = new FeatureModule(
+    (bind, _unbind, isBound) => {
+        bind(GModelElementComparator).to(LeftToRightTopToBottomComparator).inSingletonScope();
+        bind(MarkerNavigator).toSelf().inSingletonScope();
+        configureActionHandler({ bind, isBound }, NavigateToMarkerAction.KIND, NavigateToMarkerActionHandler);
+    },
+    { featureId: Symbol('markerNavigator') }
+);
 
 /**
  * Feature module that is intended for the standalone deployment of GLSP (i.e. plain webapp)
@@ -49,5 +55,5 @@ export const standaloneMarkerNavigatorModule = new FeatureModule(
         bindAsService(bind, TYPES.IContextMenuProvider, MarkerNavigatorContextMenuItemProvider);
         bindAsService(bind, TYPES.KeyListener, MarkerNavigatorKeyListener);
     },
-    { requires: markerNavigatorModule }
+    { featureId: Symbol('standaloneMarkerNavigator'), requires: markerNavigatorModule }
 );
