@@ -18,7 +18,7 @@ import { injectable } from 'inversify';
 import { ModifyCSSFeedbackAction } from '../../base/feedback/css-feedback';
 import { BoundsAwareModelElement } from '../../utils/gmodel-util';
 import { toAbsoluteBounds } from '../../utils/viewpoint-util';
-import { SResizeHandle } from './model';
+import { GResizeHandle } from './model';
 
 /**
  * A `MovementRestrictor` is an optional service that can be used by tools to validate
@@ -86,7 +86,7 @@ export function createMovementRestrictionFeedback(
 ): ModifyCSSFeedbackAction {
     const elements: GModelElement[] = [element];
     if (element instanceof GParentElement) {
-        element.children.filter(child => child instanceof SResizeHandle).forEach(e => elements.push(e));
+        element.children.filter(child => child instanceof GResizeHandle).forEach(e => elements.push(e));
     }
     return ModifyCSSFeedbackAction.create({ elements, add: movementRestrictor.cssClasses });
 }
@@ -103,7 +103,7 @@ export function removeMovementRestrictionFeedback(
 ): ModifyCSSFeedbackAction {
     const elements: GModelElement[] = [element];
     if (element instanceof GParentElement) {
-        element.children.filter(child => child instanceof SResizeHandle).forEach(e => elements.push(e));
+        element.children.filter(child => child instanceof GResizeHandle).forEach(e => elements.push(e));
     }
 
     return ModifyCSSFeedbackAction.create({ elements, remove: movementRestrictor.cssClasses });

@@ -51,7 +51,7 @@ import {
 } from '../../../utils/gmodel-util';
 import { LocalRequestBoundsAction } from '../../bounds/local-bounds';
 import { SetBoundsFeedbackAction } from '../../bounds/set-bounds-feedback-command';
-import { SResizeHandle, isResizable } from '../../change-bounds/model';
+import { GResizeHandle, isResizable } from '../../change-bounds/model';
 import { IMovementRestrictor } from '../../change-bounds/movement-restrictor';
 import { BaseEditTool } from '../base-tools';
 import { CSS_ACTIVE_HANDLE, ChangeBoundsManager } from './change-bounds-manager';
@@ -131,7 +131,7 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
 
     // members for resize mode
     protected activeResizeElement?: ResizableModelElement;
-    protected activeResizeHandle?: SResizeHandle;
+    protected activeResizeHandle?: GResizeHandle;
     protected handleFeedback: FeedbackEmitter;
     protected resizeFeedback: FeedbackEmitter;
 
@@ -155,7 +155,7 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
     }
 
     protected updateResizeElement(target: GModelElement, event?: MouseEvent): boolean {
-        this.activeResizeHandle = target instanceof SResizeHandle ? target : undefined;
+        this.activeResizeHandle = target instanceof GResizeHandle ? target : undefined;
         this.activeResizeElement = this.activeResizeHandle?.parent ?? this.findResizeElement(target);
         if (this.activeResizeElement) {
             if (event) {
@@ -301,7 +301,7 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
         return newRoutingPoints.length > 0 ? [ChangeRoutingPointsOperation.create(newRoutingPoints)] : [];
     }
 
-    protected handleResizeOnServer(activeResizeHandle: SResizeHandle): Action[] {
+    protected handleResizeOnServer(activeResizeHandle: GResizeHandle): Action[] {
         if (this.initialBounds && this.isValidResize(activeResizeHandle.parent)) {
             const elementAndBounds = toElementAndBounds(activeResizeHandle.parent);
             if (!this.initialBounds.newPosition || !elementAndBounds.newPosition) {

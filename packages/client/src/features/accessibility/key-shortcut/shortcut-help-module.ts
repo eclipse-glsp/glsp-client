@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2023 Business Informatics Group (TU Wien) and others.
+ * Copyright (c) 2023-2024 Business Informatics Group (TU Wien) and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -14,8 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { ContainerModule } from 'inversify';
-import { bindAsService, BindingContext, configureActionHandler, TYPES } from '@eclipse-glsp/sprotty';
+import { bindAsService, BindingContext, configureActionHandler, FeatureModule, TYPES } from '@eclipse-glsp/sprotty';
 import '../../../../css/key-shortcut.css';
 import { KeyShortcutUIExtension, SetAccessibleKeyShortcutAction } from './accessible-key-shortcut';
 import { AccessibleKeyShortcutTool } from './accessible-key-shortcut-tool';
@@ -23,13 +22,21 @@ import { AccessibleKeyShortcutTool } from './accessible-key-shortcut-tool';
 /**
  * Handles actions for displaying help/information about keyboard shortcuts.
  */
-export const glspShortcutHelpModule = new ContainerModule((bind, unbind, isBound, rebind) => {
-    const context = { bind, unbind, isBound, rebind };
-    configureShortcutHelpTool(context);
-});
+export const shortcutHelpModule = new FeatureModule(
+    (bind, unbind, isBound, rebind) => {
+        const context = { bind, unbind, isBound, rebind };
+        configureShortcutHelpTool(context);
+    },
+    { featureId: Symbol('shortcutHelp') }
+);
 
 export function configureShortcutHelpTool(context: BindingContext): void {
     bindAsService(context, TYPES.IDefaultTool, AccessibleKeyShortcutTool);
     bindAsService(context, TYPES.IUIExtension, KeyShortcutUIExtension);
     configureActionHandler(context, SetAccessibleKeyShortcutAction.KIND, KeyShortcutUIExtension);
 }
+
+export {
+    /** Deprecated use {@link shortcutHelpModule} instead */
+    shortcutHelpModule as glspShortcutHelpModule
+};

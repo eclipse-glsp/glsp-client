@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2023 Business Informatics Group (TU Wien) and others.
+ * Copyright (c) 2023-2024 Business Informatics Group (TU Wien) and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,8 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { ContainerModule } from 'inversify';
-import { bindAsService, BindingContext, configureActionHandler, TYPES } from '@eclipse-glsp/sprotty';
+import { bindAsService, BindingContext, configureActionHandler, FeatureModule, TYPES } from '@eclipse-glsp/sprotty';
 import '../../../../css/toast.css';
 import { HideToastAction, ShowToastMessageAction } from './toast-handler';
 import { Toast } from './toast-tool';
@@ -23,10 +22,13 @@ import { Toast } from './toast-tool';
  * Handles toast/user notification actions.
  */
 
-export const glspToastModule = new ContainerModule((bind, unbind, isBound, rebind) => {
-    const context = { bind, unbind, isBound, rebind };
-    configureToastTool(context);
-});
+export const toastModule = new FeatureModule(
+    (bind, unbind, isBound, rebind) => {
+        const context = { bind, unbind, isBound, rebind };
+        configureToastTool(context);
+    },
+    { featureId: Symbol('toast') }
+);
 
 export function configureToastTool(context: BindingContext): void {
     bindAsService(context, TYPES.IUIExtension, Toast);
@@ -34,3 +36,8 @@ export function configureToastTool(context: BindingContext): void {
     configureActionHandler(context, ShowToastMessageAction.KIND, Toast);
     configureActionHandler(context, HideToastAction.KIND, Toast);
 }
+
+export {
+    /** Deprecated use {@link toastModule} instead */
+    toastModule as glspToastModule
+};

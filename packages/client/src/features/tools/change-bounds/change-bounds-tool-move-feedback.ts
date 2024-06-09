@@ -26,7 +26,7 @@ import {
     isNonRoutableSelectedMovableBoundsAware,
     removeDescendants
 } from '../../../utils/gmodel-util';
-import { SResizeHandle } from '../../change-bounds/model';
+import { GResizeHandle } from '../../change-bounds/model';
 import { ChangeBoundsTool } from './change-bounds-tool';
 import { MoveFinishedEventAction, MoveInitializedEventAction } from './change-bounds-tool-feedback';
 import { ChangeBoundsTracker, TrackedMove } from './change-bounds-tracker';
@@ -66,7 +66,7 @@ export class FeedbackMoveMouseListener extends DragAwareMouseListener {
     }
 
     protected initializeMove(target: GModelElement, event: MouseEvent): void {
-        if (target instanceof SResizeHandle) {
+        if (target instanceof GResizeHandle) {
             // avoid conflict with resize tool
             return;
         }
@@ -102,7 +102,7 @@ export class FeedbackMoveMouseListener extends DragAwareMouseListener {
     }
 
     protected isValidMoveable(element?: GModelElement): element is MoveableElement {
-        return !!element && isNonRoutableSelectedMovableBoundsAware(element) && !(element instanceof SResizeHandle);
+        return !!element && isNonRoutableSelectedMovableBoundsAware(element) && !(element instanceof GResizeHandle);
     }
 
     override nonDraggingMouseUp(element: GModelElement, event: MouseEvent): Action[] {

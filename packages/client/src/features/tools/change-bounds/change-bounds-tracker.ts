@@ -32,7 +32,7 @@ import {
     isMoveable
 } from '@eclipse-glsp/sprotty';
 import { BoundsAwareModelElement, MoveableElement, ResizableModelElement, getElements } from '../../../utils/gmodel-util';
-import { ResizeHandleLocation, SResizeHandle } from '../../change-bounds/model';
+import { GResizeHandle, ResizeHandleLocation } from '../../change-bounds/model';
 import { DiagramMovementCalculator } from '../../change-bounds/tracker';
 import { ChangeBoundsManager } from './change-bounds-manager';
 
@@ -277,7 +277,7 @@ export class ChangeBoundsTracker {
     // RESIZE
     //
 
-    resizeElements(handle: SResizeHandle, opts?: Partial<ResizeOptions>): TrackedResize {
+    resizeElements(handle: GResizeHandle, opts?: Partial<ResizeOptions>): TrackedResize {
         const options = this.resolveResizeOptions(opts);
         const update = this.calculateDiagramMovement();
         const handleMove = this.calculateHandleMove(new MoveableResizeHandle(handle), update.vector, options);
@@ -315,7 +315,7 @@ export class ChangeBoundsTracker {
         return this.calculateElementMove(handle, diagramMovement, moveOptions);
     }
 
-    protected getResizableElements(handle: SResizeHandle, options: ResizeOptions): ResizableModelElement[] {
+    protected getResizableElements(handle: GResizeHandle, options: ResizeOptions): ResizableModelElement[] {
         return [handle.parent];
     }
 
@@ -447,11 +447,11 @@ export class ChangeBoundsTracker {
     }
 }
 
-export class MoveableResizeHandle extends SResizeHandle implements Locateable {
+export class MoveableResizeHandle extends GResizeHandle implements Locateable {
     constructor(
-        protected handle: SResizeHandle,
+        protected handle: GResizeHandle,
         override location: ResizeHandleLocation = handle.location,
-        readonly position = SResizeHandle.getHandlePosition(handle.parent, location)
+        readonly position = GResizeHandle.getHandlePosition(handle.parent, location)
     ) {
         super(location, handle.type, handle.hoverFeedback);
         this.id = handle.id;

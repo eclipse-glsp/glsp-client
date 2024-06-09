@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2023 EclipseSource and others.
+ * Copyright (c) 2019-2024 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -16,14 +16,14 @@
 import { IView, Point, RenderingContext, setAttr, svg } from '@eclipse-glsp/sprotty';
 import { injectable } from 'inversify';
 import { VNode } from 'snabbdom';
-import { SResizeHandle } from '../../change-bounds/model';
+import { GResizeHandle } from '../../change-bounds/model';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const JSX = { createElement: svg };
 
 @injectable()
-export class SResizeHandleView implements IView {
-    render(handle: SResizeHandle, context: RenderingContext): VNode | undefined {
+export class GResizeHandleView implements IView {
+    render(handle: GResizeHandle, context: RenderingContext): VNode | undefined {
         if (context.targetKind === 'hidden') {
             return undefined;
         }
@@ -45,11 +45,16 @@ export class SResizeHandleView implements IView {
         return <g />;
     }
 
-    protected getPosition(handle: SResizeHandle): Point | undefined {
-        return Point.subtract(SResizeHandle.getHandlePosition(handle), handle.parent.bounds);
+    protected getPosition(handle: GResizeHandle): Point | undefined {
+        return Point.subtract(GResizeHandle.getHandlePosition(handle), handle.parent.bounds);
     }
 
     getRadius(): number {
         return 7;
     }
 }
+
+export {
+    /** @deprecated Use {@link GResizeHandleView} instead */
+    GResizeHandleView as SResizeHandleView
+};

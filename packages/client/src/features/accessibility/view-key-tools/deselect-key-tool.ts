@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2023 Business Informatics Group (TU Wien) and others.
+ * Copyright (c) 2023-2024 Business Informatics Group (TU Wien) and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -14,21 +14,21 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { inject, injectable } from 'inversify';
-import { toArray } from 'sprotty/lib/utils/iterable';
-import { matchesKeystroke } from 'sprotty/lib/utils/keyboard';
 import {
     Action,
-    KeyListener,
-    KeyTool,
     GModelElement,
     GRoutableElement,
+    KeyListener,
+    KeyTool,
     SelectAction,
     SwitchEditModeAction,
     isSelectable
 } from '@eclipse-glsp/sprotty';
+import { inject, injectable } from 'inversify';
+import { toArray } from 'sprotty/lib/utils/iterable';
+import { matchesKeystroke } from 'sprotty/lib/utils/keyboard';
 import { Tool } from '../../../base/tool-manager/tool';
-import { SResizeHandle } from '../../change-bounds/model';
+import { GResizeHandle } from '../../change-bounds/model';
 
 /**
  * Deselects the element if there is no interaction possible with element.
@@ -59,7 +59,7 @@ export class DeselectKeyTool implements Tool {
 export class DeselectKeyListener extends KeyListener {
     override keyDown(target: GModelElement, event: KeyboardEvent): Action[] {
         if (this.matchesDeselectKeystroke(event)) {
-            const isResizeHandleActive = toArray(target.root.index.all().filter(el => el instanceof SResizeHandle)).length > 0;
+            const isResizeHandleActive = toArray(target.root.index.all().filter(el => el instanceof GResizeHandle)).length > 0;
 
             if (isResizeHandleActive) {
                 return [];
