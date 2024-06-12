@@ -31,9 +31,6 @@
     "upgrade:next": "glsp updateNext",
     "watch": "concurrently --kill-others -n tsc,standalone -c red,yellow \"tsc -b -w --preserveWatchOutput\" \"yarn -s standalone watch:bundle\""
   },
-  "resolutions": {
-    "snabbdom": "~3.5.1"
-  },
   "devDependencies": {
     "@eclipse-glsp/dev": "next",
     "@types/lodash": "4.14.191",

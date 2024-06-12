@@ -45,7 +45,7 @@
     "watch": "tsc -w"
   },
   "dependencies": {
-    "sprotty-protocol": "1.0.0",
+    "sprotty-protocol": "1.2.0",
     "uuid": "7.0.3",
     "vscode-jsonrpc": "^8.0.2"
   },

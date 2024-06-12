@@ -3,6 +3,7 @@
   "compilerOptions": {
     "composite": true,
     "rootDir": "src",
+    "resolveJsonModule": true,
     "outDir": "lib"
   },
   "include": ["src", "lib", "css", "app"],

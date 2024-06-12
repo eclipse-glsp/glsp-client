@@ -13,7 +13,45 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-export { Viewport } from 'sprotty-protocol/lib/model';
+export {
+    Alignable,
+    EdgeLayoutable,
+    EdgePlacement,
+    EdgeSide,
+    Expandable,
+    Fadeable,
+    SButton as GButtonSchema,
+    SCompartment as GCompartmentSchema,
+    SEdge as GEdgeSchema,
+    ForeignObjectElement as GForeignObjectElementSchema,
+    SGraph as GGraphSchema,
+    HtmlRoot as GHtmlRootSchema,
+    SIssue as GIssue,
+    SIssueMarker as GIssueMarkerSchema,
+    SIssueSeverity as GIssueSeverity,
+    SLabel as GLabelSchema,
+    SModelElement as GModelElementSchema,
+    SModelRoot as GModelRootSchema,
+    SNode as GNodeSchema,
+    SPort as GPortSchema,
+    PreRenderedElement as GPreRenderedElementSchema,
+    SShapeElement as GShapeElementSchema,
+    ShapedPreRenderedElement as GShapedPreRenderedElementSchema,
+    ViewportRootElement as GViewportRootElementSchema,
+    HAlignment,
+    Hoverable,
+    LayoutKind,
+    Locateable,
+    ModelLayoutOptions,
+    Projectable,
+    Scrollable,
+    Selectable,
+    VAlignment,
+    Viewport,
+    Zoomable,
+    isScrollable,
+    isZoomable
+} from 'sprotty-protocol/lib/model';
 export * from 'sprotty-protocol/lib/utils/async';
 export * from 'sprotty-protocol/lib/utils/geometry';
 export * from 'sprotty-protocol/lib/utils/json';
