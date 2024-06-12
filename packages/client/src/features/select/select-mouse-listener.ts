@@ -17,7 +17,7 @@ import { Action, BringToFrontAction, GModelElement, SelectAction, SelectMouseLis
 import { inject, injectable, optional } from 'inversify';
 import { Ranked } from '../../base/ranked';
 import { SelectableElement } from '../../utils/gmodel-util';
-import { SResizeHandle } from '../change-bounds/model';
+import { GResizeHandle } from '../change-bounds/model';
 import { ChangeBoundsManager } from '../tools/change-bounds/change-bounds-manager';
 
 /**
@@ -60,7 +60,7 @@ export class RankedSelectMouseListener extends SelectMouseListener implements Ra
     }
 
     protected override handleButton(target: GModelElement, event: MouseEvent): (Action | Promise<Action>)[] | undefined {
-        if (target instanceof SResizeHandle && this.changeBoundsManager?.useSymmetricResize(event)) {
+        if (target instanceof GResizeHandle && this.changeBoundsManager?.useSymmetricResize(event)) {
             // avoid de-selecting elements when resizing with a modifier key
             return [];
         }

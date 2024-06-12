@@ -67,7 +67,7 @@ export * from './features/accessibility/focus-tracker/focus-tracker-tool';
 export * from './features/accessibility/global-keylistener-tool';
 export * from './features/accessibility/key-shortcut/accessible-key-shortcut';
 export * from './features/accessibility/key-shortcut/accessible-key-shortcut-tool';
-export * from './features/accessibility/key-shortcut/di.config';
+export * from './features/accessibility/key-shortcut/shortcut-help-module';
 export * from './features/accessibility/keyboard-grid/action';
 export * from './features/accessibility/keyboard-grid/constants';
 export * from './features/accessibility/keyboard-grid/keyboard-grid';

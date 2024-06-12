@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2023 Business Informatics Group (TU Wien) and others.
+ * Copyright (c) 2023-2024 Business Informatics Group (TU Wien) and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -17,7 +17,7 @@
 import { FeatureModule } from '@eclipse-glsp/sprotty';
 import { configureElementNavigationTool } from './element-navigation/element-navigation-module';
 import { configureFocusTrackerTool } from './focus-tracker/focus-tracker-module';
-import { configureShortcutHelpTool } from './key-shortcut/di.config';
+import { configureShortcutHelpTool } from './key-shortcut/shortcut-help-module';
 import { configureKeyboardControlTools } from './keyboard-pointer/keyboard-pointer-module';
 import { configureKeyboardToolPaletteTool } from './keyboard-tool-palette/keyboard-tool-palette-module';
 import { configureMoveZoom } from './move-zoom/move-zoom-module';

@@ -30,7 +30,7 @@ import { IFeedbackActionDispatcher } from '../../base/feedback/feedback-action-d
 import { FeedbackEmitter } from '../../base/feedback/feedback-emitter';
 import { ISelectionListener, SelectionService } from '../../base/selection-service';
 import { SetBoundsFeedbackAction } from '../bounds/set-bounds-feedback-command';
-import { ResizeHandleLocation, SResizeHandle } from '../change-bounds/model';
+import { GResizeHandle, ResizeHandleLocation } from '../change-bounds/model';
 import { Grid } from '../grid/grid';
 import { MoveFinishedEventAction, MoveInitializedEventAction } from '../tools/change-bounds/change-bounds-tool-feedback';
 import {
@@ -182,7 +182,7 @@ export class HelperLineManager implements IActionHandler, ISelectionListener, IH
 
         const minimum: Writable<Vector> = { ...Vector.ZERO };
         const resize =
-            element instanceof SResizeHandle
+            element instanceof GResizeHandle
                 ? ResizeHandleLocation.direction(element.location)
                 : [Direction.Left, Direction.Right, Direction.Up, Direction.Down];
 

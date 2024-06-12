@@ -15,11 +15,11 @@
  ********************************************************************************/
 import { FeatureModule, TYPES, bindAsService, configureCommand, configureView } from '@eclipse-glsp/sprotty';
 import '../../../../css/change-bounds.css';
-import { SResizeHandle } from '../../change-bounds/model';
+import { GResizeHandle } from '../../change-bounds/model';
 import { ChangeBoundsManager } from './change-bounds-manager';
 import { ChangeBoundsTool } from './change-bounds-tool';
 import { HideChangeBoundsToolResizeFeedbackCommand, ShowChangeBoundsToolResizeFeedbackCommand } from './change-bounds-tool-feedback';
-import { SResizeHandleView } from './view';
+import { GResizeHandleView } from './view';
 
 export const changeBoundsToolModule = new FeatureModule(
     (bind, unbind, isBound, rebind) => {
@@ -28,7 +28,7 @@ export const changeBoundsToolModule = new FeatureModule(
         bindAsService(context, TYPES.IDefaultTool, ChangeBoundsTool);
         configureCommand(context, ShowChangeBoundsToolResizeFeedbackCommand);
         configureCommand(context, HideChangeBoundsToolResizeFeedbackCommand);
-        configureView(context, SResizeHandle.TYPE, SResizeHandleView);
+        configureView(context, GResizeHandle.TYPE, GResizeHandleView);
     },
     { featureId: Symbol('changeBoundsTool') }
 );

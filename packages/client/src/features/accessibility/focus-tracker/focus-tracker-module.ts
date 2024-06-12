@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2023 Business Informatics Group (TU Wien) and others.
+ * Copyright (c) 2023-2024 Business Informatics Group (TU Wien) and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -14,19 +14,26 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { ContainerModule } from 'inversify';
+import { BindingContext, FeatureModule, TYPES, bindAsService } from '@eclipse-glsp/sprotty';
 import { FocusTrackerTool } from './focus-tracker-tool';
-import { BindingContext, TYPES, bindAsService } from '@eclipse-glsp/sprotty';
 
 /**
  * Handles actions for tracking the focus of the cursor.
  */
 
-export const glspFocusTrackerModule = new ContainerModule((bind, unbind, isBound, rebind) => {
-    const context = { bind, unbind, isBound, rebind };
-    configureFocusTrackerTool(context);
-});
+export const focusTrackerModule = new FeatureModule(
+    (bind, unbind, isBound, rebind) => {
+        const context = { bind, unbind, isBound, rebind };
+        configureFocusTrackerTool(context);
+    },
+    { featureId: Symbol('focusTracker') }
+);
 
 export function configureFocusTrackerTool(context: BindingContext): void {
     bindAsService(context, TYPES.IDefaultTool, FocusTrackerTool);
 }
+
+export {
+    /** Deprecated use {@link focusTrackerModule} instead */
+    focusTrackerModule as glspFocusTrackerModule
+};

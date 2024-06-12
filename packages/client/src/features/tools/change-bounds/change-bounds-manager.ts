@@ -40,7 +40,7 @@ import {
 import { FeedbackEmitter } from '../../../base/feedback/feedback-emitter';
 import { isValidMove, minDimensions } from '../../../utils/layout-utils';
 import { LayoutAware } from '../../bounds/layout-data';
-import { ResizeHandleLocation, SResizeHandle } from '../../change-bounds/model';
+import { GResizeHandle, ResizeHandleLocation } from '../../change-bounds/model';
 import {
     IMovementRestrictor,
     movementRestrictionFeedback,
@@ -154,7 +154,7 @@ export class ChangeBoundsManager {
         );
 
         // cursor feedback on graph
-        const cursorClass = SResizeHandle.getCursorCss(resize.handleMove.element);
+        const cursorClass = GResizeHandle.getCursorCss(resize.handleMove.element);
         feedback.add(cursorFeedbackAction(cursorClass), cursorFeedbackAction(CursorCSS.DEFAULT));
 
         // handle feedback

@@ -109,14 +109,14 @@ export function isBoundsAwareMoveable(element: GModelElement): element is Bounds
     return isMoveable(element) && isBoundsAware(element);
 }
 
-export class SResizeHandle extends GChildElement implements Hoverable {
+export class GResizeHandle extends GChildElement implements Hoverable {
     static readonly TYPE = 'resize-handle';
 
     override readonly parent: ResizableModelElement;
 
     constructor(
         readonly location: ResizeHandleLocation,
-        override readonly type: string = SResizeHandle.TYPE,
+        override readonly type: string = GResizeHandle.TYPE,
         readonly hoverFeedback: boolean = false
     ) {
         super();
@@ -166,12 +166,12 @@ export class SResizeHandle extends GChildElement implements Hoverable {
         return this.isNeResize() || this.isSwResize();
     }
 
-    static getHandlePosition(handle: SResizeHandle): Point;
+    static getHandlePosition(handle: GResizeHandle): Point;
     static getHandlePosition(parent: ResizableModelElement, location: ResizeHandleLocation): Point;
     static getHandlePosition(bounds: Bounds, location: ResizeHandleLocation): Point;
-    static getHandlePosition(first: ResizableModelElement | SResizeHandle | Bounds, second?: ResizeHandleLocation): Point {
-        const bounds = SResizeHandle.is(first) ? first.parent.bounds : first instanceof GModelElement ? first.bounds : first;
-        const location = SResizeHandle.is(first) ? first.location : second!;
+    static getHandlePosition(first: ResizableModelElement | GResizeHandle | Bounds, second?: ResizeHandleLocation): Point {
+        const bounds = GResizeHandle.is(first) ? first.parent.bounds : first instanceof GModelElement ? first.bounds : first;
+        const location = GResizeHandle.is(first) ? first.location : second!;
         switch (location) {
             case ResizeHandleLocation.TopLeft:
                 return Bounds.topLeft(bounds);
@@ -192,7 +192,7 @@ export class SResizeHandle extends GChildElement implements Hoverable {
         }
     }
 
-    static getCursorCss(handle: SResizeHandle): string {
+    static getCursorCss(handle: GResizeHandle): string {
         switch (handle.location) {
             case ResizeHandleLocation.TopLeft:
                 return CursorCSS.RESIZE_NW;
@@ -213,17 +213,17 @@ export class SResizeHandle extends GChildElement implements Hoverable {
         }
     }
 
-    static is(handle: unknown): handle is SResizeHandle {
-        return typeof handle === 'object' && !!handle && 'type' in handle && handle.type === SResizeHandle.TYPE;
+    static is(handle: unknown): handle is GResizeHandle {
+        return typeof handle === 'object' && !!handle && 'type' in handle && handle.type === GResizeHandle.TYPE;
     }
 }
 
 export function addResizeHandles(element: ResizableModelElement, locations: ResizeHandleLocation[] = ResizeHandleLocation.CORNERS): void {
     for (const location of ResizeHandleLocation.ALL) {
-        const existing = element.children.find(child => child instanceof SResizeHandle && child.location === location);
+        const existing = element.children.find(child => child instanceof GResizeHandle && child.location === location);
         if (locations.includes(location) && !existing) {
             // add missing handle
-            element.add(new SResizeHandle(location));
+            element.add(new GResizeHandle(location));
         } else if (!locations.includes(location) && existing) {
             // remove existing handle
             element.remove(existing);
@@ -232,5 +232,10 @@ export function addResizeHandles(element: ResizableModelElement, locations: Resi
 }
 
 export function removeResizeHandles(element: GParentElement): void {
-    element.removeAll(child => child instanceof SResizeHandle);
+    element.removeAll(child => child instanceof GResizeHandle);
 }
+
+export {
+    /** @deprecated Use {@link GResizeHandle} instead */
+    GResizeHandle as SResizeHandle
+};
