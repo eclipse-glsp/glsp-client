@@ -32,7 +32,11 @@ export class GModelRegistry extends SModelRegistry {
         }
         if (this.hasKey(key)) {
             // do not throw error but log overwriting
-            console.log(`Factory for model element '${key}' will be overwritten.`);
+            console.log(`Key is already registered: ${key}.Factory for model element '${key}' will be overwritten.`);
+            console.warn(
+                'Implicit overwriting by registering the same key twice is deprecated' +
+                    "\n Use 'overrideModelElement()' instead of 'configureModelElement()' for explicit overwriting."
+            );
         }
         this.elements.set(key, factory);
     }
