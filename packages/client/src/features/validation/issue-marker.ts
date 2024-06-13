@@ -22,11 +22,11 @@ import {
     Marker,
     MarkerKind,
     Projectable,
-    SIssueMarker,
+    SIssueMarkerImpl,
     isBoundsAware
 } from '@eclipse-glsp/sprotty';
 
-export class GIssueMarker extends SIssueMarker implements Projectable {
+export class GIssueMarker extends SIssueMarkerImpl implements Projectable {
     constructor() {
         super();
         this.features = new Set<symbol>(GDecoration.DEFAULT_FEATURES);
@@ -90,9 +90,10 @@ export function getGIssueMarker(modelElement: GParentElement): GIssueMarker | un
  * @returns the created `GIssue`.
  */
 export function createGIssue(marker: Marker, parent?: GParentElement): GIssue {
-    const issue = new GIssue();
-    issue.message = marker.description;
-
+    const issue: GIssue = {
+        message: marker.description,
+        severity: 'info'
+    };
     switch (marker.kind) {
         case MarkerKind.ERROR: {
             issue.severity = 'error';

@@ -35,9 +35,9 @@
   "dependencies": {
     "@eclipse-glsp/protocol": "2.2.0-next",
     "autocompleter": "^9.1.0",
-    "snabbdom": "^3.5.1",
-    "sprotty": "1.0.0",
-    "sprotty-protocol": "1.0.0"
+    "snabbdom": "~3.5.1",
+    "sprotty": "1.2.0",
+    "sprotty-protocol": "1.2.0"
   },
   "devDependencies": {
     "@types/jsdom": "^21.1.3",

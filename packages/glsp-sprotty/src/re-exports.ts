@@ -97,13 +97,12 @@ export * from 'sprotty/lib/features/bounds/bounds-manipulation';
 export * from 'sprotty/lib/features/bounds/hbox-layout';
 export * from 'sprotty/lib/features/bounds/hidden-bounds-updater';
 export * from 'sprotty/lib/features/bounds/layout';
-export * from 'sprotty/lib/features/bounds/layout-options';
+export { AbstractLayoutOptions } from 'sprotty/lib/features/bounds/layout-options';
 export {
-    Alignable,
-    BoundsAware,
+    InternalBoundsAware as BoundsAware,
     SShapeElementImpl as GShapeElement,
-    LayoutContainer,
-    LayoutableChild,
+    InternalLayoutContainer as LayoutContainer,
+    InternalLayoutableChild as LayoutableChild,
     ModelLayoutOptions,
     alignFeature,
     boundsFeature,
@@ -124,7 +123,7 @@ export * from 'sprotty/lib/features/bounds/vbox-layout';
 export * from 'sprotty/lib/features/bounds/views';
 
 export { ButtonHandlerRegistry, IButtonHandlerRegistration, configureButtonHandler } from 'sprotty/lib/features/button/button-handler';
-export { SButtonImpl as GButton, SButtonSchema as GButtonSchema } from 'sprotty/lib/features/button/model';
+export { SButtonImpl as GButton } from 'sprotty/lib/features/button/model';
 
 export {
     CommandPaletteActionProviderRegistry,
@@ -139,7 +138,7 @@ export * from 'sprotty/lib/features/context-menu/mouse-listener';
 
 export * from 'sprotty/lib/features/edge-layout/di.config';
 export * from 'sprotty/lib/features/edge-layout/edge-layout';
-export * from 'sprotty/lib/features/edge-layout/model';
+export { DEFAULT_EDGE_PLACEMENT, checkEdgePlacement, edgeLayoutFeature, isEdgeLayoutable } from 'sprotty/lib/features/edge-layout/model';
 // Exclude client-side creation features (not supported in GLSP)
 // export * from 'sprotty/lib/features/edit/create';
 // export * from 'sprotty/lib/features/edit/create-on-drag';
@@ -151,7 +150,7 @@ export * from 'sprotty/lib/features/edit/model';
 // export * from 'sprotty/lib/features/edit/reconnect';
 
 export * from 'sprotty/lib/features/expand/expand';
-export * from 'sprotty/lib/features/expand/model';
+export { expandFeature, isExpandable } from 'sprotty/lib/features/expand/model';
 export * from 'sprotty/lib/features/expand/views';
 // Exclude RequestExportSvgAction. Already provided by glsp-protocol
 export { ExportSvgCommand, ExportSvgKeyListener, ExportSvgPostprocessor } from 'sprotty/lib/features/export/export';
@@ -160,10 +159,10 @@ export * from 'sprotty/lib/features/export/model';
 export { SvgExporter } from 'sprotty/lib/features/export/svg-exporter';
 
 export * from 'sprotty/lib/features/fade/fade';
-export * from 'sprotty/lib/features/fade/model';
+export { fadeFeature, isFadeable } from 'sprotty/lib/features/fade/model';
 
 export * from 'sprotty/lib/features/hover/hover';
-export * from 'sprotty/lib/features/hover/model';
+export { hasPopupFeature, hoverFeedbackFeature, isHoverable, popupFeature } from 'sprotty/lib/features/hover/model';
 export * from 'sprotty/lib/features/hover/popup-position-updater';
 
 // Alias SModel types
@@ -171,10 +170,7 @@ export * from 'sprotty/lib/features/decoration/decoration-placer';
 export {
     Decoration,
     SDecoration as GDecoration,
-    SIssue as GIssue,
-    SIssueSeverity as GIssueSeverity,
-    // Export as is, we extend it glsp-client to `GIssueMarker`
-    SIssueMarker,
+    SIssueMarkerImpl,
     decorationFeature,
     isDecoration
 } from 'sprotty/lib/features/decoration/model';
@@ -183,7 +179,9 @@ export * from 'sprotty/lib/features/decoration/views';
 export * from 'sprotty/lib/features/edge-intersection/intersection-finder';
 export * from 'sprotty/lib/features/edge-intersection/sweepline';
 
-export * from 'sprotty/lib/features/move/model';
+export * from 'sprotty/lib/features/edge-junction/junction-finder';
+
+export { isLocateable, isMoveable, moveFeature } from 'sprotty/lib/features/move/model';
 export * from 'sprotty/lib/features/move/move';
 export * from 'sprotty/lib/features/move/snap';
 
@@ -192,7 +190,7 @@ export * from 'sprotty/lib/features/nameable/model';
 export * from 'sprotty/lib/features/open/model';
 export * from 'sprotty/lib/features/open/open';
 
-export * from 'sprotty/lib/features/projection/model';
+export { ViewProjection, getModelBounds, getProjectedBounds, getProjections, isProjectable } from 'sprotty/lib/features/projection/model';
 export * from 'sprotty/lib/features/projection/views';
 
 export * from 'sprotty/lib/features/routing/abstract-edge-router';
@@ -222,7 +220,7 @@ export * from 'sprotty/lib/features/routing/polyline-edge-router';
 export * from 'sprotty/lib/features/routing/routing';
 export * from 'sprotty/lib/features/routing/views';
 
-export * from 'sprotty/lib/features/select/model';
+export { isSelectable, isSelected, selectFeature } from 'sprotty/lib/features/select/model';
 // Alias Select commands with sprotty prefix to avoid clash with glsp-client
 export {
     GetSelectionCommand,

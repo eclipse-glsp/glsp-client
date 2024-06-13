@@ -14,17 +14,15 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { Bounds } from '@eclipse-glsp/protocol';
+import { Bounds, Hoverable, Selectable } from '@eclipse-glsp/protocol';
 import { injectable } from 'inversify';
 import { VNode } from 'snabbdom';
 import {
     ATTR_BBOX_ELEMENT,
-    BoundsAware,
-    Hoverable,
+    InternalBoundsAware as BoundsAware,
     IViewArgs,
     RenderingContext,
     SShapeElementImpl,
-    Selectable,
     CircularNodeView as SprottyCircularNodeView,
     DiamondNodeView as SprottyDiamondNodeView,
     svg
