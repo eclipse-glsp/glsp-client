@@ -142,6 +142,7 @@ export * from './features/grid/grid-manager';
 export * from './features/grid/grid-model';
 export * from './features/grid/grid-module';
 export * from './features/grid/grid-snapper';
+export * from './features/grid/grid-style';
 export * from './features/helper-lines/helper-line-feedback';
 export * from './features/helper-lines/helper-line-manager';
 export * from './features/helper-lines/helper-line-manager-default';

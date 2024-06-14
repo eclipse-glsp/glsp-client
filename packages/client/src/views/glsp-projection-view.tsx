@@ -34,6 +34,7 @@ import {
 import { inject, injectable, optional } from 'inversify';
 import { VNode, VNodeStyle, h } from 'snabbdom';
 import { GridManager, GridStyle } from '../features/grid/grid-manager';
+import { GridProperty } from '../features/grid/grid-style';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const JSX = { createElement: html };
@@ -71,16 +72,21 @@ export class GLSPProjectionView extends ProjectedViewportView {
         return svg;
     }
 
-    protected getGridStyle(model: Readonly<SGraphImpl>, context: RenderingContext): GridStyle {
+    protected getGridStyle(viewport: Readonly<SGraphImpl>, context: RenderingContext): GridStyle {
         if (context.targetKind === 'hidden' || !this.gridManager?.isGridVisible) {
             return {};
         }
-        const bounds = this.getBackgroundBounds(model, context, this.gridManager);
+        const bounds = this.getBackgroundBounds(viewport, context, this.gridManager);
         return {
+            [GridProperty.GRID_BACKGROUND_X]: bounds.x + 'px',
+            [GridProperty.GRID_BACKGROUND_Y]: bounds.y + 'px',
+            [GridProperty.GRID_BACKGROUND_WIDTH]: bounds.width + 'px',
+            [GridProperty.GRID_BACKGROUND_HEIGHT]: bounds.height + 'px',
+            [GridProperty.GRID_BACKGROUND_ZOOM]: viewport.zoom + '',
+            [GridProperty.GRID_BACKGROUND_IMAGE]: this.getBackgroundImage(viewport, context, this.gridManager),
             backgroundPosition: `${bounds.x}px ${bounds.y}px`,
-            backgroundSize: `${bounds.width}px ${bounds.height}px`,
-            // we do not set the background image directly in the style object, because we want to toggle it on and off via CSS
-            '--grid-background-image': this.getBackgroundImage(model, context, this.gridManager)
+            backgroundSize: `${bounds.width}px ${bounds.height}px`
+            // we do not set the background-image directly in the style object, because we want to toggle it on and off via CSS
         };
     }
 
@@ -90,9 +96,10 @@ export class GLSPProjectionView extends ProjectedViewportView {
         return { ...position, ...size };
     }
 
-    protected getBackgroundImage(model: Readonly<SGraphImpl>, context: RenderingContext, gridManager: GridManager): string {
+    protected getBackgroundImage(viewport: Readonly<SGraphImpl>, context: RenderingContext, gridManager: GridManager): string {
+        const color = getComputedStyle(document.documentElement).getPropertyValue(GridProperty.GRID_COLOR).trim();
         // eslint-disable-next-line max-len
-        return `url('data:image/svg+xml;utf8, <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${gridManager.grid.x} ${gridManager.grid.y}"><rect width="${gridManager.grid.x}" height="${gridManager.grid.y}" x="0" y="0" fill="none" stroke="black" stroke-width="1" stroke-opacity="0.10" /></svg>')`;
+        return `url('data:image/svg+xml;utf8, <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${gridManager.grid.x} ${gridManager.grid.y}"><rect width="${gridManager.grid.x}" height="${gridManager.grid.y}" x="0" y="0" fill="none" stroke="${color}" stroke-width="1" /></svg>')`;
     }
 
     protected override renderProjectionBar(
