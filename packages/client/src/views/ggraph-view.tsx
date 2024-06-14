@@ -56,7 +56,7 @@ export class GGraphView extends SGraphView {
     }
 
     protected getBackgroundImage(viewport: Readonly<SGraphImpl>, context: RenderingContext, gridManager: GridManager): string {
-        const color = getComputedStyle(document.documentElement).getPropertyValue(GridProperty.GRID_COLOR).trim();
+        const color = getComputedStyle(document.documentElement).getPropertyValue(GridProperty.GRID_COLOR).trim().replace(/#/g, '%23');
         // eslint-disable-next-line max-len
         return `url('data:image/svg+xml;utf8, <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${gridManager.grid.x} ${gridManager.grid.y}"><rect width="${gridManager.grid.x}" height="${gridManager.grid.y}" x="0" y="0" fill="none" stroke="${color}" stroke-width="1" /></svg>')`;
     }
