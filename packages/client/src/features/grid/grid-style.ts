@@ -14,12 +14,12 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-:root {
-    --grid-color: rgba(0, 0, 0, 0.1);
-}
-
-/** Control visibility of background image through CSS class on parent */
-.grid-background .sprotty-graph,
-.grid-background.sprotty-graph {
-    background-image: var(--grid-background-image);
+export namespace GridProperty {
+    export const GRID_BACKGROUND_X = '--grid-background-x';
+    export const GRID_BACKGROUND_Y = '--grid-background-y';
+    export const GRID_BACKGROUND_WIDTH = '--grid-background-width';
+    export const GRID_BACKGROUND_HEIGHT = '--grid-background-height';
+    export const GRID_BACKGROUND_ZOOM = '--grid-background-zoom';
+    export const GRID_BACKGROUND_IMAGE = '--grid-background-image';
+    export const GRID_COLOR = '--grid-color';
 }
