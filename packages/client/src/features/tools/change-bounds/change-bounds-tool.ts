@@ -43,8 +43,8 @@ import { ISelectionListener, SelectionService } from '../../../base/selection-se
 import {
     BoundsAwareModelElement,
     ResizableModelElement,
+    SelectableBoundsAware,
     calcElementAndRoutingPoints,
-    forEachElement,
     getMatchingElements,
     isNonRoutableSelectedMovableBoundsAware,
     toElementAndBounds
@@ -251,17 +251,20 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
 
     protected handleMoveOnServer(target: GModelElement): Action[] {
         const operations: Operation[] = [];
-        operations.push(...this.handleMoveElementsOnServer(target));
-        operations.push(...this.handleMoveRoutingPointsOnServer(target));
+        const elementToMove = this.getElementsToMove(target);
+        operations.push(...this.handleMoveElementsOnServer(elementToMove));
+        operations.push(...this.handleMoveRoutingPointsOnServer(elementToMove));
         return operations.length > 0 ? [CompoundOperation.create(operations)] : [];
     }
 
-    protected handleMoveElementsOnServer(target: GModelElement): Operation[] {
+    protected getElementsToMove(target: GModelElement): SelectableBoundsAware[] {
         const selectedElements = getMatchingElements(target.index, isNonRoutableSelectedMovableBoundsAware);
         const selectionSet: Set<BoundsAwareModelElement> = new Set(selectedElements);
-        const newBounds: ElementAndBounds[] = selectedElements
-            .filter(element => this.isValidMove(element, selectionSet))
-            .map(toElementAndBounds);
+        return selectedElements.filter(element => this.isValidMove(element, selectionSet));
+    }
+
+    protected handleMoveElementsOnServer(elementsToMove: SelectableBoundsAware[]): Operation[] {
+        const newBounds = elementsToMove.map(toElementAndBounds);
         return newBounds.length > 0 ? [ChangeBoundsOperation.create(newBounds)] : [];
     }
 
@@ -282,12 +285,12 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
         return false;
     }
 
-    protected handleMoveRoutingPointsOnServer(target: GModelElement): Operation[] {
+    protected handleMoveRoutingPointsOnServer(elementsToMove: SelectableBoundsAware[]): Operation[] {
         const newRoutingPoints: ElementAndRoutingPoints[] = [];
         const routerRegistry = this.tool.edgeRouterRegistry;
         if (routerRegistry) {
             //  If client routing is enabled -> delegate routing points of connected edges to server
-            forEachElement(target.index, isNonRoutableSelectedMovableBoundsAware, element => {
+            elementsToMove.forEach(element => {
                 if (element instanceof GConnectableElement) {
                     element.incomingEdges
                         .map(connectable => calcElementAndRoutingPoints(connectable, routerRegistry))

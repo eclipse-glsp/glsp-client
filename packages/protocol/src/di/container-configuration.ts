@@ -85,7 +85,7 @@ export function resolveContainerConfiguration(...containerConfigurations: Contai
         }
     });
     if (duplicates.length > 0) {
-        const culprits = duplicates.map(m => m.featureId).join(', ');
+        const culprits = duplicates.map(m => m.featureId.toString()).join(', ');
         throw new Error(`Could not resolve container configuration. Non-unique feature ids found in container configuration: ${culprits}`);
     }
     return modules;
