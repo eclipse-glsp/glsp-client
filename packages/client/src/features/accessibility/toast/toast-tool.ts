@@ -14,18 +14,19 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { injectable, inject } from 'inversify';
-import { Action, AbstractUIExtension, IActionHandler, ICommand, TYPES } from '@eclipse-glsp/sprotty';
-import { IDiagramStartup } from '../../../base/model/diagram-loader';
+import { Action, IActionHandler, ICommand, TYPES } from '@eclipse-glsp/sprotty';
+import { inject, injectable } from 'inversify';
 import { GLSPActionDispatcher } from '../../../base/action-dispatcher';
 import { EditorContextService } from '../../../base/editor-context-service';
+import { IDiagramStartup } from '../../../base/model/diagram-loader';
+import { GLSPAbstractUIExtension } from '../../../base/ui-extension/ui-extension';
 import { HideToastAction, ShowToastMessageAction, ToastOptions } from './toast-handler';
 
 /**
  * This extension is used to create customized user notifications as toast messages.
  */
 @injectable()
-export class Toast extends AbstractUIExtension implements IActionHandler, IDiagramStartup {
+export class Toast extends GLSPAbstractUIExtension implements IActionHandler, IDiagramStartup {
     static readonly ID = 'toast';
     protected messages: { [key: symbol]: ToastOptions } = {};
 

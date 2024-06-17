@@ -15,24 +15,24 @@
  ********************************************************************************/
 import '../../../../css/keyboard.css';
 
-import { inject, injectable } from 'inversify';
 import {
-    AbstractUIExtension,
-    ActionDispatcher,
-    IActionHandler,
-    SetUIExtensionVisibilityAction,
-    GModelRoot,
-    TYPES,
     Action,
+    ActionDispatcher,
+    GModelRoot,
+    IActionHandler,
     ICommand,
-    Point
+    Point,
+    SetUIExtensionVisibilityAction,
+    TYPES
 } from '@eclipse-glsp/sprotty';
+import { inject, injectable } from 'inversify';
 import { KeyCode, matchesKeystroke } from 'sprotty/lib/utils/keyboard';
-import { KeyboardGridMetadata } from './constants';
+import { GLSPAbstractUIExtension } from '../../../base/ui-extension/ui-extension';
 import { EnableKeyboardGridAction, KeyboardGridCellSelectedAction, KeyboardGridKeyboardEventAction } from './action';
+import { KeyboardGridMetadata } from './constants';
 
 @injectable()
-export class KeyboardGrid extends AbstractUIExtension implements IActionHandler {
+export class KeyboardGrid extends GLSPAbstractUIExtension implements IActionHandler {
     @inject(TYPES.IActionDispatcher) protected readonly actionDispatcher: ActionDispatcher;
 
     protected triggerActions: Action[] = [];
