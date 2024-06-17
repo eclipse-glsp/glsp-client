@@ -13,26 +13,19 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { Action, GModelRoot, IActionDispatcher, IActionHandler, TYPES, TriggerNodeCreationAction } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
-import {
-    AbstractUIExtension,
-    IActionDispatcher,
-    IActionHandler,
-    GModelRoot,
-    TYPES,
-    Action,
-    TriggerNodeCreationAction
-} from '@eclipse-glsp/sprotty';
+import { EditorContextService } from '../../../base/editor-context-service';
+import { CursorCSS } from '../../../base/feedback/css-feedback';
+import { GLSPAbstractUIExtension } from '../../../base/ui-extension/ui-extension';
+import { KeyboardGridCellSelectedAction } from '../keyboard-grid/action';
 import { SetKeyboardPointerRenderPositionAction } from './actions';
 import { KeyboardPointerMetadata } from './constants';
 import { KeyboardPointerKeyboardListener } from './keyboard-pointer-listener';
 import { KeyboardPointerPosition } from './keyboard-pointer-position';
-import { KeyboardGridCellSelectedAction } from '../keyboard-grid/action';
-import { EditorContextService } from '../../../base/editor-context-service';
-import { CursorCSS } from '../../../base/feedback/css-feedback';
 
 @injectable()
-export class KeyboardPointer extends AbstractUIExtension implements IActionHandler {
+export class KeyboardPointer extends GLSPAbstractUIExtension implements IActionHandler {
     protected _triggerAction: TriggerNodeCreationAction = {
         elementTypeId: 'task:automated',
         kind: 'triggerNodeCreation'

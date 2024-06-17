@@ -27,6 +27,7 @@ export class GlspEditLabelUI extends EditLabelUI {
     protected override setContainerVisible(visible: boolean): void {
         if (visible) {
             this.containerElement?.classList.remove(CSS_HIDDEN_EXTENSION_CLASS);
+            this.editControl.focus();
         } else {
             this.containerElement?.classList.add(CSS_HIDDEN_EXTENSION_CLASS);
         }

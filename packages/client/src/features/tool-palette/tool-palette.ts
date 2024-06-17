@@ -14,7 +14,6 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import {
-    AbstractUIExtension,
     Action,
     GModelRoot,
     IActionHandler,
@@ -37,6 +36,7 @@ import { EditorContextService, IEditModeListener } from '../../base/editor-conte
 import { FocusTracker } from '../../base/focus/focus-tracker';
 import { IDiagramStartup } from '../../base/model/diagram-loader';
 import { EnableDefaultToolsAction, EnableToolsAction } from '../../base/tool-manager/tool';
+import { GLSPAbstractUIExtension } from '../../base/ui-extension/ui-extension';
 import { DebugManager } from '../debug/debug-manager';
 import { GridManager } from '../grid/grid-manager';
 import { MouseDeleteTool } from '../tools/deletion/delete-tool';
@@ -65,7 +65,7 @@ export namespace EnableToolPaletteAction {
     }
 }
 @injectable()
-export class ToolPalette extends AbstractUIExtension implements IActionHandler, IEditModeListener, IDiagramStartup {
+export class ToolPalette extends GLSPAbstractUIExtension implements IActionHandler, IEditModeListener, IDiagramStartup {
     static readonly ID = 'tool-palette';
 
     @inject(GLSPActionDispatcher)

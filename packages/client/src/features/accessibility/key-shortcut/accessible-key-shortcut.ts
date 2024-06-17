@@ -14,9 +14,10 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
+import { Action, GModelRoot, IActionHandler, ICommand, matchesKeystroke } from '@eclipse-glsp/sprotty';
 import { injectable } from 'inversify';
 import { groupBy } from 'lodash';
-import { AbstractUIExtension, Action, IActionHandler, ICommand, matchesKeystroke, GModelRoot } from '@eclipse-glsp/sprotty';
+import { GLSPAbstractUIExtension } from '../../../base/ui-extension/ui-extension';
 
 export interface AccessibleKeyShortcutProvider {
     registerShortcutKey(): void;
@@ -48,7 +49,7 @@ export namespace SetAccessibleKeyShortcutAction {
 }
 
 @injectable()
-export class KeyShortcutUIExtension extends AbstractUIExtension implements IActionHandler {
+export class KeyShortcutUIExtension extends GLSPAbstractUIExtension implements IActionHandler {
     static readonly ID = 'key-shortcut';
     protected container: HTMLDivElement;
     protected shortcutsContainer: HTMLDivElement;
