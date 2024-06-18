@@ -13,8 +13,9 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-.command-palette.validation.error {
-    font-size: small;
+.command-palette.validation.error,
+.command-palette.validation.warning {
+    font-size: 10pt;
 }
 
 .command-palette.validation .validation-decorator {
@@ -49,11 +50,11 @@
 
 .command-palette.validation.warning input,
 .command-palette.validation.warning input:focus {
-    color: var(--glsp-warning-foreground);
     outline-color: var(--glsp-warning-foreground);
 }
 
 .command-palette.validation.warning .validation-decorator.warning {
     border: 1px solid var(--glsp-warning-foreground);
     background-color: var(--glsp-warning-foreground);
+    color: black;
 }
