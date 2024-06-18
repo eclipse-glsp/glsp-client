@@ -46,14 +46,14 @@
   },
   "dependencies": {
     "sprotty-protocol": "1.2.0",
-    "uuid": "7.0.3",
-    "vscode-jsonrpc": "^8.0.2"
+    "uuid": "~10.0.0",
+    "vscode-jsonrpc": "8.2.0"
   },
   "devDependencies": {
-    "@types/uuid": "3.4.5"
+    "@types/uuid": "~9.0.8"
   },
   "peerDependencies": {
-    "inversify": "^6.0.1"
+    "inversify": "~6.0.2"
   },
   "publishConfig": {
     "access": "public"

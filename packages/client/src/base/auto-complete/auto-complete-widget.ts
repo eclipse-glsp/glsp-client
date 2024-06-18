@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020-2023 EclipseSource and others.
+ * Copyright (c) 2020-2024 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -290,7 +290,7 @@ export class AutoCompleteWidget {
         if (AutoCompleteValue.is(item)) {
             this.inputElement.value = item.text;
             // trigger update of suggestions with an keyup event
-            window.setTimeout(() => this.inputElement.dispatchEvent(new Event('keyup')));
+            window.setTimeout(() => this.inputElement.dispatchEvent(new Event('input')));
         } else {
             this.executeFromSuggestion(item);
             this.notifyClose('submission');

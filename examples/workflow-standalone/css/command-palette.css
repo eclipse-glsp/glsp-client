@@ -1,0 +1,59 @@
+/********************************************************************************
+ * Copyright (c) 2024 EclipseSource and others.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v. 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is available at
+ * https://www.gnu.org/software/classpath/license.html.
+ *
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ ********************************************************************************/
+.command-palette.validation.error {
+    font-size: small;
+}
+
+.command-palette.validation .validation-decorator {
+    position: absolute;
+    padding: 5px;
+    border-radius: 5px 5px 0px 0px;
+    color: white;
+    display: flex;
+    align-items: flex-start;
+    /* let error decoration fade in */
+    -webkit-animation: fadein 0.3s;
+    -moz-animation: fadein 0.3s;
+    -ms-animation: fadein 0.3s;
+    -o-animation: fadein 0.3s;
+    animation: fadein 0.3s;
+}
+
+.command-palette.validation .validation-decorator span {
+    margin-right: 5px;
+}
+
+.command-palette.validation.error input,
+.command-palette.validation.error input:focus {
+    color: var(--glsp-error-foregroundd);
+    outline-color: var(--glsp-error-foreground);
+}
+
+.command-palette.validation.error .validation-decorator.error {
+    border: 1px solid var(--glsp-error-foreground);
+    background-color: var(--glsp-error-foreground);
+}
+
+.command-palette.validation.warning input,
+.command-palette.validation.warning input:focus {
+    color: var(--glsp-warning-foreground);
+    outline-color: var(--glsp-warning-foreground);
+}
+
+.command-palette.validation.warning .validation-decorator.warning {
+    border: 1px solid var(--glsp-warning-foreground);
+    background-color: var(--glsp-warning-foreground);
+}

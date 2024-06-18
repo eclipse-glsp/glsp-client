@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2023 EclipseSource and others.
+ * Copyright (c) 2024 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,12 +13,19 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { bindAsService, FeatureModule, TYPES } from '@eclipse-glsp/client';
-import { TaskEditor } from './direct-task-editor';
 
-export const directTaskEditor = new FeatureModule(
-    (bind, _unbind, _isBound) => {
-        bindAsService(bind, TYPES.IUIExtension, TaskEditor);
+import { taskEditorModule } from '@eclipse-glsp-examples/workflow-glsp';
+import { FeatureModule, TYPES, bindAsService } from '@eclipse-glsp/client';
+import '../../../css/command-palette.css';
+import { TaskEditorKeyListener } from './task-editor-key-listener';
+
+export const standaloneTaskEditorModule = new FeatureModule(
+    (bind, unbind, isBound, rebind) => {
+        const context = { bind, unbind, isBound, rebind };
+        bindAsService(context, TYPES.KeyListener, TaskEditorKeyListener);
     },
-    { featureId: Symbol('directTaskEditor') }
+    {
+        featureId: Symbol('standaloneTaskEditor'),
+        requires: taskEditorModule
+    }
 );
