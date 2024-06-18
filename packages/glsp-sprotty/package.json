@@ -37,7 +37,8 @@
     "autocompleter": "^9.1.0",
     "snabbdom": "~3.5.1",
     "sprotty": "1.2.0",
-    "sprotty-protocol": "1.2.0"
+    "sprotty-protocol": "1.2.0",
+    "vscode-jsonrpc": "8.2.0"
   },
   "devDependencies": {
     "@types/jsdom": "^21.1.3",
@@ -45,7 +46,7 @@
     "snabbdom-to-html": "^7.1.0"
   },
   "peerDependencies": {
-    "inversify": "^6.0.1"
+    "inversify": "~6.0.2"
   },
   "publishConfig": {
     "access": "public"

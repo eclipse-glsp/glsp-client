@@ -49,7 +49,7 @@ import 'balloon-css/balloon.min.css';
 import { Container } from 'inversify';
 import 'sprotty/css/edit-label.css';
 import '../css/diagram.css';
-import { directTaskEditor } from './direct-task-editing/di.config';
+import { taskEditorModule } from './direct-task-editing/task-editor-module';
 import { BranchingNode, CategoryNode, Icon, SynchronizationNode, TaskNode, WeightedEdge } from './model';
 import { WorkflowSnapper } from './workflow-snapper';
 import { WorkflowStartup } from './workflow-startup';
@@ -103,11 +103,11 @@ export function createWorkflowDiagramContainer(...containerConfiguration: Contai
 export function initializeWorkflowDiagramContainer(container: Container, ...containerConfiguration: ContainerConfiguration): Container {
     return initializeDiagramContainer(
         container,
-        ...containerConfiguration,
-        directTaskEditor,
+        taskEditorModule,
         helperLineModule,
         gridModule,
         debugModule,
-        workflowDiagramModule
+        workflowDiagramModule,
+        ...containerConfiguration
     );
 }
