@@ -14,14 +14,14 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-/** Control visibility of background image through CSS class on parent */
 .grid-background .sprotty-graph,
 .grid-background.sprotty-graph {
-    --b-zoom: calc(1px * var(--grid-background-zoom));
-    --b-zoom-half: calc(var(--b-zoom) / 2);
+    --grid-stroke-width: calc(1px * var(--grid-background-zoom));
+    --grid-stroke-width-half: calc(var(--grid-stroke-width) / 2);
     --grid-color: rgba(0, 0, 0, 0.1);
-    background-image: linear-gradient(to right, var(--grid-color) var(--b-zoom), transparent var(--b-zoom)),
-        linear-gradient(to bottom, var(--grid-color) var(--b-zoom), transparent var(--b-zoom));
+    background-image: linear-gradient(to right, var(--grid-color) var(--grid-stroke-width), transparent var(--grid-stroke-width)),
+        linear-gradient(to bottom, var(--grid-color) var(--grid-stroke-width), transparent var(--grid-stroke-width));
     background-size: var(--grid-background-width) var(--grid-background-height);
-    background-position: calc(var(--grid-background-x) - var(--b-zoom-half)) calc(var(--grid-background-y) - var(--b-zoom-half));
+    background-position: calc(var(--grid-background-x) - var(--grid-stroke-width-half))
+        calc(var(--grid-background-y) - var(--grid-stroke-width-half));
 }

@@ -32,7 +32,7 @@ export class GGraphView extends SGraphView {
     }
 
     protected getGridStyle(viewport: Readonly<SGraphImpl>, context: RenderingContext): GridStyle {
-        if (context.targetKind === 'hidden' || !this.gridManager?.isGridVisible) {
+        if (context.targetKind === 'hidden' || !this.gridManager) {
             return {};
         }
         const bounds = this.getBackgroundBounds(viewport, context, this.gridManager);
