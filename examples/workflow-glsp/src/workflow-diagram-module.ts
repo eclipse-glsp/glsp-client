@@ -43,7 +43,8 @@ import {
     editLabelFeature,
     gridModule,
     helperLineModule,
-    initializeDiagramContainer
+    initializeDiagramContainer,
+    overrideModelElement
 } from '@eclipse-glsp/client';
 import 'balloon-css/balloon.min.css';
 import { Container } from 'inversify';
@@ -69,16 +70,15 @@ export const workflowDiagramModule = new FeatureModule(
         configureModelElement(context, 'task:manual', TaskNode, RoundedCornerNodeView);
         configureModelElement(context, 'label:heading', GLabel, GLabelView, { enable: [editLabelFeature] });
         configureModelElement(context, 'comp:comp', GCompartment, GCompartmentView);
-        configureModelElement(context, 'comp:header', GCompartment, GCompartmentView);
         configureModelElement(context, 'label:icon', GLabel, GLabelView);
-        configureModelElement(context, DefaultTypes.EDGE, GEdge, WorkflowEdgeView);
+        overrideModelElement(context, DefaultTypes.EDGE, GEdge, WorkflowEdgeView);
         configureModelElement(context, 'edge:weighted', WeightedEdge, WorkflowEdgeView);
         configureModelElement(context, 'icon', Icon, IconView);
         configureModelElement(context, 'activityNode:merge', BranchingNode, DiamondNodeView);
         configureModelElement(context, 'activityNode:decision', BranchingNode, DiamondNodeView);
         configureModelElement(context, 'activityNode:fork', SynchronizationNode, RectangularNodeView);
         configureModelElement(context, 'activityNode:join', SynchronizationNode, RectangularNodeView);
-        configureModelElement(context, DefaultTypes.GRAPH, GGraph, GLSPProjectionView);
+        overrideModelElement(context, DefaultTypes.GRAPH, GGraph, GLSPProjectionView);
         configureModelElement(context, 'category', CategoryNode, RoundedCornerNodeView);
         configureModelElement(context, 'struct', GCompartment, StructureCompartmentView);
 

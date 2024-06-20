@@ -14,16 +14,13 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 /* eslint-disable max-len */
-
+/** @jsx svg */
 import { Bounds, GModelElement, IVNodePostprocessor, Point, isDecoration, isSizeable, setClass, svg } from '@eclipse-glsp/sprotty';
 import { inject, injectable, optional } from 'inversify';
 import { VNode } from 'snabbdom';
 import { GGraph } from '../../model';
 import { BoundsAwareModelElement } from '../../utils/gmodel-util';
 import { DebugManager } from './debug-manager';
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const JSX = { createElement: svg };
 
 export const CSS_DEBUG_BOUNDS = 'debug-bounds';
 

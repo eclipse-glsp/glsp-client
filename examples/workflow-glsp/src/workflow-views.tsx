@@ -13,6 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+/** @jsx svg */
 import {
     GEdge,
     Point,
@@ -29,9 +30,6 @@ import {
 import { injectable } from 'inversify';
 import { VNode } from 'snabbdom';
 import { Icon, isTaskNode } from './model';
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const JSX = { createElement: svg };
 
 @injectable()
 export class WorkflowEdgeView extends PolylineEdgeViewWithGapsOnIntersections {

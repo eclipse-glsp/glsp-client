@@ -13,14 +13,12 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+/** @jsx svg */
 import { Point, PolylineEdgeView, RenderingContext, svg } from '@eclipse-glsp/sprotty';
 import { injectable } from 'inversify';
 import { Classes, VNode } from 'snabbdom';
-import { EdgePadding } from '../utils/argument-utils';
 import { GEdge } from '../model';
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const JSX = { createElement: svg };
+import { EdgePadding } from '../utils/argument-utils';
 
 @injectable()
 export class GEdgeView extends PolylineEdgeView {

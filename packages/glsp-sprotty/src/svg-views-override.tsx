@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-
+/** @jsx svg */
 import { Bounds, Hoverable, Selectable } from '@eclipse-glsp/protocol';
 import { injectable } from 'inversify';
 import { VNode } from 'snabbdom';
@@ -27,9 +27,6 @@ import {
     DiamondNodeView as SprottyDiamondNodeView,
     svg
 } from 'sprotty';
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const JSX = { createElement: svg };
 
 @injectable()
 export class DiamondNodeView extends SprottyDiamondNodeView {
