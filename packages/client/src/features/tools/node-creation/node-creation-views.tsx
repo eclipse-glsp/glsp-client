@@ -13,16 +13,13 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-
+/** @jsx svg */
 import { IView, RenderingContext, TYPES, setClass, svg } from '@eclipse-glsp/sprotty';
 import { inject, injectable, optional } from 'inversify';
 import { VNode } from 'snabbdom';
 import { GArgument } from '../../../utils/argument-utils';
 import { Grid } from '../../grid/grid';
 import { ARG_LENGTH, InsertIndicator } from './insert-indicator';
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const JSX = { createElement: svg };
 
 @injectable()
 export class InsertIndicatorView implements IView {

@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-
+/** @jsx html */
 import {
     Bounds,
     Dimension,
@@ -35,9 +35,6 @@ import { inject, injectable, optional } from 'inversify';
 import { VNode, VNodeStyle, h } from 'snabbdom';
 import { GridManager, GridStyle } from '../features/grid/grid-manager';
 import { GridProperty } from '../features/grid/grid-style';
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const JSX = { createElement: html };
 
 /**
  * Special viewport root view that renders horizontal and vertical projection bars for quick navigation.
@@ -73,7 +70,7 @@ export class GLSPProjectionView extends ProjectedViewportView {
     }
 
     protected getGridStyle(viewport: Readonly<SGraphImpl>, context: RenderingContext): GridStyle {
-        if (context.targetKind === 'hidden' || !this.gridManager?.isGridVisible) {
+        if (context.targetKind === 'hidden' || !this.gridManager) {
             return {};
         }
         const bounds = this.getBackgroundBounds(viewport, context, this.gridManager);
@@ -82,11 +79,7 @@ export class GLSPProjectionView extends ProjectedViewportView {
             [GridProperty.GRID_BACKGROUND_Y]: bounds.y + 'px',
             [GridProperty.GRID_BACKGROUND_WIDTH]: bounds.width + 'px',
             [GridProperty.GRID_BACKGROUND_HEIGHT]: bounds.height + 'px',
-            [GridProperty.GRID_BACKGROUND_ZOOM]: viewport.zoom + '',
-            [GridProperty.GRID_BACKGROUND_IMAGE]: this.getBackgroundImage(viewport, context, this.gridManager),
-            backgroundPosition: `${bounds.x}px ${bounds.y}px`,
-            backgroundSize: `${bounds.width}px ${bounds.height}px`
-            // we do not set the background-image directly in the style object, because we want to toggle it on and off via CSS
+            [GridProperty.GRID_BACKGROUND_ZOOM]: viewport.zoom + ''
         };
     }
 
@@ -96,35 +89,15 @@ export class GLSPProjectionView extends ProjectedViewportView {
         return { ...position, ...size };
     }
 
-    protected getBackgroundImage(viewport: Readonly<SGraphImpl>, context: RenderingContext, gridManager: GridManager): string {
-        const color = getComputedStyle(document.documentElement).getPropertyValue(GridProperty.GRID_COLOR).trim().replace(/#/g, '%23');
-        // eslint-disable-next-line max-len
-        return `url('data:image/svg+xml;utf8, <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${gridManager.grid.x} ${gridManager.grid.y}"><rect width="${gridManager.grid.x}" height="${gridManager.grid.y}" x="0" y="0" fill="none" stroke="${color}" stroke-width="1" /></svg>')`;
-    }
-
     protected override renderProjectionBar(
         projections: ViewProjection[],
         model: Readonly<GViewportRootElement>,
         modelBounds: Bounds,
         orientation: 'horizontal' | 'vertical'
     ): VNode {
-        const params: ProjectionParams = { modelBounds, orientation } as ProjectionParams;
-        // NOTE: Here we assume that the projection bars have the same size as the diagram canvas,
-        // i.e. they are drawn as overlay above the canvas.
-        params.factor =
-            orientation === 'horizontal' ? model.canvasBounds.width / modelBounds.width : model.canvasBounds.height / modelBounds.height;
-        params.zoomedFactor = params.factor / model.zoom;
-        return (
-            <div
-                class-sprotty-projection-bar={true}
-                class-horizontal={orientation === 'horizontal'}
-                class-vertical={orientation === 'vertical'}
-                class-bordered-projection-bar={true}
-            >
-                {this.renderViewport(model, params)}
-                {projections.map(p => this.renderProjection(p, model, params))}
-            </div>
-        );
+        const vnode = super.renderProjectionBar(projections, model, modelBounds, orientation);
+        setClass(vnode, 'bordered-projection-bar', true);
+        return vnode;
     }
 
     protected override renderViewport(model: Readonly<GViewportRootElement>, params: ProjectionParams): VNode {
@@ -170,50 +143,14 @@ export class GLSPProjectionView extends ProjectedViewportView {
         model: Readonly<GViewportRootElement>,
         params: ProjectionParams
     ): VNode {
-        let canvasSize;
-        let projPos;
-        let projSize: number;
-        if (params.orientation === 'horizontal') {
-            canvasSize = model.canvasBounds.width;
-            projPos = (projection.projectedBounds.x - params.modelBounds.x) * params.factor;
-            projSize = projection.projectedBounds.width * params.factor;
+        const vnode = super.renderProjection(projection, model, params);
+        setClass(vnode, 'glsp-projection', true);
+        const style = vnode.data!.style!;
+        if (style.left) {
+            style.height = '60%';
         } else {
-            canvasSize = model.canvasBounds.height;
-            projPos = (projection.projectedBounds.y - params.modelBounds.y) * params.factor;
-            projSize = projection.projectedBounds.height * params.factor;
+            style.width = '60%';
         }
-        if (projPos < 0) {
-            projSize += projPos;
-            projPos = 0;
-        } else if (projPos > canvasSize) {
-            projPos = canvasSize;
-        }
-        if (projSize < 0) {
-            projSize = 0;
-        } else if (projPos + projSize > canvasSize) {
-            projSize = canvasSize - projPos;
-        }
-        const style: VNodeStyle =
-            params.orientation === 'horizontal'
-                ? {
-                      left: `${projPos}px`,
-                      width: `${projSize}px`,
-                      height: '60%'
-                  }
-                : {
-                      top: `${projPos}px`,
-                      height: `${projSize}px`,
-                      width: '60%'
-                  };
-        const result = (
-            <div
-                id={`${params.orientation}-projection:${projection.elementId}`}
-                class-sprotty-projection={true}
-                class-glsp-projection={true}
-                style={style}
-            />
-        );
-        projection.cssClasses.forEach(cl => setClass(result, cl, true));
-        return result;
+        return vnode;
     }
 }

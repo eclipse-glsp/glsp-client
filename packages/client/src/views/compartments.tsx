@@ -13,12 +13,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+/** @jsx svg */
+import { GCompartment, RenderingContext, ShapeView, svg } from '@eclipse-glsp/sprotty';
 import { injectable } from 'inversify';
 import { VNode } from 'snabbdom';
-import { GCompartment, RenderingContext, ShapeView, svg } from '@eclipse-glsp/sprotty';
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const JSX = { createElement: svg };
 
 @injectable()
 export class StructureCompartmentView extends ShapeView {

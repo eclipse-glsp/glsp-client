@@ -13,12 +13,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+/** @jsx svg */
+import { GModelElement, IView, Point, RenderingContext, svg } from '@eclipse-glsp/sprotty';
 import { injectable } from 'inversify';
 import { VNode } from 'snabbdom';
-import { IView, Point, RenderingContext, GModelElement, svg } from '@eclipse-glsp/sprotty';
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const JSX = { createElement: svg };
 
 /**
  * This view is used for the invisible end of the feedback edge.

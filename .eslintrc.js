@@ -20,6 +20,13 @@ module.exports = {
                 message:
                     "The sprotty-protocol default exports are customized and reexported by GLSP. Please use '@eclipse-glsp/client' instead"
             }
+        ],
+        '@typescript-eslint/no-unused-vars': [
+            'error',
+            {
+                args: 'none',
+                varsIgnorePattern: 'svg|html'
+            }
         ]
     }
 };

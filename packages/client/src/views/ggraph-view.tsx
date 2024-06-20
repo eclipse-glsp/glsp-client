@@ -32,7 +32,7 @@ export class GGraphView extends SGraphView {
     }
 
     protected getGridStyle(viewport: Readonly<SGraphImpl>, context: RenderingContext): GridStyle {
-        if (context.targetKind === 'hidden' || !this.gridManager?.isGridVisible) {
+        if (context.targetKind === 'hidden' || !this.gridManager) {
             return {};
         }
         const bounds = this.getBackgroundBounds(viewport, context, this.gridManager);
@@ -41,11 +41,7 @@ export class GGraphView extends SGraphView {
             [GridProperty.GRID_BACKGROUND_Y]: bounds.y + 'px',
             [GridProperty.GRID_BACKGROUND_WIDTH]: bounds.width + 'px',
             [GridProperty.GRID_BACKGROUND_HEIGHT]: bounds.height + 'px',
-            [GridProperty.GRID_BACKGROUND_ZOOM]: viewport.zoom + '',
-            [GridProperty.GRID_BACKGROUND_IMAGE]: this.getBackgroundImage(viewport, context, this.gridManager),
-            backgroundPosition: `${bounds.x}px ${bounds.y}px`,
-            backgroundSize: `${bounds.width}px ${bounds.height}px`
-            // we do not set the background-image directly in the style object, because we want to toggle it on and off via CSS
+            [GridProperty.GRID_BACKGROUND_ZOOM]: viewport.zoom + ''
         };
     }
 
@@ -53,11 +49,5 @@ export class GGraphView extends SGraphView {
         const position = Point.multiplyScalar(Point.subtract(gridManager.grid, viewport.scroll), viewport.zoom);
         const size = Dimension.fromPoint(Point.multiplyScalar(gridManager.grid, viewport.zoom));
         return { ...position, ...size };
-    }
-
-    protected getBackgroundImage(viewport: Readonly<SGraphImpl>, context: RenderingContext, gridManager: GridManager): string {
-        const color = getComputedStyle(document.documentElement).getPropertyValue(GridProperty.GRID_COLOR).trim().replace(/#/g, '%23');
-        // eslint-disable-next-line max-len
-        return `url('data:image/svg+xml;utf8, <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${gridManager.grid.x} ${gridManager.grid.y}"><rect width="${gridManager.grid.x}" height="${gridManager.grid.y}" x="0" y="0" fill="none" stroke="${color}" stroke-width="1" /></svg>')`;
     }
 }

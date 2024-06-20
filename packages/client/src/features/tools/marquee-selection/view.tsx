@@ -13,13 +13,11 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+/** @jsx svg */
+import { RectangularNodeView, RenderingContext, svg } from '@eclipse-glsp/sprotty';
 import { injectable } from 'inversify';
 import { VNode } from 'snabbdom';
-import { RectangularNodeView, RenderingContext, svg } from '@eclipse-glsp/sprotty';
 import { MarqueeNode } from './model';
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const JSX = { createElement: svg };
 
 @injectable()
 export class MarqueeView extends RectangularNodeView {
