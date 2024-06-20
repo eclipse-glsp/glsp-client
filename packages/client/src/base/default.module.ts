@@ -99,6 +99,7 @@ export const defaultModule = new FeatureModule(
         bindAsService(context, TYPES.MouseListener, SelectionClearingMouseListener);
         bindOrRebind(context, TYPES.ICommandStack).to(GLSPCommandStack).inSingletonScope();
         bind(GLSPActionDispatcher).toSelf().inSingletonScope();
+        bind(TYPES.IGModelRootListener).toService(GLSPActionDispatcher);
         bindOrRebind(context, TYPES.IActionDispatcher).toService(GLSPActionDispatcher);
 
         bindOrRebind(context, ActionHandlerRegistry).to(GLSPActionHandlerRegistry).inSingletonScope();

@@ -1,6 +1,47 @@
 # Eclipse GLSP Client Changelog
 
-## v2.1.0 - active
+## v2.2.0 - active
+
+### Changes
+
+-   [diagram] Fix a bug that prevented proper rendering of templates/ghost elements during node creation in Firefox [#324](https://github.com/eclipse-glsp/glsp-client/pull/324) - Contributed on behalf of Axon Ivy AG
+-   [routing] Improve anchor point calculation for edge routing [#325](https://github.com/eclipse-glsp/glsp-client/pull/325)
+-   [validation] Fix a bug that could cause duplicate validation markers after a model update [#329](https://github.com/eclipse-glsp/glsp-client/pull/329)
+-   [di] Introduce a reusable `LazyInjector` that can be used for deferred retrial of services from the container. [#330](https://github.com/eclipse-glsp/glsp-client/pull/330)
+    -   Introduce `preLoadDiagram` hook for `IDiagramStartup`s. This hook is invoked right before the `DiagramLoader` starts the model loading process
+-   [launch] Introduce `GLSPWebWorkerProvider` to simply setting up a worker connection to a in-browser GLSP-server [#322](https://github.com/eclipse-glsp/glsp-client/pull/332)
+-   [diagram] Improve base abstract `UIExtension` to allow more fine-grained definition of container and parent [#333](https://github.com/eclipse-glsp/glsp-client/pull/333) - Contributed on behalf of Axon Ivy AG
+-   [protocol] Improve Geometry API. Add utility functions to `Bound`,`Dimension` and `Point`. Introduce `Vector` and `Movement` types [#341](https://github.com/eclipse-glsp/glsp-client/pull/341) - Contributed on behalf of Axon Ivy AG
+-   [features] Introduce optional `gridModule` for managing and rendering grids and `debugModule` that allows do display additional graphical debug information during development [#343](https://github.com/eclipse-glsp/glsp-client/pull/343) [#359](https://github.com/eclipse-glsp/glsp-client/pull/359)
+-   [diagram] Improve error handling of startup hooks [#346](https://github.com/eclipse-glsp/glsp-client/pull/346)
+-   [feature] Improve style handling in svg exporter [#354](https://github.com/eclipse-glsp/glsp-client/pull/354)
+-   [di] Improve `ContainerConfiguration` API and add additional checks to ensure that all ids of `FeatureModules` are unique [#355](https://github.com/eclipse-glsp/glsp-client/pull/355)
+-   [diagram] Update to sprotty 1.2.0. Non-breaking as all potential API breaks have been mitigated via the glsp-sprotty rexport layer [#357](https://github.com/eclipse-glsp/glsp-client/pull/357)
+-   [diagram] Fix a bug with the `AutocompleteWidget` that prevented proper application of valid suggestions [#362](https://github.com/eclipse-glsp/glsp-client/pull/362)
+
+### Potentially breaking changes
+
+-   [protocol] Avoid indirect dependency to `chai` introduce by accidentally exporting testing modules [#321](https://github.com/eclipse-glsp/glsp-client/pull/321)
+    -   `@eclipse-glsp/protocol` no longer exports `test-util.ts` via main index. If needed the module can still be imported via the full path `@eclipse-glsp/protocol/lib/utils/test-util.ts`
+-   [API] Apply feedback commands already on `SetModelCommand` and unify `rank` and `priority` property [#323](https://github.com/eclipse-glsp/glsp-client/pull/322).
+    -   Method `FeedbackAwareUpdateModelCommand.getFeedbackCommands` moved to `IFeedbackEmitter` for re-use, resulting in two new methods: `getFeedbackCommands` and `applyFeedbackCommands`.
+    -   Method `FeedbackAwareUpdateModelCommand.getPriority` is replaced by a generic `rank` property and the `Ranked` namespace.
+    -   The `priority` property (higher priority equals earlier execution) in `FeedbackCommand` is superseeded by a `rank` property (lower rank equals earlier execution).
+-   [DI] Introduce deferred injection for multi-injected services (listeners, action handlers etc.). Highly reduces the likelihood of circular dependency issues during container creation.[#330](https://github.com/eclipse-glsp/glsp-client/pull/330)</br>
+    No API breaks in the core API, but it introduces some minor breaks in protected methods/fields of default implementations:
+    -   `GLSPCommandStack`
+        -   Handling of `IGModelRootListeners` has moved to the `EditorContextService`.
+        -   `onModelRootChanged` is no deprecated. Use `EditorContextService.onModelRootChanged` instead
+    -   `EditorContextService`: The `postRequestModel` method has been removed. It was previously unused and effectively a no-op.
+    -   `SelectionService`: Injected `commandStack` property has been removed.
+-   [diagram] Introduce a reusable `FeedbackEmitter` base implementation that is stable across model updates and allows composing feedback before dispatching it [#342](https://github.com/eclipse-glsp/glsp-client/pull/342) </br>
+    Refactored tool implementations and related services to make use of the new `FeedbackEmitter` API. This can cause potential breaks for adopters that have customized the default tool implementations.
+    Affected tools and services: `MouseTrackingElementPositionListener`, `HelperLineManager`, `FeedbackMoveMouseListener`, `NodeCreationToolMouseListener`, `EdgeEditListener`,
+-   [diagram] Refactor and improve `ChangeBounds` API by introducing a centralized `ChangeBoundsManage` and `ChangeBoundsTracker` [#344](https://github.com/eclipse-glsp/glsp-client/pull/344) [#348](https://github.com/eclipse-glsp/glsp-client/pull/348) [#352](https://github.com/eclipse-glsp/glsp-client/pull/352) - Contributed on behalf of Axon Ivy AG
+    This can cause potential breaks for adopters that have customized the default tool implementations </br>
+    Affected tools and services: `MouseTrackingElementPositionListener`, `FeedbackMoveMouseListener`, `ChangeBoundsTool`, `ChangeBoundsListener`,`FeedbackEdgeRouteMovingMouseListener`, `NodeCreationTool`,
+
+## [v2.1.0 - 23/01/2024](https://github.com/eclipse-glsp/glsp-client/releases/tag/v2.1.0)
 
 ### Changes
 
@@ -15,10 +56,6 @@
 -   [diagram] Restructure some tools to have a more common infrastructure and support helper lines [#306](https://github.com/eclipse-glsp/glsp-client/pull/306)
 -   [diagram] Fix a bug in `SelectionService` that caused issues with inversify when injecting certain services (e.g. `ActionDispatcher`) in `SelectionChangeListener` implementations [#305](https://github.com/eclipse-glsp/glsp-client/pull/305)
 -   [diagram] Ensure that the `SelectionService` does not trigger a change event if the selection did not change on model update [#313](https://github.com/eclipse-glsp/glsp-client/pull/313)
--   [API] Apply feedback commands already on `SetModelCommand` and unify `rank` and `priority` property [#323](https://github.com/eclipse-glsp/glsp-client/pull/322).
-    -   Method `FeedbackAwareUpdateModelCommand.getFeedbackCommands` was move to `IFeedbackEmitter` for re-use, resulting in two new methods: `getFeedbackCommands` and `applyFeedbackCommands`.
-    -   Method `FeedbackAwareUpdateModelCommand.getPriority` was replaced by a generic `rank` property and the `Ranked` namespace.
-    -   The `priority` property (higher priority equals earlier execution) in `FeedbackCommand` was superseeded by a `rank` property (lower rank equals earlier execution).
 
 ## [v2.0.0 - 14/10/2023](https://github.com/eclipse-glsp/glsp-client/releases/tag/v2.0.0)
 

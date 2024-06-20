@@ -67,12 +67,14 @@ export class GLSPCommandStack extends CommandStack implements Disposable {
         return this.currentModel;
     }
 
-    override execute(command: ICommand): Promise<GModelRoot> {
-        const result = super.execute(command);
+    override async execute(command: ICommand): Promise<GModelRoot> {
         if (command instanceof SetModelCommand || command instanceof UpdateModelCommand) {
-            result.then(root => this.notifyListeners(root));
+            const result = await super.execute(command);
+            this.notifyListeners(result);
+            return result;
         }
-        return result;
+
+        return super.execute(command);
     }
 
     protected notifyListeners(root: Readonly<GModelRoot>): void {

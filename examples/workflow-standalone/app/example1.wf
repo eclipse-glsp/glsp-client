@@ -253,6 +253,12 @@
         "width": 32,
         "height": 32
       },
+      "resizeLocations": [
+        "top",
+        "right",
+        "bottom",
+        "left"
+      ],
       "children": []
     },
     {
@@ -270,6 +276,12 @@
         "width": 32,
         "height": 32
       },
+      "resizeLocations": [
+        "top",
+        "right",
+        "bottom",
+        "left"
+      ],
       "children": []
     },
     {
@@ -704,6 +716,12 @@
         "width": 32,
         "height": 32
       },
+      "resizeLocations": [
+        "top",
+        "right",
+        "bottom",
+        "left"
+      ],
       "children": []
     },
     {
@@ -721,6 +739,12 @@
         "width": 32,
         "height": 32
       },
+      "resizeLocations": [
+        "top",
+        "right",
+        "bottom",
+        "left"
+      ],
       "children": []
     },
     {
