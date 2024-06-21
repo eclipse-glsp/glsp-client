@@ -13,19 +13,22 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, ActionDispatcher, EMPTY_ROOT, RequestAction, ResponseAction, SetModelAction } from '@eclipse-glsp/sprotty';
+import { Action, ActionDispatcher, EMPTY_ROOT, GModelRoot, RequestAction, ResponseAction, SetModelAction } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
 import { GLSPActionHandlerRegistry } from './action-handler-registry';
+import { IGModelRootListener } from './editor-context-service';
 import { OptionalAction } from './model/glsp-model-source';
 import { ModelInitializationConstraint } from './model/model-initialization-constraint';
 
 @injectable()
-export class GLSPActionDispatcher extends ActionDispatcher {
+export class GLSPActionDispatcher extends ActionDispatcher implements IGModelRootListener {
     protected readonly timeouts: Map<string, NodeJS.Timeout> = new Map();
     protected initializedConstraint = false;
 
     @inject(ModelInitializationConstraint)
     protected initializationConstraint: ModelInitializationConstraint;
+
+    protected postUpdateQueue: Action[] = [];
 
     override initialize(): Promise<void> {
         if (!this.initialized) {
@@ -69,6 +72,27 @@ export class GLSPActionDispatcher extends ActionDispatcher {
      */
     dispatchOnceModelInitialized(...actions: Action[]): void {
         this.initializationConstraint.onInitialized(() => this.dispatchAll(actions));
+    }
+
+    /**
+     * Processes all given actions, by dispatching them to the corresponding handlers, after the next model update.
+     * The given actions are queued until the next model update cycle has been completed i.e.
+     * the `EditorContextService.onModelRootChanged` event is triggered.
+     *
+     * @param actions The actions that should be dispatched after the next model update
+     */
+    dispatchAfterNextUpdate(...actions: Action[]): void {
+        this.postUpdateQueue.push(...actions);
+    }
+
+    modelRootChanged(_root: Readonly<GModelRoot>): void {
+        if (this.postUpdateQueue.length === 0) {
+            return;
+        }
+
+        const toDispatch = [...this.postUpdateQueue];
+        this.postUpdateQueue = [];
+        this.dispatchAll(toDispatch);
     }
 
     override async dispatch(action: Action): Promise<void> {
