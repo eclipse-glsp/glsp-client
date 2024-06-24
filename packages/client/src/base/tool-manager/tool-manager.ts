@@ -25,7 +25,8 @@ import {
     MaybePromise,
     TYPES,
     distinctAdd,
-    matchesKeystroke
+    matchesKeystroke,
+    pluck
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
 import { EditorContextService, IEditModeListener } from '../editor-context-service';
@@ -49,6 +50,9 @@ export interface IToolManager {
     /** The currently active tools, which are either specifically enabled tools, or the default tools. */
     readonly activeTools: Tool[];
 
+    /** Flag that is `true` if the currently the default tools are enabled i.e. no other tools has been explicitly enabled */
+    readonly defaultToolsEnabled: boolean;
+
     /**
      * Enables the tools with the specified `toolIds`.
      * Therefore, this manager first disables currently active tools and then enable the
@@ -62,7 +66,7 @@ export interface IToolManager {
     enable(toolIds: string[]): void;
 
     /**
-     * Enables all default tools.
+     * Enables all default tools. If the default tools are already enabled, this is a no-op
      */
     enableDefaultTools(): void;
 
@@ -89,6 +93,11 @@ export class ToolManager implements IToolManager, IDiagramStartup, IEditModeList
     readonly actives: Tool[] = [];
     readonly tools: Tool[] = [];
     readonly defaultTools: Tool[] = [];
+
+    protected _defaultToolsEnabled = false;
+    get defaultToolsEnabled(): boolean {
+        return this._defaultToolsEnabled;
+    }
 
     preLoadDiagram(): MaybePromise<void> {
         const tools: Tool[] = this.lazyInjector.getAll(TYPES.ITool);
@@ -119,12 +128,17 @@ export class ToolManager implements IToolManager, IDiagramStartup, IEditModeList
     }
 
     disableActiveTools(): void {
+        this._defaultToolsEnabled = false;
         this.actives.forEach(tool => tool.disable());
         this.actives.splice(0, this.actives.length);
     }
 
     enableDefaultTools(): void {
-        this.enable(this.defaultTools.map(tool => tool.id));
+        if (this.defaultToolsEnabled) {
+            return;
+        }
+        this.enable(pluck(this.defaultTools, 'id'));
+        this._defaultToolsEnabled = true;
     }
 
     enable(toolIds: string[]): void {

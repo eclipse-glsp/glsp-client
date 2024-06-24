@@ -18,6 +18,7 @@
 -   [di] Improve `ContainerConfiguration` API and add additional checks to ensure that all ids of `FeatureModules` are unique [#355](https://github.com/eclipse-glsp/glsp-client/pull/355)
 -   [diagram] Update to sprotty 1.2.0. Non-breaking as all potential API breaks have been mitigated via the glsp-sprotty rexport layer [#357](https://github.com/eclipse-glsp/glsp-client/pull/357)
 -   [diagram] Fix a bug with the `AutocompleteWidget` that prevented proper application of valid suggestions [#362](https://github.com/eclipse-glsp/glsp-client/pull/362)
+-   [api] Improved behavior of default `ToolManager` to avoid unnecessary deactivation and reactivation of default tools [#xxx](https://github.com/eclipse-glsp/glsp-client/pull/362)
 
 ### Potentially breaking changes
 

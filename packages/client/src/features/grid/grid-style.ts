@@ -20,6 +20,5 @@ export namespace GridProperty {
     export const GRID_BACKGROUND_WIDTH = '--grid-background-width';
     export const GRID_BACKGROUND_HEIGHT = '--grid-background-height';
     export const GRID_BACKGROUND_ZOOM = '--grid-background-zoom';
-    export const GRID_BACKGROUND_IMAGE = '--grid-background-image';
     export const GRID_COLOR = '--grid-color';
 }
