@@ -50,7 +50,7 @@ export interface IToolManager {
     /** The currently active tools, which are either specifically enabled tools, or the default tools. */
     readonly activeTools: Tool[];
 
-    /** Flag that is `true` if the currently the default tools are enabled i.e. no other tools has been explicitly enabled */
+    /** Flag to indicate that the default tools are enabled and no other tool was explicitly enabled. */
     readonly defaultToolsEnabled: boolean;
 
     /**
