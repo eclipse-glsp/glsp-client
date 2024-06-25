@@ -66,7 +66,7 @@ export interface IToolManager {
     enable(toolIds: string[]): void;
 
     /**
-     * Enables all default tools. If the default tools are already enabled, this is a no-op
+     * Enables all default tools. If the default tools are already enabled, this is a no-op.
      */
     enableDefaultTools(): void;
 
