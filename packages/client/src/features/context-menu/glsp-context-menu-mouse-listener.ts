@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2023 EclipseSource and others.
+ * Copyright (c) 2019-2024 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -83,7 +83,7 @@ export class GLSPContextMenuMouseListener extends MouseListener {
         return FocusStateChangedAction.create(false);
     }
 
-    // Clear selection the context menu target is not selectable
+    // Clear selection if the context menu target is not selectable
     // Otherwise either maintain current selection if target is already selected or single select the current target.
     protected async handleContextElementSelection(target: GModelElement, event: MouseEvent): Promise<void> {
         const selectableTarget = findParentByFeature(target, isSelectable);
