@@ -42,6 +42,7 @@ import { elementTemplateModule } from './features/element-template/element-templ
 import { exportModule } from './features/export/export-modules';
 import { typeHintsModule } from './features/hints/type-hints-module';
 import { hoverModule } from './features/hover/hover-module';
+import { labelEditUiModule } from './features/label-edit-ui/label-edit-ui-module';
 import { labelEditModule } from './features/label-edit/label-edit-module';
 import { layoutModule } from './features/layout/layout-module';
 import { navigationModule } from './features/navigation/navigation-module';
@@ -60,7 +61,6 @@ import { nodeCreationToolModule } from './features/tools/node-creation/node-crea
 import { toolFocusLossModule } from './features/tools/tool-focus-loss-module';
 import { markerNavigatorModule, validationModule } from './features/validation/validation-modules';
 import { viewportModule } from './features/viewport/viewport-modules';
-import { labelEditUiModule } from './features/label-edit-ui/label-edit-ui-module';
 
 export const DEFAULT_MODULES = [
     defaultModule,
@@ -106,11 +106,14 @@ export const DEFAULT_MODULES = [
  * Wraps the {@link configureDiagramOptions} utility function in a module. Adopters can either include this
  * module into the container {@link ModuleConfiguration} or configure the container after its creation
  * (e.g. using the {@link configureDiagramOptions} utility function).
- * @param options The diagram instance specific configuration options
+ * @param diagramOptions The diagram instance specific configuration options
+ * @param viewerOptions Optional {@link ViewerOptions} that should be configured
  * @returns The corresponding {@link FeatureModule}
  */
-export function createDiagramOptionsModule(options: IDiagramOptions): FeatureModule {
-    return new FeatureModule((bind, unbind, isBound, rebind) => configureDiagramOptions({ bind, unbind, isBound, rebind }, options));
+export function createDiagramOptionsModule(diagramOptions: IDiagramOptions, viewerOptions?: Partial<ViewerOptions>): FeatureModule {
+    return new FeatureModule((bind, unbind, isBound, rebind) =>
+        configureDiagramOptions({ bind, unbind, isBound, rebind }, diagramOptions, viewerOptions)
+    );
 }
 
 /**
