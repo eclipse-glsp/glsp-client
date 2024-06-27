@@ -42,7 +42,7 @@ export class RestoreViewportHandler implements IActionHandler, IDiagramStartup {
     }
 
     get graphSelector(): string {
-        const rootId = this.domHelper.createUniqueDOMElementId(this.editorContext.modelRoot);
+        const rootId = CSS.escape(this.domHelper.createUniqueDOMElementId(this.editorContext.modelRoot));
         return `#${rootId}`;
     }
 
