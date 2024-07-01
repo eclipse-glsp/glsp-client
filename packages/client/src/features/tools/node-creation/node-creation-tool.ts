@@ -34,6 +34,7 @@ import {
 import { inject, injectable } from 'inversify';
 import '../../../../css/ghost-element.css';
 import { DragAwareMouseListener } from '../../../base/drag-aware-mouse-listener';
+import { EditorContextService } from '../../../base/editor-context-service';
 import { CSS_GHOST_ELEMENT, CSS_HIDDEN, CursorCSS, cursorFeedbackAction } from '../../../base/feedback/css-feedback';
 import { FeedbackEmitter } from '../../../base/feedback/feedback-emitter';
 import { EnableDefaultToolsAction } from '../../../base/tool-manager/tool';
@@ -77,7 +78,8 @@ export class NodeCreationTool extends BaseCreationTool<TriggerNodeCreationAction
             getTemplateElementId(ghostElement.template),
             this.triggerAction.elementTypeId,
             this,
-            position
+            position,
+            this.editorContext
         );
         return new DisposableCollection(trackingListener, this.mouseTool.registerListener(trackingListener));
     }
@@ -101,9 +103,10 @@ export class NodeInsertTrackingListener extends MouseTrackingElementPositionList
         elementId: string,
         protected elementTypeId: string,
         protected override tool: ContainerPositioningTool,
-        cursorPosition: 'top-left' | 'middle' = 'top-left'
+        cursorPosition: 'top-left' | 'middle' = 'top-left',
+        editorContext?: EditorContextService
     ) {
-        super(elementId, tool, cursorPosition);
+        super(elementId, tool, cursorPosition, editorContext);
     }
 
     protected override addMoveFeedback(move: TrackedMove, ctx: GModelElement, event: MouseEvent): void {
