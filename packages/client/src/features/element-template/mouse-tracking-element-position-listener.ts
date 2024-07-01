@@ -54,6 +54,7 @@ export class MouseTrackingElementPositionListener extends DragAwareMouseListener
         super();
         this.tracker = this.tool.changeBoundsManager.createTracker();
         this.moveGhostFeedback = this.tool.createFeedbackEmitter();
+        this.toDispose.push(this.moveGhostFeedback);
         const modelRootChangedListener = editorContext?.onModelRootChanged(newRoot => this.modelRootChanged(newRoot));
         if (modelRootChangedListener) {
             this.toDispose.push(modelRootChangedListener);
@@ -115,7 +116,6 @@ export class MouseTrackingElementPositionListener extends DragAwareMouseListener
     }
 
     override dispose(): void {
-        this.moveGhostFeedback.dispose();
         this.toDispose.dispose();
         super.dispose();
     }
