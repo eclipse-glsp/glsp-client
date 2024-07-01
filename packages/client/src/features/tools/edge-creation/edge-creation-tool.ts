@@ -16,6 +16,7 @@
 import {
     Action,
     AnchorComputerRegistry,
+    Args,
     CreateEdgeOperation,
     GModelElement,
     RequestCheckEdgeAction,
@@ -109,7 +110,7 @@ export class EdgeCreationToolMouseListener extends DragAwareMouseListener {
         this.feedbackEdgeFeedback = tool.createFeedbackEmitter();
     }
 
-    override nonDraggingMouseUp(_element: GModelElement, event: MouseEvent): Action[] {
+    override nonDraggingMouseUp(element: GModelElement, event: MouseEvent): Action[] {
         const result: Action[] = [];
         if (event.button === 0) {
             if (!this.isSourceSelected()) {
@@ -126,15 +127,8 @@ export class EdgeCreationToolMouseListener extends DragAwareMouseListener {
                 this.target = this.currentTarget.id;
             }
             if (this.source && this.target) {
-                result.push(
-                    CreateEdgeOperation.create({
-                        elementTypeId: this.triggerAction.elementTypeId,
-                        sourceElementId: this.source,
-                        targetElementId: this.target,
-                        args: this.triggerAction.args
-                    })
-                );
-                if (!isCtrlOrCmd(event)) {
+                result.push(this.getCreateOperation(element, event, this.source, this.target));
+                if (!this.isContinuousMode(element, event)) {
                     result.push(EnableDefaultToolsAction.create());
                 } else {
                     this.dispose();
@@ -145,6 +139,31 @@ export class EdgeCreationToolMouseListener extends DragAwareMouseListener {
             result.push(EnableDefaultToolsAction.create());
         }
         return result;
+    }
+
+    /**
+     * Determines wether the tool should run in continuous mode (also called stamp mode) or not.
+     * If continuous mode is enabled, the tool will stay after a successful creation.
+     * The user can then create more elements of the same type without having to re-trigger the tool.
+     * By default, continuous mode is enabled if the user holds the CTRL key.
+     * @param element the current model element
+     * @param event
+     */
+    protected isContinuousMode(element: GModelElement, event: MouseEvent): boolean {
+        return isCtrlOrCmd(event);
+    }
+
+    protected getCreateOperation(element: GModelElement, event: MouseEvent, sourceElementId: string, targetElementId: string): Action {
+        return CreateEdgeOperation.create({
+            elementTypeId: this.triggerAction.elementTypeId,
+            sourceElementId,
+            targetElementId,
+            args: this.getCreateEdgeOperationArgs(element, event)
+        });
+    }
+
+    protected getCreateEdgeOperationArgs(ctx: GModelElement, event: MouseEvent): Args | undefined {
+        return { ...this.triggerAction.args };
     }
 
     protected isSourceSelected(): boolean {
