@@ -92,11 +92,14 @@ export class NodeCreationTool extends BaseCreationTool<TriggerNodeCreationAction
     }
 }
 
+export interface ContainerPositioningTool extends PositioningTool {
+    readonly containerManager: ContainerManager;
+}
 export class NodeInsertTrackingListener extends MouseTrackingElementPositionListener {
     constructor(
         elementId: string,
         protected elementTypeId: string,
-        protected override tool: NodeCreationTool,
+        protected override tool: ContainerPositioningTool,
         cursorPosition: 'top-left' | 'middle' = 'top-left'
     ) {
         super(elementId, tool, cursorPosition);
@@ -104,7 +107,6 @@ export class NodeInsertTrackingListener extends MouseTrackingElementPositionList
 
     protected override addMoveFeedback(move: TrackedMove, ctx: GModelElement, event: MouseEvent): void {
         super.addMoveFeedback(move, ctx, event);
-
         const element = move.elementMoves[0].element;
         const location = move.elementMoves[0].toPosition;
         const insert = this.tool.containerManager.insert(element, location, this.elementTypeId, { evt: event });
@@ -138,15 +140,9 @@ export class NodeCreationToolMouseListener extends DragAwareMouseListener {
 
         const insert = this.getTrackedInsert(ctx, event);
         if (insert.valid) {
-            result.push(
-                CreateNodeOperation.create(this.elementTypeId, {
-                    location: insert.location,
-                    containerId: insert.container?.id,
-                    args: this.getCreateNodeOperationArgs(insert, ctx, event)
-                })
-            );
+            result.push(this.getCreateOperation(ctx, event, insert));
         }
-        if (isCtrlOrCmd(event)) {
+        if (this.isContinuousMode(ctx, event)) {
             // we continue in stamp mode so we keep the ghost but dispose everything else
             this.disposeAllButGhostElement();
             return result;
@@ -160,6 +156,26 @@ export class NodeCreationToolMouseListener extends DragAwareMouseListener {
         }
         result.push(EnableDefaultToolsAction.create());
         return result;
+    }
+
+    /**
+     * Determines wether the tool should run in continuous mode (also called stamp mode) or not.
+     * If continuous mode is enabled, the tool will stay after a successful creation.
+     * The user can then create more elements of the same type without having to re-trigger the tool.
+     * By default, continuous mode is enabled if the user holds the CTRL key.
+     * @param ctx the current model context
+     * @param event
+     */
+    protected isContinuousMode(ctx: GModelElement, event: MouseEvent): boolean {
+        return isCtrlOrCmd(event);
+    }
+
+    protected getCreateOperation(ctx: GModelElement, event: MouseEvent, insert: TrackedInsert): Action {
+        return CreateNodeOperation.create(this.elementTypeId, {
+            location: insert.location,
+            containerId: insert.container?.id,
+            args: this.getCreateNodeOperationArgs(insert, ctx, event)
+        });
     }
 
     protected getCreateNodeOperationArgs(insert: TrackedInsert, ctx: GModelElement, event: MouseEvent): Args | undefined {
