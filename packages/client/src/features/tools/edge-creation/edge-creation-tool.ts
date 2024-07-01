@@ -127,14 +127,7 @@ export class EdgeCreationToolMouseListener extends DragAwareMouseListener {
                 this.target = this.currentTarget.id;
             }
             if (this.source && this.target) {
-                result.push(
-                    CreateEdgeOperation.create({
-                        elementTypeId: this.triggerAction.elementTypeId,
-                        sourceElementId: this.source,
-                        targetElementId: this.target,
-                        args: this.triggerAction.args
-                    })
-                );
+                result.push(this.getCreateOperation(element, event, this.source, this.target));
                 if (!this.isContinuousMode(element, event)) {
                     result.push(EnableDefaultToolsAction.create());
                 } else {

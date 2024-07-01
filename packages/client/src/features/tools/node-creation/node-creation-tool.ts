@@ -95,6 +95,7 @@ export class NodeCreationTool extends BaseCreationTool<TriggerNodeCreationAction
 export interface ContainerPositioningTool extends PositioningTool {
     readonly containerManager: ContainerManager;
 }
+
 export class NodeInsertTrackingListener extends MouseTrackingElementPositionListener {
     constructor(
         elementId: string,
