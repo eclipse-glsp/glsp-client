@@ -14,8 +14,19 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { Action, Dimension, GModelElement, MoveAction, Point, isBoundsAware, isMoveable } from '@eclipse-glsp/sprotty';
+import {
+    Action,
+    Dimension,
+    DisposableCollection,
+    GModelElement,
+    GModelRoot,
+    MoveAction,
+    Point,
+    isBoundsAware,
+    isMoveable
+} from '@eclipse-glsp/sprotty';
 import { DragAwareMouseListener } from '../../base/drag-aware-mouse-listener';
+import { EditorContextService } from '../../base/editor-context-service';
 import { CSS_HIDDEN, ModifyCSSFeedbackAction } from '../../base/feedback/css-feedback';
 import { FeedbackEmitter } from '../../base/feedback/feedback-emitter';
 import { MoveableElement } from '../../utils/gmodel-util';
@@ -32,15 +43,21 @@ export interface PositioningTool extends FeedbackAwareTool {
 export class MouseTrackingElementPositionListener extends DragAwareMouseListener {
     protected moveGhostFeedback: FeedbackEmitter;
     protected tracker: ChangeBoundsTracker;
+    protected toDispose = new DisposableCollection();
 
     constructor(
         protected elementId: string,
         protected tool: PositioningTool,
-        protected cursorPosition: 'top-left' | 'middle' = 'top-left'
+        protected cursorPosition: 'top-left' | 'middle' = 'top-left',
+        protected editorContext?: EditorContextService
     ) {
         super();
         this.tracker = this.tool.changeBoundsManager.createTracker();
         this.moveGhostFeedback = this.tool.createFeedbackEmitter();
+        const modelRootChangedListener = editorContext?.onModelRootChanged(newRoot => this.modelRootChanged(newRoot));
+        if (modelRootChangedListener) {
+            this.toDispose.push(modelRootChangedListener);
+        }
     }
 
     protected getTrackedElement(target: GModelElement, event: MouseEvent): MoveableElement | undefined {
@@ -92,8 +109,14 @@ export class MouseTrackingElementPositionListener extends DragAwareMouseListener
         this.tool.changeBoundsManager.addMoveFeedback(this.moveGhostFeedback, move, ctx, event);
     }
 
+    protected modelRootChanged(root: Readonly<GModelRoot>): void {
+        // stop the tracking once we receive a new model root and ensure proper alignment with next next mouse move
+        this.tracker.stopTracking();
+    }
+
     override dispose(): void {
         this.moveGhostFeedback.dispose();
+        this.toDispose.dispose();
         super.dispose();
     }
 }
