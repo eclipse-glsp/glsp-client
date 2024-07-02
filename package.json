@@ -16,7 +16,7 @@
     "compile": "tsc -b",
     "generate:index": "lerna run generate:index && yarn lint:fix",
     "lint": "eslint --ext .ts,.tsx .",
-    "lint:ci": "yarn lint --output-file eslint_report.json --format json",
+    "lint:ci": "yarn lint -o eslint.xml -f checkstyle",
     "lint:fix": " yarn lint --fix",
     "prepare": "yarn build",
     "publish:latest": "lerna publish from-git --no-git-reset --no-git-tag-version --no-push",
