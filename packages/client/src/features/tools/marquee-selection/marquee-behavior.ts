@@ -14,7 +14,24 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { Bounds, Point, PointToPointLine } from '@eclipse-glsp/sprotty';
+import {
+    Bounds,
+    DOMHelper,
+    GModelElement,
+    GModelRoot,
+    GNode,
+    Point,
+    PointToPointLine,
+    TYPES,
+    TypeGuard,
+    isSelectable,
+    toTypeGuard,
+    typeGuard
+} from '@eclipse-glsp/sprotty';
+import { inject, injectable, optional } from 'inversify';
+import { GEdge } from '../../../model';
+import { BoundsAwareModelElement, getMatchingElements, isSelectableAndBoundsAware } from '../../../utils/gmodel-util';
+import { toAbsoluteBounds } from '../../../utils/viewpoint-util';
 import { DrawMarqueeAction } from './marquee-tool-feedback';
 
 export interface IMarqueeBehavior {
@@ -22,17 +39,36 @@ export interface IMarqueeBehavior {
     readonly entireEdge: boolean;
 }
 
+@injectable()
 export class MarqueeUtil {
     protected startPoint: Point;
     protected currentPoint: Point;
-    protected marqueeBehavior: IMarqueeBehavior;
 
-    constructor(marqueeBehavior?: IMarqueeBehavior) {
-        if (marqueeBehavior) {
-            this.marqueeBehavior = marqueeBehavior;
-        } else {
-            this.marqueeBehavior = { entireElement: false, entireEdge: false };
-        }
+    constructor(
+        @inject(TYPES.IMarqueeBehavior)
+        @optional()
+        protected marqueeBehavior: IMarqueeBehavior = { entireElement: false, entireEdge: false },
+        @inject(TYPES.DOMHelper) protected domHelper: DOMHelper
+    ) {}
+
+    isContinuousMode(element: GModelElement, event: MouseEvent): boolean {
+        return event.shiftKey;
+    }
+
+    getMarkableNodes(root: GModelRoot): BoundsAwareModelElement[] {
+        return getMatchingElements(root.index, this.isMarkableNode());
+    }
+
+    protected isMarkableNode(): TypeGuard<BoundsAwareModelElement> {
+        return typeGuard(toTypeGuard(GNode), isSelectableAndBoundsAware);
+    }
+
+    getMarkableEdges(root: GModelRoot): GEdge[] {
+        return getMatchingElements(root.index, this.isMarkableEdge());
+    }
+
+    protected isMarkableEdge(): TypeGuard<GEdge> {
+        return typeGuard(toTypeGuard(GEdge), isSelectable);
     }
 
     updateStartPoint(position: Point): void {
@@ -43,8 +79,30 @@ export class MarqueeUtil {
         this.currentPoint = position;
     }
 
+    isMarked(element: BoundsAwareModelElement | GEdge): boolean {
+        return element instanceof GEdge ? this.isMarkedEdge(element) : this.isMarkedNode(element);
+    }
+
     drawMarqueeAction(): DrawMarqueeAction {
         return DrawMarqueeAction.create({ startPoint: this.startPoint, endPoint: this.currentPoint });
+    }
+
+    protected isMarkedEdge(edge: GEdge): boolean {
+        const domId = this.domHelper.createUniqueDOMElementId(edge);
+        const domEdge = document.getElementById(domId) as unknown as SVGElement | undefined;
+        if (!domEdge || domEdge.getAttribute('transform') || !domEdge.children[0]) {
+            return false;
+        }
+        const path = domEdge.children[0].getAttribute('d');
+        return this.isEdgePathMarked(path);
+    }
+
+    protected isMarkedNode(node: BoundsAwareModelElement): boolean {
+        return this.isNodeMarked(this.getNodeBounds(node));
+    }
+
+    protected getNodeBounds(node: BoundsAwareModelElement): Bounds {
+        return toAbsoluteBounds(node);
     }
 
     isEdgePathMarked(path: string | null): boolean {

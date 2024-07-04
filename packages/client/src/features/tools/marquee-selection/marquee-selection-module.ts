@@ -19,10 +19,12 @@ import { MarqueeTool } from './marquee-tool';
 import { DrawMarqueeCommand, MARQUEE, RemoveMarqueeCommand } from './marquee-tool-feedback';
 import { MarqueeNode } from './model';
 import { MarqueeView } from './view';
+import { MarqueeUtil } from './marquee-behavior';
 
 export const marqueeSelectionToolModule = new FeatureModule(
     (bind, unbind, isBound, rebind) => {
         const context = { bind, unbind, isBound, rebind };
+        context.bind(MarqueeUtil).toSelf().inSingletonScope();
         bindAsService(context, TYPES.IDefaultTool, MarqueeTool);
         bindAsService(context, TYPES.ITool, MarqueeMouseTool);
 

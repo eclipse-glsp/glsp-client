@@ -14,12 +14,13 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
+import { DOMHelper } from '@eclipse-glsp/sprotty';
 import { expect } from 'chai';
 import { IMarqueeBehavior, MarqueeUtil } from './marquee-behavior';
 
 describe('MarqueeUtil', () => {
     function initUtil(marqueeBehavior?: IMarqueeBehavior): MarqueeUtil {
-        const util = new MarqueeUtil(marqueeBehavior);
+        const util = new MarqueeUtil(marqueeBehavior, new DOMHelper());
         util.updateStartPoint({ x: 0, y: 0 });
         util.updateCurrentPoint({ x: 0, y: 0 });
         return util;
