@@ -74,6 +74,11 @@ export function typeGuard<T, G>(one: TypeGuard<T>, other: TypeGuard<G>): TypeGua
     return (element: any): element is T & G => one(element) && other(element);
 }
 
+/** Utility function to combine two type guards with an OR */
+export function typeGuardOr<T, G>(one: TypeGuard<T>, other: TypeGuard<G>): TypeGuard<T | G> {
+    return (element: any): element is T | G => one(element) || other(element);
+}
+
 /**
  * Utility function that create a typeguard function for a given class constructor.
  * Essentially this wraps an instance of check as typeguard function.

@@ -22,13 +22,14 @@
 
 ### Potentially breaking changes
 
+-   [API] Centralize most marquee selection behavior in the `MarqueeUtil` class which is now a singleton, injectable and needs the `DOMHelper`. This will cause a break if you manually created the class without injecting it. To construct it manually, you need to provide the `DomHelper` as a second argument [#373](https://github.com/eclipse-glsp/glsp-client/pull/373).
 -   [protocol] Avoid indirect dependency to `chai` introduce by accidentally exporting testing modules [#321](https://github.com/eclipse-glsp/glsp-client/pull/321)
     -   `@eclipse-glsp/protocol` no longer exports `test-util.ts` via main index. If needed the module can still be imported via the full path `@eclipse-glsp/protocol/lib/utils/test-util.ts`
 -   [API] Apply feedback commands already on `SetModelCommand` and unify `rank` and `priority` property [#323](https://github.com/eclipse-glsp/glsp-client/pull/322).
     -   Method `FeedbackAwareUpdateModelCommand.getFeedbackCommands` moved to `IFeedbackEmitter` for re-use, resulting in two new methods: `getFeedbackCommands` and `applyFeedbackCommands`.
     -   Method `FeedbackAwareUpdateModelCommand.getPriority` is replaced by a generic `rank` property and the `Ranked` namespace.
     -   The `priority` property (higher priority equals earlier execution) in `FeedbackCommand` is superseeded by a `rank` property (lower rank equals earlier execution).
--   [DI] Introduce deferred injection for multi-injected services (listeners, action handlers etc.). Highly reduces the likelihood of circular dependency issues during container creation.[#330](https://github.com/eclipse-glsp/glsp-client/pull/330)</br>
+-   [DI] Introduce deferred injection for multi-injected services (listeners, action handlers etc.). Highly reduces the likelihood of circular dependency issues during container creation [#330](https://github.com/eclipse-glsp/glsp-client/pull/330).</br>
     No API breaks in the core API, but it introduces some minor breaks in protected methods/fields of default implementations:
     -   `GLSPCommandStack`
         -   Handling of `IGModelRootListeners` has moved to the `EditorContextService`.
