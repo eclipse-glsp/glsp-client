@@ -1,6 +1,6 @@
 {
   "name": "workflow-standalone",
-  "version": "2.2.0",
+  "version": "2.2.0-next",
   "private": true,
   "description": "Standalone browser-app for the Workflow example",
   "homepage": "https://www.eclipse.org/glsp/",
@@ -32,8 +32,8 @@
     "watch:bundle": "webpack -w"
   },
   "dependencies": {
-    "@eclipse-glsp-examples/workflow-glsp": "2.2.0",
-    "@eclipse-glsp/client": "2.2.0",
+    "@eclipse-glsp-examples/workflow-glsp": "2.2.0-next",
+    "@eclipse-glsp/client": "2.2.0-next",
     "inversify-logger-middleware": "^3.1.0"
   },
   "devDependencies": {
