@@ -248,6 +248,15 @@ describe('SelectionService', () => {
             selectionService.updateSelection(root, ['not-existing'], []);
             assertListener(listener, root, ['node1'], [], 1);
         });
+        it('Bindings of TYPES.ISelectionListener should be registered as listener in `preLoadDiagram`', () => {
+            const container = createContainer();
+            const selectionListener = sandbox.createStubInstance(MockSelectionListener);
+            container.bind(TYPES.ISelectionListener).toConstantValue(selectionListener);
+            const testSelectionService = container.get<SelectionService>(SelectionService);
+            testSelectionService.preLoadDiagram();
+            testSelectionService.updateSelection(root, ['node1', 'node1'], []);
+            assertListener(selectionListener, root, ['node1'], [], 1);
+        });
     });
 
     function createRoot(...nodes: string[]): GModelRoot {

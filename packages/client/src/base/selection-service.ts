@@ -74,7 +74,7 @@ export class SelectionService implements IGModelRootListener, Disposable, IDiagr
 
     preLoadDiagram(): void {
         this.lazyInjector
-            .getAll<ISelectionListener>('selectionListener')
+            .getAll<ISelectionListener>(TYPES.ISelectionListener)
             .forEach(listener =>
                 this.onSelectionChanged(change =>
                     listener.selectionChanged(change.root, change.selectedElements, change.deselectedElements)
