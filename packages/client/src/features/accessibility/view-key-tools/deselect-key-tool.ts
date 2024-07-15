@@ -14,24 +14,16 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import {
-    Action,
-    GModelElement,
-    GRoutableElement,
-    KeyListener,
-    KeyTool,
-    SelectAction,
-    SwitchEditModeAction,
-    isSelectable
-} from '@eclipse-glsp/sprotty';
+import { Action, GModelElement, GRoutableElement, KeyListener, KeyTool, SelectAction, TYPES, isSelectable } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
 import { toArray } from 'sprotty/lib/utils/iterable';
 import { matchesKeystroke } from 'sprotty/lib/utils/keyboard';
 import { Tool } from '../../../base/tool-manager/tool';
-import { GResizeHandle } from '../../change-bounds/model';
+import { IToolManager } from '../../../base/tool-manager/tool-manager';
+import { SwitchRoutingModeAction } from '../../tools/edge-edit/edge-edit-tool-feedback';
 
 /**
- * Deselects the element if there is no interaction possible with element.
+ * Deselects currently selected elements on Escape if the default tools are currently active.
  */
 @injectable()
 export class DeselectKeyTool implements Tool {
@@ -42,6 +34,7 @@ export class DeselectKeyTool implements Tool {
     protected readonly deselectKeyListener = new DeselectKeyListener();
 
     @inject(KeyTool) protected readonly keytool: KeyTool;
+    @inject(TYPES.IToolManager) protected toolManager: IToolManager;
 
     get id(): string {
         return DeselectKeyTool.ID;
@@ -59,12 +52,6 @@ export class DeselectKeyTool implements Tool {
 export class DeselectKeyListener extends KeyListener {
     override keyDown(target: GModelElement, event: KeyboardEvent): Action[] {
         if (this.matchesDeselectKeystroke(event)) {
-            const isResizeHandleActive = toArray(target.root.index.all().filter(el => el instanceof GResizeHandle)).length > 0;
-
-            if (isResizeHandleActive) {
-                return [];
-            }
-
             const deselect = toArray(target.root.index.all().filter(element => isSelectable(element) && element.selected));
             const actions: Action[] = [];
 
@@ -74,7 +61,7 @@ export class DeselectKeyListener extends KeyListener {
 
             const routableDeselect = deselect.filter(e => e instanceof GRoutableElement).map(e => e.id);
             if (routableDeselect.length > 0) {
-                actions.push(SwitchEditModeAction.create({ elementsToDeactivate: routableDeselect }));
+                actions.push(SwitchRoutingModeAction.create({ elementsToDeactivate: routableDeselect }));
             }
 
             return actions;
