@@ -37,8 +37,9 @@ import {
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable, postConstruct, preDestroy } from 'inversify';
 import { GLSPActionDispatcher } from './action-dispatcher';
+import { FocusChange, FocusTracker } from './focus/focus-tracker';
 import { IDiagramOptions, IDiagramStartup } from './model/diagram-loader';
-import { SelectionService } from './selection-service';
+import { SelectionChange, SelectionService } from './selection-service';
 
 /**
  * A hook to listen for model root changes. Will be called after a server update
@@ -91,22 +92,50 @@ export class EditorContextService implements IActionHandler, Disposable, IDiagra
     @inject(GLSPActionDispatcher)
     protected actionDispatcher: GLSPActionDispatcher;
 
+    @inject(FocusTracker)
+    protected focusTracker: FocusTracker;
+
     protected _editMode: string;
     protected onEditModeChangedEmitter = new Emitter<ValueChange<string>>();
+    /**
+     * Event that is fired when the edit mode of the diagram changes i.e. after a {@link SetEditModeAction} has been handled.
+     */
     get onEditModeChanged(): Event<ValueChange<string>> {
         return this.onEditModeChangedEmitter.event;
     }
 
     protected _isDirty: boolean;
     protected onDirtyStateChangedEmitter = new Emitter<DirtyStateChange>();
+    /**
+     * Event that is fired when the dirty state of the diagram changes i.e. after a {@link SetDirtyStateAction} has been handled.
+     */
     get onDirtyStateChanged(): Event<DirtyStateChange> {
         return this.onDirtyStateChangedEmitter.event;
     }
 
     protected _modelRoot?: Readonly<GModelRoot>;
+    /**
+     * Event that is fired when the model root of the diagram changes i.e. after the `CommandStack` has processed a model update.
+     */
     protected onModelRootChangedEmitter = new Emitter<Readonly<GModelRoot>>();
     get onModelRootChanged(): Event<Readonly<GModelRoot>> {
         return this.onModelRootChangedEmitter.event;
+    }
+
+    /**
+     * Event that is fired when the focus state of the diagram changes i.e. after a {@link FocusStateChangedAction} has been handled
+     * by the {@link FocusTracker}.
+     */
+    get onFocusChanged(): Event<FocusChange> {
+        return this.focusTracker.onFocusChanged;
+    }
+
+    /**
+     * Event that is fired when the selection of the diagram changes i.e. a selection change has been handled
+     * by the {@link SelectionService}.
+     */
+    get onSelectionChanged(): Event<SelectionChange> {
+        return this.selectionService.onSelectionChanged;
     }
 
     protected toDispose = new DisposableCollection();

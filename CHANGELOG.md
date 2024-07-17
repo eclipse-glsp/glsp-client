@@ -19,6 +19,7 @@
 -   [diagram] Update to sprotty 1.2.0. Non-breaking as all potential API breaks have been mitigated via the glsp-sprotty rexport layer [#357](https://github.com/eclipse-glsp/glsp-client/pull/357)
 -   [diagram] Fix a bug with the `AutocompleteWidget` that prevented proper application of valid suggestions [#362](https://github.com/eclipse-glsp/glsp-client/pull/362)
 -   [api] Improved behavior of default `ToolManager` to avoid unnecessary deactivation and reactivation of default tools [#367](https://github.com/eclipse-glsp/glsp-client/pull/367)
+-   [diagram] Add `onFocusChanged` event to `FocusTracker` and `EditorContextService` [#380](https://github.com/eclipse-glsp/glsp-client/pull/380)
 
 ### Potentially breaking changes
 
