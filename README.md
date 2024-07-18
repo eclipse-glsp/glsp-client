@@ -1,4 +1,4 @@
-# Eclipse GLSP - Client [![Build Status](https://ci.eclipse.org/glsp/job/eclipse-glsp/job/glsp-client/job/master/badge/icon)](https://ci.eclipse.org/glsp/job/eclipse-glsp/job/glsp-client/job/master/)
+# Eclipse GLSP - Client [![Build Status](https://ci.eclipse.org/glsp/job/eclipse-glsp/job/glsp-client/job/master/badge/icon)](https://ci.eclipse.org/glsp/job/eclipse-glsp/job/glsp-client/job/master/) [![E2E](https://github.com/eclipse-glsp/glsp-client/actions/workflows/e2e.yml/badge.svg)](https://github.com/eclipse-glsp/glsp-client/actions/workflows/e2e.yml)
 
 A web-based diagram client framework for the [Graphical Language Server Platform (GLSP)](https://github.com/eclipse-glsp/glsp) based on [Eclipse Sprotty](https://github.com/eclipse/sprotty).
 
