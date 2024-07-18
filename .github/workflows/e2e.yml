@@ -1,0 +1,57 @@
+name: 'E2E'
+
+concurrency:
+  group: playwright-${{ github.ref }}
+  cancel-in-progress: true
+on:
+  workflow_dispatch:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  playwright:
+    name: E2E Tests
+    timeout-minutes: 120
+    runs-on: ubuntu-latest
+    env:
+      STANDALONE_URL: 'file://${{ github.workspace }}/glsp-client/examples/workflow-standalone/app/diagram.html'
+      GLSP_SERVER_PORT: '8081'
+      GLSP_SERVER_PLAYWRIGHT_MANAGED: 'true'
+      GLSP_WEBSOCKET_PATH: 'workflow'
+      THEIA_URL: 'http://localhost:3000'
+      VSCODE_VSIX_ID: 'eclipse-glsp.workflow-vscode-example'
+      VSCODE_VSIX_PATH: '${{ github.workspace }}/.../vscode-example-2.2.0-next.vsix'
+      GLSP_SERVER_DEBUG: 'true'
+
+    steps:
+      - uses: actions/checkout@v4.1.7
+        with:
+          path: 'glsp-client'
+      - uses: actions/checkout@v4.1.7
+        with:
+          repository: 'eclipse-glsp/glsp-playwright'
+          path: 'glsp-playwright'
+      - uses: actions/setup-node@v4.0.2
+        with:
+          node-version: '18'
+      - name: Install dependencies
+        run: |
+          cd glsp-client
+          yarn
+          cd ../glsp-playwright
+          yarn
+      - name: Run Playwright tests
+        id: run_playwright_tests
+        run: |
+          cd glsp-playwright
+          yarn test:standalone
+        continue-on-error: true
+      - name: Upload Playwright report
+        uses: actions/upload-artifact@v4.3.4
+        with:
+          name: playwright-report
+          path: glsp-client/examples/workflow-test/playwright-report/
+      - if: steps.run_playwright_tests.outcome == 'failure'
+        run: exit 1
