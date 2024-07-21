@@ -1,6 +1,6 @@
 # Eclipse GLSP Client Changelog
 
-## v2.2.0 - active
+## [v2.2.1 - 22/07/2024](https://github.com/eclipse-glsp/glsp-client/releases/tag/v2.2.1)
 
 ### Changes
 
