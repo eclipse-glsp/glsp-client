@@ -13,7 +13,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { injectable } from 'inversify';
 import { Disposable, Message, MessageConnection } from 'vscode-jsonrpc';
 import { ActionMessage } from '../../action-protocol/base-protocol';
 import { Emitter, Event } from '../../utils/event';
@@ -175,7 +174,6 @@ export class BaseJsonrpcGLSPClient implements GLSPClient {
 /**
  * Default {@link GLSPClientProxy} implementation for jsonrpc-based client-server communication with typescript based servers.
  */
-@injectable()
 export class JsonrpcClientProxy implements GLSPClientProxy {
     protected clientConnection?: MessageConnection;
     protected enableLogging: boolean;
