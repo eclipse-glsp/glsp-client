@@ -44,19 +44,34 @@ export interface TrackedInsert {
     options: InsertOptions;
 }
 
+export interface IContainerManager {
+    insert(proxy: GModelElement, location: Point, elementTypeId: string, opts?: Partial<InsertOptions>): TrackedInsert;
+    findContainer(location: Point, ctx: GModelElement, evt?: MouseEvent): ContainerElement | undefined;
+    addInsertFeedback(feedback: FeedbackEmitter, trackedInsert: TrackedInsert, ctx?: GModelElement, event?: MouseEvent): FeedbackEmitter;
+}
+
+/**
+ * The default {@link IContainerManager} implementation.
+ * This class class manages the insertion of elements into containers by validating their positions and types,
+ * providing feedback on the insertion process, and determining the appropriate container based on the location and context.
+ */
 @injectable()
-export class ContainerManager {
+export class ContainerManager implements IContainerManager {
     @inject(ChangeBoundsManager) protected readonly changeBoundsManager: ChangeBoundsManager;
 
     insert(proxy: GModelElement, location: Point, elementTypeId: string, opts?: Partial<InsertOptions>): TrackedInsert {
         const options = { ...DEFAULT_INSERT_OPTIONS, ...opts };
         const container = this.findContainer(location, proxy, opts?.evt);
-        let valid = !container || container.isContainableElement(elementTypeId);
+        let valid = this.isCreationAllowed(container, elementTypeId, opts);
         if (valid && (!container || options.validateLocationInContainer)) {
             // we need to check whether the location is valid either because we do not have a container or the option is set
             valid = opts?.validLocationOverwrite ?? this.changeBoundsManager.hasValidPosition(proxy, location);
         }
         return { elementTypeId, container, location, valid, options };
+    }
+
+    protected isCreationAllowed(container: ContainerElement | undefined, elementTypeId: string, opts?: Partial<InsertOptions>): boolean {
+        return !container || container.isContainableElement(elementTypeId);
     }
 
     findContainer(location: Point, ctx: GModelElement, evt?: MouseEvent): ContainerElement | undefined {

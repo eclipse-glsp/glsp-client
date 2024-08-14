@@ -30,7 +30,7 @@ import { InsertIndicatorView } from './node-creation-views';
 export const nodeCreationToolModule = new FeatureModule(
     (bind, unbind, isBound, rebind) => {
         const context = { bind, unbind, isBound, rebind };
-        bind(ContainerManager).toSelf().inSingletonScope();
+        bind(TYPES.IContainerManager).to(ContainerManager).inSingletonScope();
         bindAsService(context, TYPES.ITool, NodeCreationTool);
         configureActionHandler(context, TriggerNodeCreationAction.KIND, NodeCreationTool);
         configureModelElement(context, InsertIndicator.TYPE, InsertIndicator, InsertIndicatorView);
