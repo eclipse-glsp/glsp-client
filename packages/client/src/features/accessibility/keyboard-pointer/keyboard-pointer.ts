@@ -18,6 +18,7 @@ import { inject, injectable } from 'inversify';
 import { EditorContextService } from '../../../base/editor-context-service';
 import { CursorCSS } from '../../../base/feedback/css-feedback';
 import { GLSPAbstractUIExtension } from '../../../base/ui-extension/ui-extension';
+import { ContainerManager } from '../../tools/node-creation/container-manager';
 import { KeyboardGridCellSelectedAction } from '../keyboard-grid/action';
 import { SetKeyboardPointerRenderPositionAction } from './actions';
 import { KeyboardPointerMetadata } from './constants';
@@ -31,10 +32,13 @@ export class KeyboardPointer extends GLSPAbstractUIExtension implements IActionH
         kind: 'triggerNodeCreation'
     };
 
-    protected position: KeyboardPointerPosition = new KeyboardPointerPosition(this);
-    protected keyListener: KeyboardPointerKeyboardListener;
     @inject(EditorContextService)
     public editorContextService: EditorContextService;
+    @inject(TYPES.IContainerManager)
+    public containerManager: ContainerManager;
+
+    protected position: KeyboardPointerPosition = new KeyboardPointerPosition(this);
+    protected keyListener: KeyboardPointerKeyboardListener;
 
     constructor(@inject(TYPES.IActionDispatcher) protected readonly actionDispatcher: IActionDispatcher) {
         super();

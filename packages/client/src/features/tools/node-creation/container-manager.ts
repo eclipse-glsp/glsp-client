@@ -46,6 +46,7 @@ export interface TrackedInsert {
 
 export interface IContainerManager {
     insert(proxy: GModelElement, location: Point, elementTypeId: string, opts?: Partial<InsertOptions>): TrackedInsert;
+    isCreationAllowed(container: ContainerElement | undefined, elementTypeId: string, opts?: Partial<InsertOptions>): boolean;
     findContainer(location: Point, ctx: GModelElement, evt?: MouseEvent): ContainerElement | undefined;
     addInsertFeedback(feedback: FeedbackEmitter, trackedInsert: TrackedInsert, ctx?: GModelElement, event?: MouseEvent): FeedbackEmitter;
 }
@@ -70,7 +71,7 @@ export class ContainerManager implements IContainerManager {
         return { elementTypeId, container, location, valid, options };
     }
 
-    protected isCreationAllowed(container: ContainerElement | undefined, elementTypeId: string, opts?: Partial<InsertOptions>): boolean {
+    isCreationAllowed(container: ContainerElement | undefined, elementTypeId: string, opts?: Partial<InsertOptions>): boolean {
         return !container || container.isContainableElement(elementTypeId);
     }
 
