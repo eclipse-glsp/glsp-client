@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2023 Business Informatics Group (TU Wien) and others.
+ * Copyright (c) 2023-2024 Business Informatics Group (TU Wien) and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -14,11 +14,11 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { findChildrenAtPosition, findParentByFeature, GModelElement, Point } from '@eclipse-glsp/sprotty';
-import { Containable, isContainable } from '../../hints/model';
+import { CursorCSS } from '../../../base/feedback/css-feedback';
 import { getAbsolutePositionByPoint } from '../../../utils/viewpoint-util';
+import { ContainerElement, isContainable } from '../../hints/model';
 import { KeyboardPointerMetadata } from './constants';
 import { KeyboardPointer } from './keyboard-pointer';
-import { CursorCSS } from '../../../base/feedback/css-feedback';
 
 export class KeyboardPointerPosition {
     public renderPosition: Point = { x: 20, y: 20 };
@@ -46,7 +46,7 @@ export class KeyboardPointerPosition {
     }
 
     containableParentAtDiagramPosition(elementTypeId: string): {
-        container: (GModelElement & Containable) | undefined;
+        container: ContainerElement | undefined;
         status: CursorCSS;
     } {
         const children = this.childrenAtDiagramPosition();
@@ -64,15 +64,13 @@ export class KeyboardPointerPosition {
     private containableParentOf(
         target: GModelElement,
         elementTypeId: string
-    ): { container: (GModelElement & Containable) | undefined; status: CursorCSS } {
+    ): { container: ContainerElement | undefined; status: CursorCSS } {
         const container = findParentByFeature(target, isContainable);
         return {
             container,
-            status: this.isCreationAllowed(container, elementTypeId) ? CursorCSS.NODE_CREATION : CursorCSS.OPERATION_NOT_ALLOWED
+            status: this.keyboardPointer.containerManager.isCreationAllowed(container, elementTypeId)
+                ? CursorCSS.NODE_CREATION
+                : CursorCSS.OPERATION_NOT_ALLOWED
         };
-    }
-
-    private isCreationAllowed(container: (GModelElement & Containable) | undefined, elementTypeId: string): boolean | undefined {
-        return container && container.isContainableElement(elementTypeId);
     }
 }

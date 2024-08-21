@@ -45,7 +45,7 @@ import { RemoveTemplateElementsAction } from '../../element-template/remove-temp
 import { BaseCreationTool } from '../base-tools';
 import { ChangeBoundsManager } from '../change-bounds/change-bounds-manager';
 import { TrackedMove } from '../change-bounds/change-bounds-tracker';
-import { ContainerManager, TrackedInsert } from './container-manager';
+import { IContainerManager, TrackedInsert } from './container-manager';
 import { InsertIndicator } from './insert-indicator';
 
 @injectable()
@@ -55,7 +55,7 @@ export class NodeCreationTool extends BaseCreationTool<TriggerNodeCreationAction
     protected isTriggerAction = TriggerNodeCreationAction.is;
 
     @inject(ChangeBoundsManager) readonly changeBoundsManager: ChangeBoundsManager;
-    @inject(ContainerManager) readonly containerManager: ContainerManager;
+    @inject(TYPES.IContainerManager) readonly containerManager: IContainerManager;
     @inject(TYPES.IModelFactory) modelFactory: IModelFactory;
 
     get id(): string {
@@ -95,7 +95,7 @@ export class NodeCreationTool extends BaseCreationTool<TriggerNodeCreationAction
 }
 
 export interface ContainerPositioningTool extends PositioningTool {
-    readonly containerManager: ContainerManager;
+    readonly containerManager: IContainerManager;
 }
 
 export class NodeInsertTrackingListener extends MouseTrackingElementPositionListener {
