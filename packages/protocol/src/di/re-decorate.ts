@@ -13,8 +13,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-export * from './container-configuration';
-export * from './feature-module';
-export * from './inversify-util';
-export * from './lazy-injector';
-export * from './re-decorate';
+
+import { decorate, injectable } from 'inversify';
+import { JsonrpcClientProxy } from '../client-server-protocol/jsonrpc/base-jsonrpc-glsp-client';
+
+// Decorate `JsonrpcClientProxy` as injectable for anyone who imports the di functionality, such as the client package,
+// the Theia integration package and the server package.
+decorate(injectable(), JsonrpcClientProxy);
