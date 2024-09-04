@@ -25,6 +25,7 @@ import {
     ProjectionParams,
     RenderingContext,
     SGraphImpl,
+    TYPES,
     ViewProjection,
     Writable,
     html,
@@ -33,7 +34,7 @@ import {
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable, optional } from 'inversify';
 import { VNode, VNodeStyle, h } from 'snabbdom';
-import { GridManager, GridStyle } from '../features/grid/grid-manager';
+import { GridStyle, IGridManager } from '../features/grid/grid-manager';
 import { GridProperty } from '../features/grid/grid-style';
 
 /**
@@ -42,7 +43,7 @@ import { GridProperty } from '../features/grid/grid-style';
 @injectable()
 export class GLSPProjectionView extends ProjectedViewportView {
     @inject(EdgeRouterRegistry) edgeRouterRegistry: EdgeRouterRegistry;
-    @inject(GridManager) @optional() protected gridManager?: GridManager;
+    @inject(TYPES.IGridManager) @optional() protected gridManager?: IGridManager;
 
     override render(model: Readonly<GViewportRootElement>, context: RenderingContext, args?: IViewArgs): VNode {
         const rootNode: VNode = (
@@ -83,7 +84,7 @@ export class GLSPProjectionView extends ProjectedViewportView {
         };
     }
 
-    protected getBackgroundBounds(viewport: Readonly<SGraphImpl>, context: RenderingContext, gridManager: GridManager): Writable<Bounds> {
+    protected getBackgroundBounds(viewport: Readonly<SGraphImpl>, context: RenderingContext, gridManager: IGridManager): Writable<Bounds> {
         const position = Point.multiplyScalar(Point.subtract(gridManager.grid, viewport.scroll), viewport.zoom);
         const size = Dimension.fromPoint(Point.multiplyScalar(gridManager.grid, viewport.zoom));
         return { ...position, ...size };

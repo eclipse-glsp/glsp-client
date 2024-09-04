@@ -24,7 +24,7 @@ import { GResizeHandleView } from './view';
 export const changeBoundsToolModule = new FeatureModule(
     (bind, unbind, isBound, rebind) => {
         const context = { bind, unbind, isBound, rebind };
-        bind(ChangeBoundsManager).toSelf().inSingletonScope();
+        bindAsService(context, TYPES.IChangeBoundsManager, ChangeBoundsManager);
         bindAsService(context, TYPES.IDefaultTool, ChangeBoundsTool);
         configureCommand(context, ShowChangeBoundsToolResizeFeedbackCommand);
         configureCommand(context, HideChangeBoundsToolResizeFeedbackCommand);

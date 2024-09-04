@@ -32,12 +32,12 @@ import { FeedbackEmitter } from '../../base/feedback/feedback-emitter';
 import { MoveableElement } from '../../utils/gmodel-util';
 import { getAbsolutePosition } from '../../utils/viewpoint-util';
 import { FeedbackAwareTool } from '../tools/base-tools';
-import { ChangeBoundsManager } from '../tools/change-bounds/change-bounds-manager';
+import { IChangeBoundsManager } from '../tools/change-bounds/change-bounds-manager';
 import { MoveFinishedEventAction } from '../tools/change-bounds/change-bounds-tool-feedback';
 import { ChangeBoundsTracker, TrackedMove } from '../tools/change-bounds/change-bounds-tracker';
 
 export interface PositioningTool extends FeedbackAwareTool {
-    readonly changeBoundsManager: ChangeBoundsManager;
+    readonly changeBoundsManager: IChangeBoundsManager;
 }
 
 export class MouseTrackingElementPositionListener extends DragAwareMouseListener {

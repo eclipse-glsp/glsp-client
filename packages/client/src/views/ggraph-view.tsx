@@ -13,15 +13,15 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Bounds, Dimension, Point, RenderingContext, SGraphImpl, SGraphView, Writable } from '@eclipse-glsp/sprotty';
+import { Bounds, Dimension, Point, RenderingContext, SGraphImpl, SGraphView, TYPES, Writable } from '@eclipse-glsp/sprotty';
 import { inject, injectable, optional } from 'inversify';
 import { VNode } from 'snabbdom';
-import { GridManager, GridStyle } from '../features/grid/grid-manager';
+import { GridStyle, IGridManager } from '../features/grid/grid-manager';
 import { GridProperty } from '../features/grid/grid-style';
 
 @injectable()
 export class GGraphView extends SGraphView {
-    @inject(GridManager) @optional() protected gridManager?: GridManager;
+    @inject(TYPES.IGridManager) @optional() protected gridManager?: IGridManager;
 
     override render(model: Readonly<SGraphImpl>, context: RenderingContext): VNode {
         const graph = super.render(model, context);
@@ -45,7 +45,7 @@ export class GGraphView extends SGraphView {
         };
     }
 
-    protected getBackgroundBounds(viewport: Readonly<SGraphImpl>, context: RenderingContext, gridManager: GridManager): Writable<Bounds> {
+    protected getBackgroundBounds(viewport: Readonly<SGraphImpl>, context: RenderingContext, gridManager: IGridManager): Writable<Bounds> {
         const position = Point.multiplyScalar(Point.subtract(gridManager.grid, viewport.scroll), viewport.zoom);
         const size = Dimension.fromPoint(Point.multiplyScalar(gridManager.grid, viewport.zoom));
         return { ...position, ...size };

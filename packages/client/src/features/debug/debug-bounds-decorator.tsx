@@ -15,18 +15,18 @@
  ********************************************************************************/
 /* eslint-disable max-len */
 /** @jsx svg */
-import { Bounds, GModelElement, IVNodePostprocessor, Point, isDecoration, isSizeable, setClass, svg } from '@eclipse-glsp/sprotty';
+import { Bounds, GModelElement, IVNodePostprocessor, Point, TYPES, isDecoration, isSizeable, setClass, svg } from '@eclipse-glsp/sprotty';
 import { inject, injectable, optional } from 'inversify';
 import { VNode } from 'snabbdom';
 import { GGraph } from '../../model';
 import { BoundsAwareModelElement } from '../../utils/gmodel-util';
-import { DebugManager } from './debug-manager';
+import { IDebugManager } from './debug-manager';
 
 export const CSS_DEBUG_BOUNDS = 'debug-bounds';
 
 @injectable()
 export class DebugBoundsDecorator implements IVNodePostprocessor {
-    @inject(DebugManager) @optional() protected debugManager?: DebugManager;
+    @inject(TYPES.IDebugManager) @optional() protected debugManager?: IDebugManager;
 
     decorate(vnode: VNode, element: GModelElement): VNode {
         if (!this.debugManager?.isDebugEnabled) {

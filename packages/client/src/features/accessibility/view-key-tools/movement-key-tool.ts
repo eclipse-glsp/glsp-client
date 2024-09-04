@@ -21,7 +21,7 @@ import { GLSPActionDispatcher } from '../../../base/action-dispatcher';
 import { SelectionService } from '../../../base/selection-service';
 import { Tool } from '../../../base/tool-manager/tool';
 import { Grid } from '../../grid/grid';
-import { ChangeBoundsManager } from '../../tools/change-bounds/change-bounds-manager';
+import { IChangeBoundsManager } from '../../tools/change-bounds/change-bounds-manager';
 import { AccessibleKeyShortcutProvider, SetAccessibleKeyShortcutAction } from '../key-shortcut/accessible-key-shortcut';
 import { MoveElementAction, MoveViewportAction } from '../move-zoom/move-handler';
 
@@ -41,7 +41,7 @@ export class MovementKeyTool implements Tool {
     @inject(TYPES.ISnapper) @optional() readonly snapper?: ISnapper;
     @inject(TYPES.IActionDispatcher) readonly actionDispatcher: GLSPActionDispatcher;
     @inject(TYPES.Grid) @optional() protected grid: Grid;
-    @inject(ChangeBoundsManager) readonly changeBoundsManager: ChangeBoundsManager;
+    @inject(TYPES.IChangeBoundsManager) readonly changeBoundsManager: IChangeBoundsManager;
 
     get id(): string {
         return MovementKeyTool.ID;

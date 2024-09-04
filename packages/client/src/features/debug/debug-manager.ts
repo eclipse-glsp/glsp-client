@@ -20,8 +20,21 @@ import { IFeedbackActionDispatcher } from '../../base/feedback/feedback-action-d
 import { FeedbackEmitter } from '../../base/feedback/feedback-emitter';
 import { EnableDebugModeAction } from './debug-model';
 
+export interface IDebugManager {
+    /** Flag to indicate whether the debug mode is enabled. */
+    readonly isDebugEnabled: boolean;
+    /** Sets the debug enabled state. */
+    setDebugEnabled(enabled: boolean): void;
+    /** Toggles the debug enabled state. */
+    toggleDebugEnabled(): void;
+}
+
+/**
+ * The default {@link IDebugManager} implementation.
+ * This class manages the debug mode and provides functionality to enable or disable it.
+ */
 @injectable()
-export class DebugManager implements IActionHandler {
+export class DebugManager implements IActionHandler, IDebugManager {
     protected _debugEnabled: boolean = false;
     protected debugFeedback: FeedbackEmitter;
 
