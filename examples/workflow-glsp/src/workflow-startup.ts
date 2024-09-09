@@ -14,15 +14,15 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { GridManager, IDiagramStartup } from '@eclipse-glsp/client';
-import { MaybePromise } from '@eclipse-glsp/sprotty';
+import { IDiagramStartup, IGridManager } from '@eclipse-glsp/client';
+import { MaybePromise, TYPES } from '@eclipse-glsp/sprotty';
 import { inject, injectable, optional } from 'inversify';
 
 @injectable()
 export class WorkflowStartup implements IDiagramStartup {
     rank = -1;
 
-    @inject(GridManager) @optional() protected gridManager?: GridManager;
+    @inject(TYPES.IGridManager) @optional() protected gridManager?: IGridManager;
 
     preRequestModel(): MaybePromise<void> {
         this.gridManager?.setGridVisible(true);

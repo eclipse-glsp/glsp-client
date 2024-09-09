@@ -48,7 +48,7 @@ import { FeedbackEmitter } from '../../../base/feedback/feedback-emitter';
 import { forEachElement, getMatchingElements, isRoutable, isRoutingHandle } from '../../../utils/gmodel-util';
 import { getAbsolutePosition, toAbsoluteBounds } from '../../../utils/viewpoint-util';
 import { addReconnectHandles, removeReconnectHandles } from '../../reconnect/model';
-import { ChangeBoundsManager } from '../change-bounds/change-bounds-manager';
+import { IChangeBoundsManager } from '../change-bounds/change-bounds-manager';
 import { ChangeBoundsTracker, MoveableRoutingHandle } from '../change-bounds/change-bounds-tracker';
 import { FeedbackEdgeEnd, feedbackEdgeEndId, feedbackEdgeId } from '../edge-creation/dangling-edge-feedback';
 import { FeedbackEdgeEndMovingMouseListener } from '../edge-creation/edge-creation-tool-feedback';
@@ -259,7 +259,7 @@ export class FeedbackEdgeRouteMovingMouseListener extends DragAwareMouseListener
     protected tracker: ChangeBoundsTracker;
 
     constructor(
-        protected changeBoundsManager: ChangeBoundsManager,
+        protected changeBoundsManager: IChangeBoundsManager,
         protected edgeRouterRegistry?: EdgeRouterRegistry
     ) {
         super();

@@ -54,7 +54,7 @@ import { SetBoundsFeedbackAction } from '../../bounds/set-bounds-feedback-comman
 import { GResizeHandle, isResizable } from '../../change-bounds/model';
 import { IMovementRestrictor } from '../../change-bounds/movement-restrictor';
 import { BaseEditTool } from '../base-tools';
-import { CSS_ACTIVE_HANDLE, ChangeBoundsManager } from './change-bounds-manager';
+import { CSS_ACTIVE_HANDLE, IChangeBoundsManager } from './change-bounds-manager';
 import {
     HideChangeBoundsToolResizeFeedbackAction,
     MoveFinishedEventAction,
@@ -83,7 +83,7 @@ export class ChangeBoundsTool extends BaseEditTool {
     @inject(SelectionService) protected selectionService: SelectionService;
     @inject(EdgeRouterRegistry) @optional() readonly edgeRouterRegistry?: EdgeRouterRegistry;
     @inject(TYPES.IMovementRestrictor) @optional() readonly movementRestrictor?: IMovementRestrictor;
-    @inject(ChangeBoundsManager) readonly changeBoundsManager: ChangeBoundsManager;
+    @inject(TYPES.IChangeBoundsManager) readonly changeBoundsManager: IChangeBoundsManager;
 
     get id(): string {
         return ChangeBoundsTool.ID;

@@ -24,6 +24,7 @@ import {
     GRoutableElement,
     GRoutingHandle,
     ReconnectEdgeOperation,
+    TYPES,
     canEditRouting,
     findParentByFeature,
     isConnectable,
@@ -37,7 +38,7 @@ import { ISelectionListener, SelectionService } from '../../../base/selection-se
 import { calcElementAndRoutingPoints, isRoutable, isRoutingHandle } from '../../../utils/gmodel-util';
 import { GReconnectHandle, isReconnectHandle, isReconnectable, isSourceRoutingHandle, isTargetRoutingHandle } from '../../reconnect/model';
 import { BaseEditTool } from '../base-tools';
-import { ChangeBoundsManager } from '../change-bounds/change-bounds-manager';
+import { IChangeBoundsManager } from '../change-bounds/change-bounds-manager';
 import { DrawFeedbackEdgeAction, RemoveFeedbackEdgeAction, feedbackEdgeId } from '../edge-creation/dangling-edge-feedback';
 import {
     DrawFeedbackEdgeSourceAction,
@@ -56,7 +57,7 @@ export class EdgeEditTool extends BaseEditTool {
     @inject(SelectionService) protected selectionService: SelectionService;
     @inject(AnchorComputerRegistry) protected anchorRegistry: AnchorComputerRegistry;
     @inject(EdgeRouterRegistry) @optional() readonly edgeRouterRegistry?: EdgeRouterRegistry;
-    @inject(ChangeBoundsManager) readonly changeBoundsManager: ChangeBoundsManager;
+    @inject(TYPES.IChangeBoundsManager) readonly changeBoundsManager: IChangeBoundsManager;
 
     protected feedbackEdgeSourceMovingListener: FeedbackEdgeSourceMovingMouseListener;
     protected feedbackEdgeTargetMovingListener: FeedbackEdgeTargetMovingMouseListener;

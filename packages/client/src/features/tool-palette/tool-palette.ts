@@ -25,6 +25,7 @@ import {
     SetContextActions,
     SetModelAction,
     SetUIExtensionVisibilityAction,
+    TYPES,
     TriggerNodeCreationAction,
     UpdateModelAction,
     codiconCSSClasses,
@@ -37,8 +38,8 @@ import { FocusTracker } from '../../base/focus/focus-tracker';
 import { IDiagramStartup } from '../../base/model/diagram-loader';
 import { EnableDefaultToolsAction, EnableToolsAction } from '../../base/tool-manager/tool';
 import { GLSPAbstractUIExtension } from '../../base/ui-extension/ui-extension';
-import { DebugManager } from '../debug/debug-manager';
-import { GridManager } from '../grid/grid-manager';
+import { IDebugManager } from '../debug/debug-manager';
+import { IGridManager } from '../grid/grid-manager';
 import { MouseDeleteTool } from '../tools/deletion/delete-tool';
 import { MarqueeMouseTool } from '../tools/marquee-selection/marquee-mouse-tool';
 import { OriginViewportAction } from '../viewport/origin-viewport';
@@ -77,13 +78,13 @@ export class ToolPalette extends GLSPAbstractUIExtension implements IActionHandl
     @inject(FocusTracker)
     protected focusTracker: FocusTracker;
 
-    @inject(GridManager)
+    @inject(TYPES.IGridManager)
     @optional()
-    protected gridManager?: GridManager;
+    protected gridManager?: IGridManager;
 
-    @inject(DebugManager)
+    @inject(TYPES.IDebugManager)
     @optional()
-    protected debugManager?: DebugManager;
+    protected debugManager?: IDebugManager;
 
     protected paletteItems: PaletteItem[];
     protected paletteItemsCopy: PaletteItem[] = [];

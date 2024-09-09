@@ -46,7 +46,7 @@ import {
     movementRestrictionFeedback,
     removeMovementRestrictionFeedback
 } from '../../change-bounds/movement-restrictor';
-import { GridManager } from '../../grid/grid-manager';
+import { IGridManager } from '../../grid/grid-manager';
 import { IHelperLineManager } from '../../helper-lines/helper-line-manager';
 import { InsertIndicator } from '../node-creation/insert-indicator';
 import { ChangeBoundsTracker, TrackedElementMove, TrackedElementResize, TrackedMove, TrackedResize } from './change-bounds-tracker';
@@ -55,14 +55,140 @@ export const CSS_RESIZE_MODE = 'resize-mode';
 export const CSS_RESTRICTED_RESIZE = 'resize-not-allowed';
 export const CSS_ACTIVE_HANDLE = 'active';
 
+export interface IChangeBoundsManager {
+    /**
+     * Unsnap the modifier used for changing bounds.
+     * @returns The unsnapped keyboard modifier, or undefined if no modifier was snapped.
+     */
+    unsnapModifier(): KeyboardModifier | undefined;
+
+    /**
+     * Determine whether to use position snap for changing bounds.
+     * @param arg - The event argument.
+     * @returns True if position snap should be used, false otherwise.
+     */
+    usePositionSnap(arg: MouseEvent | KeyboardEvent | any): boolean;
+
+    /**
+     * Snap the position of an element.
+     * @param element - The element to snap.
+     * @param position - The position to snap.
+     * @returns The snapped position.
+     */
+    snapPosition(element: GModelElement, position: Point): Point;
+
+    /**
+     * Check if an element is valid for changing bounds.
+     * @param element - The element to check.
+     * @returns True if the element is valid, false otherwise.
+     */
+    isValid(element: GModelElement): boolean;
+
+    /**
+     * Check if an element has a valid position for changing bounds.
+     * @param element - The element to check.
+     * @param position - The position to check.
+     * @returns True if the element has a valid position, false otherwise.
+     */
+    hasValidPosition(element: GModelElement, position?: Point): boolean;
+
+    /**
+     * Check if an element has a valid size for changing bounds.
+     * @param element - The element to check.
+     * @param size - The size to check.
+     * @returns True if the element has a valid size, false otherwise.
+     */
+    hasValidSize(element: GModelElement, size?: Dimension): boolean;
+
+    /**
+     * Get the minimum size of an element for changing bounds.
+     * @param element - The element to get the minimum size for.
+     * @returns The minimum size of the element.
+     */
+    getMinimumSize(element: GModelElement): Dimension;
+
+    /**
+     * Determine whether to use movement restriction for changing bounds.
+     * @param arg - The event argument.
+     * @returns True if movement restriction should be used, false otherwise.
+     */
+    useMovementRestriction(arg: MouseEvent | KeyboardEvent | any): boolean;
+
+    /**
+     * Restrict the movement of an element.
+     * @param element - The element to restrict movement for.
+     * @param movement - The movement to restrict.
+     * @returns The restricted movement.
+     */
+    restrictMovement(element: GModelElement, movement: Movement): Movement;
+
+    /**
+     * Add move feedback for changing bounds.
+     * @param feedback - The feedback emitter.
+     * @param trackedMove - The tracked move.
+     * @param ctx - The context element. (optional)
+     * @param event - The mouse event. (optional)
+     * @returns The feedback emitter.
+     */
+    addMoveFeedback(feedback: FeedbackEmitter, trackedMove: TrackedMove, ctx?: GModelElement, event?: MouseEvent): FeedbackEmitter;
+
+    /**
+     * Add resize feedback for changing bounds.
+     * @param feedback - The feedback emitter.
+     * @param resize - The tracked resize.
+     * @param ctx - The context element. (optional)
+     * @param event - The mouse event. (optional)
+     * @returns The feedback emitter.
+     */
+    addResizeFeedback(feedback: FeedbackEmitter, resize: TrackedResize, ctx?: GModelElement, event?: MouseEvent): FeedbackEmitter;
+
+    /**
+     * Add move restriction feedback for changing bounds.
+     * @param feedback - The feedback emitter.
+     * @param change - The tracked element resize or move.
+     * @param ctx - The context element. (optional)
+     * @param event - The mouse event. (optional)
+     * @returns The feedback emitter.
+     */
+    addMoveRestrictionFeedback(
+        feedback: FeedbackEmitter,
+        change: TrackedElementResize | TrackedElementMove,
+        ctx?: GModelElement,
+        event?: MouseEvent
+    ): FeedbackEmitter;
+
+    /**
+     * Get the default resize locations for changing bounds.
+     * @returns The default resize handle locations.
+     */
+    defaultResizeLocations(): ResizeHandleLocation[];
+
+    /**
+     * Determine whether to use symmetric resize for changing bounds.
+     * @param arg - The event argument.
+     * @returns True if symmetric resize should be used, false otherwise.
+     */
+    useSymmetricResize(arg: MouseEvent | KeyboardEvent | any): boolean;
+
+    /**
+     * Create a tracker for changing bounds.
+     * @returns The change bounds tracker.
+     */
+    createTracker(): ChangeBoundsTracker;
+}
+
+/**
+ * The default {@link IChangeBoundsManager} implementation. It is responsible for managing
+ * the change of bounds for {@link GModelElement}s.
+ */
 @injectable()
-export class ChangeBoundsManager {
+export class ChangeBoundsManager implements IChangeBoundsManager {
     constructor(
         @inject(MousePositionTracker) readonly positionTracker: MousePositionTracker,
         @optional() @inject(TYPES.IMovementRestrictor) readonly movementRestrictor?: IMovementRestrictor,
         @optional() @inject(TYPES.ISnapper) readonly snapper?: ISnapper,
         @optional() @inject(TYPES.IHelperLineManager) readonly helperLineManager?: IHelperLineManager,
-        @optional() @inject(GridManager) protected gridManager?: GridManager
+        @optional() @inject(TYPES.IGridManager) protected gridManager?: IGridManager
     ) {}
 
     unsnapModifier(): KeyboardModifier | undefined {

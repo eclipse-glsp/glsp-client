@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { FeatureModule, TYPES, configureActionHandler, configureCommand } from '@eclipse-glsp/sprotty';
+import { FeatureModule, TYPES, bindAsService, configureActionHandler, configureCommand } from '@eclipse-glsp/sprotty';
 import '../../../css/grid.css';
 import { GridManager } from './grid-manager';
 import { ShowGridAction, ShowGridCommand } from './grid-model';
@@ -28,7 +28,7 @@ export const gridModule = new FeatureModule(
 
         configureCommand(context, ShowGridCommand);
 
-        bind(GridManager).toSelf().inSingletonScope();
+        bindAsService(context, TYPES.IGridManager, GridManager);
         configureActionHandler(context, ShowGridAction.KIND, GridManager);
 
         bind(TYPES.ISnapper).to(GridSnapper);

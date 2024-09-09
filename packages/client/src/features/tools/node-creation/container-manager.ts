@@ -14,12 +14,12 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { GModelElement, Point, findChildrenAtPosition } from '@eclipse-glsp/sprotty';
+import { GModelElement, Point, TYPES, findChildrenAtPosition } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
 import { CSS_GHOST_ELEMENT, CursorCSS, cursorFeedbackAction } from '../../../base/feedback/css-feedback';
 import { FeedbackEmitter } from '../../../base/feedback/feedback-emitter';
 import { ContainerElement, isContainable } from '../../hints/model';
-import { ChangeBoundsManager } from '../change-bounds/change-bounds-manager';
+import { IChangeBoundsManager } from '../change-bounds/change-bounds-manager';
 
 export interface InsertOptions extends Record<string, unknown> {
     /** Flag to indicate whether the location within a container needs to be valid. Default: false */
@@ -58,7 +58,7 @@ export interface IContainerManager {
  */
 @injectable()
 export class ContainerManager implements IContainerManager {
-    @inject(ChangeBoundsManager) protected readonly changeBoundsManager: ChangeBoundsManager;
+    @inject(TYPES.IChangeBoundsManager) protected readonly changeBoundsManager: IChangeBoundsManager;
 
     insert(proxy: GModelElement, location: Point, elementTypeId: string, opts?: Partial<InsertOptions>): TrackedInsert {
         const options = { ...DEFAULT_INSERT_OPTIONS, ...opts };

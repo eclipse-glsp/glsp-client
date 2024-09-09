@@ -26,7 +26,7 @@ export const debugModule = new FeatureModule(
 
         configureCommand(context, EnableDebugModeCommand);
 
-        bind(DebugManager).toSelf().inSingletonScope();
+        bindAsService(context, TYPES.IDebugManager, DebugManager);
         configureActionHandler(context, EnableDebugModeAction.KIND, DebugManager);
 
         bindAsService(context, TYPES.IVNodePostprocessor, DebugBoundsDecorator);

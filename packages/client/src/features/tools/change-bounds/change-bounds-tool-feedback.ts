@@ -20,7 +20,7 @@ import { FeedbackCommand } from '../../../base/feedback/feedback-command';
 import { OptionalAction } from '../../../base/model/glsp-model-source';
 import { forEachElement } from '../../../utils/gmodel-util';
 import { ResizeHandleLocation, addResizeHandles, isResizable, removeResizeHandles } from '../../change-bounds/model';
-import { ChangeBoundsManager } from './change-bounds-manager';
+import { IChangeBoundsManager } from './change-bounds-manager';
 
 export interface ShowChangeBoundsToolResizeFeedbackAction extends Action {
     kind: typeof ShowChangeBoundsToolResizeFeedbackAction.KIND;
@@ -71,7 +71,7 @@ export class ShowChangeBoundsToolResizeFeedbackCommand extends FeedbackCommand {
     static readonly KIND = ShowChangeBoundsToolResizeFeedbackAction.KIND;
 
     @inject(TYPES.Action) protected action: ShowChangeBoundsToolResizeFeedbackAction;
-    @inject(ChangeBoundsManager) protected changeBoundsManager: ChangeBoundsManager;
+    @inject(TYPES.IChangeBoundsManager) protected changeBoundsManager: IChangeBoundsManager;
 
     execute(context: CommandExecutionContext): CommandReturn {
         const index = context.root.index;

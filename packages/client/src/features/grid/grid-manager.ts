@@ -23,8 +23,23 @@ import { ShowGridAction } from './grid-model';
 
 export type GridStyle = Record<string, string> & Partial<PropertiesOfType<CSSStyleDeclaration, string>>;
 
+export interface IGridManager {
+    /** The grid to manage. */
+    readonly grid: Grid;
+    /** Flag to indicate whether the grid is visible. */
+    readonly isGridVisible: boolean;
+    /** Sets the visibility of the grid. */
+    setGridVisible(visible: boolean): void;
+    /** Toggles the visibility of the grid. */
+    toggleGridVisible(): void;
+}
+
+/**
+ * The default {@link IGridManager} implementation.
+ * This class manages the visibility and behavior of a grid in the application.
+ */
 @injectable()
-export class GridManager implements IActionHandler {
+export class GridManager implements IActionHandler, IGridManager {
     protected _gridVisible: boolean = false;
     protected gridFeedback: FeedbackEmitter;
 

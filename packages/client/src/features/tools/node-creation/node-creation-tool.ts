@@ -43,7 +43,7 @@ import { AddTemplateElementsAction, getTemplateElementId } from '../../element-t
 import { MouseTrackingElementPositionListener, PositioningTool } from '../../element-template/mouse-tracking-element-position-listener';
 import { RemoveTemplateElementsAction } from '../../element-template/remove-template-element';
 import { BaseCreationTool } from '../base-tools';
-import { ChangeBoundsManager } from '../change-bounds/change-bounds-manager';
+import { IChangeBoundsManager } from '../change-bounds/change-bounds-manager';
 import { TrackedMove } from '../change-bounds/change-bounds-tracker';
 import { IContainerManager, TrackedInsert } from './container-manager';
 import { InsertIndicator } from './insert-indicator';
@@ -54,7 +54,7 @@ export class NodeCreationTool extends BaseCreationTool<TriggerNodeCreationAction
 
     protected isTriggerAction = TriggerNodeCreationAction.is;
 
-    @inject(ChangeBoundsManager) readonly changeBoundsManager: ChangeBoundsManager;
+    @inject(TYPES.IChangeBoundsManager) readonly changeBoundsManager: IChangeBoundsManager;
     @inject(TYPES.IContainerManager) readonly containerManager: IContainerManager;
     @inject(TYPES.IModelFactory) modelFactory: IModelFactory;
 
