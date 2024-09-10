@@ -4,6 +4,8 @@
 
 ### Changes
 
+-   [diagram] Ensure that `GLSPMousePositionTracker` correctly calculates the current position in diagram local coordinates [#391](https://github.com/eclipse-glsp/glsp-client/pull/391)
+
 ### Potentially breaking changes
 
 ## [v2.2.1 - 22/07/2024](https://github.com/eclipse-glsp/glsp-client/releases/tag/v2.2.1)
