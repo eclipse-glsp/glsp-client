@@ -5,6 +5,8 @@
 ### Changes
 
 -   [diagram] Ensure that `GLSPMousePositionTracker` correctly calculates the current position in diagram local coordinates [#391](https://github.com/eclipse-glsp/glsp-client/pull/391)
+-   [di] Align Interface usage across \*Manager classes [#388](https://github.com/eclipse-glsp/glsp-client/pull/388)
+    -   Change DI bindings for: `GridManger` to `TYPES.IGridManager`, `ChangeBoundsManager` to `TYPES.IChangeBoundsManager` and `DebugManager` to `TYPES.IDebugManager`.
 
 ### Potentially breaking changes
 
