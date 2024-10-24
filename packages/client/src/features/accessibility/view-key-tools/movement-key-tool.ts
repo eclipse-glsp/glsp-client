@@ -14,10 +14,8 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { Action, GModelElement, ISnapper, KeyListener, KeyTool, TYPES } from '@eclipse-glsp/sprotty';
+import { Action, GModelElement, IActionDispatcher, ISnapper, KeyListener, KeyTool, matchesKeystroke, TYPES } from '@eclipse-glsp/sprotty';
 import { inject, injectable, optional } from 'inversify';
-import { matchesKeystroke } from 'sprotty/lib/utils/keyboard';
-import { GLSPActionDispatcher } from '../../../base/action-dispatcher';
 import { SelectionService } from '../../../base/selection-service';
 import { Tool } from '../../../base/tool-manager/tool';
 import { Grid } from '../../grid/grid';
@@ -39,7 +37,7 @@ export class MovementKeyTool implements Tool {
     @inject(KeyTool) protected readonly keytool: KeyTool;
     @inject(SelectionService) selectionService: SelectionService;
     @inject(TYPES.ISnapper) @optional() readonly snapper?: ISnapper;
-    @inject(TYPES.IActionDispatcher) readonly actionDispatcher: GLSPActionDispatcher;
+    @inject(TYPES.IActionDispatcher) readonly actionDispatcher: IActionDispatcher;
     @inject(TYPES.Grid) @optional() protected grid: Grid;
     @inject(TYPES.IChangeBoundsManager) readonly changeBoundsManager: IChangeBoundsManager;
 

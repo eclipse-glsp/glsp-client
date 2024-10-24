@@ -13,18 +13,18 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { inject, injectable } from 'inversify';
 import {
     Action,
+    GModelElement,
+    IActionDispatcher,
     ICommandPaletteActionProvider,
     LabeledAction,
     Point,
     RequestContextActions,
-    GModelElement,
     SetContextActions,
     TYPES
 } from '@eclipse-glsp/sprotty';
-import { GLSPActionDispatcher } from '../../base/action-dispatcher';
+import { inject, injectable } from 'inversify';
 import { EditorContextService } from '../../base/editor-context-service';
 
 export namespace ServerCommandPalette {
@@ -35,7 +35,7 @@ export namespace ServerCommandPalette {
 
 @injectable()
 export class ServerCommandPaletteActionProvider implements ICommandPaletteActionProvider {
-    @inject(TYPES.IActionDispatcher) protected actionDispatcher: GLSPActionDispatcher;
+    @inject(TYPES.IActionDispatcher) protected actionDispatcher: IActionDispatcher;
     @inject(EditorContextService) protected editorContext: EditorContextService;
 
     async getActions(_root: Readonly<GModelElement>, text: string, _lastMousePosition?: Point, index?: number): Promise<LabeledAction[]> {

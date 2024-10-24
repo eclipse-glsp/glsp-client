@@ -27,12 +27,13 @@ export * from '@eclipse-glsp/protocol/lib/di';
 
 // Exclude  definition for labeled actions
 // export * from 'sprotty/lib/base/actions/action';
-export * from 'sprotty/lib/base/actions/action-dispatcher';
+// Exclude IActionDispatcher and IActionDispatcherProvider. Exported via api-override module instead
+export { ActionDispatcher, PostponedAction } from 'sprotty/lib/base/actions/action-dispatcher';
 export {
     ActionHandlerRegistration,
     ActionHandlerRegistry,
-    configureActionHandler,
     IActionHandlerInitializer,
+    configureActionHandler,
     onAction
 } from 'sprotty/lib/base/actions/action-handler';
 export * from 'sprotty/lib/base/actions/diagram-locker';
@@ -50,19 +51,18 @@ export * from 'sprotty/lib/base/features/initialize-canvas';
 export * from 'sprotty/lib/base/features/set-model';
 // Exclude SModelElementImpl as it as exported with augmentation module
 export {
-    createRandomId,
     FeatureSet,
     SChildElementImpl as GChildElement,
     SModelElementImpl as GModelElement,
     SModelRootImpl as GModelRoot,
     SParentElementImpl as GParentElement,
     IModelIndex,
-    isParent,
-    ModelIndexImpl
+    ModelIndexImpl,
+    createRandomId,
+    isParent
 } from 'sprotty/lib/base/model/smodel';
 
 export {
-    createFeatureSet,
     CustomFeatures,
     EMPTY_ROOT,
     SModelElementConstructor as GModelElementConstructor,
@@ -70,7 +70,8 @@ export {
     SModelFactory as GModelFactory,
     IModelFactory,
     // exported without alias we extend it in glsp-client to `GModelRegistry`
-    SModelRegistry
+    SModelRegistry,
+    createFeatureSet
 } from 'sprotty/lib/base/model/smodel-factory';
 export * from 'sprotty/lib/base/model/smodel-utils';
 
@@ -85,7 +86,8 @@ export * from 'sprotty/lib/base/views/view';
 export * from 'sprotty/lib/base/views/viewer';
 export * from 'sprotty/lib/base/views/viewer-cache';
 export * from 'sprotty/lib/base/views/viewer-options';
-export * from 'sprotty/lib/base/views/vnode-postprocessor';
+// Exclude IVnodePostprocessor. Exported via api-override module instead
+export { FocusFixPostprocessor } from 'sprotty/lib/base/views/vnode-postprocessor';
 export * from 'sprotty/lib/base/views/vnode-utils';
 
 // Exclude sprotty types and export augmented GLSP types instead
@@ -99,30 +101,30 @@ export * from 'sprotty/lib/features/bounds/hidden-bounds-updater';
 export * from 'sprotty/lib/features/bounds/layout';
 export { AbstractLayoutOptions } from 'sprotty/lib/features/bounds/layout-options';
 export {
-    alignFeature,
     InternalBoundsAware as BoundsAware,
+    SShapeElementImpl as GShapeElement,
+    InternalLayoutContainer as LayoutContainer,
+    InternalLayoutableChild as LayoutableChild,
+    ModelLayoutOptions,
+    alignFeature,
     boundsFeature,
     findChildrenAtPosition,
     getAbsoluteBounds,
     getAbsoluteClientBounds,
-    SShapeElementImpl as GShapeElement,
     isAlignable,
     isBoundsAware,
-    isLayoutableChild,
     isLayoutContainer,
+    isLayoutableChild,
     isSizeable,
-    InternalLayoutableChild as LayoutableChild,
-    layoutableChildFeature,
-    InternalLayoutContainer as LayoutContainer,
     layoutContainerFeature,
-    ModelLayoutOptions
+    layoutableChildFeature
 } from 'sprotty/lib/features/bounds/model';
 // exclude stack layout as its not supported in GLSP
 // export * from 'sprotty/lib/features/bounds/stack-layout';
 export * from 'sprotty/lib/features/bounds/vbox-layout';
 export * from 'sprotty/lib/features/bounds/views';
 
-export { ButtonHandlerRegistry, configureButtonHandler, IButtonHandlerRegistration } from 'sprotty/lib/features/button/button-handler';
+export { ButtonHandlerRegistry, IButtonHandlerRegistration, configureButtonHandler } from 'sprotty/lib/features/button/button-handler';
 export { SButtonImpl as GButton } from 'sprotty/lib/features/button/model';
 
 export {
@@ -138,7 +140,7 @@ export * from 'sprotty/lib/features/context-menu/mouse-listener';
 
 export * from 'sprotty/lib/features/edge-layout/di.config';
 export * from 'sprotty/lib/features/edge-layout/edge-layout';
-export { checkEdgePlacement, DEFAULT_EDGE_PLACEMENT, edgeLayoutFeature, isEdgeLayoutable } from 'sprotty/lib/features/edge-layout/model';
+export { DEFAULT_EDGE_PLACEMENT, checkEdgePlacement, edgeLayoutFeature, isEdgeLayoutable } from 'sprotty/lib/features/edge-layout/model';
 // Exclude client-side creation features (not supported in GLSP)
 // export * from 'sprotty/lib/features/edit/create';
 // export * from 'sprotty/lib/features/edit/create-on-drag';
@@ -169,10 +171,10 @@ export * from 'sprotty/lib/features/hover/popup-position-updater';
 export * from 'sprotty/lib/features/decoration/decoration-placer';
 export {
     Decoration,
-    decorationFeature,
     SDecoration as GDecoration,
-    isDecoration,
-    SIssueMarkerImpl
+    SIssueMarkerImpl,
+    decorationFeature,
+    isDecoration
 } from 'sprotty/lib/features/decoration/model';
 export * from 'sprotty/lib/features/decoration/views';
 
@@ -190,7 +192,7 @@ export * from 'sprotty/lib/features/nameable/model';
 export * from 'sprotty/lib/features/open/model';
 export * from 'sprotty/lib/features/open/open';
 
-export { getModelBounds, getProjectedBounds, getProjections, isProjectable, ViewProjection } from 'sprotty/lib/features/projection/model';
+export { ViewProjection, getModelBounds, getProjectedBounds, getProjections, isProjectable } from 'sprotty/lib/features/projection/model';
 export * from 'sprotty/lib/features/projection/views';
 
 export * from 'sprotty/lib/features/routing/abstract-edge-router';
@@ -203,17 +205,17 @@ export * from 'sprotty/lib/features/routing/manhattan-edge-router';
 // Alias SModel types
 export {
     Connectable,
+    SConnectableElementImpl as GConnectableElement,
+    SDanglingAnchorImpl as GDanglingAnchor,
+    SRoutableElementImpl as GRoutableElement,
+    SRoutingHandleImpl as GRoutingHandle,
+    RoutingHandleKind,
     connectableFeature,
     edgeInProgressID,
     edgeInProgressTargetHandleID,
-    SConnectableElementImpl as GConnectableElement,
-    SDanglingAnchorImpl as GDanglingAnchor,
     getAbsoluteRouteBounds,
     getRouteBounds,
-    SRoutableElementImpl as GRoutableElement,
-    SRoutingHandleImpl as GRoutingHandle,
-    isConnectable,
-    RoutingHandleKind
+    isConnectable
 } from 'sprotty/lib/features/routing/model';
 export * from 'sprotty/lib/features/routing/polyline-anchors';
 export * from 'sprotty/lib/features/routing/polyline-edge-router';

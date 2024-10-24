@@ -21,12 +21,12 @@ import {
     ElementTemplate,
     GChildElement,
     GModelElementSchema,
+    IActionDispatcher,
     TYPES,
     distinctAdd,
     remove
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
-import { GLSPActionDispatcher } from '../../base/action-dispatcher';
 import { FeedbackCommand } from '../../base/feedback/feedback-command';
 import { isNotUndefined } from '../../utils/gmodel-util';
 import { LocalRequestBoundsAction } from '../bounds/local-bounds';
@@ -57,7 +57,7 @@ export function getTemplateElementId(template: ElementTemplate): string {
 export class AddTemplateElementsFeedbackCommand extends FeedbackCommand {
     static readonly KIND = AddTemplateElementsAction.KIND;
 
-    @inject(TYPES.IActionDispatcher) protected actionDispatcher: GLSPActionDispatcher;
+    @inject(TYPES.IActionDispatcher) protected actionDispatcher: IActionDispatcher;
 
     constructor(@inject(TYPES.Action) readonly action: AddTemplateElementsAction) {
         super();

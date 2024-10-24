@@ -13,9 +13,8 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { EdgeRouterRegistry, GConnectableElement, GModelElement, GModelRoot, TYPES } from '@eclipse-glsp/sprotty';
+import { EdgeRouterRegistry, GConnectableElement, GModelElement, GModelRoot, IActionDispatcher, TYPES } from '@eclipse-glsp/sprotty';
 import { inject, injectable, optional } from 'inversify';
-import { GLSPActionDispatcher } from '../../../base/action-dispatcher';
 import { applyCssClasses, deleteCssClasses } from '../../../base/feedback/css-feedback';
 import { GEdge } from '../../../model';
 import { BoundsAwareModelElement, SelectableBoundsAware } from '../../../utils/gmodel-util';
@@ -25,7 +24,7 @@ import { ElementNavigator } from './element-navigator';
 export class LocalElementNavigator implements ElementNavigator {
     navigableElementCSS = 'navigable-element';
     @inject(EdgeRouterRegistry) @optional() readonly edgeRouterRegistry?: EdgeRouterRegistry;
-    @inject(TYPES.IActionDispatcher) protected readonly actionDispatcher: GLSPActionDispatcher;
+    @inject(TYPES.IActionDispatcher) protected readonly actionDispatcher: IActionDispatcher;
 
     previous(
         root: Readonly<GModelRoot>,

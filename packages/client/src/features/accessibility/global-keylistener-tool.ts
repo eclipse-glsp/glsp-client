@@ -13,16 +13,14 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { Action, IActionDispatcher, matchesKeystroke, SetUIExtensionVisibilityAction, TYPES } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
-import { SetUIExtensionVisibilityAction, Action } from '@eclipse-glsp/sprotty';
 import { Tool } from '../../base/tool-manager/tool';
-import { matchesKeystroke } from 'sprotty/lib/utils/keyboard';
+import { KeyboardGridMetadata, KeyboardNodeGridMetadata } from '../accessibility/keyboard-grid/constants';
 import { ToolPalette } from '../tool-palette/tool-palette';
 import { FocusDomAction } from './actions';
-import { KeyboardGridMetadata, KeyboardNodeGridMetadata } from '../accessibility/keyboard-grid/constants';
-import { KeyboardPointerMetadata } from './keyboard-pointer/constants';
 import { AccessibleKeyShortcutProvider, SetAccessibleKeyShortcutAction } from './key-shortcut/accessible-key-shortcut';
-import { GLSPActionDispatcher } from '../../base/action-dispatcher';
+import { KeyboardPointerMetadata } from './keyboard-pointer/constants';
 import { KeyboardToolPalette } from './keyboard-tool-palette/keyboard-tool-palette';
 
 @injectable()
@@ -32,8 +30,8 @@ export class GlobalKeyListenerTool implements Tool, AccessibleKeyShortcutProvide
     isEditTool = false;
     protected alreadyRegistered = false;
 
-    @inject(GLSPActionDispatcher)
-    protected actionDispatcher: GLSPActionDispatcher;
+    @inject(TYPES.IActionDispatcher)
+    protected actionDispatcher: IActionDispatcher;
 
     get id(): string {
         return GlobalKeyListenerTool.ID;

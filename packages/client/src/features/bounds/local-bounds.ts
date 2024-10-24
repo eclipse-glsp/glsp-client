@@ -15,7 +15,6 @@
  ********************************************************************************/
 import {
     Action,
-    ActionDispatcher,
     Command,
     CommandExecutionContext,
     CommandResult,
@@ -24,6 +23,7 @@ import {
     ComputedBoundsApplicator,
     GModelRoot,
     GModelRootSchema,
+    IActionDispatcher,
     RequestBoundsAction,
     TYPES,
     ViewerOptions,
@@ -53,7 +53,7 @@ export namespace LocalRequestBoundsAction {
 
     export function fromCommand(
         { root }: CommandExecutionContext,
-        actionDispatcher: ActionDispatcher,
+        actionDispatcher: IActionDispatcher,
         cause?: Action,
         elementIDs?: string[]
     ): CommandResult {

@@ -13,19 +13,19 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { inject, injectable } from 'inversify';
 import {
     Action,
+    GModelElement,
+    IActionDispatcher,
     IContextMenuItemProvider,
     LabeledAction,
     Point,
     RequestContextActions,
-    GModelElement,
     SetContextActions,
     TYPES,
     isSelected
 } from '@eclipse-glsp/sprotty';
-import { GLSPActionDispatcher } from '../../base/action-dispatcher';
+import { inject, injectable } from 'inversify';
 import { EditorContextService } from '../../base/editor-context-service';
 
 export namespace ServerContextMenu {
@@ -34,7 +34,7 @@ export namespace ServerContextMenu {
 
 @injectable()
 export class ServerContextMenuItemProvider implements IContextMenuItemProvider {
-    @inject(TYPES.IActionDispatcher) protected actionDispatcher: GLSPActionDispatcher;
+    @inject(TYPES.IActionDispatcher) protected actionDispatcher: IActionDispatcher;
     @inject(EditorContextService) protected editorContext: EditorContextService;
 
     async getItems(root: Readonly<GModelElement>, _lastMousePosition?: Point): Promise<LabeledAction[]> {
