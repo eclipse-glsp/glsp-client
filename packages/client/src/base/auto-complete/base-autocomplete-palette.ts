@@ -14,10 +14,9 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { Action, GModelRoot, LabeledAction, TYPES } from '@eclipse-glsp/sprotty';
+import { Action, GModelRoot, IActionDispatcher, LabeledAction, TYPES } from '@eclipse-glsp/sprotty';
 import { inject } from 'inversify';
 import '../../../css/autocomplete-palette.css';
-import { GLSPActionDispatcher } from '../action-dispatcher';
 import { GLSPAbstractUIExtension } from '../ui-extension/ui-extension';
 import { AutoCompleteWidget, CloseReason, toActionArray } from './auto-complete-widget';
 
@@ -38,7 +37,7 @@ export abstract class BaseAutocompletePalette extends GLSPAbstractUIExtension {
     protected autocompleteWidget: AutoCompleteWidget;
 
     @inject(TYPES.IActionDispatcher)
-    protected actionDispatcher: GLSPActionDispatcher;
+    protected actionDispatcher: IActionDispatcher;
 
     containerClass(): string {
         return 'autocomplete-palette';

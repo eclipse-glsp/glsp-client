@@ -14,10 +14,17 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
+import {
+    Action,
+    GModelElement,
+    IActionDispatcher,
+    KeyListener,
+    KeyTool,
+    matchesKeystroke,
+    SetUIExtensionVisibilityAction,
+    TYPES
+} from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
-import { matchesKeystroke } from 'sprotty/lib/utils/keyboard';
-import { Action, KeyListener, KeyTool, GModelElement, SetUIExtensionVisibilityAction, TYPES } from '@eclipse-glsp/sprotty';
-import { GLSPActionDispatcher } from '../../../base/action-dispatcher';
 import { Tool } from '../../../base/tool-manager/tool';
 import { AccessibleKeyShortcutProvider, SetAccessibleKeyShortcutAction } from '../key-shortcut/accessible-key-shortcut';
 import { SearchAutocompletePalette } from './search-palette';
@@ -26,7 +33,7 @@ export class SearchAutocompletePaletteTool implements Tool {
     static readonly ID = 'glsp.search-autocomplete-palette-tool';
 
     protected readonly keyListener = new SearchAutocompletePaletteKeyListener(this);
-    @inject(TYPES.IActionDispatcher) readonly actionDispatcher: GLSPActionDispatcher;
+    @inject(TYPES.IActionDispatcher) readonly actionDispatcher: IActionDispatcher;
     @inject(KeyTool) protected keyTool: KeyTool;
 
     get id(): string {

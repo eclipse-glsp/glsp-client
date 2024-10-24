@@ -16,6 +16,8 @@
 import {
     Action,
     ICommand,
+    KeyCode,
+    matchesKeystroke,
     PaletteItem,
     RequestContextActions,
     RequestMarkersAction,
@@ -24,15 +26,14 @@ import {
     TriggerNodeCreationAction
 } from '@eclipse-glsp/sprotty';
 import { injectable } from 'inversify';
-import { KeyCode, matchesKeystroke } from 'sprotty/lib/utils/keyboard';
 import { EnableDefaultToolsAction, EnableToolsAction } from '../../../base/tool-manager/tool';
 import {
-    EnableToolPaletteAction,
-    ToolPalette,
     changeCodiconClass,
     compare,
     createIcon,
-    createToolGroup
+    createToolGroup,
+    EnableToolPaletteAction,
+    ToolPalette
 } from '../../tool-palette/tool-palette';
 import { MouseDeleteTool } from '../../tools/deletion/delete-tool';
 import { MarqueeMouseTool } from '../../tools/marquee-selection/marquee-mouse-tool';

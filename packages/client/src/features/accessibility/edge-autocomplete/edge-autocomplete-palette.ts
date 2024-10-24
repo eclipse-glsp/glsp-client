@@ -13,28 +13,28 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { injectable } from 'inversify';
 import {
+    Action,
     codiconCSSString,
-    isConnectable,
+    CreateEdgeOperation,
     GModelElement,
     GModelRoot,
+    IActionHandler,
+    isConnectable,
     LabeledAction,
     name,
     SetUIExtensionVisibilityAction,
-    IActionHandler,
-    Action,
-    CreateEdgeOperation,
+    toArray,
     TriggerEdgeCreationAction
 } from '@eclipse-glsp/sprotty';
-import { EnableDefaultToolsAction } from '../../../base/tool-manager/tool';
-import { toArray } from 'sprotty/lib/utils/iterable';
-import { EdgeAutocompleteContext } from './edge-autocomplete-context';
-import { SearchAutocompletePalette } from '../search/search-palette';
-import { SetEdgeTargetSelectionAction } from './action';
+import { injectable } from 'inversify';
 import { CloseReason, toActionArray } from '../../../base/auto-complete/auto-complete-widget';
 import { AutocompleteSuggestion, IAutocompleteSuggestionProvider } from '../../../base/auto-complete/autocomplete-suggestion-providers';
+import { EnableDefaultToolsAction } from '../../../base/tool-manager/tool';
 import { GEdge } from '../../../model';
+import { SearchAutocompletePalette } from '../search/search-palette';
+import { SetEdgeTargetSelectionAction } from './action';
+import { EdgeAutocompleteContext } from './edge-autocomplete-context';
 
 export namespace EdgeAutocompletePaletteMetadata {
     export const ID = 'edge-autocomplete-palette';

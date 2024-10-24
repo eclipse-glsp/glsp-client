@@ -26,6 +26,7 @@ import {
     Event,
     GModelElement,
     GModelRoot,
+    IActionDispatcher,
     IActionHandler,
     LazyInjector,
     MaybePromise,
@@ -36,7 +37,6 @@ import {
     ValueChange
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable, postConstruct, preDestroy } from 'inversify';
-import { GLSPActionDispatcher } from './action-dispatcher';
 import { FocusChange, FocusTracker } from './focus/focus-tracker';
 import { IDiagramOptions, IDiagramStartup } from './model/diagram-loader';
 import { SelectionChange, SelectionService } from './selection-service';
@@ -89,8 +89,8 @@ export class EditorContextService implements IActionHandler, Disposable, IDiagra
     @inject(TYPES.IDiagramOptions)
     protected diagramOptions: IDiagramOptions;
 
-    @inject(GLSPActionDispatcher)
-    protected actionDispatcher: GLSPActionDispatcher;
+    @inject(TYPES.IActionDispatcher)
+    protected actionDispatcher: IActionDispatcher;
 
     @inject(FocusTracker)
     protected focusTracker: FocusTracker;

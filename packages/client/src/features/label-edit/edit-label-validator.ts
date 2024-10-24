@@ -13,21 +13,21 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { inject, injectable } from 'inversify';
 import {
     Action,
     EditLabelValidationResult,
     EditableLabel,
+    GModelElement,
+    IActionDispatcher,
     IEditLabelValidationDecorator,
     IEditLabelValidator,
     RequestEditValidationAction,
-    GModelElement,
     SetEditValidationResultAction,
     Severity,
     TYPES,
     ValidationStatus
 } from '@eclipse-glsp/sprotty';
-import { GLSPActionDispatcher } from '../../base/action-dispatcher';
+import { inject, injectable } from 'inversify';
 
 export namespace LabelEditValidation {
     export const CONTEXT_ID = 'label-edit';
@@ -50,7 +50,7 @@ export namespace LabelEditValidation {
 
 @injectable()
 export class ServerEditLabelValidator implements IEditLabelValidator {
-    @inject(TYPES.IActionDispatcher) protected actionDispatcher: GLSPActionDispatcher;
+    @inject(TYPES.IActionDispatcher) protected actionDispatcher: IActionDispatcher;
 
     async validate(value: string, label: EditableLabel & GModelElement): Promise<EditLabelValidationResult> {
         const action = LabelEditValidation.createValidationRequestAction(value, label.id);

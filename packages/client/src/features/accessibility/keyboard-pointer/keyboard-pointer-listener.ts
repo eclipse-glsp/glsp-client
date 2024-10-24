@@ -14,14 +14,13 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { IActionDispatcher, SetUIExtensionVisibilityAction, CreateNodeOperation } from '@eclipse-glsp/sprotty';
-import { matchesKeystroke } from 'sprotty/lib/utils/keyboard';
+import { CreateNodeOperation, IActionDispatcher, matchesKeystroke, SetUIExtensionVisibilityAction } from '@eclipse-glsp/sprotty';
+import { CursorCSS } from '../../../base/feedback/css-feedback';
+import { EnableDefaultToolsAction } from '../../../base/tool-manager/tool';
 import { KeyboardNodeGridMetadata } from '../keyboard-grid/constants';
 import { KeyboardPointerMetadata } from './constants';
 import { KeyboardPointer } from './keyboard-pointer';
 import { KeyboardPointerPosition } from './keyboard-pointer-position';
-import { EnableDefaultToolsAction } from '../../../base/tool-manager/tool';
-import { CursorCSS } from '../../../base/feedback/css-feedback';
 
 /**
  * Keyboard listener for the pointer with the necessary logic to handle keyboard events

@@ -20,6 +20,7 @@ import {
     Args,
     EMPTY_ROOT,
     GLSPClient,
+    IActionDispatcher,
     InitializeParameters,
     LazyInjector,
     MaybePromise,
@@ -30,7 +31,6 @@ import {
     hasNumberProp
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
-import { GLSPActionDispatcher } from '../action-dispatcher';
 import { Ranked } from '../ranked';
 import { GLSPModelSource } from './glsp-model-source';
 import { ModelInitializationConstraint } from './model-initialization-constraint';
@@ -148,8 +148,8 @@ export class DiagramLoader {
     @inject(TYPES.IDiagramOptions)
     protected options: IDiagramOptions;
 
-    @inject(GLSPActionDispatcher)
-    protected actionDispatcher: GLSPActionDispatcher;
+    @inject(TYPES.IActionDispatcher)
+    protected actionDispatcher: IActionDispatcher;
 
     @inject(GLSPModelSource)
     protected modelSource: GLSPModelSource;

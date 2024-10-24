@@ -19,6 +19,7 @@ import {
     Args,
     CreateEdgeOperation,
     GModelElement,
+    IActionDispatcher,
     RequestCheckEdgeAction,
     TYPES,
     TriggerEdgeCreationAction,
@@ -27,7 +28,6 @@ import {
     isCtrlOrCmd
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable, optional } from 'inversify';
-import { GLSPActionDispatcher } from '../../../base/action-dispatcher';
 import { DragAwareMouseListener } from '../../../base/drag-aware-mouse-listener';
 import { CursorCSS, cursorFeedbackAction } from '../../../base/feedback/css-feedback';
 import { FeedbackEmitter } from '../../../base/feedback/feedback-emitter';
@@ -98,7 +98,7 @@ export class EdgeCreationToolMouseListener extends DragAwareMouseListener {
 
     constructor(
         protected triggerAction: TriggerEdgeCreationAction,
-        protected actionDispatcher: GLSPActionDispatcher,
+        protected actionDispatcher: IActionDispatcher,
         protected typeHintProvider: ITypeHintProvider,
         protected tool: EdgeCreationTool,
         protected dragSensitivity?: number

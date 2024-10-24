@@ -14,12 +14,11 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { EdgeRouterRegistry, findParentByFeature, GModelElement, GModelRoot, Point } from '@eclipse-glsp/sprotty';
+import { EdgeRouterRegistry, findParentByFeature, GModelElement, GModelRoot, Point, toArray } from '@eclipse-glsp/sprotty';
 import { inject, injectable, optional } from 'inversify';
-import { toArray } from 'sprotty/lib/utils/iterable';
+import { GEdge } from '../../../model';
 import { calcElementAndRoute, isRoutable, isSelectableAndBoundsAware, SelectableBoundsAware } from '../../../utils/gmodel-util';
 import { ElementNavigator } from './element-navigator';
-import { GEdge } from '../../../model';
 
 @injectable()
 export class LeftToRightTopToBottomElementNavigator implements ElementNavigator {

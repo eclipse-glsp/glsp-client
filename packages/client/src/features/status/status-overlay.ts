@@ -13,9 +13,8 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { IActionHandler, StatusAction, codiconCSSClasses } from '@eclipse-glsp/sprotty';
+import { IActionDispatcher, IActionHandler, StatusAction, TYPES, codiconCSSClasses } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
-import { GLSPActionDispatcher } from '../../base/action-dispatcher';
 import { EditorContextService } from '../../base/editor-context-service';
 import { IDiagramStartup } from '../../base/model/diagram-loader';
 import { GLSPAbstractUIExtension } from '../../base/ui-extension/ui-extension';
@@ -27,8 +26,8 @@ import { GLSPAbstractUIExtension } from '../../base/ui-extension/ui-extension';
 export class StatusOverlay extends GLSPAbstractUIExtension implements IActionHandler, IDiagramStartup {
     static readonly ID = 'glsp.server.status.overlay';
 
-    @inject(GLSPActionDispatcher)
-    protected actionDispatcher: GLSPActionDispatcher;
+    @inject(TYPES.IActionDispatcher)
+    protected actionDispatcher: IActionDispatcher;
 
     @inject(EditorContextService)
     protected editorContext: EditorContextService;

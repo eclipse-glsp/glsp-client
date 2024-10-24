@@ -15,14 +15,13 @@
  ********************************************************************************/
 import '../../../../css/keyboard.css';
 
+import { Action, ICommand, matchesKeystroke, SetUIExtensionVisibilityAction } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
-import { ICommand, SetUIExtensionVisibilityAction, Action } from '@eclipse-glsp/sprotty';
-import { matchesKeystroke } from 'sprotty/lib/utils/keyboard';
-import { KeyboardPointer } from '../keyboard-pointer/keyboard-pointer';
 import { KeyboardPointerMetadata } from '../keyboard-pointer/constants';
-import { GridSearchPaletteMetadata } from './keyboard-grid-search-palette';
-import { KeyboardGrid } from './keyboard-grid';
+import { KeyboardPointer } from '../keyboard-pointer/keyboard-pointer';
 import { KeyboardNodeGridMetadata } from './constants';
+import { KeyboardGrid } from './keyboard-grid';
+import { GridSearchPaletteMetadata } from './keyboard-grid-search-palette';
 
 @injectable()
 export class KeyboardNodeGrid extends KeyboardGrid {

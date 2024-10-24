@@ -25,11 +25,11 @@ import {
     SelectAllAction,
     codiconCSSString,
     isNameable,
-    name
+    name,
+    toArray
 } from '@eclipse-glsp/sprotty';
 import { injectable } from 'inversify';
 import { isEqual } from 'lodash';
-import { toArray } from 'sprotty/lib/utils/iterable';
 import { BaseAutocompletePalette } from '../../../base/auto-complete/base-autocomplete-palette';
 
 import { AutocompleteSuggestion, IAutocompleteSuggestionProvider } from '../../../base/auto-complete/autocomplete-suggestion-providers';

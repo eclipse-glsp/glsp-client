@@ -18,6 +18,7 @@ import {
     Action,
     GModelElement,
     GModelRoot,
+    IActionDispatcher,
     KeyListener,
     KeyTool,
     SelectAction,
@@ -26,13 +27,13 @@ import {
     findParentByFeature,
     isBoundsAware,
     isSelectable,
-    isSelected
+    isSelected,
+    matchesKeystroke,
+    toArray
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
-import { toArray } from 'sprotty/lib/utils/iterable';
-import { matchesKeystroke } from 'sprotty/lib/utils/keyboard';
-import { GLSPActionDispatcher } from '../../../base/action-dispatcher';
 import { EnableDefaultToolsAction, EnableToolsAction, Tool } from '../../../base/tool-manager/tool';
+import { GEdge } from '../../../model';
 import { SelectableBoundsAware } from '../../../utils/gmodel-util';
 import { RepositionAction } from '../../viewport/reposition';
 import { SetAccessibleKeyShortcutAction } from '../key-shortcut/accessible-key-shortcut';
@@ -41,7 +42,6 @@ import { SearchAutocompletePaletteTool } from '../search/search-tool';
 import * as messages from '../toast/messages.json';
 import { ShowToastMessageAction } from '../toast/toast-handler';
 import { ElementNavigator } from './element-navigator';
-import { GEdge } from '../../../model';
 
 @injectable()
 export class ElementNavigatorTool implements Tool {
@@ -53,7 +53,7 @@ export class ElementNavigatorTool implements Tool {
     @inject(KeyTool) protected readonly keytool: KeyTool;
     @inject(TYPES.IElementNavigator) readonly elementNavigator: ElementNavigator;
     @inject(TYPES.ILocalElementNavigator) readonly localElementNavigator: ElementNavigator;
-    @inject(TYPES.IActionDispatcher) readonly actionDispatcher: GLSPActionDispatcher;
+    @inject(TYPES.IActionDispatcher) readonly actionDispatcher: IActionDispatcher;
 
     get id(): string {
         return ElementNavigatorTool.ID;

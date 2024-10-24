@@ -14,32 +14,32 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { inject, injectable } from 'inversify';
-import { matchesKeystroke } from 'sprotty/lib/utils/keyboard';
 import {
     Action,
     CenterAction,
+    GModelElement,
+    GModelRoot,
+    IActionDispatcher,
     KeyListener,
     KeyTool,
     Point,
-    GModelElement,
-    GModelRoot,
     SetViewportAction,
     TYPES,
     Viewport,
-    isViewport
+    isViewport,
+    matchesKeystroke
 } from '@eclipse-glsp/sprotty';
-import { GLSPActionDispatcher } from '../../../base/action-dispatcher';
+import { inject, injectable } from 'inversify';
+import { EditorContextService } from '../../../base/editor-context-service';
 import { SelectionService } from '../../../base/selection-service';
 import { Tool } from '../../../base/tool-manager/tool';
-import { SetAccessibleKeyShortcutAction } from '../key-shortcut/accessible-key-shortcut';
-import { ZoomElementAction, ZoomViewportAction } from '../move-zoom/zoom-handler';
-import { EnableKeyboardGridAction, KeyboardGridCellSelectedAction, KeyboardGridKeyboardEventAction } from '../keyboard-grid/action';
 import { getAbsolutePositionByPoint } from '../../../utils/viewpoint-util';
-import { EditorContextService } from '../../../base/editor-context-service';
-import { HideToastAction, ShowToastMessageAction } from '../toast/toast-handler';
 import { ElementNavigatorKeyListener } from '../element-navigation/diagram-navigation-tool';
+import { SetAccessibleKeyShortcutAction } from '../key-shortcut/accessible-key-shortcut';
+import { EnableKeyboardGridAction, KeyboardGridCellSelectedAction, KeyboardGridKeyboardEventAction } from '../keyboard-grid/action';
+import { ZoomElementAction, ZoomViewportAction } from '../move-zoom/zoom-handler';
 import * as messages from '../toast/messages.json';
+import { HideToastAction, ShowToastMessageAction } from '../toast/toast-handler';
 
 /**
  * Zoom viewport and elements when its focused and arrow keys are hit.
@@ -53,7 +53,7 @@ export class ZoomKeyTool implements Tool {
     protected readonly zoomKeyListener = new ZoomKeyListener(this);
 
     @inject(KeyTool) protected readonly keytool: KeyTool;
-    @inject(TYPES.IActionDispatcher) readonly actionDispatcher: GLSPActionDispatcher;
+    @inject(TYPES.IActionDispatcher) readonly actionDispatcher: IActionDispatcher;
     @inject(SelectionService) selectionService: SelectionService;
     @inject(EditorContextService)
     protected editorContextService: EditorContextService;

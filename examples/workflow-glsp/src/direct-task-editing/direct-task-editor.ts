@@ -19,8 +19,8 @@ import {
     DOMHelper,
     EditorContextService,
     GLSPAbstractUIExtension,
-    GLSPActionDispatcher,
     GModelRoot,
+    IActionDispatcher,
     ILogger,
     LabeledAction,
     ModelIndexImpl,
@@ -95,7 +95,7 @@ export class TaskEditor extends GLSPAbstractUIExtension {
     };
 
     @inject(TYPES.IActionDispatcher)
-    protected actionDispatcher: GLSPActionDispatcher;
+    protected actionDispatcher: IActionDispatcher;
 
     @inject(EditorContextService)
     protected editorContextService: EditorContextService;

@@ -13,18 +13,18 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { inject, injectable } from 'inversify';
-import { v4 as uuid } from 'uuid';
 import {
     ClipboardData,
     CutOperation,
+    IActionDispatcher,
     PasteOperation,
     RequestClipboardDataAction,
     SetClipboardDataAction,
     TYPES,
     ViewerOptions
 } from '@eclipse-glsp/sprotty';
-import { GLSPActionDispatcher } from '../../base/action-dispatcher';
+import { inject, injectable } from 'inversify';
+import { v4 as uuid } from 'uuid';
 import { EditorContextService } from '../../base/editor-context-service';
 
 export interface ICopyPasteHandler {
@@ -100,7 +100,7 @@ const CLIPBOARD_DATA_FORMAT = 'text/plain';
 
 @injectable()
 export class ServerCopyPasteHandler implements ICopyPasteHandler {
-    @inject(TYPES.IActionDispatcher) protected actionDispatcher: GLSPActionDispatcher;
+    @inject(TYPES.IActionDispatcher) protected actionDispatcher: IActionDispatcher;
     @inject(TYPES.ViewerOptions) protected viewerOptions: ViewerOptions;
     @inject(TYPES.IAsyncClipboardService) protected clipboardService: IAsyncClipboardService;
     @inject(EditorContextService) protected editorContext: EditorContextService;

@@ -16,6 +16,7 @@
 import {
     Action,
     GModelRoot,
+    IActionDispatcher,
     IActionHandler,
     ICommand,
     MarkersReason,
@@ -32,7 +33,6 @@ import {
     matchesKeystroke
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable, optional, postConstruct } from 'inversify';
-import { GLSPActionDispatcher } from '../../base/action-dispatcher';
 import { EditorContextService, IEditModeListener } from '../../base/editor-context-service';
 import { FocusTracker } from '../../base/focus/focus-tracker';
 import { IDiagramStartup } from '../../base/model/diagram-loader';
@@ -69,8 +69,8 @@ export namespace EnableToolPaletteAction {
 export class ToolPalette extends GLSPAbstractUIExtension implements IActionHandler, IEditModeListener, IDiagramStartup {
     static readonly ID = 'tool-palette';
 
-    @inject(GLSPActionDispatcher)
-    protected actionDispatcher: GLSPActionDispatcher;
+    @inject(TYPES.IActionDispatcher)
+    protected actionDispatcher: IActionDispatcher;
 
     @inject(EditorContextService)
     protected editorContext: EditorContextService;

@@ -19,6 +19,7 @@ import {
     GIssueSeverity,
     GModelElement,
     GModelRoot,
+    IActionDispatcher,
     IActionHandler,
     IContextMenuItemProvider,
     KeyListener,
@@ -34,7 +35,6 @@ import {
     matchesKeystroke
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
-import { GLSPActionDispatcher } from '../../base/action-dispatcher';
 import { SelectionService } from '../../base/selection-service';
 import { BoundsAwareModelElement, SelectableElement, getElements, isSelectableAndBoundsAware } from '../../utils/gmodel-util';
 import { MarkerPredicates, collectIssueMarkers } from '../../utils/marker';
@@ -166,7 +166,7 @@ export class NavigateToMarkerActionHandler implements IActionHandler {
     protected selectionService: SelectionService;
 
     @inject(TYPES.IActionDispatcher)
-    protected actionDispatcher: GLSPActionDispatcher;
+    protected actionDispatcher: IActionDispatcher;
 
     handle(action: NavigateToMarkerAction): void {
         const selected = this.getSelectedElements(action);

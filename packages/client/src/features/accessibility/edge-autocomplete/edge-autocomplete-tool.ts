@@ -13,10 +13,9 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { Action, GModelElement, KeyListener, KeyTool, matchesKeystroke, SetUIExtensionVisibilityAction } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
-import { KeyTool, KeyListener, SetUIExtensionVisibilityAction, GModelElement, Action } from '@eclipse-glsp/sprotty';
 import { Tool } from '../../../base/tool-manager/tool';
-import { matchesKeystroke } from 'sprotty/lib/utils/keyboard';
 import { EdgeAutocompletePaletteMetadata } from './edge-autocomplete-palette';
 
 @injectable()
