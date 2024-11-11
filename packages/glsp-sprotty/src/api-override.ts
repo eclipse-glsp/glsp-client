@@ -26,7 +26,7 @@ import {
     IButtonHandler as SIButtonHandler,
     ICommandPaletteActionProvider as SICommandPaletteActionProvider,
     IContextMenuItemProvider as SIContextMenuItemProvider,
-    IVNodePostprocessor as SIVnodePostprocessor,
+    IVNodePostprocessor as SIVNodePostprocessor,
     KeyListener as SKeyListener,
     MouseListener as SMouseListener
 } from 'sprotty';
@@ -130,7 +130,7 @@ export class MouseListener extends SMouseListener {
  * Manipulates a created VNode after it has been created.
  * Used to register listeners and add animations.
  */
-export interface IVNodePostprocessor extends SIVnodePostprocessor {
+export interface IVNodePostprocessor extends SIVNodePostprocessor {
     decorate(vnode: VNode, element: GModelElement): VNode;
 }
 
@@ -151,9 +151,9 @@ export interface IActionDispatcher extends SIActionDispatcher {
      * identifier is dispatched. That response is _not_ passed to the registered action
      * handlers. Instead, it is the responsibility of the caller of this method to handle
      * the response properly. For example, it can be sent to the registered handlers by
-     * passing it again to the `dispatch` method.
+     * passing it to the `dispatch` method.
      *
-     * If no explicit `requestId` has been set on the action,  a generated id will be set before dispatching the action
+     * If no explicit `requestId` has been set on the action, a generated id will be set before dispatching the action.
      */
     request<Res extends ResponseAction>(action: RequestAction<Res>): Promise<Res>;
     // GLSP-specific API additions
