@@ -14,10 +14,8 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
+import { Action, GModelElement, IActionDispatcher, ISnapper, KeyListener, KeyTool, matchesKeystroke, TYPES } from '@eclipse-glsp/sprotty';
 import { inject, injectable, optional } from 'inversify';
-import { matchesKeystroke } from 'sprotty/lib/utils/keyboard';
-import { Action, ISnapper, KeyListener, KeyTool, GModelElement, TYPES } from '@eclipse-glsp/sprotty';
-import { GLSPActionDispatcher } from '../../../base/action-dispatcher';
 import { SelectionService } from '../../../base/selection-service';
 import { EnableDefaultToolsAction, EnableToolsAction, Tool } from '../../../base/tool-manager/tool';
 import { IMovementRestrictor } from '../../change-bounds/movement-restrictor';
@@ -35,7 +33,7 @@ export class ResizeKeyTool implements Tool {
     @inject(KeyTool) protected readonly keytool: KeyTool;
     @inject(TYPES.IMovementRestrictor) @optional() readonly movementRestrictor?: IMovementRestrictor;
     @inject(TYPES.ISnapper) @optional() readonly snapper?: ISnapper;
-    @inject(TYPES.IActionDispatcher) readonly actionDispatcher: GLSPActionDispatcher;
+    @inject(TYPES.IActionDispatcher) readonly actionDispatcher: IActionDispatcher;
     @inject(SelectionService) readonly selectionService: SelectionService;
 
     protected resizeKeyListener: ResizeKeyListener = new ResizeKeyListener(this);

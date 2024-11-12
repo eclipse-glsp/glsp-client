@@ -37,15 +37,16 @@ import { Container } from 'inversify';
 import * as sinon from 'sinon';
 import { GLSPActionDispatcher } from '../../base/action-dispatcher';
 import { FeedbackActionDispatcher } from '../../base/feedback/feedback-action-dispatcher-default';
+import { FeedbackEmitter } from '../../base/feedback/feedback-emitter';
 import { GEdge } from '../../model';
 import { isResizable } from '../change-bounds/model';
 import { isReconnectable } from '../reconnect/model';
 import { Containable, isContainable, isReparentable } from './model';
 import { ApplyTypeHintsAction, ApplyTypeHintsCommand, ITypeHintProvider, TypeHintProvider } from './type-hint-provider';
-import { FeedbackEmitter } from '../../base/feedback/feedback-emitter';
 describe('TypeHintProvider', () => {
     const container = new Container();
     container.bind(GLSPActionDispatcher).toConstantValue(sinon.createStubInstance(GLSPActionDispatcher));
+    container.bind(TYPES.IActionDispatcher).toService(GLSPActionDispatcher);
     const stub = sinon.createStubInstance(FeedbackActionDispatcher);
     stub.createEmitter.returns(new FeedbackEmitter(stub));
     container.bind(TYPES.IFeedbackActionDispatcher).toConstantValue(stub);
@@ -163,6 +164,7 @@ describe('ApplyTypeHintCommand', () => {
         getShapeTypeHint: () => undefined
     });
     container.bind(GLSPActionDispatcher).toConstantValue(sandbox.createStubInstance(GLSPActionDispatcher));
+    container.bind(TYPES.IActionDispatcher).toService(GLSPActionDispatcher);
     container.bind(TYPES.IFeedbackActionDispatcher).toConstantValue(sandbox.createStubInstance(FeedbackActionDispatcher));
     container.bind(TYPES.ITypeHintProvider).toConstantValue(typeHintProviderMock);
     bindOrRebind(container, TYPES.Action).toConstantValue(ApplyTypeHintsAction.create());

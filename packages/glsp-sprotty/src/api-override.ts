@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, LabeledAction, Point } from '@eclipse-glsp/protocol';
+import { Action, LabeledAction, Point, RequestAction, ResponseAction } from '@eclipse-glsp/protocol';
 import { injectable } from 'inversify';
 import { VNode } from 'snabbdom';
 import {
@@ -21,10 +21,12 @@ import {
     SModelElementImpl as GModelElement,
     SModelRootImpl as GModelRoot,
     ICommand,
+    IActionDispatcher as SIActionDispatcher,
     IActionHandler as SIActionHandler,
     IButtonHandler as SIButtonHandler,
     ICommandPaletteActionProvider as SICommandPaletteActionProvider,
     IContextMenuItemProvider as SIContextMenuItemProvider,
+    IVNodePostprocessor as SIVNodePostprocessor,
     KeyListener as SKeyListener,
     MouseListener as SMouseListener
 } from 'sprotty';
@@ -32,9 +34,11 @@ import {
 /*
  * The GLSP-protocol comes with its own type definition for `Action`. However, sprotty
  * also has a separate `Action` definition that is heavily integrated into core API concepts.
- * While these two definitions are fully compatible it messes up IDE support for auto import
- * when implementing/overriding these API Concepts. To bypass this issue we create sub types
- * of the sprotty API concepts that use the Action definition from GLSP and export them instead.
+ * While these two definitions are fully compatible it messes up IDE support for auto import.
+ * The same problem also applies  to references of sprotty's internal SModel in the API.
+ * To bypass this issue we create sub types of the sprotty API concepts that use the Action/GModel definition from GLSP
+ * and export them instead.
+ *
  */
 
 /**
@@ -122,3 +126,68 @@ export class MouseListener extends SMouseListener {
         return vnode;
     }
 }
+/**
+ * Manipulates a created VNode after it has been created.
+ * Used to register listeners and add animations.
+ */
+export interface IVNodePostprocessor extends SIVNodePostprocessor {
+    decorate(vnode: VNode, element: GModelElement): VNode;
+}
+
+export interface IActionDispatcher extends SIActionDispatcher {
+    /**
+     * Dispatch an action by querying all handlers that are registered for its kind.
+     * The returned promise is resolved when all handler results (commands or actions)
+     * have been processed.
+     */
+    dispatch(action: Action): Promise<void>;
+    /**
+     * Calls `dispatch` on every action in the given array. The returned promise
+     * is resolved when the promises of all `dispatch` calls have been resolved.
+     */
+    dispatchAll(actions: Action[]): Promise<void>;
+    /**
+     * Dispatch a request. The returned promise is resolved when a response with matching
+     * identifier is dispatched. That response is _not_ passed to the registered action
+     * handlers. Instead, it is the responsibility of the caller of this method to handle
+     * the response properly. For example, it can be sent to the registered handlers by
+     * passing it to the `dispatch` method.
+     *
+     * If no explicit `requestId` has been set on the action, a generated id will be set before dispatching the action.
+     */
+    request<Res extends ResponseAction>(action: RequestAction<Res>): Promise<Res>;
+    // GLSP-specific API additions
+    /**
+     * Dispatch a request and waits for a response until the timeout given in `timeoutMs` (default 2000) has
+     * been reached. The returned promise is resolved when a response with matching identifier
+     * is dispatched or when the timeout has been reached. That response is _not_ passed to the
+     * registered action handlers. Instead, it is the responsibility of the caller of this method
+     * to handle the response properly. For example, it can be sent to the registered handlers by
+     * passing it again to the `dispatch` method.
+     * If `rejectOnTimeout` is set to false (default) the returned promise will be resolved with
+     * no value, otherwise it will be rejected.
+     */
+    requestUntil<Res extends ResponseAction>(
+        action: RequestAction<Res>,
+        timeoutMs?: number,
+        rejectOnTimeout?: boolean
+    ): Promise<Res | undefined>;
+    /**
+     * Processes all given actions, by dispatching them to the corresponding handlers, after the model initialization is completed.
+     */
+    dispatchOnceModelInitialized(...actions: Action[]): void;
+
+    /**
+     * Returns a promise that resolves once the model initialization is completed.
+     */
+    onceModelInitialized(): Promise<void>;
+
+    /**
+     * Processes all given actions, by dispatching them to the corresponding handlers, after the next model update.
+     * The given actions are queued until the next model update cycle has been completed i.e.
+     * the `EditorContextService.onModelRootChanged` event is triggered.
+     */
+    dispatchAfterNextUpdate(...actions: Action[]): void;
+}
+
+export type IActionDispatcherProvider = () => Promise<IActionDispatcher>;

@@ -57,6 +57,18 @@ import {
 
 class MockActionDispatcher implements IActionDispatcher {
     constructor(public dispatchedActions: Action[] = []) {}
+    requestUntil<Res extends ResponseAction>(
+        action: RequestAction<Res>,
+        timeoutMs?: number | undefined,
+        rejectOnTimeout?: boolean | undefined
+    ): Promise<Res | undefined> {
+        throw new Error('Method not implemented.');
+    }
+    dispatchOnceModelInitialized(...actions: Action[]): void {}
+    onceModelInitialized(): Promise<void> {
+        return Promise.resolve();
+    }
+    dispatchAfterNextUpdate(...actions: Action[]): void {}
     dispatch(action: Action): Promise<void> {
         this.dispatchedActions.push(action);
         return Promise.resolve();

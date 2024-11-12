@@ -13,9 +13,8 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, Disposable, DisposableCollection, IActionHandler, TYPES } from '@eclipse-glsp/sprotty';
+import { Action, Disposable, DisposableCollection, IActionDispatcher, IActionHandler, TYPES } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
-import { GLSPActionDispatcher } from '../../base/action-dispatcher';
 import { EditorContextService } from '../../base/editor-context-service';
 import { IFeedbackActionDispatcher, IFeedbackEmitter, MaybeActions } from '../../base/feedback/feedback-action-dispatcher';
 import { FeedbackEmitter } from '../../base/feedback/feedback-emitter';
@@ -59,7 +58,7 @@ export interface FeedbackAwareTool extends Tool {
 @injectable()
 export abstract class BaseEditTool implements FeedbackAwareTool {
     @inject(TYPES.IFeedbackActionDispatcher) protected feedbackDispatcher: IFeedbackActionDispatcher;
-    @inject(TYPES.IActionDispatcher) protected actionDispatcher: GLSPActionDispatcher;
+    @inject(TYPES.IActionDispatcher) protected actionDispatcher: IActionDispatcher;
     @inject(GLSPMouseTool) protected mouseTool: GLSPMouseTool;
     @inject(GLSPKeyTool) protected keyTool: GLSPKeyTool;
     @inject(EditorContextService) protected readonly editorContext: EditorContextService;

@@ -14,16 +14,26 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
+import {
+    Bounds,
+    GChildElement,
+    GModelElement,
+    GModelRoot,
+    GNode,
+    IActionDispatcher,
+    Point,
+    TYPES,
+    isBoundsAware,
+    isSelectable,
+    toArray
+} from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
-import { toArray } from 'sprotty/lib/utils/iterable';
-import { Bounds, GChildElement, Point, GModelElement, GModelRoot, GNode, TYPES, isBoundsAware, isSelectable } from '@eclipse-glsp/sprotty';
-import { GLSPActionDispatcher } from '../../../base/action-dispatcher';
 import { SelectableBoundsAware } from '../../../utils/gmodel-util';
 import { ElementNavigator } from './element-navigator';
 
 @injectable()
 export class PositionNavigator implements ElementNavigator {
-    @inject(TYPES.IActionDispatcher) protected readonly actionDispatcher: GLSPActionDispatcher;
+    @inject(TYPES.IActionDispatcher) protected readonly actionDispatcher: IActionDispatcher;
 
     previous(
         root: Readonly<GModelRoot>,

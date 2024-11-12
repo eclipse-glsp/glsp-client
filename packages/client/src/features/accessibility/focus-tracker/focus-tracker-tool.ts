@@ -14,9 +14,8 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
+import { IActionDispatcher, TYPES, ViewerOptions } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
-import { TYPES, ViewerOptions } from '@eclipse-glsp/sprotty';
-import { GLSPActionDispatcher } from '../../../base/action-dispatcher';
 import { Tool } from '../../../base/tool-manager/tool';
 import * as messages from '../toast/messages.json';
 import { ShowToastMessageAction } from '../toast/toast-handler';
@@ -27,7 +26,7 @@ export class FocusTrackerTool implements Tool {
 
     isEditTool = false;
     @inject(TYPES.IActionDispatcher)
-    protected actionDispatcher: GLSPActionDispatcher;
+    protected actionDispatcher: IActionDispatcher;
     @inject(TYPES.ViewerOptions)
     protected readonly viewerOptions: ViewerOptions;
 

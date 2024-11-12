@@ -18,13 +18,13 @@ import {
     CommandExecutionContext,
     CommandReturn,
     ElementAndBounds,
+    IActionDispatcher,
     SetBoundsAction,
     SetBoundsCommand,
     TYPES,
     isLayoutContainer
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
-import { GLSPActionDispatcher } from '../../base/action-dispatcher';
 import { FeedbackCommand } from '../../base/feedback/feedback-command';
 import { Ranked } from '../../base/ranked';
 import { LocalRequestBoundsAction } from './local-bounds';
@@ -51,7 +51,7 @@ export class SetBoundsFeedbackCommand extends SetBoundsCommand implements Feedba
 
     readonly rank: number = Ranked.DEFAULT_RANK;
 
-    @inject(TYPES.IActionDispatcher) protected actionDispatcher: GLSPActionDispatcher;
+    @inject(TYPES.IActionDispatcher) protected actionDispatcher: IActionDispatcher;
 
     override execute(context: CommandExecutionContext): CommandReturn {
         super.execute(context);

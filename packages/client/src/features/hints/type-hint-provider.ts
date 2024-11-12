@@ -23,6 +23,7 @@ import {
     GModelRoot,
     GRoutableElement,
     GShapeElement,
+    IActionDispatcher,
     IActionHandler,
     RequestTypeHintsAction,
     SetTypeHintsAction,
@@ -37,7 +38,6 @@ import {
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable, postConstruct } from 'inversify';
 
-import { GLSPActionDispatcher } from '../../base/action-dispatcher';
 import { IFeedbackActionDispatcher } from '../../base/feedback/feedback-action-dispatcher';
 import { FeedbackCommand } from '../../base/feedback/feedback-command';
 import { FeedbackEmitter } from '../../base/feedback/feedback-emitter';
@@ -202,8 +202,8 @@ export class TypeHintProvider implements IActionHandler, ITypeHintProvider, IDia
     @inject(TYPES.IFeedbackActionDispatcher)
     protected feedbackActionDispatcher: IFeedbackActionDispatcher;
 
-    @inject(GLSPActionDispatcher)
-    protected actionDispatcher: GLSPActionDispatcher;
+    @inject(TYPES.IActionDispatcher)
+    protected actionDispatcher: IActionDispatcher;
 
     protected typeHintsFeedback: FeedbackEmitter;
     protected shapeHints: Map<string, ShapeTypeHint> = new Map();
