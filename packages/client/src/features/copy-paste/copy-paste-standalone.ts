@@ -14,33 +14,50 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { Disposable, DisposableCollection, TYPES } from '@eclipse-glsp/sprotty';
+import { DOMHelper, Disposable, DisposableCollection, EMPTY_ROOT, GModelRoot, TYPES } from '@eclipse-glsp/sprotty';
 import { inject, injectable, optional, preDestroy } from 'inversify';
+import { IGModelRootListener } from '../../base/editor-context-service';
 import { IDiagramStartup } from '../../base/model/diagram-loader';
 import { ICopyPasteHandler } from './copy-paste-handler';
 /**
  * Startup service to hook up the copy&paste event handler
  */
 @injectable()
-export class CopyPasteStartup implements IDiagramStartup, Disposable {
+export class CopyPasteStartup implements IDiagramStartup, Disposable, IGModelRootListener {
     @inject(TYPES.ICopyPasteHandler)
     @optional()
     protected copyPasteHandler?: ICopyPasteHandler;
 
+    @inject(TYPES.DOMHelper)
+    protected domHelper: DOMHelper;
+
     protected toDispose = new DisposableCollection();
+    protected graphElementId?: string;
+
+    modelRootChanged(root: Readonly<GModelRoot>): void {
+        if (root.id !== EMPTY_ROOT.id) {
+            this.graphElementId = this.domHelper.createUniqueDOMElementId(root);
+        }
+    }
 
     postModelInitialization(): void {
         if (!this.copyPasteHandler) {
             return;
         }
         const copyListener = (e: ClipboardEvent): void => {
-            this.copyPasteHandler?.handleCopy(e);
+            if (this.graphElementId && document.activeElement?.id === this.graphElementId) {
+                this.copyPasteHandler?.handleCopy(e);
+            }
         };
         const cutListener = (e: ClipboardEvent): void => {
-            this.copyPasteHandler?.handleCut(e);
+            if (this.graphElementId && document.activeElement?.id === this.graphElementId) {
+                this.copyPasteHandler?.handleCut(e);
+            }
         };
         const pasteListener = (e: ClipboardEvent): void => {
-            this.copyPasteHandler?.handlePaste(e);
+            if (this.graphElementId && document.activeElement?.id === this.graphElementId) {
+                this.copyPasteHandler?.handlePaste(e);
+            }
         };
         window.addEventListener('copy', copyListener);
         window.addEventListener('cut', cutListener);

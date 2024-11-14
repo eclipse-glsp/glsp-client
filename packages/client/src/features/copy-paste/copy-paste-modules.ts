@@ -33,6 +33,7 @@ export const copyPasteModule = new FeatureModule(
 export const standaloneCopyPasteModule = new FeatureModule(
     (bind, _unbind, isBound) => {
         bindAsService(bind, TYPES.IDiagramStartup, CopyPasteStartup);
+        bind(TYPES.IGModelRootListener).toService(CopyPasteStartup);
     },
     {
         featureId: Symbol('standaloneCopyPaste'),
