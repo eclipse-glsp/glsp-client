@@ -31,11 +31,14 @@ import {
     GModelElement,
     GModelRoot,
     GParentElement,
+    KeyListener,
     MouseListener,
+    MoveElementAction,
     Operation,
     Point,
     TYPES,
-    findParentByFeature
+    findParentByFeature,
+    matchesKeystroke
 } from '@eclipse-glsp/sprotty';
 import { DragAwareMouseListener } from '../../../base/drag-aware-mouse-listener';
 import { FeedbackEmitter } from '../../../base/feedback/feedback-emitter';
@@ -53,6 +56,7 @@ import { LocalRequestBoundsAction } from '../../bounds/local-bounds';
 import { SetBoundsFeedbackAction } from '../../bounds/set-bounds-feedback-command';
 import { GResizeHandle, isResizable } from '../../change-bounds/model';
 import { IMovementRestrictor } from '../../change-bounds/movement-restrictor';
+import { Grid } from '../../grid/grid';
 import { BaseEditTool } from '../base-tools';
 import { CSS_ACTIVE_HANDLE, IChangeBoundsManager } from './change-bounds-manager';
 import {
@@ -84,6 +88,7 @@ export class ChangeBoundsTool extends BaseEditTool {
     @inject(EdgeRouterRegistry) @optional() readonly edgeRouterRegistry?: EdgeRouterRegistry;
     @inject(TYPES.IMovementRestrictor) @optional() readonly movementRestrictor?: IMovementRestrictor;
     @inject(TYPES.IChangeBoundsManager) readonly changeBoundsManager: IChangeBoundsManager;
+    @inject(TYPES.Grid) @optional() readonly grid?: Grid;
 
     get id(): string {
         return ChangeBoundsTool.ID;
@@ -95,6 +100,11 @@ export class ChangeBoundsTool extends BaseEditTool {
         if (Disposable.is(feedbackMoveMouseListener)) {
             this.toDisposeOnDisable.push(feedbackMoveMouseListener);
         }
+        // install move key listener for client-side move updates
+        const createMoveKeyListener = this.createMoveKeyListener();
+        if (Disposable.is(createMoveKeyListener)) {
+            this.toDisposeOnDisable.push(createMoveKeyListener);
+        }
 
         // install change bounds listener for client-side resize updates and server-side updates
         const changeBoundsListener = this.createChangeBoundsListener();
@@ -103,6 +113,7 @@ export class ChangeBoundsTool extends BaseEditTool {
         }
 
         this.toDisposeOnDisable.push(
+            this.keyTool.registerListener(createMoveKeyListener),
             this.mouseTool.registerListener(feedbackMoveMouseListener),
             this.mouseTool.registerListener(changeBoundsListener),
             this.selectionService.onSelectionChanged(change => changeBoundsListener.selectionChanged(change.root, change.selectedElements))
@@ -115,6 +126,10 @@ export class ChangeBoundsTool extends BaseEditTool {
 
     protected createMoveMouseListener(): MouseListener {
         return new FeedbackMoveMouseListener(this);
+    }
+
+    protected createMoveKeyListener(): KeyListener {
+        return new MoveElementKeyListener(this.selectionService, this.changeBoundsManager, this.grid);
     }
 
     protected createChangeBoundsListener(): MouseListener & ISelectionListener {
@@ -362,5 +377,55 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
     override dispose(): void {
         this.disposeResize();
         super.dispose();
+    }
+}
+
+export class MoveElementKeyListener extends KeyListener {
+    constructor(
+        protected readonly selectionService: SelectionService,
+        protected readonly changeBoundsManager: IChangeBoundsManager,
+        protected readonly grid: Grid = Grid.DEFAULT
+    ) {
+        super();
+    }
+
+    override keyDown(_element: GModelElement, event: KeyboardEvent): Action[] {
+        const selectedElementIds = this.selectionService.getSelectedElementIDs();
+        const snap = this.changeBoundsManager.usePositionSnap(event);
+        const offsetX = snap ? this.grid.x : 1;
+        const offsetY = snap ? this.grid.y : 1;
+
+        if (selectedElementIds.length > 0) {
+            if (this.matchesMoveUpKeystroke(event)) {
+                return [MoveElementAction.create({ elementIds: selectedElementIds, moveX: 0, moveY: -offsetY, snap })];
+            } else if (this.matchesMoveDownKeystroke(event)) {
+                return [MoveElementAction.create({ elementIds: selectedElementIds, moveX: 0, moveY: offsetY, snap })];
+            } else if (this.matchesMoveRightKeystroke(event)) {
+                return [MoveElementAction.create({ elementIds: selectedElementIds, moveX: offsetX, moveY: 0, snap })];
+            } else if (this.matchesMoveLeftKeystroke(event)) {
+                return [MoveElementAction.create({ elementIds: selectedElementIds, moveX: -offsetX, moveY: 0, snap })];
+            }
+        }
+        return [];
+    }
+
+    protected matchesMoveUpKeystroke(event: KeyboardEvent): boolean {
+        const unsnap = this.changeBoundsManager.unsnapModifier();
+        return matchesKeystroke(event, 'ArrowUp') || (!!unsnap && matchesKeystroke(event, 'ArrowUp', unsnap));
+    }
+
+    protected matchesMoveDownKeystroke(event: KeyboardEvent): boolean {
+        const unsnap = this.changeBoundsManager.unsnapModifier();
+        return matchesKeystroke(event, 'ArrowDown') || (!!unsnap && matchesKeystroke(event, 'ArrowDown', unsnap));
+    }
+
+    protected matchesMoveRightKeystroke(event: KeyboardEvent): boolean {
+        const unsnap = this.changeBoundsManager.unsnapModifier();
+        return matchesKeystroke(event, 'ArrowRight') || (!!unsnap && matchesKeystroke(event, 'ArrowRight', unsnap));
+    }
+
+    protected matchesMoveLeftKeystroke(event: KeyboardEvent): boolean {
+        const unsnap = this.changeBoundsManager.unsnapModifier();
+        return matchesKeystroke(event, 'ArrowLeft') || (!!unsnap && matchesKeystroke(event, 'ArrowLeft', unsnap));
     }
 }

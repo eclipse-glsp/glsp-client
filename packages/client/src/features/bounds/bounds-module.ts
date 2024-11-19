@@ -18,11 +18,13 @@ import {
     HBoxLayouter,
     HiddenBoundsUpdater,
     LayoutRegistry,
+    MoveElementAction,
     RequestBoundsCommand,
     SetBoundsCommand,
     TYPES,
     VBoxLayouter,
     bindAsService,
+    configureActionHandler,
     configureCommand,
     configureLayout
 } from '@eclipse-glsp/sprotty';
@@ -32,6 +34,7 @@ import { GLSPHiddenBoundsUpdater } from './glsp-hidden-bounds-updater';
 import { HBoxLayouterExt } from './hbox-layout';
 import { LayouterExt } from './layouter';
 import { LocalComputedBoundsCommand } from './local-bounds';
+import { MoveElementHandler } from './move-element-handler';
 import { SetBoundsFeedbackCommand } from './set-bounds-feedback-command';
 import { VBoxLayouterExt } from './vbox-layout';
 
@@ -52,6 +55,9 @@ export const boundsModule = new FeatureModule(
         configureLayout(context, VBoxLayouter.KIND, VBoxLayouterExt);
         configureLayout(context, HBoxLayouter.KIND, HBoxLayouterExt);
         configureLayout(context, FreeFormLayouter.KIND, FreeFormLayouter);
+
+        bind(MoveElementHandler).toSelf().inSingletonScope();
+        configureActionHandler(context, MoveElementAction.KIND, MoveElementHandler);
 
         // backwards compatibility
         // eslint-disable-next-line deprecation/deprecation
