@@ -17,8 +17,7 @@
 import { bindAsService, BindingContext, configureActionHandler, FeatureModule, TYPES } from '@eclipse-glsp/sprotty';
 import { KeyboardGridCellSelectedAction, KeyboardGridKeyboardEventAction } from '../keyboard-grid/action';
 import { DeselectKeyTool } from './deselect-key-tool';
-import { MovementKeyTool } from './movement-key-tool';
-import { ZoomKeyTool } from './zoom-key-tool';
+import { GridZoomTool } from './grid-zoom-key-tool';
 
 export const viewKeyToolsModule = new FeatureModule(
     (bind, _unbind, isBound, rebind) => {
@@ -31,9 +30,8 @@ export const viewKeyToolsModule = new FeatureModule(
 );
 
 export function configureViewKeyTools(context: Pick<BindingContext, 'bind' | 'isBound'>): void {
-    bindAsService(context, TYPES.IDefaultTool, MovementKeyTool);
-    bindAsService(context, TYPES.IDefaultTool, ZoomKeyTool);
-    configureActionHandler(context, KeyboardGridCellSelectedAction.KIND, ZoomKeyTool);
-    configureActionHandler(context, KeyboardGridKeyboardEventAction.KIND, ZoomKeyTool);
+    bindAsService(context, TYPES.IDefaultTool, GridZoomTool);
+    configureActionHandler(context, KeyboardGridCellSelectedAction.KIND, GridZoomTool);
+    configureActionHandler(context, KeyboardGridKeyboardEventAction.KIND, GridZoomTool);
     bindAsService(context, TYPES.IDefaultTool, DeselectKeyTool);
 }

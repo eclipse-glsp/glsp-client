@@ -22,16 +22,20 @@ import {
     FeatureModule,
     FitToScreenCommand,
     GetViewportCommand,
+    MoveViewportAction,
     SetViewportCommand,
     TYPES,
-    ZoomMouseListener
+    ZoomElementAction,
+    ZoomMouseListener,
+    ZoomViewportAction
 } from '@eclipse-glsp/sprotty';
 import { EnableDefaultToolsAction, EnableToolsAction } from '../../base/tool-manager/tool';
 import { FocusDomAction } from '../accessibility/actions';
 import { GLSPScrollMouseListener } from './glsp-scroll-mouse-listener';
 import { OriginViewportCommand } from './origin-viewport';
 import { RepositionCommand } from './reposition';
-import { RestoreViewportHandler } from './viewport-handler';
+import { MoveViewportHandler, RestoreViewportHandler, ZoomElementHandler, ZoomViewportHandler } from './viewport-handler';
+import { MoveViewportKeyListener, ZoomElementKeyListener, ZoomViewportKeyListener } from './viewport-key-listener';
 
 export const viewportModule = new FeatureModule(
     (bind, _unbind, isBound) => {
@@ -52,6 +56,18 @@ export const viewportModule = new FeatureModule(
         bindAsService(context, TYPES.IDiagramStartup, RestoreViewportHandler);
         configureActionHandler(context, EnableDefaultToolsAction.KIND, RestoreViewportHandler);
         configureActionHandler(context, FocusDomAction.KIND, RestoreViewportHandler);
+
+        bind(MoveViewportHandler).toSelf().inSingletonScope();
+        bindAsService(context, TYPES.KeyListener, MoveViewportKeyListener);
+        configureActionHandler(context, MoveViewportAction.KIND, MoveViewportHandler);
+
+        bind(ZoomViewportHandler).toSelf().inSingletonScope();
+        bindAsService(context, TYPES.KeyListener, ZoomViewportKeyListener);
+        configureActionHandler(context, ZoomViewportAction.KIND, ZoomViewportHandler);
+
+        bind(ZoomElementHandler).toSelf().inSingletonScope();
+        bindAsService(context, TYPES.KeyListener, ZoomElementKeyListener);
+        configureActionHandler(context, ZoomElementAction.KIND, ZoomElementHandler);
     },
     { featureId: Symbol('viewport') }
 );
