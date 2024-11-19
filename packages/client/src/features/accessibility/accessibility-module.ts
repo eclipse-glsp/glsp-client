@@ -20,7 +20,6 @@ import { configureFocusTrackerTool } from './focus-tracker/focus-tracker-module'
 import { configureShortcutHelpTool } from './key-shortcut/shortcut-help-module';
 import { configureKeyboardControlTools } from './keyboard-pointer/keyboard-pointer-module';
 import { configureKeyboardToolPaletteTool } from './keyboard-tool-palette/keyboard-tool-palette-module';
-import { configureMoveZoom } from './move-zoom/move-zoom-module';
 import { configureResizeTools } from './resize-key-tool/resize-key-module';
 import { configureSearchPaletteModule } from './search/search-palette-module';
 import { configureToastTool } from './toast/toast-module';
@@ -34,7 +33,6 @@ export const accessibilityModule = new FeatureModule(
         const context = { bind, unbind, isBound, rebind };
         configureResizeTools(context);
         configureViewKeyTools(context);
-        configureMoveZoom(context);
         configureSearchPaletteModule(context);
         configureShortcutHelpTool(context);
         configureKeyboardToolPaletteTool(context);

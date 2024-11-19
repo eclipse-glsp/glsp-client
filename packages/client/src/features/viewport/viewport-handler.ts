@@ -13,12 +13,32 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, DOMHelper, IActionHandler, TYPES } from '@eclipse-glsp/sprotty';
+import {
+    Action,
+    Bounds,
+    DOMHelper,
+    findParentByFeature,
+    GChildElement,
+    GModelElement,
+    GModelRoot,
+    IActionDispatcher,
+    IActionHandler,
+    ICommand,
+    isViewport,
+    MoveViewportAction,
+    Point,
+    SetViewportAction,
+    TYPES,
+    Viewport,
+    ZoomElementAction,
+    ZoomViewportAction
+} from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
 import { EditorContextService } from '../../base/editor-context-service';
 import { FocusTracker } from '../../base/focus/focus-tracker';
 import { IDiagramStartup } from '../../base/model/diagram-loader';
 import { EnableDefaultToolsAction } from '../../base/tool-manager/tool';
+import { getElements, isSelectableAndBoundsAware, SelectableBoundsAware } from '../../utils/gmodel-util';
 import { FocusDomAction } from '../accessibility/actions';
 
 /**
@@ -76,5 +96,122 @@ export class RestoreViewportHandler implements IActionHandler, IDiagramStartup {
                 subtree: true
             });
         });
+    }
+}
+
+/**
+ * Handles moving the viewport.
+ */
+@injectable()
+export class MoveViewportHandler implements IActionHandler {
+    @inject(EditorContextService)
+    protected readonly editorContextService: EditorContextService;
+
+    handle(action: Action): void | Action | ICommand {
+        if (MoveViewportAction.is(action)) {
+            return this.handleMoveViewport(action);
+        }
+    }
+
+    protected handleMoveViewport(action: MoveViewportAction): Action | undefined {
+        const viewport = findParentByFeature(this.editorContextService.modelRoot, isViewport);
+        if (!viewport) {
+            return;
+        }
+        const newViewport: Viewport = {
+            scroll: {
+                x: viewport.scroll.x + action.moveX,
+                y: viewport.scroll.y + action.moveY
+            },
+            zoom: viewport.zoom
+        };
+
+        return SetViewportAction.create(viewport.id, newViewport, { animate: false });
+    }
+}
+
+/*
+ * Handles zooming in and out of the viewport.
+ */
+@injectable()
+export class ZoomViewportHandler implements IActionHandler {
+    @inject(EditorContextService)
+    protected readonly editorContextService: EditorContextService;
+    @inject(TYPES.IActionDispatcher)
+    protected readonly actionDispatcher: IActionDispatcher;
+
+    handle(action: Action): Action | void {
+        if (ZoomViewportAction.is(action)) {
+            return this.handleZoomViewport(action);
+        }
+    }
+
+    protected handleZoomViewport(action: ZoomViewportAction): Action | undefined {
+        const viewport = findParentByFeature(this.editorContextService.modelRoot, isViewport);
+        if (!viewport) {
+            return;
+        }
+
+        const newZoom = viewport.zoom * action.zoomFactor;
+
+        const newViewport = {
+            scroll: viewport.scroll,
+            zoom: newZoom
+        };
+
+        return SetViewportAction.create(viewport.id, newViewport, { animate: false });
+    }
+}
+
+/*
+ * Handles zooming in and out of the viewport in the direction of the elements.
+ */
+@injectable()
+export class ZoomElementHandler implements IActionHandler {
+    @inject(EditorContextService)
+    protected readonly editorContextService: EditorContextService;
+    @inject(TYPES.IActionDispatcher) protected dispatcher: IActionDispatcher;
+
+    handle(action: Action): void | Action | ICommand {
+        if (ZoomElementAction.is(action)) {
+            return this.handleZoomElement(action);
+        }
+    }
+
+    protected handleZoomElement(action: ZoomElementAction): Action | undefined {
+        const viewport = findParentByFeature(this.editorContextService.modelRoot, isViewport);
+        if (!viewport) {
+            return;
+        }
+
+        const elements = getElements(this.editorContextService.modelRoot.index, action.elementIds, isSelectableAndBoundsAware);
+        const center = this.getCenter(viewport, elements);
+
+        const newZoom = viewport.zoom * action.zoomFactor;
+
+        const newViewport = {
+            scroll: {
+                x: center.x - (0.5 * viewport.canvasBounds.width) / newZoom,
+                y: center.y - (0.5 * viewport.canvasBounds.height) / newZoom
+            },
+            zoom: newZoom
+        };
+
+        return SetViewportAction.create(viewport.id, newViewport, { animate: false });
+    }
+
+    protected getCenter(viewport: GModelRoot & Viewport, selectedElements: SelectableBoundsAware[]): Point {
+        // Get bounds of elements based on the viewport
+        const allBounds = selectedElements.map(e => this.boundsInViewport(viewport, e, e.bounds));
+        const mergedBounds = allBounds.reduce((b0, b1) => Bounds.combine(b0, b1));
+        return Bounds.center(mergedBounds);
+    }
+
+    protected boundsInViewport(viewport: GModelRoot & Viewport, element: GModelElement, bounds: Bounds): Bounds {
+        if (element instanceof GChildElement && element.parent !== viewport) {
+            return this.boundsInViewport(viewport, element.parent, element.parent.localToParent(bounds) as Bounds);
+        } else {
+            return bounds;
+        }
     }
 }

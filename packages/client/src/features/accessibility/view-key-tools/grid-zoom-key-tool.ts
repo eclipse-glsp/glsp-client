@@ -34,10 +34,10 @@ import { EditorContextService } from '../../../base/editor-context-service';
 import { SelectionService } from '../../../base/selection-service';
 import { Tool } from '../../../base/tool-manager/tool';
 import { getAbsolutePositionByPoint } from '../../../utils/viewpoint-util';
+import { ZoomFactor } from '../../viewport/utils';
 import { ElementNavigatorKeyListener } from '../element-navigation/diagram-navigation-tool';
 import { SetAccessibleKeyShortcutAction } from '../key-shortcut/accessible-key-shortcut';
 import { EnableKeyboardGridAction, KeyboardGridCellSelectedAction, KeyboardGridKeyboardEventAction } from '../keyboard-grid/action';
-import { ZoomElementAction, ZoomViewportAction } from '../move-zoom/zoom-handler';
 import * as messages from '../toast/messages.json';
 import { HideToastAction, ShowToastMessageAction } from '../toast/toast-handler';
 
@@ -45,12 +45,12 @@ import { HideToastAction, ShowToastMessageAction } from '../toast/toast-handler'
  * Zoom viewport and elements when its focused and arrow keys are hit.
  */
 @injectable()
-export class ZoomKeyTool implements Tool {
-    static ID = 'glsp.zoom-key-tool';
+export class GridZoomTool implements Tool {
+    static ID = 'glsp.accessibility-grid-zoom-tool';
 
     isEditTool = false;
 
-    protected readonly zoomKeyListener = new ZoomKeyListener(this);
+    protected readonly zoomKeyListener = new GridZoomKeyListener(this);
 
     @inject(KeyTool) protected readonly keytool: KeyTool;
     @inject(TYPES.IActionDispatcher) readonly actionDispatcher: IActionDispatcher;
@@ -59,7 +59,7 @@ export class ZoomKeyTool implements Tool {
     protected editorContextService: EditorContextService;
 
     get id(): string {
-        return ZoomKeyTool.ID;
+        return GridZoomTool.ID;
     }
 
     enable(): void {
@@ -75,18 +75,15 @@ export class ZoomKeyTool implements Tool {
         if (isViewport(this.editorContextService.modelRoot)) {
             let viewportAction: Action | undefined = undefined;
 
-            if (KeyboardGridCellSelectedAction.is(action) && action.options.originId === ZoomKeyTool.ID) {
+            if (KeyboardGridCellSelectedAction.is(action) && action.options.originId === GridZoomTool.ID) {
                 viewportAction = this.zoomKeyListener.setNewZoomFactor(
                     this.editorContextService.modelRoot,
-                    ZoomKeyListener.defaultZoomInFactor,
+                    ZoomFactor.Default.IN,
                     getAbsolutePositionByPoint(this.editorContextService.modelRoot, action.options.centerCellPosition)
                 );
-            } else if (KeyboardGridKeyboardEventAction.is(action) && action.options.originId === ZoomKeyTool.ID) {
+            } else if (KeyboardGridKeyboardEventAction.is(action) && action.options.originId === GridZoomTool.ID) {
                 if (matchesKeystroke(action.options.event, 'Minus')) {
-                    viewportAction = this.zoomKeyListener.setNewZoomFactor(
-                        this.editorContextService.modelRoot,
-                        ZoomKeyListener.defaultZoomOutFactor
-                    );
+                    viewportAction = this.zoomKeyListener.setNewZoomFactor(this.editorContextService.modelRoot, ZoomFactor.Default.OUT);
                 } else if (matchesKeystroke(action.options.event, 'Digit0', 'ctrl')) {
                     viewportAction = CenterAction.create([]);
                 }
@@ -102,12 +99,10 @@ export class ZoomKeyTool implements Tool {
     }
 }
 
-export class ZoomKeyListener extends KeyListener {
-    static readonly defaultZoomInFactor = 1.1;
-    static readonly defaultZoomOutFactor = 0.9;
-    protected readonly token = ZoomKeyListener.name;
+export class GridZoomKeyListener extends KeyListener {
+    protected readonly token = GridZoomKeyListener.name;
 
-    constructor(protected tool: ZoomKeyTool) {
+    constructor(protected tool: GridZoomTool) {
         super();
     }
 
@@ -115,12 +110,7 @@ export class ZoomKeyListener extends KeyListener {
         this.tool.actionDispatcher.dispatchOnceModelInitialized(
             SetAccessibleKeyShortcutAction.create({
                 token: this.token,
-                keys: [
-                    { shortcuts: ['+'], description: 'Zoom in to element or viewport', group: 'Zoom', position: 0 },
-                    { shortcuts: ['-'], description: 'Zoom out to element or viewport', group: 'Zoom', position: 1 },
-                    { shortcuts: ['CTRL', '0'], description: 'Reset zoom to default', group: 'Zoom', position: 2 },
-                    { shortcuts: ['CTRL', '+'], description: 'Zoom in via Grid', group: 'Zoom', position: 3 }
-                ]
+                keys: [{ shortcuts: ['CTRL', '+'], description: 'Zoom in via Grid', group: 'Zoom', position: 0 }]
             })
         );
     }
@@ -143,16 +133,14 @@ export class ZoomKeyListener extends KeyListener {
                 zoom: newZoom
             };
         }
-        return SetViewportAction.create(viewport.id, newViewport, { animate: true });
+        return SetViewportAction.create(viewport.id, newViewport, { animate: false });
     }
 
     override keyDown(element: GModelElement, event: KeyboardEvent): Action[] {
-        const selectedElementIds = this.tool.selectionService.getSelectedElementIDs();
-
         if (this.matchesZoomViaGrid(event)) {
             return [
                 EnableKeyboardGridAction.create({
-                    originId: ZoomKeyTool.ID,
+                    originId: GridZoomTool.ID,
                     triggerActions: []
                 }),
 
@@ -161,37 +149,11 @@ export class ZoomKeyListener extends KeyListener {
                     message: messages.grid.zoom_in_grid
                 })
             ];
-        } else if (this.matchesZoomOutKeystroke(event)) {
-            if (selectedElementIds.length > 0) {
-                return [ZoomElementAction.create(selectedElementIds, ZoomKeyListener.defaultZoomOutFactor)];
-            } else {
-                return [ZoomViewportAction.create(ZoomKeyListener.defaultZoomOutFactor)];
-            }
-        } else if (this.matchesZoomInKeystroke(event)) {
-            if (selectedElementIds.length > 0) {
-                return [ZoomElementAction.create(selectedElementIds, ZoomKeyListener.defaultZoomInFactor)];
-            } else {
-                return [ZoomViewportAction.create(ZoomKeyListener.defaultZoomInFactor)];
-            }
-        } else if (this.matchesMinZoomLevelKeystroke(event)) {
-            return [CenterAction.create(selectedElementIds)];
         }
         return [];
     }
 
-    protected matchesZoomInKeystroke(event: KeyboardEvent): boolean {
-        /** here event.key is used for '+', as keycode 187 is already declared for 'Equals' in {@link matchesKeystroke}.*/
-        return event.key === '+' || matchesKeystroke(event, 'NumpadAdd');
-    }
-
     protected matchesZoomViaGrid(event: KeyboardEvent): boolean {
         return event.key === '+' && event.ctrlKey;
-    }
-    protected matchesMinZoomLevelKeystroke(event: KeyboardEvent): boolean {
-        return matchesKeystroke(event, 'Digit0', 'ctrl') || matchesKeystroke(event, 'Numpad0', 'ctrl');
-    }
-
-    protected matchesZoomOutKeystroke(event: KeyboardEvent): boolean {
-        return matchesKeystroke(event, 'Minus') || matchesKeystroke(event, 'NumpadSubtract');
     }
 }
