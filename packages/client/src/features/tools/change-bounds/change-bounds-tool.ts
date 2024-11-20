@@ -63,6 +63,10 @@ import {
 import { FeedbackMoveMouseListener } from './change-bounds-tool-move-feedback';
 import { ChangeBoundsTracker, TrackedElementResize, TrackedResize } from './change-bounds-tracker';
 
+export interface IMovementBehavior {
+    readonly allElementsNeedToBeValid: boolean;
+}
+
 /**
  * The change bounds tool has the license to move multiple elements or resize a single element by implementing the ChangeBounds operation.
  * In contrast to Sprotty's implementation this tool only sends a `ChangeBoundsOperationAction` when an operation has finished and does not
@@ -84,6 +88,7 @@ export class ChangeBoundsTool extends BaseEditTool {
     @inject(EdgeRouterRegistry) @optional() readonly edgeRouterRegistry?: EdgeRouterRegistry;
     @inject(TYPES.IMovementRestrictor) @optional() readonly movementRestrictor?: IMovementRestrictor;
     @inject(TYPES.IChangeBoundsManager) readonly changeBoundsManager: IChangeBoundsManager;
+    @inject(TYPES.IMovementBehavior) @optional() readonly movementBehavior: IMovementBehavior = { allElementsNeedToBeValid: true };
 
     get id(): string {
         return ChangeBoundsTool.ID;
@@ -260,7 +265,11 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
     protected getElementsToMove(target: GModelElement): SelectableBoundsAware[] {
         const selectedElements = getMatchingElements(target.index, isNonRoutableSelectedMovableBoundsAware);
         const selectionSet: Set<BoundsAwareModelElement> = new Set(selectedElements);
-        return selectedElements.filter(element => this.isValidMove(element, selectionSet));
+        const elementsToMove = selectedElements.filter(element => this.isValidMove(element, selectionSet));
+        if (this.tool.movementBehavior.allElementsNeedToBeValid && elementsToMove.length !== selectionSet.size) {
+            return [];
+        }
+        return elementsToMove;
     }
 
     protected handleMoveElementsOnServer(elementsToMove: SelectableBoundsAware[]): Operation[] {

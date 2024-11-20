@@ -30,6 +30,7 @@ export const TYPES = {
     IToolFactory: Symbol('Factory<Tool>'),
     ITypeHintProvider: Symbol('ITypeHintProvider'),
     IMovementRestrictor: Symbol('IMovementRestrictor'),
+    IMovementBehavior: Symbol('IMovementBehavior'),
     ISelectionListener: Symbol('ISelectionListener'),
     /** @deprecated Use {@link TYPES.IGModelRootListener} instead */
     // eslint-disable-next-line deprecation/deprecation
