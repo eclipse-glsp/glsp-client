@@ -192,7 +192,7 @@ export class FeedbackMoveMouseListener extends DragAwareMouseListener {
                 .filter(element => this.tool.changeBoundsManager.isValid(element))
                 .forEach(element => this.elementId2startPos.delete(element.id));
         } else {
-            if (elementToMove.find(element => !this.tool.changeBoundsManager.isValid(element)) === undefined) {
+            if (elementToMove.every(element => this.tool.changeBoundsManager.isValid(element))) {
                 // do not reset any element as all are valid
                 this.elementId2startPos.clear();
             }

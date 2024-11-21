@@ -63,7 +63,8 @@ import {
 import { FeedbackMoveMouseListener } from './change-bounds-tool-move-feedback';
 import { ChangeBoundsTracker, TrackedElementResize, TrackedResize } from './change-bounds-tracker';
 
-export interface IMovementBehavior {
+export interface IMovementOptions {
+    /** If set to true, a move with multiple elements is only performed if each individual move is valid. */
     readonly allElementsNeedToBeValid: boolean;
 }
 
@@ -88,7 +89,7 @@ export class ChangeBoundsTool extends BaseEditTool {
     @inject(EdgeRouterRegistry) @optional() readonly edgeRouterRegistry?: EdgeRouterRegistry;
     @inject(TYPES.IMovementRestrictor) @optional() readonly movementRestrictor?: IMovementRestrictor;
     @inject(TYPES.IChangeBoundsManager) readonly changeBoundsManager: IChangeBoundsManager;
-    @inject(TYPES.IMovementBehavior) @optional() readonly movementBehavior: IMovementBehavior = { allElementsNeedToBeValid: true };
+    @inject(TYPES.IMovementOptions) @optional() readonly movementBehavior: IMovementOptions = { allElementsNeedToBeValid: true };
 
     get id(): string {
         return ChangeBoundsTool.ID;
