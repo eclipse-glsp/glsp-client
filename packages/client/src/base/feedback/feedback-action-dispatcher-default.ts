@@ -27,19 +27,22 @@ import {
     TYPES,
     toTypeGuard
 } from '@eclipse-glsp/sprotty';
-import { inject, injectable } from 'inversify';
+import { inject, injectable, preDestroy } from 'inversify';
+import { IFeedbackActionDispatcher, IFeedbackEmitter, MaybeActions } from './feedback-action-dispatcher';
 import { getFeedbackRank } from './feedback-command';
 import { FeedbackEmitter } from './feedback-emitter';
-import { IFeedbackActionDispatcher, IFeedbackEmitter, MaybeActions } from './feedback-action-dispatcher';
 
 @injectable()
-export class FeedbackActionDispatcher implements IFeedbackActionDispatcher {
+export class FeedbackActionDispatcher implements IFeedbackActionDispatcher, Disposable {
     protected registeredFeedback: Map<IFeedbackEmitter, Action[]> = new Map();
 
-    @inject(TYPES.IActionDispatcherProvider) protected actionDispatcher: () => Promise<IActionDispatcher>;
+    @inject(TYPES.IActionDispatcher) protected actionDispatcher: IActionDispatcher;
+
     @inject(TYPES.ILogger) protected logger: ILogger;
 
     @inject(ActionHandlerRegistry) protected actionHandlerRegistry: ActionHandlerRegistry;
+
+    protected isDisposed = false;
 
     registerFeedback(feedbackEmitter: IFeedbackEmitter, feedbackActions: Action[], cleanupActions?: MaybeActions): Disposable {
         if (feedbackEmitter instanceof GModelElement) {
@@ -109,11 +112,19 @@ export class FeedbackActionDispatcher implements IFeedbackActionDispatcher {
 
     protected async dispatchFeedback(actions: Action[], feedbackEmitter: IFeedbackEmitter): Promise<void> {
         try {
-            const actionDispatcher = await this.actionDispatcher();
-            await actionDispatcher.dispatchAll(actions);
+            if (this.isDisposed) {
+                return;
+            }
+            await this.actionDispatcher.dispatchAll(actions);
             this.logger.info(this, `Dispatched feedback actions for ${feedbackEmitter}`);
         } catch (reason) {
             this.logger.error(this, 'Failed to dispatch feedback actions', reason);
         }
+    }
+
+    @preDestroy()
+    dispose(): void {
+        this.registeredFeedback.clear();
+        this.isDisposed = true;
     }
 }

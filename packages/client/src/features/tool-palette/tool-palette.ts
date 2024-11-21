@@ -474,15 +474,19 @@ export class ToolPalette extends GLSPAbstractUIExtension implements IActionHandl
         this.createBody();
     }
 
-    async preRequestModel(): Promise<void> {
+    /**
+     *  @deprecated This hook is no longer used by the ToolPalette.
+     *              It is kept for compatibility reasons and will be removed in the future.
+     *              Move initialization logic to the `postRequestModel` method.
+     *              This ensures that tool palette initialization does not block the diagram loading process.
+     */
+    async preRequestModel(): Promise<void> {}
+
+    async postRequestModel(): Promise<void> {
         await this.setPaletteItems();
         if (!this.editorContext.isReadonly) {
             this.show(this.editorContext.modelRoot);
         }
-    }
-
-    async postRequestModel(): Promise<void> {
-        this.reloadPaletteBody();
     }
 
     protected async setPaletteItems(): Promise<void> {
@@ -506,7 +510,7 @@ export class ToolPalette extends GLSPAbstractUIExtension implements IActionHandl
     }
 
     protected async reloadPaletteBody(): Promise<void> {
-        if (this.dynamic) {
+        if (!this.editorContext.isReadonly && this.dynamic) {
             await this.setPaletteItems();
             this.paletteItemsCopy = [];
             this.requestFilterUpdate(this.searchField.value);

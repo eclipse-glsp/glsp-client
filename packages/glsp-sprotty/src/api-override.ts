@@ -136,6 +136,13 @@ export interface IVNodePostprocessor extends SIVNodePostprocessor {
 
 export interface IActionDispatcher extends SIActionDispatcher {
     /**
+     * Optional method to initialize the action dispatcher.
+     * Implementation can use this as a hook to perform any initialization tasks,
+     * like registering action handlers or setting up the initial diagram.
+     * Called by the `DiagramLoader` when starting the loading process.
+     */
+    initialize?(): Promise<void>;
+    /**
      * Dispatch an action by querying all handlers that are registered for its kind.
      * The returned promise is resolved when all handler results (commands or actions)
      * have been processed.
