@@ -185,10 +185,18 @@ export class FeedbackMoveMouseListener extends DragAwareMouseListener {
         if (!this.tracker.isTracking()) {
             return [];
         }
-        // only reset the move of invalid elements, the others will be handled by the change bounds tool itself
-        this.getElementsToMove(target)
-            .filter(element => this.tool.changeBoundsManager.isValid(element))
-            .forEach(element => this.elementId2startPos.delete(element.id));
+        const elementsToMove = this.getElementsToMove(target);
+        if (!this.tool.movementOptions.allElementsNeedToBeValid) {
+            // only reset the move of invalid elements, the others will be handled by the change bounds tool itself
+            elementsToMove
+                .filter(element => this.tool.changeBoundsManager.isValid(element))
+                .forEach(element => this.elementId2startPos.delete(element.id));
+        } else {
+            if (elementsToMove.every(element => this.tool.changeBoundsManager.isValid(element))) {
+                // do not reset any element as all are valid
+                this.elementId2startPos.clear();
+            }
+        }
         this.dispose();
         return [];
     }
