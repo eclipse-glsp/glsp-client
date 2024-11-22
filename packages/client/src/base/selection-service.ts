@@ -15,6 +15,7 @@
  ********************************************************************************/
 import {
     Action,
+    AnyObject,
     Command,
     CommandExecutionContext,
     Disposable,
@@ -32,6 +33,7 @@ import {
     SprottySelectCommand,
     TYPES,
     hasArrayProp,
+    hasFunctionProp,
     isSelectable,
     pluck
 } from '@eclipse-glsp/sprotty';
@@ -43,6 +45,12 @@ import { IDiagramStartup } from './model/diagram-loader';
 
 export interface ISelectionListener {
     selectionChanged(root: Readonly<GModelRoot>, selectedElements: string[], deselectedElements?: string[]): void;
+}
+
+export namespace ISelectionListener {
+    export function is(object: unknown): object is ISelectionListener {
+        return AnyObject.is(object) && hasFunctionProp(object, 'selectionChanged');
+    }
 }
 
 export interface SelectionChange {
@@ -73,13 +81,7 @@ export class SelectionService implements IGModelRootListener, Disposable, IDiagr
     }
 
     preLoadDiagram(): void {
-        this.lazyInjector
-            .getAll<ISelectionListener>(TYPES.ISelectionListener)
-            .forEach(listener =>
-                this.onSelectionChanged(change =>
-                    listener.selectionChanged(change.root, change.selectedElements, change.deselectedElements)
-                )
-            );
+        this.lazyInjector.getAll<ISelectionListener>(TYPES.ISelectionListener).forEach(listener => this.addListener(listener));
     }
 
     @preDestroy()
@@ -90,6 +92,12 @@ export class SelectionService implements IGModelRootListener, Disposable, IDiagr
     protected onSelectionChangedEmitter = new Emitter<SelectionChange>();
     get onSelectionChanged(): Event<SelectionChange> {
         return this.onSelectionChangedEmitter.event;
+    }
+
+    addListener(listener: ISelectionListener): Disposable {
+        return this.onSelectionChanged(change =>
+            listener.selectionChanged(change.root, change.selectedElements, change.deselectedElements)
+        );
     }
 
     modelRootChanged(root: Readonly<GModelRoot>): void {

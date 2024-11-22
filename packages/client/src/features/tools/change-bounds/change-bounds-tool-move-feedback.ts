@@ -13,16 +13,18 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, ElementMove, GModelElement, GModelRoot, MoveAction, Point, findParentByFeature } from '@eclipse-glsp/sprotty';
+import { Action, ElementMove, GModelElement, GModelRoot, MoveAction, Point, TypeGuard, findParentByFeature } from '@eclipse-glsp/sprotty';
 
 import { DebouncedFunc, debounce } from 'lodash';
 import { DragAwareMouseListener } from '../../../base/drag-aware-mouse-listener';
 import { CursorCSS, cursorFeedbackAction } from '../../../base/feedback/css-feedback';
 import { FeedbackEmitter } from '../../../base/feedback/feedback-emitter';
+import { ISelectionListener } from '../../../base/selection-service';
 import {
     MoveableElement,
     filter,
     getElements,
+    isNonRoutableMovableBoundsAware,
     isNonRoutableSelectedMovableBoundsAware,
     removeDescendants
 } from '../../../utils/gmodel-util';
@@ -38,7 +40,7 @@ import { ChangeBoundsTracker, TrackedMove } from './change-bounds-tracker';
  * the visual feedback but also the basis for sending the change to the server
  * (see also `tools/MoveTool`).
  */
-export class FeedbackMoveMouseListener extends DragAwareMouseListener {
+export class FeedbackMoveMouseListener extends DragAwareMouseListener implements ISelectionListener {
     protected rootElement?: GModelRoot;
     protected tracker: ChangeBoundsTracker;
     protected elementId2startPos = new Map<string, Point>();
@@ -58,6 +60,11 @@ export class FeedbackMoveMouseListener extends DragAwareMouseListener {
     override mouseDown(target: GModelElement, event: MouseEvent): Action[] {
         super.mouseDown(target, event);
         if (event.button === 0) {
+            if (this.tracker.isTracking()) {
+                // we have a move in progress that was not resolved yet (e.g., user may have triggered a mouse up outside the window)
+                this.draggingMouseUp(target, event);
+                return [];
+            }
             this.initializeMove(target, event);
             return [];
         }
@@ -103,6 +110,10 @@ export class FeedbackMoveMouseListener extends DragAwareMouseListener {
 
     protected isValidMoveable(element?: GModelElement): element is MoveableElement {
         return !!element && isNonRoutableSelectedMovableBoundsAware(element) && !(element instanceof GResizeHandle);
+    }
+
+    protected isValidRevertable(element?: GModelElement): element is MoveableElement {
+        return !!element && isNonRoutableMovableBoundsAware(element) && !(element instanceof GResizeHandle);
     }
 
     override nonDraggingMouseUp(element: GModelElement, event: MouseEvent): Action[] {
@@ -161,8 +172,8 @@ export class FeedbackMoveMouseListener extends DragAwareMouseListener {
         return Array.from(topLevelElements);
     }
 
-    protected getElementsToMove(context: GModelElement): MoveableElement[] {
-        return getElements(context.root.index, Array.from(this.elementId2startPos.keys()), this.isValidMoveable);
+    protected getElementsToMove(context: GModelElement, moveable: TypeGuard<MoveableElement> = this.isValidMoveable): MoveableElement[] {
+        return getElements(context.root.index, Array.from(this.elementId2startPos.keys()), moveable);
     }
 
     protected resetElementPositions(context: GModelElement): MoveAction | undefined {
@@ -173,7 +184,7 @@ export class FeedbackMoveMouseListener extends DragAwareMouseListener {
     protected revertElementMoves(context?: GModelElement): ElementMove[] {
         const elementMoves: ElementMove[] = [];
         if (context?.root?.index) {
-            const movableElements = this.getElementsToMove(context);
+            const movableElements = this.getElementsToMove(context, this.isValidRevertable);
             movableElements.forEach(element =>
                 elementMoves.push({ elementId: element.id, toPosition: this.elementId2startPos.get(element.id)! })
             );
@@ -185,20 +196,24 @@ export class FeedbackMoveMouseListener extends DragAwareMouseListener {
         if (!this.tracker.isTracking()) {
             return [];
         }
-        const elementsToMove = this.getElementsToMove(target);
+        const elementToMove = this.getElementsToMove(target);
         if (!this.tool.movementOptions.allElementsNeedToBeValid) {
             // only reset the move of invalid elements, the others will be handled by the change bounds tool itself
-            elementsToMove
+            elementToMove
                 .filter(element => this.tool.changeBoundsManager.isValid(element))
                 .forEach(element => this.elementId2startPos.delete(element.id));
         } else {
-            if (elementsToMove.every(element => this.tool.changeBoundsManager.isValid(element))) {
+            if (elementToMove.length > 0 && elementToMove.every(element => this.tool.changeBoundsManager.isValid(element))) {
                 // do not reset any element as all are valid
                 this.elementId2startPos.clear();
             }
         }
         this.dispose();
         return [];
+    }
+
+    selectionChanged(root: Readonly<GModelRoot>, selectedElements: string[], deselectedElements?: string[]): void {
+        this.dispose();
     }
 
     override dispose(): void {

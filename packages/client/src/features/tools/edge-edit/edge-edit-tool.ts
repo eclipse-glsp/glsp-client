@@ -82,7 +82,7 @@ export class EdgeEditTool extends BaseEditTool {
             this.feedbackEdgeSourceMovingListener,
             this.feedbackEdgeTargetMovingListener,
             this.feedbackMovingListener,
-            this.selectionService.onSelectionChanged(change => this.edgeEditListener.selectionChanged(change.root, change.selectedElements))
+            this.selectionService.addListener(this.edgeEditListener)
         );
     }
 

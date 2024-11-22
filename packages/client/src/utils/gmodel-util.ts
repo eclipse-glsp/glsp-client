@@ -196,6 +196,10 @@ export function isNonRoutableSelectedMovableBoundsAware(element: GModelElement):
     return isNonRoutableSelectedBoundsAware(element) && isMoveable(element);
 }
 
+export function isNonRoutableMovableBoundsAware(element: GModelElement): element is BoundsAwareModelElement {
+    return isNonRoutableBoundsAware(element) && isMoveable(element);
+}
+
 /**
  * A typeguard function to check wether a given {@link GModelElement} implements the {@link BoundsAware} model feature,
  * the {@link Selectable} model feature and is actually selected. In addition, the element must not be a {@link GRoutableElement}.
@@ -203,7 +207,17 @@ export function isNonRoutableSelectedMovableBoundsAware(element: GModelElement):
  * @returns A type predicate indicating wether the element is of type {@link SelectableBoundsAware}.
  */
 export function isNonRoutableSelectedBoundsAware(element: GModelElement): element is SelectableBoundsAware {
-    return isBoundsAware(element) && isSelected(element) && !isRoutable(element);
+    return isNonRoutableBoundsAware(element) && isSelected(element);
+}
+
+/**
+ * A typeguard function to check wether a given {@link GModelElement} implements the {@link BoundsAware} model feature.
+ * In addition, the element must not be a {@link GRoutableElement}.
+ * @param element The element to check.
+ * @returns A type predicate indicating wether the element is of type {@link BoundsAwareModelElement}.
+ */
+export function isNonRoutableBoundsAware(element: GModelElement): element is BoundsAwareModelElement {
+    return isBoundsAware(element) && !isRoutable(element);
 }
 
 /**
