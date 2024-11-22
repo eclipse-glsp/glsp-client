@@ -18,14 +18,13 @@ import {
     AnyObject,
     ApplicationIdProvider,
     Args,
-    EMPTY_ROOT,
     GLSPClient,
     IActionDispatcher,
     InitializeParameters,
     LazyInjector,
     MaybePromise,
+    RequestAction,
     RequestModelAction,
-    SetModelAction,
     StatusAction,
     TYPES,
     hasNumberProp
@@ -44,19 +43,23 @@ export interface IDiagramOptions {
      * corresponding client session.
      */
     clientId: string;
+
     /**
      * The diagram type i.e. diagram language this diagram is associated with.
      */
     diagramType: string;
+
     /**
      * The provider function to retrieve the GLSP client used by this diagram to communicate with the server.
-     * Multiple invocations of the provder function should always return the same `GLSPClient` instance.
+     * Multiple invocations of the provider function should always return the same {@link GLSPClient} instance.
      */
     glspClientProvider: () => Promise<GLSPClient>;
+
     /**
      * The file source URI associated with this diagram.
      */
     sourceUri?: string;
+
     /**
      * The initial edit mode of diagram. Defaults to `editable`.
      */
@@ -74,24 +77,28 @@ export interface IDiagramStartup extends Partial<Ranked> {
      * first hook that is invoked directly after {@link DiagramLoader.load} is called.
      */
     preLoadDiagram?(): MaybePromise<void>;
+
     /**
-     * Hook for services that want to execute code before the underlying GLSP client is configured and the server is initialized.
+     * Hook for services that want to execute code before the underlying {@link GLSPClient} is configured and the server is initialized.
      */
     preInitialize?(): MaybePromise<void>;
+
     /**
-     * Hook for services that want to execute code before the initial model loading request (i.e. `RequestModelAction`) but
+     * Hook for services that want to execute code before the initial model loading request (i.e. {@link RequestModelAction}) but
      * after the underlying GLSP client has been configured and the server is initialized.
      */
     preRequestModel?(): MaybePromise<void>;
+
     /**
-     * Hook for services that want to execute code after the initial model loading request (i.e. `RequestModelAction`).
-     * Note that this hook is invoked directly after the `RequestModelAction` has been dispatched. It does not necessarily wait
+     * Hook for services that want to execute code after the initial model loading request (i.e. {@link RequestModelAction}).
+     * Note that this hook is invoked directly after the {@link RequestModelAction} has been dispatched. It does not necessarily wait
      * until the client-server update roundtrip is completed. If you need to wait until the diagram is fully initialized use the
      * {@link postModelInitialization} hook.
      */
+
     postRequestModel?(): MaybePromise<void>;
-    /* Hook for services that want to execute code after the diagram model is fully initialized
-     * (i.e. `ModelInitializationConstraint` is completed).
+    /** Hook for services that want to execute code after the diagram model is fully initialized
+     * (i.e. {@link ModelInitializationConstraint} is completed).
      */
     postModelInitialization?(): MaybePromise<void>;
 }
@@ -119,7 +126,7 @@ export interface DiagramLoadingOptions {
     requestModelOptions?: Args;
 
     /**
-     * Optional partial {@link InitializeParameters} that should be used for `initializeServer` request if the underlying
+     * Optional partial {@link InitializeParameters} that should be used for {@link GLSPClient.initializeServer} request if the underlying
      * {@link GLSPClient} has not been initialized yet.
      */
     initializeParameters?: Partial<InitializeParameters>;
@@ -180,14 +187,15 @@ export class DiagramLoader {
             },
             enableNotifications: options.enableNotifications ?? true
         };
-        // Set empty place holder model until actual model from server is available
-        await this.actionDispatcher.dispatch(SetModelAction.create(EMPTY_ROOT));
+        // Ensure that the action dispatcher is initialized before starting the diagram loading process
+        await this.actionDispatcher.initialize?.();
         await this.invokeStartupHook('preInitialize');
         await this.initialize(resolvedOptions);
         await this.invokeStartupHook('preRequestModel');
         await this.requestModel(resolvedOptions);
         await this.invokeStartupHook('postRequestModel');
-        this.modelInitializationConstraint.onInitialized(() => this.invokeStartupHook('postModelInitialization'));
+        await this.modelInitializationConstraint.onInitialized();
+        await this.invokeStartupHook('postModelInitialization');
     }
 
     protected async invokeStartupHook(hook: keyof Omit<IDiagramStartup, 'rank'>): Promise<void> {
@@ -201,10 +209,9 @@ export class DiagramLoader {
     }
 
     protected async requestModel(options: ResolvedDiagramLoadingOptions): Promise<void> {
-        const response = await this.actionDispatcher.request<SetModelAction>(
-            RequestModelAction.create({ options: options.requestModelOptions })
+        await this.actionDispatcher.dispatch(
+            RequestModelAction.create({ options: options.requestModelOptions, requestId: RequestAction.generateRequestId() })
         );
-        return this.actionDispatcher.dispatch(response);
     }
 
     protected async initialize(options: ResolvedDiagramLoadingOptions): Promise<void> {

@@ -14,6 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import {
+    CommandExecutionContext,
     CommandStack,
     Disposable,
     DisposableCollection,
@@ -51,6 +52,10 @@ export class GLSPCommandStack extends CommandStack implements Disposable {
         return this.editorContext.onModelRootChanged;
     }
 
+    /**
+     * Client-side undo/redo is not supported in GLSP. The server is responsible for handling undo/redo requests.
+     * If this method get called it's probably a mistake and a warning is logged
+     */
     override undo(): Promise<GModelRoot> {
         this.logger.warn(
             this,
@@ -59,6 +64,10 @@ export class GLSPCommandStack extends CommandStack implements Disposable {
         return this.currentModel;
     }
 
+    /**
+     * Client-side undo/redo is not supported in GLSP. The server is responsible for handling undo/redo requests.
+     * If this method get called it's probably a mistake and a warning is logged
+     */
     override redo(): Promise<GModelRoot> {
         this.logger.warn(
             this,
@@ -67,14 +76,29 @@ export class GLSPCommandStack extends CommandStack implements Disposable {
         return this.currentModel;
     }
 
-    override async execute(command: ICommand): Promise<GModelRoot> {
-        if (command instanceof SetModelCommand || command instanceof UpdateModelCommand) {
-            const result = await super.execute(command);
-            this.notifyListeners(result);
-            return result;
-        }
+    /**
+     * Client-side undo/redo is not supported in GLSP.
+     * To avoid unnecessary infraction with the command stack (pushing/merging/popping commands)
+     * related methods are overridden to no-ops.
+     */
+    protected override pushToUndoStack(command: ICommand): void {
+        // no-op
+    }
 
-        return super.execute(command);
+    /**
+     * Client-side undo/redo is not supported in GLSP.
+     * To avoid unnecessary infraction with the command stack (pushing/merging/popping commands)
+     * related methods are overridden to no-ops.
+     */
+    protected override mergeOrPush(command: ICommand, context: CommandExecutionContext): void {
+        // no-op
+    }
+    override async execute(command: ICommand): Promise<GModelRoot> {
+        const result = await super.execute(command);
+        if (command instanceof SetModelCommand || command instanceof UpdateModelCommand) {
+            this.notifyListeners(result);
+        }
+        return result;
     }
 
     protected notifyListeners(root: Readonly<GModelRoot>): void {
