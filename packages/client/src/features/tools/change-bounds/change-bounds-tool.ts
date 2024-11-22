@@ -89,7 +89,7 @@ export class ChangeBoundsTool extends BaseEditTool {
     @inject(EdgeRouterRegistry) @optional() readonly edgeRouterRegistry?: EdgeRouterRegistry;
     @inject(TYPES.IMovementRestrictor) @optional() readonly movementRestrictor?: IMovementRestrictor;
     @inject(TYPES.IChangeBoundsManager) readonly changeBoundsManager: IChangeBoundsManager;
-    @inject(TYPES.IMovementOptions) @optional() readonly movementBehavior: IMovementOptions = { allElementsNeedToBeValid: true };
+    @inject(TYPES.IMovementOptions) @optional() readonly movementOptions: IMovementOptions = { allElementsNeedToBeValid: true };
 
     get id(): string {
         return ChangeBoundsTool.ID;
@@ -267,7 +267,7 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
         const selectedElements = getMatchingElements(target.index, isNonRoutableSelectedMovableBoundsAware);
         const selectionSet: Set<BoundsAwareModelElement> = new Set(selectedElements);
         const elementsToMove = selectedElements.filter(element => this.isValidMove(element, selectionSet));
-        if (this.tool.movementBehavior.allElementsNeedToBeValid && elementsToMove.length !== selectionSet.size) {
+        if (this.tool.movementOptions.allElementsNeedToBeValid && elementsToMove.length !== selectionSet.size) {
             return [];
         }
         return elementsToMove;
