@@ -36,8 +36,8 @@
     "@eclipse-glsp/protocol": "2.3.0-next",
     "autocompleter": "^9.1.0",
     "snabbdom": "~3.5.1",
-    "sprotty": "1.2.0",
-    "sprotty-protocol": "1.2.0",
+    "sprotty": "1.3.0",
+    "sprotty-protocol": "1.3.0",
     "vscode-jsonrpc": "8.2.0"
   },
   "devDependencies": {

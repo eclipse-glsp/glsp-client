@@ -13,6 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import * as sprotty from 'sprotty-protocol/lib/actions';
 import { hasBooleanProp, hasStringProp } from '../utils/type-util';
 import { Action, RequestAction, ResponseAction } from './base-protocol';
 
@@ -87,8 +88,9 @@ export namespace SetDirtyStateAction {
  * The handler of this action is expected to retrieve the diagram SVG and should send a {@link ExportSvgAction} as response.
  * Typically the {@link ExportSvgAction} is handled directly on client side.
  */
-export interface RequestExportSvgAction extends RequestAction<ExportSvgAction> {
+export interface RequestExportSvgAction extends RequestAction<ExportSvgAction>, sprotty.RequestExportSvgAction {
     kind: typeof RequestExportSvgAction.KIND;
+    options?: ExportSvgOptions;
 }
 export namespace RequestExportSvgAction {
     export const KIND = 'requestExportSvg';
@@ -97,13 +99,19 @@ export namespace RequestExportSvgAction {
         return RequestAction.hasKind(object, KIND);
     }
 
-    export function create(options: { requestId?: string } = {}): RequestExportSvgAction {
+    export function create(options: { options?: ExportSvgOptions; requestId?: string } = {}): RequestExportSvgAction {
         return {
             kind: KIND,
             requestId: '',
             ...options
         };
     }
+}
+
+/** Configuration options for the {@link RequestExportSvgAction */
+export interface ExportSvgOptions extends sprotty.ExportSvgOptions {
+    // If set to false applied diagram styles will not be copied to the exported SVG
+    skipCopyStyles?: boolean;
 }
 
 /**
@@ -113,11 +121,12 @@ export namespace RequestExportSvgAction {
  * concrete file name, file extension etc. are not specified in the protocol. So it is the responsibility of the action handler to
  * process this information accordingly and export the result to the underlying filesystem.
  */
-export interface ExportSvgAction extends ResponseAction {
+export interface ExportSvgAction extends ResponseAction, sprotty.ExportSvgAction {
     kind: typeof ExportSvgAction.KIND;
     svg: string;
-    responseId: string;
+    options?: ExportSvgOptions;
 }
+
 export namespace ExportSvgAction {
     export const KIND = 'exportSvg';
 
@@ -125,7 +134,7 @@ export namespace ExportSvgAction {
         return Action.hasKind(object, KIND) && hasStringProp(object, 'svg');
     }
 
-    export function create(svg: string, options: { responseId?: string } = {}): ExportSvgAction {
+    export function create(svg: string, options: { options?: ExportSvgOptions; responseId?: string } = {}): ExportSvgAction {
         return {
             kind: KIND,
             svg,

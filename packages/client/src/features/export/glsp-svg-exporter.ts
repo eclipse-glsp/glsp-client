@@ -13,31 +13,41 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { ExportSvgAction, GModelRoot, RequestAction, SvgExporter } from '@eclipse-glsp/sprotty';
+import {
+    Action,
+    ExportSvgAction,
+    ExportSvgOptions,
+    GModelRoot,
+    RequestAction,
+    RequestExportSvgAction,
+    SvgExporter
+} from '@eclipse-glsp/sprotty';
 import { injectable } from 'inversify';
 import { v4 as uuid } from 'uuid';
 
 @injectable()
 export class GLSPSvgExporter extends SvgExporter {
-    override export(root: GModelRoot, request?: RequestAction<ExportSvgAction>): void {
+    override export(root: GModelRoot, request?: RequestExportSvgAction): void {
         if (typeof document !== 'undefined') {
             let svgElement = this.findSvgElement();
             if (svgElement) {
                 svgElement = this.prepareSvgElement(svgElement, root, request);
-                const serializedSvg = this.createSvg(svgElement, root);
+                const serializedSvg = this.createSvg(svgElement, root, request?.options ?? {}, request);
                 const svgExport = this.getSvgExport(serializedSvg, svgElement, root, request);
                 // do not give request/response id here as otherwise the action is treated as an unrequested response
-                this.actionDispatcher.dispatch(ExportSvgAction.create(svgExport));
+                this.actionDispatcher.dispatch(
+                    ExportSvgAction.create(svgExport, { responseId: request?.requestId, options: request?.options })
+                );
             }
         }
     }
 
-    protected override createSvg(svgElement: SVGSVGElement, root: GModelRoot): string {
+    protected override createSvg(svgElement: SVGSVGElement, root: GModelRoot, options?: ExportSvgOptions, cause?: Action): string {
         // createSvg requires the svg to have a non-empty id, so we generate one if necessary
         const originalId = svgElement.id;
         try {
             svgElement.id = originalId || uuid();
-            return super.createSvg(svgElement, root);
+            return super.createSvg(svgElement, root, options, cause);
         } finally {
             svgElement.id = originalId;
         }
@@ -109,7 +119,7 @@ export class GLSPSvgExporter extends SvgExporter {
 
     protected getSvgExportStyle(svgElement: SVGElement, root: GModelRoot, request?: RequestAction<ExportSvgAction>): string | undefined {
         // provide generated svg code with respective sizing for proper viewing in browser and remove undesired border
-        const bounds = this.getBounds(root);
+        const bounds = this.getBounds(root, document);
         return (
             `width: ${bounds.width}px !important;` +
             `height: ${bounds.height}px !important;` +
