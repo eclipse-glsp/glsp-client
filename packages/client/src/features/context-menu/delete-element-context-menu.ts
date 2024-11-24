@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2023 EclipseSource and others.
+ * Copyright (c) 2019-2024 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,27 +13,31 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { DeleteElementOperation, GModelRoot, IContextMenuItemProvider, MenuItem, Point, TYPES } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
-import { DeleteElementOperation, IContextMenuItemProvider, MenuItem, Point, GModelRoot, TYPES } from '@eclipse-glsp/sprotty';
 import { EditorContextService, EditorContextServiceProvider } from '../../base/editor-context-service';
 
 @injectable()
 export class DeleteElementContextMenuItemProvider implements IContextMenuItemProvider {
+    /** @deprecated No longer used. The {@link EditorContextService} is now directly injected.*/
+    // eslint-disable-next-line deprecation/deprecation
     @inject(TYPES.IEditorContextServiceProvider) editorContextServiceProvider: EditorContextServiceProvider;
 
+    @inject(EditorContextService)
+    protected editorContext: EditorContextService;
+
     async getItems(_root: Readonly<GModelRoot>, _lastMousePosition?: Point): Promise<MenuItem[]> {
-        const editorContextService = await this.editorContextServiceProvider();
-        return [this.createDeleteMenuItem(editorContextService)];
+        return [this.createDeleteMenuItem()];
     }
 
-    protected createDeleteMenuItem(editorContextService: EditorContextService): MenuItem {
+    protected createDeleteMenuItem(): MenuItem {
         return {
             id: 'delete',
             label: 'Delete',
             sortString: 'd',
             group: 'edit',
-            actions: [DeleteElementOperation.create(editorContextService.selectedElements.map(e => e.id))],
-            isEnabled: () => !editorContextService.isReadonly && editorContextService.selectedElements.length > 0
+            actions: [DeleteElementOperation.create(this.editorContext.selectedElements.map(e => e.id))],
+            isEnabled: () => !this.editorContext.isReadonly && this.editorContext.selectedElements.length > 0
         };
     }
 }

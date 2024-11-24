@@ -38,7 +38,7 @@ import {
     hasStringProp
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
-import { EditorContextServiceProvider } from '../../base/editor-context-service';
+import { EditorContextService, EditorContextServiceProvider } from '../../base/editor-context-service';
 import { NavigationTargetResolver } from './navigation-target-resolver';
 
 /**
@@ -140,9 +140,15 @@ export class NavigationActionHandler implements IActionHandler {
 
     @inject(TYPES.ILogger) protected logger: ILogger;
     @inject(TYPES.IActionDispatcher) protected dispatcher: IActionDispatcher;
+    /** @deprecated No longer in used. The {@link ActionHandlerRegistry} is now directly injected */
+    // eslint-disable-next-line deprecation/deprecation
     @inject(TYPES.ActionHandlerRegistryProvider) protected actionHandlerRegistryProvider: () => Promise<ActionHandlerRegistry>;
+    /** @deprecated No longer in used. The {@link EditorContextService} is now directly injected */
+    // eslint-disable-next-line deprecation/deprecation
     @inject(TYPES.IEditorContextServiceProvider) protected editorContextService: EditorContextServiceProvider;
+    @inject(ActionHandlerRegistry) protected actionHandlerRegistry: ActionHandlerRegistry;
     @inject(NavigationTargetResolver) protected resolver: NavigationTargetResolver;
+    @inject(EditorContextService) protected editorContext: EditorContextService;
 
     handle(action: Action): ICommand | Action | void {
         if (NavigateAction.is(action)) {
@@ -158,8 +164,7 @@ export class NavigationActionHandler implements IActionHandler {
 
     protected async handleNavigateAction(action: NavigateAction): Promise<void> {
         try {
-            const editorContextService = await this.editorContextService();
-            const editorContext = editorContextService.get(action.args);
+            const editorContext = this.editorContext.get(action.args);
             const response = await this.dispatcher.request(
                 RequestNavigationTargetsAction.create({ targetTypeId: action.targetTypeId, editorContext })
             );
@@ -250,8 +255,7 @@ export class NavigationActionHandler implements IActionHandler {
     }
 
     protected async handleNavigateToExternalTarget(action: NavigateToExternalTargetAction): Promise<void> {
-        const registry = await this.actionHandlerRegistryProvider();
-        const handlers = registry.get(NavigateToExternalTargetAction.KIND);
+        const handlers = this.actionHandlerRegistry.get(NavigateToExternalTargetAction.KIND);
         if (handlers.length === 1) {
             // we are the only handler so we know nobody took care of it
             this.warnAboutFailedNavigation('Could not resolve or navigate to target', action.target);

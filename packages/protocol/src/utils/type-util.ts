@@ -14,6 +14,9 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
+import { Action } from '../action-protocol/base-protocol';
+import { asArray as toArray } from '../utils/array-util';
+
 /** Helper type to describe any defined object*/
 export type AnyObject = object;
 
@@ -99,6 +102,15 @@ export type MaybeFunction<T = any> = T | SafeFunction<T>;
 
 export function call<T>(maybeFun: MaybeFunction<T>, ...args: any[]): T {
     return typeof maybeFun === 'function' ? (maybeFun as SafeFunction<T>)(...args) : maybeFun;
+}
+
+export type MaybeActions = MaybeFunction<Action[] | Action | undefined>;
+
+export namespace MaybeActions {
+    export function asArray(actions?: MaybeActions): Action[] {
+        const cleanup = actions ? call(actions) : [];
+        return cleanup ? toArray(cleanup) : [];
+    }
 }
 
 /**
