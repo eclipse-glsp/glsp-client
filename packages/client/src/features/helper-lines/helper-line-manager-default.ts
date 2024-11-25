@@ -112,9 +112,7 @@ export class HelperLineManager implements IActionHandler, ISelectionListener, IH
             dynamicOptions.minimumMoveDelta = Point.multiplyScalar(this.grid, 2);
         }
         this.options = { ...DEFAULT_HELPER_LINE_OPTIONS, ...dynamicOptions, ...this.userOptions };
-        this.selectionService.onSelectionChanged(change =>
-            this.selectionChanged(change.root, change.selectedElements, change.deselectedElements)
-        );
+        this.selectionService.addListener(this);
     }
 
     handle(action: Action): void {

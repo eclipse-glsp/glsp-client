@@ -98,21 +98,23 @@ export class ChangeBoundsTool extends BaseEditTool {
     enable(): void {
         // install feedback move mouse listener for client-side move updates
         const feedbackMoveMouseListener = this.createMoveMouseListener();
+        this.toDisposeOnDisable.push(this.mouseTool.registerListener(feedbackMoveMouseListener));
         if (Disposable.is(feedbackMoveMouseListener)) {
             this.toDisposeOnDisable.push(feedbackMoveMouseListener);
+        }
+        if (ISelectionListener.is(feedbackMoveMouseListener)) {
+            this.toDisposeOnDisable.push(this.selectionService.addListener(feedbackMoveMouseListener));
         }
 
         // install change bounds listener for client-side resize updates and server-side updates
         const changeBoundsListener = this.createChangeBoundsListener();
+        this.toDisposeOnDisable.push(this.mouseTool.registerListener(changeBoundsListener));
         if (Disposable.is(changeBoundsListener)) {
             this.toDisposeOnDisable.push(changeBoundsListener);
         }
-
-        this.toDisposeOnDisable.push(
-            this.mouseTool.registerListener(feedbackMoveMouseListener),
-            this.mouseTool.registerListener(changeBoundsListener),
-            this.selectionService.onSelectionChanged(change => changeBoundsListener.selectionChanged(change.root, change.selectedElements))
-        );
+        if (ISelectionListener.is(changeBoundsListener)) {
+            this.toDisposeOnDisable.push(this.selectionService.addListener(changeBoundsListener));
+        }
     }
 
     createChangeBoundsTracker(): ChangeBoundsTracker {
@@ -123,7 +125,7 @@ export class ChangeBoundsTool extends BaseEditTool {
         return new FeedbackMoveMouseListener(this);
     }
 
-    protected createChangeBoundsListener(): MouseListener & ISelectionListener {
+    protected createChangeBoundsListener(): MouseListener {
         return new ChangeBoundsListener(this);
     }
 }
