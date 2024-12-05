@@ -46,6 +46,49 @@ export interface Event<T> extends jsonrpc.Event<T> {
     (listener: (e: T) => unknown, thisArgs?: unknown, disposables?: Disposable[]): Disposable;
 }
 
+export namespace Event {
+    /**
+     * Utility function to register a one-time listener for an event. The listener will be disposed
+     * automatically after the next event is fired.
+     * @param event The event to listen to
+     * @param listener The listener function that will be called when the event happens.
+     * @param thisArgs The 'this' which will be used when calling the event listener.
+     * @param disposables An array to which the {@link Disposable} for removing the listener will be added.
+     * @returns a {@link Disposable} to remove the listener again.
+     */
+    export function once<T>(event: Event<T>, listener: (e: T) => unknown, thisArgs?: unknown, disposables?: Disposable[]): Disposable {
+        const toDispose = event(
+            e => {
+                listener(e);
+                toDispose.dispose();
+            },
+            thisArgs,
+            disposables
+        );
+        return toDispose;
+    }
+
+    /**
+     * Utility function to wait for an event to happen. The function will return a promise that will be resolved
+     * when the event is fired. Optionally a predicate can be provided that will be used to filter the event.
+     * If a predicate is provided, the promise will only be resolved when the predicate returns true.
+     * The underlying listener will be disposed automatically when the promise is resolved.
+     * @param event The event to listen to
+     * @param predicate An optional predicate that will be used to filter the event
+     * @returns a promise that will be resolved when the event is fired (and the optional predicate matches)
+     */
+    export function waitUntil<T>(event: Event<T>, predicate?: (e: T) => boolean): Promise<T> {
+        return new Promise<any>(resolve => {
+            const toDispose = event(e => {
+                if (!predicate || predicate(e)) {
+                    resolve(e);
+                    toDispose.dispose();
+                }
+            });
+        });
+    }
+}
+
 /**
  * Optional options that can be passed to the constructor
  * of an {@link Emitter}.

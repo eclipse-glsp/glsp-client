@@ -94,39 +94,78 @@ describe('Base JSON-RPC GLSP Client', () => {
     describe('start', () => {
         it('should successfully start & activate the connection', async () => {
             await resetClient(false);
+            const stateChangeHandler = sinon.spy();
+            client.onCurrentStateChanged(stateChangeHandler);
             expect(client.currentState).to.be.equal(ClientState.Initial);
-            client.start();
+            const startCompleted = client.start();
             expect(client.currentState).to.be.equal(ClientState.Starting);
-            const result = await client.start();
-            expect(result).to.be.undefined;
+            expect(stateChangeHandler.calledWith(ClientState.Starting)).to.be.true;
+            await startCompleted;
             expect(client.currentState).to.be.equal(ClientState.Running);
             expect(client.isConnectionActive()).to.be.true;
+            expect(stateChangeHandler.calledWith(ClientState.Running)).to.be.true;
+        });
+        it('should fail to start if connecting to the server fails', async () => {
+            await resetClient(false);
+            const stateChangeHandler = sinon.spy();
+            client.onCurrentStateChanged(stateChangeHandler);
+            expect(client.currentState).to.be.equal(ClientState.Initial);
+            connection.listen.throws(new Error('Connection failed'));
+            await client.start();
+            expect(client.currentState).to.be.equal(ClientState.StartFailed);
+            expect(stateChangeHandler.calledWith(ClientState.StartFailed)).to.be.true;
+        });
+        it('should not start another connection if another start is already in progress', async () => {
+            await resetClient(false);
+            client.start();
+            await client.start();
+            expect(client.currentState).to.be.equal(ClientState.Running);
+            expect(client.isConnectionActive()).to.be.true;
+            expect(connection.listen.calledOnce).to.be.true;
         });
     });
 
     describe('stop', () => {
         it('should successfully stop if the client was not running', async () => {
             await resetClient(false);
+            const stateChangeHandler = sinon.spy();
+            client.onCurrentStateChanged(stateChangeHandler);
             expect(client.currentState).to.be.equal(ClientState.Initial);
-            const stopResult = await client.stop();
-            expect(stopResult).to.be.undefined;
+            await client.stop();
             expect(client.currentState).to.be.equal(ClientState.Stopped);
+            expect(stateChangeHandler.calledWith(ClientState.Stopped)).to.be.true;
+            expect(connection.dispose.called).to.be.false;
         });
         it('should successfully stop if the client was running', async () => {
             await resetClient();
+            const stateChangeHandler = sinon.spy();
+            client.onCurrentStateChanged(stateChangeHandler);
+            const stopped = client.stop();
+            expect(client.currentState).to.be.equal(ClientState.Stopping);
+            expect(stateChangeHandler.calledWith(ClientState.Stopping)).to.be.true;
+            await stopped;
+            expect(client.currentState).to.be.equal(ClientState.Stopped);
+            expect(stateChangeHandler.calledWith(ClientState.Stopped)).to.be.true;
+            expect(connection.dispose.called).to.be.true;
+        });
+        it('should only stop a running client once, if stop is called multiple times', async () => {
+            await resetClient();
             client.stop();
             expect(client.currentState).to.be.equal(ClientState.Stopping);
-            const stopResult = await client.stop();
-            expect(stopResult).to.be.undefined;
+            await client.stop();
             expect(client.currentState).to.be.equal(ClientState.Stopped);
+            expect(connection.dispose.calledOnce).to.be.true;
         });
     });
 
     describe('initialize', () => {
         it('should fail if client is not running', async () => {
             await resetClient(false);
+            const stateChangeHandler = sinon.spy();
+            client.onCurrentStateChanged(stateChangeHandler);
             await expectToThrowAsync(() => client.initializeServer({ applicationId: '', protocolVersion: '' }));
             expect(connection.sendRequest.called).to.be.false;
+            expect(stateChangeHandler.called).to.be.false;
         });
         it('should forward the corresponding initialize request and cache result', async () => {
             await resetClient();
@@ -146,10 +185,10 @@ describe('Base JSON-RPC GLSP Client', () => {
             const params = { applicationId: 'id', protocolVersion: '1.0.0' };
             const initializeMock = connection.sendRequest.withArgs(JsonrpcGLSPClient.InitializeRequest, params);
             initializeMock.returns(expectedResult);
-            client['_initializeResult'] = expectedResult;
+            client.initializeServer({ applicationId: 'id', protocolVersion: '1.0.0' });
             const result = await client.initializeServer({ applicationId: 'id', protocolVersion: '1.0.0' });
             expect(result).to.be.deep.equal(client.initializeResult);
-            expect(initializeMock.called).to.be.false;
+            expect(initializeMock.calledOnce).to.be.true;
         });
         it('should fire event on first invocation', async () => {
             await resetClient();
@@ -164,13 +203,30 @@ describe('Base JSON-RPC GLSP Client', () => {
             await client.initializeServer(params);
             expect(eventHandlerSpy.calledOnceWith(expectedResult)).to.be.true;
         });
+        it('should not use cached result on consecutive invocation if previous invocation errored', async () => {
+            await resetClient();
+            const expectedResult = { protocolVersion: '1.0.0', serverActions: {} };
+            const params = { applicationId: 'id', protocolVersion: '1.0.0' };
+            const initializeMock = connection.sendRequest.withArgs(JsonrpcGLSPClient.InitializeRequest, params);
+            initializeMock.throws(new Error('SomeError'));
+            expectToThrowAsync(() => client.initializeServer(params));
+            expect(client.initializeResult).to.be.undefined;
+            initializeMock.returns(expectedResult);
+            const result = await client.initializeServer(params);
+            expect(result).to.be.deep.equal(expectedResult);
+            expect(initializeMock.calledTwice).to.be.true;
+            expect(client.initializeResult).to.be.equal(result);
+        });
     });
 
     describe('initializeClientSession', () => {
         it('should fail if client is not running', async () => {
             await resetClient(false);
+            const stateChangeHandler = sinon.spy();
+            client.onCurrentStateChanged(stateChangeHandler);
             await expectToThrowAsync(() => client.initializeClientSession({ clientSessionId: '', diagramType: '', clientActionKinds: [] }));
             expect(connection.sendRequest.called).to.be.false;
+            expect(stateChangeHandler.called).to.be.false;
         });
         it('should invoke the corresponding server method', async () => {
             await resetClient();
@@ -185,8 +241,11 @@ describe('Base JSON-RPC GLSP Client', () => {
     describe('disposeClientSession', () => {
         it('should fail if client is not running', async () => {
             await resetClient(false);
+            const stateChangeHandler = sinon.spy();
+            client.onCurrentStateChanged(stateChangeHandler);
             await expectToThrowAsync(() => client.disposeClientSession({ clientSessionId: '' }));
             expect(connection.sendRequest.called).to.be.false;
+            expect(stateChangeHandler.called).to.be.false;
         });
         it('should invoke the corresponding server method', async () => {
             await resetClient();
@@ -201,8 +260,11 @@ describe('Base JSON-RPC GLSP Client', () => {
     describe('shutdownServer', () => {
         it('should fail if client is not running', async () => {
             await resetClient(false);
+            const stateChangeHandler = sinon.spy();
+            client.onCurrentStateChanged(stateChangeHandler);
             expect(() => client.shutdownServer()).to.throw();
             expect(connection.sendNotification.called).to.be.false;
+            expect(stateChangeHandler.called).to.be.false;
         });
         it('should invoke the corresponding server method', async () => {
             await resetClient();
@@ -216,8 +278,11 @@ describe('Base JSON-RPC GLSP Client', () => {
     describe('sendActionMessage', () => {
         it('should fail if client is not running', async () => {
             await resetClient(false);
+            const stateChangeHandler = sinon.spy();
+            client.onCurrentStateChanged(stateChangeHandler);
             expect(() => client.sendActionMessage({ action: { kind: '' }, clientId: '' })).to.throw();
             expect(connection.sendNotification.called).to.be.false;
+            expect(stateChangeHandler.called).to.be.false;
         });
         it('should invoke the corresponding server method', async () => {
             await resetClient();
@@ -257,6 +322,8 @@ describe('Base JSON-RPC GLSP Client', () => {
         it('Should be in error state after connection error', async () => {
             // mock setup
             resetClient(false);
+            const stateChangeHandler = sinon.spy();
+            client.onCurrentStateChanged(stateChangeHandler);
             const listeners: ((e: unknown) => unknown)[] = [];
             connection.onError.callsFake(listener => {
                 listeners.push(listener);
@@ -266,10 +333,13 @@ describe('Base JSON-RPC GLSP Client', () => {
             await client.start();
             listeners.forEach(listener => listener(new Error('SomeError')));
             expect(client.currentState).to.be.equal(ClientState.ServerError);
+            expect(stateChangeHandler.calledWith(ClientState.ServerError)).to.be.true;
         });
         it('Should be in error state after connection close while running', async () => {
             // mock setup
             resetClient(false);
+            const stateChangeHandler = sinon.spy();
+            client.onCurrentStateChanged(stateChangeHandler);
             const listeners: ((e: unknown) => unknown)[] = [];
             connection.onClose.callsFake(listener => {
                 listeners.push(listener);
@@ -279,6 +349,7 @@ describe('Base JSON-RPC GLSP Client', () => {
             await client.start();
             listeners.forEach(listener => listener(undefined));
             expect(client.currentState).to.be.equal(ClientState.ServerError);
+            expect(stateChangeHandler.calledWith(ClientState.ServerError)).to.be.true;
         });
     });
 });

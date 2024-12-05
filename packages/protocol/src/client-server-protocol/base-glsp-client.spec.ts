@@ -70,31 +70,48 @@ describe('Node GLSP Client', () => {
     describe('start', () => {
         it('should fail if no server is configured', async () => {
             resetClient(false);
+            const stateChangeHandler = sinon.spy();
+            client.onCurrentStateChanged(stateChangeHandler);
             client.setStartupTimeout(5);
             await expectToThrowAsync(() => client.start());
             expect(client.currentState).to.be.equal(ClientState.StartFailed);
+            expect(stateChangeHandler.calledWith(ClientState.StartFailed)).to.be.true;
         });
         it('Should resolve when server is configured', async () => {
             resetClient(false);
+            const stateChangeHandler = sinon.spy();
+            client.onCurrentStateChanged(stateChangeHandler);
+            const started = client.start();
+            expect(client.currentState).to.be.equal(ClientState.Starting);
+            expect(stateChangeHandler.calledWith(ClientState.Starting)).to.be.true;
             client.configureServer(server);
-            const result = await client.start();
-            expect(result).to.be.undefined;
+            await started;
             expect(client.currentState).to.be.equal(ClientState.Running);
+            expect(stateChangeHandler.calledWith(ClientState.Running)).to.be.true;
         });
     });
 
     describe('stop & onStop', () => {
-        beforeEach(() => resetClient());
         it('onStop should not resolve if stop has not been called', () => {
+            resetClient();
             expect(util.inspect(client.onStop())).to.include('pending');
         });
         it('should be in stopped state and onStop should resolve', async () => {
+            resetClient();
             expect(client.currentState).to.be.not.equal(ClientState.Stopped);
-            const stopResult = await client.stop();
-            expect(stopResult).to.be.undefined;
+            const stateChangeHandler = sinon.spy();
+            client.onCurrentStateChanged(stateChangeHandler);
+            await client.stop();
             expect(client.currentState).to.be.equal(ClientState.Stopped);
-            const onStopResult = await client.onStop();
-            expect(onStopResult).to.be.undefined;
+            expect(stateChangeHandler.calledWith(ClientState.Stopping)).to.be.true;
+            expect(stateChangeHandler.calledWith(ClientState.Stopped)).to.be.true;
+            expect(server.shutdown.calledOnce).to.be.true;
+        });
+        it('should only stop a running client once, if stop is called multiple times ', async () => {
+            resetClient();
+            client.stop();
+            await client.stop();
+            expect(client.currentState).to.be.equal(ClientState.Stopped);
             expect(server.shutdown.calledOnce).to.be.true;
         });
     });
@@ -104,12 +121,14 @@ describe('Node GLSP Client', () => {
             resetClient(false);
             await expectToThrowAsync(() => client.initializeServer({ applicationId: '', protocolVersion: '' }));
             expect(server.initialize.called).to.be.false;
+            expect(client.initializeResult).to.be.undefined;
         });
         it('should fail if client is not running', async () => {
             resetClient(false);
             client.configureServer(server);
             await expectToThrowAsync(() => client.initializeServer({ applicationId: '', protocolVersion: '' }));
             expect(server.initialize.called).to.be.false;
+            expect(client.initializeResult).to.be.undefined;
         });
         it('should invoke the corresponding server method', async () => {
             resetClient();
@@ -122,17 +141,17 @@ describe('Node GLSP Client', () => {
             expect(client.initializeResult).to.be.equal(result);
         });
         it('should return cached result on consecutive invocation', async () => {
-            await resetClient();
+            resetClient();
             const expectedResult = { protocolVersion: '1.0.0', serverActions: {} };
             const params = { applicationId: 'id', protocolVersion: '1.0.0' };
             server.initialize.returns(Promise.resolve(expectedResult));
-            client['_initializeResult'] = expectedResult;
+            client.initializeServer(params);
             const result = await client.initializeServer(params);
             expect(result).to.be.deep.equal(client.initializeResult);
-            expect(server.initialize.called).to.be.false;
+            expect(server.initialize.calledOnce).to.be.true;
         });
         it('should fire event on first invocation', async () => {
-            await resetClient();
+            resetClient();
             const expectedResult = { protocolVersion: '1.0.0', serverActions: {} };
             const params = { applicationId: 'id', protocolVersion: '1.0.0' };
             server.initialize.returns(Promise.resolve(expectedResult));
@@ -143,6 +162,19 @@ describe('Node GLSP Client', () => {
             await client.initializeServer(params);
             await client.initializeServer(params);
             expect(eventHandlerSpy.calledOnceWith(expectedResult)).to.be.true;
+        });
+        it('should not use cached result on consecutive invocation if previous invocation errored', async () => {
+            resetClient();
+            const expectedResult = { protocolVersion: '1.0.0', serverActions: {} };
+            const params = { applicationId: 'id', protocolVersion: '1.0.0' };
+            server.initialize.throws(new Error('error'));
+            expectToThrowAsync(() => client.initializeServer(params));
+            expect(client.initializeResult).to.be.undefined;
+            server.initialize.returns(Promise.resolve(expectedResult));
+            const result = await client.initializeServer(params);
+            expect(result).to.be.deep.equal(expectedResult);
+            expect(server.initialize.calledTwice).to.be.true;
+            expect(client.initializeResult).to.be.equal(result);
         });
     });
 

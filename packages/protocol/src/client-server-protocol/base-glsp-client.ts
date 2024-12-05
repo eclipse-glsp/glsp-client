@@ -30,19 +30,47 @@ export const GLOBAL_HANDLER_ID = '*';
  * directly communicates with a given {@link GLSPServer} instance.
  */
 export class BaseGLSPClient implements GLSPClient {
-    protected state: ClientState;
-    protected _server?: GLSPServer;
     protected serverDeferred = new Deferred<GLSPServer>();
     protected onStartDeferred = new Deferred<void>();
     protected onStopDeferred = new Deferred<void>();
     readonly proxy: GLSPClientProxy;
     protected startupTimeout = 1500;
     protected actionMessageHandlers: Map<string, ActionMessageHandler[]> = new Map([[GLOBAL_HANDLER_ID, []]]);
-    protected _initializeResult: InitializeResult;
+    protected pendingServerInitialize?: Promise<InitializeResult>;
 
     protected onServerInitializedEmitter = new Emitter<InitializeResult>();
     get onServerInitialized(): Event<InitializeResult> {
         return this.onServerInitializedEmitter.event;
+    }
+
+    protected onCurrentStateChangedEmitter = new Emitter<ClientState>();
+    get onCurrentStateChanged(): Event<ClientState> {
+        return this.onCurrentStateChangedEmitter.event;
+    }
+
+    protected _state: ClientState;
+    protected set state(state: ClientState) {
+        if (this._state !== state) {
+            this._state = state;
+            this.onCurrentStateChangedEmitter.fire(state);
+        }
+    }
+    protected get state(): ClientState {
+        return this._state;
+    }
+
+    protected _server?: GLSPServer;
+    protected get checkedServer(): GLSPServer {
+        this.checkState();
+        if (!this._server) {
+            throw new Error(`No server is configured for GLSPClient with id '${this.id}'`);
+        }
+        return this._server;
+    }
+
+    protected _initializeResult?: InitializeResult;
+    get initializeResult(): InitializeResult | undefined {
+        return this._initializeResult;
     }
 
     constructor(protected options: GLSPClient.Options) {
@@ -71,7 +99,7 @@ export class BaseGLSPClient implements GLSPClient {
     }
 
     start(): Promise<void> {
-        if (this.state === ClientState.Running) {
+        if (this.state === ClientState.Running || this.state === ClientState.Starting) {
             return this.onStartDeferred.promise;
         }
 
@@ -96,15 +124,25 @@ export class BaseGLSPClient implements GLSPClient {
     }
 
     async initializeServer(params: InitializeParameters): Promise<InitializeResult> {
-        if (!this._initializeResult) {
+        if (this.initializeResult) {
+            return this.initializeResult;
+        } else if (this.pendingServerInitialize) {
+            return this.pendingServerInitialize;
+        }
+
+        const initializeDeferred = new Deferred<InitializeResult>();
+        try {
+            this.pendingServerInitialize = initializeDeferred.promise;
             this._initializeResult = await this.checkedServer.initialize(params);
             this.onServerInitializedEmitter.fire(this._initializeResult);
+            initializeDeferred.resolve(this._initializeResult);
+            this.pendingServerInitialize = undefined;
+        } catch (error) {
+            initializeDeferred.reject(error);
+            this._initializeResult = undefined;
+            this.pendingServerInitialize = undefined;
         }
-        return this._initializeResult;
-    }
-
-    get initializeResult(): InitializeResult | undefined {
-        return this._initializeResult;
+        return initializeDeferred.promise;
     }
 
     initializeClientSession(params: InitializeClientSessionParameters): Promise<void> {
@@ -172,14 +210,6 @@ export class BaseGLSPClient implements GLSPClient {
         if (this.state !== ClientState.Running) {
             throw new Error(`Client with id '${this.id}' is not in 'Running' state`);
         }
-    }
-
-    protected get checkedServer(): GLSPServer {
-        this.checkState();
-        if (!this._server) {
-            throw new Error(`No server is configured for GLSPClient with id '${this.id}'`);
-        }
-        return this._server;
     }
 
     setStartupTimeout(ms: number): void {

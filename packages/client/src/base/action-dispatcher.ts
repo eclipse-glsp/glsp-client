@@ -16,12 +16,14 @@
 import {
     Action,
     ActionDispatcher,
+    ActionHandlerRegistry,
     EMPTY_ROOT,
     GModelRoot,
     IActionDispatcher,
     RequestAction,
     ResponseAction,
-    SetModelAction
+    SetModelAction,
+    TYPES
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
 import { GLSPActionHandlerRegistry } from './action-handler-registry';
@@ -37,6 +39,12 @@ export class GLSPActionDispatcher extends ActionDispatcher implements IGModelRoo
     @inject(ModelInitializationConstraint)
     protected initializationConstraint: ModelInitializationConstraint;
 
+    @inject(ActionHandlerRegistry)
+    protected override actionHandlerRegistry: ActionHandlerRegistry;
+
+    /** @deprecated No longer in used. The {@link ActionHandlerRegistry} is now directly injected */
+    // eslint-disable-next-line deprecation/deprecation
+    @inject(TYPES.ActionHandlerRegistryProvider) protected override actionHandlerRegistryProvider: () => Promise<ActionHandlerRegistry>;
     protected postUpdateQueue: Action[] = [];
 
     override initialize(): Promise<void> {
@@ -47,10 +55,8 @@ export class GLSPActionDispatcher extends ActionDispatcher implements IGModelRoo
     }
 
     protected async doInitialize(): Promise<void> {
-        const registry = await this.actionHandlerRegistryProvider();
-        this.actionHandlerRegistry = registry;
-        if (registry instanceof GLSPActionHandlerRegistry) {
-            registry.initialize();
+        if (this.actionHandlerRegistry instanceof GLSPActionHandlerRegistry) {
+            this.actionHandlerRegistry.initialize();
         }
         this.handleAction(SetModelAction.create(EMPTY_ROOT)).catch(() => {
             /* Logged in handleAction method */
