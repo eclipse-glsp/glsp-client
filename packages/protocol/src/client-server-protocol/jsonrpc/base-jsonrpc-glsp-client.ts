@@ -13,6 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { Deferred } from 'sprotty-protocol';
 import { Disposable, Message, MessageConnection } from 'vscode-jsonrpc';
 import { ActionMessage } from '../../action-protocol/base-protocol';
 import { Emitter, Event } from '../../utils/event';
@@ -26,9 +27,8 @@ export class BaseJsonrpcGLSPClient implements GLSPClient {
     protected readonly connectionProvider: ConnectionProvider;
     protected connectionPromise?: Promise<MessageConnection>;
     protected resolvedConnection?: MessageConnection;
-    protected state: ClientState;
     protected onStop?: Promise<void>;
-    protected _initializeResult: InitializeResult | undefined;
+    protected pendingServerInitialize?: Promise<InitializeResult>;
 
     protected onServerInitializedEmitter = new Emitter<InitializeResult>();
     get onServerInitialized(): Event<InitializeResult> {
@@ -40,25 +40,69 @@ export class BaseJsonrpcGLSPClient implements GLSPClient {
         return this.onActionMessageNotificationEmitter.event;
     }
 
-    constructor(options: JsonrpcGLSPClient.Options) {
-        Object.assign(this, options);
-        this.state = ClientState.Initial;
+    protected onCurrentStateChangedEmitter = new Emitter<ClientState>();
+    get onCurrentStateChanged(): Event<ClientState> {
+        return this.onCurrentStateChangedEmitter.event;
     }
 
-    shutdownServer(): void {
-        this.checkedConnection.sendNotification(JsonrpcGLSPClient.ShutdownNotification);
+    protected _state: ClientState;
+    protected set state(state: ClientState) {
+        if (this._state !== state) {
+            this._state = state;
+            this.onCurrentStateChangedEmitter.fire(state);
+        }
+    }
+    protected get state(): ClientState {
+        return this._state;
+    }
+
+    protected _initializeResult?: InitializeResult;
+    get initializeResult(): InitializeResult | undefined {
+        return this._initializeResult;
+    }
+    constructor(options: JsonrpcGLSPClient.Options) {
+        this.connectionProvider = options.connectionProvider;
+        this.state = ClientState.Initial;
+    }
+    async start(): Promise<void> {
+        if (this.state === ClientState.Running || this.state === ClientState.StartFailed) {
+            return;
+        } else if (this.state === ClientState.Starting) {
+            await Event.waitUntil(this.onCurrentStateChanged, state => state === ClientState.Running || state === ClientState.StartFailed);
+            return;
+        }
+        try {
+            this.state = ClientState.Starting;
+            const connection = await this.resolveConnection();
+            connection.listen();
+            this.resolvedConnection = connection;
+            this.state = ClientState.Running;
+        } catch (error) {
+            JsonrpcGLSPClient.error('Failed to start connection to server', error);
+            this.state = ClientState.StartFailed;
+        }
     }
 
     async initializeServer(params: InitializeParameters): Promise<InitializeResult> {
-        if (!this._initializeResult) {
+        if (this.initializeResult) {
+            return this.initializeResult;
+        } else if (this.pendingServerInitialize) {
+            return this.pendingServerInitialize;
+        }
+
+        const initializeDeferred = new Deferred<InitializeResult>();
+        try {
+            this.pendingServerInitialize = initializeDeferred.promise;
             this._initializeResult = await this.checkedConnection.sendRequest(JsonrpcGLSPClient.InitializeRequest, params);
             this.onServerInitializedEmitter.fire(this._initializeResult);
+            initializeDeferred.resolve(this._initializeResult);
+            this.pendingServerInitialize = undefined;
+        } catch (error) {
+            initializeDeferred.reject(error);
+            this._initializeResult = undefined;
+            this.pendingServerInitialize = undefined;
         }
-        return this._initializeResult;
-    }
-
-    get initializeResult(): InitializeResult | undefined {
-        return this._initializeResult;
+        return initializeDeferred.promise;
     }
 
     initializeClientSession(params: InitializeClientSessionParameters): Promise<void> {
@@ -81,27 +125,8 @@ export class BaseJsonrpcGLSPClient implements GLSPClient {
         this.checkedConnection.sendNotification(JsonrpcGLSPClient.ActionMessageNotification, message);
     }
 
-    protected get checkedConnection(): MessageConnection {
-        if (!this.isConnectionActive()) {
-            throw new Error(JsonrpcGLSPClient.ClientNotReadyMsg);
-        }
-        return this.resolvedConnection!;
-    }
-
-    async start(): Promise<void> {
-        if (this.state === ClientState.Running) {
-            return;
-        }
-        try {
-            this.state = ClientState.Starting;
-            const connection = await this.resolveConnection();
-            connection.listen();
-            this.resolvedConnection = connection;
-            this.state = ClientState.Running;
-        } catch (error) {
-            JsonrpcGLSPClient.error('Failed to start connection to server', error);
-            this.state = ClientState.StartFailed;
-        }
+    shutdownServer(): void {
+        this.checkedConnection.sendNotification(JsonrpcGLSPClient.ShutdownNotification);
     }
 
     stop(): Promise<void> {
@@ -118,9 +143,17 @@ export class BaseJsonrpcGLSPClient implements GLSPClient {
             this.state = ClientState.Stopped;
             this.onStop = undefined;
             this.onActionMessageNotificationEmitter.dispose();
+            this.onCurrentStateChangedEmitter.dispose();
             this.connectionPromise = undefined;
             this.resolvedConnection = undefined;
         }));
+    }
+
+    protected get checkedConnection(): MessageConnection {
+        if (!this.isConnectionActive()) {
+            throw new Error(JsonrpcGLSPClient.ClientNotReadyMsg);
+        }
+        return this.resolvedConnection!;
     }
 
     protected resolveConnection(): Promise<MessageConnection> {

@@ -74,6 +74,10 @@ export interface GLSPClient {
      * Current client state.
      */
     readonly currentState: ClientState;
+    /**
+     * Event that is fired whenever the client state changes.
+     */
+    readonly onCurrentStateChanged: Event<ClientState>;
 
     /**
      * Initializes the client and the server connection. During the start procedure the client is in the
@@ -134,6 +138,7 @@ export interface GLSPClient {
     /**
      * Stops the client and disposes unknown resources. During the stop procedure the client is in the `Stopping` state and will
      * transition to either `Stopped` or `ServerError`.
+     * Calling the method if client is already stopped has no effect.
      *
      * @returns A promise that resolves after the server was stopped and disposed.
      */
