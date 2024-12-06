@@ -13,7 +13,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { inject, injectable } from 'inversify';
 import {
     IActionDispatcher,
     ILogger,
@@ -23,6 +22,7 @@ import {
     SetResolvedNavigationTargetAction,
     TYPES
 } from '@eclipse-glsp/sprotty';
+import { inject, injectable } from 'inversify';
 import { IDiagramOptions } from '../../base/model/diagram-loader';
 
 /**
@@ -51,9 +51,12 @@ export class NavigationTargetResolver {
         target: NavigationTarget
     ): Promise<SetResolvedNavigationTargetAction | undefined> {
         const targetUri = decodeURIComponent(target.uri);
-        if (sourceUri && sourceUri !== targetUri && `file://${sourceUri}` !== targetUri) {
+        const normalizedSourceUri = sourceUri?.replace(/^file:\/\//, '');
+        const normalizedTargetUri = targetUri.replace(/^file:\/\//, '');
+
+        if (normalizedSourceUri && normalizedSourceUri !== normalizedTargetUri) {
             // different URI, so we can't resolve it locally
-            this.logger.info("Source and Target URI are different. Can't resolve locally.", sourceUri, targetUri);
+            this.logger.info("Source and Target URI are different. Can't resolve locally.", normalizedSourceUri, normalizedTargetUri);
             return undefined;
         }
         if (NavigationTarget.getElementIds(target).length > 0) {
