@@ -13,6 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+/* eslint-disable deprecation/deprecation */
 import { TYPES as SprottyTYPES } from 'sprotty';
 
 /**
@@ -21,10 +22,12 @@ import { TYPES as SprottyTYPES } from 'sprotty';
  */
 
 const IGModelRootListener = Symbol('IGModelRootListener');
-
 export const TYPES = {
     ...SprottyTYPES,
+    /** @deprecated Using async providers for container service retrieval is discouraged. Use the `LazyInjector` instead */
+    ActionHandlerRegistryProvider: SprottyTYPES.ActionHandlerRegistryProvider,
     IAsyncClipboardService: Symbol('IAsyncClipboardService'),
+    /** @deprecated Async provider is no longer necessary. Either directly inject or use `LazyInjector`*/
     IEditorContextServiceProvider: Symbol('IEditorContextProvider'),
     IFeedbackActionDispatcher: Symbol('IFeedbackActionDispatcher'),
     IToolFactory: Symbol('Factory<Tool>'),
@@ -33,7 +36,6 @@ export const TYPES = {
     IMovementOptions: Symbol('IMovementOptions'),
     ISelectionListener: Symbol('ISelectionListener'),
     /** @deprecated Use {@link TYPES.IGModelRootListener} instead */
-    // eslint-disable-next-line deprecation/deprecation
     ISModelRootListener: IGModelRootListener,
     IGModelRootListener: IGModelRootListener,
     IContextMenuProvider: Symbol('IContextMenuProvider'),

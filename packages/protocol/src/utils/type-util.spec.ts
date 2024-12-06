@@ -14,7 +14,17 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { expect } from 'chai';
-import { AnyObject, hasArrayProp, hasBooleanProp, hasFunctionProp, hasNumberProp, hasObjectProp, hasStringProp } from './type-util';
+import { Action } from '../action-protocol/base-protocol';
+import {
+    AnyObject,
+    hasArrayProp,
+    hasBooleanProp,
+    hasFunctionProp,
+    hasNumberProp,
+    hasObjectProp,
+    hasStringProp,
+    MaybeActions
+} from './type-util';
 
 describe('TypeUtil', () => {
     describe('AnyObject', () => {
@@ -190,6 +200,27 @@ describe('TypeUtil', () => {
         });
         it('should return true for an object that has a property that matches the given key and type when using the optional flag', () => {
             expect(hasArrayProp({ someProp: ['some', 'prop'] }, 'someProp', true)).to.be.true;
+        });
+    });
+
+    describe('MaybeActions', () => {
+        describe('asArray', () => {
+            it('should return an empty array if undefined is provided', () => {
+                expect(MaybeActions.asArray(undefined)).to.deep.equal([]);
+            });
+            it('should return an array with a single action if a single action is provided', () => {
+                const action = { kind: 'someAction' };
+                expect(MaybeActions.asArray(action)).to.deep.equal([action]);
+            });
+            it('should return the same array if an array of actions is provided', () => {
+                const actions = [{ kind: 'action1' }, { kind: 'action2' }];
+                expect(MaybeActions.asArray(actions)).to.deep.equal(actions);
+            });
+            it('should return the result of the function if a function returning actions is provided', () => {
+                const actions = [{ kind: 'action1' }, { kind: 'action2' }];
+                const actionFunction = (): Action[] => actions;
+                expect(MaybeActions.asArray(actionFunction)).to.deep.equal(actions);
+            });
         });
     });
 });

@@ -27,7 +27,7 @@ import {
 import { SetBoundsFeedbackAction } from '../bounds/set-bounds-feedback-command';
 import { MoveFinishedEventAction, MoveInitializedEventAction } from '../tools/change-bounds/change-bounds-tool-feedback';
 import { DrawHelperLinesFeedbackCommand, RemoveHelperLinesFeedbackCommand } from './helper-line-feedback';
-import { HelperLineManager } from './helper-line-manager-default';
+import { HelperLineManager } from './helper-line-manager';
 import { HELPER_LINE, HelperLine, SELECTION_BOUNDS, SelectionBounds } from './model';
 import { HelperLineView, SelectionBoundsView } from './view';
 

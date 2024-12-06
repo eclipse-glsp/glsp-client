@@ -39,7 +39,7 @@ import { GLSPActionHandlerRegistry } from './action-handler-registry';
 import { GLSPCommandStack } from './command-stack';
 import { EditorContextService } from './editor-context-service';
 import { ModifyCssFeedbackCommand } from './feedback/css-feedback';
-import { FeedbackActionDispatcher } from './feedback/feedback-action-dispatcher-default';
+import { FeedbackActionDispatcher } from './feedback/feedback-action-dispatcher';
 import { FeedbackAwareSetModelCommand } from './feedback/set-model-command';
 import { FeedbackAwareUpdateModelCommand } from './feedback/update-model-command';
 import { FocusStateChangedAction } from './focus/focus-state-change-action';
@@ -72,6 +72,7 @@ export const defaultModule = new FeatureModule(
 
         bind(EditorContextService).toSelf().inSingletonScope();
         bind(TYPES.IDiagramStartup).toService(EditorContextService);
+        // eslint-disable-next-line deprecation/deprecation
         bind(TYPES.IEditorContextServiceProvider).toProvider<EditorContextService>(
             ctx => async () => ctx.container.get(EditorContextService)
         );
@@ -80,6 +81,7 @@ export const defaultModule = new FeatureModule(
         configureActionHandler(context, SetDirtyStateAction.KIND, EditorContextService);
 
         bind(FocusTracker).toSelf().inSingletonScope();
+        bind(TYPES.IDiagramStartup).toService(FocusTracker);
         configureActionHandler(context, FocusStateChangedAction.KIND, FocusTracker);
 
         // Model update initialization ------------------------------------

@@ -13,10 +13,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, Disposable, DisposableCollection, IActionDispatcher, IActionHandler, TYPES } from '@eclipse-glsp/sprotty';
+import { Action, Disposable, DisposableCollection, IActionDispatcher, IActionHandler, MaybeActions, TYPES } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
 import { EditorContextService } from '../../base/editor-context-service';
-import { IFeedbackActionDispatcher, IFeedbackEmitter, MaybeActions } from '../../base/feedback/feedback-action-dispatcher';
+import { IFeedbackActionDispatcher, IFeedbackEmitter } from '../../base/feedback/feedback-action-dispatcher';
 import { FeedbackEmitter } from '../../base/feedback/feedback-emitter';
 import { EnableToolsAction, Tool } from '../../base/tool-manager/tool';
 import { GLSPKeyTool } from '../../base/view/key-tool';

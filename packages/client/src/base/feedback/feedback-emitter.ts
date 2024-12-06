@@ -14,8 +14,8 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { Action, Disposable, arrayOf } from '@eclipse-glsp/sprotty';
-import { IFeedbackActionDispatcher, IFeedbackEmitter, MaybeActions } from './feedback-action-dispatcher';
+import { Action, Disposable, MaybeActions, arrayOf } from '@eclipse-glsp/sprotty';
+import type { IFeedbackActionDispatcher, IFeedbackEmitter } from './feedback-action-dispatcher';
 
 // counter for internal id, mainly useful for debugging
 let idCounter = 0;

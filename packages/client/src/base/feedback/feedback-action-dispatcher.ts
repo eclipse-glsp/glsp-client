@@ -13,22 +13,28 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, Command, CommandExecutionContext, Disposable, MaybeFunction, call, asArray as toArray } from '@eclipse-glsp/sprotty';
+import {
+    Action,
+    ActionHandlerRegistry,
+    Command,
+    CommandActionHandler,
+    CommandExecutionContext,
+    Disposable,
+    GModelElement,
+    IActionDispatcher,
+    ICommand,
+    ILogger,
+    MaybeActions,
+    TYPES,
+    toTypeGuard
+} from '@eclipse-glsp/sprotty';
+import { inject, injectable, preDestroy } from 'inversify';
+import { getFeedbackRank } from './feedback-command';
 import { FeedbackEmitter } from './feedback-emitter';
 
 export interface IFeedbackEmitter {}
 
 export const feedbackFeature = Symbol('feedbackFeature');
-
-export type MaybeActions = MaybeFunction<Action[] | Action | undefined>;
-
-export namespace MaybeActions {
-    // eslint-disable-next-line @typescript-eslint/no-shadow
-    export function asArray(actions?: MaybeActions): Action[] {
-        const cleanup = actions ? call(actions) : [];
-        return cleanup ? toArray(cleanup) : [];
-    }
-}
 
 /**
  * Dispatcher for actions that are meant to show visual feedback on
@@ -85,4 +91,101 @@ export interface IFeedbackActionDispatcher {
      * this method ensures that the emitter is stable and does not change between model updates.
      */
     createEmitter(): FeedbackEmitter;
+}
+
+@injectable()
+export class FeedbackActionDispatcher implements IFeedbackActionDispatcher, Disposable {
+    protected registeredFeedback: Map<IFeedbackEmitter, Action[]> = new Map();
+
+    @inject(TYPES.IActionDispatcher) protected actionDispatcher: IActionDispatcher;
+
+    @inject(TYPES.ILogger) protected logger: ILogger;
+
+    @inject(ActionHandlerRegistry) protected actionHandlerRegistry: ActionHandlerRegistry;
+
+    protected isDisposed = false;
+
+    registerFeedback(feedbackEmitter: IFeedbackEmitter, feedbackActions: Action[], cleanupActions?: MaybeActions): Disposable {
+        if (feedbackEmitter instanceof GModelElement) {
+            this.logger.log(
+                this,
+                // eslint-disable-next-line max-len
+                'GModelElements as feedback emitters are discouraged, as they usually change between model updates and are considered unstable.'
+            );
+        }
+        if (feedbackActions.length > 0) {
+            this.registeredFeedback.set(feedbackEmitter, feedbackActions);
+            this.dispatchFeedback(feedbackActions, feedbackEmitter);
+        }
+        return Disposable.create(() => this.deregisterFeedback(feedbackEmitter, cleanupActions));
+    }
+
+    deregisterFeedback(feedbackEmitter: IFeedbackEmitter, cleanupActions?: MaybeActions): void {
+        this.registeredFeedback.delete(feedbackEmitter);
+        const actions = MaybeActions.asArray(cleanupActions);
+        if (actions.length > 0) {
+            this.dispatchFeedback(actions, feedbackEmitter);
+        }
+    }
+
+    getRegisteredFeedback(): Action[] {
+        const result: Action[] = [];
+        this.registeredFeedback.forEach(actions => result.push(...actions));
+        return result;
+    }
+
+    getRegisteredFeedbackEmitters(action: Action): IFeedbackEmitter[] {
+        const result: IFeedbackEmitter[] = [];
+        this.registeredFeedback.forEach((actions, emitter) => {
+            if (actions.includes(action)) {
+                result.push(emitter);
+            }
+        });
+        return result;
+    }
+
+    getFeedbackCommands(): Command[] {
+        return this.getRegisteredFeedback()
+            .flatMap(action => this.actionToCommands(action))
+            .sort((left, right) => getFeedbackRank(left) - getFeedbackRank(right));
+    }
+
+    async applyFeedbackCommands(context: CommandExecutionContext): Promise<void> {
+        const feedbackCommands = this.getFeedbackCommands() ?? [];
+        if (feedbackCommands?.length > 0) {
+            const results = feedbackCommands.map(command => command.execute(context));
+            await Promise.all(results);
+        }
+    }
+
+    protected actionToCommands(action: Action): ICommand[] {
+        return (
+            this.actionHandlerRegistry
+                .get(action.kind)
+                .filter(toTypeGuard(CommandActionHandler))
+                .map(handler => handler.handle(action)) ?? []
+        );
+    }
+
+    createEmitter(): FeedbackEmitter {
+        return new FeedbackEmitter(this);
+    }
+
+    protected async dispatchFeedback(actions: Action[], feedbackEmitter: IFeedbackEmitter): Promise<void> {
+        try {
+            if (this.isDisposed) {
+                return;
+            }
+            await this.actionDispatcher.dispatchAll(actions);
+            this.logger.info(this, `Dispatched feedback actions for ${feedbackEmitter}`);
+        } catch (reason) {
+            this.logger.error(this, 'Failed to dispatch feedback actions', reason);
+        }
+    }
+
+    @preDestroy()
+    dispose(): void {
+        this.registeredFeedback.clear();
+        this.isDisposed = true;
+    }
 }

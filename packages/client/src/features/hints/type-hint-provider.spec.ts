@@ -36,7 +36,7 @@ import { expect } from 'chai';
 import { Container } from 'inversify';
 import * as sinon from 'sinon';
 import { GLSPActionDispatcher } from '../../base/action-dispatcher';
-import { FeedbackActionDispatcher } from '../../base/feedback/feedback-action-dispatcher-default';
+import { FeedbackActionDispatcher } from '../../base/feedback/feedback-action-dispatcher';
 import { FeedbackEmitter } from '../../base/feedback/feedback-emitter';
 import { GEdge } from '../../model';
 import { isResizable } from '../change-bounds/model';
