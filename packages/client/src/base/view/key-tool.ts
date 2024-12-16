@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { Disposable, KeyListener, KeyTool, LazyInjector, MaybePromise, TYPES } from '@eclipse-glsp/sprotty';
-import { inject, injectable, optional } from 'inversify';
+import { inject, injectable } from 'inversify';
 import { IDiagramStartup } from '../model/diagram-loader';
 
 @injectable()
@@ -22,7 +22,7 @@ export class GLSPKeyTool extends KeyTool implements IDiagramStartup {
     @inject(LazyInjector)
     protected lazyInjector: LazyInjector;
 
-    constructor(@optional() keyListeners: KeyListener[] = []) {
+    constructor(@inject(TYPES.EmptyArray) keyListeners: KeyListener[]) {
         super(keyListeners);
     }
 
