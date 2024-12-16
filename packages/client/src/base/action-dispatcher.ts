@@ -17,6 +17,7 @@ import {
     Action,
     ActionDispatcher,
     ActionHandlerRegistry,
+    Deferred,
     EMPTY_ROOT,
     GModelRoot,
     IActionDispatcher,
@@ -47,21 +48,29 @@ export class GLSPActionDispatcher extends ActionDispatcher implements IGModelRoo
     @inject(TYPES.ActionHandlerRegistryProvider) protected override actionHandlerRegistryProvider: () => Promise<ActionHandlerRegistry>;
     protected postUpdateQueue: Action[] = [];
 
+    protected initializeDeferred = new Deferred<void>();
+
     override initialize(): Promise<void> {
         if (!this.initialized) {
-            this.initialized = this.doInitialize();
+            this.initialized = this.initializeDeferred.promise;
+            this.doInitialize();
         }
         return this.initialized;
     }
 
     protected async doInitialize(): Promise<void> {
-        if (this.actionHandlerRegistry instanceof GLSPActionHandlerRegistry) {
-            this.actionHandlerRegistry.initialize();
+        try {
+            if (this.actionHandlerRegistry instanceof GLSPActionHandlerRegistry) {
+                this.actionHandlerRegistry.initialize();
+            }
+            this.handleAction(SetModelAction.create(EMPTY_ROOT)).catch(() => {
+                /* Logged in handleAction method */
+            });
+            this.startModelInitialization();
+            this.initializeDeferred.resolve();
+        } catch (error) {
+            this.initializeDeferred.reject(error);
         }
-        this.handleAction(SetModelAction.create(EMPTY_ROOT)).catch(() => {
-            /* Logged in handleAction method */
-        });
-        this.startModelInitialization();
     }
 
     protected startModelInitialization(): void {
