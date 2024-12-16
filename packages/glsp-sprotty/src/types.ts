@@ -24,6 +24,10 @@ import { TYPES as SprottyTYPES } from 'sprotty';
 const IGModelRootListener = Symbol('IGModelRootListener');
 export const TYPES = {
     ...SprottyTYPES,
+    // GLSP extends certain sprotty base classes and replaces constructor injection with lazy injection to avoid circular dependencies
+    // To pass inversify base class checks an empty array has to be injected.
+    // This is the purpose of this service identifier. Typically adopters should not have to  use this identifier.
+    EmptyArray: Symbol('EmptyArray'),
     /** @deprecated Using async providers for container service retrieval is discouraged. Use the `LazyInjector` instead */
     ActionHandlerRegistryProvider: SprottyTYPES.ActionHandlerRegistryProvider,
     IAsyncClipboardService: Symbol('IAsyncClipboardService'),

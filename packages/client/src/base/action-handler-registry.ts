@@ -15,7 +15,7 @@
  ********************************************************************************/
 
 import { ActionHandlerRegistration, ActionHandlerRegistry, IActionHandlerInitializer, LazyInjector, TYPES } from '@eclipse-glsp/sprotty';
-import { inject, injectable, optional } from 'inversify';
+import { inject, injectable } from 'inversify';
 
 @injectable()
 export class GLSPActionHandlerRegistry extends ActionHandlerRegistry {
@@ -24,7 +24,10 @@ export class GLSPActionHandlerRegistry extends ActionHandlerRegistry {
 
     protected initialized = false;
 
-    constructor(@optional() registrations: ActionHandlerRegistration[] = [], @optional() initializers: IActionHandlerInitializer[] = []) {
+    constructor(
+        @inject(TYPES.EmptyArray) registrations: ActionHandlerRegistration[],
+        @inject(TYPES.EmptyArray) initializers: IActionHandlerInitializer[]
+    ) {
         super(registrations, initializers);
     }
     /**

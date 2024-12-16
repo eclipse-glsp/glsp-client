@@ -24,7 +24,7 @@ import {
     MouseTool,
     TYPES
 } from '@eclipse-glsp/sprotty';
-import { inject, injectable, optional } from 'inversify';
+import { inject, injectable } from 'inversify';
 import { IDiagramStartup } from '../model/diagram-loader';
 import { Ranked } from '../ranked';
 
@@ -41,7 +41,7 @@ export class GLSPMouseTool extends MouseTool implements IDiagramStartup {
 
     protected rankedMouseListeners: Map<number, MouseListener[]>;
 
-    constructor(@optional() mouseListeners: MouseListener[] = []) {
+    constructor(@inject(TYPES.EmptyArray) mouseListeners: MouseListener[]) {
         super(mouseListeners);
     }
 

@@ -140,6 +140,8 @@ export const defaultModule = new FeatureModule(
         bind(GLSPUIExtensionRegistry).toSelf().inSingletonScope();
         bindOrRebind(context, TYPES.UIExtensionRegistry).toService(GLSPUIExtensionRegistry);
         bind(TYPES.IDiagramStartup).toService(GLSPUIExtensionRegistry);
+
+        bind(TYPES.EmptyArray).toDynamicValue(() => []);
     },
     {
         featureId: Symbol('default')
