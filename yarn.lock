@@ -214,10 +214,10 @@
   resolved "https://registry.yarnpkg.com/@discoveryjs/json-ext/-/json-ext-0.5.7.tgz#1d572bfbbe14b7704e0ba0f39b74815b84870d70"
   integrity sha512-dBVuXR082gk3jsFp7Rd/JI4kytwGHecnCoTtXFb7DB6CNHp4rg5k1bhg0nWdLGLnOV71lmDzGQaLMy8iPLY0pw==
 
-"@eclipse-glsp/cli@2.3.0-next.170+899acc6":
-  version "2.3.0-next.170"
-  resolved "https://registry.yarnpkg.com/@eclipse-glsp/cli/-/cli-2.3.0-next.170.tgz#df6be145da2999c50436612d01ff67fcfe208a3e"
-  integrity sha512-67c3w81u+13YiZVlsKjylfsZa2otKDI1pznEZBoRBi0v6a81icsR4mTul0COijDfBGHw+WiqjY0lX9DdIlLqAA==
+"@eclipse-glsp/cli@2.3.0-next.173+cd23030":
+  version "2.3.0-next.173"
+  resolved "https://registry.yarnpkg.com/@eclipse-glsp/cli/-/cli-2.3.0-next.173.tgz#9b8c3e05a5a195b03055c814bad6a3a6fbe17e2a"
+  integrity sha512-nb6CxJj/2FSu/rmJJsNGU3HHVck8Jw6OLE0XqYDE3FMk0zc8DT9ZcvyA2aMCnvZeCzajlqnxYzD3DZ3eg8KKzg==
   dependencies:
     commander "^10.0.1"
     glob "^10.3.10"
@@ -228,13 +228,13 @@
     semver "^7.5.1"
     shelljs "^0.8.5"
 
-"@eclipse-glsp/config-test@2.3.0-next.170+899acc6":
-  version "2.3.0-next.170"
-  resolved "https://registry.yarnpkg.com/@eclipse-glsp/config-test/-/config-test-2.3.0-next.170.tgz#7747baf22005727d3c634d2f2e43f43f413db443"
-  integrity sha512-UihpWrwnKY5YrBpW/5Cw4PhSXQuxHfag0BgbC0Utpa7eNrXTwau/DLU2ZZ97qfo/RW4EMK4XbAd9Ck3faiuC3g==
+"@eclipse-glsp/config-test@2.3.0-next.173+cd23030":
+  version "2.3.0-next.173"
+  resolved "https://registry.yarnpkg.com/@eclipse-glsp/config-test/-/config-test-2.3.0-next.173.tgz#7dc5d76eb1fc77796ce451e733080773ceb5fb14"
+  integrity sha512-uobKo00Rir6Ldwbgo5q67CeTuiBNvDqlAEWnV/+Zm39Zog/oFbHmdZ7xkxQO1uMjFn3lF1hpBfRhJ1V3rieZ5g==
   dependencies:
-    "@eclipse-glsp/mocha-config" "2.3.0-next.170+899acc6"
-    "@eclipse-glsp/nyc-config" "2.3.0-next.170+899acc6"
+    "@eclipse-glsp/mocha-config" "2.3.0-next.173+cd23030"
+    "@eclipse-glsp/nyc-config" "2.3.0-next.173+cd23030"
     "@istanbuljs/nyc-config-typescript" "^1.0.2"
     "@types/chai" "^4.3.7"
     "@types/mocha" "^10.0.2"
@@ -248,14 +248,14 @@
     sinon "^15.1.0"
     ts-node "^10.9.1"
 
-"@eclipse-glsp/config@2.3.0-next.170+899acc6":
-  version "2.3.0-next.170"
-  resolved "https://registry.yarnpkg.com/@eclipse-glsp/config/-/config-2.3.0-next.170.tgz#e8448953db59c8bb7f512712f4321ad2a476e7e6"
-  integrity sha512-Zci6w0P+4IYNdYwflG8JoWudUvbRbKfzrTU0ylDY0L5dynrZHikPwhzxvviSLnyWzJdsIua6mdZPYYWr61gzag==
+"@eclipse-glsp/config@2.3.0-next.173+cd23030":
+  version "2.3.0-next.173"
+  resolved "https://registry.yarnpkg.com/@eclipse-glsp/config/-/config-2.3.0-next.173.tgz#a8e3ff51eada8db0a46b9b810a26bc84dddd8b1e"
+  integrity sha512-+gTfAcVOi/FyfQCuCo6NEXwC6KW/HQHUZiSTU1bpSUh4crsFDflkHcm/Qt1/cotMlK8vJYNH/qB2GoQlX8+WhA==
   dependencies:
-    "@eclipse-glsp/eslint-config" "2.3.0-next.170+899acc6"
-    "@eclipse-glsp/prettier-config" "2.3.0-next.170+899acc6"
-    "@eclipse-glsp/ts-config" "2.3.0-next.170+899acc6"
+    "@eclipse-glsp/eslint-config" "2.3.0-next.173+cd23030"
+    "@eclipse-glsp/prettier-config" "2.3.0-next.173+cd23030"
+    "@eclipse-glsp/ts-config" "2.3.0-next.173+cd23030"
     "@typescript-eslint/eslint-plugin" "^6.7.5"
     "@typescript-eslint/parser" "^6.7.5"
     eslint "^8.51.0"
@@ -270,40 +270,40 @@
     rimraf "^5.0.5"
 
 "@eclipse-glsp/dev@next":
-  version "2.3.0-next.170"
-  resolved "https://registry.yarnpkg.com/@eclipse-glsp/dev/-/dev-2.3.0-next.170.tgz#e5f0eb069e6abdfbf607d565d7d4f6e384fbbb50"
-  integrity sha512-dG7/RKXJ1ytxhvCkYx2nbGrHTWDfnTQXaaHYMk//KImz9IdKCOMh6twaofzdzeiiX7Bnf44A1lucBX5rJaMhCg==
+  version "2.3.0-next.173"
+  resolved "https://registry.yarnpkg.com/@eclipse-glsp/dev/-/dev-2.3.0-next.173.tgz#e98ad379837bb560382e3b5f731cca400df40794"
+  integrity sha512-RZuKjvylgjNB0qDLeOpfJEzCIjlYtnpsV9rcIRvUDmOR7QMEl3MrkkzyjZo9tIswE+iIfAjhiKI+lXGIkH4VEQ==
   dependencies:
-    "@eclipse-glsp/cli" "2.3.0-next.170+899acc6"
-    "@eclipse-glsp/config" "2.3.0-next.170+899acc6"
-    "@eclipse-glsp/config-test" "2.3.0-next.170+899acc6"
+    "@eclipse-glsp/cli" "2.3.0-next.173+cd23030"
+    "@eclipse-glsp/config" "2.3.0-next.173+cd23030"
+    "@eclipse-glsp/config-test" "2.3.0-next.173+cd23030"
 
-"@eclipse-glsp/eslint-config@2.3.0-next.170+899acc6":
-  version "2.3.0-next.170"
-  resolved "https://registry.yarnpkg.com/@eclipse-glsp/eslint-config/-/eslint-config-2.3.0-next.170.tgz#22d9301f09fd0e3cab5bebe983d27b6aee4dbac9"
-  integrity sha512-HIgiT2pby6vKGoFDmv5AEzJxANETX2Mda2X354RU+x7TIuvMOFvApwvIyoicPt+CqMMeDPmlKxsWIzcbWAiI/A==
+"@eclipse-glsp/eslint-config@2.3.0-next.173+cd23030":
+  version "2.3.0-next.173"
+  resolved "https://registry.yarnpkg.com/@eclipse-glsp/eslint-config/-/eslint-config-2.3.0-next.173.tgz#987e089b4ce2e8bbdcd7f48f94dfd8a08c9f9f50"
+  integrity sha512-3K8GpnsercDh2PGzfOeEL6bw8bZSSg/fc3iKOYSALjZU6N4vChoK9vjhhAov1aRUi73b8oNMn4EHzxqrKzrq8g==
 
-"@eclipse-glsp/mocha-config@2.3.0-next.170+899acc6":
-  version "2.3.0-next.170"
-  resolved "https://registry.yarnpkg.com/@eclipse-glsp/mocha-config/-/mocha-config-2.3.0-next.170.tgz#66fd2af5e4392150538d6c3d77f1b321ee9c31d6"
-  integrity sha512-4bYx4e+aZ5HFj2/Byzfznk5PQ3pGGjLM7jGTPVY1hF4rvu5pdlgGD0JySrS2bVmS6dTlW+UPHWZLTtAjE06tpA==
+"@eclipse-glsp/mocha-config@2.3.0-next.173+cd23030":
+  version "2.3.0-next.173"
+  resolved "https://registry.yarnpkg.com/@eclipse-glsp/mocha-config/-/mocha-config-2.3.0-next.173.tgz#4084e5f48cb0c3cf67165fb48e7c108267fdba2e"
+  integrity sha512-B7oi6rIMQqCgi/263BwOL5Qd3vp8JzBQ7HHB+xqOxoMM7whL4wmROJOnEs3OPKuPuhbv58IVITfdVSy8eyvwXw==
 
-"@eclipse-glsp/nyc-config@2.3.0-next.170+899acc6":
-  version "2.3.0-next.170"
-  resolved "https://registry.yarnpkg.com/@eclipse-glsp/nyc-config/-/nyc-config-2.3.0-next.170.tgz#40b8f9a271d9c1b4f616daa671009e67636a82d7"
-  integrity sha512-HNAWJuW3pwW2LH3nuj+r8EuC1bEYJ/vCUNV/g6YXVxgM7fkIAaWpfx7C1VMm0FCSCuXuzCOjd3yK3LNKaLLHjA==
+"@eclipse-glsp/nyc-config@2.3.0-next.173+cd23030":
+  version "2.3.0-next.173"
+  resolved "https://registry.yarnpkg.com/@eclipse-glsp/nyc-config/-/nyc-config-2.3.0-next.173.tgz#0543cd0d62119ef3844d2cd248845274b4143749"
+  integrity sha512-l0bD3IBKc+8sTnNWw1J27ljYasrqq6346KHFmDr4Rmk0aAsFBvQjC0Sl+lzNWBVj4AL3kzTL8pfqPwwa5kKwnQ==
 
-"@eclipse-glsp/prettier-config@2.3.0-next.170+899acc6":
-  version "2.3.0-next.170"
-  resolved "https://registry.yarnpkg.com/@eclipse-glsp/prettier-config/-/prettier-config-2.3.0-next.170.tgz#92c564ef47e927f9b36b5280867200ae2d2ad4b2"
-  integrity sha512-3CnDsjBPV/PdduXM5gDCXnvDdfVyM8Ga48jkWKgQcQx1ihrE6gG83ENb/PuQgVwmZTdiZ4gDBe564PUWYvo7Xg==
+"@eclipse-glsp/prettier-config@2.3.0-next.173+cd23030":
+  version "2.3.0-next.173"
+  resolved "https://registry.yarnpkg.com/@eclipse-glsp/prettier-config/-/prettier-config-2.3.0-next.173.tgz#7187c38d6aadd64bc9bec24239be04e0d8a209d6"
+  integrity sha512-rnLD6cEseNqwHuq/uDvwVi02aa/I81+bum0tlAqA/Bw2LZZUCdJfBlmbqCKieCgQa+ZBCbnnXyX2/Z104G9xvQ==
   dependencies:
     prettier-plugin-packagejson "~2.4.6"
 
-"@eclipse-glsp/ts-config@2.3.0-next.170+899acc6":
-  version "2.3.0-next.170"
-  resolved "https://registry.yarnpkg.com/@eclipse-glsp/ts-config/-/ts-config-2.3.0-next.170.tgz#011a41f9f1df36a42fbf30fef1454c761eb458ea"
-  integrity sha512-jhU2aSIndwbhSbUmKvZ0gjP8U1K+TP7QwuS6nMPZkvH9MChq3PWnn244IAAgzcDLjd6tz+VprfAyY6hE8IQo4Q==
+"@eclipse-glsp/ts-config@2.3.0-next.173+cd23030":
+  version "2.3.0-next.173"
+  resolved "https://registry.yarnpkg.com/@eclipse-glsp/ts-config/-/ts-config-2.3.0-next.173.tgz#4b32bf0c2ad2e763425558d50727e9c2983dd107"
+  integrity sha512-Ke/JRXeteqEUNlCixcG1HA/y6CC7CT+jDfoERYqJlF6MJTkiwWewpdaQ5EACADK5giAaIvc3auYmpavH3EMBWw==
 
 "@eslint-community/eslint-utils@^4.2.0", "@eslint-community/eslint-utils@^4.4.0":
   version "4.4.0"
@@ -377,6 +377,24 @@
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/@hutson/parse-repository-url/-/parse-repository-url-3.0.2.tgz#98c23c950a3d9b6c8f0daed06da6c3af06981340"
   integrity sha512-H9XAx3hc0BQHY6l+IFSWHDySypcXsvsuLhgYLUGywmJ5pswRVQJUHpOsobnLYp2ZUaUlKiKDrgWWhosOwAEM8Q==
+
+"@inversifyjs/common@1.4.0":
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/@inversifyjs/common/-/common-1.4.0.tgz#4df42e8cb012a1630ebf2f3c65bb76ac5b0f3e4c"
+  integrity sha512-qfRJ/3iOlCL/VfJq8+4o5X4oA14cZSBbpAmHsYj8EsIit1xDndoOl0xKOyglKtQD4u4gdNVxMHx4RWARk/I4QA==
+
+"@inversifyjs/core@1.3.5":
+  version "1.3.5"
+  resolved "https://registry.yarnpkg.com/@inversifyjs/core/-/core-1.3.5.tgz#c02ee3ed036aae40189302794f16a9f4e0ed4557"
+  integrity sha512-B4MFXabhNTAmrfgB+yeD6wd/GIvmvWC6IQ8Rh/j2C3Ix69kmqwz9pr8Jt3E+Nho9aEHOQCZaGmrALgtqRd+oEQ==
+  dependencies:
+    "@inversifyjs/common" "1.4.0"
+    "@inversifyjs/reflect-metadata-utils" "0.2.4"
+
+"@inversifyjs/reflect-metadata-utils@0.2.4":
+  version "0.2.4"
+  resolved "https://registry.yarnpkg.com/@inversifyjs/reflect-metadata-utils/-/reflect-metadata-utils-0.2.4.tgz#c65172283db9516c4a27e8d673ca7a31a07d528b"
+  integrity sha512-u95rV3lKfG+NT2Uy/5vNzoDujos8vN8O18SSA5UyhxsGYd4GLQn/eUsGXfOsfa7m34eKrDelTKRUX1m/BcNX5w==
 
 "@isaacs/cliui@^8.0.2":
   version "8.0.2"
@@ -1054,10 +1072,12 @@
   dependencies:
     undici-types "~5.26.4"
 
-"@types/node@16.x":
-  version "16.18.96"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-16.18.96.tgz#eb0012d23ff53d14d64ec8a352bf89792de6aade"
-  integrity sha512-84iSqGXoO+Ha16j8pRZ/L90vDMKX04QTYMTfYeE1WrjWaZXuchBehGUZEpNgx7JnmlrIHdnABmpjrQjhCnNldQ==
+"@types/node@18.x":
+  version "18.19.68"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-18.19.68.tgz#f4f10d9927a7eaf3568c46a6d739cc0967ccb701"
+  integrity sha512-QGtpFH1vB99ZmTa63K4/FU8twThj4fuVSBkGddTp7uIL/cuoLWIUSL2RcOaigBhfR+hg5pgGkBnkoOxrTVBMKw==
+  dependencies:
+    undici-types "~5.26.4"
 
 "@types/normalize-package-data@^2.4.0":
   version "2.4.4"
@@ -4023,10 +4043,13 @@ inversify-logger-middleware@^3.1.0:
   dependencies:
     chalk "2.3.0"
 
-inversify@^6.0.1, inversify@~6.0.2:
-  version "6.0.2"
-  resolved "https://registry.yarnpkg.com/inversify/-/inversify-6.0.2.tgz#dc7fa0348213d789d35ffb719dea9685570989c7"
-  integrity sha512-i9m8j/7YIv4mDuYXUAcrpKPSaju/CIly9AHK5jvCBeoiM/2KEsuCQTTP+rzSWWpLYWRukdXFSl6ZTk2/uumbiA==
+inversify@^6.1.3:
+  version "6.2.0"
+  resolved "https://registry.yarnpkg.com/inversify/-/inversify-6.2.0.tgz#3c1a81bcd5722975f001a8af162c48255858daaa"
+  integrity sha512-wpiGpyIphFthWf18CBASJ1gClYwnW0mKjcSHwOuF7ToF/TBoarYSItX492WTGyK0VdJN1afwBIfaEpvp8IetPA==
+  dependencies:
+    "@inversifyjs/common" "1.4.0"
+    "@inversifyjs/core" "1.3.5"
 
 ip-address@^9.0.5:
   version "9.0.5"
@@ -6881,21 +6904,21 @@ sprintf-js@~1.0.2:
   resolved "https://registry.yarnpkg.com/sprintf-js/-/sprintf-js-1.0.3.tgz#04e6926f662895354f3dd015203633b857297e2c"
   integrity sha512-D9cPgkvLlV3t3IzL0D0YLvGA9Ahk4PcvVwUbN0dSGr1aP0Nrt4AEnTUbuGvquEC0mA64Gqt1fzirlRs5ibXx8g==
 
-sprotty-protocol@1.3.0, sprotty-protocol@^1.3.0:
-  version "1.3.0"
-  resolved "https://registry.yarnpkg.com/sprotty-protocol/-/sprotty-protocol-1.3.0.tgz#78a6a69cc5eb8b94b352882a83d0f339fd828a0d"
-  integrity sha512-cQgKHgzVRJXbosvMsEZK4YiMSPOFhL1yYa3oLBzp9lgDL7ltYbdGCQcFqoVD6h56ObuVWyjNZu1R8YSryEkZrg==
+sprotty-protocol@1.4.0, sprotty-protocol@^1.4.0:
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/sprotty-protocol/-/sprotty-protocol-1.4.0.tgz#817d1fa4e6cc9300eda8ebfc29fa8976cb08aa0e"
+  integrity sha512-+AAskW3Mzcq5UhMnummp4wwJ1dYdgT7/utmWoHtjfrK7JTJq9G/VWWlHnTnQGzHHyma03Loy2AozToXoArQuAQ==
 
-sprotty@1.3.0:
-  version "1.3.0"
-  resolved "https://registry.yarnpkg.com/sprotty/-/sprotty-1.3.0.tgz#c5ef6b3d3a6016e6c98e4d4af0a2b43cde7c417f"
-  integrity sha512-CFGq5po1FsQaCXx/QZjoCFYbwCrEofxAWLjxN3fJqeNmGF+CiRkHgHgXdO0OJq0o1XRgfq9ksAzYZ8Yof4Q3JA==
+sprotty@1.4.0:
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/sprotty/-/sprotty-1.4.0.tgz#c71b19808649ea9e2480c1bd7da1caaa532b1308"
+  integrity sha512-QGZZQAM2pOa1QxJUG05Ox76RJOKuvKloT1nCkvs6SD5w/HfkcL0mjq1Om1+fb5NAalDzurrJL6agKUReST3TFw==
   dependencies:
     autocompleter "^9.1.2"
     file-saver "^2.0.5"
-    inversify "~6.0.2"
+    inversify "^6.1.3"
     snabbdom "~3.5.1"
-    sprotty-protocol "^1.3.0"
+    sprotty-protocol "^1.4.0"
     tinyqueue "^2.0.3"
 
 ssri@^10.0.0, ssri@^10.0.1:

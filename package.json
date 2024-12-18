@@ -34,13 +34,13 @@
   "devDependencies": {
     "@eclipse-glsp/dev": "next",
     "@types/lodash": "4.14.191",
-    "@types/node": "16.x",
+    "@types/node": "18.x",
     "concurrently": "^8.2.2",
     "lerna": "^7.1.1",
     "typescript": "^5.1.6"
   },
   "engines": {
-    "node": ">=16.11.0",
-    "yarn": ">=1.7.0 <2.x.x"
+    "node": ">=18",
+    "yarn": ">=1.7.0 <2"
   }
 }

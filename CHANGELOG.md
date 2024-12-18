@@ -1,14 +1,30 @@
 # Eclipse GLSP Client Changelog
 
-## 2.3.0 - active
+## [v2.3.0 - 19/12/2024](https://github.com/eclipse-glsp/glsp-client/releases/tag/v2.3.0)
 
 ### Changes
 
+-   [protocol] Ensure that the `@eclipse-glsp/protocol` package has no default dependency to inversify [#384](https://github.com/eclipse-glsp/glsp-client/pull/384)[#387](https://github.com/eclipse-glsp/glsp-client/pull/387)
 -   [diagram] Ensure that `GLSPMousePositionTracker` correctly calculates the current position in diagram local coordinates [#391](https://github.com/eclipse-glsp/glsp-client/pull/391)
--   [di] Align Interface usage across \*Manager classes [#388](https://github.com/eclipse-glsp/glsp-client/pull/388)
-    -   Change DI bindings for: `GridManger` to `TYPES.IGridManager`, `ChangeBoundsManager` to `TYPES.IChangeBoundsManager` and `DebugManager` to `TYPES.IDebugManager`.
+-   [api] Align `ActionDispatcher` interface with `GLSPActionDispatcher` implementation. [#394](https://github.com/eclipse-glsp/glsp-client/pull/394)
+    -   Directly injecting the `GLSPActionDispatcher` is no longer necessary use `TYPES.IActionDispatcher`/`ActionDispatcher` instead
+-   [standlalone] Adapt `copyPasteStandalone` module to ensure that copy/cut/paste listeners are scoped to the active diagram and don't trigger globally [#395](https://github.com/eclipse-glsp/glsp-client/pull/395)
+-   [diagram] Introduce `IMovementOptions` for the `ChangeBoundsTool` to allow configuration of movement behavior [#397](https://github.com/eclipse-glsp/glsp-client/pull/397) - Contributed on behalf of Axon Ivy AG
+-   [diagram] Fix a bug that prevented the `ChangeBoundsTool` from working correctly if the user moved outside of the diagram during an operation [#399](https://github.com/eclipse-glsp/glsp-client/pull/399) - Contributed on behalf of AxonIvy AG
+-   [api] Improve default `GLSPClient` implementation to be more robust when certain methods are invoked multiple times [#402](https://github.com/eclipse-glsp/glsp-client/pull/402)
+-   [diagram] Fix a bug in the uri handling of the `NavigationTargetResolver` [#403](https://github.com/eclipse-glsp/glsp-client/pull/403)
+-   [di] Use inversify ^6.1.3 as new baseline and update to sprotty 1.4.0 [#407](https://github.com/eclipse-glsp/glsp-client/pull/407)[#408](https://github.com/eclipse-glsp/glsp-client/pull/408)
 
 ### Potentially breaking changes
+
+-   [di] Align Interface usage across \*Manager classes [#388](https://github.com/eclipse-glsp/glsp-client/pull/388)
+    -   Change DI bindings for: `GridManger` to `TYPES.IGridManager`, `ChangeBoundsManager` to `TYPES.IChangeBoundsManager` and `DebugManager` to `TYPES.IDebugManager`.
+-   [api] Improved performance of diagram loading routine [#398](https://github.com/eclipse-glsp/glsp-client/pull/398) - Contributed on behalf of Axon Ivy AG
+    -   Fix behavior of `postRequestModel` hook to actually work as descried in the documentation.
+        Dispatching of long running actions in this hook can delay the initial model loading.
+    -   Directly calling model-aware functions in the `preInitialize` hook is discouraged.
+        If needed dispatch an action instead.
+        This ensures that the code will only be called once the model is available.
 
 ## [v2.2.1 - 22/07/2024](https://github.com/eclipse-glsp/glsp-client/releases/tag/v2.2.1)
 

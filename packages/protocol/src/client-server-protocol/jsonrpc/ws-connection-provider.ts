@@ -45,7 +45,7 @@ export interface GLSPConnectionHandler {
 
 export class GLSPWebSocketProvider {
     protected webSocket: WebSocket;
-    protected reconnectTimer: NodeJS.Timer;
+    protected reconnectTimer: NodeJS.Timeout;
     protected reconnectAttempts = 0;
 
     protected options: GLSPWebSocketOptions = {
