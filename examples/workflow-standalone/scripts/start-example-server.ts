@@ -52,7 +52,7 @@ async function downloadIfNecessary(): Promise<string> {
         .exec(`npm pack @eclipse-glsp-examples/workflow-server-bundled@${config.version} --json`, { silent: true })
         .stdout.trim();
     const version = JSON.parse(packResultJson)[0].version;
-    const tarBall = fs.readdirSync(serverDirPath).find(file => file.endsWith('.tgz' || '.tar.gz'))!;
+    const tarBall = fs.readdirSync(serverDirPath).find(file => file.endsWith('.tar.gz') || file.endsWith('.tgz'))!;
     console.log('Extract downloaded server tarball');
     await extract({
         file: tarBall,
