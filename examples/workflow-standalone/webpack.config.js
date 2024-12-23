@@ -70,6 +70,10 @@ module.exports = {
         new webpack.ProvidePlugin({
             process: 'process/browser'
         }),
-        new webpack.WatchIgnorePlugin({ paths: [/\.js$/, /\.d\.ts$/] })
+        new webpack.WatchIgnorePlugin({ paths: [/\.js$/, /\.d\.ts$/] }),
+        new webpack.DefinePlugin({
+            GLSP_SERVER_HOST: JSON.stringify(process.env.GLSP_SERVER_HOST || 'localhost'),
+            GLSP_SERVER_PORT: JSON.stringify(process.env.GLSP_SERVER_PORT || '8081'),
+        })
     ]
 };

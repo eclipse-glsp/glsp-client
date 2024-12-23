@@ -28,7 +28,8 @@ import { Container } from 'inversify';
 import { join, resolve } from 'path';
 import { MessageConnection } from 'vscode-jsonrpc';
 import createContainer from './di.config';
-const port = 8081;
+const host = GLSP_SERVER_HOST;
+const port = GLSP_SERVER_PORT;
 const id = 'workflow';
 const diagramType = 'workflow-diagram';
 
@@ -37,7 +38,7 @@ const currentDir = loc.substring(0, loc.lastIndexOf('/'));
 const examplePath = resolve(join(currentDir, '../app/example1.wf'));
 const clientId = 'sprotty';
 
-const webSocketUrl = `ws://localhost:${port}/${id}`;
+const webSocketUrl = `ws://${host}:${port}/${id}`;
 
 let glspClient: GLSPClient;
 let container: Container;
