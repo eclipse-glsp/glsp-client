@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2023 Business Informatics Group (TU Wien) and others.
+ * Copyright (c) 2023-2025 Business Informatics Group (TU Wien) and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -14,15 +14,16 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-:root {
-    --glsp-navigation-highlight: rgba(136, 68, 68, 0.2);
+.search-hidden {
+    opacity: 0.4;
 }
 
-.navigable-element {
-    stroke: var(--glsp-navigation-highlight);
-}
-
-.navigable-element .sprotty-edge.arrow {
-    fill: var(--glsp-navigation-highlight);
-    stroke: var(--glsp-navigation-highlight);
+.search-highlighted .sprotty-node,
+.search-highlighted .sprotty-edge {
+    stroke-width: 1.5px;
+    stroke-width: 2px;
+    stroke-dashoffset: 5;
+    stroke-dasharray: 5, 5;
+    stroke-linecap: round;
+    stroke: #130bf7;
 }

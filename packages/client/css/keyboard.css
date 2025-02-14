@@ -24,8 +24,18 @@
     grid-template-columns: auto auto auto;
 }
 
+.grid-container.grid-visible {
+    opacity: 0.7;
+    visibility: visible;
+}
+
+.grid-container.grid-hidden {
+    opacity: 0;
+    visibility: hidden;
+}
+
 .grid-container:focus {
-    opacity: 1 !important;
+    opacity: 1;
 }
 
 .grid-item {
