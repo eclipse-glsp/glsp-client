@@ -31,6 +31,7 @@ import {
     GModelElement,
     GModelRoot,
     GParentElement,
+    KeyListener,
     MouseListener,
     Operation,
     Point,
@@ -52,7 +53,9 @@ import {
 import { LocalRequestBoundsAction } from '../../bounds/local-bounds';
 import { SetBoundsFeedbackAction } from '../../bounds/set-bounds-feedback-command';
 import { GResizeHandle, isResizable } from '../../change-bounds/model';
+import { MoveElementKeyListener } from '../../change-bounds/move-element-key-listener';
 import { IMovementRestrictor } from '../../change-bounds/movement-restrictor';
+import { Grid } from '../../grid/grid';
 import { BaseEditTool } from '../base-tools';
 import { CSS_ACTIVE_HANDLE, IChangeBoundsManager } from './change-bounds-manager';
 import {
@@ -90,6 +93,7 @@ export class ChangeBoundsTool extends BaseEditTool {
     @inject(TYPES.IMovementRestrictor) @optional() readonly movementRestrictor?: IMovementRestrictor;
     @inject(TYPES.IChangeBoundsManager) readonly changeBoundsManager: IChangeBoundsManager;
     @inject(TYPES.IMovementOptions) @optional() readonly movementOptions: IMovementOptions = { allElementsNeedToBeValid: true };
+    @inject(TYPES.Grid) @optional() readonly grid?: Grid;
 
     get id(): string {
         return ChangeBoundsTool.ID;
@@ -106,12 +110,20 @@ export class ChangeBoundsTool extends BaseEditTool {
             this.toDisposeOnDisable.push(this.selectionService.addListener(feedbackMoveMouseListener));
         }
 
+        // install move key listener for client-side move updates
+        const createMoveKeyListener = this.createMoveKeyListener();
+        this.toDisposeOnDisable.push(this.keyTool.registerListener(createMoveKeyListener));
+        if (Disposable.is(createMoveKeyListener)) {
+            this.toDisposeOnDisable.push(createMoveKeyListener);
+        }
+
         // install change bounds listener for client-side resize updates and server-side updates
         const changeBoundsListener = this.createChangeBoundsListener();
         this.toDisposeOnDisable.push(this.mouseTool.registerListener(changeBoundsListener));
         if (Disposable.is(changeBoundsListener)) {
             this.toDisposeOnDisable.push(changeBoundsListener);
         }
+
         if (ISelectionListener.is(changeBoundsListener)) {
             this.toDisposeOnDisable.push(this.selectionService.addListener(changeBoundsListener));
         }
@@ -125,7 +137,11 @@ export class ChangeBoundsTool extends BaseEditTool {
         return new FeedbackMoveMouseListener(this);
     }
 
-    protected createChangeBoundsListener(): MouseListener {
+    protected createMoveKeyListener(): KeyListener {
+        return new MoveElementKeyListener(this.selectionService, this.changeBoundsManager, this.grid);
+    }
+
+    protected createChangeBoundsListener(): MouseListener & ISelectionListener {
         return new ChangeBoundsListener(this);
     }
 }
