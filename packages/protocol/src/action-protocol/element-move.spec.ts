@@ -15,44 +15,44 @@
  ********************************************************************************/
 /* eslint-disable max-len */
 import { expect } from 'chai';
-import { MoveElementAction } from './element-move';
+import { MoveElementRelativeAction } from './element-move';
 
 /**
  * Tests for the utility functions declared in the namespaces of the protocol
  * action definitions.
  */
 describe('Element move actions', () => {
-    describe('MoveElementAction', () => {
+    describe('MoveElementRelativeAction', () => {
         describe('is', () => {
             it('should return true for an object having the correct type and a value for all required interface properties', () => {
-                const action: MoveElementAction = {
-                    kind: 'moveElement',
+                const action: MoveElementRelativeAction = {
+                    kind: 'moveElementRelative',
                     elementIds: ['someId'],
                     moveX: 0,
                     moveY: 0,
                     snap: true
                 };
-                expect(MoveElementAction.is(action)).to.be.true;
+                expect(MoveElementRelativeAction.is(action)).to.be.true;
             });
             it('should return false for `undefined`', () => {
-                expect(MoveElementAction.is(undefined)).to.be.false;
+                expect(MoveElementRelativeAction.is(undefined)).to.be.false;
             });
             it('should return false for an object that does not have all required interface properties', () => {
-                expect(MoveElementAction.is({ kind: 'notTheRightOne' })).to.be.false;
+                expect(MoveElementRelativeAction.is({ kind: 'notTheRightOne' })).to.be.false;
             });
         });
 
         describe('create', () => {
             it('should return an object conforming to the interface with matching properties for the given required arguments and default values for the optional arguments', () => {
-                const expected: MoveElementAction = {
-                    kind: 'moveElement',
+                const expected: MoveElementRelativeAction = {
+                    kind: 'moveElementRelative',
                     elementIds: ['someId'],
                     moveX: 0,
                     moveY: 0,
                     snap: true
                 };
                 const { elementIds, moveX, moveY } = expected;
-                expect(MoveElementAction.create({ elementIds, moveX, moveY })).to.deep.equals(expected);
+                expect(MoveElementRelativeAction.create({ elementIds, moveX, moveY })).to.deep.equals(expected);
             });
         });
     });
