@@ -15,8 +15,7 @@
  ********************************************************************************/
 /* eslint-disable max-len */
 import { expect } from 'chai';
-import { ZoomElementAction } from '../../lib';
-
+import { ZoomElementAction } from './element-zoom';
 /**
  * Tests for the utility functions declared in the namespaces of the protocol
  * action definitions.
