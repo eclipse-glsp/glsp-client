@@ -72,33 +72,33 @@
     stroke-width: 1;
 }
 
-.sprotty-edge.weighted.low:not(.selected),
-.sprotty-edge.weighted.low:not(.selected) .arrow {
+.sprotty-edge.weighted.low:not(.selected, .navigable-element),
+.sprotty-edge.weighted.low:not(.selected, .navigable-element) .arrow {
     stroke: rgb(128, 90, 233);
 }
 
-.sprotty-edge.weighted.low:not(.selected) .arrow {
+.sprotty-edge.weighted.low:not(.selected, .navigable-element) .arrow {
     fill: rgb(128, 90, 233);
 }
 
-.sprotty-edge.weighted:not(.selected),
-.sprotty-edge.weighted:not(.selected) .arrow,
-.sprotty-edge.weighted.medium:not(.selected),
-.sprotty-edge.weighted.medium:not(.selected) .arrow {
+.sprotty-edge.weighted:not(.selected, .navigable-element),
+.sprotty-edge.weighted:not(.selected, .navigable-element) .arrow,
+.sprotty-edge.weighted.medium:not(.selected, .navigable-element),
+.sprotty-edge.weighted.medium:not(.selected, .navigable-element) .arrow {
     stroke: rgb(98, 60, 193);
 }
 
-.sprotty-edge.weighted:not(.selected) .arrow,
-.sprotty-edge.weighted.medium:not(.selected) .arrow {
+.sprotty-edge.weighted:not(.selected, .navigable-element) .arrow,
+.sprotty-edge.weighted.medium:not(.selected, .navigable-element) .arrow {
     fill: rgb(98, 60, 193);
 }
 
-.sprotty-edge.weighted.high:not(.selected),
-.sprotty-edge.weighted.high:not(.selected) .arrow {
+.sprotty-edge.weighted.high:not(.selected, .navigable-element),
+.sprotty-edge.weighted.high:not(.selected, .navigable-element) .arrow {
     stroke: rgb(68, 30, 163);
 }
 
-.sprotty-edge.weighted.high:not(.selected) .arrow {
+.sprotty-edge.weighted.high:not(.selected, .navigable-element) .arrow {
     fill: rgb(68, 30, 163);
 }
 

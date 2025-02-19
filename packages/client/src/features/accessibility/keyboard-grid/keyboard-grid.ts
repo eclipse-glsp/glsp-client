@@ -97,11 +97,11 @@ export class KeyboardGrid extends GLSPAbstractUIExtension implements IActionHand
     protected override setContainerVisible(visible: boolean): void {
         if (this.containerElement) {
             if (visible) {
-                this.containerElement.style.visibility = 'visible';
-                this.containerElement.style.opacity = '0.7';
+                this.containerElement.classList.remove('grid-hidden');
+                this.containerElement.classList.add('grid-visible');
             } else {
-                this.containerElement.style.visibility = 'hidden';
-                this.containerElement.style.opacity = '0';
+                this.containerElement.classList.remove('grid-visible');
+                this.containerElement.classList.add('grid-hidden');
             }
         }
     }

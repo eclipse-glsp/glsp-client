@@ -27,7 +27,7 @@
     stroke: rgb(0, 0, 0);
 }
 
-.sprotty-edge {
+.sprotty-edge:not(.navigable-element) {
     stroke: black;
 }
 

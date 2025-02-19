@@ -15,6 +15,7 @@
  ********************************************************************************/
 
 import { bindAsService, BindingContext, FeatureModule, TYPES } from '@eclipse-glsp/sprotty';
+import '../../../../css/search.css';
 import { SearchAutocompletePalette } from './search-palette';
 import { SearchAutocompletePaletteTool } from './search-tool';
 
