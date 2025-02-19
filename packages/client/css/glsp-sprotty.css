@@ -222,25 +222,25 @@
 }
 
 .sprotty g .movement-not-allowed > .sprotty-node {
-    stroke: var(--glsp-error-foreground) !important;
+    stroke: var(--glsp-error-foreground);
     stroke-width: 1.5px;
 }
 
 .sprotty-resize-handle.movement-not-allowed {
-    stroke: var(--glsp-error-foreground) !important;
-    fill: var(--glsp-error-foreground) !important;
+    stroke: var(--glsp-error-foreground);
+    fill: var(--glsp-error-foreground);
 }
 
 .sprotty .error > .sprotty-node {
-    filter: drop-shadow(0px 0px 2px var(--glsp-error-foreground)) !important;
+    filter: drop-shadow(0px 0px 2px var(--glsp-error-foreground));
 }
 
 .sprotty .warning > .sprotty-node {
-    filter: drop-shadow(0px 0px 2px var(--glsp-warning-foreground)) !important;
+    filter: drop-shadow(0px 0px 2px var(--glsp-warning-foreground));
 }
 
 .sprotty .info > .sprotty-node {
-    filter: drop-shadow(0px 0px 2px var(--glsp-info-foreground)) !important;
+    filter: drop-shadow(0px 0px 2px var(--glsp-info-foreground));
 }
 
 .sprotty svg {
