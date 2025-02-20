@@ -226,7 +226,7 @@
     stroke-width: 1.5px;
 }
 
-.sprotty-resize-handle.movement-not-allowed {
+.sprotty .sprotty-resize-handle.movement-not-allowed {
     stroke: var(--glsp-error-foreground);
     fill: var(--glsp-error-foreground);
 }
