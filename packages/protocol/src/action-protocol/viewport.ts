@@ -65,7 +65,7 @@ export namespace CenterAction {
 /**
  * Triggers to fit all or a list of elements into the available diagram canvas.
  * The corresponding namespace declares the action kind as constant and offers helper functions for type guard checks
- * and creating new `CenterActions`.
+ * and creating new `FitToScreenActions`.
  */
 export interface FitToScreenAction extends Action, sprotty.FitToScreenAction {
     kind: typeof FitToScreenAction.KIND;
@@ -108,5 +108,61 @@ export namespace FitToScreenAction {
             elementIds,
             ...options
         };
+    }
+}
+
+/**
+ * Moves the diagram canvas.
+ * The corresponding namespace declares the action kind as constant and offers helper functions for type guard checks
+ * and creating new `MoveViewportActions`.
+ */
+export interface MoveViewportAction extends Action {
+    kind: typeof MoveViewportAction.KIND;
+    /**
+     * The amount to be moved in the x-axis.
+     */
+    moveX: number;
+    /**
+     * The amount to be moved in the y-axis.
+     */
+    moveY: number;
+}
+
+export namespace MoveViewportAction {
+    export const KIND = 'moveViewport';
+
+    export function is(object: any): object is MoveViewportAction {
+        return Action.hasKind(object, KIND);
+    }
+
+    export function create(options: { moveX: number; moveY: number }): MoveViewportAction {
+        return { kind: KIND, ...options };
+    }
+}
+
+/**
+ * Zooms the diagram canvas.
+ * The corresponding namespace declares the action kind as constant and offers helper functions for type guard checks
+ * and creating new `ZoomViewportAction`.
+ */
+export interface ZoomViewportAction extends Action {
+    kind: typeof ZoomViewportAction.KIND;
+    /**
+     * Specifies the amount by which the viewport should be zoomed.
+     *
+     * A value greater than 1 zooms in, a value less than 1 zooms out.
+     */
+    zoomFactor: number;
+}
+
+export namespace ZoomViewportAction {
+    export const KIND = 'zoomViewport';
+
+    export function is(object: any): object is ZoomViewportAction {
+        return Action.hasKind(object, KIND);
+    }
+
+    export function create(options: { zoomFactor: number }): ZoomViewportAction {
+        return { kind: KIND, ...options };
     }
 }

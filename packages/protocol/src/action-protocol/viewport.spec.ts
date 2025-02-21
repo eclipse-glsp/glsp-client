@@ -15,7 +15,7 @@
  ********************************************************************************/
 /* eslint-disable max-len */
 import { expect } from 'chai';
-import { CenterAction, FitToScreenAction } from './viewport';
+import { CenterAction, FitToScreenAction, MoveViewportAction, ZoomViewportAction } from './viewport';
 
 describe('Viewport Actions', () => {
     describe('CenterAction', () => {
@@ -99,6 +99,66 @@ describe('Viewport Actions', () => {
                 };
                 const { elementIds, maxZoom, padding, animate } = expected;
                 expect(FitToScreenAction.create(elementIds, { maxZoom, padding, animate })).to.deep.equals(expected);
+            });
+        });
+    });
+
+    describe('MoveViewportAction', () => {
+        describe('is', () => {
+            it('should return true for an object having the correct type and a value for all required interface properties', () => {
+                const action: MoveViewportAction = {
+                    kind: 'moveViewport',
+                    moveX: 0,
+                    moveY: 0
+                };
+                expect(MoveViewportAction.is(action)).to.be.true;
+            });
+            it('should return false for `undefined`', () => {
+                expect(MoveViewportAction.is(undefined)).to.be.false;
+            });
+            it('should return false for an object that does not have all required interface properties', () => {
+                expect(MoveViewportAction.is({ kind: 'notTheRightOne' })).to.be.false;
+            });
+        });
+
+        describe('create', () => {
+            it('should return an object conforming to the interface with matching properties for the given required arguments and default values for the optional arguments', () => {
+                const expected: MoveViewportAction = {
+                    kind: 'moveViewport',
+                    moveX: 0,
+                    moveY: 0
+                };
+                const { moveX, moveY } = expected;
+                expect(MoveViewportAction.create({ moveX, moveY })).to.deep.equals(expected);
+            });
+        });
+    });
+
+    describe('ZoomViewportAction', () => {
+        describe('is', () => {
+            it('should return true for an object having the correct type and a value for all required interface properties', () => {
+                const action: ZoomViewportAction = {
+                    kind: 'zoomViewport',
+                    zoomFactor: 1
+                };
+                expect(ZoomViewportAction.is(action)).to.be.true;
+            });
+            it('should return false for `undefined`', () => {
+                expect(ZoomViewportAction.is(undefined)).to.be.false;
+            });
+            it('should return false for an object that does not have all required interface properties', () => {
+                expect(ZoomViewportAction.is({ kind: 'notTheRightOne' })).to.be.false;
+            });
+        });
+
+        describe('create', () => {
+            it('should return an object conforming to the interface with matching properties for the given required arguments and default values for the optional arguments', () => {
+                const expected: ZoomViewportAction = {
+                    kind: 'zoomViewport',
+                    zoomFactor: 1
+                };
+                const { zoomFactor } = expected;
+                expect(ZoomViewportAction.create({ zoomFactor })).to.deep.equals(expected);
             });
         });
     });
