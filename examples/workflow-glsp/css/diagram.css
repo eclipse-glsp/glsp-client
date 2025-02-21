@@ -36,6 +36,7 @@
     font-weight: inherit;
     text-align: inherit;
     font-size: 100%;
+    user-select: none;
 }
 
 .sprotty-label.heading {
