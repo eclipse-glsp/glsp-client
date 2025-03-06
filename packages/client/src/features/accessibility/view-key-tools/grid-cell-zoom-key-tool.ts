@@ -19,9 +19,7 @@ import {
     CenterAction,
     GModelElement,
     GModelRoot,
-    IActionDispatcher,
     KeyListener,
-    KeyTool,
     Point,
     SetViewportAction,
     TYPES,
@@ -30,13 +28,12 @@ import {
     matchesKeystroke
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
-import { EditorContextService } from '../../../base/editor-context-service';
 import { SelectionService } from '../../../base/selection-service';
-import { Tool } from '../../../base/tool-manager/tool';
 import { getAbsolutePositionByPoint } from '../../../utils/viewpoint-util';
-import { ZoomFactor } from '../../viewport/utils';
+import type { IShortcutManager } from '../../shortcuts/shortcuts-manager';
+import { BaseTool } from '../../tools/base-tools';
+import type { ZoomFactors } from '../../viewport/zoom-viewport-action';
 import { ElementNavigatorKeyListener } from '../element-navigation/diagram-navigation-tool';
-import { SetAccessibleKeyShortcutAction } from '../key-shortcut/accessible-key-shortcut';
 import { EnableKeyboardGridAction, KeyboardGridCellSelectedAction, KeyboardGridKeyboardEventAction } from '../keyboard-grid/action';
 import * as messages from '../toast/messages.json';
 import { HideToastAction, ShowToastMessageAction } from '../toast/toast-handler';
@@ -45,45 +42,42 @@ import { HideToastAction, ShowToastMessageAction } from '../toast/toast-handler'
  * Zoom viewport and elements when its focused and arrow keys are hit.
  */
 @injectable()
-export class GridZoomTool implements Tool {
-    static ID = 'glsp.accessibility-grid-zoom-tool';
-
-    isEditTool = false;
+export class GridCellZoomTool extends BaseTool {
+    static ID = 'glsp.accessibility-grid-cell-zoom-tool';
+    static TOKEN = Symbol.for(GridCellZoomTool.name);
 
     protected readonly zoomKeyListener = new GridZoomKeyListener(this);
 
-    @inject(KeyTool) protected readonly keytool: KeyTool;
-    @inject(TYPES.IActionDispatcher) readonly actionDispatcher: IActionDispatcher;
+    @inject(TYPES.IShortcutManager) protected readonly shortcutManager: IShortcutManager;
+    @inject(TYPES.ZoomFactors) protected readonly zoomFactors: ZoomFactors;
     @inject(SelectionService) selectionService: SelectionService;
-    @inject(EditorContextService)
-    protected editorContextService: EditorContextService;
 
     get id(): string {
-        return GridZoomTool.ID;
+        return GridCellZoomTool.ID;
     }
 
     enable(): void {
-        this.keytool.register(this.zoomKeyListener);
-        this.zoomKeyListener.registerShortcutKey();
-    }
-
-    disable(): void {
-        this.keytool.deregister(this.zoomKeyListener);
+        this.toDisposeOnDisable.push(
+            this.keyTool.registerListener(this.zoomKeyListener),
+            this.shortcutManager.register(GridCellZoomTool.TOKEN, [
+                { shortcuts: ['CTRL', '+'], description: 'Zoom in via Grid', group: 'Zoom', position: 0 }
+            ])
+        );
     }
 
     handle(action: Action): Action | void {
-        if (isViewport(this.editorContextService.modelRoot)) {
+        if (isViewport(this.editorContext.modelRoot)) {
             let viewportAction: Action | undefined = undefined;
 
-            if (KeyboardGridCellSelectedAction.is(action) && action.options.originId === GridZoomTool.ID) {
+            if (KeyboardGridCellSelectedAction.is(action) && action.options.originId === GridCellZoomTool.ID) {
                 viewportAction = this.zoomKeyListener.setNewZoomFactor(
-                    this.editorContextService.modelRoot,
-                    ZoomFactor.Default.IN,
-                    getAbsolutePositionByPoint(this.editorContextService.modelRoot, action.options.centerCellPosition)
+                    this.editorContext.modelRoot,
+                    this.zoomFactors.in,
+                    getAbsolutePositionByPoint(this.editorContext.modelRoot, action.options.centerCellPosition)
                 );
-            } else if (KeyboardGridKeyboardEventAction.is(action) && action.options.originId === GridZoomTool.ID) {
+            } else if (KeyboardGridKeyboardEventAction.is(action) && action.options.originId === GridCellZoomTool.ID) {
                 if (matchesKeystroke(action.options.event, 'Minus')) {
-                    viewportAction = this.zoomKeyListener.setNewZoomFactor(this.editorContextService.modelRoot, ZoomFactor.Default.OUT);
+                    viewportAction = this.zoomKeyListener.setNewZoomFactor(this.editorContext.modelRoot, this.zoomFactors.out);
                 } else if (matchesKeystroke(action.options.event, 'Digit0', 'ctrl')) {
                     viewportAction = CenterAction.create([]);
                 }
@@ -100,19 +94,8 @@ export class GridZoomTool implements Tool {
 }
 
 export class GridZoomKeyListener extends KeyListener {
-    protected readonly token = GridZoomKeyListener.name;
-
-    constructor(protected tool: GridZoomTool) {
+    constructor(protected tool: GridCellZoomTool) {
         super();
-    }
-
-    registerShortcutKey(): void {
-        this.tool.actionDispatcher.dispatchOnceModelInitialized(
-            SetAccessibleKeyShortcutAction.create({
-                token: this.token,
-                keys: [{ shortcuts: ['CTRL', '+'], description: 'Zoom in via Grid', group: 'Zoom', position: 0 }]
-            })
-        );
     }
 
     setNewZoomFactor(viewport: GModelElement & GModelRoot & Viewport, zoomFactor: number, point?: Point): SetViewportAction {
@@ -140,7 +123,7 @@ export class GridZoomKeyListener extends KeyListener {
         if (this.matchesZoomViaGrid(event)) {
             return [
                 EnableKeyboardGridAction.create({
-                    originId: GridZoomTool.ID,
+                    originId: GridCellZoomTool.ID,
                     triggerActions: []
                 }),
 

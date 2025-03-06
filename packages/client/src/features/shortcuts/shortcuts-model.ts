@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2024 EclipseSource and others.
+ * Copyright (c) 2025 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -14,9 +14,9 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-export namespace ZoomFactor {
-    export namespace Default {
-        export const IN = 1.2;
-        export const OUT = 0.8;
-    }
+export interface ShortcutRegistration {
+    shortcuts: string[];
+    description: string;
+    group: string;
+    position: number;
 }

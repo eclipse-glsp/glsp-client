@@ -64,36 +64,27 @@ export namespace ResizeElementAction {
     }
 }
 
-/* The ResizeElementHandler class is an implementation of the IActionHandler interface that handles
-resizing of elements. */
+/*
+ * The ResizeElementHandler class is an implementation of the IActionHandler interface that handles
+ * resizing of elements.
+ */
 @injectable()
 export class ResizeElementHandler implements IActionHandler {
     @inject(EditorContextService)
     protected editorContextService: EditorContextService;
-
     @inject(TYPES.IActionDispatcher)
     protected dispatcher: IActionDispatcher;
-
     @inject(TYPES.IFeedbackActionDispatcher)
     protected feedbackDispatcher: IFeedbackActionDispatcher;
+    @inject(TYPES.Grid)
+    @optional()
+    protected grid: Grid = Grid.DEFAULT;
+    @inject(TYPES.ISnapper)
+    @optional()
+    protected readonly snapper?: ISnapper;
 
     protected debouncedChangeBounds?: DebouncedFunc<() => void>;
     protected resizeFeedback: FeedbackEmitter;
-
-    // Default x resize used if grid is not provided
-    static readonly defaultResizeX = 20;
-
-    // Default y resize used if grid is not provided
-    static readonly defaultResizeY = 20;
-
-    @inject(TYPES.Grid) @optional() protected grid: Grid = {
-        x: ResizeElementHandler.defaultResizeX,
-        y: ResizeElementHandler.defaultResizeY
-    };
-
-    protected isEditMode = false;
-
-    constructor(@inject(TYPES.ISnapper) @optional() protected readonly snapper?: ISnapper) {}
 
     @postConstruct()
     protected init(): void {

@@ -29,9 +29,7 @@ import {
     Point,
     SetViewportAction,
     TYPES,
-    Viewport,
-    ZoomElementAction,
-    ZoomViewportAction
+    Viewport
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
 import { EditorContextService } from '../../base/editor-context-service';
@@ -40,6 +38,7 @@ import { IDiagramStartup } from '../../base/model/diagram-loader';
 import { EnableDefaultToolsAction } from '../../base/tool-manager/tool';
 import { getElements, isSelectableAndBoundsAware, SelectableBoundsAware } from '../../utils/gmodel-util';
 import { FocusDomAction } from '../accessibility/actions';
+import { ZoomAction } from './zoom-viewport-action';
 
 /**
  * Focuses the graph on different actions.
@@ -134,25 +133,29 @@ export class MoveViewportHandler implements IActionHandler {
  * Handles zooming in and out of the viewport.
  */
 @injectable()
-export class ZoomViewportHandler implements IActionHandler {
+export class ZoomHandler implements IActionHandler {
     @inject(EditorContextService)
     protected readonly editorContextService: EditorContextService;
     @inject(TYPES.IActionDispatcher)
     protected readonly actionDispatcher: IActionDispatcher;
 
     handle(action: Action): Action | void {
-        if (ZoomViewportAction.is(action)) {
-            return this.handleZoomViewport(action);
+        if (ZoomAction.is(action)) {
+            if (action.elementIds) {
+                return this.handleZoomElement(action.elementIds, action.zoomFactor);
+            } else {
+                return this.handleZoomViewport(action.zoomFactor);
+            }
         }
     }
 
-    protected handleZoomViewport(action: ZoomViewportAction): Action | undefined {
+    protected handleZoomViewport(zoomFactor: number): Action | undefined {
         const viewport = findParentByFeature(this.editorContextService.modelRoot, isViewport);
         if (!viewport) {
             return;
         }
 
-        const newZoom = viewport.zoom * action.zoomFactor;
+        const newZoom = viewport.zoom * zoomFactor;
 
         const newViewport = {
             scroll: viewport.scroll,
@@ -161,33 +164,17 @@ export class ZoomViewportHandler implements IActionHandler {
 
         return SetViewportAction.create(viewport.id, newViewport, { animate: false });
     }
-}
 
-/*
- * Handles zooming in and out of the viewport in the direction of the elements.
- */
-@injectable()
-export class ZoomElementHandler implements IActionHandler {
-    @inject(EditorContextService)
-    protected readonly editorContextService: EditorContextService;
-    @inject(TYPES.IActionDispatcher) protected dispatcher: IActionDispatcher;
-
-    handle(action: Action): void | Action | ICommand {
-        if (ZoomElementAction.is(action)) {
-            return this.handleZoomElement(action);
-        }
-    }
-
-    protected handleZoomElement(action: ZoomElementAction): Action | undefined {
+    protected handleZoomElement(elementIds: string[], zoomFactor: number): Action | undefined {
         const viewport = findParentByFeature(this.editorContextService.modelRoot, isViewport);
         if (!viewport) {
             return;
         }
 
-        const elements = getElements(this.editorContextService.modelRoot.index, action.elementIds, isSelectableAndBoundsAware);
+        const elements = getElements(this.editorContextService.modelRoot.index, elementIds, isSelectableAndBoundsAware);
         const center = this.getCenter(viewport, elements);
 
-        const newZoom = viewport.zoom * action.zoomFactor;
+        const newZoom = viewport.zoom * zoomFactor;
 
         const newViewport = {
             scroll: {

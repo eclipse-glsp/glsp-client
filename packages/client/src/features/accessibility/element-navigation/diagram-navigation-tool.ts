@@ -18,9 +18,7 @@ import {
     Action,
     GModelElement,
     GModelRoot,
-    IActionDispatcher,
     KeyListener,
-    KeyTool,
     SelectAction,
     Selectable,
     TYPES,
@@ -32,40 +30,41 @@ import {
     toArray
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
-import { EnableDefaultToolsAction, EnableToolsAction, Tool } from '../../../base/tool-manager/tool';
+import { EnableDefaultToolsAction, EnableToolsAction } from '../../../base/tool-manager/tool';
 import { GEdge } from '../../../model';
 import { SelectableBoundsAware } from '../../../utils/gmodel-util';
+import { AvailableShortcutsTool } from '../../shortcuts/available-shortcuts-tool';
+import type { IShortcutManager } from '../../shortcuts/shortcuts-manager';
+import { BaseTool } from '../../tools/base-tools';
 import { RepositionAction } from '../../viewport/reposition';
-import { SetAccessibleKeyShortcutAction } from '../key-shortcut/accessible-key-shortcut';
-import { AccessibleKeyShortcutTool } from '../key-shortcut/accessible-key-shortcut-tool';
 import { SearchAutocompletePaletteTool } from '../search/search-tool';
 import * as messages from '../toast/messages.json';
 import { ShowToastMessageAction } from '../toast/toast-handler';
 import { ElementNavigator } from './element-navigator';
 
 @injectable()
-export class ElementNavigatorTool implements Tool {
+export class ElementNavigatorTool extends BaseTool {
     static ID = 'glsp.diagram-navigation';
-
-    isEditTool = false;
-
-    protected elementNavigatorKeyListener: ElementNavigatorKeyListener = new ElementNavigatorKeyListener(this);
-    @inject(KeyTool) protected readonly keytool: KeyTool;
-    @inject(TYPES.IElementNavigator) readonly elementNavigator: ElementNavigator;
-    @inject(TYPES.ILocalElementNavigator) readonly localElementNavigator: ElementNavigator;
-    @inject(TYPES.IActionDispatcher) readonly actionDispatcher: IActionDispatcher;
+    static TOKEN = Symbol.for(ElementNavigatorTool.ID);
 
     get id(): string {
         return ElementNavigatorTool.ID;
     }
 
-    enable(): void {
-        this.keytool.register(this.elementNavigatorKeyListener);
-        this.elementNavigatorKeyListener.registerShortcutKey();
-    }
+    @inject(TYPES.IShortcutManager) protected readonly shortcutManager: IShortcutManager;
+    @inject(TYPES.IElementNavigator) readonly elementNavigator: ElementNavigator;
+    @inject(TYPES.ILocalElementNavigator) readonly localElementNavigator: ElementNavigator;
 
-    disable(): void {
-        this.keytool.deregister(this.elementNavigatorKeyListener);
+    protected elementNavigatorKeyListener: ElementNavigatorKeyListener = new ElementNavigatorKeyListener(this);
+
+    enable(): void {
+        this.toDisposeOnDisable.push(
+            this.keyTool.registerListener(this.elementNavigatorKeyListener),
+            this.shortcutManager.register(ElementNavigatorTool.TOKEN, [
+                { shortcuts: ['ALT', 'N'], description: 'Activate local navigation mode', group: 'Navigation', position: 0 },
+                { shortcuts: ['N'], description: 'Activate global navigation mode', group: 'Navigation', position: 1 }
+            ])
+        );
     }
 }
 
@@ -83,29 +82,6 @@ export class ElementNavigatorKeyListener extends KeyListener {
 
     constructor(protected readonly tool: ElementNavigatorTool) {
         super();
-    }
-
-    registerShortcutKey(): void {
-        this.tool.actionDispatcher.dispatchOnceModelInitialized(
-            SetAccessibleKeyShortcutAction.create({
-                token: this.token,
-                keys: [
-                    { shortcuts: ['N'], description: 'Activate default navigation', group: 'Navigation', position: 0 },
-                    {
-                        shortcuts: ['ALT', 'N'],
-                        description: 'Activate position based navigation',
-                        group: 'Navigation',
-                        position: 1
-                    },
-                    {
-                        shortcuts: ['⬅  ⬆  ➡  ⬇'],
-                        description: 'Navigate by relation or neighbors according to navigation mode',
-                        group: 'Navigation',
-                        position: 2
-                    }
-                ]
-            })
-        );
     }
 
     override keyDown(element: GModelElement, event: KeyboardEvent): Action[] {
@@ -130,7 +106,7 @@ export class ElementNavigatorKeyListener extends KeyListener {
             this.clean();
 
             if (this.mode === NavigationMode.POSITION) {
-                this.tool.actionDispatcher.dispatchAll([
+                this.tool.dispatchActions([
                     EnableDefaultToolsAction.create(),
                     ShowToastMessageAction.createWithTimeout({
                         id: Symbol.for(ElementNavigatorKeyListener.name),
@@ -138,7 +114,7 @@ export class ElementNavigatorKeyListener extends KeyListener {
                     })
                 ]);
             } else if (this.mode === NavigationMode.DEFAULT) {
-                this.tool.actionDispatcher.dispatchAll([
+                this.tool.dispatchActions([
                     EnableDefaultToolsAction.create(),
                     ShowToastMessageAction.createWithTimeout({
                         id: Symbol.for(ElementNavigatorKeyListener.name),
@@ -155,8 +131,8 @@ export class ElementNavigatorKeyListener extends KeyListener {
         if (this.matchesActivatePositionNavigation(event)) {
             if (this.mode !== NavigationMode.POSITION) {
                 this.clean();
-                this.tool.actionDispatcher.dispatchAll([
-                    EnableToolsAction.create([ElementNavigatorTool.ID, SearchAutocompletePaletteTool.ID, AccessibleKeyShortcutTool.ID]),
+                this.tool.dispatchActions([
+                    EnableToolsAction.create([ElementNavigatorTool.ID, SearchAutocompletePaletteTool.ID, AvailableShortcutsTool.ID]),
                     ShowToastMessageAction.create({
                         id: Symbol.for(ElementNavigatorKeyListener.name),
                         message: messages.navigation.local_navigation_mode_activated
@@ -179,7 +155,7 @@ export class ElementNavigatorKeyListener extends KeyListener {
             this.navigator?.clean?.(element.root);
             this.clean();
             this.mode = NavigationMode.NONE;
-            this.tool.actionDispatcher.dispatchAll([
+            this.tool.dispatchActions([
                 EnableDefaultToolsAction.create(),
                 ShowToastMessageAction.createWithTimeout({
                     id: Symbol.for(ElementNavigatorKeyListener.name),
@@ -193,8 +169,8 @@ export class ElementNavigatorKeyListener extends KeyListener {
             if (this.mode !== NavigationMode.DEFAULT) {
                 this.clean();
 
-                this.tool.actionDispatcher.dispatchAll([
-                    EnableToolsAction.create([ElementNavigatorTool.ID, SearchAutocompletePaletteTool.ID, AccessibleKeyShortcutTool.ID]),
+                this.tool.dispatchActions([
+                    EnableToolsAction.create([ElementNavigatorTool.ID, SearchAutocompletePaletteTool.ID, AvailableShortcutsTool.ID]),
                     ShowToastMessageAction.create({
                         id: Symbol.for(ElementNavigatorKeyListener.name),
                         message: messages.navigation.default_navigation_mode_activated
@@ -216,7 +192,7 @@ export class ElementNavigatorKeyListener extends KeyListener {
             this.navigator?.clean?.(element.root);
             this.clean();
             this.mode = NavigationMode.NONE;
-            this.tool.actionDispatcher.dispatchAll([
+            this.tool.dispatchActions([
                 EnableDefaultToolsAction.create(),
                 ShowToastMessageAction.createWithTimeout({
                     id: Symbol.for(ElementNavigatorKeyListener.name),

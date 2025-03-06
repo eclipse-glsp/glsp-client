@@ -14,56 +14,38 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import {
-    Action,
-    GModelElement,
-    IActionDispatcher,
-    KeyListener,
-    KeyTool,
-    matchesKeystroke,
-    SetUIExtensionVisibilityAction,
-    TYPES
-} from '@eclipse-glsp/sprotty';
+import { Action, GModelElement, KeyListener, matchesKeystroke, SetUIExtensionVisibilityAction, TYPES } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
-import { Tool } from '../../../base/tool-manager/tool';
-import { AccessibleKeyShortcutProvider, SetAccessibleKeyShortcutAction } from '../key-shortcut/accessible-key-shortcut';
+import type { IShortcutManager } from '../../shortcuts/shortcuts-manager';
+import { BaseTool } from '../../tools/base-tools';
 import { SearchAutocompletePalette } from './search-palette';
+
 @injectable()
-export class SearchAutocompletePaletteTool implements Tool {
+export class SearchAutocompletePaletteTool extends BaseTool {
     static readonly ID = 'glsp.search-autocomplete-palette-tool';
+    static readonly TOKEN = Symbol.for(SearchAutocompletePaletteTool.ID);
 
     protected readonly keyListener = new SearchAutocompletePaletteKeyListener(this);
-    @inject(TYPES.IActionDispatcher) readonly actionDispatcher: IActionDispatcher;
-    @inject(KeyTool) protected keyTool: KeyTool;
+    @inject(TYPES.IShortcutManager)
+    protected readonly shortcutManager: IShortcutManager;
 
     get id(): string {
         return SearchAutocompletePaletteTool.ID;
     }
 
     enable(): void {
-        this.keyTool.register(this.keyListener);
-        this.keyListener.registerShortcutKey();
-    }
-
-    disable(): void {
-        this.keyTool.deregister(this.keyListener);
+        this.toDisposeOnDisable.push(
+            this.keyTool.registerListener(this.keyListener),
+            this.shortcutManager.register(SearchAutocompletePaletteTool.TOKEN, [
+                { shortcuts: ['CTRL', 'F'], description: 'Activate search for elements', group: 'Search', position: 0 }
+            ])
+        );
     }
 }
 
-export class SearchAutocompletePaletteKeyListener extends KeyListener implements AccessibleKeyShortcutProvider {
-    protected readonly token = SearchAutocompletePalette.name;
-
+export class SearchAutocompletePaletteKeyListener extends KeyListener {
     constructor(protected tool: SearchAutocompletePaletteTool) {
         super();
-    }
-
-    registerShortcutKey(): void {
-        this.tool.actionDispatcher.dispatchOnceModelInitialized(
-            SetAccessibleKeyShortcutAction.create({
-                token: this.token,
-                keys: [{ shortcuts: ['CTRL', 'F'], description: 'Activate search for elements', group: 'Search', position: 0 }]
-            })
-        );
     }
 
     override keyDown(element: GModelElement, event: KeyboardEvent): Action[] {

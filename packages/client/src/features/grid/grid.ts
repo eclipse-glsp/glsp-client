@@ -17,5 +17,5 @@ import { Point } from '@eclipse-glsp/sprotty';
 
 export type Grid = Point;
 export namespace Grid {
-    export const DEFAULT: Grid = { x: 20, y: 20 };
+    export const DEFAULT: Grid = { x: 10, y: 10 };
 }

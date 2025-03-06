@@ -14,29 +14,23 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { inject, injectable } from 'inversify';
-import { Action, KeyListener, KeyTool, GModelElement, SetUIExtensionVisibilityAction, matchesKeystroke } from '@eclipse-glsp/sprotty';
-import { BaseEditTool } from '../../tools/base-tools';
-import { KeyShortcutUIExtension } from './accessible-key-shortcut';
+import { Action, GModelElement, KeyListener, SetUIExtensionVisibilityAction, matchesKeystroke } from '@eclipse-glsp/sprotty';
+import { injectable } from 'inversify';
+import { BaseTool } from '../tools/base-tools';
+import { AvailableShortcutsUIExtension } from './available-shortcuts-extension';
 
 @injectable()
-export class AccessibleKeyShortcutTool extends BaseEditTool {
-    static ID = 'accessible-key-shortcut-tool';
-
-    @inject(KeyTool) protected readonly keytool: KeyTool;
+export class AvailableShortcutsTool extends BaseTool {
+    static ID = 'available-shortcuts-tool';
 
     protected shortcutKeyListener = new AccessibleShortcutKeyListener();
 
     get id(): string {
-        return AccessibleKeyShortcutTool.ID;
+        return AvailableShortcutsTool.ID;
     }
 
     enable(): void {
-        this.keytool.register(this.shortcutKeyListener);
-    }
-
-    override disable(): void {
-        this.keytool.deregister(this.shortcutKeyListener);
+        this.toDisposeOnDisable.push(this.keyTool.registerListener(this.shortcutKeyListener));
     }
 }
 
@@ -44,7 +38,7 @@ export class AccessibleShortcutKeyListener extends KeyListener {
     protected readonly token = Symbol(AccessibleShortcutKeyListener.name);
     override keyDown(element: GModelElement, event: KeyboardEvent): Action[] {
         if (this.matchesActivateShortcutHelpKeystroke(event)) {
-            return [SetUIExtensionVisibilityAction.create({ extensionId: KeyShortcutUIExtension.ID, visible: true })];
+            return [SetUIExtensionVisibilityAction.create({ extensionId: AvailableShortcutsUIExtension.ID, visible: true })];
         }
         return [];
     }

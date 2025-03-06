@@ -24,7 +24,6 @@ import {
     ICommand,
     ISnapper,
     MoveAction,
-    MoveElementRelativeAction,
     MoveViewportAction,
     Point,
     TYPES,
@@ -41,6 +40,7 @@ import { SelectableBoundsAware, getElements, isSelectableAndBoundsAware } from '
 import { isValidMove } from '../../utils/layout-utils';
 import { outsideOfViewport } from '../../utils/viewpoint-util';
 import { IMovementRestrictor } from '../change-bounds/movement-restrictor';
+import { MoveElementRelativeAction } from './move-element-action';
 
 /**
  * Action handler for moving elements.
@@ -98,7 +98,11 @@ export class MoveElementHandler implements IActionHandler {
                 },
                 toPosition: newPosition
             });
-            if (outsideOfViewport(newPosition, viewport)) {
+
+            const topLeftCorner = newPosition;
+            const bottomRightCorner = Point.add(newPosition, { x: element.bounds.width, y: element.bounds.height });
+
+            if (outsideOfViewport(topLeftCorner, viewport) || outsideOfViewport(bottomRightCorner, viewport)) {
                 viewportActions.push(MoveViewportAction.create({ moveX: action.moveX, moveY: action.moveY }));
             }
         }

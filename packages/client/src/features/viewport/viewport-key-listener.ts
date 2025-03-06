@@ -14,22 +14,12 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import {
-    Action,
-    CenterAction,
-    GModelElement,
-    KeyListener,
-    matchesKeystroke,
-    MoveViewportAction,
-    TYPES,
-    ZoomElementAction,
-    ZoomViewportAction
-} from '@eclipse-glsp/sprotty';
+import { Action, CenterAction, GModelElement, KeyListener, matchesKeystroke, MoveViewportAction, TYPES } from '@eclipse-glsp/sprotty';
 import { inject, injectable, optional } from 'inversify';
 import { SelectionService } from '../../base/selection-service';
 import { Grid } from '../grid/grid';
 import { IChangeBoundsManager } from '../tools/change-bounds/change-bounds-manager';
-import { ZoomFactor } from './utils';
+import { ZoomAction, ZoomFactors } from './zoom-viewport-action';
 
 @injectable()
 export class MoveViewportKeyListener extends KeyListener {
@@ -79,7 +69,7 @@ export class MoveViewportKeyListener extends KeyListener {
 }
 
 @injectable()
-export class ZoomViewportKeyListener extends KeyListener {
+export class ZoomKeyListener extends KeyListener {
     @inject(SelectionService)
     protected readonly selectionService: SelectionService;
 
@@ -88,56 +78,31 @@ export class ZoomViewportKeyListener extends KeyListener {
 
         if (selectedElementIds.length === 0) {
             if (this.matchesZoomOutKeystroke(event)) {
-                return [ZoomViewportAction.create({ zoomFactor: ZoomFactor.Default.OUT })];
+                return [ZoomAction.create({ zoomFactor: ZoomFactors.DEFAULT.out })];
             } else if (this.matchesZoomInKeystroke(event)) {
-                return [ZoomViewportAction.create({ zoomFactor: ZoomFactor.Default.IN })];
+                return [ZoomAction.create({ zoomFactor: ZoomFactors.DEFAULT.in })];
             } else if (this.matchesMinZoomLevelKeystroke(event)) {
                 return [CenterAction.create(selectedElementIds)];
             }
-        }
-
-        return [];
-    }
-
-    protected matchesZoomInKeystroke(event: KeyboardEvent): boolean {
-        /** here event.key is used for '+', as keycode 187 is already declared for 'Equals' in {@link matchesKeystroke}.*/
-        return !event.ctrlKey && (event.key === '+' || matchesKeystroke(event, 'NumpadAdd'));
-    }
-
-    protected matchesMinZoomLevelKeystroke(event: KeyboardEvent): boolean {
-        return matchesKeystroke(event, 'Digit0', 'ctrl') || matchesKeystroke(event, 'Numpad0', 'ctrl');
-    }
-
-    protected matchesZoomOutKeystroke(event: KeyboardEvent): boolean {
-        return !event.ctrlKey && (matchesKeystroke(event, 'Minus') || matchesKeystroke(event, 'NumpadSubtract'));
-    }
-}
-
-export class ZoomElementKeyListener extends KeyListener {
-    @inject(SelectionService)
-    protected readonly selectionService: SelectionService;
-
-    override keyDown(element: GModelElement, event: KeyboardEvent): Action[] {
-        const selectedElementIds = this.selectionService.getSelectedElementIDs();
-
-        if (selectedElementIds.length > 0) {
+        } else {
             if (this.matchesZoomOutKeystroke(event)) {
                 if (selectedElementIds.length > 0) {
                     return [
-                        ZoomElementAction.create({
+                        ZoomAction.create({
                             elementIds: selectedElementIds,
-                            zoomFactor: ZoomFactor.Default.OUT
+                            zoomFactor: ZoomFactors.DEFAULT.out
                         })
                     ];
                 }
             } else if (this.matchesZoomInKeystroke(event)) {
                 if (selectedElementIds.length > 0) {
-                    return [ZoomElementAction.create({ elementIds: selectedElementIds, zoomFactor: ZoomFactor.Default.IN })];
+                    return [ZoomAction.create({ elementIds: selectedElementIds, zoomFactor: ZoomFactors.DEFAULT.in })];
                 }
             } else if (this.matchesMinZoomLevelKeystroke(event)) {
                 return [CenterAction.create(selectedElementIds)];
             }
         }
+
         return [];
     }
 

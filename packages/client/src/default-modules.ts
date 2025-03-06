@@ -34,6 +34,7 @@ import { Container } from 'inversify';
 import { defaultModule } from './base/default.module';
 import { IDiagramOptions } from './base/model/diagram-loader';
 import { boundsModule } from './features/bounds/bounds-module';
+import { resizeModule } from './features/change-bounds/resize/resize-module';
 import { commandPaletteModule } from './features/command-palette/command-palette-module';
 import { contextMenuModule } from './features/context-menu/context-menu-module';
 import { copyPasteModule } from './features/copy-paste/copy-paste-modules';
@@ -48,6 +49,7 @@ import { layoutModule } from './features/layout/layout-module';
 import { navigationModule } from './features/navigation/navigation-module';
 import { routingModule } from './features/routing/routing-module';
 import { selectModule } from './features/select/select-module';
+import { shortcutsModule } from './features/shortcuts/shortcuts-module';
 import { sourceModelWatcherModule } from './features/source-model-watcher/source-model-watcher-module';
 import { statusModule } from './features/status/status-module';
 import { svgMetadataModule } from './features/svg-metadata/svg-metadata-module';
@@ -99,7 +101,9 @@ export const DEFAULT_MODULES = [
     validationModule,
     zorderModule,
     svgMetadataModule,
-    statusModule
+    statusModule,
+    shortcutsModule,
+    resizeModule
 ] as const;
 
 /**

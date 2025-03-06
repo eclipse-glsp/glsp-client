@@ -56,6 +56,7 @@ import { GResizeHandle, isResizable } from '../../change-bounds/model';
 import { MoveElementKeyListener } from '../../change-bounds/move-element-key-listener';
 import { IMovementRestrictor } from '../../change-bounds/movement-restrictor';
 import { Grid } from '../../grid/grid';
+import type { IShortcutManager } from '../../shortcuts/shortcuts-manager';
 import { BaseEditTool } from '../base-tools';
 import { CSS_ACTIVE_HANDLE, IChangeBoundsManager } from './change-bounds-manager';
 import {
@@ -87,6 +88,7 @@ export interface IMovementOptions {
 @injectable()
 export class ChangeBoundsTool extends BaseEditTool {
     static ID = 'glsp.change-bounds-tool';
+    static TOKEN = Symbol.for(ChangeBoundsTool.ID);
 
     @inject(SelectionService) protected selectionService: SelectionService;
     @inject(EdgeRouterRegistry) @optional() readonly edgeRouterRegistry?: EdgeRouterRegistry;
@@ -94,6 +96,7 @@ export class ChangeBoundsTool extends BaseEditTool {
     @inject(TYPES.IChangeBoundsManager) readonly changeBoundsManager: IChangeBoundsManager;
     @inject(TYPES.IMovementOptions) @optional() readonly movementOptions: IMovementOptions = { allElementsNeedToBeValid: true };
     @inject(TYPES.Grid) @optional() readonly grid?: Grid;
+    @inject(TYPES.IShortcutManager) protected readonly shortcutManager: IShortcutManager;
 
     get id(): string {
         return ChangeBoundsTool.ID;
@@ -112,7 +115,12 @@ export class ChangeBoundsTool extends BaseEditTool {
 
         // install move key listener for client-side move updates
         const createMoveKeyListener = this.createMoveKeyListener();
-        this.toDisposeOnDisable.push(this.keyTool.registerListener(createMoveKeyListener));
+        this.toDisposeOnDisable.push(
+            this.keyTool.registerListener(createMoveKeyListener),
+            this.shortcutManager.register(ChangeBoundsTool.TOKEN, [
+                { shortcuts: ['⬅ ⬆ ➡ ⬇'], description: 'Move element', group: 'Move', position: 0 }
+            ])
+        );
         if (Disposable.is(createMoveKeyListener)) {
             this.toDisposeOnDisable.push(createMoveKeyListener);
         }

@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { Action } from './base-protocol';
+import { Action } from '@eclipse-glsp/sprotty';
 
 /**
  * Action for triggering moving of elements. It is similar to `MoveAction` but is used for moving elements relative

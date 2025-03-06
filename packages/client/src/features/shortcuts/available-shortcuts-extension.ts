@@ -14,72 +14,40 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { Action, GModelRoot, IActionHandler, ICommand, matchesKeystroke } from '@eclipse-glsp/sprotty';
-import { injectable } from 'inversify';
+import { GModelRoot, matchesKeystroke, TYPES } from '@eclipse-glsp/sprotty';
+import { inject, injectable } from 'inversify';
 import { groupBy } from 'lodash';
-import { GLSPAbstractUIExtension } from '../../../base/ui-extension/ui-extension';
-
-export interface AccessibleKeyShortcutProvider {
-    registerShortcutKey(): void;
-}
-
-export interface AccessibleKeyShortcut {
-    shortcuts: string[];
-    description: string;
-    group: string;
-    position: number;
-}
-
-export interface SetAccessibleKeyShortcutAction extends Action {
-    kind: typeof SetAccessibleKeyShortcutAction.KIND;
-    token: string;
-    keys: AccessibleKeyShortcut[];
-}
-
-export namespace SetAccessibleKeyShortcutAction {
-    export const KIND = 'setAccessibleKeyShortcut';
-
-    export function is(object: any): object is SetAccessibleKeyShortcutAction {
-        return Action.hasKind(object, KIND);
-    }
-
-    export function create(options: { token: string; keys: AccessibleKeyShortcut[] }): SetAccessibleKeyShortcutAction {
-        return { kind: KIND, token: options.token, keys: options.keys };
-    }
-}
+import { GLSPAbstractUIExtension } from '../../base/ui-extension/ui-extension';
+import type { IShortcutManager } from './shortcuts-manager';
+import type { ShortcutRegistration } from './shortcuts-model';
 
 @injectable()
-export class KeyShortcutUIExtension extends GLSPAbstractUIExtension implements IActionHandler {
+export class AvailableShortcutsUIExtension extends GLSPAbstractUIExtension {
     static readonly ID = 'key-shortcut';
     protected container: HTMLDivElement;
     protected shortcutsContainer: HTMLDivElement;
-    protected registrations: Record<string, AccessibleKeyShortcut[]> = {};
 
-    handle(action: Action): ICommand | Action | void {
-        if (SetAccessibleKeyShortcutAction.is(action)) {
-            this.registrations[action.token] = action.keys;
-            if (this.containerElement) {
-                this.refreshUI();
-            }
-        }
-    }
+    @inject(TYPES.IShortcutManager)
+    protected readonly shortcutManager: IShortcutManager;
+
     id(): string {
-        return KeyShortcutUIExtension.ID;
+        return AvailableShortcutsUIExtension.ID;
     }
 
     containerClass(): string {
-        return KeyShortcutUIExtension.ID;
+        return AvailableShortcutsUIExtension.ID;
     }
 
     override show(root: Readonly<GModelRoot>, ...contextElementIds: string[]): void {
         super.show(root, ...contextElementIds);
         this.shortcutsContainer.focus();
+        this.toDisposeOnHide.push(this.shortcutManager.onDidChange(() => this.refreshUI()));
     }
 
     protected refreshUI(): void {
         this.shortcutsContainer.innerHTML = '';
 
-        const registrations = Object.values(this.registrations).flatMap(r => r);
+        const registrations = this.shortcutManager.getRegistrations();
         registrations.sort((a, b) => {
             if (a.group < b.group) {
                 return -1;
@@ -145,7 +113,7 @@ export class KeyShortcutUIExtension extends GLSPAbstractUIExtension implements I
         return shortcutKeys;
     }
 
-    protected createEntry(registration: AccessibleKeyShortcut): HTMLDivElement {
+    protected createEntry(registration: ShortcutRegistration): HTMLDivElement {
         const entryRow = document.createElement('tr');
         const shortcutElement = document.createElement('td');
         const descElement = document.createElement('td');

@@ -18,7 +18,6 @@ import {
     HBoxLayouter,
     HiddenBoundsUpdater,
     LayoutRegistry,
-    MoveElementRelativeAction,
     RequestBoundsCommand,
     SetBoundsCommand,
     TYPES,
@@ -28,6 +27,7 @@ import {
     configureCommand,
     configureLayout
 } from '@eclipse-glsp/sprotty';
+import { MoveElementRelativeAction } from '../change-bounds/move-element-action';
 import { MoveElementHandler } from '../change-bounds/move-element-handler';
 import { PositionSnapper } from '../change-bounds/position-snapper';
 import { FreeFormLayouter } from './freeform-layout';

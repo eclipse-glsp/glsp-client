@@ -25,17 +25,17 @@ import {
     MoveViewportAction,
     SetViewportCommand,
     TYPES,
-    ZoomElementAction,
-    ZoomMouseListener,
-    ZoomViewportAction
+    ZoomMouseListener
 } from '@eclipse-glsp/sprotty';
 import { EnableDefaultToolsAction, EnableToolsAction } from '../../base/tool-manager/tool';
 import { FocusDomAction } from '../accessibility/actions';
 import { GLSPScrollMouseListener } from './glsp-scroll-mouse-listener';
 import { OriginViewportCommand } from './origin-viewport';
 import { RepositionCommand } from './reposition';
-import { MoveViewportHandler, RestoreViewportHandler, ZoomElementHandler, ZoomViewportHandler } from './viewport-handler';
-import { MoveViewportKeyListener, ZoomElementKeyListener, ZoomViewportKeyListener } from './viewport-key-listener';
+import { MoveViewportHandler, RestoreViewportHandler, ZoomHandler } from './viewport-handler';
+import { MoveViewportKeyListener, ZoomKeyListener } from './viewport-key-listener';
+import { ViewportTool } from './viewport-tool';
+import { ZoomAction, ZoomFactors } from './zoom-viewport-action';
 
 export const viewportModule = new FeatureModule(
     (bind, _unbind, isBound) => {
@@ -57,17 +57,15 @@ export const viewportModule = new FeatureModule(
         configureActionHandler(context, EnableDefaultToolsAction.KIND, RestoreViewportHandler);
         configureActionHandler(context, FocusDomAction.KIND, RestoreViewportHandler);
 
+        bind(TYPES.ZoomFactors).toConstantValue(ZoomFactors.DEFAULT);
+
+        bindAsService(context, TYPES.IDefaultTool, ViewportTool);
         bind(MoveViewportHandler).toSelf().inSingletonScope();
-        bindAsService(context, TYPES.KeyListener, MoveViewportKeyListener);
+        bind(MoveViewportKeyListener).toSelf();
         configureActionHandler(context, MoveViewportAction.KIND, MoveViewportHandler);
-
-        bind(ZoomViewportHandler).toSelf().inSingletonScope();
-        bindAsService(context, TYPES.KeyListener, ZoomViewportKeyListener);
-        configureActionHandler(context, ZoomViewportAction.KIND, ZoomViewportHandler);
-
-        bind(ZoomElementHandler).toSelf().inSingletonScope();
-        bindAsService(context, TYPES.KeyListener, ZoomElementKeyListener);
-        configureActionHandler(context, ZoomElementAction.KIND, ZoomElementHandler);
+        bind(ZoomHandler).toSelf().inSingletonScope();
+        bind(ZoomKeyListener).toSelf();
+        configureActionHandler(context, ZoomAction.KIND, ZoomHandler);
     },
     { featureId: Symbol('viewport') }
 );
