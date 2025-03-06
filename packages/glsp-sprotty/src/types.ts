@@ -59,5 +59,11 @@ export const TYPES = {
     IChangeBoundsManager: Symbol('IChangeBoundsManager'),
     IGridManager: Symbol('IGridManager'),
     IDebugManager: Symbol('IDebugManager'),
-    Grid: Symbol('Grid')
+    Grid: Symbol('Grid'),
+    ZoomFactors: Symbol('ZoomFactors'),
+    /**
+     * Experimental shortcut manager.
+     * The API is not stable yet.
+     */
+    IShortcutManager: Symbol('IShortcutManager')
 };

@@ -16,6 +16,7 @@
 
 import { FeatureModule, TYPES, bindAsService, configureActionHandler, configureCommand } from '@eclipse-glsp/sprotty';
 import '../../../css/grid.css';
+import { Grid } from './grid';
 import { GridManager } from './grid-manager';
 import { ShowGridAction, ShowGridCommand } from './grid-model';
 import { GridSnapper } from './grid-snapper';
@@ -24,7 +25,7 @@ export const gridModule = new FeatureModule(
     (bind, unbind, isBound, rebind) => {
         const context = { bind, unbind, isBound, rebind };
 
-        bind(TYPES.Grid).toConstantValue({ x: 10, y: 10 });
+        bind(TYPES.Grid).toConstantValue(Grid.DEFAULT);
 
         configureCommand(context, ShowGridCommand);
 

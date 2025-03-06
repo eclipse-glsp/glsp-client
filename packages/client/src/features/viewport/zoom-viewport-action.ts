@@ -14,33 +14,41 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { Action } from './base-protocol';
+import { Action } from '@eclipse-glsp/sprotty';
+
+export interface ZoomFactors {
+    in: number;
+    out: number;
+}
+
+export namespace ZoomFactors {
+    export const DEFAULT = { in: 1.2, out: 0.8 };
+}
 
 /**
- * Zooms to given elements.
- * The corresponding namespace declares the action kind as constant and offers helper functions for type guard checks
- * and creating new `ZoomElementAction`.
+ * Zooms the diagram canvas.
+ * If `elementIds` is provided, the zoom is centered on the elements with the given identifiers.
  */
-export interface ZoomElementAction extends Action {
-    kind: typeof ZoomElementAction.KIND;
+export interface ZoomAction extends Action {
+    kind: typeof ZoomAction.KIND;
     /**
      * Specifies the elements to be zoomed in/out
      */
-    elementIds: string[];
+    elementIds?: string[];
     /**
      * Specifies the amount by which the viewport should be zoomed
      */
     zoomFactor: number;
 }
 
-export namespace ZoomElementAction {
-    export const KIND = 'zoomElement';
+export namespace ZoomAction {
+    export const KIND = 'zoom';
 
-    export function is(object: any): object is ZoomElementAction {
+    export function is(object: any): object is ZoomAction {
         return Action.hasKind(object, KIND);
     }
 
-    export function create(options: { elementIds: string[]; zoomFactor: number }): ZoomElementAction {
+    export function create(options: { elementIds?: string[]; zoomFactor: number }): ZoomAction {
         return { kind: KIND, ...options };
     }
 }

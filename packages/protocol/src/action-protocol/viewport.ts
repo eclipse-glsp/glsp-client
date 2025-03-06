@@ -139,30 +139,3 @@ export namespace MoveViewportAction {
         return { kind: KIND, ...options };
     }
 }
-
-/**
- * Zooms the diagram canvas.
- * The corresponding namespace declares the action kind as constant and offers helper functions for type guard checks
- * and creating new `ZoomViewportAction`.
- */
-export interface ZoomViewportAction extends Action {
-    kind: typeof ZoomViewportAction.KIND;
-    /**
-     * Specifies the amount by which the viewport should be zoomed.
-     *
-     * A value greater than 1 zooms in, a value less than 1 zooms out.
-     */
-    zoomFactor: number;
-}
-
-export namespace ZoomViewportAction {
-    export const KIND = 'zoomViewport';
-
-    export function is(object: any): object is ZoomViewportAction {
-        return Action.hasKind(object, KIND);
-    }
-
-    export function create(options: { zoomFactor: number }): ZoomViewportAction {
-        return { kind: KIND, ...options };
-    }
-}

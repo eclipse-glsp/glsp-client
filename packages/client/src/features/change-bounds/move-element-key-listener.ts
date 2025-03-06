@@ -14,10 +14,11 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { KeyListener, matchesKeystroke, MoveElementRelativeAction, type Action, type GModelElement } from '@eclipse-glsp/sprotty';
+import { isMoveable, KeyListener, matchesKeystroke, type Action, type GModelElement } from '@eclipse-glsp/sprotty';
 import type { SelectionService } from '../../base/selection-service';
 import { Grid } from '../grid/grid';
 import type { IChangeBoundsManager } from '../tools/change-bounds/change-bounds-manager';
+import { MoveElementRelativeAction } from './move-element-action';
 
 export class MoveElementKeyListener extends KeyListener {
     constructor(
@@ -29,7 +30,10 @@ export class MoveElementKeyListener extends KeyListener {
     }
 
     override keyDown(_element: GModelElement, event: KeyboardEvent): Action[] {
-        const selectedElementIds = this.selectionService.getSelectedElementIDs();
+        const selectedElementIds = this.selectionService
+            .getSelectedElements()
+            .filter(element => isMoveable(element))
+            .map(element => element.id);
         const snap = this.changeBoundsManager.usePositionSnap(event);
         const offsetX = snap ? this.grid.x : 1;
         const offsetY = snap ? this.grid.y : 1;

@@ -53,10 +53,10 @@ export interface FeedbackAwareTool extends Tool {
 }
 
 /**
- *  A reusable base implementation for edit {@link Tool}s.
+ * A reusable base implementation for {@link Tool}s.
  */
 @injectable()
-export abstract class BaseEditTool implements FeedbackAwareTool {
+export abstract class BaseTool implements FeedbackAwareTool {
     @inject(TYPES.IFeedbackActionDispatcher) protected feedbackDispatcher: IFeedbackActionDispatcher;
     @inject(TYPES.IActionDispatcher) protected actionDispatcher: IActionDispatcher;
     @inject(GLSPMouseTool) protected mouseTool: GLSPMouseTool;
@@ -73,10 +73,6 @@ export abstract class BaseEditTool implements FeedbackAwareTool {
 
     abstract id: string;
 
-    get isEditTool(): boolean {
-        return true;
-    }
-
     dispatchActions(actions: Action[]): Promise<void> {
         return this.actionDispatcher.dispatchAll(actions);
     }
@@ -91,6 +87,16 @@ export abstract class BaseEditTool implements FeedbackAwareTool {
 
     deregisterFeedback(feedbackEmitter: IFeedbackEmitter = this, cleanupActions?: MaybeActions): void {
         this.feedbackDispatcher.deregisterFeedback(feedbackEmitter, cleanupActions);
+    }
+}
+
+/**
+ * A reusable base implementation for edit {@link Tool}s.
+ */
+@injectable()
+export abstract class BaseEditTool extends BaseTool {
+    get isEditTool(): boolean {
+        return true;
     }
 }
 

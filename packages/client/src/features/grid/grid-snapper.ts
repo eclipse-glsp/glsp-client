@@ -36,7 +36,7 @@ import { Grid } from './grid';
  */
 @injectable()
 export class GridSnapper implements ISnapper {
-    constructor(@optional() @inject(TYPES.Grid) public readonly grid: Grid = { x: 10, y: 10 }) {}
+    constructor(@optional() @inject(TYPES.Grid) public readonly grid: Grid = Grid.DEFAULT) {}
 
     snap(position: Point, element: GModelElement): Point {
         return Point.snapToGrid(position, this.grid);
@@ -45,7 +45,7 @@ export class GridSnapper implements ISnapper {
 
 @injectable()
 export class GLSPCenterGridSnapper extends CenterGridSnapper {
-    constructor(@optional() @inject(TYPES.Grid) public readonly grid: Grid = { x: 10, y: 10 }) {
+    constructor(@optional() @inject(TYPES.Grid) public readonly grid: Grid = Grid.DEFAULT) {
         super();
     }
 

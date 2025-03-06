@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { AbstractUIExtension } from '@eclipse-glsp/sprotty';
+import { AbstractUIExtension, DisposableCollection } from '@eclipse-glsp/sprotty';
 import { injectable } from 'inversify';
 
 export const CSS_UI_EXTENSION_CLASS = 'ui-extension';
@@ -26,6 +26,8 @@ export const CSS_HIDDEN_EXTENSION_CLASS = 'hidden';
  */
 @injectable()
 export abstract class GLSPAbstractUIExtension extends AbstractUIExtension {
+    protected toDisposeOnHide = new DisposableCollection();
+
     protected get diagramContainerId(): string {
         return this.options.baseDiv;
     }
@@ -115,5 +117,10 @@ export abstract class GLSPAbstractUIExtension extends AbstractUIExtension {
 
     protected toggleContainerVisible(): void {
         this.setContainerVisible(!this.isContainerVisible());
+    }
+
+    override hide(): void {
+        super.hide();
+        this.toDisposeOnHide.dispose();
     }
 }

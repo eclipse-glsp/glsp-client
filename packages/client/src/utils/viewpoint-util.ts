@@ -140,8 +140,8 @@ export function absoluteToLocal(element: BoundsAwareModelElement, absolutePoint:
 export function outsideOfViewport(point: Point, viewport: GModelRoot & Viewport): boolean {
     return (
         point.x < viewport.scroll.x ||
-        point.x > viewport.scroll.x + viewport.canvasBounds.width ||
+        point.x > viewport.scroll.x + viewport.canvasBounds.width / viewport.zoom ||
         point.y < viewport.scroll.y ||
-        point.y > viewport.scroll.y + viewport.canvasBounds.height
+        point.y > viewport.scroll.y + viewport.canvasBounds.height / viewport.zoom
     );
 }

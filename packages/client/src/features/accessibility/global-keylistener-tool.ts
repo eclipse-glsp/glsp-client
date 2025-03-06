@@ -13,25 +13,24 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, IActionDispatcher, matchesKeystroke, SetUIExtensionVisibilityAction, TYPES } from '@eclipse-glsp/sprotty';
+import { Action, matchesKeystroke, SetUIExtensionVisibilityAction, TYPES } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
-import { Tool } from '../../base/tool-manager/tool';
 import { KeyboardGridMetadata, KeyboardNodeGridMetadata } from '../accessibility/keyboard-grid/constants';
+import type { IShortcutManager } from '../shortcuts/shortcuts-manager';
 import { ToolPalette } from '../tool-palette/tool-palette';
+import { BaseEditTool } from '../tools/base-tools';
 import { FocusDomAction } from './actions';
-import { AccessibleKeyShortcutProvider, SetAccessibleKeyShortcutAction } from './key-shortcut/accessible-key-shortcut';
 import { KeyboardPointerMetadata } from './keyboard-pointer/constants';
-import { KeyboardToolPalette } from './keyboard-tool-palette/keyboard-tool-palette';
 
 @injectable()
-export class GlobalKeyListenerTool implements Tool, AccessibleKeyShortcutProvider {
+export class GlobalKeyListenerTool extends BaseEditTool {
     static ID = 'glsp.global-key-listener';
+    static TOKEN = Symbol.for(GlobalKeyListenerTool.name);
 
-    isEditTool = false;
     protected alreadyRegistered = false;
 
-    @inject(TYPES.IActionDispatcher)
-    protected actionDispatcher: IActionDispatcher;
+    @inject(TYPES.IShortcutManager)
+    protected readonly shortcutManager: IShortcutManager;
 
     get id(): string {
         return GlobalKeyListenerTool.ID;
@@ -41,28 +40,12 @@ export class GlobalKeyListenerTool implements Tool, AccessibleKeyShortcutProvide
         if (!this.alreadyRegistered) {
             this.alreadyRegistered = true;
             document.addEventListener('keyup', this.trigger.bind(this));
-            this.registerShortcutKey();
-        }
-    }
 
-    disable(): void {
-        // It is not possible to remove the handlers after registration
-        // The handlers need to be available all the time to work correctly
-    }
-
-    registerShortcutKey(): void {
-        this.actionDispatcher.onceModelInitialized().then(() => {
-            this.actionDispatcher.dispatchAll([
-                SetAccessibleKeyShortcutAction.create({
-                    token: KeyboardToolPalette.name,
-                    keys: [{ shortcuts: ['ALT', 'P'], description: 'Focus on tool palette', group: 'Tool-Palette', position: 0 }]
-                }),
-                SetAccessibleKeyShortcutAction.create({
-                    token: 'Graph',
-                    keys: [{ shortcuts: ['ALT', 'G'], description: 'Focus on graph', group: 'Graph', position: 0 }]
-                })
+            this.shortcutManager.register(GlobalKeyListenerTool.TOKEN, [
+                { shortcuts: ['ALT', 'P'], description: 'Focus on tool palette', group: 'Tool-Palette', position: 0 },
+                { shortcuts: ['ALT', 'G'], description: 'Focus on graph', group: 'Graph', position: 0 }
             ]);
-        });
+        }
     }
 
     trigger(event: KeyboardEvent): void {
