@@ -77,7 +77,7 @@ export class ContainerManager implements IContainerManager {
 
     findContainer(location: Point, ctx: GModelElement, evt?: MouseEvent): ContainerElement | undefined {
         // reverse order of children to find the innermost, top-rendered containers first
-        return findChildrenAtPosition(ctx.root, location)
+        return [ctx.root, ...findChildrenAtPosition(ctx.root, location)]
             .reverse()
             .find(element => isContainable(element) && !element.cssClasses?.includes(CSS_GHOST_ELEMENT)) as ContainerElement | undefined;
     }
