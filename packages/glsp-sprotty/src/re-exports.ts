@@ -268,7 +268,7 @@ export {
     SBezierCreateHandleView as GBezierCreateHandleView,
     SCompartmentView as GCompartmentView,
     SLabelView as GLabelView,
-    SRoutingHandleView as GRoutingHandleView,
+    SRoutingHandleView,
     JumpingPolylineEdgeView,
     PolylineEdgeView,
     PolylineEdgeViewWithGapsOnIntersections,
