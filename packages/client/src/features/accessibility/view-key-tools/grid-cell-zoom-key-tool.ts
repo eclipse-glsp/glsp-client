@@ -29,8 +29,8 @@ import {
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
 import { SelectionService } from '../../../base/selection-service';
+import type { IShortcutManager } from '../../../base/shortcuts/shortcuts-manager';
 import { getAbsolutePositionByPoint } from '../../../utils/viewpoint-util';
-import type { IShortcutManager } from '../../shortcuts/shortcuts-manager';
 import { BaseTool } from '../../tools/base-tools';
 import type { ZoomFactors } from '../../viewport/zoom-viewport-action';
 import { ElementNavigatorKeyListener } from '../element-navigation/diagram-navigation-tool';

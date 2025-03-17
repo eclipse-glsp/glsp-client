@@ -17,9 +17,10 @@
 import { KeyListener, matchesKeystroke, TYPES, type Action, type GModelElement, type IActionDispatcher } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
 import { SelectionService } from '../../../base/selection-service';
+import type { ShortcutManager } from '../../../base/shortcuts/shortcuts-manager';
 import { EnableToolsAction } from '../../../base/tool-manager/tool';
-import type { ShortcutManager } from '../../shortcuts/shortcuts-manager';
 import { BaseEditTool } from '../../tools/base-tools';
+import { isResizable } from '../model';
 import { ResizeKeyTool } from './resize-tool';
 
 @injectable()
@@ -30,7 +31,10 @@ export class DefaultResizeKeyListener extends KeyListener {
     protected readonly selectionService: SelectionService;
 
     override keyDown(element: GModelElement, event: KeyboardEvent): Action[] {
-        const selectedElementsIds = this.selectionService.getSelectedElementIDs();
+        const selectedElementsIds = this.selectionService
+            .getSelectedElements()
+            .filter(isResizable)
+            .map(e => e.id);
 
         if (selectedElementsIds.length > 0) {
             if (this.matchesActivateResizeModeKeystroke(event)) {

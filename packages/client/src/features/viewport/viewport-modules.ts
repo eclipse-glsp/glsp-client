@@ -34,7 +34,7 @@ import { OriginViewportCommand } from './origin-viewport';
 import { RepositionCommand } from './reposition';
 import { MoveViewportHandler, RestoreViewportHandler, ZoomHandler } from './viewport-handler';
 import { MoveViewportKeyListener, ZoomKeyListener } from './viewport-key-listener';
-import { ViewportTool } from './viewport-tool';
+import { ViewportKeyTool } from './viewport-tool';
 import { ZoomAction, ZoomFactors } from './zoom-viewport-action';
 
 export const viewportModule = new FeatureModule(
@@ -59,7 +59,7 @@ export const viewportModule = new FeatureModule(
 
         bind(TYPES.ZoomFactors).toConstantValue(ZoomFactors.DEFAULT);
 
-        bindAsService(context, TYPES.IDefaultTool, ViewportTool);
+        bindAsService(context, TYPES.IDefaultTool, ViewportKeyTool);
         bind(MoveViewportHandler).toSelf().inSingletonScope();
         bind(MoveViewportKeyListener).toSelf();
         configureActionHandler(context, MoveViewportAction.KIND, MoveViewportHandler);
