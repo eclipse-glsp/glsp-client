@@ -16,7 +16,7 @@
 
 import { Action, GModelElement, KeyListener, SetUIExtensionVisibilityAction, matchesKeystroke } from '@eclipse-glsp/sprotty';
 import { injectable } from 'inversify';
-import { BaseTool } from '../tools/base-tools';
+import { BaseTool } from '../../features/tools/base-tools';
 import { AvailableShortcutsUIExtension } from './available-shortcuts-extension';
 
 @injectable()

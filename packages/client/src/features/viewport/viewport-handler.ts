@@ -106,10 +106,8 @@ export class MoveViewportHandler implements IActionHandler {
     @inject(EditorContextService)
     protected readonly editorContextService: EditorContextService;
 
-    handle(action: Action): void | Action | ICommand {
-        if (MoveViewportAction.is(action)) {
-            return this.handleMoveViewport(action);
-        }
+    handle(action: MoveViewportAction): void | Action | ICommand {
+        return this.handleMoveViewport(action);
     }
 
     protected handleMoveViewport(action: MoveViewportAction): Action | undefined {
@@ -139,13 +137,11 @@ export class ZoomHandler implements IActionHandler {
     @inject(TYPES.IActionDispatcher)
     protected readonly actionDispatcher: IActionDispatcher;
 
-    handle(action: Action): Action | void {
-        if (ZoomAction.is(action)) {
-            if (action.elementIds) {
-                return this.handleZoomElement(action.elementIds, action.zoomFactor);
-            } else {
-                return this.handleZoomViewport(action.zoomFactor);
-            }
+    handle(action: ZoomAction): Action | void {
+        if (action.elementIds) {
+            return this.handleZoomElement(action.elementIds, action.zoomFactor);
+        } else {
+            return this.handleZoomViewport(action.zoomFactor);
         }
     }
 

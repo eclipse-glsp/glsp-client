@@ -34,12 +34,12 @@ import {
     matchesKeystroke
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
+import { standaloneShortcutsModule } from './base/shortcuts/shortcuts-module';
 import { standaloneResizeModule } from './features/change-bounds/resize/resize-module';
 import { standaloneCopyPasteModule } from './features/copy-paste/copy-paste-modules';
 import { standaloneExportModule } from './features/export/export-modules';
 import { saveModule } from './features/save/save-module';
 import { standaloneSelectModule } from './features/select/select-module';
-import { standaloneShortcutsModule } from './features/shortcuts/shortcuts-module';
 import { undoRedoModule } from './features/undo-redo/undo-redo-module';
 import { standaloneMarkerNavigatorModule } from './features/validation/validation-modules';
 import { standaloneViewportModule } from './features/viewport/viewport-modules';

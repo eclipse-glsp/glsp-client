@@ -16,7 +16,13 @@
 
 import { Disposable, Emitter, type Event } from '@eclipse-glsp/sprotty';
 import { injectable } from 'inversify';
-import type { ShortcutRegistration } from './shortcuts-model';
+
+export interface ShortcutRegistration {
+    shortcuts: string[];
+    description: string;
+    group: string;
+    position: number;
+}
 
 export interface IShortcutManager {
     onDidChange: Event<ReadonlyMap<symbol, ShortcutRegistration[]>>;

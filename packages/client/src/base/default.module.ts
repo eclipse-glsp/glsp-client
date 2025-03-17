@@ -51,6 +51,7 @@ import { GModelRegistry } from './model/model-registry';
 import { GLSPMousePositionTracker } from './mouse-position-tracker';
 import { SelectionClearingMouseListener } from './selection-clearing-mouse-listener';
 import { SelectionService } from './selection-service';
+import { ShortcutManager } from './shortcuts/shortcuts-manager';
 import { EnableDefaultToolsAction, EnableToolsAction } from './tool-manager/tool';
 import { DefaultToolsEnablingKeyListener, ToolManager, ToolManagerActionHandler } from './tool-manager/tool-manager';
 import { GLSPUIExtensionRegistry } from './ui-extension/ui-extension-registry';
@@ -142,6 +143,9 @@ export const defaultModule = new FeatureModule(
         bind(TYPES.IDiagramStartup).toService(GLSPUIExtensionRegistry);
 
         bind(TYPES.EmptyArray).toDynamicValue(() => []);
+
+        // Shortcut manager initialization ------------------------------------
+        bindAsService(context, TYPES.IShortcutManager, ShortcutManager);
     },
     {
         featureId: Symbol('default')

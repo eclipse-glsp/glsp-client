@@ -18,10 +18,11 @@ import { KeyListener, matchesKeystroke, TYPES, type Action, type GModelElement }
 import { inject, injectable } from 'inversify';
 import { Disposable } from 'vscode-jsonrpc';
 import { SelectionService } from '../../../base/selection-service';
+import type { ShortcutManager } from '../../../base/shortcuts/shortcuts-manager';
 import * as messages from '../../accessibility/toast/messages.json';
 import { ShowToastMessageAction } from '../../accessibility/toast/toast-handler';
-import type { ShortcutManager } from '../../shortcuts/shortcuts-manager';
 import { BaseEditTool } from '../../tools/base-tools';
+import { isResizable } from '../model';
 import { ResizeElementAction, ResizeType } from './resize-handler';
 
 @injectable()
@@ -31,7 +32,10 @@ export class ResizeKeyListener extends KeyListener {
 
     override keyDown(element: GModelElement, event: KeyboardEvent): Action[] {
         const actions = [];
-        const selectedElementsIds = this.selectionService.getSelectedElementIDs();
+        const selectedElementsIds = this.selectionService
+            .getSelectedElements()
+            .filter(isResizable)
+            .map(e => e.id);
 
         if (selectedElementsIds.length > 0) {
             if (this.matchesIncreaseSizeKeystroke(event)) {

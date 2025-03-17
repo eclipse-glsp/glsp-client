@@ -16,7 +16,7 @@
 
 import { Action, GModelElement, KeyListener, matchesKeystroke, SetUIExtensionVisibilityAction, TYPES } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
-import type { IShortcutManager } from '../../shortcuts/shortcuts-manager';
+import type { IShortcutManager } from '../../../base/shortcuts/shortcuts-manager';
 import { BaseTool } from '../../tools/base-tools';
 import { SearchAutocompletePalette } from './search-palette';
 

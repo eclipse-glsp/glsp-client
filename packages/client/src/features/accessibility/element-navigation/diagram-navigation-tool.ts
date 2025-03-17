@@ -30,11 +30,11 @@ import {
     toArray
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
+import { AvailableShortcutsTool } from '../../../base/shortcuts/available-shortcuts-tool';
+import type { IShortcutManager } from '../../../base/shortcuts/shortcuts-manager';
 import { EnableDefaultToolsAction, EnableToolsAction } from '../../../base/tool-manager/tool';
 import { GEdge } from '../../../model';
 import { SelectableBoundsAware } from '../../../utils/gmodel-util';
-import { AvailableShortcutsTool } from '../../shortcuts/available-shortcuts-tool';
-import type { IShortcutManager } from '../../shortcuts/shortcuts-manager';
 import { BaseTool } from '../../tools/base-tools';
 import { RepositionAction } from '../../viewport/reposition';
 import { SearchAutocompletePaletteTool } from '../search/search-tool';

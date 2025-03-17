@@ -16,17 +16,21 @@
 
 import { TYPES } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
-import type { IShortcutManager } from '../shortcuts/shortcuts-manager';
+import type { IShortcutManager } from '../../base/shortcuts/shortcuts-manager';
 import { BaseTool } from '../tools/base-tools';
 import { MoveViewportKeyListener, ZoomKeyListener } from './viewport-key-listener';
 
+/**
+ * This only handles keyboard events for the viewport.
+ * Mouse specific events are handled directly by MouseListeners without any tool.
+ */
 @injectable()
-export class ViewportTool extends BaseTool {
-    static readonly ID = 'glsp.viewport-tool';
-    static readonly TOKEN = Symbol.for(ViewportTool.ID);
+export class ViewportKeyTool extends BaseTool {
+    static readonly ID = 'glsp.viewport-key-tool';
+    static readonly TOKEN = Symbol.for(ViewportKeyTool.ID);
 
     get id(): string {
-        return ViewportTool.ID;
+        return ViewportKeyTool.ID;
     }
 
     @inject(TYPES.IShortcutManager)
@@ -40,7 +44,7 @@ export class ViewportTool extends BaseTool {
         this.toDisposeOnDisable.push(
             this.keyTool.registerListener(this.moveKeyListener),
             this.keyTool.registerListener(this.zoomKeyListener),
-            this.shortcutManager.register(ViewportTool.TOKEN, [
+            this.shortcutManager.register(ViewportKeyTool.TOKEN, [
                 { shortcuts: ['⬅ ⬆ ➡ ⬇'], description: 'Move viewport', group: 'Move', position: 0 },
                 { shortcuts: ['+ -'], description: 'Zoom viewport', group: 'Zoom', position: 0 },
                 { shortcuts: ['+ -'], description: 'Zoom element', group: 'Zoom', position: 0 }

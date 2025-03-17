@@ -15,8 +15,8 @@
  ********************************************************************************/
 import { Action, matchesKeystroke, SetUIExtensionVisibilityAction, TYPES } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
+import type { IShortcutManager } from '../../base/shortcuts/shortcuts-manager';
 import { KeyboardGridMetadata, KeyboardNodeGridMetadata } from '../accessibility/keyboard-grid/constants';
-import type { IShortcutManager } from '../shortcuts/shortcuts-manager';
 import { ToolPalette } from '../tool-palette/tool-palette';
 import { BaseEditTool } from '../tools/base-tools';
 import { FocusDomAction } from './actions';

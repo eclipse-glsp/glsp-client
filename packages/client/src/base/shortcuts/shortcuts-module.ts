@@ -18,19 +18,6 @@ import { bindAsService, FeatureModule, TYPES } from '@eclipse-glsp/sprotty';
 import '../../../css/key-shortcut.css';
 import { AvailableShortcutsUIExtension } from './available-shortcuts-extension';
 import { AvailableShortcutsTool } from './available-shortcuts-tool';
-import { ShortcutManager } from './shortcuts-manager';
-
-/**
- * Handles actions for displaying help/information about keyboard shortcuts.
- */
-export const shortcutsModule = new FeatureModule(
-    (bind, unbind, isBound, rebind) => {
-        const context = { bind, unbind, isBound, rebind };
-
-        bindAsService(context, TYPES.IShortcutManager, ShortcutManager);
-    },
-    { featureId: Symbol('shortcuts') }
-);
 
 /**
  * Feature module that is intended for the standalone deployment of GLSP (i.e. plain webapp)
@@ -44,5 +31,5 @@ export const standaloneShortcutsModule = new FeatureModule(
         bindAsService(context, TYPES.IDefaultTool, AvailableShortcutsTool);
         bindAsService(context, TYPES.IUIExtension, AvailableShortcutsUIExtension);
     },
-    { featureId: Symbol('standaloneShortcuts'), requires: shortcutsModule }
+    { featureId: Symbol('standaloneShortcuts') }
 );

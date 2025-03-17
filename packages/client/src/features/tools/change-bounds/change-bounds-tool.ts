@@ -41,6 +41,7 @@ import {
 import { DragAwareMouseListener } from '../../../base/drag-aware-mouse-listener';
 import { FeedbackEmitter } from '../../../base/feedback/feedback-emitter';
 import { ISelectionListener, SelectionService } from '../../../base/selection-service';
+import type { IShortcutManager } from '../../../base/shortcuts/shortcuts-manager';
 import {
     BoundsAwareModelElement,
     ResizableModelElement,
@@ -56,7 +57,6 @@ import { GResizeHandle, isResizable } from '../../change-bounds/model';
 import { MoveElementKeyListener } from '../../change-bounds/move-element-key-listener';
 import { IMovementRestrictor } from '../../change-bounds/movement-restrictor';
 import { Grid } from '../../grid/grid';
-import type { IShortcutManager } from '../../shortcuts/shortcuts-manager';
 import { BaseEditTool } from '../base-tools';
 import { CSS_ACTIVE_HANDLE, IChangeBoundsManager } from './change-bounds-manager';
 import {
