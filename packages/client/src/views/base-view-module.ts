@@ -34,7 +34,6 @@ import {
     GPort,
     GPreRenderedElement,
     GRoutingHandle,
-    GRoutingHandleView,
     GShapedPreRenderedElement,
     GViewportRootElement,
     HtmlRootView,
@@ -52,6 +51,7 @@ import { GEdgeView } from './gedge-view';
 import { GGraphView } from './ggraph-view';
 import { GIssueMarkerView } from './issue-marker-view';
 import { RoundedCornerNodeView } from './rounded-corner-view';
+import { GRoutingHandleView } from './routing-point-handle-view';
 
 export const baseViewModule = new FeatureModule(
     (bind, unbind, isBound, rebind) => {
