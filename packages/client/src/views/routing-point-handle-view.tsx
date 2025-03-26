@@ -13,7 +13,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-
 import { SRoutingHandleView, type GRoutingHandle, type RenderingContext, type RoutedPoint } from '@eclipse-glsp/sprotty';
 import { injectable } from 'inversify';
 import type { VNode } from 'snabbdom';
@@ -23,7 +22,7 @@ import { isReconnectHandle } from '../features/reconnect/model';
 export class GRoutingHandleView extends SRoutingHandleView {
     override render(handle: Readonly<GRoutingHandle>, context: RenderingContext, args?: { route?: RoutedPoint[] }): VNode {
         // We have our own handle view for the reconnect handles
-        if (isReconnectHandle(handle)) {
+        if (!isReconnectHandle(handle) && (handle.kind === 'source' || handle.kind === 'target')) {
             return undefined as any;
         }
 
