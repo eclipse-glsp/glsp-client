@@ -84,6 +84,7 @@ export class AutoCompleteWidget {
     protected validationDecorator: IValidationDecorator = IValidationDecorator.NO_DECORATION;
 
     protected textSubmitHandler?: TextSubmitHandler;
+    protected observer?: MutationObserver;
 
     constructor(
         public autoSuggestionSettings: AutoCompleteSettings,
@@ -185,6 +186,12 @@ export class AutoCompleteWidget {
             render: (item: LabeledAction, currentValue: string): HTMLDivElement | undefined => this.renderSuggestions(item, currentValue),
             customize: (input, inputRect, container, maxHeight) => {
                 this.customizeInputElement(input, inputRect, container, maxHeight);
+
+                const selectedSuggestionChanged = this.options?.selectedSuggestionChanged;
+                if (selectedSuggestionChanged) {
+                    this.observer = new MutationObserver(mutations => this.handleContainerMutations(mutations, selectedSuggestionChanged));
+                    this.observer.observe(container, { childList: true, attributes: true, subtree: true });
+                }
             }
         };
     }
@@ -199,17 +206,21 @@ export class AutoCompleteWidget {
         container.style.position = 'fixed';
         if (this.containerElement) {
             this.containerElement.appendChild(container);
+        }
 
-            if (this.options && this.options.selectedSuggestionChanged) {
-                const selectedElement = container.querySelector('.selected');
-                // eslint-disable-next-line no-null/no-null
-                if (selectedElement !== null && selectedElement !== undefined) {
-                    const index = Array.from(container.children).indexOf(selectedElement);
-                    this.options.selectedSuggestionChanged(this.contextActions?.[index]);
-                } else {
-                    this.options.selectedSuggestionChanged(undefined);
-                }
-            }
+        this.container = container;
+    }
+
+    protected container: HTMLDivElement;
+    protected handleContainerMutations(mutations: MutationRecord[], selectionChanged: (action: LabeledAction | undefined) => void): void {
+        const selectedElement = this.container.querySelector('.selected');
+        // Trigger selection changed event
+        // eslint-disable-next-line no-null/no-null
+        if (selectedElement !== null && selectedElement !== undefined) {
+            const index = Array.from(this.container.children).indexOf(selectedElement);
+            selectionChanged(this.contextActions?.[index]);
+        } else {
+            selectionChanged(undefined);
         }
     }
 
