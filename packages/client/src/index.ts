@@ -81,6 +81,7 @@ export * from './features/accessibility/keyboard-pointer/keyboard-pointer-module
 export * from './features/accessibility/keyboard-pointer/keyboard-pointer-position';
 export * from './features/accessibility/keyboard-tool-palette/keyboard-tool-palette';
 export * from './features/accessibility/keyboard-tool-palette/keyboard-tool-palette-module';
+export * from './features/accessibility/messages';
 export * from './features/accessibility/search/search-palette';
 export * from './features/accessibility/search/search-palette-module';
 export * from './features/accessibility/search/search-tool';

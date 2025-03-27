@@ -19,7 +19,7 @@ import { inject, injectable } from 'inversify';
 import { SelectionService } from '../../../base/selection-service';
 import type { ShortcutManager } from '../../../base/shortcuts/shortcuts-manager';
 import { EnableToolsAction } from '../../../base/tool-manager/tool';
-import { messages, recreateOnMessagesUpdated } from '../../accessibility/messages';
+import { messages, repeatOnMessagesUpdated } from '../../accessibility/messages';
 import { BaseEditTool } from '../../tools/base-tools';
 import { isResizable } from '../model';
 import { ResizeKeyTool } from './resize-tool';
@@ -68,7 +68,7 @@ export class DefaultResizeKeyTool extends BaseEditTool {
     enable(): void {
         this.toDisposeOnDisable.push(
             this.keyTool.registerListener(this.keyListener),
-            recreateOnMessagesUpdated(() =>
+            repeatOnMessagesUpdated(() =>
                 this.shortcutManager.register(DefaultResizeKeyTool.TOKEN, [
                     {
                         shortcuts: ['ALT', 'A'],

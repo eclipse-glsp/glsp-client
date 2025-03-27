@@ -25,6 +25,11 @@ type DynamicDeepPartial<T> = WithDynamicProperties<{
 
 const deepUpdate = (target: any, updates: any): void => {
     for (const key in updates) {
+        // Guard against prototype pollution and block __proto__ and constructor
+        if (!Object.prototype.hasOwnProperty.call(updates, key) || key === '__proto__' || key === 'constructor') {
+            continue;
+        }
+
         if (updates[key] && typeof updates[key] === 'object' && !Array.isArray(updates[key])) {
             if (!target[key]) {
                 target[key] = {};
@@ -36,33 +41,56 @@ const deepUpdate = (target: any, updates: any): void => {
     }
 };
 
-// This will allow dynamic properties on objects but also maintain typing for known keys
-export type MessagesType = {
+/**
+ * Type-safe access to the known messages defined within the framework.
+ */
+export type Messages = WithDynamicProperties<{
     [K in keyof typeof rawMessages]: (typeof rawMessages)[K] extends object
         ? WithDynamicProperties<(typeof rawMessages)[K]>
         : (typeof rawMessages)[K];
-};
+}>;
 
-export const messages: MessagesType = rawMessages;
-
-const messagesUpdatedEmitter = new Emitter<MessagesType>();
+/**
+ * The messages object containing all known messages.
+ */
+export const messages: Messages = rawMessages;
+const messagesUpdatedEmitter = new Emitter<Messages>();
+/**
+ * Event that is fired when the messages are updated.
+ */
 export const onMessagesUpdated = messagesUpdatedEmitter.event;
 
-export const updateMessages = (updates: DynamicDeepPartial<MessagesType>): void => {
+/**
+ * Update the messages with the given set of messages. This may include overwriting existing messages or adding new ones.
+ *
+ * @param updates The updates to apply to the messages object.
+ */
+export const updateMessages = (updates: DynamicDeepPartial<Messages>): void => {
     deepUpdate(messages, updates);
     messagesUpdatedEmitter.fire(messages);
 };
 
-export function recreateOnMessagesUpdated(action: () => Disposable): Disposable {
-    let cleanup = action();
+/**
+ * Executes the given listener with the current messages and re-executes it whenever the messages are updated.
+ * If the listener returns a disposable, it will be disposed before the listener is called again.
+ *
+ * @param listener The listener to re-execute when the messages are updated.
+ * @param options Options to control the behavior of the listener execution.
+ * @returns A disposable that can be used to clean up the listener.
+ */
+export function repeatOnMessagesUpdated(
+    listener: (messages?: Messages) => unknown,
+    options: { initial: boolean } = { initial: true }
+): Disposable {
+    let cleanup = options.initial ? listener(messages) : {};
 
     const updateListener = onMessagesUpdated(() => {
-        cleanup.dispose();
-        cleanup = action();
+        Disposable.dispose(cleanup);
+        cleanup = listener();
     });
 
     return Disposable.create(() => {
-        cleanup.dispose();
+        Disposable.dispose(cleanup);
         updateListener.dispose();
     });
 }

@@ -21,7 +21,7 @@ import { ToolPalette } from '../tool-palette/tool-palette';
 import { BaseEditTool } from '../tools/base-tools';
 import { FocusDomAction } from './actions';
 import { KeyboardPointerMetadata } from './keyboard-pointer/constants';
-import { messages, recreateOnMessagesUpdated } from './messages';
+import { messages, repeatOnMessagesUpdated } from './messages';
 
 @injectable()
 export class GlobalKeyListenerTool extends BaseEditTool {
@@ -42,7 +42,7 @@ export class GlobalKeyListenerTool extends BaseEditTool {
             this.alreadyRegistered = true;
             document.addEventListener('keyup', this.trigger.bind(this));
 
-            recreateOnMessagesUpdated(() =>
+            repeatOnMessagesUpdated(() =>
                 this.shortcutManager.register(GlobalKeyListenerTool.TOKEN, [
                     {
                         shortcuts: ['ALT', 'P'],

@@ -51,7 +51,7 @@ import {
     isNonRoutableSelectedMovableBoundsAware,
     toElementAndBounds
 } from '../../../utils/gmodel-util';
-import { messages, recreateOnMessagesUpdated } from '../../accessibility/messages';
+import { messages, repeatOnMessagesUpdated } from '../../accessibility/messages';
 import { LocalRequestBoundsAction } from '../../bounds/local-bounds';
 import { SetBoundsFeedbackAction } from '../../bounds/set-bounds-feedback-command';
 import { GResizeHandle, isResizable } from '../../change-bounds/model';
@@ -118,7 +118,7 @@ export class ChangeBoundsTool extends BaseEditTool {
         const createMoveKeyListener = this.createMoveKeyListener();
         this.toDisposeOnDisable.push(
             this.keyTool.registerListener(createMoveKeyListener),
-            recreateOnMessagesUpdated(() =>
+            repeatOnMessagesUpdated(() =>
                 this.shortcutManager.register(ChangeBoundsTool.TOKEN, [
                     {
                         shortcuts: ['⬅ ⬆ ➡ ⬇'],

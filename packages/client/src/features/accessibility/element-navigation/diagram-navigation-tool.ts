@@ -37,7 +37,7 @@ import { GEdge } from '../../../model';
 import { SelectableBoundsAware } from '../../../utils/gmodel-util';
 import { BaseTool } from '../../tools/base-tools';
 import { RepositionAction } from '../../viewport/reposition';
-import { messages, recreateOnMessagesUpdated } from '../messages';
+import { messages, repeatOnMessagesUpdated } from '../messages';
 import { SearchAutocompletePaletteTool } from '../search/search-tool';
 import { ShowToastMessageAction } from '../toast/toast-handler';
 import { ElementNavigator } from './element-navigator';
@@ -60,7 +60,7 @@ export class ElementNavigatorTool extends BaseTool {
     enable(): void {
         this.toDisposeOnDisable.push(
             this.keyTool.registerListener(this.elementNavigatorKeyListener),
-            recreateOnMessagesUpdated(() =>
+            repeatOnMessagesUpdated(() =>
                 this.shortcutManager.register(ElementNavigatorTool.TOKEN, [
                     {
                         shortcuts: ['ALT', 'N'],

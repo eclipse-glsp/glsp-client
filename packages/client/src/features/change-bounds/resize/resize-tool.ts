@@ -19,7 +19,7 @@ import { inject, injectable } from 'inversify';
 import { Disposable } from 'vscode-jsonrpc';
 import { SelectionService } from '../../../base/selection-service';
 import type { ShortcutManager } from '../../../base/shortcuts/shortcuts-manager';
-import { messages, recreateOnMessagesUpdated } from '../../accessibility/messages';
+import { messages, repeatOnMessagesUpdated } from '../../accessibility/messages';
 import { ShowToastMessageAction } from '../../accessibility/toast/toast-handler';
 import { BaseEditTool } from '../../tools/base-tools';
 import { isResizable } from '../model';
@@ -100,7 +100,7 @@ export class ResizeKeyTool extends BaseEditTool {
 
         this.toDisposeOnDisable.push(
             this.keyTool.registerListener(this.keyListener),
-            recreateOnMessagesUpdated(() =>
+            repeatOnMessagesUpdated(() =>
                 this.shortcutManager.register(ResizeKeyTool.TOKEN, [
                     {
                         shortcuts: ['Escape'],

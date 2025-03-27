@@ -17,7 +17,7 @@
 import { TYPES } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
 import type { IShortcutManager } from '../../base/shortcuts/shortcuts-manager';
-import { messages, recreateOnMessagesUpdated } from '../accessibility/messages';
+import { messages, repeatOnMessagesUpdated } from '../accessibility/messages';
 import { BaseTool } from '../tools/base-tools';
 import { MoveViewportKeyListener, ZoomKeyListener } from './viewport-key-listener';
 
@@ -45,7 +45,7 @@ export class ViewportKeyTool extends BaseTool {
         this.toDisposeOnDisable.push(
             this.keyTool.registerListener(this.moveKeyListener),
             this.keyTool.registerListener(this.zoomKeyListener),
-            recreateOnMessagesUpdated(() =>
+            repeatOnMessagesUpdated(() =>
                 this.shortcutManager.register(ViewportKeyTool.TOKEN, [
                     {
                         shortcuts: ['⬅ ⬆ ➡ ⬇'],
