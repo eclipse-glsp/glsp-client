@@ -36,6 +36,7 @@ import { AutocompleteSuggestion, IAutocompleteSuggestionProvider } from '../../.
 import { applyCssClasses, deleteCssClasses } from '../../../base/feedback/css-feedback';
 import { RepositionAction } from '../../../features/viewport/reposition';
 import { GEdge } from '../../../model';
+import { messages } from '../messages';
 
 const CSS_SEARCH_HIDDEN = 'search-hidden';
 const CSS_SEARCH_HIGHLIGHTED = 'search-highlighted';
@@ -121,8 +122,8 @@ export class SearchAutocompletePalette extends BaseAutocompletePalette {
     protected override initializeContents(containerElement: HTMLElement): void {
         super.initializeContents(containerElement);
 
-        this.autocompleteWidget.inputField.placeholder = 'Search for elements';
-        containerElement.setAttribute('aria-label', 'Search Field');
+        this.autocompleteWidget.inputField.placeholder = messages.search.placeholder;
+        containerElement.setAttribute('aria-label', messages.search.label);
     }
     protected getSuggestionProviders(root: Readonly<GModelRoot>, input: string): IAutocompleteSuggestionProvider[] {
         return [

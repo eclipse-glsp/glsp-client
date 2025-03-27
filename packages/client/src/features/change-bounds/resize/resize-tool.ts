@@ -19,7 +19,7 @@ import { inject, injectable } from 'inversify';
 import { Disposable } from 'vscode-jsonrpc';
 import { SelectionService } from '../../../base/selection-service';
 import type { ShortcutManager } from '../../../base/shortcuts/shortcuts-manager';
-import * as messages from '../../accessibility/toast/messages.json';
+import { messages, recreateOnMessagesUpdated } from '../../accessibility/messages';
 import { ShowToastMessageAction } from '../../accessibility/toast/toast-handler';
 import { BaseEditTool } from '../../tools/base-tools';
 import { isResizable } from '../model';
@@ -100,12 +100,34 @@ export class ResizeKeyTool extends BaseEditTool {
 
         this.toDisposeOnDisable.push(
             this.keyTool.registerListener(this.keyListener),
-            this.shortcutManager.register(ResizeKeyTool.TOKEN, [
-                { shortcuts: ['Escape'], description: 'Deactivate resize handler ', group: 'Resize', position: 0 },
-                { shortcuts: ['+'], description: 'Increase size of element', group: 'Resize', position: 1 },
-                { shortcuts: ['-'], description: 'Increase size of element', group: 'Resize', position: 2 },
-                { shortcuts: ['CTRL', '0'], description: 'Set element size to default', group: 'Resize', position: 3 }
-            ]),
+            recreateOnMessagesUpdated(() =>
+                this.shortcutManager.register(ResizeKeyTool.TOKEN, [
+                    {
+                        shortcuts: ['Escape'],
+                        description: messages.resize.shortcut_deactivate,
+                        group: messages.shortcut.group_resize,
+                        position: 0
+                    },
+                    {
+                        shortcuts: ['+'],
+                        description: messages.resize.shortcut_increase,
+                        group: messages.shortcut.group_resize,
+                        position: 1
+                    },
+                    {
+                        shortcuts: ['-'],
+                        description: messages.resize.shortcut_decrease,
+                        group: messages.shortcut.group_resize,
+                        position: 2
+                    },
+                    {
+                        shortcuts: ['CTRL', '0'],
+                        description: messages.resize.shortcut_reset,
+                        group: messages.shortcut.group_resize,
+                        position: 3
+                    }
+                ])
+            ),
             Disposable.create(() => {
                 this.dispatchActions(this.keyListener.disable());
             })

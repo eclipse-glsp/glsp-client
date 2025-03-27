@@ -21,6 +21,7 @@ import { ToolPalette } from '../tool-palette/tool-palette';
 import { BaseEditTool } from '../tools/base-tools';
 import { FocusDomAction } from './actions';
 import { KeyboardPointerMetadata } from './keyboard-pointer/constants';
+import { messages, recreateOnMessagesUpdated } from './messages';
 
 @injectable()
 export class GlobalKeyListenerTool extends BaseEditTool {
@@ -41,10 +42,22 @@ export class GlobalKeyListenerTool extends BaseEditTool {
             this.alreadyRegistered = true;
             document.addEventListener('keyup', this.trigger.bind(this));
 
-            this.shortcutManager.register(GlobalKeyListenerTool.TOKEN, [
-                { shortcuts: ['ALT', 'P'], description: 'Focus on tool palette', group: 'Tool-Palette', position: 0 },
-                { shortcuts: ['ALT', 'G'], description: 'Focus on graph', group: 'Graph', position: 0 }
-            ]);
+            recreateOnMessagesUpdated(() =>
+                this.shortcutManager.register(GlobalKeyListenerTool.TOKEN, [
+                    {
+                        shortcuts: ['ALT', 'P'],
+                        description: messages.focus.shortcut_focus_palette,
+                        group: messages.shortcut.group_tool_palette,
+                        position: 0
+                    },
+                    {
+                        shortcuts: ['ALT', 'G'],
+                        description: messages.focus.shortcut_focus_graph,
+                        group: messages.shortcut.group_graph,
+                        position: 0
+                    }
+                ])
+            );
         }
     }
 

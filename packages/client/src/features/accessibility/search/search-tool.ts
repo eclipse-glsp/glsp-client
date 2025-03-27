@@ -18,6 +18,7 @@ import { Action, GModelElement, KeyListener, matchesKeystroke, SetUIExtensionVis
 import { inject, injectable } from 'inversify';
 import type { IShortcutManager } from '../../../base/shortcuts/shortcuts-manager';
 import { BaseTool } from '../../tools/base-tools';
+import { messages, recreateOnMessagesUpdated } from '../messages';
 import { SearchAutocompletePalette } from './search-palette';
 
 @injectable()
@@ -36,9 +37,16 @@ export class SearchAutocompletePaletteTool extends BaseTool {
     enable(): void {
         this.toDisposeOnDisable.push(
             this.keyTool.registerListener(this.keyListener),
-            this.shortcutManager.register(SearchAutocompletePaletteTool.TOKEN, [
-                { shortcuts: ['CTRL', 'F'], description: 'Activate search for elements', group: 'Search', position: 0 }
-            ])
+            recreateOnMessagesUpdated(() =>
+                this.shortcutManager.register(SearchAutocompletePaletteTool.TOKEN, [
+                    {
+                        shortcuts: ['CTRL', 'F'],
+                        description: messages.search.shortcut_activate,
+                        group: messages.shortcut.group_search,
+                        position: 0
+                    }
+                ])
+            )
         );
     }
 }

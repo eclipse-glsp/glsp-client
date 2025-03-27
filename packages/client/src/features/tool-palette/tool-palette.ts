@@ -38,6 +38,7 @@ import { FocusTracker } from '../../base/focus/focus-tracker';
 import { IDiagramStartup } from '../../base/model/diagram-loader';
 import { EnableDefaultToolsAction, EnableToolsAction } from '../../base/tool-manager/tool';
 import { GLSPAbstractUIExtension } from '../../base/ui-extension/ui-extension';
+import { messages } from '../accessibility/messages';
 import { IDebugManager } from '../debug/debug-manager';
 import { IGridManager } from '../grid/grid-manager';
 import { MouseDeleteTool } from '../tools/deletion/delete-tool';
@@ -118,7 +119,7 @@ export class ToolPalette extends GLSPAbstractUIExtension implements IActionHandl
         this.createHeader();
         this.createBody();
         this.lastActiveButton = this.defaultToolsButton;
-        containerElement.setAttribute('aria-label', 'Tool-Palette');
+        containerElement.setAttribute('aria-label', messages.tool_palette.label);
     }
 
     protected override onBeforeShow(_containerElement: HTMLElement, root: Readonly<GModelRoot>): void {

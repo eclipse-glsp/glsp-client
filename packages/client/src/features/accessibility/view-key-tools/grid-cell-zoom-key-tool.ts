@@ -35,7 +35,7 @@ import { BaseTool } from '../../tools/base-tools';
 import type { ZoomFactors } from '../../viewport/zoom-viewport-action';
 import { ElementNavigatorKeyListener } from '../element-navigation/diagram-navigation-tool';
 import { EnableKeyboardGridAction, KeyboardGridCellSelectedAction, KeyboardGridKeyboardEventAction } from '../keyboard-grid/action';
-import * as messages from '../toast/messages.json';
+import { messages, recreateOnMessagesUpdated } from '../messages';
 import { HideToastAction, ShowToastMessageAction } from '../toast/toast-handler';
 
 /**
@@ -59,9 +59,16 @@ export class GridCellZoomTool extends BaseTool {
     enable(): void {
         this.toDisposeOnDisable.push(
             this.keyTool.registerListener(this.zoomKeyListener),
-            this.shortcutManager.register(GridCellZoomTool.TOKEN, [
-                { shortcuts: ['CTRL', '+'], description: 'Zoom in via Grid', group: 'Zoom', position: 0 }
-            ])
+            recreateOnMessagesUpdated(() =>
+                this.shortcutManager.register(GridCellZoomTool.TOKEN, [
+                    {
+                        shortcuts: ['CTRL', '+'],
+                        description: messages.grid.shortcut_zoom_in,
+                        group: messages.shortcut.group_zoom,
+                        position: 0
+                    }
+                ])
+            )
         );
     }
 

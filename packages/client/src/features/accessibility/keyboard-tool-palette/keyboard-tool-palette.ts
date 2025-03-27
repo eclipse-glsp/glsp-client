@@ -41,7 +41,7 @@ import { FocusDomAction } from '../actions';
 import { EdgeAutocompletePaletteMetadata } from '../edge-autocomplete/edge-autocomplete-palette';
 import { ElementNavigatorKeyListener } from '../element-navigation/diagram-navigation-tool';
 import { KeyboardNodeGridMetadata } from '../keyboard-grid/constants';
-import * as messages from '../toast/messages.json';
+import { messages } from '../messages';
 import { ShowToastMessageAction } from '../toast/toast-handler';
 
 const SEARCH_ICON_ID = 'search';
@@ -103,7 +103,7 @@ export class KeyboardToolPalette extends ToolPalette {
     }
 
     protected override initializeContents(_containerElement: HTMLElement): void {
-        this.containerElement.setAttribute('aria-label', 'Tool Palette');
+        this.containerElement.setAttribute('aria-label', messages.tool_palette.label);
         this.containerElement.tabIndex = 20;
         this.containerElement.classList.add('accessibility-tool-palette');
         this.createHeader();
@@ -199,7 +199,7 @@ export class KeyboardToolPalette extends ToolPalette {
 
         if (this.paletteItems.length === 0) {
             const noResultsDiv = document.createElement('div');
-            noResultsDiv.innerText = 'No results found.';
+            noResultsDiv.innerText = messages.tool_palette.no_items;
             noResultsDiv.classList.add('tool-button');
             bodyDiv.appendChild(noResultsDiv);
         }
@@ -261,7 +261,7 @@ export class KeyboardToolPalette extends ToolPalette {
     protected override createDefaultToolButton(): HTMLElement {
         const button = createIcon('inspect');
         button.id = 'btn_default_tools';
-        button.title = 'Enable selection tool';
+        button.title = messages.tool_palette.selection_button;
         button.onclick = this.onClickStaticToolButton(button);
         button.appendChild(this.createKeyboardShotcut(SELECTION_TOOL_KEY[0]));
 
@@ -270,7 +270,7 @@ export class KeyboardToolPalette extends ToolPalette {
 
     protected override createMouseDeleteToolButton(): HTMLElement {
         const deleteToolButton = createIcon('chrome-close');
-        deleteToolButton.title = 'Enable deletion tool';
+        deleteToolButton.title = messages.tool_palette.delete_button;
         deleteToolButton.onclick = this.onClickStaticToolButton(deleteToolButton, MouseDeleteTool.ID);
         deleteToolButton.appendChild(this.createKeyboardShotcut(DELETION_TOOL_KEY[0]));
 
@@ -279,10 +279,10 @@ export class KeyboardToolPalette extends ToolPalette {
 
     protected override createMarqueeToolButton(): HTMLElement {
         const marqueeToolButton = createIcon('screen-full');
-        marqueeToolButton.title = 'Enable marquee tool';
+        marqueeToolButton.title = messages.tool_palette.marquee_button;
         const toastMessageAction = ShowToastMessageAction.createWithTimeout({
             id: Symbol.for(ElementNavigatorKeyListener.name),
-            message: messages.tool_palette.marqueeTool
+            message: messages.tool_palette.marquee_message
         });
         marqueeToolButton.onclick = this.onClickStaticToolButton(marqueeToolButton, MarqueeMouseTool.ID, toastMessageAction);
         marqueeToolButton.appendChild(this.createKeyboardShotcut(MARQUEE_TOOL_KEY[0]));
@@ -292,7 +292,7 @@ export class KeyboardToolPalette extends ToolPalette {
 
     protected override createValidateButton(): HTMLElement {
         const validateToolButton = createIcon('pass');
-        validateToolButton.title = 'Validate model';
+        validateToolButton.title = messages.tool_palette.validate_button;
         validateToolButton.onclick = _event => {
             const modelIds: string[] = [this.modelRootId];
             this.actionDispatcher.dispatch(RequestMarkersAction.create(modelIds));
@@ -330,7 +330,7 @@ export class KeyboardToolPalette extends ToolPalette {
             }
         };
         searchIcon.classList.add('search-icon');
-        searchIcon.title = 'Filter palette entries';
+        searchIcon.title = messages.tool_palette.search_button;
         searchIcon.appendChild(this.createKeyboardShotcut(SEARCH_TOOL_KEY[0]));
 
         return searchIcon;
@@ -342,7 +342,7 @@ export class KeyboardToolPalette extends ToolPalette {
         searchField.tabIndex = 21;
         searchField.id = this.containerElement.id + '_search_field';
         searchField.type = 'text';
-        searchField.placeholder = 'Search...';
+        searchField.placeholder = messages.tool_palette.search_placeholder;
         searchField.style.display = 'none';
         searchField.onkeyup = ev => {
             this.requestFilterUpdate(this.searchField.value);
