@@ -49,6 +49,16 @@ export namespace Disposable {
     export function create(cb: () => void): Disposable {
         return { dispose: cb };
     }
+
+    /**
+     * Disposes the given object if it is a {@link Disposable}.
+     * @param value The object that should be disposed
+     */
+    export function dispose(value: unknown): void {
+        if (is(value)) {
+            value.dispose();
+        }
+    }
 }
 
 /**

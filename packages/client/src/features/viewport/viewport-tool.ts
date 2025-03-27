@@ -16,6 +16,7 @@
 
 import { TYPES } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
+import { messages, repeatOnMessagesUpdated } from '../../base/messages';
 import type { IShortcutManager } from '../../base/shortcuts/shortcuts-manager';
 import { BaseTool } from '../tools/base-tools';
 import { MoveViewportKeyListener, ZoomKeyListener } from './viewport-key-listener';
@@ -44,11 +45,28 @@ export class ViewportKeyTool extends BaseTool {
         this.toDisposeOnDisable.push(
             this.keyTool.registerListener(this.moveKeyListener),
             this.keyTool.registerListener(this.zoomKeyListener),
-            this.shortcutManager.register(ViewportKeyTool.TOKEN, [
-                { shortcuts: ['⬅ ⬆ ➡ ⬇'], description: 'Move viewport', group: 'Move', position: 0 },
-                { shortcuts: ['+ -'], description: 'Zoom viewport', group: 'Zoom', position: 0 },
-                { shortcuts: ['+ -'], description: 'Zoom element', group: 'Zoom', position: 0 }
-            ])
+            repeatOnMessagesUpdated(() =>
+                this.shortcutManager.register(ViewportKeyTool.TOKEN, [
+                    {
+                        shortcuts: ['⬅ ⬆ ➡ ⬇'],
+                        description: messages.viewport.shortcut_move_viewport,
+                        group: messages.shortcut.group_move,
+                        position: 0
+                    },
+                    {
+                        shortcuts: ['+ -'],
+                        description: messages.viewport.shortcut_zoom_viewport,
+                        group: messages.shortcut.group_zoom,
+                        position: 0
+                    },
+                    {
+                        shortcuts: ['+ -'],
+                        description: messages.viewport.shortcut_zoom_element,
+                        group: messages.shortcut.group_zoom,
+                        position: 0
+                    }
+                ])
+            )
         );
     }
 }

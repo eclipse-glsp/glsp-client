@@ -15,6 +15,7 @@
  ********************************************************************************/
 import { Action, matchesKeystroke, SetUIExtensionVisibilityAction, TYPES } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
+import { messages, repeatOnMessagesUpdated } from '../../base/messages';
 import type { IShortcutManager } from '../../base/shortcuts/shortcuts-manager';
 import { KeyboardGridMetadata, KeyboardNodeGridMetadata } from '../accessibility/keyboard-grid/constants';
 import { ToolPalette } from '../tool-palette/tool-palette';
@@ -41,10 +42,22 @@ export class GlobalKeyListenerTool extends BaseEditTool {
             this.alreadyRegistered = true;
             document.addEventListener('keyup', this.trigger.bind(this));
 
-            this.shortcutManager.register(GlobalKeyListenerTool.TOKEN, [
-                { shortcuts: ['ALT', 'P'], description: 'Focus on tool palette', group: 'Tool-Palette', position: 0 },
-                { shortcuts: ['ALT', 'G'], description: 'Focus on graph', group: 'Graph', position: 0 }
-            ]);
+            repeatOnMessagesUpdated(() =>
+                this.shortcutManager.register(GlobalKeyListenerTool.TOKEN, [
+                    {
+                        shortcuts: ['ALT', 'P'],
+                        description: messages.focus.shortcut_focus_palette,
+                        group: messages.shortcut.group_tool_palette,
+                        position: 0
+                    },
+                    {
+                        shortcuts: ['ALT', 'G'],
+                        description: messages.focus.shortcut_focus_graph,
+                        group: messages.shortcut.group_graph,
+                        position: 0
+                    }
+                ])
+            );
         }
     }
 

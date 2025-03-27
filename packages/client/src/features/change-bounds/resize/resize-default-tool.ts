@@ -16,6 +16,7 @@
 
 import { KeyListener, matchesKeystroke, TYPES, type Action, type GModelElement, type IActionDispatcher } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
+import { messages, repeatOnMessagesUpdated } from '../../../base/messages';
 import { SelectionService } from '../../../base/selection-service';
 import type { ShortcutManager } from '../../../base/shortcuts/shortcuts-manager';
 import { EnableToolsAction } from '../../../base/tool-manager/tool';
@@ -67,9 +68,16 @@ export class DefaultResizeKeyTool extends BaseEditTool {
     enable(): void {
         this.toDisposeOnDisable.push(
             this.keyTool.registerListener(this.keyListener),
-            this.shortcutManager.register(DefaultResizeKeyTool.TOKEN, [
-                { shortcuts: ['ALT', 'A'], description: 'Activate resize mode for selected element', group: 'Resize', position: 0 }
-            ])
+            repeatOnMessagesUpdated(() =>
+                this.shortcutManager.register(DefaultResizeKeyTool.TOKEN, [
+                    {
+                        shortcuts: ['ALT', 'A'],
+                        description: messages.resize.shortcut_activate,
+                        group: messages.shortcut.group_resize,
+                        position: 0
+                    }
+                ])
+            )
         );
     }
 }

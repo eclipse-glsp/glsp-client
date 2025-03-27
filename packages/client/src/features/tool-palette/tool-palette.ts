@@ -35,6 +35,7 @@ import {
 import { inject, injectable, optional, postConstruct } from 'inversify';
 import { EditorContextService, IEditModeListener } from '../../base/editor-context-service';
 import { FocusTracker } from '../../base/focus/focus-tracker';
+import { messages, repeatOnMessagesUpdated } from '../../base/messages';
 import { IDiagramStartup } from '../../base/model/diagram-loader';
 import { EnableDefaultToolsAction, EnableToolsAction } from '../../base/tool-manager/tool';
 import { GLSPAbstractUIExtension } from '../../base/ui-extension/ui-extension';
@@ -89,6 +90,8 @@ export class ToolPalette extends GLSPAbstractUIExtension implements IActionHandl
     protected paletteItems: PaletteItem[];
     protected paletteItemsCopy: PaletteItem[] = [];
     protected dynamic = false;
+    protected toggleButton?: HTMLElement;
+    protected headerDiv?: HTMLElement;
     protected bodyDiv?: HTMLElement;
     protected lastActiveButton?: HTMLElement;
     protected defaultToolsButton: HTMLElement;
@@ -105,6 +108,13 @@ export class ToolPalette extends GLSPAbstractUIExtension implements IActionHandl
     @postConstruct()
     postConstruct(): void {
         this.editorContext.onEditModeChanged(change => this.editModeChanged(change.newValue, change.oldValue));
+        repeatOnMessagesUpdated(
+            () => {
+                this.createHeader();
+                this.addMinimizePaletteButton();
+            },
+            { initial: false }
+        );
     }
 
     override initialize(): boolean {
@@ -115,10 +125,11 @@ export class ToolPalette extends GLSPAbstractUIExtension implements IActionHandl
     }
 
     protected initializeContents(containerElement: HTMLElement): void {
+        this.addMinimizePaletteButton();
         this.createHeader();
         this.createBody();
         this.lastActiveButton = this.defaultToolsButton;
-        containerElement.setAttribute('aria-label', 'Tool-Palette');
+        containerElement.setAttribute('aria-label', messages.tool_palette.label);
     }
 
     protected override onBeforeShow(_containerElement: HTMLElement, root: Readonly<GModelRoot>): void {
@@ -128,32 +139,40 @@ export class ToolPalette extends GLSPAbstractUIExtension implements IActionHandl
 
     protected addMinimizePaletteButton(): void {
         const baseDiv = document.getElementById(this.options.baseDiv);
-        const minPaletteDiv = document.createElement('div');
-        minPaletteDiv.classList.add('minimize-palette-button');
-        this.containerElement.classList.add('collapsible-palette');
-        if (baseDiv) {
-            const insertedDiv = baseDiv.insertBefore(minPaletteDiv, baseDiv.firstChild);
-            const minimizeIcon = createIcon(CHEVRON_DOWN_ICON_ID);
-            this.updateMinimizePaletteButtonTooltip(minPaletteDiv);
-            minimizeIcon.onclick = _event => {
-                if (this.isPaletteMaximized()) {
-                    this.containerElement.style.maxHeight = '0px';
-                } else {
-                    this.containerElement.style.maxHeight = PALETTE_HEIGHT;
-                }
-                this.updateMinimizePaletteButtonTooltip(minPaletteDiv);
-                changeCodiconClass(minimizeIcon, PALETTE_ICON_ID);
-                changeCodiconClass(minimizeIcon, CHEVRON_DOWN_ICON_ID);
-            };
-            insertedDiv.appendChild(minimizeIcon);
+        if (!baseDiv) {
+            return;
         }
+        const toggleButton = document.createElement('div');
+        toggleButton.classList.add('minimize-palette-button');
+        this.containerElement.classList.add('collapsible-palette');
+        const minimizeIcon = createIcon(CHEVRON_DOWN_ICON_ID);
+        this.updateMinimizePaletteButtonTooltip(toggleButton);
+        minimizeIcon.onclick = _event => {
+            if (this.isPaletteMaximized()) {
+                this.containerElement.style.maxHeight = '0px';
+            } else {
+                this.containerElement.style.maxHeight = PALETTE_HEIGHT;
+            }
+            this.updateMinimizePaletteButtonTooltip(toggleButton);
+            changeCodiconClass(minimizeIcon, PALETTE_ICON_ID);
+            changeCodiconClass(minimizeIcon, CHEVRON_DOWN_ICON_ID);
+        };
+        toggleButton.appendChild(minimizeIcon);
+
+        // Replace existing header to refresh
+        if (this.toggleButton) {
+            this.toggleButton.replaceWith(toggleButton);
+        } else {
+            baseDiv.insertBefore(toggleButton, baseDiv.firstChild);
+        }
+        this.toggleButton = toggleButton;
     }
 
     protected updateMinimizePaletteButtonTooltip(button: HTMLDivElement): void {
         if (this.isPaletteMaximized()) {
-            button.title = 'Minimize palette';
+            button.title = messages.tool_palette.minimize;
         } else {
-            button.title = 'Maximize palette';
+            button.title = messages.tool_palette.maximize;
         }
     }
 
@@ -176,26 +195,33 @@ export class ToolPalette extends GLSPAbstractUIExtension implements IActionHandl
         });
         if (this.paletteItems.length === 0) {
             const noResultsDiv = document.createElement('div');
-            noResultsDiv.innerText = 'No results found.';
+            noResultsDiv.innerText = messages.tool_palette.no_items;
             noResultsDiv.classList.add('tool-button');
             bodyDiv.appendChild(noResultsDiv);
         }
         // Remove existing body to refresh filtered entries
         if (this.bodyDiv) {
-            this.containerElement.removeChild(this.bodyDiv);
+            this.bodyDiv.replaceWith(bodyDiv);
+        } else {
+            this.containerElement.appendChild(bodyDiv);
         }
-        this.containerElement.appendChild(bodyDiv);
         this.bodyDiv = bodyDiv;
     }
 
     protected createHeader(): void {
-        this.addMinimizePaletteButton();
         const headerCompartment = document.createElement('div');
         headerCompartment.classList.add('palette-header');
         headerCompartment.append(this.createHeaderTitle());
         headerCompartment.appendChild(this.createHeaderTools());
         headerCompartment.appendChild((this.searchField = this.createHeaderSearchField()));
-        this.containerElement.appendChild(headerCompartment);
+
+        // Replace existing header to refresh
+        if (this.headerDiv) {
+            this.headerDiv.replaceWith(headerCompartment);
+        } else {
+            this.containerElement.appendChild(headerCompartment);
+        }
+        this.headerDiv = headerCompartment;
     }
 
     protected createHeaderTools(): HTMLElement {
@@ -237,7 +263,7 @@ export class ToolPalette extends GLSPAbstractUIExtension implements IActionHandl
     protected createDefaultToolButton(): HTMLElement {
         const button = createIcon('inspect');
         button.id = 'btn_default_tools';
-        button.title = 'Enable selection tool';
+        button.title = messages.tool_palette.selection_button;
         button.onclick = this.onClickStaticToolButton(button);
         button.ariaLabel = button.title;
         button.tabIndex = 1;
@@ -246,7 +272,7 @@ export class ToolPalette extends GLSPAbstractUIExtension implements IActionHandl
 
     protected createMouseDeleteToolButton(): HTMLElement {
         const deleteToolButton = createIcon('chrome-close');
-        deleteToolButton.title = 'Enable deletion tool';
+        deleteToolButton.title = messages.tool_palette.delete_button;
         deleteToolButton.onclick = this.onClickStaticToolButton(deleteToolButton, MouseDeleteTool.ID);
         deleteToolButton.ariaLabel = deleteToolButton.title;
         deleteToolButton.tabIndex = 1;
@@ -255,7 +281,7 @@ export class ToolPalette extends GLSPAbstractUIExtension implements IActionHandl
 
     protected createMarqueeToolButton(): HTMLElement {
         const marqueeToolButton = createIcon('screen-full');
-        marqueeToolButton.title = 'Enable marquee tool';
+        marqueeToolButton.title = messages.tool_palette.marquee_button;
         marqueeToolButton.onclick = this.onClickStaticToolButton(marqueeToolButton, MarqueeMouseTool.ID);
         marqueeToolButton.ariaLabel = marqueeToolButton.title;
         marqueeToolButton.tabIndex = 1;
@@ -264,7 +290,7 @@ export class ToolPalette extends GLSPAbstractUIExtension implements IActionHandl
 
     protected createValidateButton(): HTMLElement {
         const validateActionButton = createIcon('pass');
-        validateActionButton.title = 'Validate model';
+        validateActionButton.title = messages.tool_palette.validate_button;
         validateActionButton.onclick = _event => {
             const modelIds: string[] = [this.modelRootId];
             this.actionDispatcher.dispatch(RequestMarkersAction.create(modelIds, { reason: MarkersReason.BATCH }));
@@ -277,7 +303,7 @@ export class ToolPalette extends GLSPAbstractUIExtension implements IActionHandl
 
     protected createResetViewportButton(): HTMLElement {
         const resetViewportButton = createIcon('screen-normal');
-        resetViewportButton.title = 'Reset Viewport';
+        resetViewportButton.title = messages.tool_palette.reset_viewport_button;
         resetViewportButton.onclick = _event => {
             this.actionDispatcher.dispatch(OriginViewportAction.create());
             resetViewportButton.focus();
@@ -289,7 +315,7 @@ export class ToolPalette extends GLSPAbstractUIExtension implements IActionHandl
 
     protected createToggleGridButton(): HTMLElement {
         const toggleGridButton = createIcon('symbol-numeric');
-        toggleGridButton.title = 'Toggle Grid';
+        toggleGridButton.title = messages.tool_palette.toggle_grid_button;
         toggleGridButton.onclick = () => {
             if (this.gridManager?.isGridVisible) {
                 toggleGridButton.classList.remove(CLICKED_CSS_CLASS);
@@ -309,7 +335,7 @@ export class ToolPalette extends GLSPAbstractUIExtension implements IActionHandl
 
     protected createToggleDebugButton(): HTMLElement {
         const toggleDebugButton = createIcon('debug');
-        toggleDebugButton.title = 'Debug Mode';
+        toggleDebugButton.title = messages.tool_palette.debug_mode_button;
         toggleDebugButton.onclick = () => {
             if (this.debugManager?.isDebugEnabled) {
                 toggleDebugButton.classList.remove(CLICKED_CSS_CLASS);
@@ -341,7 +367,7 @@ export class ToolPalette extends GLSPAbstractUIExtension implements IActionHandl
             }
         };
         searchIcon.classList.add('search-icon');
-        searchIcon.title = 'Filter palette entries';
+        searchIcon.title = messages.tool_palette.search_button;
         searchIcon.ariaLabel = searchIcon.title;
         searchIcon.tabIndex = 1;
         return searchIcon;
@@ -352,7 +378,7 @@ export class ToolPalette extends GLSPAbstractUIExtension implements IActionHandl
         searchField.classList.add('search-input');
         searchField.id = this.containerElement.id + '_search_field';
         searchField.type = 'text';
-        searchField.placeholder = 'Search...';
+        searchField.placeholder = messages.tool_palette.search_placeholder;
         searchField.style.display = 'none';
         searchField.onkeyup = () => this.requestFilterUpdate(this.searchField.value);
         searchField.onkeydown = ev => this.clearOnEscape(ev);

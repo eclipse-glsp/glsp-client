@@ -34,6 +34,7 @@ import {
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable, optional } from 'inversify';
 import { VNode, VNodeStyle, h } from 'snabbdom';
+import { messages } from '../base/messages';
 import { GridStyle, IGridManager } from '../features/grid/grid-manager';
 import { GridProperty } from '../features/grid/grid-style';
 
@@ -53,7 +54,7 @@ export class GLSPProjectionView extends ProjectedViewportView {
             </div>
         );
         setAttr(rootNode, 'tabindex', 1);
-        setAttr(rootNode, 'aria-label', 'Diagram');
+        setAttr(rootNode, 'aria-label', messages.diagram.label);
 
         return rootNode;
     }

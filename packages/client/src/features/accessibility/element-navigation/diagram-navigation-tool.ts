@@ -30,6 +30,7 @@ import {
     toArray
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
+import { messages, repeatOnMessagesUpdated } from '../../../base/messages';
 import { AvailableShortcutsTool } from '../../../base/shortcuts/available-shortcuts-tool';
 import type { IShortcutManager } from '../../../base/shortcuts/shortcuts-manager';
 import { EnableDefaultToolsAction, EnableToolsAction } from '../../../base/tool-manager/tool';
@@ -38,7 +39,6 @@ import { SelectableBoundsAware } from '../../../utils/gmodel-util';
 import { BaseTool } from '../../tools/base-tools';
 import { RepositionAction } from '../../viewport/reposition';
 import { SearchAutocompletePaletteTool } from '../search/search-tool';
-import * as messages from '../toast/messages.json';
 import { ShowToastMessageAction } from '../toast/toast-handler';
 import { ElementNavigator } from './element-navigator';
 
@@ -60,10 +60,22 @@ export class ElementNavigatorTool extends BaseTool {
     enable(): void {
         this.toDisposeOnDisable.push(
             this.keyTool.registerListener(this.elementNavigatorKeyListener),
-            this.shortcutManager.register(ElementNavigatorTool.TOKEN, [
-                { shortcuts: ['ALT', 'N'], description: 'Activate local navigation mode', group: 'Navigation', position: 0 },
-                { shortcuts: ['N'], description: 'Activate global navigation mode', group: 'Navigation', position: 1 }
-            ])
+            repeatOnMessagesUpdated(() =>
+                this.shortcutManager.register(ElementNavigatorTool.TOKEN, [
+                    {
+                        shortcuts: ['ALT', 'N'],
+                        description: messages.navigation.shortcut_local_mode,
+                        group: messages.shortcut.group_navigation,
+                        position: 0
+                    },
+                    {
+                        shortcuts: ['N'],
+                        description: messages.navigation.shortcut_global_mode,
+                        group: messages.shortcut.group_navigation,
+                        position: 1
+                    }
+                ])
+            )
         );
     }
 }

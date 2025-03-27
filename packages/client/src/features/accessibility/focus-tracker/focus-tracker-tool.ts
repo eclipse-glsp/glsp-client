@@ -16,8 +16,8 @@
 
 import { IActionDispatcher, TYPES, ViewerOptions } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
+import { messages } from '../../../base/messages';
 import { Tool } from '../../../base/tool-manager/tool';
-import * as messages from '../toast/messages.json';
 import { ShowToastMessageAction } from '../toast/toast-handler';
 
 @injectable()
@@ -51,7 +51,7 @@ export class FocusTrackerTool implements Tool {
     }
 
     protected async focusOut(event: FocusEvent): Promise<void> {
-        await this.showToast('Focus not set');
+        await this.showToast(messages.focus.focus_not_set);
     }
 
     protected async focusIn(event: FocusEvent): Promise<void> {
@@ -68,7 +68,7 @@ export class FocusTrackerTool implements Tool {
                 if (parent === undefined && textMessage !== undefined) {
                     message = textMessage;
                 } else if (parent !== undefined && textMessage === undefined) {
-                    message = `Focus is in ${parent.ariaLabel}`;
+                    message = `${messages.focus.focus_within} ${parent.ariaLabel}`;
                 } else if (parent !== undefined && textMessage !== undefined) {
                     message = `${parent.ariaLabel} -> ${textMessage}`;
                 }

@@ -18,6 +18,7 @@ import { GModelRoot, matchesKeystroke, TYPES } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
 import { groupBy } from 'lodash';
 import { GLSPAbstractUIExtension } from '../../base/ui-extension/ui-extension';
+import { messages } from '../messages';
 import type { IShortcutManager, ShortcutRegistration } from './shortcuts-manager';
 
 @injectable()
@@ -71,8 +72,8 @@ export class AvailableShortcutsUIExtension extends GLSPAbstractUIExtension {
 
         commandCell.classList.add('column-title');
 
-        commandCell.innerText = 'Command';
-        keybindingCell.innerText = 'Keybinding';
+        commandCell.innerText = messages.shortcut.header_command;
+        keybindingCell.innerText = messages.shortcut.header_shortcut;
 
         headerRow.appendChild(commandCell);
         headerRow.appendChild(keybindingCell);
@@ -134,7 +135,7 @@ export class AvailableShortcutsUIExtension extends GLSPAbstractUIExtension {
         // create title
         const menuTitle = document.createElement('h3');
         menuTitle.classList.add('menu-header');
-        menuTitle.innerText = 'Keyboard Shortcuts';
+        menuTitle.innerText = messages.shortcut.title;
         this.container.appendChild(menuTitle);
 
         const closeBtn = document.createElement('button');
@@ -158,7 +159,7 @@ export class AvailableShortcutsUIExtension extends GLSPAbstractUIExtension {
 
         this.container.appendChild(this.shortcutsContainer);
         containerElement.appendChild(this.container);
-        containerElement.ariaLabel = 'Shortcut-Menu';
+        containerElement.ariaLabel = messages.shortcut.menu_title;
 
         this.refreshUI();
     }

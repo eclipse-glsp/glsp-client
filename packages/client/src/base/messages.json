@@ -1,0 +1,82 @@
+{
+  "navigation": {
+    "default_navigation_mode_activated": "Navigation On: Use arrow keys to select preceding (←) or succeding (→) elements. Use the up (↑) and down (↓) arrows to navigate paths. Press 'N' to exit.",
+    "default_navigation_mode_deactivated": "Navigation Off: Press 'N' for default navigation, 'ALT+N' for position based navigation.",
+    "local_navigation_mode_activated": "Position based Nav On: Navigate nearest elements using arrow keys: (↑) for above, (↓) for below, (←) for previous, (→) for next element. Press 'ALT+N' to exit.",
+    "local_navigation_mode_deactivated": "Position based Nav Off: Press 'N' for default navigation, 'ALT+N' for position based navigation.",
+    "shortcut_local_mode": "Activate local navigation mode",
+    "shortcut_global_mode": "Activate global navigation mode"
+  },
+  "focus": {
+    "focus_not_set": "Focus not set",
+    "focus_on": "Currently focused: ",
+    "focus_off": "Currently no element is focused.",
+    "focus_within": "Within",
+    "shortcut_focus_palette": "Focus on tool palette",
+    "shortcut_focus_graph": "Focus on graph"
+  },
+  "resize": {
+    "resize_mode_activated": "Resize On: Use plus(+) and minus(-) to resize, 'CTRL'+'0' for default size. Press 'ESC' to exit.",
+    "resize_mode_deactivated": "Resize Off: Press 'ALT'+'A' for resize mode.",
+    "shortcut_activate": "Activate resize mode for selected element",
+    "shortcut_deactivate": "Deactivate resize handler",
+    "shortcut_increase": "Increase size of element",
+    "shortcut_decrease": "Decrease size of element",
+    "shortcut_reset": "Set element size to default"
+  },
+  "move": {
+    "shortcut_move": "Move element"
+  },
+  "grid": {
+    "zoom_in_grid": "Select a digit from 1-9 to zoom in on the respective box.",
+    "shortcut_zoom_in": "Zoom in via grid"
+  },
+  "search": {
+    "shortcut_activate": "Activate search for elements",
+    "placeholder": "Search for elements...",
+    "label": "Search Field"
+  },
+  "tool_palette": {
+    "label": "Tool Palette",
+    "delete_button": "Enable deletion tool",
+    "marquee_button": "Enable marquee tool",
+    "marquee_message": "Currently marquee tool is only usable with mouse.",
+    "search_placeholder": "Search...",
+    "search_button": "Filter palette entries",
+    "selection_button": "Enable selection tool",
+    "validate_button": "Validate model",
+    "reset_viewport_button": "Reset Viewport",
+    "toggle_grid_button": "Toggle Grid",
+    "debug_mode_button": "Debug Mode",
+    "minimize": "Minimize palette",
+    "maximize": "Maximize palette",
+    "no_items": "No results found."
+  },
+  "viewport": {
+    "shortcut_move_viewport": "Move viewport",
+    "shortcut_zoom_viewport": "Zoom viewport",
+    "shortcut_zoom_element": "Zoom element"
+  },
+  "shortcut": {
+    "title": "Keyboard Shortcuts",
+    "header_command": "Command",
+    "header_shortcut": "Keybinding",
+    "menu_title": "Shortcut Menu",
+    "group_move": "Move",
+    "group_graph": "Graph",
+    "group_resize": "Resize",
+    "group_focus": "Focus",
+    "group_zoom": "Zoom",
+    "group_navigation": "Navigation",
+    "group_grid": "Grid",
+    "group_search": "Search",
+    "group_tool_palette": "Tool Palette",
+    "group_viewport": "Viewport"
+  },
+  "diagram": {
+    "label": "Diagram"
+  },
+  "autocomplete": {
+    "no_suggestions": "No suggestions available"
+  }
+}

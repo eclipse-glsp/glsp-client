@@ -28,6 +28,7 @@ import {
     matchesKeystroke
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
+import { messages, repeatOnMessagesUpdated } from '../../../base/messages';
 import { SelectionService } from '../../../base/selection-service';
 import type { IShortcutManager } from '../../../base/shortcuts/shortcuts-manager';
 import { getAbsolutePositionByPoint } from '../../../utils/viewpoint-util';
@@ -35,7 +36,6 @@ import { BaseTool } from '../../tools/base-tools';
 import type { ZoomFactors } from '../../viewport/zoom-viewport-action';
 import { ElementNavigatorKeyListener } from '../element-navigation/diagram-navigation-tool';
 import { EnableKeyboardGridAction, KeyboardGridCellSelectedAction, KeyboardGridKeyboardEventAction } from '../keyboard-grid/action';
-import * as messages from '../toast/messages.json';
 import { HideToastAction, ShowToastMessageAction } from '../toast/toast-handler';
 
 /**
@@ -59,9 +59,16 @@ export class GridCellZoomTool extends BaseTool {
     enable(): void {
         this.toDisposeOnDisable.push(
             this.keyTool.registerListener(this.zoomKeyListener),
-            this.shortcutManager.register(GridCellZoomTool.TOKEN, [
-                { shortcuts: ['CTRL', '+'], description: 'Zoom in via Grid', group: 'Zoom', position: 0 }
-            ])
+            repeatOnMessagesUpdated(() =>
+                this.shortcutManager.register(GridCellZoomTool.TOKEN, [
+                    {
+                        shortcuts: ['CTRL', '+'],
+                        description: messages.grid.shortcut_zoom_in,
+                        group: messages.shortcut.group_zoom,
+                        position: 0
+                    }
+                ])
+            )
         );
     }
 

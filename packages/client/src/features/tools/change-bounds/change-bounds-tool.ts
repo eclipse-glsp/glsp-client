@@ -40,6 +40,7 @@ import {
 } from '@eclipse-glsp/sprotty';
 import { DragAwareMouseListener } from '../../../base/drag-aware-mouse-listener';
 import { FeedbackEmitter } from '../../../base/feedback/feedback-emitter';
+import { messages, repeatOnMessagesUpdated } from '../../../base/messages';
 import { ISelectionListener, SelectionService } from '../../../base/selection-service';
 import type { IShortcutManager } from '../../../base/shortcuts/shortcuts-manager';
 import {
@@ -117,9 +118,16 @@ export class ChangeBoundsTool extends BaseEditTool {
         const createMoveKeyListener = this.createMoveKeyListener();
         this.toDisposeOnDisable.push(
             this.keyTool.registerListener(createMoveKeyListener),
-            this.shortcutManager.register(ChangeBoundsTool.TOKEN, [
-                { shortcuts: ['⬅ ⬆ ➡ ⬇'], description: 'Move element', group: 'Move', position: 0 }
-            ])
+            repeatOnMessagesUpdated(() =>
+                this.shortcutManager.register(ChangeBoundsTool.TOKEN, [
+                    {
+                        shortcuts: ['⬅ ⬆ ➡ ⬇'],
+                        description: messages.move.shortcut_move,
+                        group: messages.shortcut.group_move,
+                        position: 0
+                    }
+                ])
+            )
         );
         if (Disposable.is(createMoveKeyListener)) {
             this.toDisposeOnDisable.push(createMoveKeyListener);
