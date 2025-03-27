@@ -16,8 +16,8 @@
 
 import { IActionDispatcher, TYPES, ViewerOptions } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
+import { messages } from '../../../base/messages';
 import { Tool } from '../../../base/tool-manager/tool';
-import { messages } from '../messages';
 import { ShowToastMessageAction } from '../toast/toast-handler';
 
 @injectable()

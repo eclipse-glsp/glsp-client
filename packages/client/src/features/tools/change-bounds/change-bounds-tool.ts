@@ -40,6 +40,7 @@ import {
 } from '@eclipse-glsp/sprotty';
 import { DragAwareMouseListener } from '../../../base/drag-aware-mouse-listener';
 import { FeedbackEmitter } from '../../../base/feedback/feedback-emitter';
+import { messages, repeatOnMessagesUpdated } from '../../../base/messages';
 import { ISelectionListener, SelectionService } from '../../../base/selection-service';
 import type { IShortcutManager } from '../../../base/shortcuts/shortcuts-manager';
 import {
@@ -51,7 +52,6 @@ import {
     isNonRoutableSelectedMovableBoundsAware,
     toElementAndBounds
 } from '../../../utils/gmodel-util';
-import { messages, repeatOnMessagesUpdated } from '../../accessibility/messages';
 import { LocalRequestBoundsAction } from '../../bounds/local-bounds';
 import { SetBoundsFeedbackAction } from '../../bounds/set-bounds-feedback-command';
 import { GResizeHandle, isResizable } from '../../change-bounds/model';

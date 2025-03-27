@@ -34,7 +34,7 @@ import {
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable, optional } from 'inversify';
 import { VNode, VNodeStyle, h } from 'snabbdom';
-import { messages } from '../features/accessibility/messages';
+import { messages } from '../base/messages';
 import { GridStyle, IGridManager } from '../features/grid/grid-manager';
 import { GridProperty } from '../features/grid/grid-style';
 

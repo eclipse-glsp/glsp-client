@@ -15,13 +15,13 @@
  ********************************************************************************/
 import { Action, matchesKeystroke, SetUIExtensionVisibilityAction, TYPES } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
+import { messages, repeatOnMessagesUpdated } from '../../base/messages';
 import type { IShortcutManager } from '../../base/shortcuts/shortcuts-manager';
 import { KeyboardGridMetadata, KeyboardNodeGridMetadata } from '../accessibility/keyboard-grid/constants';
 import { ToolPalette } from '../tool-palette/tool-palette';
 import { BaseEditTool } from '../tools/base-tools';
 import { FocusDomAction } from './actions';
 import { KeyboardPointerMetadata } from './keyboard-pointer/constants';
-import { messages, repeatOnMessagesUpdated } from './messages';
 
 @injectable()
 export class GlobalKeyListenerTool extends BaseEditTool {

@@ -17,9 +17,9 @@
 import { KeyListener, matchesKeystroke, TYPES, type Action, type GModelElement } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
 import { Disposable } from 'vscode-jsonrpc';
+import { messages, repeatOnMessagesUpdated } from '../../../base/messages';
 import { SelectionService } from '../../../base/selection-service';
 import type { ShortcutManager } from '../../../base/shortcuts/shortcuts-manager';
-import { messages, repeatOnMessagesUpdated } from '../../accessibility/messages';
 import { ShowToastMessageAction } from '../../accessibility/toast/toast-handler';
 import { BaseEditTool } from '../../tools/base-tools';
 import { isResizable } from '../model';

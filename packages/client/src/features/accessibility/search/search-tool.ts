@@ -16,9 +16,9 @@
 
 import { Action, GModelElement, KeyListener, matchesKeystroke, SetUIExtensionVisibilityAction, TYPES } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
+import { messages, repeatOnMessagesUpdated } from '../../../base/messages';
 import type { IShortcutManager } from '../../../base/shortcuts/shortcuts-manager';
 import { BaseTool } from '../../tools/base-tools';
-import { messages, repeatOnMessagesUpdated } from '../messages';
 import { SearchAutocompletePalette } from './search-palette';
 
 @injectable()

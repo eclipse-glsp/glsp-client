@@ -19,6 +19,7 @@ import { inject } from 'inversify';
 import '../../../css/autocomplete-palette.css';
 import { GLSPAbstractUIExtension } from '../ui-extension/ui-extension';
 import { AutoCompleteWidget, CloseReason, toActionArray } from './auto-complete-widget';
+import { messages } from '../messages';
 
 /**
  * A reusable base implementation for `UIExtensions` that want to provide autocomplete functionality
@@ -27,7 +28,7 @@ import { AutoCompleteWidget, CloseReason, toActionArray } from './auto-complete-
  */
 export abstract class BaseAutocompletePalette extends GLSPAbstractUIExtension {
     protected readonly autoSuggestionSettings = {
-        noSuggestionsMessage: 'No suggestions available',
+        noSuggestionsMessage: messages.autocomplete.no_suggestions,
         suggestionsClass: 'command-palette-suggestions',
         debounceWaitMs: 50,
         showOnFocus: true

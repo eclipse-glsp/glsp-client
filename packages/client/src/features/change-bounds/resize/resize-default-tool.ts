@@ -16,10 +16,10 @@
 
 import { KeyListener, matchesKeystroke, TYPES, type Action, type GModelElement, type IActionDispatcher } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
+import { messages, repeatOnMessagesUpdated } from '../../../base/messages';
 import { SelectionService } from '../../../base/selection-service';
 import type { ShortcutManager } from '../../../base/shortcuts/shortcuts-manager';
 import { EnableToolsAction } from '../../../base/tool-manager/tool';
-import { messages, repeatOnMessagesUpdated } from '../../accessibility/messages';
 import { BaseEditTool } from '../../tools/base-tools';
 import { isResizable } from '../model';
 import { ResizeKeyTool } from './resize-tool';

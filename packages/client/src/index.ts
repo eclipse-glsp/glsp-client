@@ -33,6 +33,7 @@ export * from './base/feedback/set-model-command';
 export * from './base/feedback/update-model-command';
 export * from './base/focus/focus-state-change-action';
 export * from './base/focus/focus-tracker';
+export * from './base/messages';
 export * from './base/model/diagram-loader';
 export * from './base/model/glsp-model-source';
 export * from './base/model/model-initialization-constraint';
@@ -81,7 +82,6 @@ export * from './features/accessibility/keyboard-pointer/keyboard-pointer-module
 export * from './features/accessibility/keyboard-pointer/keyboard-pointer-position';
 export * from './features/accessibility/keyboard-tool-palette/keyboard-tool-palette';
 export * from './features/accessibility/keyboard-tool-palette/keyboard-tool-palette-module';
-export * from './features/accessibility/messages';
 export * from './features/accessibility/search/search-palette';
 export * from './features/accessibility/search/search-palette-module';
 export * from './features/accessibility/search/search-tool';

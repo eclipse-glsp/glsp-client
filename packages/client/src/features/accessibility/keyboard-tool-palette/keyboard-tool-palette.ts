@@ -26,28 +26,18 @@ import {
     TriggerNodeCreationAction
 } from '@eclipse-glsp/sprotty';
 import { injectable } from 'inversify';
+import { messages } from '../../../base/messages';
 import { EnableDefaultToolsAction, EnableToolsAction } from '../../../base/tool-manager/tool';
-import {
-    changeCodiconClass,
-    compare,
-    createIcon,
-    createToolGroup,
-    EnableToolPaletteAction,
-    ToolPalette
-} from '../../tool-palette/tool-palette';
+import { compare, createIcon, createToolGroup, EnableToolPaletteAction, ToolPalette } from '../../tool-palette/tool-palette';
 import { MouseDeleteTool } from '../../tools/deletion/delete-tool';
 import { MarqueeMouseTool } from '../../tools/marquee-selection/marquee-mouse-tool';
 import { FocusDomAction } from '../actions';
 import { EdgeAutocompletePaletteMetadata } from '../edge-autocomplete/edge-autocomplete-palette';
 import { ElementNavigatorKeyListener } from '../element-navigation/diagram-navigation-tool';
 import { KeyboardNodeGridMetadata } from '../keyboard-grid/constants';
-import { messages } from '../messages';
 import { ShowToastMessageAction } from '../toast/toast-handler';
 
 const SEARCH_ICON_ID = 'search';
-const PALETTE_ICON_ID = 'tools';
-const CHEVRON_DOWN_ICON_ID = 'chevron-right';
-const PALETTE_HEIGHT = '500px';
 const SELECTION_TOOL_KEY: KeyCode[] = ['Digit1', 'Numpad1'];
 const DELETION_TOOL_KEY: KeyCode[] = ['Digit2', 'Numpad2'];
 const MARQUEE_TOOL_KEY: KeyCode[] = ['Digit3', 'Numpad3'];
@@ -106,6 +96,7 @@ export class KeyboardToolPalette extends ToolPalette {
         this.containerElement.setAttribute('aria-label', messages.tool_palette.label);
         this.containerElement.tabIndex = 20;
         this.containerElement.classList.add('accessibility-tool-palette');
+        this.addMinimizePaletteButton();
         this.createHeader();
         this.createBody();
         this.lastActiveButton = this.defaultToolsButton;
@@ -147,31 +138,6 @@ export class KeyboardToolPalette extends ToolPalette {
         }
     }
 
-    protected override addMinimizePaletteButton(): void {
-        const baseDiv = document.getElementById(this.options.baseDiv);
-        const minPaletteDiv = document.createElement('div');
-        minPaletteDiv.classList.add('minimize-palette-button');
-        this.containerElement.classList.add('collapsible-palette');
-        if (baseDiv) {
-            const insertedDiv = baseDiv.insertBefore(minPaletteDiv, baseDiv.firstChild);
-            const minimizeIcon = createIcon(CHEVRON_DOWN_ICON_ID);
-            this.updateMinimizePaletteButtonTooltip(minPaletteDiv);
-            minimizeIcon.onclick = _event => {
-                if (this.isPaletteMaximized()) {
-                    this.containerElement.style.overflow = 'hidden';
-                    this.containerElement.style.maxHeight = '0px';
-                } else {
-                    this.containerElement.style.overflow = 'visible';
-                    this.containerElement.style.maxHeight = PALETTE_HEIGHT;
-                }
-                this.updateMinimizePaletteButtonTooltip(minPaletteDiv);
-                changeCodiconClass(minimizeIcon, PALETTE_ICON_ID);
-                changeCodiconClass(minimizeIcon, CHEVRON_DOWN_ICON_ID);
-            };
-            insertedDiv.appendChild(minimizeIcon);
-        }
-    }
-
     protected override createBody(): void {
         const bodyDiv = document.createElement('div');
         bodyDiv.classList.add('palette-body');
@@ -203,7 +169,7 @@ export class KeyboardToolPalette extends ToolPalette {
             noResultsDiv.classList.add('tool-button');
             bodyDiv.appendChild(noResultsDiv);
         }
-        // Remove existing body to refresh filtered entries
+        // Replace existing body to refresh filtered entries
         if (this.bodyDiv) {
             this.containerElement.removeChild(this.bodyDiv);
         }

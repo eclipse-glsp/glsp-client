@@ -45,6 +45,11 @@
     "search_button": "Filter palette entries",
     "selection_button": "Enable selection tool",
     "validate_button": "Validate model",
+    "reset_viewport_button": "Reset Viewport",
+    "toggle_grid_button": "Toggle Grid",
+    "debug_mode_button": "Debug Mode",
+    "minimize": "Minimize palette",
+    "maximize": "Maximize palette",
     "no_items": "No results found."
   },
   "viewport": {
@@ -70,5 +75,8 @@
   },
   "diagram": {
     "label": "Diagram"
+  },
+  "autocomplete": {
+    "no_suggestions": "No suggestions available"
   }
 }

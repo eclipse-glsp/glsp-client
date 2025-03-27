@@ -34,9 +34,9 @@ import { BaseAutocompletePalette } from '../../../base/auto-complete/base-autoco
 
 import { AutocompleteSuggestion, IAutocompleteSuggestionProvider } from '../../../base/auto-complete/autocomplete-suggestion-providers';
 import { applyCssClasses, deleteCssClasses } from '../../../base/feedback/css-feedback';
+import { messages } from '../../../base/messages';
 import { RepositionAction } from '../../../features/viewport/reposition';
 import { GEdge } from '../../../model';
-import { messages } from '../messages';
 
 const CSS_SEARCH_HIDDEN = 'search-hidden';
 const CSS_SEARCH_HIGHLIGHTED = 'search-highlighted';
