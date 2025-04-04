@@ -38,7 +38,6 @@ import { GEdge } from '../../../model';
 import { SelectableBoundsAware } from '../../../utils/gmodel-util';
 import { BaseTool } from '../../tools/base-tools';
 import { RepositionAction } from '../../viewport/reposition';
-import { SearchAutocompletePaletteTool } from '../search/search-tool';
 import { ShowToastMessageAction } from '../toast/toast-handler';
 import { ElementNavigator } from './element-navigator';
 
@@ -144,7 +143,7 @@ export class ElementNavigatorKeyListener extends KeyListener {
             if (this.mode !== NavigationMode.POSITION) {
                 this.clean();
                 this.tool.dispatchActions([
-                    EnableToolsAction.create([ElementNavigatorTool.ID, SearchAutocompletePaletteTool.ID, AvailableShortcutsTool.ID]),
+                    EnableToolsAction.create([ElementNavigatorTool.ID, AvailableShortcutsTool.ID]),
                     ShowToastMessageAction.create({
                         id: Symbol.for(ElementNavigatorKeyListener.name),
                         message: messages.navigation.local_navigation_mode_activated
@@ -180,9 +179,8 @@ export class ElementNavigatorKeyListener extends KeyListener {
         if (this.matchesActivateDefaultNavigation(event)) {
             if (this.mode !== NavigationMode.DEFAULT) {
                 this.clean();
-
                 this.tool.dispatchActions([
-                    EnableToolsAction.create([ElementNavigatorTool.ID, SearchAutocompletePaletteTool.ID, AvailableShortcutsTool.ID]),
+                    EnableToolsAction.create([ElementNavigatorTool.ID, AvailableShortcutsTool.ID]),
                     ShowToastMessageAction.create({
                         id: Symbol.for(ElementNavigatorKeyListener.name),
                         message: messages.navigation.default_navigation_mode_activated
