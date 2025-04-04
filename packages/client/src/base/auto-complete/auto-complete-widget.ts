@@ -362,6 +362,7 @@ export class AutoCompleteWidget {
         if (this.autoCompleteResult) {
             this.autoCompleteResult.destroy();
         }
+        this.observer?.disconnect();
     }
 }
 

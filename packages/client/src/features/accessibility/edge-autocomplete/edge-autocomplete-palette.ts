@@ -29,51 +29,54 @@ import {
 } from '@eclipse-glsp/sprotty';
 import { injectable } from 'inversify';
 import { CloseReason, toActionArray } from '../../../base/auto-complete/auto-complete-widget';
-import { AutocompleteSuggestion, IAutocompleteSuggestionProvider } from '../../../base/auto-complete/autocomplete-suggestion-providers';
+import { IAutocompleteSuggestionProvider, type AutocompleteSuggestion } from '../../../base/auto-complete/autocomplete-suggestion-provider';
 import { EnableDefaultToolsAction } from '../../../base/tool-manager/tool';
 import { GEdge } from '../../../model';
-import { SearchAutocompletePalette } from '../search/search-palette';
+import { SearchAutocompletePalette, SearchAutocompleteSuggestion } from '../../search-palette/search-palette';
 import { SetEdgeTargetSelectionAction } from './action';
-import { EdgeAutocompleteContext } from './edge-autocomplete-context';
 
 export namespace EdgeAutocompletePaletteMetadata {
     export const ID = 'edge-autocomplete-palette';
 }
 
+export interface EdgeAutocompleteContext {
+    role: 'source' | 'target';
+    triggerAction: TriggerEdgeCreationAction;
+    sourceId?: string;
+    targetId?: string;
+}
+
 @injectable()
 export class EdgeAutocompletePalette extends SearchAutocompletePalette implements IActionHandler {
-    protected context?: EdgeAutocompleteContext;
-
-    protected readonly targetSuggestionProvider = new PossibleEdgeTargetAutocompleteSuggestionProvider();
+    protected edgeAutocompleteContext?: EdgeAutocompleteContext;
 
     override id(): string {
         return EdgeAutocompletePaletteMetadata.ID;
     }
 
+    override get searchContext(): string[] {
+        return [EdgeAutocompletePaletteMetadata.ID];
+    }
+
     handle(action: Action): Action | void {
         if (TriggerEdgeCreationAction.is(action)) {
-            this.context = {
-                trigger: action,
+            this.edgeAutocompleteContext = {
+                triggerAction: action,
                 role: 'source'
             };
-            this.targetSuggestionProvider.setContext(action, this.context);
         }
     }
 
     protected override onBeforeShow(containerElement: HTMLElement, root: Readonly<GModelRoot>, ...contextElementIds: string[]): void {
         super.onBeforeShow(containerElement, root, ...contextElementIds);
 
-        this.autocompleteWidget.inputField.placeholder = `Search for ${this.context?.role} elements`;
-    }
-
-    protected override getSuggestionProviders(root: Readonly<GModelRoot>, input: string): IAutocompleteSuggestionProvider[] {
-        return [this.targetSuggestionProvider];
+        this.autocompleteWidget.inputField.placeholder = `Search for ${this.edgeAutocompleteContext?.role} elements`;
     }
 
     protected reload(): void {
-        const context = this.context;
+        const context = this.edgeAutocompleteContext;
         this.hide();
-        this.context = context;
+        this.edgeAutocompleteContext = context;
         this.actionDispatcher.dispatch(
             SetUIExtensionVisibilityAction.create({
                 extensionId: EdgeAutocompletePaletteMetadata.ID,
@@ -82,23 +85,35 @@ export class EdgeAutocompletePalette extends SearchAutocompletePalette implement
         );
     }
 
+    protected override async provideSearchSuggestions(root: Readonly<GModelRoot>, input: string): Promise<SearchAutocompleteSuggestion[]> {
+        return (
+            await Promise.all(
+                this.suggestionRegistry
+                    .providersForContext(this.searchContext)
+                    .flatMap(provider => provider.getSuggestions(root, input, this.edgeAutocompleteContext))
+            )
+        )
+            .flat(1)
+            .filter(SearchAutocompleteSuggestion.is);
+    }
+
     protected override executeSuggestion(input: LabeledAction | Action[] | Action): void {
         const action = toActionArray(input)[0] as SetEdgeTargetSelectionAction;
 
-        if (this.context?.role === 'source') {
-            this.context.sourceId = action.elementId;
-            this.context.role = 'target';
+        if (this.edgeAutocompleteContext?.role === 'source') {
+            this.edgeAutocompleteContext.sourceId = action.elementId;
+            this.edgeAutocompleteContext.role = 'target';
             this.reload();
-        } else if (this.context?.role === 'target') {
-            this.context.targetId = action.elementId;
+        } else if (this.edgeAutocompleteContext?.role === 'target') {
+            this.edgeAutocompleteContext.targetId = action.elementId;
         }
-        if (this.context?.sourceId !== undefined && this.context?.targetId !== undefined) {
+        if (this.edgeAutocompleteContext?.sourceId !== undefined && this.edgeAutocompleteContext?.targetId !== undefined) {
             this.actionDispatcher.dispatchAll([
                 CreateEdgeOperation.create({
-                    elementTypeId: this.context.trigger.elementTypeId,
-                    sourceElementId: this.context.sourceId,
-                    targetElementId: this.context.targetId,
-                    args: this.context.trigger.args
+                    elementTypeId: this.edgeAutocompleteContext.triggerAction.elementTypeId,
+                    sourceElementId: this.edgeAutocompleteContext.sourceId,
+                    targetElementId: this.edgeAutocompleteContext.targetId,
+                    args: this.edgeAutocompleteContext.triggerAction.args
                 }),
                 EnableDefaultToolsAction.create()
             ]);
@@ -114,34 +129,33 @@ export class EdgeAutocompletePalette extends SearchAutocompletePalette implement
 }
 
 @injectable()
-export class PossibleEdgeTargetAutocompleteSuggestionProvider implements IAutocompleteSuggestionProvider {
-    protected proxyEdge?: GEdge;
-    protected context?: EdgeAutocompleteContext;
+export class SetEdgeTargetGridSuggestionProvider implements IAutocompleteSuggestionProvider {
+    id = 'glsp.set-edge-target-autocomplete-suggestions';
 
-    setContext(triggerAction: TriggerEdgeCreationAction, edgeAutocompleteContext: EdgeAutocompleteContext): void {
-        this.proxyEdge = new GEdge();
-        this.proxyEdge.type = triggerAction.elementTypeId;
-        this.context = edgeAutocompleteContext;
+    canHandle(searchContext: string): boolean {
+        return searchContext === EdgeAutocompletePaletteMetadata.ID;
     }
 
-    isAllowedSource(element: GModelElement | undefined, role: 'source' | 'target'): boolean {
-        return element !== undefined && this.proxyEdge !== undefined && isConnectable(element) && element.canConnect(this.proxyEdge, role);
-    }
-
-    async retrieveSuggestions(root: Readonly<GModelRoot>, text: string): Promise<AutocompleteSuggestion[]> {
-        const context = this.context;
-        if (this.context === undefined) {
+    async getSuggestions(root: Readonly<GModelRoot>, text: string, context: EdgeAutocompleteContext): Promise<AutocompleteSuggestion[]> {
+        if (context === undefined) {
             return [];
         }
 
-        const nodes = toArray(root.index.all().filter(element => this.isAllowedSource(element, context!.role))) as GEdge[];
+        const proxyEdge = new GEdge();
+        proxyEdge.type = context.triggerAction.elementTypeId;
+
+        const nodes = toArray(root.index.all().filter(element => this.isAllowedSource(proxyEdge, element, context.role))) as GEdge[];
         return nodes.map(node => ({
             element: node,
             action: {
                 label: `[${node.type}] ${name(node) ?? '<no-name>'}`,
-                actions: [SetEdgeTargetSelectionAction.create(node.id, context!.role)],
+                actions: [SetEdgeTargetSelectionAction.create(node.id, context.role)],
                 icon: codiconCSSString('arrow-both')
             }
         }));
+    }
+
+    protected isAllowedSource(proxyEdge: GEdge, element: GModelElement | undefined, role: 'source' | 'target'): boolean {
+        return element !== undefined && proxyEdge !== undefined && isConnectable(element) && element.canConnect(proxyEdge, role);
     }
 }

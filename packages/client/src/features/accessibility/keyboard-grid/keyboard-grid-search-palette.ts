@@ -15,36 +15,40 @@
  ********************************************************************************/
 import '../../../../css/keyboard.css';
 
-import { Action, GModelElement, GModelRoot, SetUIExtensionVisibilityAction } from '@eclipse-glsp/sprotty';
+import { Action, GModelElement, SetUIExtensionVisibilityAction } from '@eclipse-glsp/sprotty';
 import { injectable } from 'inversify';
-import { IAutocompleteSuggestionProvider } from '../../../base/auto-complete/autocomplete-suggestion-providers';
-import {
-    RevealEdgeElementAutocompleteSuggestionProvider,
-    RevealNamedElementAutocompleteSuggestionProvider,
-    SearchAutocompletePalette
-} from '../search/search-palette';
-import { KeyboardGridMetadata } from './constants';
 import { GEdge } from '../../../model';
-
-export namespace GridSearchPaletteMetadata {
-    export const ID = 'grid-search-palette';
-}
+import { SearchAutocompletePalette } from '../../search-palette/search-palette';
+import { RevealEdgeElementSuggestionProvider } from '../../search-palette/suggestions/edge-element-suggestions';
+import { RevealNamedElementSuggestionProvider } from '../../search-palette/suggestions/named-element-suggestions';
+import { KeyboardGridMetadata } from './constants';
 
 @injectable()
 export class GridSearchPalette extends SearchAutocompletePalette {
+    static override readonly ID: string = 'glsp.grid-search-palette';
+
     override id(): string {
-        return GridSearchPaletteMetadata.ID;
+        return GridSearchPalette.ID;
     }
 
-    protected override getSuggestionProviders(root: Readonly<GModelRoot>, input: string): IAutocompleteSuggestionProvider[] {
-        return [new GridRevealNamedElementSuggestionProvider(), new GridRevealEdgeSuggestionProvider()];
+    override get searchContext(): string[] {
+        return [GridSearchPalette.ID];
     }
 }
 
-export class GridRevealEdgeSuggestionProvider extends RevealEdgeElementAutocompleteSuggestionProvider {
-    protected override getActions(edge: GEdge): Action[] {
+@injectable()
+export class GridEdgeSuggestionProvider extends RevealEdgeElementSuggestionProvider {
+    override get id(): string {
+        return 'glsp.grid-edge-suggestion';
+    }
+
+    override canHandle(searchContext: string): boolean {
+        return searchContext === GridSearchPalette.ID;
+    }
+
+    protected override createActions(edge: GEdge): Action[] {
         return [
-            ...super.getActions(edge),
+            ...super.createActions(edge),
             SetUIExtensionVisibilityAction.create({
                 extensionId: KeyboardGridMetadata.ID,
                 visible: true
@@ -52,10 +56,20 @@ export class GridRevealEdgeSuggestionProvider extends RevealEdgeElementAutocompl
         ];
     }
 }
-export class GridRevealNamedElementSuggestionProvider extends RevealNamedElementAutocompleteSuggestionProvider {
-    protected override getActions(nameable: GModelElement): Action[] {
+
+@injectable()
+export class GridNamedElementSuggestionProvider extends RevealNamedElementSuggestionProvider {
+    override get id(): string {
+        return 'glsp.grid-named-element-suggestion';
+    }
+
+    override canHandle(searchContext: string): boolean {
+        return searchContext === GridSearchPalette.ID;
+    }
+
+    protected override createActions(nameable: GModelElement): Action[] {
         return [
-            ...super.getActions(nameable),
+            ...super.createActions(nameable),
             SetUIExtensionVisibilityAction.create({
                 extensionId: KeyboardGridMetadata.ID,
                 visible: true
