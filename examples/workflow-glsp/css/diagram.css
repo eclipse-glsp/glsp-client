@@ -73,33 +73,33 @@
     stroke-width: 1;
 }
 
-.sprotty-edge.weighted.low:not(.selected, .navigable-element),
-.sprotty-edge.weighted.low:not(.selected, .navigable-element) .arrow {
+.sprotty-edge.weighted.low:not(.selected, .navigable-element, .search-highlighted),
+.sprotty-edge.weighted.low:not(.selected, .navigable-element, .search-highlighted) .arrow {
     stroke: rgb(128, 90, 233);
 }
 
-.sprotty-edge.weighted.low:not(.selected, .navigable-element) .arrow {
+.sprotty-edge.weighted.low:not(.selected, .navigable-element, .search-highlighted) .arrow {
     fill: rgb(128, 90, 233);
 }
 
-.sprotty-edge.weighted:not(.selected, .navigable-element),
-.sprotty-edge.weighted:not(.selected, .navigable-element) .arrow,
-.sprotty-edge.weighted.medium:not(.selected, .navigable-element),
-.sprotty-edge.weighted.medium:not(.selected, .navigable-element) .arrow {
+.sprotty-edge.weighted:not(.selected, .navigable-element, .search-highlighted),
+.sprotty-edge.weighted:not(.selected, .navigable-element, .search-highlighted) .arrow,
+.sprotty-edge.weighted.medium:not(.selected, .navigable-element, .search-highlighted),
+.sprotty-edge.weighted.medium:not(.selected, .navigable-element, .search-highlighted) .arrow {
     stroke: rgb(98, 60, 193);
 }
 
-.sprotty-edge.weighted:not(.selected, .navigable-element) .arrow,
-.sprotty-edge.weighted.medium:not(.selected, .navigable-element) .arrow {
+.sprotty-edge.weighted:not(.selected, .navigable-element, .search-highlighted) .arrow,
+.sprotty-edge.weighted.medium:not(.selected, .navigable-element, .search-highlighted) .arrow {
     fill: rgb(98, 60, 193);
 }
 
-.sprotty-edge.weighted.high:not(.selected, .navigable-element),
-.sprotty-edge.weighted.high:not(.selected, .navigable-element) .arrow {
+.sprotty-edge.weighted.high:not(.selected, .navigable-element, .search-highlighted),
+.sprotty-edge.weighted.high:not(.selected, .navigable-element, .search-highlighted) .arrow {
     stroke: rgb(68, 30, 163);
 }
 
-.sprotty-edge.weighted.high:not(.selected, .navigable-element) .arrow {
+.sprotty-edge.weighted.high:not(.selected, .navigable-element, .search-highlighted) .arrow {
     fill: rgb(68, 30, 163);
 }
 

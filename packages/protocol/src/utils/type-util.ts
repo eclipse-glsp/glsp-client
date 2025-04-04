@@ -216,3 +216,13 @@ export function hasArrayProp(object: AnyObject, propertyKey: string, optional = 
     const property = (object as any)[propertyKey];
     return property !== undefined ? Array.isArray(property) : optional;
 }
+
+/**
+ * Validates whether the given object has a property with the given key.
+ * @param object The object that should be validated
+ * @param propertyKeys The keys of the properties
+ * @returns `true` if the object has property with matching key.
+ */
+export function hasProperty<T extends AnyObject>(object: AnyObject, ...propertyKeys: (keyof T)[]): boolean {
+    return propertyKeys.every(propertyKey => propertyKey in object);
+}
