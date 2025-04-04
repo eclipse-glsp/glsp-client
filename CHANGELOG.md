@@ -1,10 +1,21 @@
 # Eclipse GLSP Client Changelog
 
-## v2.4.0 - active
+## [v2.4.0 - 04/04/2025](https://github.com/eclipse-glsp/glsp-client/releases/tag/v2.3.0)
 
 ### Changes
 
+-   [diagram] Remove !important rules from default CSS [#412](https://github.com/eclipse-glsp/glsp-client/pull/412) [#413](https://github.com/eclipse-glsp/glsp-client/pull/413) [#414](https://github.com/eclipse-glsp/glsp-client/pull/414)
+-   [diagram] Update default styling for label texts to avoid unintended user selection [#415](https://github.com/eclipse-glsp/glsp-client/pull/415)
+-   [diagram] Fix behavior of `ContainerManager` to allow proper usage of type hints on root/graph level [#417](https://github.com/eclipse-glsp/glsp-client/pull/417)
+-   [diagram] Prevent unintended rendering of not-supported sprotty reconnect handles [#418](https://github.com/eclipse-glsp/glsp-client/pull/418)
+-   [diagram] Allow listening to selection changes in the `AutoCompleteWidget` [#420](https://github.com/eclipse-glsp/glsp-client/pull/420)
+-   [api] Introduce a lightweight adaptable message system (i18n) [#421](https://github.com/eclipse-glsp/glsp-client/pull/421)
+
 ### Potentially breaking changes
+
+-   [diagram] Refactor a11y feature module and extract move,zoom,shortcut and resize features [#396](https://github.com/eclipse-glsp/glsp-client/pull/396)
+    -   The move, zoom, shortcut and resize features have been moved to their own modules. They are now enabled by default
+    -   For now the a11y module remains in experimental state and api breakages might occur in the future
 
 ## [v2.3.0 - 23/12/2024](https://github.com/eclipse-glsp/glsp-client/releases/tag/v2.3.0)
 
@@ -14,7 +25,7 @@
 -   [diagram] Ensure that `GLSPMousePositionTracker` correctly calculates the current position in diagram local coordinates [#391](https://github.com/eclipse-glsp/glsp-client/pull/391)
 -   [api] Align `ActionDispatcher` interface with `GLSPActionDispatcher` implementation. [#394](https://github.com/eclipse-glsp/glsp-client/pull/394)
     -   Directly injecting the `GLSPActionDispatcher` is no longer necessary use `TYPES.IActionDispatcher`/`ActionDispatcher` instead
--   [standlalone] Adapt `copyPasteStandalone` module to ensure that copy/cut/paste listeners are scoped to the active diagram and don't trigger globally [#395](https://github.com/eclipse-glsp/glsp-client/pull/395)
+-   [standalone] Adapt `copyPasteStandalone` module to ensure that copy/cut/paste listeners are scoped to the active diagram and don't trigger globally [#395](https://github.com/eclipse-glsp/glsp-client/pull/395)
 -   [diagram] Introduce `IMovementOptions` for the `ChangeBoundsTool` to allow configuration of movement behavior [#397](https://github.com/eclipse-glsp/glsp-client/pull/397) - Contributed on behalf of Axon Ivy AG
 -   [diagram] Fix a bug that prevented the `ChangeBoundsTool` from working correctly if the user moved outside of the diagram during an operation [#399](https://github.com/eclipse-glsp/glsp-client/pull/399) - Contributed on behalf of AxonIvy AG
 -   [api] Improve default `GLSPClient` implementation to be more robust when certain methods are invoked multiple times [#402](https://github.com/eclipse-glsp/glsp-client/pull/402)
