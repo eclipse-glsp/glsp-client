@@ -47,6 +47,7 @@ import { labelEditModule } from './features/label-edit/label-edit-module';
 import { layoutModule } from './features/layout/layout-module';
 import { navigationModule } from './features/navigation/navigation-module';
 import { routingModule } from './features/routing/routing-module';
+import { searchPaletteDefaultSuggestionsModule, searchPaletteModule } from './features/search-palette/search-palette-module';
 import { selectModule } from './features/select/select-module';
 import { sourceModelWatcherModule } from './features/source-model-watcher/source-model-watcher-module';
 import { statusModule } from './features/status/status-module';
@@ -101,7 +102,9 @@ export const DEFAULT_MODULES = [
     zorderModule,
     svgMetadataModule,
     statusModule,
-    resizeModule
+    resizeModule,
+    searchPaletteModule,
+    searchPaletteDefaultSuggestionsModule
 ] as const;
 
 /**

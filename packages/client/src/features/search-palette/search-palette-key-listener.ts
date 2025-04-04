@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2023 Business Informatics Group (TU Wien) and others.
+ * Copyright (c) 2023-2025 Business Informatics Group (TU Wien) and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -14,11 +14,21 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { TriggerEdgeCreationAction } from '@eclipse-glsp/sprotty';
+import { Action, GModelElement, KeyListener, matchesKeystroke, SetUIExtensionVisibilityAction } from '@eclipse-glsp/sprotty';
+import { injectable } from 'inversify';
+import { SearchAutocompletePalette } from './search-palette';
 
-export interface EdgeAutocompleteContext {
-    role: 'source' | 'target';
-    trigger: TriggerEdgeCreationAction;
-    sourceId?: string;
-    targetId?: string;
+@injectable()
+export class SearchPaletteKeyListener extends KeyListener {
+    override keyDown(element: GModelElement, event: KeyboardEvent): Action[] {
+        if (matchesKeystroke(event, 'KeyF', 'ctrlCmd')) {
+            return [
+                SetUIExtensionVisibilityAction.create({
+                    extensionId: SearchAutocompletePalette.ID,
+                    visible: true
+                })
+            ];
+        }
+        return [];
+    }
 }

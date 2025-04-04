@@ -21,7 +21,7 @@ import { KeyboardPointerMetadata } from '../keyboard-pointer/constants';
 import { KeyboardPointer } from '../keyboard-pointer/keyboard-pointer';
 import { KeyboardNodeGridMetadata } from './constants';
 import { KeyboardGrid } from './keyboard-grid';
-import { GridSearchPaletteMetadata } from './keyboard-grid-search-palette';
+import { GridSearchPalette } from './keyboard-grid-search-palette';
 
 @injectable()
 export class KeyboardNodeGrid extends KeyboardGrid {
@@ -52,7 +52,7 @@ export class KeyboardNodeGrid extends KeyboardGrid {
             event.preventDefault();
             this.actionDispatcher.dispatch(
                 SetUIExtensionVisibilityAction.create({
-                    extensionId: GridSearchPaletteMetadata.ID,
+                    extensionId: GridSearchPalette.ID,
                     visible: true
                 })
             );

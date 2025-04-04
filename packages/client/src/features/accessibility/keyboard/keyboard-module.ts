@@ -23,15 +23,19 @@ import {
     configureActionHandler
 } from '@eclipse-glsp/sprotty';
 import { SetEdgeTargetSelectionAction } from '../edge-autocomplete/action';
-import { EdgeAutocompletePalette } from '../edge-autocomplete/edge-autocomplete-palette';
+import { EdgeAutocompletePalette, SetEdgeTargetGridSuggestionProvider } from '../edge-autocomplete/edge-autocomplete-palette';
 import { EdgeAutocompletePaletteTool } from '../edge-autocomplete/edge-autocomplete-tool';
 import { GlobalKeyListenerTool } from '../global-keylistener-tool';
 import { EnableKeyboardGridAction, KeyboardGridCellSelectedAction } from '../keyboard-grid/action';
 import { KeyboardGrid } from '../keyboard-grid/keyboard-grid';
-import { GridSearchPalette } from '../keyboard-grid/keyboard-grid-search-palette';
+import {
+    GridEdgeSuggestionProvider,
+    GridNamedElementSuggestionProvider,
+    GridSearchPalette
+} from '../keyboard-grid/keyboard-grid-search-palette';
 import { KeyboardNodeGrid } from '../keyboard-grid/keyboard-node-grid';
-import { SetKeyboardPointerRenderPositionAction } from './actions';
-import { KeyboardPointer } from './keyboard-pointer';
+import { SetKeyboardPointerRenderPositionAction } from '../keyboard-pointer/actions';
+import { KeyboardPointer } from '../keyboard-pointer/keyboard-pointer';
 
 /**
  * Handles the pointer used via grid to position new elements.
@@ -41,7 +45,7 @@ export const keyboardControlModule = new FeatureModule(
         const context = { bind, unbind, isBound, rebind };
         configureKeyboardControlTools(context);
     },
-    { featureId: Symbol('keyboardControl') }
+    { featureId: Symbol('keyboardControlModule') }
 );
 
 export function configureKeyboardControlTools(context: BindingContext): void {
@@ -55,6 +59,7 @@ export function configureKeyboardControlTools(context: BindingContext): void {
 
     bindAsService(context, TYPES.IUIExtension, EdgeAutocompletePalette);
     bindAsService(context, TYPES.IDefaultTool, EdgeAutocompletePaletteTool);
+    bindAsService(context, TYPES.IAutocompleteSuggestionProvider, SetEdgeTargetGridSuggestionProvider);
 
     configureActionHandler(context, EnableKeyboardGridAction.KIND, KeyboardGrid);
     configureActionHandler(context, KeyboardGridCellSelectedAction.KIND, KeyboardPointer);
@@ -63,4 +68,6 @@ export function configureKeyboardControlTools(context: BindingContext): void {
     configureActionHandler(context, SetEdgeTargetSelectionAction.KIND, EdgeAutocompletePalette);
 
     bindAsService(context, TYPES.IUIExtension, GridSearchPalette);
+    bindAsService(context, TYPES.IAutocompleteSuggestionProvider, GridEdgeSuggestionProvider);
+    bindAsService(context, TYPES.IAutocompleteSuggestionProvider, GridNamedElementSuggestionProvider);
 }

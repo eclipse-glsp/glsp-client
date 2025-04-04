@@ -66,5 +66,7 @@ export const TYPES = {
      * Experimental shortcut manager.
      * The API is not stable yet.
      */
-    IShortcutManager: Symbol('IShortcutManager')
+    IShortcutManager: Symbol('IShortcutManager'),
+    IAutocompleteSuggestionProvider: Symbol('IAutocompleteSuggestionProvider'),
+    IAutocompleteSuggestionProviderRegistry: Symbol('IAutocompleteSuggestionProviderRegistry')
 };

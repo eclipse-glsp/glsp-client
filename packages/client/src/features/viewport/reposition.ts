@@ -70,13 +70,7 @@ export class RepositionCommand extends BoundsAwareViewportCommand {
         if (element instanceof GChildElement && element.parent !== viewport) {
             return this.boundsInViewport(element.parent, element.parent.localToParent(bounds) as Bounds, viewport);
         } else if (element instanceof GEdge) {
-            const edgeBounds = getRouteBounds(calcElementAndRoute(element).newRoutingPoints ?? []);
-
-            if (element instanceof GChildElement && element.parent !== viewport) {
-                return this.boundsInViewport(element.parent, element.parent.localToParent(edgeBounds), viewport);
-            }
-
-            return edgeBounds;
+            return getRouteBounds(calcElementAndRoute(element).newRoutingPoints ?? []);
         }
 
         return bounds;
