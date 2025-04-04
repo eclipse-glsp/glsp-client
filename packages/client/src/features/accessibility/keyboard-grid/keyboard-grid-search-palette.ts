@@ -37,9 +37,9 @@ export class GridSearchPalette extends SearchAutocompletePalette {
 }
 
 @injectable()
-export class GridEdgeSuggestionProvider extends RevealEdgeElementSuggestionProvider {
+export class RevealGridEdgeSuggestionProvider extends RevealEdgeElementSuggestionProvider {
     override get id(): string {
-        return 'glsp.grid-edge-suggestion';
+        return 'glsp.reveal-grid-edge-suggestion';
     }
 
     override canHandle(searchContext: string): boolean {
@@ -58,9 +58,9 @@ export class GridEdgeSuggestionProvider extends RevealEdgeElementSuggestionProvi
 }
 
 @injectable()
-export class GridNamedElementSuggestionProvider extends RevealNamedElementSuggestionProvider {
+export class RevealGridNamedElementSuggestionProvider extends RevealNamedElementSuggestionProvider {
     override get id(): string {
-        return 'glsp.grid-named-element-suggestion';
+        return 'glsp.reveal-grid-named-element-suggestion';
     }
 
     override canHandle(searchContext: string): boolean {
