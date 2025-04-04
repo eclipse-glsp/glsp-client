@@ -29,9 +29,9 @@ import { GlobalKeyListenerTool } from '../global-keylistener-tool';
 import { EnableKeyboardGridAction, KeyboardGridCellSelectedAction } from '../keyboard-grid/action';
 import { KeyboardGrid } from '../keyboard-grid/keyboard-grid';
 import {
-    GridEdgeSuggestionProvider,
-    GridNamedElementSuggestionProvider,
-    GridSearchPalette
+    GridSearchPalette,
+    RevealGridEdgeSuggestionProvider,
+    RevealGridNamedElementSuggestionProvider
 } from '../keyboard-grid/keyboard-grid-search-palette';
 import { KeyboardNodeGrid } from '../keyboard-grid/keyboard-node-grid';
 import { SetKeyboardPointerRenderPositionAction } from '../keyboard-pointer/actions';
@@ -45,7 +45,7 @@ export const keyboardControlModule = new FeatureModule(
         const context = { bind, unbind, isBound, rebind };
         configureKeyboardControlTools(context);
     },
-    { featureId: Symbol('keyboardControlModule') }
+    { featureId: Symbol('keyboardControl') }
 );
 
 export function configureKeyboardControlTools(context: BindingContext): void {
@@ -68,6 +68,6 @@ export function configureKeyboardControlTools(context: BindingContext): void {
     configureActionHandler(context, SetEdgeTargetSelectionAction.KIND, EdgeAutocompletePalette);
 
     bindAsService(context, TYPES.IUIExtension, GridSearchPalette);
-    bindAsService(context, TYPES.IAutocompleteSuggestionProvider, GridEdgeSuggestionProvider);
-    bindAsService(context, TYPES.IAutocompleteSuggestionProvider, GridNamedElementSuggestionProvider);
+    bindAsService(context, TYPES.IAutocompleteSuggestionProvider, RevealGridEdgeSuggestionProvider);
+    bindAsService(context, TYPES.IAutocompleteSuggestionProvider, RevealGridNamedElementSuggestionProvider);
 }
