@@ -46,9 +46,12 @@ export interface EdgeAutocompleteContext {
     targetId?: string;
 }
 
+export type EdgeAutocompletePaletteStages = 'initial' | 'source' | 'target' | 'reloading';
+
 @injectable()
 export class EdgeAutocompletePalette extends SearchAutocompletePalette implements IActionHandler {
     protected edgeAutocompleteContext?: EdgeAutocompleteContext;
+    protected stage: EdgeAutocompletePaletteStages = 'initial';
 
     override id(): string {
         return EdgeAutocompletePaletteMetadata.ID;
@@ -60,6 +63,7 @@ export class EdgeAutocompletePalette extends SearchAutocompletePalette implement
 
     handle(action: Action): Action | void {
         if (TriggerEdgeCreationAction.is(action)) {
+            this.stage = 'source';
             this.edgeAutocompleteContext = {
                 triggerAction: action,
                 role: 'source'
@@ -73,16 +77,9 @@ export class EdgeAutocompletePalette extends SearchAutocompletePalette implement
         this.autocompleteWidget.inputField.placeholder = `Search for ${this.edgeAutocompleteContext?.role} elements`;
     }
 
-    protected reload(): void {
-        const context = this.edgeAutocompleteContext;
+    protected async reload(): Promise<void> {
+        this.stage = 'reloading';
         this.hide();
-        this.edgeAutocompleteContext = context;
-        this.actionDispatcher.dispatch(
-            SetUIExtensionVisibilityAction.create({
-                extensionId: EdgeAutocompletePaletteMetadata.ID,
-                visible: true
-            })
-        );
     }
 
     protected override async provideSearchSuggestions(root: Readonly<GModelRoot>, input: string): Promise<SearchAutocompleteSuggestion[]> {
@@ -97,7 +94,7 @@ export class EdgeAutocompletePalette extends SearchAutocompletePalette implement
             .filter(SearchAutocompleteSuggestion.is);
     }
 
-    protected override executeSuggestion(input: LabeledAction | Action[] | Action): void {
+    protected override async executeSuggestion(input: LabeledAction | Action[] | Action): Promise<void> {
         const action = toActionArray(input)[0] as SetEdgeTargetSelectionAction;
 
         if (this.edgeAutocompleteContext?.role === 'source') {
@@ -107,8 +104,9 @@ export class EdgeAutocompletePalette extends SearchAutocompletePalette implement
         } else if (this.edgeAutocompleteContext?.role === 'target') {
             this.edgeAutocompleteContext.targetId = action.elementId;
         }
+
         if (this.edgeAutocompleteContext?.sourceId !== undefined && this.edgeAutocompleteContext?.targetId !== undefined) {
-            this.actionDispatcher.dispatchAll([
+            await this.actionDispatcher.dispatchAll([
                 CreateEdgeOperation.create({
                     elementTypeId: this.edgeAutocompleteContext.triggerAction.elementTypeId,
                     sourceElementId: this.edgeAutocompleteContext.sourceId,
@@ -122,7 +120,18 @@ export class EdgeAutocompletePalette extends SearchAutocompletePalette implement
     }
 
     protected override autocompleteHide(reason: CloseReason): void {
-        if (reason !== 'submission') {
+        if (this.stage === 'reloading') {
+            // Wait until the auto complete is closed before reloading
+            if (reason === 'blur') {
+                this.actionDispatcher.dispatch(
+                    SetUIExtensionVisibilityAction.create({
+                        extensionId: EdgeAutocompletePaletteMetadata.ID,
+                        visible: true
+                    })
+                );
+                this.stage = 'target';
+            }
+        } else if (reason !== 'submission') {
             this.hide();
         }
     }
