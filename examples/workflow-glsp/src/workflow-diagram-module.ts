@@ -14,6 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import {
+    Bounds,
     ConsoleLogger,
     ContainerConfiguration,
     DEFAULT_ALIGNABLE_ELEMENT_FILTER,
@@ -23,13 +24,19 @@ import {
     FeatureModule,
     GCompartment,
     GCompartmentView,
+    GConnectableElement,
     GEdge,
     GGraph,
     GLSPProjectionView,
     GLabel,
     GLabelView,
+    IAnchorComputer,
     IHelperLineOptions,
     LogLevel,
+    ManhattanEdgeRouter,
+    Point,
+    PolylineEdgeRouter,
+    RectangleAnchor,
     RectangularNodeView,
     RevealNamedElementActionProvider,
     RoundedCornerNodeView,
@@ -47,11 +54,11 @@ import {
     overrideModelElement
 } from '@eclipse-glsp/client';
 import 'balloon-css/balloon.min.css';
-import { Container } from 'inversify';
+import { Container, injectable } from 'inversify';
 import 'sprotty/css/edit-label.css';
 import '../css/diagram.css';
 import { taskEditorModule } from './direct-task-editing/task-editor-module';
-import { BranchingNode, CategoryNode, Icon, SynchronizationNode, TaskNode, WeightedEdge } from './model';
+import { AutomatedTaskNode, BranchingNode, CategoryNode, Icon, ManualTaskNode, SynchronizationNode, WeightedEdge } from './model';
 import { WorkflowSnapper } from './workflow-snapper';
 import { WorkflowStartup } from './workflow-startup';
 import { IconView, WorkflowEdgeView } from './workflow-views';
@@ -66,8 +73,8 @@ export const workflowDiagramModule = new FeatureModule(
         bindAsService(context, TYPES.IContextMenuItemProvider, DeleteElementContextMenuItemProvider);
 
         configureDefaultModelElements(context);
-        configureModelElement(context, 'task:automated', TaskNode, RoundedCornerNodeView);
-        configureModelElement(context, 'task:manual', TaskNode, RoundedCornerNodeView);
+        configureModelElement(context, 'task:automated', AutomatedTaskNode, RoundedCornerNodeView);
+        configureModelElement(context, 'task:manual', ManualTaskNode, RoundedCornerNodeView);
         configureModelElement(context, 'label:heading', GLabel, GLabelView, { enable: [editLabelFeature] });
         configureModelElement(context, 'comp:comp', GCompartment, GCompartmentView);
         configureModelElement(context, 'label:icon', GLabel, GLabelView);
@@ -92,6 +99,9 @@ export const workflowDiagramModule = new FeatureModule(
 
         bindAsService(context, TYPES.IDiagramStartup, WorkflowStartup);
         bindOrRebind(context, TYPES.ISnapper).to(WorkflowSnapper);
+
+        bindAsService(context, TYPES.IAnchorComputer, ManhattanTaskAnchor);
+        bindAsService(context, TYPES.IAnchorComputer, PolylineTaskAnchor);
     },
     { featureId: Symbol('workflowDiagram') }
 );
@@ -110,4 +120,33 @@ export function initializeWorkflowDiagramContainer(container: Container, ...cont
         workflowDiagramModule,
         ...containerConfiguration
     );
+}
+
+export const TASK_ANCHOR_KIND = 'task';
+
+@injectable()
+export class PolylineTaskAnchor extends RectangleAnchor {
+    static KIND = `${PolylineEdgeRouter.KIND}:${TASK_ANCHOR_KIND}`;
+
+    override get kind(): string {
+        return `${PolylineEdgeRouter.KIND}:${TASK_ANCHOR_KIND}`;
+    }
+}
+
+@injectable()
+export class ManhattanTaskAnchor implements IAnchorComputer {
+    static KIND = `${ManhattanEdgeRouter.KIND}:${TASK_ANCHOR_KIND}`;
+
+    get kind(): string {
+        return ManhattanTaskAnchor.KIND;
+    }
+
+    getAnchor(connectable: GConnectableElement, refPoint: Point, offset: number = 0): Point {
+        const bounds = connectable.bounds;
+        if (!Bounds.isValid(bounds)) {
+            return bounds;
+        }
+        // very simplified anchoring, ignoring the reference point for demonstration purposes
+        return connectable instanceof AutomatedTaskNode ? Bounds.middleRight(bounds) : Bounds.middleLeft(bounds);
+    }
 }

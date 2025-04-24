@@ -19,6 +19,7 @@ import {
     GChildElement,
     GEdge,
     GModelElement,
+    GNode,
     GShapeElement,
     LayoutContainer,
     Nameable,
@@ -39,8 +40,9 @@ import {
     selectFeature,
     withEditLabelFeature
 } from '@eclipse-glsp/client';
+import { TASK_ANCHOR_KIND } from './workflow-diagram-module';
 
-export class TaskNode extends RectangularNode implements Nameable, WithEditableLabel {
+export class TaskNode extends GNode implements Nameable, WithEditableLabel {
     static override readonly DEFAULT_FEATURES = [
         connectableFeature,
         deletableFeature,
@@ -70,7 +72,15 @@ export class TaskNode extends RectangularNode implements Nameable, WithEditableL
         const labelText = this.editableLabel?.text;
         return labelText ? labelText : '<unknown>';
     }
+
+    override get anchorKind(): string {
+        return TASK_ANCHOR_KIND;
+    }
 }
+
+export class AutomatedTaskNode extends TaskNode {}
+
+export class ManualTaskNode extends TaskNode {}
 
 export function isTaskNode(element: GModelElement): element is TaskNode {
     return element instanceof TaskNode || false;
