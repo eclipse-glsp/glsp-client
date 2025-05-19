@@ -247,6 +247,7 @@
     border-style: solid;
     border-width: 1px;
     border-color: #bbb;
+    user-select: none;
 }
 
 .sprotty text {
