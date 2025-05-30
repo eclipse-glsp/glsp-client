@@ -61,14 +61,32 @@ export namespace SelectAction {
         };
     }
 
+    /**
+     * Creates a new {@link SelectAction} to add the given elements to the existing selection.
+     * @param selectedElementsIDs The identifiers of the elements to add to the selection.
+     * @returns the corresponding {@link SelectAction}
+     */
     export function addSelection(selectedElementsIDs: string[]): SelectAction {
         return create({ selectedElementsIDs });
     }
 
+    /**
+     * Creates a new {@link SelectAction}
+     * to remove the given elements from the existing selection.
+     * @param deselectedElementsIDs The identifiers of the elements to remove from the selection.
+     * @return the corresponding {@link SelectAction}
+     */
     export function removeSelection(deselectedElementsIDs: string[]): SelectAction {
         return create({ deselectedElementsIDs });
     }
 
+    /**
+     * Creates a new {@link SelectAction}
+     * to set the selection to the given elements.
+     * This replaces the current selection with the given elements.
+     * @param selectedElementsIDs The identifiers of the elements to select.
+     * @returns the corresponding {@link SelectAction}
+     */
     export function setSelection(selectedElementsIDs: string[]): SelectAction {
         return create({ selectedElementsIDs, deselectedElementsIDs: true });
     }

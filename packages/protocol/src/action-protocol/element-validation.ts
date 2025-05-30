@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { hasArrayProp } from '../utils/type-util';
+import { ProposalString, hasArrayProp } from '../utils/type-util';
 import { Action, RequestAction, ResponseAction } from './base-protocol';
 
 /**
@@ -48,14 +48,16 @@ export namespace MarkerKind {
 }
 
 /**
- * The default reasons for markers.
+ * Utility type for the reason of markers, which offers the default values `batch` and `live` as
+ * proposals. Any other string value can be used as custom reason as well.
  */
-export namespace MarkersReason {
+export type MarkersReason = ProposalString<(typeof MarkersReason)[keyof typeof MarkersReason]>;
+export const MarkersReason = {
     /** Markers resulting from a batch validation */
-    export const BATCH = 'batch';
+    BATCH: 'batch',
     /** Markers resulting from a live validation */
-    export const LIVE = 'live';
-}
+    LIVE: 'live'
+} as const;
 
 /**
  * Action to retrieve markers for the specified model elements. Sent from the client to the server.
@@ -71,7 +73,9 @@ export interface RequestMarkersAction extends RequestAction<SetMarkersAction> {
     elementsIDs: string[];
 
     /**
-     * The reason for this request, such as `batch` or `live` validation. `batch` by default.
+     * The reason for this request.
+     * Default values are `batch` and `live`, but custom reasons can be used as well.
+     * If not specified, the default value is `batch`.
      */
     reason?: string;
 }
@@ -83,7 +87,10 @@ export namespace RequestMarkersAction {
         return RequestAction.hasKind(object, KIND) && hasArrayProp(object, 'elementsIDs');
     }
 
-    export function create(elementsIDs: string[], options: { requestId?: string; reason?: string } = {}): RequestMarkersAction {
+    export function create<R extends MarkersReason>(
+        elementsIDs: string[],
+        options: { requestId?: string; reason?: R } = {}
+    ): RequestMarkersAction {
         return {
             kind: KIND,
             requestId: '',
@@ -112,7 +119,7 @@ export interface SetMarkersAction extends ResponseAction {
     /**
      * The reason for message, such as `batch` or `live` validation.
      */
-    reason?: string;
+    reason?: MarkersReason;
 }
 
 export namespace SetMarkersAction {
@@ -122,7 +129,10 @@ export namespace SetMarkersAction {
         return Action.hasKind(object, KIND) && hasArrayProp(object, 'markers');
     }
 
-    export function create(markers: Marker[], options: { responseId?: string; reason?: string } = {}): SetMarkersAction {
+    export function create<R extends MarkersReason>(
+        markers: Marker[],
+        options: { responseId?: string; reason?: R } = {}
+    ): SetMarkersAction {
         return {
             kind: KIND,
             responseId: '',
