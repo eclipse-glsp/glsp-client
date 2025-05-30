@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 /** @jsx svg */
-import { GCompartment, RenderingContext, ShapeView, svg } from '@eclipse-glsp/sprotty';
+import { Dimension, GCompartment, RenderingContext, ShapeView, svg } from '@eclipse-glsp/sprotty';
 import { injectable } from 'inversify';
 import { VNode } from 'snabbdom';
 
@@ -24,10 +24,10 @@ export class StructureCompartmentView extends ShapeView {
         if (!this.isVisible(model, context)) {
             return undefined;
         }
-
+        const rectSize = Dimension.isValid(model.size) ? model.size : Dimension.ZERO;
         return (
             <g>
-                <rect class-sprotty-comp={true} x='0' y='0' width={model.size.width} height={model.size.height}></rect>
+                <rect class-sprotty-comp={true} x='0' y='0' width={rectSize.width} height={rectSize.height}></rect>
                 {context.renderChildren(model)}
             </g>
         );
