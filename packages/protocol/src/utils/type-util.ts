@@ -93,13 +93,37 @@ export function toTypeGuard<G>(constructor: Constructor<G>): TypeGuard<G> {
 }
 
 /**
+ * Utility type that represents a string value that is augment with proposals for
+ * default/common values.Code completion in editors can pick up the proposals while
+ * still allowing to also define any other string value.
+ * @template T The type of the string proposal as union.
+ */
+// eslint-disable-next-line @typescript-eslint/ban-types
+export type ProposalString<T extends string> = T | (string & {});
+
+/**
  * Utility type that represents an arbitrary function. Should be used instead
  * of the default `Function` type which is considered to be unsafe.
  */
 export type SafeFunction<T = any> = (...args: any[]) => T;
 
+/**
+ * Utility type that represents a value that might be a function or a value of type `T`.
+ * This is useful to allow functions to be passed as parameters but also allow
+ * simple values to be passed.
+ * @template T The type of the value that might be returned by the function.
+ */
 export type MaybeFunction<T = any> = T | SafeFunction<T>;
 
+/**
+ * Utility function that calls a given function if it is a function, otherwise returns the value.
+ * This is useful to allow functions to be passed as parameters but also allow
+ * simple values to be passed.
+ * @template T The type of the value that might be returned by the function.
+ * @param maybeFun The value that might be a function or a value of type `T`.
+ * @param args The arguments to pass to the function if it is called.
+ * @returns The result of the function call or the value itself if it is not a function.
+ */
 export function call<T>(maybeFun: MaybeFunction<T>, ...args: any[]): T {
     return typeof maybeFun === 'function' ? (maybeFun as SafeFunction<T>)(...args) : maybeFun;
 }
@@ -107,6 +131,14 @@ export function call<T>(maybeFun: MaybeFunction<T>, ...args: any[]): T {
 export type MaybeActions = MaybeFunction<Action[] | Action | undefined>;
 
 export namespace MaybeActions {
+    /**
+     * Utility function that converts a given `MaybeActions` value into an array of actions.
+     * If the value is a function, it will be called to get the actions.
+     * If the value is an array, it will be returned as is.
+     * If the value is undefined, an empty array will be returned.
+     * @param actions The value that might be a function or an array of actions.
+     * @returns An array of actions.
+     */
     export function asArray(actions?: MaybeActions): Action[] {
         const cleanup = actions ? call(actions) : [];
         return cleanup ? toArray(cleanup) : [];
