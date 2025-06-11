@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { hasStringProp } from '../utils/type-util';
+import { ProposalString, hasStringProp } from '../utils/type-util';
 import { Action } from './base-protocol';
 
 /**
@@ -27,6 +27,7 @@ export interface SetEditModeAction extends Action {
 
     /**
      * The new edit mode of the diagram.
+     * Default values are `readonly` and `editable`, but custom modes can be used as well.
      */
     editMode: string;
 }
@@ -38,7 +39,7 @@ export namespace SetEditModeAction {
         return Action.hasKind(object, KIND) && hasStringProp(object, 'editMode');
     }
 
-    export function create(editMode: string): SetEditModeAction {
+    export function create<E extends EditMode>(editMode: E): SetEditModeAction {
         return {
             kind: KIND,
             editMode
@@ -47,9 +48,11 @@ export namespace SetEditModeAction {
 }
 
 /**
- * The potential default values for the `editMode` property of  a {@link SetEditModeAction}.
+ * Utility type for the edit mode, which offers the default values `readonly` and `editable` as
+ * proposals. Any other string value can be used as custom edit mode as well.
  */
-export namespace EditMode {
-    export const READONLY = 'readonly';
-    export const EDITABLE = 'editable';
-}
+export type EditMode = ProposalString<(typeof EditMode)[keyof typeof EditMode]>;
+export const EditMode = {
+    READONLY: 'readonly',
+    EDITABLE: 'editable'
+} as const;
