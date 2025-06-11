@@ -39,6 +39,7 @@ import { standaloneResizeModule } from './features/change-bounds/resize/resize-m
 import { standaloneCopyPasteModule } from './features/copy-paste/copy-paste-modules';
 import { standaloneExportModule } from './features/export/export-modules';
 import { saveModule } from './features/save/save-module';
+import { standaloneSearchPaletteModule } from './features/search-palette/search-palette-module';
 import { standaloneSelectModule } from './features/select/select-module';
 import { undoRedoModule } from './features/undo-redo/undo-redo-module';
 import { standaloneMarkerNavigatorModule } from './features/validation/validation-modules';
@@ -101,6 +102,7 @@ export const STANDALONE_MODULES = [
     standaloneDefaultModule,
     standaloneShortcutsModule,
     standaloneResizeModule,
+    standaloneSearchPaletteModule,
     saveModule,
     undoRedoModule
 ] as const;
