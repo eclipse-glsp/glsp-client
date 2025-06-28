@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { GModelElement, GModelRoot, GNode, hasProperty, LabeledAction, SelectAllAction, toArray, TYPES } from '@eclipse-glsp/sprotty';
+import { GModelElement, GModelRoot, GNode, LabeledAction, SelectAllAction, toArray, TYPES } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
 import { debounce, isEqual } from 'lodash';
 import {
@@ -31,13 +31,11 @@ import { RepositionAction } from '../viewport/reposition';
 const CSS_SEARCH_HIDDEN = 'search-hidden';
 const CSS_SEARCH_HIGHLIGHTED = 'search-highlighted';
 
-export interface SearchAutocompleteSuggestion extends AutocompleteSuggestion {
-    element: GModelElement;
-}
+export interface SearchAutocompleteSuggestion extends Required<AutocompleteSuggestion> {}
 
 export namespace SearchAutocompleteSuggestion {
     export function is(suggestion: AutocompleteSuggestion): suggestion is SearchAutocompleteSuggestion {
-        return hasProperty<SearchAutocompleteSuggestion>(suggestion, 'element');
+        return suggestion.element !== undefined;
     }
 }
 

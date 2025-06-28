@@ -14,8 +14,16 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { GModelRoot, InstanceRegistry, TYPES, type GModelElement, type LabeledAction } from '@eclipse-glsp/sprotty';
-import { injectable, multiInject } from 'inversify';
+import {
+    GModelRoot,
+    InstanceRegistry,
+    LazyInjector,
+    TYPES,
+    type GModelElement,
+    type LabeledAction,
+    type MaybePromise
+} from '@eclipse-glsp/sprotty';
+import { inject, injectable } from 'inversify';
 
 /**
  * Interface for autocomplete suggestions.
@@ -62,11 +70,11 @@ export class DefaultAutocompleteSuggestionRegistry
     extends InstanceRegistry<IAutocompleteSuggestionProvider>
     implements AutocompleteSuggestionRegistry
 {
-    constructor(
-        @multiInject(TYPES.IAutocompleteSuggestionProvider)
-        suggestionProviders: IAutocompleteSuggestionProvider[]
-    ) {
-        super();
+    @inject(LazyInjector)
+    protected lazyInjector: LazyInjector;
+
+    preLoadDiagram(): MaybePromise<void> {
+        const suggestionProviders = this.lazyInjector.getAll<IAutocompleteSuggestionProvider>(TYPES.IAutocompleteSuggestionProvider);
         suggestionProviders.forEach(provider => {
             this.register(provider.id, provider);
         });
