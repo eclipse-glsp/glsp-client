@@ -150,6 +150,7 @@ export const defaultModule = new FeatureModule(
 
         // Autocomplete suggestion provider initialization ------------------------------------
         bind(TYPES.IAutocompleteSuggestionProviderRegistry).to(DefaultAutocompleteSuggestionRegistry).inSingletonScope();
+        bind(TYPES.IDiagramStartup).toService(TYPES.IAutocompleteSuggestionProviderRegistry);
     },
     {
         featureId: Symbol('default')
