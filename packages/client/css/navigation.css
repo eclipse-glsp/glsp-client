@@ -18,11 +18,11 @@
     --glsp-navigation-highlight: rgba(136, 68, 68, 0.2);
 }
 
-.navigable-element {
+.sprotty-edge.navigable-element {
     stroke: var(--glsp-navigation-highlight);
 }
 
-.navigable-element .sprotty-edge.arrow {
+.sprotty-edge.navigable-element .sprotty-edge.arrow {
     fill: var(--glsp-navigation-highlight);
     stroke: var(--glsp-navigation-highlight);
 }

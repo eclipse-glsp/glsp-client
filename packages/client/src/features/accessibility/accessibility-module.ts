@@ -17,9 +17,8 @@
 import { FeatureModule } from '@eclipse-glsp/sprotty';
 import { configureElementNavigationTool } from './element-navigation/element-navigation-module';
 import { configureFocusTrackerTool } from './focus-tracker/focus-tracker-module';
-import { configureKeyboardControlTools } from './keyboard-pointer/keyboard-pointer-module';
 import { configureKeyboardToolPaletteTool } from './keyboard-tool-palette/keyboard-tool-palette-module';
-import { configureSearchPaletteModule } from './search/search-palette-module';
+import { configureKeyboardControlTools } from './keyboard/keyboard-module';
 import { configureToastTool } from './toast/toast-module';
 import { configureViewKeyTools } from './view-key-tools/view-key-tools-module';
 
@@ -30,7 +29,6 @@ export const accessibilityModule = new FeatureModule(
     (bind, unbind, isBound, rebind) => {
         const context = { bind, unbind, isBound, rebind };
         configureViewKeyTools(context);
-        configureSearchPaletteModule(context);
         configureKeyboardToolPaletteTool(context);
         configureKeyboardControlTools(context);
         configureElementNavigationTool(context);
