@@ -13,27 +13,28 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { injectable } from 'inversify';
 import {
     Action,
     Bounds,
     EMPTY_ROOT,
+    GIssueSeverity,
+    GModelElement,
+    GModelElementSchema,
+    GModelRootSchema,
+    GPreRenderedElementSchema,
     HoverFeedbackAction,
     HoverMouseListener,
     IActionHandler,
     ICommand,
-    GPreRenderedElementSchema,
     RequestPopupModelAction,
-    GModelElement,
-    GModelElementSchema,
-    SetPopupModelAction,
-    GModelRootSchema
+    SetPopupModelAction
 } from '@eclipse-glsp/sprotty';
+import { injectable } from 'inversify';
 import { FocusStateChangedAction } from '../../base/focus/focus-state-change-action';
+import { messages } from '../../base/messages';
 import { EnableDefaultToolsAction, EnableToolsAction } from '../../base/tool-manager/tool';
 import { EdgeCreationTool } from '../tools/edge-creation/edge-creation-tool';
 import { GIssueMarker, getSeverity } from '../validation/issue-marker';
-
 @injectable()
 export class GlspHoverMouseListener extends HoverMouseListener implements IActionHandler {
     protected enableHover = true;
@@ -107,7 +108,18 @@ export class GlspHoverMouseListener extends HoverMouseListener implements IActio
     }
 
     protected createIssueMessage(marker: GIssueMarker): string {
-        return '<ul>' + marker.issues.map(i => '<li>' + i.severity.toUpperCase() + ': ' + i.message + '</li>').join('') + '</ul>';
+        return '<ul>' + marker.issues.map(i => '<li>' + this.getSeverityString(i.severity) + ': ' + i.message + '</li>').join('') + '</ul>';
+    }
+
+    protected getSeverityString(severity: GIssueSeverity): string {
+        switch (severity) {
+            case 'error':
+                return messages.issue_marker.severity_error;
+            case 'warning':
+                return messages.issue_marker.severity_warning;
+            case 'info':
+                return messages.issue_marker.severity_info;
+        }
     }
 
     protected modifyBounds(bounds: Bounds): Bounds {
