@@ -80,8 +80,8 @@
     "no_suggestions": "No suggestions available"
   },
   "issue_marker": {
-    "severity_error": "Error",
-    "severity_warning": "Warning",
-    "severity_info": "Info"
+    "severity_error": "ERROR",
+    "severity_warning": "WARNING",
+    "severity_info": "INFO"
   }
 }
