@@ -68,13 +68,7 @@ export class RepositionCommand extends BoundsAwareViewportCommand {
         if (element instanceof GChildElement && element.parent !== viewport) {
             return this.boundsInViewport(element.parent, element.parent.localToParent(bounds) as Bounds, viewport);
         } else if (element instanceof GEdge) {
-            const edgeBounds = getRouteBounds(calcElementAndRoute(element).newRoutingPoints ?? []);
-
-            if (element instanceof GChildElement && element.parent !== viewport) {
-                return this.boundsInViewport(element.parent, element.parent.localToParent(edgeBounds), viewport);
-            }
-
-            return edgeBounds;
+            return getRouteBounds(calcElementAndRoute(element).newRoutingPoints ?? []);
         }
 
         return bounds;
@@ -84,21 +78,23 @@ export class RepositionCommand extends BoundsAwareViewportCommand {
         return this.action.elementIDs;
     }
 
-    getNewViewport(combinedElementBounds: Bounds, model: GModelRoot): Viewport | undefined {
+    getNewViewport(bounds: Bounds, model: GModelRoot): Viewport | undefined {
         if (!Dimension.isValid(model.canvasBounds)) {
             return undefined;
         }
 
         if (isViewport(model)) {
-            if (this.isFullyVisible(combinedElementBounds, model)) {
+            if (this.isFullyVisible(bounds, model)) {
                 return undefined;
             } else {
                 const zoom = model.zoom;
-                const centerOfElements = Bounds.center(combinedElementBounds);
-                const canvasCenter = Dimension.center(model.canvasBounds);
-                const scrollCenter = Point.subtract(centerOfElements, canvasCenter);
-                const scroll = Point.map(scrollCenter, coordinate => coordinate / zoom);
-                return { scroll, zoom };
+                const boundsCenter = Bounds.center(bounds);
+                const canvasCenter = Point.map(Dimension.center(model.canvasBounds), coor => coor / zoom);
+                const scroll = Point.subtract(boundsCenter, canvasCenter);
+                return {
+                    scroll,
+                    zoom
+                };
             }
         }
 
