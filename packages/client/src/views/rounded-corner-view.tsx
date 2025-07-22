@@ -23,6 +23,10 @@ import { RoundedCornerWrapper } from './rounded-corner';
 @injectable()
 export class RoundedCornerNodeView extends RectangularNodeView {
     override render(node: Readonly<GNode & Hoverable & Selectable>, context: RenderingContext): VNode | undefined {
+        if (!this.isVisible(node, context)) {
+            return undefined;
+        }
+
         const cornerRadius = CornerRadius.from(node);
         if (!cornerRadius) {
             return this.renderWithoutRadius(node, context);
