@@ -13,19 +13,21 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { FeatureModule, configureActionHandler } from '@eclipse-glsp/sprotty';
+import { FeatureModule, RequestLayoutAction, configureActionHandler } from '@eclipse-glsp/sprotty';
 import {
     AlignElementsAction,
     AlignElementsActionHandler,
     ResizeElementsAction,
     ResizeElementsActionHandler
 } from './layout-elements-action';
+import { RequestLayoutActionHandler } from './request-layout-action-handler';
 
 export const layoutModule = new FeatureModule(
     (bind, _unbind, isBound) => {
         const context = { bind, isBound };
         configureActionHandler(context, ResizeElementsAction.KIND, ResizeElementsActionHandler);
         configureActionHandler(context, AlignElementsAction.KIND, AlignElementsActionHandler);
+        configureActionHandler(context, RequestLayoutAction.KIND, RequestLayoutActionHandler);
     },
     { featureId: Symbol('layout') }
 );
