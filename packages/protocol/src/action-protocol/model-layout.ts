@@ -13,8 +13,8 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import * as sprotty from 'sprotty-protocol/lib/actions';
 import { Bounds, Viewport } from 'sprotty-protocol';
+import * as sprotty from 'sprotty-protocol/lib/actions';
 import { GModelRootSchema } from '../model/model-schema';
 import { hasArrayProp, hasObjectProp } from '../utils/type-util';
 import { Action, Operation, RequestAction, ResponseAction } from './base-protocol';
@@ -141,45 +141,43 @@ export namespace LayoutOperation {
     export const KIND = 'layout';
 
     export function is(object: unknown): object is LayoutOperation {
-        return Action.hasKind(object, KIND) && hasArrayProp(object, 'elementIds');
+        return Action.hasKind(object, KIND);
     }
 
     export function create(
         elementIds?: string[],
-        canvasBounds?: Bounds,
-        viewport?: Viewport,
-        options: { args?: Args } = {}
+        options: { args?: Args; canvasBounds?: Bounds; viewport?: Viewport } = {}
     ): LayoutOperation {
         return {
             kind: KIND,
             isOperation: true,
             elementIds,
-            canvasBounds,
-            viewport,
             ...options
         };
     }
 }
 
 /**
- * Request a layout of the diagram or the selected elements only.
- * Used to tell the client to enrich the LayoutOperation before sending to the server.
+ * Trigger a layout of the diagram or the selected elements only.
  * The corresponding namespace declares the action kind as constant and offers helper functions for type guard checks
- * and creating new `RequestLayoutActions`.
+ * and creating new `TriggerLayoutActions`.
  */
-export interface RequestLayoutAction extends Action {
-    kind: typeof RequestLayoutAction.KIND;
-    options?: Args;
+export interface TriggerLayoutAction extends Action {
+    kind: typeof TriggerLayoutAction.KIND;
+    /**
+     * Custom arguments that may be interpreted by the client.
+     */
+    args?: Args;
 }
 
-export namespace RequestLayoutAction {
-    export const KIND = 'requestLayout';
+export namespace TriggerLayoutAction {
+    export const KIND = 'triggerLayout';
 
-    export function is(action: Action): action is RequestLayoutAction {
+    export function is(action: unknown): action is TriggerLayoutAction {
         return Action.hasKind(action, KIND);
     }
 
-    export function create(options?: Args): RequestLayoutAction {
+    export function create(options: { args?: Args } = {}): TriggerLayoutAction {
         return {
             kind: KIND,
             ...options

@@ -26,10 +26,10 @@ import {
     TYPES,
     Viewport,
     getRouteBounds,
-    hasArrayProp,
-    isViewport
+    hasArrayProp
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
+import { EditorContextService } from '../../base/editor-context-service';
 import { GEdge } from '../../model';
 import { calcElementAndRoute } from '../../utils/gmodel-util';
 
@@ -60,6 +60,8 @@ export namespace RepositionAction {
 export class RepositionCommand extends BoundsAwareViewportCommand {
     static readonly KIND = RepositionAction.KIND;
 
+    @inject(EditorContextService) protected readonly editorContext: EditorContextService;
+
     constructor(@inject(TYPES.Action) protected action: RepositionAction) {
         super(true);
     }
@@ -89,11 +91,12 @@ export class RepositionCommand extends BoundsAwareViewportCommand {
             return undefined;
         }
 
-        if (isViewport(model)) {
-            if (this.isFullyVisible(combinedElementBounds, model)) {
+        const viewport = this.editorContext.viewport;
+        if (viewport) {
+            if (this.isFullyVisible(combinedElementBounds, viewport)) {
                 return undefined;
             } else {
-                const zoom = model.zoom;
+                const zoom = viewport.zoom;
                 const centerOfElements = Bounds.center(combinedElementBounds);
                 const canvasCenter = Dimension.center(model.canvasBounds);
                 const scrollCenter = Point.subtract(centerOfElements, canvasCenter);

@@ -13,27 +13,23 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, isViewport, LayoutOperation, RequestLayoutAction } from '@eclipse-glsp/sprotty';
+import { Action, IActionHandler, ICommand, LayoutOperation, TriggerLayoutAction } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
 import { EditorContextService } from '../../base/editor-context-service';
 
 /**
- * The handler for {@link RequestLayoutAction}s.
- * This handler returns an enriched LayoutOperation with the canvasBounds and viewport information.
+ * The handler for {@link TriggerLayoutAction}s.
+ * This handler provides some client-level information to the layout operation.
  */
 @injectable()
-export class RequestLayoutActionHandler {
-    @inject(EditorContextService)
-    protected editorContext?: EditorContextService;
+export class TriggerLayoutActionHandler implements IActionHandler {
+    @inject(EditorContextService) protected editorContext: EditorContextService;
 
-    handle(action: RequestLayoutAction): Action | void {
-        if (this.editorContext) {
-            const root = this.editorContext.modelRoot;
-            if (isViewport(root)) {
-                return LayoutOperation.create([], root.canvasBounds, root);
-            }
-        }
-
-        return LayoutOperation.create();
+    handle(action: TriggerLayoutAction): ICommand | Action | void {
+        return LayoutOperation.create([], {
+            args: action.args,
+            canvasBounds: this.editorContext.canvasBounds,
+            viewport: this.editorContext.viewportData
+        });
     }
 }

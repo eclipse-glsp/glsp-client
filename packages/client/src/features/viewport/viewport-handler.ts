@@ -146,28 +146,20 @@ export class ZoomHandler implements IActionHandler {
     }
 
     protected handleZoomViewport(zoomFactor: number): Action | undefined {
-        const viewport = findParentByFeature(this.editorContextService.modelRoot, isViewport);
+        const viewport = this.editorContextService.viewport;
         if (!viewport) {
             return;
         }
-
-        const newZoom = viewport.zoom * zoomFactor;
-
-        const newViewport = {
-            scroll: viewport.scroll,
-            zoom: newZoom
-        };
-
-        return SetViewportAction.create(viewport.id, newViewport, { animate: false });
+        return SetViewportAction.create(viewport.id, { scroll: viewport.scroll, zoom: viewport.zoom * zoomFactor }, { animate: false });
     }
 
     protected handleZoomElement(elementIds: string[], zoomFactor: number): Action | undefined {
-        const viewport = findParentByFeature(this.editorContextService.modelRoot, isViewport);
+        const viewport = this.editorContextService.viewport;
         if (!viewport) {
             return;
         }
 
-        const elements = getElements(this.editorContextService.modelRoot.index, elementIds, isSelectableAndBoundsAware);
+        const elements = getElements(viewport.index, elementIds, isSelectableAndBoundsAware);
         const center = this.getCenter(viewport, elements);
 
         const newZoom = viewport.zoom * zoomFactor;

@@ -16,7 +16,7 @@
 /* eslint-disable max-len */
 import { expect } from 'chai';
 import { Dimension, Point } from 'sprotty-protocol';
-import { ComputedBoundsAction, LayoutOperation, RequestBoundsAction } from './model-layout';
+import { ComputedBoundsAction, LayoutOperation, RequestBoundsAction, TriggerLayoutAction } from './model-layout';
 /**
  * Tests for the utility functions declared in the namespaces of the protocol
  * action definitions.
@@ -106,13 +106,39 @@ describe('Model layout actions', () => {
         });
     });
 
+    describe('TriggerLayoutAction', () => {
+        describe('is', () => {
+            it('should return true for an object having the correct type and a value for all required interface properties', () => {
+                const action: TriggerLayoutAction = {
+                    kind: 'triggerLayout'
+                };
+                expect(TriggerLayoutAction.is(action)).to.be.true;
+            });
+            it('should return false for `undefined`', () => {
+                expect(TriggerLayoutAction.is(undefined)).to.be.false;
+            });
+            it('should return false for an object that does not have all required interface properties', () => {
+                expect(TriggerLayoutAction.is({ kind: 'notTheRightOne' })).to.be.false;
+            });
+        });
+
+        describe('create', () => {
+            it('should return an object conforming to the interface with matching properties for the given required arguments', () => {
+                const expected: TriggerLayoutAction = {
+                    kind: 'triggerLayout',
+                    args: { customArg: 'argValue' }
+                };
+                expect(TriggerLayoutAction.create({ args: { customArg: 'argValue' } })).to.deep.equals(expected);
+            });
+        });
+    });
+
     describe('LayoutOperation', () => {
         describe('is', () => {
             it('should return true for an object having the correct type and a value for all required interface properties', () => {
                 const action: LayoutOperation = {
                     kind: 'layout',
-                    isOperation: true,
-                    elementIds: []
+                    isOperation: true
                 };
                 expect(LayoutOperation.is(action)).to.be.true;
             });

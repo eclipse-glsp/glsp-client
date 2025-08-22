@@ -28,7 +28,6 @@ import {
     TYPES,
     Viewport,
     equalUpTo,
-    findParentByFeature,
     isBoundsAware,
     isDecoration,
     isViewport
@@ -36,6 +35,7 @@ import {
 import { inject, injectable } from 'inversify';
 import { partition } from 'lodash';
 import '../../../css/helper-lines.css';
+import { EditorContextService } from '../../base/editor-context-service';
 import { FeedbackCommand } from '../../base/feedback/feedback-command';
 import {
     BoundsAwareModelElement,
@@ -95,6 +95,8 @@ export namespace DrawHelperLinesFeedbackAction {
 @injectable()
 export class DrawHelperLinesFeedbackCommand extends FeedbackCommand {
     static readonly KIND = DrawHelperLinesFeedbackAction.KIND;
+
+    @inject(EditorContextService) protected readonly editorContext: EditorContextService;
 
     protected elementIds: string[];
     protected elementLines: HelperLineType[];
@@ -159,7 +161,7 @@ export class DrawHelperLinesFeedbackCommand extends FeedbackCommand {
 
     protected calcHelperLines(elements: BoundsAwareModelElement[], bounds: Bounds, context: CommandExecutionContext): HelperLine[] {
         const helperLines: HelperLine[] = [];
-        const viewport = findParentByFeature(context.root, isViewport);
+        const viewport = this.editorContext.viewport;
         if (viewport) {
             helperLines.push(...this.calcHelperLinesForViewport(viewport, bounds, this.viewportLines));
         }
