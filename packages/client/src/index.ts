@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2024 EclipseSource and others.
+ * Copyright (c) 2024-2025 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -226,6 +226,8 @@ export * from './features/viewport/viewport-key-listener';
 export * from './features/viewport/viewport-modules';
 export * from './features/viewport/viewport-tool';
 export * from './features/viewport/zoom-viewport-action';
+export * from './features/zorder/bring-to-front-command';
+export * from './features/zorder/zorder-module';
 export * from './model';
 export * from './re-exports';
 export * from './standalone-modules';

@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2021-2024 EclipseSource and others.
+ * Copyright (c) 2021-2025 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -27,8 +27,7 @@ import {
     expandModule,
     fadeModule,
     modelSourceModule,
-    resolveContainerConfiguration,
-    zorderModule
+    resolveContainerConfiguration
 } from '@eclipse-glsp/sprotty';
 import { Container } from 'inversify';
 import { defaultModule } from './base/default.module';
@@ -62,6 +61,7 @@ import { nodeCreationToolModule } from './features/tools/node-creation/node-crea
 import { toolFocusLossModule } from './features/tools/tool-focus-loss-module';
 import { markerNavigatorModule, validationModule } from './features/validation/validation-modules';
 import { viewportModule } from './features/viewport/viewport-modules';
+import { zorderModule } from './features/zorder/zorder-module';
 
 export const DEFAULT_MODULES = [
     defaultModule,

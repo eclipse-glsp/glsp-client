@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2023-2024 EclipseSource and others.
+ * Copyright (c) 2023-2025 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -94,11 +94,10 @@ export * from 'sprotty/lib/base/views/vnode-utils';
 // export * from 'sprotty/lib/base/types';
 
 // ------------------ Features ------------------
-export * from 'sprotty/lib/features/bounds/abstract-layout';
 export * from 'sprotty/lib/features/bounds/bounds-manipulation';
-export * from 'sprotty/lib/features/bounds/hbox-layout';
+export { HBoxLayoutOptions } from 'sprotty/lib/features/bounds/hbox-layout';
 export * from 'sprotty/lib/features/bounds/hidden-bounds-updater';
-export * from 'sprotty/lib/features/bounds/layout';
+export { Layouter, StatefulLayouter } from 'sprotty/lib/features/bounds/layout';
 export { AbstractLayoutOptions } from 'sprotty/lib/features/bounds/layout-options';
 export {
     InternalBoundsAware as BoundsAware,
@@ -121,7 +120,7 @@ export {
 } from 'sprotty/lib/features/bounds/model';
 // exclude stack layout as its not supported in GLSP
 // export * from 'sprotty/lib/features/bounds/stack-layout';
-export * from 'sprotty/lib/features/bounds/vbox-layout';
+export { VBoxLayoutOptions } from 'sprotty/lib/features/bounds/vbox-layout';
 export * from 'sprotty/lib/features/bounds/views';
 
 export { ButtonHandlerRegistry, IButtonHandlerRegistration, configureButtonHandler } from 'sprotty/lib/features/button/button-handler';
@@ -246,7 +245,7 @@ export * from 'sprotty/lib/features/viewport/viewport';
 export { ViewportRootElementImpl as GViewportRootElement } from 'sprotty/lib/features/viewport/viewport-root';
 export * from 'sprotty/lib/features/viewport/zoom';
 
-export * from 'sprotty/lib/features/zorder/zorder';
+export { BringToFrontCommand as SprottyBringToFrontCommand, ZOrderElement } from 'sprotty/lib/features/zorder/zorder';
 
 // ------------------ Graph ------------------
 // Alias SModel types
@@ -268,11 +267,11 @@ export {
     SBezierCreateHandleView as GBezierCreateHandleView,
     SCompartmentView as GCompartmentView,
     SLabelView as GLabelView,
-    SRoutingHandleView,
     JumpingPolylineEdgeView,
     PolylineEdgeView,
     PolylineEdgeViewWithGapsOnIntersections,
-    SGraphView
+    SGraphView,
+    SRoutingHandleView
 } from 'sprotty/lib/graph/views';
 
 // ------------------ Library ------------------

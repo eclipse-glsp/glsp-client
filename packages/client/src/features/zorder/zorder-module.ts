@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2024-2025 EclipseSource and others.
+ * Copyright (c) 2025 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,9 +13,14 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-export * from './api-override';
-export * from './feature-modules';
-export * from './layout-override';
-export * from './re-exports';
-export * from './svg-views-override';
-export * from './types';
+import { FeatureModule, configureCommand } from '@eclipse-glsp/sprotty';
+import { boundsModule } from '../bounds/bounds-module';
+import { BringToFrontCommand } from './bring-to-front-command';
+
+export const zorderModule = new FeatureModule(
+    (bind, _unbind, isBound) => {
+        const context = { bind, isBound };
+        configureCommand(context, BringToFrontCommand);
+    },
+    { featureId: Symbol('zorder'), requires: [boundsModule] }
+);
