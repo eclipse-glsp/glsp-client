@@ -26,7 +26,7 @@ export class TriggerLayoutActionHandler implements IActionHandler {
     @inject(EditorContextService) protected editorContext: EditorContextService;
 
     handle(action: TriggerLayoutAction): ICommand | Action | void {
-        return LayoutOperation.create([], {
+        return LayoutOperation.create(this.editorContext.get().selectedElementIds, {
             args: action.args,
             canvasBounds: this.editorContext.canvasBounds,
             viewport: this.editorContext.viewportData
