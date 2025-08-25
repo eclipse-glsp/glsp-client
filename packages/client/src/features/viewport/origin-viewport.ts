@@ -14,8 +14,9 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { Action, Bounds, BoundsAwareViewportCommand, GModelRoot, TYPES, Viewport, isViewport, limitViewport } from '@eclipse-glsp/sprotty';
+import { Action, Bounds, BoundsAwareViewportCommand, GModelRoot, TYPES, Viewport, limitViewport } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
+import { EditorContextService } from '../../base/editor-context-service';
 
 export interface OriginViewportAction extends Action {
     kind: typeof OriginViewportAction.KIND;
@@ -42,6 +43,8 @@ export namespace OriginViewportAction {
 export class OriginViewportCommand extends BoundsAwareViewportCommand {
     static readonly KIND = OriginViewportAction.KIND;
 
+    @inject(EditorContextService) protected readonly editorContext: EditorContextService;
+
     constructor(@inject(TYPES.Action) protected action: OriginViewportAction) {
         super(action.animate);
     }
@@ -51,14 +54,15 @@ export class OriginViewportCommand extends BoundsAwareViewportCommand {
     }
 
     protected override initialize(model: GModelRoot): void {
-        if (!isViewport(model)) {
+        const viewport = this.editorContext.viewport;
+        if (!viewport) {
             return;
         }
-        this.oldViewport = { scroll: model.scroll, zoom: model.zoom };
-        const newViewport = this.getNewViewport(Bounds.EMPTY, model);
+        this.oldViewport = { scroll: viewport.scroll, zoom: viewport.zoom };
+        const newViewport = this.getNewViewport(Bounds.EMPTY, viewport);
         if (newViewport) {
             const { zoomLimits, horizontalScrollLimits, verticalScrollLimits } = this.viewerOptions;
-            this.newViewport = limitViewport(newViewport, model.canvasBounds, horizontalScrollLimits, verticalScrollLimits, zoomLimits);
+            this.newViewport = limitViewport(newViewport, viewport.canvasBounds, horizontalScrollLimits, verticalScrollLimits, zoomLimits);
         }
     }
 

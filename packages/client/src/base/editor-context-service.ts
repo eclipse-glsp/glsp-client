@@ -17,6 +17,7 @@ import {
     Action,
     AnyObject,
     Args,
+    Bounds,
     CommandStack,
     Disposable,
     DisposableCollection,
@@ -24,17 +25,21 @@ import {
     EditorContext,
     Emitter,
     Event,
+    findParentByFeature,
     GModelElement,
     GModelRoot,
     IActionDispatcher,
     IActionHandler,
+    isViewport,
     LazyInjector,
     MaybePromise,
     MousePositionTracker,
+    Point,
     SetDirtyStateAction,
     SetEditModeAction,
     TYPES,
-    ValueChange
+    ValueChange,
+    Viewport
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable, postConstruct, preDestroy } from 'inversify';
 import { FocusChange, FocusTracker } from './focus/focus-tracker';
@@ -233,6 +238,24 @@ export class EditorContextService implements IActionHandler, Disposable, IDiagra
             throw new Error('Model root not available yet');
         }
         return this._modelRoot;
+    }
+
+    get viewport(): Readonly<GModelRoot & Viewport> | undefined {
+        return this._modelRoot ? findParentByFeature(this._modelRoot, isViewport) : undefined;
+    }
+
+    get viewportData(): Readonly<Viewport> {
+        const viewport = this.viewport;
+        // default values aligned with GetViewportCommand
+        return {
+            scroll: viewport?.scroll ?? Point.ORIGIN,
+            zoom: viewport?.zoom ?? 1
+        };
+    }
+
+    get canvasBounds(): Readonly<Bounds> {
+        // default value aligned with the initialization of canvasBounds in GModelRoot
+        return this._modelRoot?.canvasBounds ?? Bounds.EMPTY;
     }
 
     get selectedElements(): Readonly<GModelElement>[] {

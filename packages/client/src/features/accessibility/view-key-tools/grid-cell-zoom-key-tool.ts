@@ -24,7 +24,6 @@ import {
     SetViewportAction,
     TYPES,
     Viewport,
-    isViewport,
     matchesKeystroke
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
@@ -73,18 +72,19 @@ export class GridCellZoomTool extends BaseTool {
     }
 
     handle(action: Action): Action | void {
-        if (isViewport(this.editorContext.modelRoot)) {
+        const viewport = this.editorContext.viewport;
+        if (viewport) {
             let viewportAction: Action | undefined = undefined;
 
             if (KeyboardGridCellSelectedAction.is(action) && action.options.originId === GridCellZoomTool.ID) {
                 viewportAction = this.zoomKeyListener.setNewZoomFactor(
-                    this.editorContext.modelRoot,
+                    viewport,
                     this.zoomFactors.in,
                     getAbsolutePositionByPoint(this.editorContext.modelRoot, action.options.centerCellPosition)
                 );
             } else if (KeyboardGridKeyboardEventAction.is(action) && action.options.originId === GridCellZoomTool.ID) {
                 if (matchesKeystroke(action.options.event, 'Minus')) {
-                    viewportAction = this.zoomKeyListener.setNewZoomFactor(this.editorContext.modelRoot, this.zoomFactors.out);
+                    viewportAction = this.zoomKeyListener.setNewZoomFactor(viewport, this.zoomFactors.out);
                 } else if (matchesKeystroke(action.options.event, 'Digit0', 'ctrl')) {
                     viewportAction = CenterAction.create([]);
                 }

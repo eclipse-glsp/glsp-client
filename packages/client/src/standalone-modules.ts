@@ -23,11 +23,11 @@ import {
     ICommand,
     ILogger,
     KeyListener,
-    LayoutOperation,
     MessageAction,
     ModuleConfiguration,
     StartProgressAction,
     TYPES,
+    TriggerLayoutAction,
     UpdateProgressAction,
     bindAsService,
     configureActionHandler,
@@ -75,7 +75,7 @@ export class FallbackActionHandler implements IActionHandler {
 export class LayoutKeyListener extends KeyListener {
     override keyDown(_element: GModelElement, event: KeyboardEvent): Action[] {
         if (matchesKeystroke(event, 'KeyL', 'ctrlCmd', 'shift')) {
-            return [LayoutOperation.create()];
+            return [TriggerLayoutAction.create()];
         }
         return [];
     }

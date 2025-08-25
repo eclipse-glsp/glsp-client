@@ -27,9 +27,7 @@ import {
     MoveViewportAction,
     Point,
     TYPES,
-    findParentByFeature,
-    isBoundsAware,
-    isViewport
+    isBoundsAware
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable, optional, postConstruct } from 'inversify';
 import { DebouncedFunc, debounce } from 'lodash';
@@ -79,15 +77,14 @@ export class MoveElementHandler implements IActionHandler {
     }
 
     protected handleMoveElement(action: MoveElementRelativeAction): void {
-        const modelRoot = this.editorContextService.modelRoot;
-        const viewport = findParentByFeature(modelRoot, isViewport);
+        const viewport = this.editorContextService.viewport;
         if (!viewport) {
             return;
         }
 
         const viewportActions: Action[] = [];
         const elementMoves: ElementMove[] = [];
-        const elements = getElements(modelRoot.index, action.elementIds, isSelectableAndBoundsAware);
+        const elements = getElements(viewport.index, action.elementIds, isSelectableAndBoundsAware);
         for (const element of elements) {
             const newPosition = this.getTargetBounds(element, action);
             elementMoves.push({

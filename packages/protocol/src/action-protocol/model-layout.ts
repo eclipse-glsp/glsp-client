@@ -13,6 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { Bounds, Viewport } from 'sprotty-protocol';
 import * as sprotty from 'sprotty-protocol/lib/actions';
 import { GModelRootSchema } from '../model/model-schema';
 import { hasArrayProp, hasObjectProp } from '../utils/type-util';
@@ -124,20 +125,61 @@ export interface LayoutOperation extends Operation, Omit<sprotty.LayoutAction, '
      * The identifiers of the elements that should be layouted, will default to the root element if not defined.
      */
     elementIds?: string[];
+
+    /**
+     * The current bounds of the canvas at time of layout.
+     */
+    canvasBounds?: Bounds;
+
+    /**
+     * The current viewport information at time of layout.
+     */
+    viewport?: Viewport;
 }
 
 export namespace LayoutOperation {
     export const KIND = 'layout';
 
     export function is(object: unknown): object is LayoutOperation {
-        return Action.hasKind(object, KIND) && hasArrayProp(object, 'elementIds');
+        return Action.hasKind(object, KIND);
     }
 
-    export function create(elementIds?: string[], options: { args?: Args } = {}): LayoutOperation {
+    export function create(
+        elementIds?: string[],
+        options: { args?: Args; canvasBounds?: Bounds; viewport?: Viewport } = {}
+    ): LayoutOperation {
         return {
             kind: KIND,
             isOperation: true,
             elementIds,
+            ...options
+        };
+    }
+}
+
+/**
+ * Trigger a layout of the diagram or the selected elements only.
+ * The corresponding namespace declares the action kind as constant and offers helper functions for type guard checks
+ * and creating new `TriggerLayoutActions`.
+ */
+export interface TriggerLayoutAction extends Action {
+    kind: typeof TriggerLayoutAction.KIND;
+    /**
+     * Custom arguments that may be interpreted by the client.
+     */
+    args?: Args;
+}
+
+export namespace TriggerLayoutAction {
+    export const KIND = 'triggerLayout';
+
+    export function is(action: unknown): action is TriggerLayoutAction {
+        return Action.hasKind(action, KIND);
+    }
+
+    export function create(options: { args?: Args } = {}): TriggerLayoutAction {
+        return {
+            kind: KIND,
             ...options
         };
     }
