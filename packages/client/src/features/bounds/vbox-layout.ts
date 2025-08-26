@@ -26,6 +26,7 @@ import {
     VBoxLayoutOptions,
     VBoxLayouter,
     isBoundsAware,
+    isLayoutContainer,
     isLayoutableChild
 } from '@eclipse-glsp/sprotty';
 import { injectable } from 'inversify';
@@ -215,7 +216,13 @@ export class VBoxLayouterExt extends VBoxLayouter {
     }
 
     protected override getChildLayoutOptions(child: GChildElement, containerOptions: VBoxLayoutOptionsExt): VBoxLayoutOptionsExt {
-        return super.getChildLayoutOptions(child, this.filterContainerOptions(containerOptions)) as VBoxLayoutOptionsExt;
+        const filteredOptions = this.filterContainerOptions(containerOptions);
+
+        if (!isLayoutableChild(child) && !isLayoutContainer(child)) {
+            return filteredOptions;
+        }
+
+        return super.getChildLayoutOptions(child, filteredOptions) as VBoxLayoutOptionsExt;
     }
 
     protected override getLayoutOptions(element: GModelElement): VBoxLayoutOptionsExt {
