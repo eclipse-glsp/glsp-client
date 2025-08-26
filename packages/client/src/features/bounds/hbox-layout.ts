@@ -26,6 +26,7 @@ import {
     Point,
     StatefulLayouter,
     isBoundsAware,
+    isLayoutContainer,
     isLayoutableChild
 } from '@eclipse-glsp/sprotty';
 import { injectable } from 'inversify';
@@ -215,7 +216,13 @@ export class HBoxLayouterExt extends HBoxLayouter {
     }
 
     protected override getChildLayoutOptions(child: GChildElement, containerOptions: HBoxLayoutOptionsExt): HBoxLayoutOptionsExt {
-        return super.getChildLayoutOptions(child, this.filterContainerOptions(containerOptions)) as HBoxLayoutOptionsExt;
+        const filteredOptions = this.filterContainerOptions(containerOptions);
+
+        if (!isLayoutableChild(child) && !isLayoutContainer(child)) {
+            return filteredOptions;
+        }
+
+        return super.getChildLayoutOptions(child, filteredOptions) as HBoxLayoutOptionsExt;
     }
 
     protected override getLayoutOptions(element: GModelElement): HBoxLayoutOptionsExt {
