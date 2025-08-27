@@ -44,7 +44,8 @@ export * from 'sprotty/lib/base/animations/easing';
 
 export * from 'sprotty/lib/base/commands/command';
 export * from 'sprotty/lib/base/commands/command-registration';
-export * from 'sprotty/lib/base/commands/command-stack';
+// Exclude ICommandStack and ICommandStackProvider. Exported via api-override module instead
+export { CommandStack, CommandStackState } from 'sprotty/lib/base/commands/command-stack';
 export * from 'sprotty/lib/base/commands/command-stack-options';
 
 export * from 'sprotty/lib/base/features/initialize-canvas';
@@ -268,11 +269,11 @@ export {
     SBezierCreateHandleView as GBezierCreateHandleView,
     SCompartmentView as GCompartmentView,
     SLabelView as GLabelView,
-    SRoutingHandleView,
     JumpingPolylineEdgeView,
     PolylineEdgeView,
     PolylineEdgeViewWithGapsOnIntersections,
-    SGraphView
+    SGraphView,
+    SRoutingHandleView
 } from 'sprotty/lib/graph/views';
 
 // ------------------ Library ------------------

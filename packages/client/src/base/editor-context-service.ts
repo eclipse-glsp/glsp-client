@@ -15,10 +15,8 @@
  ********************************************************************************/
 import {
     Action,
-    AnyObject,
     Args,
     Bounds,
-    CommandStack,
     Disposable,
     DisposableCollection,
     EditMode,
@@ -44,6 +42,7 @@ import {
 import { inject, injectable, postConstruct, preDestroy } from 'inversify';
 import { FocusChange, FocusTracker } from './focus/focus-tracker';
 import { IDiagramOptions, IDiagramStartup } from './model/diagram-loader';
+import { IModelChangeService } from './model/model-change-service';
 import { SelectionChange, SelectionService } from './selection-service';
 
 /**
@@ -85,6 +84,9 @@ export class EditorContextService implements IActionHandler, Disposable, IDiagra
     @inject(SelectionService)
     protected selectionService: SelectionService;
 
+    @inject(TYPES.IModelChangeService)
+    protected modelChangeService: IModelChangeService;
+
     @inject(MousePositionTracker)
     protected mousePositionTracker: MousePositionTracker;
 
@@ -118,13 +120,11 @@ export class EditorContextService implements IActionHandler, Disposable, IDiagra
         return this.onDirtyStateChangedEmitter.event;
     }
 
-    protected _modelRoot?: Readonly<GModelRoot>;
     /**
      * Event that is fired when the model root of the diagram changes i.e. after the `CommandStack` has processed a model update.
      */
-    protected onModelRootChangedEmitter = new Emitter<Readonly<GModelRoot>>();
     get onModelRootChanged(): Event<Readonly<GModelRoot>> {
-        return this.onModelRootChangedEmitter.event;
+        return this.modelChangeService.onModelRootChanged;
     }
 
     /**
@@ -143,12 +143,25 @@ export class EditorContextService implements IActionHandler, Disposable, IDiagra
         return this.selectionService.onSelectionChanged;
     }
 
+    /**
+     * Event that is fired when the viewport of the diagram changes i.e. after the `CommandStack` has processed a viewport update.
+     * By default, this event is only fired if the viewport was changed via a `SetViewportCommand` or `BoundsAwareViewportCommand`
+     */
+    get onViewportChanged(): Event<Readonly<Viewport>> {
+        return this.modelChangeService.onViewportChanged;
+    }
+
     protected toDispose = new DisposableCollection();
 
     @postConstruct()
     protected initialize(): void {
         this._editMode = this.diagramOptions.editMode ?? EditMode.EDITABLE;
         this.toDispose.push(this.onEditModeChangedEmitter, this.onDirtyStateChangedEmitter);
+    }
+
+    @preDestroy()
+    dispose(): void {
+        this.toDispose.dispose();
     }
 
     preLoadDiagram(): MaybePromise<void> {
@@ -158,11 +171,6 @@ export class EditorContextService implements IActionHandler, Disposable, IDiagra
         this.lazyInjector.getAll<IEditModeListener>(TYPES.IEditModeListener).forEach(listener => {
             this.onEditModeChanged(event => listener.editModeChanged(event.newValue, event.oldValue));
         });
-    }
-
-    @preDestroy()
-    dispose(): void {
-        this.toDispose.dispose();
     }
 
     get(args?: Args): EditorContext {
@@ -179,21 +187,6 @@ export class EditorContextService implements IActionHandler, Disposable, IDiagra
             lastMousePosition: this.mousePositionTracker.lastPositionOnDiagram,
             args
         };
-    }
-
-    /**
-     * Notifies the service about a model root change. This method should not be called
-     * directly. It is called by the `CommandStack` after a model update has been processed.
-     * @throws an error if the notifier is not a `CommandStack`
-     * @param root the new model root
-     * @param notifier the object that triggered the model root change
-     */
-    notifyModelRootChanged(root: Readonly<GModelRoot>, notifier: AnyObject): void {
-        if (!(notifier instanceof CommandStack)) {
-            throw new Error('Invalid model root change notification. Notifier is not an instance of `CommandStack`.');
-        }
-        this._modelRoot = root;
-        this.onModelRootChangedEmitter.fire(root);
     }
 
     handle(action: Action): void {
@@ -234,14 +227,11 @@ export class EditorContextService implements IActionHandler, Disposable, IDiagra
     }
 
     get modelRoot(): Readonly<GModelRoot> {
-        if (!this._modelRoot) {
-            throw new Error('Model root not available yet');
-        }
-        return this._modelRoot;
+        return this.modelChangeService.currentRoot;
     }
 
     get viewport(): Readonly<GModelRoot & Viewport> | undefined {
-        return this._modelRoot ? findParentByFeature(this._modelRoot, isViewport) : undefined;
+        return this.modelRoot ? findParentByFeature(this.modelRoot, isViewport) : undefined;
     }
 
     get viewportData(): Readonly<Viewport> {
@@ -255,7 +245,7 @@ export class EditorContextService implements IActionHandler, Disposable, IDiagra
 
     get canvasBounds(): Readonly<Bounds> {
         // default value aligned with the initialization of canvasBounds in GModelRoot
-        return this._modelRoot?.canvasBounds ?? Bounds.EMPTY;
+        return this.modelRoot?.canvasBounds ?? Bounds.EMPTY;
     }
 
     get selectedElements(): Readonly<GModelElement>[] {

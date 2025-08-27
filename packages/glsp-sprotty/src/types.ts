@@ -61,6 +61,7 @@ export const TYPES = {
     IDebugManager: Symbol('IDebugManager'),
     Grid: Symbol('Grid'),
     ZoomFactors: Symbol('ZoomFactors'),
+    IModelChangeService: Symbol('IModelChangeService'),
     /**
      * Experimental shortcut manager.
      * The API is not stable yet.
