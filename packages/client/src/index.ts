@@ -226,6 +226,8 @@ export * from './features/viewport/viewport-key-listener';
 export * from './features/viewport/viewport-modules';
 export * from './features/viewport/viewport-tool';
 export * from './features/viewport/zoom-viewport-action';
+export * from './features/zorder/bring-to-front-command';
+export * from './features/zorder/zorder-module';
 export * from './model';
 export * from './re-exports';
 export * from './standalone-modules';

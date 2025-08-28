@@ -27,8 +27,7 @@ import {
     expandModule,
     fadeModule,
     modelSourceModule,
-    resolveContainerConfiguration,
-    zorderModule
+    resolveContainerConfiguration
 } from '@eclipse-glsp/sprotty';
 import { Container } from 'inversify';
 import { defaultModule } from './base/default.module';
@@ -62,6 +61,7 @@ import { nodeCreationToolModule } from './features/tools/node-creation/node-crea
 import { toolFocusLossModule } from './features/tools/tool-focus-loss-module';
 import { markerNavigatorModule, validationModule } from './features/validation/validation-modules';
 import { viewportModule } from './features/viewport/viewport-modules';
+import { zorderModule } from './features/zorder/zorder-module';
 
 export const DEFAULT_MODULES = [
     defaultModule,

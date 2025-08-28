@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2023-2024 EclipseSource and others.
+ * Copyright (c) 2023-2025 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -26,7 +26,6 @@ import sprottyFadeModule from 'sprotty/lib/features/fade/di.config';
 import sprottyMoveModule from 'sprotty/lib/features/move/di.config';
 import sprottyOpenModule from 'sprotty/lib/features/open/di.config';
 import sprottyUpdateModule from 'sprotty/lib/features/update/di.config';
-import sprottyZorderModule from 'sprotty/lib/features/zorder/di.config';
 import sprottyModelSourceModule from 'sprotty/lib/model-source/di.config';
 
 export const buttonModule = new FeatureModule(sprottyButtonModule.registry, { featureId: Symbol('button') });
@@ -39,7 +38,6 @@ export const modelSourceModule = new FeatureModule(sprottyModelSourceModule.regi
 export const moveModule = new FeatureModule(sprottyMoveModule.registry, { featureId: Symbol('move') });
 export const openModule = new FeatureModule(sprottyOpenModule.registry, { featureId: Symbol('open') });
 export const updateModule = new FeatureModule(sprottyUpdateModule.registry, { featureId: Symbol('update') });
-export const zorderModule = new FeatureModule(sprottyZorderModule.registry, { featureId: Symbol('zorder') });
 export const edgeJunctionModule = new FeatureModule(sprottyEdgeJunctionModule.registry, { featureId: Symbol('edgeJunction') });
 
 export { sprottyDefaultModule };
