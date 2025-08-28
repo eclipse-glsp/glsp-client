@@ -46,6 +46,7 @@ import { FocusStateChangedAction } from './focus/focus-state-change-action';
 import { FocusTracker } from './focus/focus-tracker';
 import { DiagramLoader } from './model/diagram-loader';
 import { GLSPModelSource } from './model/glsp-model-source';
+import { ModelChangeService } from './model/model-change-service';
 import { DefaultModelInitializationConstraint, ModelInitializationConstraint } from './model/model-initialization-constraint';
 import { GModelRegistry } from './model/model-registry';
 import { GLSPMousePositionTracker } from './mouse-position-tracker';
@@ -77,6 +78,7 @@ export const defaultModule = new FeatureModule(
         bind(TYPES.IEditorContextServiceProvider).toProvider<EditorContextService>(
             ctx => async () => ctx.container.get(EditorContextService)
         );
+        bind(TYPES.IModelChangeService).to(ModelChangeService).inSingletonScope();
 
         configureActionHandler(context, SetEditModeAction.KIND, EditorContextService);
         configureActionHandler(context, SetDirtyStateAction.KIND, EditorContextService);

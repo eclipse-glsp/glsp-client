@@ -13,8 +13,8 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, Emitter, Event, IActionHandler, ICommand, TYPES, ViewerOptions } from '@eclipse-glsp/sprotty';
-import { inject, injectable } from 'inversify';
+import { Action, Disposable, Emitter, Event, IActionHandler, ICommand, TYPES, ViewerOptions } from '@eclipse-glsp/sprotty';
+import { inject, injectable, preDestroy } from 'inversify';
 import { FocusStateChangedAction } from './focus-state-change-action';
 
 export interface FocusChange {
@@ -29,7 +29,7 @@ export interface FocusChange {
  * Allows querying of the current focus state and the focused root diagram element and the currently focused element within the diagram.
  */
 @injectable()
-export class FocusTracker implements IActionHandler {
+export class FocusTracker implements IActionHandler, Disposable {
     protected inActiveCssClass = 'inactive';
     protected _hasFocus = true;
     protected _focusElement: HTMLOrSVGElement | null;
@@ -76,5 +76,10 @@ export class FocusTracker implements IActionHandler {
             this._diagramElement.classList.add(this.inActiveCssClass);
         }
         this.onFocusChangedEmitter.fire({ hasFocus: this.hasFocus, focusElement: this.focusElement, diagramElement: this.diagramElement });
+    }
+
+    @preDestroy()
+    dispose(): void {
+        this.onFocusChangedEmitter.dispose();
     }
 }

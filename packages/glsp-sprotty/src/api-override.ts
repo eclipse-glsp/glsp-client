@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, LabeledAction, Point, RequestAction, ResponseAction } from '@eclipse-glsp/protocol';
+import { Action, Event, LabeledAction, Point, RequestAction, ResponseAction } from '@eclipse-glsp/protocol';
 import { injectable } from 'inversify';
 import { VNode } from 'snabbdom';
 import {
@@ -25,6 +25,7 @@ import {
     IActionHandler as SIActionHandler,
     IButtonHandler as SIButtonHandler,
     ICommandPaletteActionProvider as SICommandPaletteActionProvider,
+    ICommandStack as SICommandStack,
     IContextMenuItemProvider as SIContextMenuItemProvider,
     IVNodePostprocessor as SIVNodePostprocessor,
     KeyListener as SKeyListener,
@@ -198,3 +199,57 @@ export interface IActionDispatcher extends SIActionDispatcher {
 }
 
 export type IActionDispatcherProvider = () => Promise<IActionDispatcher>;
+
+/**
+ * Data structure that is passed to the `onCommandExecuted` event.
+ */
+export interface CommandExecutionData {
+    /** The command that has been executed successfully */
+    command: ICommand;
+    /** The new model root after the command execution */
+    newRoot: GModelRoot;
+}
+
+export interface ICommandStack extends SICommandStack {
+    /**
+     * Executes the given command on the current model and returns a
+     * Promise for the new result.
+     *
+     * Unless it is a special command, it is pushed to the undo stack
+     * such that it can be rolled back later and the redo stack is
+     * cleared.
+     */
+    execute(command: ICommand): Promise<GModelRoot>;
+
+    /**
+     * Executes all of the given commands. As opposed to calling
+     * execute() multiple times, the Viewer is only updated once after
+     * the last command has been executed.
+     */
+    executeAll(commands: ICommand[]): Promise<GModelRoot>;
+
+    /**
+     * Client-side undo/redo is not supported in GLSP. The server is responsible for handling undo/redo requests.
+     * This method is required to maintain compatibility with the sprotty API.
+     * Implementation should always be a no-op that returns the current model.
+     */
+    undo(): Promise<GModelRoot>;
+
+    /**
+     * Client-side undo/redo is not supported in GLSP. The server is responsible for handling undo/redo requests.
+     * This method is required to maintain compatibility with the sprotty API.
+     * Implementation should always be a no-op that returns the current model.
+     */
+    redo(): Promise<GModelRoot>;
+
+    /**
+     * Event fired after a command has been successfully executed on the stack. (i.e. after the model has been updated).
+     */
+    onCommandExecuted: Event<CommandExecutionData>;
+}
+
+/**
+ * As part of the event cylce, the ICommandStack should be injected
+ * using a provider to avoid cyclic injection dependencies.
+ */
+export type CommandStackProvider = () => Promise<ICommandStack>;

@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2024 EclipseSource and others.
+ * Copyright (c) 2019-2025 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -15,24 +15,36 @@
  ********************************************************************************/
 import {
     CommandExecutionContext,
+    CommandExecutionData,
     CommandStack,
     Disposable,
     DisposableCollection,
+    Emitter,
     Event,
     GModelRoot,
     ICommand,
-    LazyInjector,
-    SetModelCommand,
-    UpdateModelCommand
+    ICommandStack,
+    LazyInjector
 } from '@eclipse-glsp/sprotty';
-import { inject, injectable, preDestroy } from 'inversify';
+import { inject, injectable, postConstruct, preDestroy } from 'inversify';
 import { EditorContextService } from './editor-context-service';
 
 @injectable()
-export class GLSPCommandStack extends CommandStack implements Disposable {
+export class GLSPCommandStack extends CommandStack implements ICommandStack, Disposable {
     @inject(LazyInjector)
     protected lazyInjector: LazyInjector;
     protected toDispose = new DisposableCollection();
+
+    protected onCommandExecutedEmitter = new Emitter<CommandExecutionData>();
+    get onCommandExecuted(): Event<CommandExecutionData> {
+        return this.onCommandExecutedEmitter.event;
+    }
+
+    @postConstruct()
+    protected override initialize(): void {
+        super.initialize();
+        this.toDispose.push(this.onCommandExecutedEmitter);
+    }
 
     @preDestroy()
     dispose(): void {
@@ -95,13 +107,7 @@ export class GLSPCommandStack extends CommandStack implements Disposable {
     }
     override async execute(command: ICommand): Promise<GModelRoot> {
         const result = await super.execute(command);
-        if (command instanceof SetModelCommand || command instanceof UpdateModelCommand) {
-            this.notifyListeners(result);
-        }
+        this.onCommandExecutedEmitter.fire({ command, newRoot: result });
         return result;
-    }
-
-    protected notifyListeners(root: Readonly<GModelRoot>): void {
-        this.editorContext.notifyModelRootChanged(root, this);
     }
 }
