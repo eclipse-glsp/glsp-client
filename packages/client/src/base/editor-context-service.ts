@@ -42,7 +42,7 @@ import {
 import { inject, injectable, postConstruct, preDestroy } from 'inversify';
 import { FocusChange, FocusTracker } from './focus/focus-tracker';
 import { IDiagramOptions, IDiagramStartup } from './model/diagram-loader';
-import { IModelChangeService } from './model/model-change-service';
+import { IModelChangeService, ViewportChange } from './model/model-change-service';
 import { SelectionChange, SelectionService } from './selection-service';
 
 /**
@@ -147,7 +147,7 @@ export class EditorContextService implements IActionHandler, Disposable, IDiagra
      * Event that is fired when the viewport of the diagram changes i.e. after the `CommandStack` has processed a viewport update.
      * By default, this event is only fired if the viewport was changed via a `SetViewportCommand` or `BoundsAwareViewportCommand`
      */
-    get onViewportChanged(): Event<Readonly<Viewport>> {
+    get onViewportChanged(): Event<ViewportChange> {
         return this.modelChangeService.onViewportChanged;
     }
 
@@ -227,6 +227,9 @@ export class EditorContextService implements IActionHandler, Disposable, IDiagra
     }
 
     get modelRoot(): Readonly<GModelRoot> {
+        if (!this.modelChangeService.currentRoot) {
+            throw new Error('Model root not available yet');
+        }
         return this.modelChangeService.currentRoot;
     }
 

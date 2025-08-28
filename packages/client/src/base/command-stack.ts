@@ -19,6 +19,7 @@ import {
     CommandStack,
     Disposable,
     DisposableCollection,
+    Emitter,
     Event,
     GModelRoot,
     ICommand,
@@ -26,7 +27,6 @@ import {
     LazyInjector
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable, postConstruct, preDestroy } from 'inversify';
-import { Emitter } from 'vscode-jsonrpc';
 import { EditorContextService } from './editor-context-service';
 
 @injectable()

@@ -243,9 +243,13 @@ export interface ICommandStack extends SICommandStack {
     redo(): Promise<GModelRoot>;
 
     /**
-     * Event that is fired after a command has been successfully executed on the stack. (i.e. after the model has been updated).
+     * Event fired after a command has been successfully executed on the stack. (i.e. after the model has been updated).
      */
     onCommandExecuted: Event<CommandExecutionData>;
 }
 
+/**
+ * As part of the event cylce, the ICommandStack should be injected
+ * using a provider to avoid cyclic injection dependencies.
+ */
 export type CommandStackProvider = () => Promise<ICommandStack>;

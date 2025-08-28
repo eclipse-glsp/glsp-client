@@ -40,7 +40,7 @@ import { inject, postConstruct, preDestroy } from 'inversify';
  */
 export interface IModelChangeService {
     /** The current model root */
-    readonly currentRoot: Readonly<GModelRoot>;
+    readonly currentRoot: Readonly<GModelRoot> | undefined;
     /**
      * Event that is fired when the model root of the diagram changes i.e. after the `CommandStack` has processed a model update.
      */
@@ -50,20 +50,27 @@ export interface IModelChangeService {
      * Event that is fired when the viewport of the diagram changes i.e. after the `CommandStack` has processed a viewport update.
      * By default, this event is only fired if the viewport was changed via a `SetViewportCommand` or `BoundsAwareViewportCommand`
      */
-    onViewportChanged: Event<Readonly<Viewport>>;
+    onViewportChanged: Event<ViewportChange>;
+}
+
+/**
+ * Event data for the {@link IModelChangeService.onViewportChanged} event.
+ */
+export interface ViewportChange {
+    /** The new viewport */
+    newViewport: Readonly<Viewport>;
+    /** The old viewport */
+    oldViewport?: Readonly<Viewport>;
 }
 
 export class ModelChangeService implements IModelChangeService, Disposable {
     @inject(LazyInjector)
     protected lazyInjector: LazyInjector;
-    protected _currentRoot: Readonly<GModelRoot>;
+    protected _currentRoot?: Readonly<GModelRoot>;
     protected lastViewport?: Readonly<Viewport>;
     protected toDispose = new DisposableCollection();
 
-    get currentRoot(): Readonly<GModelRoot> {
-        if (!this._currentRoot) {
-            throw new Error('Model root not available yet');
-        }
+    get currentRoot(): Readonly<GModelRoot> | undefined {
         return this._currentRoot;
     }
 
@@ -76,15 +83,15 @@ export class ModelChangeService implements IModelChangeService, Disposable {
         return this.onModelRootChangedEmitter.event;
     }
 
-    protected onViewportChangedEmitter = new Emitter<Readonly<Viewport>>();
-    get onViewportChanged(): Event<Readonly<Viewport>> {
+    protected onViewportChangedEmitter = new Emitter<ViewportChange>();
+    get onViewportChanged(): Event<ViewportChange> {
         return this.onViewportChangedEmitter.event;
     }
 
     @postConstruct()
     protected initialize(): void {
         this.toDispose.push(this.onModelRootChangedEmitter, this.onViewportChangedEmitter);
-        this.commandStack.onCommandExecuted(data => this.handleCommandExecution(data.command, data.newRoot), this);
+        this.commandStack.onCommandExecuted(data => this.handleCommandExecution(data.command, data.newRoot));
     }
 
     @preDestroy()
@@ -122,8 +129,8 @@ export class ModelChangeService implements IModelChangeService, Disposable {
         }
 
         if (this.hasViewportChanged(viewport)) {
+            this.onViewportChangedEmitter.fire({ newViewport: viewport, oldViewport: this.lastViewport });
             this.lastViewport = viewport;
-            this.onViewportChangedEmitter.fire(viewport);
         }
     }
 
