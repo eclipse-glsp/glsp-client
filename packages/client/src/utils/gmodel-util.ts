@@ -14,6 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import {
+    Bounds,
     BoundsAware,
     EdgeRouterRegistry,
     ElementAndBounds,
@@ -468,4 +469,191 @@ export function isNotDescendantOfAnyElement<T extends GModelElement>(elements: F
  */
 export function removeDescendants<T extends GModelElement>(elements: FluentIterable<T>): FluentIterable<T> {
     return elements.filter(isNotDescendantOfAnyElement(elements));
+}
+
+/**
+ * Finds all ancestors of the given element that match the given predicate.
+ * @param element The element to start from.
+ * @param predicate The predicate to match against.
+ * @param skip Optional function to skip certain elements.
+ * @returns An array of matching ancestors.
+ */
+export function findAncenstors<T extends GModelElement>(
+    element: GModelElement,
+    predicate: (t: GModelElement) => t is T,
+    skip?: (t: GModelElement) => boolean
+): T[] {
+    const ancestors: T[] = [];
+    let current: GModelElement | undefined = element;
+    while (current !== undefined) {
+        if (!skip?.(current) && predicate(current)) {
+            ancestors.push(current);
+        }
+        if (current instanceof GChildElement) {
+            current = current.parent;
+        } else {
+            current = undefined;
+        }
+    }
+    return ancestors;
+}
+
+/**
+ * Build an ancestors list for N nodes (in input order), with this shape:
+ * - No shared ancestor: [n1 parents..., n2 parents..., ...]
+ * - Shared ancestor A:  [n1 parents until A, n2 parents until A, A and A's ancestors...]
+ * Notes:
+ * - Starting nodes are EXCLUDED (only ancestors).
+ * - `include` decides which elements make it into the final output.
+ * - Duplicates are removed by object reference (same object => kept once).
+ */
+export function buildAncestorOrder<T extends GModelElement>(nodes: GModelElement[], predicate: (t: GModelElement) => t is T): T[] {
+    if (!nodes.length) {
+        return [];
+    }
+
+    // Raw chain (NO filtering), starting from the parent of `n`.
+    // Used to compute LCA and ordering boundaries robustly.
+    const rawChainOf = (n: GModelElement): GModelElement[] => {
+        const out: GModelElement[] = [];
+        const seen = new Set<GModelElement>(); // guard against cycles
+        if (!(n instanceof GChildElement)) {
+            return out;
+        }
+
+        let cur: GModelElement | undefined = n.parent;
+        while (cur && !seen.has(cur)) {
+            out.push(cur);
+            seen.add(cur);
+            if (cur instanceof GChildElement) {
+                cur = cur.parent;
+            }
+        }
+        return out;
+    };
+
+    const rawChains = nodes.map(rawChainOf);
+
+    // Lowest Common Ancestor across ALL nodes, computed from RAW (unfiltered) chains.
+    const lca = (() => {
+        if (rawChains.length < 2) {
+            return undefined;
+        }
+        const sets = rawChains.map(ch => new Set(ch));
+        for (const cand of rawChains[0]) {
+            if (sets.every(s => s.has(cand))) {
+                return cand;
+            }
+        }
+        return undefined;
+    })();
+
+    const result: T[] = [];
+    const seenOut = new Set<GModelElement>();
+
+    const pushOnce = (x: GModelElement) => {
+        if (!seenOut.has(x) && predicate(x)) {
+            seenOut.add(x);
+            result.push(x);
+        }
+    };
+
+    if (!lca) {
+        // No global LCA → concatenate each filtered chain fully.
+        for (const ch of rawChains) {
+            for (const n of ch) {
+                pushOnce(n);
+            }
+        }
+        return result;
+    }
+
+    // With global LCA:
+    // For each node's RAW chain, push items up to (excluding) the LCA,
+    // but only add those that pass `include`.
+    for (let i = 0; i < rawChains.length; i++) {
+        const raw = rawChains[i];
+        for (const n of raw) {
+            if (n === lca) {
+                break;
+            }
+            pushOnce(n);
+        }
+    }
+
+    // Then append LCA and its ancestors once (still respecting `include`).
+    for (const n of rawChainOf(lca)) {
+        // rawChainOf({ parent: lca }) yields [lca, ...lca's ancestors]
+        pushOnce(n);
+    }
+
+    return result;
+}
+
+/**
+ * Finds all descendants of the given element that match the given predicate at a specific depth level.
+ * The depth is calculated relative to matching parent elements, ignoring non-matching intermediate elements.
+ * @param element The element to start from.
+ * @param predicate The predicate to match against.
+ * @param maxDepth The max depth level to find matching elements at.
+ * @param skip Optional function to skip certain elements.
+ * @returns An array of matching descendants at the specified depth level.
+ */
+export function findDescendants<T extends GModelElement>(
+    element: GModelElement,
+    predicate: (t: GModelElement) => t is T,
+    maxDepth: number,
+    skip?: (t: GModelElement) => boolean
+): (GChildElement & T)[] {
+    const descendants: (GChildElement & T)[] = [];
+
+    function collectDescendants(current: GModelElement, currentDepth: number): void {
+        // Skip the root element itself and any elements marked to skip
+        if (current === element || skip?.(current)) {
+            // Continue traversing children even if we skip this element
+            if (current instanceof GParentElement) {
+                for (const child of current.children) {
+                    collectDescendants(child, currentDepth);
+                }
+            }
+            return;
+        }
+
+        // Check if current element matches predicate and is a child element
+        if (predicate(current) && current instanceof GChildElement) {
+            // If we're at the target depth, add to results
+            if (currentDepth < maxDepth) {
+                descendants.push(current);
+            }
+
+            // Continue searching at the next depth level
+            if (current instanceof GParentElement) {
+                for (const child of current.children) {
+                    collectDescendants(child, currentDepth + 1);
+                }
+            }
+        } else {
+            // Element doesn't match predicate, continue traversing without incrementing depth
+            if (current instanceof GParentElement) {
+                for (const child of current.children) {
+                    collectDescendants(child, currentDepth);
+                }
+            }
+        }
+    }
+
+    collectDescendants(element, 0);
+    return descendants;
+}
+
+export function boundsInElement(elements: GModelElement[], bounds: Bounds | Point): Bounds | Point {
+    let result = bounds;
+
+    for (const element of elements) {
+        if (element instanceof GChildElement && isBoundsAware(element)) {
+            result = element.parentToLocal(result);
+        }
+    }
+
+    return result;
 }

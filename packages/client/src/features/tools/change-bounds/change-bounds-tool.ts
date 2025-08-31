@@ -66,7 +66,7 @@ import {
     ShowChangeBoundsToolResizeFeedbackAction
 } from './change-bounds-tool-feedback';
 import { FeedbackMoveMouseListener } from './change-bounds-tool-move-feedback';
-import { ChangeBoundsTracker, TrackedElementResize, TrackedResize } from './change-bounds-tracker';
+import { ChangeBoundsTracker, TrackedElementResize, TrackedResize, type MoveTracker, type ResizeTracker } from './change-bounds-tracker';
 
 export interface IMovementOptions {
     /** If set to true, a move with multiple elements is only performed if each individual move is valid. */
@@ -149,6 +149,14 @@ export class ChangeBoundsTool extends BaseEditTool {
         return this.changeBoundsManager.createTracker();
     }
 
+    useResizeTracker(): ResizeTracker {
+        return this.changeBoundsManager.useResizeTracker();
+    }
+
+    useMoveTracker(): MoveTracker {
+        return this.changeBoundsManager.useMoveTracker();
+    }
+
     protected createMoveMouseListener(): MouseListener {
         return new FeedbackMoveMouseListener(this);
     }
@@ -167,7 +175,8 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
 
     // members for calculating the correct position change
     protected initialBounds: ElementAndBounds | undefined;
-    protected tracker: ChangeBoundsTracker;
+    protected resizeTracker: ResizeTracker;
+    protected moveTracker: MoveTracker;
 
     // members for resize mode
     protected activeResizeElement?: ResizableModelElement;
@@ -177,7 +186,8 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
 
     constructor(protected tool: ChangeBoundsTool) {
         super();
-        this.tracker = tool.createChangeBoundsTracker();
+        this.resizeTracker = tool.useResizeTracker();
+        this.moveTracker = tool.useMoveTracker();
         this.handleFeedback = tool.createFeedbackEmitter();
         this.resizeFeedback = tool.createFeedbackEmitter();
     }
@@ -199,7 +209,7 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
         this.activeResizeElement = this.activeResizeHandle?.parent ?? this.findResizeElement(target);
         if (this.activeResizeElement) {
             if (event) {
-                this.tracker.startTracking();
+                this.resizeTracker.startTracking(target.root);
             }
             this.initialBounds = {
                 newSize: this.activeResizeElement.bounds,
@@ -234,12 +244,17 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
     protected override draggingMouseMove(target: GModelElement, event: MouseEvent): Action[] {
         // rely on the FeedbackMoveMouseListener to update the element bounds of selected elements
         // consider resize handles ourselves
-        if (this.activeResizeHandle && this.tracker.isTracking()) {
-            const resize = this.tracker.resizeElements(this.activeResizeHandle, { snap: event, symmetric: event, restrict: event });
+        if (this.activeResizeHandle && this.resizeTracker.isTracking()) {
+            const resize = this.resizeTracker.resizeElements(this.activeResizeHandle, {
+                snap: event,
+                symmetric: event,
+                restrict: event
+            });
             const resizeAction = this.resizeBoundsAction(resize);
             if (resizeAction.bounds.length > 0) {
                 this.resizeFeedback.add(resizeAction, () => this.resetBounds());
-                this.tracker.updateTrackingPosition(resize.handleMove.moveVector);
+                this.resizeFeedback.add(this.createWrapAction(resize));
+                this.resizeTracker.updateTrackingPosition(resize.handleMove.moveVector);
                 this.addResizeFeedback(resize, target, event);
                 this.resizeFeedback.submit();
             }
@@ -250,6 +265,13 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
     protected resizeBoundsAction(resize: TrackedResize): SetBoundsFeedbackAction {
         // we do not want to resize elements beyond their valid size, not even for feedback, as the next layout cycle usually corrects this
         const elementResizes = resize.elementResizes.filter(elementResize => elementResize.valid.size);
+        return SetBoundsFeedbackAction.create(elementResizes.map(elementResize => this.toElementAndBounds(elementResize)));
+    }
+
+    protected createWrapAction(tracked: TrackedResize): SetBoundsFeedbackAction {
+        const wrapResizes = Object.values(tracked.wrapResizes ?? {});
+        // we do not want to resize elements beyond their valid size, not even for feedback, as the next layout cycle usually corrects this
+        const elementResizes = wrapResizes.filter(elementResize => elementResize.valid.size);
         return SetBoundsFeedbackAction.create(elementResizes.map(elementResize => this.toElementAndBounds(elementResize)));
     }
 
@@ -309,6 +331,11 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
 
     protected handleMoveElementsOnServer(elementsToMove: SelectableBoundsAware[]): Operation[] {
         const newBounds = elementsToMove.map(toElementAndBounds);
+        if (this.moveTracker.lastTrackedElementMove?.wrapResizes) {
+            newBounds.push(
+                ...Object.values(this.moveTracker.lastTrackedElementMove.wrapResizes).map(resize => toElementAndBounds(resize.element))
+            );
+        }
         return newBounds.length > 0 ? [ChangeBoundsOperation.create(newBounds)] : [];
     }
 
@@ -362,7 +389,13 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
                 // only afterwards moved by the move action again, leading to a ping-pong movement.
                 // We therefore clear our element map so that they cannot be reset.
                 this.initialBounds = undefined;
-                return [ChangeBoundsOperation.create([elementAndBounds])];
+                let newBounds: ElementAndBounds[] = [elementAndBounds];
+                if (this.resizeTracker.lastTrackedResize?.wrapResizes) {
+                    newBounds = Object.values(this.resizeTracker.lastTrackedResize.wrapResizes).map(resize =>
+                        toElementAndBounds(resize.element)
+                    );
+                }
+                return [ChangeBoundsOperation.create(newBounds)];
             }
         }
         return [];
@@ -397,7 +430,7 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
             this.handleFeedback.dispose();
         }
         this.resizeFeedback.dispose();
-        this.tracker.dispose();
+        this.resizeTracker.dispose();
         this.activeResizeElement = undefined;
         this.activeResizeHandle = undefined;
         this.initialBounds = undefined;

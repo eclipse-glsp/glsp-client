@@ -34,7 +34,7 @@ import { getAbsolutePosition } from '../../utils/viewpoint-util';
 import { FeedbackAwareTool } from '../tools/base-tools';
 import { IChangeBoundsManager } from '../tools/change-bounds/change-bounds-manager';
 import { MoveFinishedEventAction } from '../tools/change-bounds/change-bounds-tool-feedback';
-import { ChangeBoundsTracker, TrackedMove } from '../tools/change-bounds/change-bounds-tracker';
+import { TrackedMove, type MoveTracker } from '../tools/change-bounds/change-bounds-tracker';
 
 export interface PositioningTool extends FeedbackAwareTool {
     readonly changeBoundsManager: IChangeBoundsManager;
@@ -42,7 +42,7 @@ export interface PositioningTool extends FeedbackAwareTool {
 
 export class MouseTrackingElementPositionListener extends DragAwareMouseListener {
     protected moveGhostFeedback: FeedbackEmitter;
-    protected tracker: ChangeBoundsTracker;
+    protected moveTracker: MoveTracker;
     protected toDispose = new DisposableCollection();
 
     constructor(
@@ -52,7 +52,7 @@ export class MouseTrackingElementPositionListener extends DragAwareMouseListener
         protected editorContext?: EditorContextService
     ) {
         super();
-        this.tracker = this.tool.changeBoundsManager.createTracker();
+        this.moveTracker = this.tool.changeBoundsManager.createTracker();
         this.moveGhostFeedback = this.tool.createFeedbackEmitter();
         this.toDispose.push(this.moveGhostFeedback);
         const modelRootChangedListener = editorContext?.onModelRootChanged(newRoot => this.modelRootChanged(newRoot));
@@ -72,11 +72,16 @@ export class MouseTrackingElementPositionListener extends DragAwareMouseListener
         if (!element) {
             return [];
         }
-        const isInitializing = !this.tracker.isTracking();
+        const isInitializing = !this.moveTracker.isTracking();
         if (isInitializing) {
             this.initialize(element, ctx, event);
         }
-        const move = this.tracker.moveElements([element], { snap: event, restrict: event, skipStatic: !isInitializing });
+        const move = this.moveTracker.moveElements([element], {
+            snap: event,
+            restrict: event,
+            skipStatic: !isInitializing,
+            wrap: false
+        });
         const elementMove = move.elementMoves[0];
         if (!elementMove) {
             return [];
@@ -89,12 +94,12 @@ export class MouseTrackingElementPositionListener extends DragAwareMouseListener
         );
         this.addMoveFeedback(move, ctx, event);
         this.moveGhostFeedback.submit();
-        this.tracker.updateTrackingPosition(elementMove.moveVector);
+        this.moveTracker.updateTrackingPosition(elementMove.moveVector);
         return [];
     }
 
     protected initialize(element: MoveableElement, target: GModelElement, event: MouseEvent): void {
-        this.tracker.startTracking();
+        this.moveTracker.startTracking(target.root);
         element.position = this.initializeElementPosition(element, target, event);
     }
 
@@ -112,7 +117,7 @@ export class MouseTrackingElementPositionListener extends DragAwareMouseListener
 
     protected modelRootChanged(root: Readonly<GModelRoot>): void {
         // stop the tracking once we receive a new model root and ensure proper alignment with next next mouse move
-        this.tracker.stopTracking();
+        this.moveTracker.stopTracking();
     }
 
     override dispose(): void {

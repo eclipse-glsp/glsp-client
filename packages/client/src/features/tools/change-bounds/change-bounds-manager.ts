@@ -49,7 +49,15 @@ import {
 import { IGridManager } from '../../grid/grid-manager';
 import { IHelperLineManager } from '../../helper-lines/helper-line-manager';
 import { InsertIndicator } from '../node-creation/insert-indicator';
-import { ChangeBoundsTracker, TrackedElementMove, TrackedElementResize, TrackedMove, TrackedResize } from './change-bounds-tracker';
+import {
+    ChangeBoundsTracker,
+    TrackedElementMove,
+    TrackedElementResize,
+    TrackedMove,
+    TrackedResize,
+    type MoveTracker,
+    type ResizeTracker
+} from './change-bounds-tracker';
 
 export const CSS_RESIZE_MODE = 'resize-mode';
 export const CSS_RESTRICTED_RESIZE = 'resize-not-allowed';
@@ -175,6 +183,30 @@ export interface IChangeBoundsManager {
      * @returns The change bounds tracker.
      */
     createTracker(): ChangeBoundsTracker;
+
+    /**
+     * Create a tracker for changing bounds by resizing.
+     * @returns The change bounds tracker.
+     */
+    createMoveTracker(): MoveTracker;
+
+    /**
+     * Create a tracker for changing bounds by moving.
+     * @returns The change bounds tracker.
+     */
+    createResizeTracker(): ResizeTracker;
+
+    /**
+     * Returns an existing tracker for changing bounds event triggered through a move.
+     * @returns The change bounds tracker.
+     */
+    useMoveTracker(): MoveTracker;
+
+    /**
+     * Returns an existing tracker for changing bounds event triggered through a resize.
+     * @returns The change bounds tracker.
+     */
+    useResizeTracker(): ResizeTracker;
 }
 
 /**
@@ -183,6 +215,9 @@ export interface IChangeBoundsManager {
  */
 @injectable()
 export class ChangeBoundsManager implements IChangeBoundsManager {
+    protected moveTracker: MoveTracker | undefined;
+    protected resizeTracker: ResizeTracker | undefined;
+
     constructor(
         @inject(MousePositionTracker) readonly positionTracker: MousePositionTracker,
         @optional() @inject(TYPES.IMovementRestrictor) readonly movementRestrictor?: IMovementRestrictor,
@@ -325,5 +360,27 @@ export class ChangeBoundsManager implements IChangeBoundsManager {
 
     createTracker(): ChangeBoundsTracker {
         return new ChangeBoundsTracker(this);
+    }
+
+    createMoveTracker(): MoveTracker {
+        return this.createTracker();
+    }
+
+    createResizeTracker(): ResizeTracker {
+        return this.createTracker();
+    }
+
+    useMoveTracker(): MoveTracker {
+        if (!this.moveTracker) {
+            this.moveTracker = this.createMoveTracker();
+        }
+        return this.moveTracker;
+    }
+
+    useResizeTracker(): ResizeTracker {
+        if (!this.resizeTracker) {
+            this.resizeTracker = this.createResizeTracker();
+        }
+        return this.resizeTracker;
     }
 }

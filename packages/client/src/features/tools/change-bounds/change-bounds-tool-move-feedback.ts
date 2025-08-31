@@ -13,7 +13,17 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, ElementMove, GModelElement, GModelRoot, MoveAction, Point, TypeGuard, findParentByFeature } from '@eclipse-glsp/sprotty';
+import {
+    Action,
+    ElementMove,
+    GModelElement,
+    GModelRoot,
+    MoveAction,
+    Point,
+    TypeGuard,
+    findParentByFeature,
+    type ElementAndBounds
+} from '@eclipse-glsp/sprotty';
 
 import { DebouncedFunc, debounce } from 'lodash';
 import { DragAwareMouseListener } from '../../../base/drag-aware-mouse-listener';
@@ -28,10 +38,11 @@ import {
     isNonRoutableSelectedMovableBoundsAware,
     removeDescendants
 } from '../../../utils/gmodel-util';
+import { SetBoundsFeedbackAction } from '../../bounds/set-bounds-feedback-command';
 import { GResizeHandle } from '../../change-bounds/model';
 import { ChangeBoundsTool } from './change-bounds-tool';
 import { MoveFinishedEventAction, MoveInitializedEventAction } from './change-bounds-tool-feedback';
-import { ChangeBoundsTracker, TrackedMove } from './change-bounds-tracker';
+import { TrackedElementResize, TrackedMove, type MoveTracker } from './change-bounds-tracker';
 
 /**
  * This mouse listener provides visual feedback for moving by sending client-side
@@ -42,7 +53,7 @@ import { ChangeBoundsTracker, TrackedMove } from './change-bounds-tracker';
  */
 export class FeedbackMoveMouseListener extends DragAwareMouseListener implements ISelectionListener {
     protected rootElement?: GModelRoot;
-    protected tracker: ChangeBoundsTracker;
+    protected tracker: MoveTracker;
     protected elementId2startPos = new Map<string, Point>();
 
     protected pendingMoveInitialized?: DebouncedFunc<() => void>;
@@ -52,7 +63,7 @@ export class FeedbackMoveMouseListener extends DragAwareMouseListener implements
 
     constructor(protected tool: ChangeBoundsTool) {
         super();
-        this.tracker = tool.createChangeBoundsTracker();
+        this.tracker = tool.useMoveTracker();
         this.moveInitializedFeedback = tool.createFeedbackEmitter();
         this.moveFeedback = tool.createFeedbackEmitter();
     }
@@ -79,7 +90,7 @@ export class FeedbackMoveMouseListener extends DragAwareMouseListener implements
         }
         const moveable = findParentByFeature(target, this.isValidMoveable);
         if (moveable !== undefined) {
-            this.tracker.startTracking();
+            this.tracker.startTracking(target.root);
             this.scheduleMoveInitialized();
         } else {
             this.tracker.stopTracking();
@@ -91,7 +102,7 @@ export class FeedbackMoveMouseListener extends DragAwareMouseListener implements
         this.pendingMoveInitialized = debounce(() => {
             this.moveInitialized();
             this.pendingMoveInitialized = undefined;
-        }, 750);
+        }, this.moveInitializationTimeout());
         this.pendingMoveInitialized();
     }
 
@@ -143,6 +154,7 @@ export class FeedbackMoveMouseListener extends DragAwareMouseListener implements
         // cancel any pending move
         this.pendingMoveInitialized?.cancel();
         this.moveFeedback.add(this.createMoveAction(move), () => this.resetElementPositions(target));
+        this.moveFeedback.add(this.createWrapAction(move));
         this.addMoveFeedback(move, target, event);
         this.tracker.updateTrackingPosition(move);
         this.moveFeedback.submit();
@@ -157,8 +169,23 @@ export class FeedbackMoveMouseListener extends DragAwareMouseListener implements
         );
     }
 
+    protected createWrapAction(tracked: TrackedMove): SetBoundsFeedbackAction {
+        const wrapResizes = Object.values(tracked.wrapResizes ?? {});
+        // we do not want to resize elements beyond their valid size, not even for feedback, as the next layout cycle usually corrects this
+        const elementResizes = wrapResizes.filter(elementResize => elementResize.valid.size);
+        return SetBoundsFeedbackAction.create(elementResizes.map(elementResize => this.toElementAndBounds(elementResize)));
+    }
+
     protected addMoveFeedback(trackedMove: TrackedMove, ctx: GModelElement, event: MouseEvent): void {
         this.tool.changeBoundsManager.addMoveFeedback(this.moveFeedback, trackedMove, ctx, event);
+    }
+
+    protected toElementAndBounds(elementResize: TrackedElementResize): ElementAndBounds {
+        return {
+            elementId: elementResize.element.id,
+            newSize: elementResize.toBounds,
+            newPosition: elementResize.toBounds
+        };
     }
 
     protected initializeElementsToMove(root: GModelRoot): void {
@@ -220,7 +247,7 @@ export class FeedbackMoveMouseListener extends DragAwareMouseListener implements
         this.pendingMoveInitialized?.cancel();
         this.moveInitializedFeedback.dispose();
         this.moveFeedback.dispose();
-        this.tracker.dispose();
+        this.tracker.stopTracking();
         this.elementId2startPos.clear();
         super.dispose();
     }

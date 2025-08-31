@@ -17,6 +17,7 @@
 import {
     Bounds,
     Dimension,
+    GChildElement,
     GModelElement,
     GRoutingHandle,
     Locateable,
@@ -29,10 +30,21 @@ import {
     hasBooleanProp,
     hasObjectProp,
     isBoundsAware,
-    isMoveable
+    isMoveable,
+    type ElementAndBounds,
+    type GModelRoot
 } from '@eclipse-glsp/sprotty';
-import { BoundsAwareModelElement, MoveableElement, ResizableModelElement, getElements } from '../../../utils/gmodel-util';
-import { GResizeHandle, ResizeHandleLocation } from '../../change-bounds/model';
+import {
+    BoundsAwareModelElement,
+    MoveableElement,
+    ResizableModelElement,
+    buildAncestorOrder,
+    filter,
+    findAncenstors,
+    findDescendants,
+    getElements
+} from '../../../utils/gmodel-util';
+import { GResizeHandle, ResizeHandleLocation, isBoundsAwareMoveable, isResizable } from '../../change-bounds/model';
 import { DiagramMovementCalculator } from '../../change-bounds/tracker';
 import { ChangeBoundsManager } from './change-bounds-manager';
 
@@ -43,6 +55,8 @@ export interface ElementTrackingOptions {
     restrict: boolean | MouseEvent | KeyboardEvent | any;
     /** Validate operation. Default: true */
     validate: boolean;
+    /** Wrap operation. Default: true */
+    wrap: boolean;
 
     /** Skip operations that do not trigger change. Default: true */
     skipStatic: boolean;
@@ -57,6 +71,7 @@ export const DEFAULT_MOVE_OPTIONS: MoveOptions = {
     snap: true,
     restrict: true,
     validate: true,
+    wrap: true,
 
     skipStatic: true,
     skipInvalid: false
@@ -93,6 +108,7 @@ export interface TrackedMove extends Movement {
     elementMoves: TrackedElementMove[];
     valid: boolean;
     options: MoveOptions;
+    wrapResizes?: Record<string, TrackedElementResize>;
 }
 
 export namespace TrackedMove {
@@ -128,6 +144,7 @@ export const DEFAULT_RESIZE_OPTIONS: ResizeOptions = {
     restrict: true,
     validate: true,
     symmetric: true,
+    wrap: true,
 
     constrainResize: true,
 
@@ -164,17 +181,87 @@ export interface TrackedResize extends Movement {
         move: boolean;
     };
     options: ResizeOptions;
+    wrapResizes?: Record<string, TrackedElementResize>;
 }
 
-export class ChangeBoundsTracker {
+interface ChangeBoundsChanges {
+    element: GModelElement;
+    fromBounds: Bounds;
+    toBounds: Bounds;
+}
+
+export class InitialBoundsTracker {
+    protected readonly initialBounds = new Map<string, Bounds>();
+
+    protected guard(element?: GModelElement): element is ResizableModelElement {
+        return !!element && isResizable(element);
+    }
+
+    process(root: GModelRoot): void {
+        const processedElements = this.collectElements(root);
+        processedElements.forEach(element => this.initialBounds.set(element.id, element.bounds));
+    }
+
+    /**
+     * Collects all resizable elements in the given root.
+     */
+    protected collectElements(root: GModelRoot): ResizableModelElement[] {
+        const resizeableElements = filter(root.index, this.guard);
+        return Array.from(resizeableElements);
+    }
+
+    protected getElements(context: GModelElement, resizeable: TypeGuard<ResizableModelElement> = this.guard): ResizableModelElement[] {
+        return getElements(context.root.index, Array.from(this.initialBounds.keys()), resizeable);
+    }
+
+    protected getInitialBounds(context?: GModelElement): ElementAndBounds[] {
+        const bounds: ElementAndBounds[] = [];
+        if (context?.root?.index) {
+            const elements = this.getElements(context, this.guard);
+            elements.forEach(element => bounds.push({ elementId: element.id, newSize: this.initialBounds.get(element.id)! }));
+        }
+        return bounds;
+    }
+
+    getBounds(): Map<string, Bounds> {
+        return this.initialBounds;
+    }
+
+    clear(): void {
+        this.initialBounds.clear();
+    }
+}
+
+export interface BoundsTracker {
+    startTracking(target: GModelRoot): this;
+    updateTrackingPosition(param: Vector | Movement | TrackedMove): void;
+    isTracking(): boolean;
+    stopTracking(): this;
+    getInitialBoundsTracker(): InitialBoundsTracker;
+    dispose(): void;
+}
+
+export interface ResizeTracker extends BoundsTracker {
+    lastTrackedResize: TrackedResize | undefined;
+    resizeElements(handle: GResizeHandle, opts?: Partial<ResizeOptions>): TrackedResize;
+}
+
+export interface MoveTracker extends BoundsTracker {
+    lastTrackedElementMove: TrackedMove | undefined;
+    moveElements(elements: MoveableElements, opts?: Partial<MoveOptions>): TrackedMove;
+}
+
+export class ChangeBoundsTracker implements MoveTracker, ResizeTracker {
     protected diagramMovement: DiagramMovementCalculator;
+    protected initialBoundsTracker = new InitialBoundsTracker();
 
     constructor(readonly manager: ChangeBoundsManager) {
         this.diagramMovement = new DiagramMovementCalculator(manager.positionTracker);
     }
 
-    startTracking(): this {
+    startTracking(root: GModelRoot): this {
         this.diagramMovement.init();
+        this.initialBoundsTracker.process(root);
         return this;
     }
 
@@ -189,13 +276,19 @@ export class ChangeBoundsTracker {
 
     stopTracking(): this {
         this.diagramMovement.dispose();
+        this.initialBoundsTracker.clear();
         return this;
+    }
+
+    getInitialBoundsTracker(): InitialBoundsTracker {
+        return this.initialBoundsTracker;
     }
 
     //
     // MOVE
     //
 
+    lastTrackedElementMove: TrackedMove | undefined;
     moveElements(elements: MoveableElements, opts?: Partial<MoveOptions>): TrackedMove {
         const options = this.resolveMoveOptions(opts);
         const update = this.calculateDiagramMovement();
@@ -215,6 +308,25 @@ export class ChangeBoundsTracker {
                 move.valid &&= elementMove.valid;
             }
         }
+
+        // if wrapping is enabled, calculate the required resize for all wrapping elements
+        if (options?.wrap) {
+            move.wrapResizes = this.wrap(
+                move.elementMoves.map(m => ({
+                    element: m.element,
+                    fromBounds: {
+                        ...(isBoundsAware(m.element) ? m.element.bounds : Bounds.EMPTY),
+                        ...m.fromPosition
+                    },
+                    toBounds: { ...(isBoundsAware(m.element) ? m.element.bounds : Bounds.EMPTY), ...m.toPosition }
+                }))
+            );
+        }
+
+        if (move.elementMoves.length > 0) {
+            this.lastTrackedElementMove = move;
+        }
+
         return move;
     }
 
@@ -257,6 +369,7 @@ export class ChangeBoundsTracker {
         }
 
         move.moveVector = Point.vector(move.fromPosition, move.toPosition);
+
         return move;
     }
 
@@ -277,11 +390,14 @@ export class ChangeBoundsTracker {
     // RESIZE
     //
 
+    lastTrackedResize: TrackedResize | undefined;
     resizeElements(handle: GResizeHandle, opts?: Partial<ResizeOptions>): TrackedResize {
         const options = this.resolveResizeOptions(opts);
         const update = this.calculateDiagramMovement();
         const handleMove = this.calculateHandleMove(new MoveableResizeHandle(handle), update.vector, options);
         const resize: TrackedResize = { ...update, valid: { move: true, size: true }, options, handleMove, elementResizes: [] };
+        this.lastTrackedResize = resize;
+
         if (Vector.isZero(handleMove.moveVector) && options.skipStatic) {
             // no movement detected so elements won't be moved, exit early
             return resize;
@@ -297,6 +413,18 @@ export class ChangeBoundsTracker {
                 resize.valid.size = resize.valid.size && elementResize.valid.size;
             }
         }
+
+        // if wrapping is enabled, calculate the required resize for all wrapping elements
+        if (options?.wrap) {
+            resize.wrapResizes = this.wrap(
+                resize.elementResizes.map(r => ({
+                    element: r.element,
+                    fromBounds: r.fromBounds,
+                    toBounds: r.toBounds
+                }))
+            );
+        }
+
         return resize;
     }
 
@@ -442,7 +570,179 @@ export class ChangeBoundsTracker {
         return vector;
     }
 
+    //
+    // WRAP
+    //
+
+    protected wrap(changes: ChangeBoundsChanges[]): Record<string, TrackedElementResize> {
+        const trackedElementResizes: Record<string, TrackedElementResize> = {};
+        const initialBounds = this.initialBoundsTracker.getBounds();
+
+        // First pass: collect all parents that need to be processed
+        const parentsToProcess = buildAncestorOrder(
+            changes.flatMap(change => change.element),
+            isResizable
+        );
+
+        if (parentsToProcess.length === 0) {
+            return trackedElementResizes;
+        }
+
+        // Second pass: prepare all direct element moves
+        for (const change of changes) {
+            if (!isBoundsAwareMoveable(change.element)) {
+                continue;
+            }
+
+            const element = change.element as BoundsAwareModelElement;
+            const fromBounds = initialBounds.get(element.id) ?? element.bounds;
+            const toBounds = {
+                ...(isBoundsAware(element) ? element.bounds : Bounds.EMPTY),
+                ...change.toBounds
+            };
+
+            trackedElementResizes[element.id] = {
+                element: element,
+                fromBounds: { ...fromBounds },
+                toBounds: { ...toBounds },
+                valid: { size: true, move: true }
+            };
+        }
+
+        // Third pass: move parents based on their children
+        for (const parent of parentsToProcess) {
+            const ancestors = this.getWrapperAncenstors(parent);
+            const parentInitialBounds = this.getParentInitialBounds(parent, ancestors, initialBounds);
+            const parentBounds = trackedElementResizes[parent.id]?.toBounds ?? parent.bounds;
+
+            // Find bounding box around all children
+            let minX = Infinity;
+            let minY = Infinity;
+            let maxX = -Infinity;
+            let maxY = -Infinity;
+
+            const children = findDescendants(parent, isBoundsAwareMoveable, 1);
+
+            for (const child of children) {
+                const bounds = trackedElementResizes[child.id]?.toBounds ?? child.bounds;
+                minX = Math.min(minX, Bounds.left(bounds));
+                minY = Math.min(minY, Bounds.top(bounds));
+                maxX = Math.max(maxX, Bounds.right(bounds));
+                maxY = Math.max(maxY, Bounds.bottom(bounds));
+            }
+
+            const childrenBounds = {
+                x: minX,
+                y: minY,
+                width: maxX - minX,
+                height: maxY - minY
+            } as Bounds;
+
+            const newX = Math.min(parentInitialBounds.x, Bounds.left(parentBounds) + Bounds.left(childrenBounds));
+            const newY = Math.min(parentInitialBounds.y, Bounds.top(parentBounds) + Bounds.top(childrenBounds));
+            const newPos: Point = { x: newX, y: newY };
+
+            const newWidth = Math.max(
+                parentInitialBounds.width,
+                parentInitialBounds.width + Bounds.left(parentInitialBounds) - Bounds.left({ ...parentBounds, ...newPos })
+            );
+            const newHeight = Math.max(
+                parentInitialBounds.height,
+                parentInitialBounds.height + Bounds.top(parentInitialBounds) - Bounds.top({ ...parentBounds, ...newPos })
+            );
+            const newDimension: Dimension = { width: newWidth, height: newHeight };
+
+            const toBounds: Bounds = {
+                x: newPos.x,
+                y: newPos.y,
+                width: newDimension.width,
+                height: newDimension.height
+            };
+
+            trackedElementResizes[parent.id] = {
+                element: parent,
+                fromBounds: { ...parent.bounds },
+                toBounds: { ...toBounds },
+                valid: { size: true, move: true }
+            };
+        }
+
+        // Final pass: adjust all children based on the parent movement
+        for (const parent of parentsToProcess) {
+            const children = findDescendants(parent, isBoundsAwareMoveable, 1);
+            const trackedParent = trackedElementResizes[parent.id];
+
+            const parentFromBounds = trackedParent.fromBounds;
+            const parentToBounds = trackedParent.toBounds;
+
+            for (const child of children) {
+                const childInitialBounds = initialBounds.get(child.id) ?? child.bounds;
+                const childBounds = trackedElementResizes[child.id]?.toBounds ?? child.bounds;
+                const deltaX = Bounds.left(parentToBounds) - Bounds.left(parentFromBounds);
+                const deltaY = Bounds.top(parentToBounds) - Bounds.top(parentFromBounds);
+
+                trackedElementResizes[child.id] = {
+                    element: child,
+                    fromBounds: { ...childInitialBounds },
+                    toBounds: {
+                        ...childBounds,
+                        x: Math.max(childBounds.x - deltaX, 0),
+                        y: Math.max(childBounds.y - deltaY, 0)
+                    },
+                    valid: { size: true, move: true }
+                };
+            }
+        }
+
+        return trackedElementResizes;
+    }
+
+    /**
+     * Returns the resizable elements that are wrapping the given element.
+     * It needs to be ordered from the inner to the outer element.
+     */
+    protected getWrapperAncenstors(element: GModelElement): ResizableModelElement[] {
+        let target = element;
+        if (element instanceof GChildElement) {
+            target = element.parent;
+        }
+
+        return findAncenstors(target, isResizable);
+    }
+
+    protected getParentInitialBounds(
+        parent: ResizableModelElement,
+        ancestors: ResizableModelElement[],
+        initialBoundsMap: Map<string, Bounds>
+    ): Bounds {
+        const initialBounds = structuredClone(initialBoundsMap.get(parent.id) ?? parent.bounds);
+
+        if (ancestors.length === 0) {
+            return initialBounds;
+        }
+
+        // If we have ancestors, we need to calculate the initial bounds based on the ancestors
+        let deltaX = 0;
+        let deltaY = 0;
+        for (const ancestor of ancestors) {
+            const ancestorInitialBounds = initialBoundsMap.get(ancestor.id) ?? ancestor.bounds;
+            const ancestorBounds = ancestor.bounds;
+
+            deltaX += Bounds.left(ancestorBounds) - Bounds.left(ancestorInitialBounds);
+            deltaY += Bounds.top(ancestorBounds) - Bounds.top(ancestorInitialBounds);
+        }
+
+        return {
+            x: initialBounds.x - deltaX,
+            y: initialBounds.y - deltaY,
+            width: initialBounds.width,
+            height: initialBounds.height
+        };
+    }
+
     dispose(): void {
+        this.lastTrackedElementMove = undefined;
+        this.lastTrackedResize = undefined;
         this.stopTracking();
     }
 }
