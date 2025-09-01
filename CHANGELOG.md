@@ -4,7 +4,30 @@
 
 ### Changes
 
+-   [diagram] Fix text selection issues in chrome [#425](https://github.com/eclipse-glsp/glsp-client/pull/425)
+-   [example] Fix render error for new categories [#426](https://github.com/eclipse-glsp/glsp-client/pull/426)
+-   [api] Introduce & use ProposalString utility type [#427](https://github.com/eclipse-glsp/glsp-client/pull/427)
+-   [i18n] Add missing localization message for marker popups [#428](https://github.com/eclipse-glsp/glsp-client/pull/428)
+-   [diagram] Add missing visibility check to `RoundedCornerNodeView` [#430](https://github.com/eclipse-glsp/glsp-client/pull/430)
+-   [layout] Fix a bug in the hGrab/vGrab calculation [#435](https://github.com/eclipse-glsp/glsp-client/pull/435)
+
 ### Potentially breaking changes
+
+-   [protocol] Enrich `LayoutOperation` with additional optional client-side information (viewport) [#433](https://github.com/eclipse-glsp/glsp-client/pull/433) [#434](https://github.com/eclipse-glsp/glsp-client/pull/434/files)
+    -   To trigger a manual layout the new `TriggerLayoutAction` should be dispatched instead of a direct `LayoutOperation`
+    -   Dispatching of direct `LayoutOperation`s will still work, but the optional information will not be present
+-   [layout] Introduce order-agnostic layouts [#436](https://github.com/eclipse-glsp/glsp-client/pull/436/)
+    -   Introduce a flag for `ILayouts` to specify whether the layouting of children is independent of their semantic order in the model.
+        The `BringToFrontCommand` respects this flag and only changes the ordering of order-agnostic layouts
+    -   `zorder` module now requires bounds module as we need the layout registry
+-   [diagram] Introduce viewport change event for `EditorContextService` [#438](https://github.com/eclipse-glsp/glsp-client/pull/438)
+    -   This change extracts the handling of model related changes into an dedicated `IModelChangeService` which is reused by the `EditorContextService`
+    -   The following changes to internal API might affect customizations of adopters:
+        -   `GLSPCommandStack`: 'notifyListener' method has been removed
+        -   `EditorContextService`:
+            -   Remove `_modelRoot` and `onModelRootChangedEmitter` properties. Corresponding getters now forward to the `IModelChangeService`
+            -   Remove `notifyModelRootChanged` method (Probably no side effect for adopters. Method was only callable from commandstack anyways)
+-   [node] Update minimum requirements for Node to >=20 [#439](https://github.com/eclipse-glsp/glsp-client/pull/439)
 
 ## [v2.4.0 - 04/04/2025](https://github.com/eclipse-glsp/glsp-client/releases/tag/v2.3.0)
 

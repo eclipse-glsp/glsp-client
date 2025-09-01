@@ -32,15 +32,15 @@
     "watch": "concurrently --kill-others -n tsc,standalone -c red,yellow \"tsc -b -w --preserveWatchOutput\" \"yarn -s standalone watch:bundle\""
   },
   "devDependencies": {
-    "@eclipse-glsp/dev": "2.4.0",
+    "@eclipse-glsp/dev": "next",
     "@types/lodash": "4.14.191",
-    "@types/node": "18.x",
+    "@types/node": "20.x",
     "concurrently": "^8.2.2",
     "lerna": "^7.1.1",
-    "typescript": "^5.1.6"
+    "typescript": "^5.9.2"
   },
   "engines": {
-    "node": ">=18",
+    "node": ">=20",
     "yarn": ">=1.7.0 <2"
   }
 }

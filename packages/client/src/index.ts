@@ -36,6 +36,7 @@ export * from './base/focus/focus-tracker';
 export * from './base/messages';
 export * from './base/model/diagram-loader';
 export * from './base/model/glsp-model-source';
+export * from './base/model/model-change-service';
 export * from './base/model/model-initialization-constraint';
 export * from './base/model/model-registry';
 export * from './base/mouse-position-tracker';
