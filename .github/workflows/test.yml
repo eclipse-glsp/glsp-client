@@ -23,12 +23,14 @@ jobs:
           git checkout -b my-branch
           git add myfile.txt
           git commit -m "Test update from GitHub Actions"
+          git push origin my-branch
 
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v6
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          branch: my-branch # <-- PR branch (your changes)
-          base: test # <-- Target branch (e.g. main)
-          title: 'Automated PR: Test update'
-          body: 'This PR was created automatically by GitHub Actions'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr create \
+            --base master \
+            --head my-branch \
+            --title "Automated PR: Test update" \
+            --body "This PR was created automatically by GitHub Actions"
