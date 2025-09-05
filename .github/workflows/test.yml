@@ -1,0 +1,36 @@
+name: Create PR Example
+on:
+  workflow_dispatch:
+  pull_request:
+
+jobs:
+  create-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Make changes
+        run: |
+          echo "Test $(date)" >> myfile.txt
+
+      - name: Commit changes
+        run: |
+          git config --global user.name "eclipse-glsp-bot"
+          git config --global user.email "57175764+eclipse-glsp-bot@users.noreply.github.com"
+          git checkout -b my-branch
+          git add myfile.txt
+          git commit -m "Test update from GitHub Actions"
+          git push origin my-branch
+
+      - name: Create Pull Request
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr create \
+            --base master \
+            --head my-branch \
+            --title "Automated PR: Test update" \
+            --body "This PR was created automatically by GitHub Actions"
