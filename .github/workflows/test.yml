@@ -1,0 +1,10 @@
+name: Create PR Example
+on:
+  workflow_dispatch:
+  pull_request:
+
+jobs:
+  call-repo-b-workflow:
+    uses: eclipse-glsp/glsp-theia-integration/.github/workflows/test.yml@test
+    with:
+      my_input: 'Hello from Repo A'
