@@ -1,6 +1,6 @@
 {
   "name": "parent",
-  "version": "2.5.0-next",
+  "version": "2.5.0",
   "private": true,
   "workspaces": [
     "packages/*",
@@ -32,7 +32,7 @@
     "watch": "concurrently --kill-others -n tsc,standalone -c red,yellow \"tsc -b -w --preserveWatchOutput\" \"yarn -s standalone watch:bundle\""
   },
   "devDependencies": {
-    "@eclipse-glsp/dev": "next",
+    "@eclipse-glsp/dev": "2.5.0",
     "@types/lodash": "4.14.191",
     "@types/node": "20.x",
     "concurrently": "^8.2.2",
