@@ -1,0 +1,38 @@
+name: Prepare Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_type:
+        description: 'Release type (major, minor, patch, next, or custom)'
+        required: true
+        type: choice
+        options:
+          - major
+          - minor
+          - patch
+          - next
+          - custom
+      custom_version:
+        description: 'Custom version (required if release_type is custom)'
+        required: false
+        type: string
+      branch:
+        description: 'Branch to use for the release repo (default: default branch)'
+        required: false
+        type: string
+      draft:
+        description: 'Create PR as draft'
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  prepare-release:
+    uses: eclipse-glsp/glsp/.github/workflows/prepare-release.yml@releng
+    with:
+      release_type: ${{ inputs.release_type }}
+      custom_version: ${{ inputs.custom_version }}
+      release_repo: glsp-client
+      branch: ${{ inputs.branch }}
+      draft: ${{ inputs.draft }}

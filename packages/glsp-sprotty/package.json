@@ -1,6 +1,6 @@
 {
   "name": "@eclipse-glsp/sprotty",
-  "version": "2.5.0",
+  "version": "2.6.0-next",
   "description": "Augmented reexport of the sprotty API for GLSP",
   "homepage": "https://www.eclipse.org/glsp/",
   "bugs": "https://github.com/eclipse-glsp/glsp/issues",
@@ -33,7 +33,7 @@
     "watch": "tsc -w"
   },
   "dependencies": {
-    "@eclipse-glsp/protocol": "2.5.0",
+    "@eclipse-glsp/protocol": "2.6.0-next",
     "autocompleter": "^9.1.0",
     "snabbdom": "~3.5.1",
     "sprotty": "1.4.0",
