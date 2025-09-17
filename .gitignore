@@ -16,5 +16,5 @@ examples/workflow-standalone/app
 tsconfig.tsbuildinfo
 eslint.xml
 report.xml
-
+**/ctrf
 examples/workflow-standalone/server

@@ -16,7 +16,7 @@
     "compile": "tsc -b",
     "generate:index": "lerna run generate:index && yarn lint:fix",
     "lint": "eslint --ext .ts,.tsx .",
-    "lint:ci": "yarn lint -o eslint.xml -f checkstyle",
+    "lint:ci": "yarn lint --output-file eslint_report.json --format json",
     "lint:fix": " yarn lint --fix",
     "prepare": "yarn build",
     "publish:latest": "lerna publish from-git --no-git-reset --no-git-tag-version --no-push",
@@ -27,7 +27,7 @@
     "test": "lerna run test --no-bail",
     "test:ci": "lerna run test:ci --no-bail",
     "test:coverage": "lerna run test:coverage",
-    "test:coverage:ci": "yarn glsp coverageReport .",
+    "test:coverage:ci": "yarn glsp coverageReport",
     "upgrade:next": "glsp updateNext",
     "watch": "concurrently --kill-others -n tsc,standalone -c red,yellow \"tsc -b -w --preserveWatchOutput\" \"yarn -s standalone watch:bundle\""
   },
@@ -37,6 +37,7 @@
     "@types/node": "20.x",
     "concurrently": "^8.2.2",
     "lerna": "^7.1.1",
+    "mocha-ctrf-json-reporter": "^0.0.9",
     "typescript": "^5.9.2"
   },
   "engines": {
