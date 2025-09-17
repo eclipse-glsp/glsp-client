@@ -41,7 +41,7 @@
     "generate:index": "glsp generateIndex src -f -s",
     "lint": "eslint --ext .ts,.tsx ./src",
     "test": "mocha --config ../../.mocharc \"./src/**/*.spec.?(ts|tsx)\"",
-    "test:ci": "export JUNIT_REPORT_PATH=./report.xml && yarn test --reporter mocha-jenkins-reporter",
+    "test:ci": "yarn test --reporter mocha-ctrf-json-reporter",
     "test:coverage": "nyc yarn test",
     "watch": "tsc -w"
   },

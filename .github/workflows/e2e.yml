@@ -27,14 +27,14 @@ jobs:
       GLSP_SERVER_TYPE: 'node'
 
     steps:
-      - uses: actions/checkout@v4.1.7
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           path: 'glsp-client'
-      - uses: actions/checkout@v4.1.7
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           repository: 'eclipse-glsp/glsp-playwright'
           path: 'glsp-playwright'
-      - uses: actions/setup-node@v4.0.2
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
           node-version: '20'
       - name: Install dependencies
@@ -49,7 +49,7 @@ jobs:
           cd glsp-playwright
           yarn test:standalone
       - name: Upload Playwright report
-        uses: actions/upload-artifact@v4.3.4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: always()
         with:
           name: playwright-report

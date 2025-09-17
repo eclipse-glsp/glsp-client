@@ -29,7 +29,7 @@ on:
 
 jobs:
   prepare-release:
-    uses: eclipse-glsp/glsp/.github/workflows/prepare-release.yml@releng
+    uses: eclipse-glsp/glsp/.github/workflows/prepare-release.yml@master
     with:
       release_type: ${{ inputs.release_type }}
       custom_version: ${{ inputs.custom_version }}
