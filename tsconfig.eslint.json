@@ -3,6 +3,5 @@
   "compilerOptions": {
     "noEmit": true
   },
-  "exclude": ["**/node_modules", "**/.eslintrc.js"],
-  "include": ["packages/*/src", "examples/*/src", "**/workflow-glsp/scripts"]
+  "include": ["packages/*/src", "examples/*/src"]
 }
