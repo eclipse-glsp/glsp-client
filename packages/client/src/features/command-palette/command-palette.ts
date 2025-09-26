@@ -22,6 +22,7 @@ import { CSS_HIDDEN_EXTENSION_CLASS, CSS_UI_EXTENSION_CLASS } from '../../base/u
 export class GlspCommandPalette extends CommandPalette {
     protected override initializeContents(containerElement: HTMLElement): void {
         super.initializeContents(containerElement);
+        containerElement.style.position = '';
         containerElement.classList.add(CSS_UI_EXTENSION_CLASS);
     }
 
