@@ -14,12 +14,12 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { Action, GModelRoot, IActionDispatcher, LabeledAction, TYPES } from '@eclipse-glsp/sprotty';
+import { Action, GModelRoot, IActionDispatcher, LabeledAction, TYPES, type MaybePromise } from '@eclipse-glsp/sprotty';
 import { inject } from 'inversify';
 import '../../../css/autocomplete-palette.css';
-import { GLSPAbstractUIExtension } from '../ui-extension/ui-extension';
-import { AutoCompleteWidget, CloseReason, toActionArray } from './auto-complete-widget';
 import { messages } from '../messages';
+import { GLSPAbstractUIExtension } from '../ui-extension/ui-extension';
+import { AutoCompleteWidget, CloseReason, toActionArray, type AutoCompleteSettings } from './auto-complete-widget';
 
 /**
  * A reusable base implementation for `UIExtensions` that want to provide autocomplete functionality
@@ -27,7 +27,7 @@ import { messages } from '../messages';
  *
  */
 export abstract class BaseAutocompletePalette extends GLSPAbstractUIExtension {
-    protected readonly autoSuggestionSettings = {
+    protected readonly autoSuggestionSettings: AutoCompleteSettings = {
         noSuggestionsMessage: messages.autocomplete.no_suggestions,
         suggestionsClass: 'command-palette-suggestions',
         debounceWaitMs: 50,
@@ -87,7 +87,7 @@ export abstract class BaseAutocompletePalette extends GLSPAbstractUIExtension {
         this.hide();
     }
 
-    protected executeSuggestion(input: LabeledAction | Action[] | Action): void {
-        this.actionDispatcher.dispatchAll(toActionArray(input));
+    protected executeSuggestion(input: LabeledAction | Action[] | Action): MaybePromise<void> {
+        return this.actionDispatcher.dispatchAll(toActionArray(input));
     }
 }

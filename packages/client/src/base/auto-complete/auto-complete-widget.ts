@@ -21,7 +21,8 @@ import {
     ValidationStatus,
     codiconCSSClasses,
     matchesKeystroke,
-    toArray
+    toArray,
+    type MaybePromise
 } from '@eclipse-glsp/sprotty';
 import { AutocompleteResult, AutocompleteSettings } from 'autocompleter';
 import { AutoCompleteValue } from './auto-complete-actions';
@@ -48,7 +49,7 @@ export interface InputValueInitializer {
 }
 
 export interface SuggestionSubmitHandler {
-    executeFromSuggestion(input: LabeledAction | Action | Action[]): void;
+    executeFromSuggestion(input: LabeledAction | Action | Action[]): MaybePromise<void>;
 }
 
 export interface TextSubmitHandler {
@@ -303,8 +304,9 @@ export class AutoCompleteWidget {
             // trigger update of suggestions with an keyup event
             window.setTimeout(() => this.inputElement.dispatchEvent(new Event('input')));
         } else {
-            this.executeFromSuggestion(item);
-            this.notifyClose('submission');
+            Promise.resolve(this.executeFromSuggestion(item)).then(() => {
+                this.notifyClose('submission');
+            });
         }
     }
 
@@ -362,6 +364,7 @@ export class AutoCompleteWidget {
         if (this.autoCompleteResult) {
             this.autoCompleteResult.destroy();
         }
+        this.observer?.disconnect();
     }
 }
 

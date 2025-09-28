@@ -27,7 +27,7 @@
     stroke: rgb(0, 0, 0);
 }
 
-.sprotty-edge:not(.navigable-element) {
+.sprotty-edge {
     stroke: black;
 }
 
@@ -42,10 +42,6 @@
 .sprotty-edge.selected > .arrow {
     fill: #844;
     stroke: #844;
-}
-
-.sprotty-node:not(.selected) {
-    stroke: black;
 }
 
 .forkOrJoin > .sprotty-node {

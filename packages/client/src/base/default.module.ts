@@ -36,6 +36,7 @@ import '@vscode/codicons/dist/codicon.css';
 import '../../css/glsp-sprotty.css';
 import { GLSPActionDispatcher } from './action-dispatcher';
 import { GLSPActionHandlerRegistry } from './action-handler-registry';
+import { DefaultAutocompleteSuggestionRegistry } from './auto-complete/autocomplete-suggestion-provider';
 import { GLSPCommandStack } from './command-stack';
 import { EditorContextService } from './editor-context-service';
 import { ModifyCssFeedbackCommand } from './feedback/css-feedback';
@@ -148,6 +149,10 @@ export const defaultModule = new FeatureModule(
 
         // Shortcut manager initialization ------------------------------------
         bindAsService(context, TYPES.IShortcutManager, ShortcutManager);
+
+        // Autocomplete suggestion provider initialization ------------------------------------
+        bind(TYPES.IAutocompleteSuggestionProviderRegistry).to(DefaultAutocompleteSuggestionRegistry).inSingletonScope();
+        bind(TYPES.IDiagramStartup).toService(TYPES.IAutocompleteSuggestionProviderRegistry);
     },
     {
         featureId: Symbol('default')
