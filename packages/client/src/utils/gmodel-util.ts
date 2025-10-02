@@ -14,7 +14,6 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import {
-    Bounds,
     BoundsAware,
     EdgeRouterRegistry,
     ElementAndBounds,
@@ -502,6 +501,7 @@ export function findAncenstors<T extends GModelElement>(
  * Build an ancestors list for N nodes (in input order), with this shape:
  * - No shared ancestor: [n1 parents..., n2 parents..., ...]
  * - Shared ancestor A:  [n1 parents until A, n2 parents until A, A and A's ancestors...]
+ *
  * Notes:
  * - Starting nodes are EXCLUDED (only ancestors).
  * - `include` decides which elements make it into the final output.
@@ -644,16 +644,4 @@ export function findDescendants<T extends GModelElement>(
 
     collectDescendants(element, 0);
     return descendants;
-}
-
-export function boundsInElement(elements: GModelElement[], bounds: Bounds | Point): Bounds | Point {
-    let result = bounds;
-
-    for (const element of elements) {
-        if (element instanceof GChildElement && isBoundsAware(element)) {
-            result = element.parentToLocal(result);
-        }
-    }
-
-    return result;
 }
