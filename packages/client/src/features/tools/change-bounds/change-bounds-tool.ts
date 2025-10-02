@@ -391,8 +391,9 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
                 this.initialBounds = undefined;
                 let newBounds: ElementAndBounds[] = [elementAndBounds];
                 if (this.resizeTracker.lastTrackedResize?.wrapResizes) {
-                    newBounds = Object.values(this.resizeTracker.lastTrackedResize.wrapResizes).map(resize =>
-                        toElementAndBounds(resize.element)
+                    // The changed element is already part of wrap resizes
+                    newBounds = Object.values(this.resizeTracker.lastTrackedResize.wrapResizes).map(
+                        TrackedElementResize.toElementAndBounds
                     );
                 }
                 return [ChangeBoundsOperation.create(newBounds)];

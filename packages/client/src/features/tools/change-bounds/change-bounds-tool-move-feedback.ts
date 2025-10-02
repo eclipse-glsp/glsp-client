@@ -13,17 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import {
-    Action,
-    ElementMove,
-    GModelElement,
-    GModelRoot,
-    MoveAction,
-    Point,
-    TypeGuard,
-    findParentByFeature,
-    type ElementAndBounds
-} from '@eclipse-glsp/sprotty';
+import { Action, ElementMove, GModelElement, GModelRoot, MoveAction, Point, TypeGuard, findParentByFeature } from '@eclipse-glsp/sprotty';
 
 import { DebouncedFunc, debounce } from 'lodash';
 import { DragAwareMouseListener } from '../../../base/drag-aware-mouse-listener';
@@ -38,7 +28,6 @@ import {
     isNonRoutableSelectedMovableBoundsAware,
     removeDescendants
 } from '../../../utils/gmodel-util';
-import { SetBoundsFeedbackAction } from '../../bounds/set-bounds-feedback-command';
 import { GResizeHandle } from '../../change-bounds/model';
 import { ChangeBoundsTool } from './change-bounds-tool';
 import { MoveFinishedEventAction, MoveInitializedEventAction } from './change-bounds-tool-feedback';
@@ -154,7 +143,7 @@ export class FeedbackMoveMouseListener extends DragAwareMouseListener implements
         // cancel any pending move
         this.pendingMoveInitialized?.cancel();
         this.moveFeedback.add(this.createMoveAction(move), () => this.resetElementPositions(target));
-        this.moveFeedback.add(this.createWrapAction(move));
+        this.moveFeedback.add(TrackedElementResize.createFeedbackActions(Object.values(move.wrapResizes ?? {})));
         this.addMoveFeedback(move, target, event);
         this.tracker.updateTrackingPosition(move);
         this.moveFeedback.submit();
@@ -169,23 +158,8 @@ export class FeedbackMoveMouseListener extends DragAwareMouseListener implements
         );
     }
 
-    protected createWrapAction(tracked: TrackedMove): SetBoundsFeedbackAction {
-        const wrapResizes = Object.values(tracked.wrapResizes ?? {});
-        // we do not want to resize elements beyond their valid size, not even for feedback, as the next layout cycle usually corrects this
-        const elementResizes = wrapResizes.filter(elementResize => elementResize.valid.size);
-        return SetBoundsFeedbackAction.create(elementResizes.map(elementResize => this.toElementAndBounds(elementResize)));
-    }
-
     protected addMoveFeedback(trackedMove: TrackedMove, ctx: GModelElement, event: MouseEvent): void {
         this.tool.changeBoundsManager.addMoveFeedback(this.moveFeedback, trackedMove, ctx, event);
-    }
-
-    protected toElementAndBounds(elementResize: TrackedElementResize): ElementAndBounds {
-        return {
-            elementId: elementResize.element.id,
-            newSize: elementResize.toBounds,
-            newPosition: elementResize.toBounds
-        };
     }
 
     protected initializeElementsToMove(root: GModelRoot): void {

@@ -44,6 +44,7 @@ import {
     findDescendants,
     getElements
 } from '../../../utils/gmodel-util';
+import { SetBoundsFeedbackAction } from '../../bounds/set-bounds-feedback-command';
 import { GResizeHandle, ResizeHandleLocation, isBoundsAwareMoveable, isResizable } from '../../change-bounds/model';
 import { DiagramMovementCalculator } from '../../change-bounds/tracker';
 import { ChangeBoundsManager } from './change-bounds-manager';
@@ -171,6 +172,18 @@ export namespace TrackedElementResize {
             isBoundsAware(obj.element) && hasObjectProp(obj, 'fromBounds') && hasObjectProp(obj, 'toBounds') && hasObjectProp(obj, 'valid')
         );
     }
+    export function toElementAndBounds(resize: TrackedElementResize): ElementAndBounds {
+        return {
+            elementId: resize.element.id,
+            newSize: resize.toBounds,
+            newPosition: resize.toBounds
+        };
+    }
+    export function createFeedbackActions(resizes: TrackedElementResize[]): SetBoundsFeedbackAction {
+        // we do not want to resize elements beyond their valid size, not even for feedback, as the next layout cycle usually corrects this
+        const elementResizes = resizes.filter(elementResize => elementResize.valid.size);
+        return SetBoundsFeedbackAction.create(elementResizes.map(TrackedElementResize.toElementAndBounds));
+    }
 }
 
 export interface TrackedResize extends Movement {
@@ -239,6 +252,9 @@ export interface BoundsTracker {
     stopTracking(): this;
     getInitialBoundsTracker(): InitialBoundsTracker;
     dispose(): void;
+
+    // Wrapping
+    wrap(changes: ChangeBoundsChanges[]): Record<string, TrackedElementResize>;
 }
 
 export interface ResizeTracker extends BoundsTracker {
@@ -574,7 +590,7 @@ export class ChangeBoundsTracker implements MoveTracker, ResizeTracker {
     // WRAP
     //
 
-    protected wrap(changes: ChangeBoundsChanges[]): Record<string, TrackedElementResize> {
+    wrap(changes: ChangeBoundsChanges[]): Record<string, TrackedElementResize> {
         const trackedElementResizes: Record<string, TrackedElementResize> = {};
         const initialBounds = this.initialBoundsTracker.getBounds();
 
