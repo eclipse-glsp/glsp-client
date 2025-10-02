@@ -31,7 +31,7 @@ import {
 import { GResizeHandle } from '../../change-bounds/model';
 import { ChangeBoundsTool } from './change-bounds-tool';
 import { MoveFinishedEventAction, MoveInitializedEventAction } from './change-bounds-tool-feedback';
-import { ChangeBoundsTracker, TrackedMove } from './change-bounds-tracker';
+import { TrackedElementResize, TrackedMove, type MoveTracker } from './change-bounds-tracker';
 
 /**
  * This mouse listener provides visual feedback for moving by sending client-side
@@ -42,7 +42,7 @@ import { ChangeBoundsTracker, TrackedMove } from './change-bounds-tracker';
  */
 export class FeedbackMoveMouseListener extends DragAwareMouseListener implements ISelectionListener {
     protected rootElement?: GModelRoot;
-    protected tracker: ChangeBoundsTracker;
+    protected tracker: MoveTracker;
     protected elementId2startPos = new Map<string, Point>();
 
     protected pendingMoveInitialized?: DebouncedFunc<() => void>;
@@ -52,7 +52,7 @@ export class FeedbackMoveMouseListener extends DragAwareMouseListener implements
 
     constructor(protected tool: ChangeBoundsTool) {
         super();
-        this.tracker = tool.createChangeBoundsTracker();
+        this.tracker = tool.useMoveTracker();
         this.moveInitializedFeedback = tool.createFeedbackEmitter();
         this.moveFeedback = tool.createFeedbackEmitter();
     }
@@ -79,7 +79,7 @@ export class FeedbackMoveMouseListener extends DragAwareMouseListener implements
         }
         const moveable = findParentByFeature(target, this.isValidMoveable);
         if (moveable !== undefined) {
-            this.tracker.startTracking();
+            this.tracker.startTracking(target.root);
             this.scheduleMoveInitialized();
         } else {
             this.tracker.stopTracking();
@@ -91,7 +91,7 @@ export class FeedbackMoveMouseListener extends DragAwareMouseListener implements
         this.pendingMoveInitialized = debounce(() => {
             this.moveInitialized();
             this.pendingMoveInitialized = undefined;
-        }, 750);
+        }, this.moveInitializationTimeout());
         this.pendingMoveInitialized();
     }
 
@@ -143,6 +143,7 @@ export class FeedbackMoveMouseListener extends DragAwareMouseListener implements
         // cancel any pending move
         this.pendingMoveInitialized?.cancel();
         this.moveFeedback.add(this.createMoveAction(move), () => this.resetElementPositions(target));
+        this.moveFeedback.add(TrackedElementResize.createFeedbackActions(Object.values(move.wrapResizes ?? {})));
         this.addMoveFeedback(move, target, event);
         this.tracker.updateTrackingPosition(move);
         this.moveFeedback.submit();
@@ -220,7 +221,7 @@ export class FeedbackMoveMouseListener extends DragAwareMouseListener implements
         this.pendingMoveInitialized?.cancel();
         this.moveInitializedFeedback.dispose();
         this.moveFeedback.dispose();
-        this.tracker.dispose();
+        this.tracker.stopTracking();
         this.elementId2startPos.clear();
         super.dispose();
     }
