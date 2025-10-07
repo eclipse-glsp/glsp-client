@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, Event, LabeledAction, Point, RequestAction, ResponseAction } from '@eclipse-glsp/protocol';
+import { Action, Event, LabeledAction, MenuItem, Point, RequestAction, ResponseAction } from '@eclipse-glsp/protocol';
 import { injectable } from 'inversify';
 import { VNode } from 'snabbdom';
 import {
@@ -29,6 +29,7 @@ import {
     IContextMenuItemProvider as SIContextMenuItemProvider,
     IVNodePostprocessor as SIVNodePostprocessor,
     KeyListener as SKeyListener,
+    MenuItem as SMenuItem,
     MouseListener as SMouseListener
 } from 'sprotty';
 
@@ -253,3 +254,26 @@ export interface ICommandStack extends SICommandStack {
  * using a provider to avoid cyclic injection dependencies.
  */
 export type CommandStackProvider = () => Promise<ICommandStack>;
+
+export type ClientMenuItem = SMenuItem;
+export namespace ClientMenuItem {
+    /**
+     *  Converts a {@link MenuItem} into a {@link ClientMenuItem}.
+     *  Note that functions are created for the boolean attributes of the server item.
+     *  If the server item does not define a particular attribute, the corresponding function in the client item will be `undefined`.
+     *  The children are recursively converted as well.
+     * @param serverItem The server menu item to convert.
+     * @returns The converted client menu item.
+     */
+    export function convert(item: MenuItem): ClientMenuItem {
+        const { children, isEnabled, isToggled, isVisible, ...coreProps } = item;
+        const clientItem: ClientMenuItem = {
+            ...coreProps,
+            isEnabled: isEnabled !== undefined ? () => isEnabled : undefined,
+            isVisible: isVisible !== undefined ? () => isVisible : undefined,
+            isToggled: isToggled !== undefined ? () => isToggled : undefined,
+            children: children?.map(child => ClientMenuItem.convert(child))
+        };
+        return clientItem;
+    }
+}

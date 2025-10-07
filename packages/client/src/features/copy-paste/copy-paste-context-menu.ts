@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020-2023 EclipseSource and others.
+ * Copyright (c) 2020-2025 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -14,21 +14,23 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 /* eslint-disable deprecation/deprecation */
-import { inject, injectable } from 'inversify';
 import {
     Action,
+    ClientMenuItem,
+    GModelRoot,
     IActionDispatcher,
     IActionHandler,
     IContextMenuItemProvider,
-    MenuItem,
-    Point,
-    GModelRoot,
     MessageAction,
+    Point,
     StatusAction,
     TYPES,
     hasStringProp,
     isSelected
 } from '@eclipse-glsp/sprotty';
+import { inject, injectable } from 'inversify';
+import { EditorContextService } from '../../base/editor-context-service';
+import { messages } from '../../base/messages';
 
 /**
  * An `InvokeCopyPasteAction` is dispatched by the client to initiate a cut, copy or paste operation.
@@ -89,39 +91,41 @@ export class InvokeCopyPasteActionHandler implements IActionHandler {
 
 @injectable()
 export class CopyPasteContextMenuItemProvider implements IContextMenuItemProvider {
-    getItems(root: Readonly<GModelRoot>, _lastMousePosition?: Point): Promise<MenuItem[]> {
+    @inject(EditorContextService)
+    protected editorContext: EditorContextService;
+
+    async getItems(root: Readonly<GModelRoot>, _lastMousePosition?: Point): Promise<ClientMenuItem[]> {
+        if (this.editorContext.isReadonly) {
+            return [];
+        }
         const hasSelectedElements = Array.from(root.index.all().filter(isSelected)).length > 0;
-        return Promise.resolve([
-            this.createCopyMenuItem(hasSelectedElements),
-            this.createCutMenuItem(hasSelectedElements),
-            this.createPasteMenuItem()
-        ]);
+        return [this.createCopyMenuItem(hasSelectedElements), this.createCutMenuItem(hasSelectedElements), this.createPasteMenuItem()];
     }
 
-    protected createPasteMenuItem(): MenuItem {
+    protected createPasteMenuItem(): ClientMenuItem {
         return {
             id: 'paste',
-            label: 'Paste',
+            label: messages.context_menu.paste,
             group: 'copy-paste',
             actions: [InvokeCopyPasteAction.create('paste')],
             isEnabled: () => true
         };
     }
 
-    protected createCutMenuItem(hasSelectedElements: boolean): MenuItem {
+    protected createCutMenuItem(hasSelectedElements: boolean): ClientMenuItem {
         return {
             id: 'cut',
-            label: 'Cut',
+            label: messages.context_menu.cut,
             group: 'copy-paste',
             actions: [InvokeCopyPasteAction.create('cut')],
             isEnabled: () => hasSelectedElements
         };
     }
 
-    protected createCopyMenuItem(hasSelectedElements: boolean): MenuItem {
+    protected createCopyMenuItem(hasSelectedElements: boolean): ClientMenuItem {
         return {
             id: 'copy',
-            label: 'Copy',
+            label: messages.context_menu.copy,
             group: 'copy-paste',
             actions: [InvokeCopyPasteAction.create('copy')],
             isEnabled: () => hasSelectedElements

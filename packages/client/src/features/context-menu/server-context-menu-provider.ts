@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2024 EclipseSource and others.
+ * Copyright (c) 2019-2025 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -14,11 +14,11 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import {
-    Action,
+    ClientMenuItem,
     GModelElement,
     IActionDispatcher,
     IContextMenuItemProvider,
-    LabeledAction,
+    MenuItem,
     Point,
     RequestContextActions,
     SetContextActions,
@@ -37,7 +37,7 @@ export class ServerContextMenuItemProvider implements IContextMenuItemProvider {
     @inject(TYPES.IActionDispatcher) protected actionDispatcher: IActionDispatcher;
     @inject(EditorContextService) protected editorContext: EditorContextService;
 
-    async getItems(root: Readonly<GModelElement>, _lastMousePosition?: Point): Promise<LabeledAction[]> {
+    async getItems(root: Readonly<GModelElement>, _lastMousePosition?: Point): Promise<ClientMenuItem[]> {
         const selectedElementIds = Array.from(
             root.index
                 .all()
@@ -50,10 +50,9 @@ export class ServerContextMenuItemProvider implements IContextMenuItemProvider {
         return response ? this.getContextActionsFromResponse(response) : [];
     }
 
-    getContextActionsFromResponse(action: Action): LabeledAction[] {
-        if (SetContextActions.is(action)) {
-            return action.actions;
-        }
-        return [];
+    getContextActionsFromResponse(action: SetContextActions): ClientMenuItem[] {
+        return action.actions
+            .filter(item => MenuItem.is(item)) //
+            .map(item => ClientMenuItem.convert(item));
     }
 }

@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2024 EclipseSource and others.
+ * Copyright (c) 2019-2025 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -133,8 +133,8 @@ export class ToolManager implements IToolManager, IDiagramStartup, IEditModeList
         this.actives.splice(0, this.actives.length);
     }
 
-    enableDefaultTools(): void {
-        if (this.defaultToolsEnabled) {
+    enableDefaultTools(force = false): void {
+        if (this.defaultToolsEnabled && !force) {
             return;
         }
         this.enable(pluck(this.defaultTools, 'id'));
@@ -171,7 +171,7 @@ export class ToolManager implements IToolManager, IDiagramStartup, IEditModeList
         if (newValue === EditMode.READONLY) {
             this.disableEditTools();
         } else if (newValue === EditMode.EDITABLE) {
-            this.enableDefaultTools();
+            this.enableDefaultTools(true);
         }
     }
 }
