@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020-2024 EclipseSource and others.
+ * Copyright (c) 2020-2025 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -16,6 +16,7 @@
 import {
     Action,
     CenterAction,
+    ClientMenuItem,
     GIssueSeverity,
     GModelElement,
     GModelRoot,
@@ -23,7 +24,6 @@ import {
     IActionHandler,
     IContextMenuItemProvider,
     KeyListener,
-    MenuItem,
     Point,
     SelectAction,
     TYPES,
@@ -35,6 +35,7 @@ import {
     matchesKeystroke
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
+import { messages } from '../../base/messages';
 import { SelectionService } from '../../base/selection-service';
 import { BoundsAwareModelElement, SelectableElement, getElements, isSelectableAndBoundsAware } from '../../utils/gmodel-util';
 import { MarkerPredicates, collectIssueMarkers } from '../../utils/marker';
@@ -206,33 +207,33 @@ export class NavigateToMarkerActionHandler implements IActionHandler {
 export class MarkerNavigatorContextMenuItemProvider implements IContextMenuItemProvider {
     @inject(SelectionService) protected selectionService: SelectionService;
 
-    getItems(root: Readonly<GModelRoot>, lastMousePosition?: Point): Promise<MenuItem[]> {
+    async getItems(root: Readonly<GModelRoot>, lastMousePosition?: Point): Promise<ClientMenuItem[]> {
         const selectedElementIds = Array.from(this.selectionService.getSelectedElementIDs());
         const hasMarkers = collectIssueMarkers(root).length > 0;
-        return Promise.resolve([
+        return [
             {
                 id: 'navigate',
-                label: 'Go to',
+                label: messages.context_menu.marker.navigation,
                 group: 'navigate',
                 actions: [],
                 children: [
                     {
                         id: 'next-marker',
-                        label: 'Next marker',
+                        label: messages.context_menu.marker.next,
                         group: 'marker',
                         actions: [NavigateToMarkerAction.create({ direction: 'next', selectedElementIds })],
                         isEnabled: () => hasMarkers
                     },
                     {
                         id: 'previous-marker',
-                        label: 'Previous marker',
+                        label: messages.context_menu.marker.previous,
                         group: 'marker',
                         actions: [NavigateToMarkerAction.create({ direction: 'previous', selectedElementIds })],
                         isEnabled: () => hasMarkers
                     }
                 ]
             }
-        ]);
+        ];
     }
 }
 

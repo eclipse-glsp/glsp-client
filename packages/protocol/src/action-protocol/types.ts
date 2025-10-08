@@ -219,12 +219,12 @@ export interface MenuItem extends LabeledAction {
      * Note that this attribute will only be considered for root items of a provider and not for children of provided items.
      */
     readonly parentId?: string;
-    /** Function determining whether the element is enabled. */
-    readonly isEnabled?: () => boolean;
-    /** Function determining whether the element is visible. */
-    readonly isVisible?: () => boolean;
-    /** Function determining whether the element is toggled on or off. */
-    readonly isToggled?: () => boolean;
+    /** Optional flag to determine wether the element is enabled.*/
+    readonly isEnabled?: boolean;
+    /** Optional flag to determine wether the element is visible.*/
+    readonly isVisible?: boolean;
+    /** Optional flag to determine wether the element is toggled on or off.*/
+    readonly isToggled?: boolean;
     /** Children of this item. If this item has children, they will be added into a submenu of this item. */
     children?: MenuItem[];
 }

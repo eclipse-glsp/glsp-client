@@ -11,7 +11,7 @@
     "build": "yarn compile && yarn bundle",
     "bundle": "yarn standalone bundle",
     "check:headers": "glsp checkHeaders . -t lastCommit",
-    "check:pr": "yarn all && yarn check:format && yarn check:headers",
+    "check:pr": "yarn all && yarn format:check && yarn check:headers",
     "clean": "lerna run clean && rimraf coverage .nyc_output",
     "compile": "tsc -b",
     "format": "prettier --write .",

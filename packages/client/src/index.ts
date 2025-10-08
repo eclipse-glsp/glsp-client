@@ -170,6 +170,8 @@ export * from './features/save/save-module';
 export * from './features/search-palette/search-palette';
 export * from './features/search-palette/search-palette-key-listener';
 export * from './features/search-palette/search-palette-module';
+export * from './features/search-palette/suggestions/edge-element-suggestions';
+export * from './features/search-palette/suggestions/named-element-suggestions';
 export * from './features/select/select-feedback-command';
 export * from './features/select/select-module';
 export * from './features/select/select-mouse-listener';
