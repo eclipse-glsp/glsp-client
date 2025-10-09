@@ -127,7 +127,7 @@ export * from 'sprotty/lib/features/bounds/views';
 export { ButtonHandlerRegistry, configureButtonHandler, IButtonHandlerRegistration } from 'sprotty/lib/features/button/button-handler';
 export { SButtonImpl as GButton } from 'sprotty/lib/features/button/model';
 
-// exlucde ICommandPaletteActionProvider. Exported via api-override module instead
+// exclude ICommandPaletteActionProvider. Exported via api-override module instead
 export {
     CommandPaletteActionProviderRegistry,
     RevealNamedElementActionProvider
@@ -159,6 +159,7 @@ export * from 'sprotty/lib/features/expand/views';
 export { ExportSvgCommand, ExportSvgKeyListener, ExportSvgPostprocessor } from 'sprotty/lib/features/export/export';
 export * from 'sprotty/lib/features/export/model';
 // Exclude ExportSvgAction. Already provided by glsp-protocol
+export * from 'sprotty/lib/features/export/svg-export-postprocessor';
 export { SvgExporter } from 'sprotty/lib/features/export/svg-exporter';
 
 export * from 'sprotty/lib/features/fade/fade';
