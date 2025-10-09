@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2023 EclipseSource and others.
+ * Copyright (c) 2019-2025 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,12 +13,37 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Decoration, DecorationPlacer, GChildElement, GModelElement, GRoutableElement, Point, isSizeable } from '@eclipse-glsp/sprotty';
-import { injectable } from 'inversify';
+import {
+    Action,
+    DOMHelper,
+    Decoration,
+    DecorationPlacer,
+    GChildElement,
+    GModelElement,
+    GRoutableElement,
+    ISvgExportPostProcessor,
+    LazyInjector,
+    Point,
+    TYPES,
+    isDecoration,
+    isSizeable
+} from '@eclipse-glsp/sprotty';
+import { inject, injectable } from 'inversify';
+import { EditorContextService } from '../../base/editor-context-service';
+import { filter } from '../../utils/gmodel-util';
 
 @injectable()
-export class GlspDecorationPlacer extends DecorationPlacer {
+export class GlspDecorationPlacer extends DecorationPlacer implements ISvgExportPostProcessor {
     protected static readonly DECORATION_OFFSET: Point = { x: 12, y: 10 };
+    @inject(TYPES.DOMHelper)
+    protected domHelper: DOMHelper;
+
+    @inject(LazyInjector)
+    protected lazyInjector: LazyInjector;
+
+    get editorContextService(): EditorContextService {
+        return this.lazyInjector.get(EditorContextService);
+    }
 
     protected override getPosition(element: GModelElement & Decoration): Point {
         if (element instanceof GChildElement && element.parent instanceof GRoutableElement) {
@@ -31,5 +56,25 @@ export class GlspDecorationPlacer extends DecorationPlacer {
             };
         }
         return Point.ORIGIN;
+    }
+    // HiddenVNodePostprocessor implementation
+    override postUpdate(cause?: Action): void;
+    // ISvgExportPostProcessor implementation
+    override postUpdate(element: SVGSVGElement, cause?: Action): void;
+    override postUpdate(elementOrCause?: SVGSVGElement | Action, _cause?: Action): void {
+        // Called as HiddenVNodePostprocessor => no-op
+        if (!elementOrCause || Action.is(elementOrCause)) {
+            return;
+        }
+
+        // Called as ISvgExportPostProcessor
+        // Adjust the position of all decorations in the exported SVG
+        const svg = elementOrCause;
+        const translate = `translate(-${GlspDecorationPlacer.DECORATION_OFFSET.x}px, -${GlspDecorationPlacer.DECORATION_OFFSET.y}px)`;
+        filter(this.editorContextService.modelRoot.index, isDecoration).forEach(decoration => {
+            const domId = this.domHelper.createUniqueDOMElementId(decoration);
+            const element = svg.querySelector<SVGElement>(`#${domId}`);
+            element!.style.transform = translate;
+        });
     }
 }
