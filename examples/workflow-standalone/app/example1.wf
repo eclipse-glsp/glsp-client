@@ -6,7 +6,7 @@
     "y": 0
   },
   "id": "sprotty",
-  "revision": 1,
+  "revision": 5,
   "children": [
     {
       "cssClasses": [
@@ -162,6 +162,12 @@
       "id": "edge_task_Push_fork_1",
       "sourceId": "task_Push",
       "targetId": "fork_1",
+      "args": {
+        "edgeSourcePointX": 142.921875,
+        "edgeSourcePointY": 115,
+        "edgeTargetPointX": 169.5,
+        "edgeTargetPointY": 115
+      },
       "children": []
     },
     {
@@ -171,6 +177,12 @@
       "id": "edge_fork1_task_ChkTp",
       "sourceId": "fork_1",
       "targetId": "task_ChkTp",
+      "args": {
+        "edgeSourcePointX": 179.9129171124612,
+        "edgeSourcePointY": 117.84892269711828,
+        "edgeTargetPointX": 235.356884765625,
+        "edgeTargetPointY": 150
+      },
       "children": []
     },
     {
@@ -291,6 +303,12 @@
       "id": "edge_task_ChkWt_decision1",
       "sourceId": "task_ChkWt",
       "targetId": "decision_1",
+      "args": {
+        "edgeSourcePointX": 303.1103515625,
+        "edgeSourcePointY": 65.49209855270233,
+        "edgeTargetPointX": 329.68729039942264,
+        "edgeTargetPointY": 65.80682404455813
+      },
       "children": []
     },
     {
@@ -300,6 +318,12 @@
       "id": "edge_fork1_task_ChkWt",
       "sourceId": "fork_1",
       "targetId": "task_ChkWt",
+      "args": {
+        "edgeSourcePointX": 179.91511482913953,
+        "edgeSourcePointY": 112.16070426477935,
+        "edgeTargetPointX": 235.588623046875,
+        "edgeTargetPointY": 80
+      },
       "children": []
     },
     {
@@ -309,6 +333,12 @@
       "id": "edge_task_ChkTp_decision2",
       "sourceId": "task_ChkTp",
       "targetId": "decision2",
+      "args": {
+        "edgeSourcePointX": 302.4482421875,
+        "edgeSourcePointY": 165.48627182195702,
+        "edgeTargetPointX": 329.686567408344,
+        "edgeTargetPointY": 165.80756987952083
+      },
       "children": []
     },
     {
@@ -581,6 +611,12 @@
       "sourceId": "decision_1",
       "targetId": "task_RflWt",
       "probability": "medium",
+      "args": {
+        "edgeSourcePointX": 358.0649068859051,
+        "edgeSourcePointY": 61.42000425502652,
+        "edgeTargetPointX": 390,
+        "edgeTargetPointY": 49.29702709813207
+      },
       "children": []
     },
     {
@@ -593,6 +629,12 @@
       "sourceId": "decision_1",
       "targetId": "task_WtOK",
       "probability": "medium",
+      "args": {
+        "edgeSourcePointX": 358.34775282071627,
+        "edgeSourcePointY": 70.28861664860428,
+        "edgeTargetPointX": 390,
+        "edgeTargetPointY": 81.28206267799604
+      },
       "children": []
     },
     {
@@ -605,6 +647,12 @@
       "sourceId": "decision2",
       "targetId": "task_KeepTp",
       "probability": "medium",
+      "args": {
+        "edgeSourcePointX": 359.4355670963364,
+        "edgeSourcePointY": 162.83422159210613,
+        "edgeTargetPointX": 390,
+        "edgeTargetPointY": 155.6324249695934
+      },
       "children": []
     },
     {
@@ -617,6 +665,12 @@
       "sourceId": "decision2",
       "targetId": "task_PreHeat",
       "probability": "medium",
+      "args": {
+        "edgeSourcePointX": 358.5845250668064,
+        "edgeSourcePointY": 170.0444811296957,
+        "edgeTargetPointX": 390,
+        "edgeTargetPointY": 180.14095238095237
+      },
       "children": []
     },
     {
@@ -754,6 +808,12 @@
       "id": "edge_task_RflWt_merge_1",
       "sourceId": "task_RflWt",
       "targetId": "merge_1",
+      "args": {
+        "edgeSourcePointX": 465.32421875,
+        "edgeSourcePointY": 48.21658670322138,
+        "edgeTargetPointX": 503.68447295370714,
+        "edgeTargetPointY": 61.678170083823204
+      },
       "children": []
     },
     {
@@ -763,6 +823,12 @@
       "id": "edge_task_WTOK_merge_1",
       "sourceId": "task_WtOK",
       "targetId": "merge_1",
+      "args": {
+        "edgeSourcePointX": 468.9931640625,
+        "edgeSourcePointY": 81.75889455235128,
+        "edgeTargetPointX": 503.5431283350021,
+        "edgeTargetPointY": 70.17612721864288
+      },
       "children": []
     },
     {
@@ -772,6 +838,12 @@
       "id": "edge_task_KeepTp_merge_2",
       "sourceId": "task_KeepTp",
       "targetId": "merge_2",
+      "args": {
+        "edgeSourcePointX": 480.248046875,
+        "edgeSourcePointY": 156.71676105147495,
+        "edgeTargetPointX": 502.8141762197149,
+        "edgeTargetPointY": 162.576210746933
+      },
       "children": []
     },
     {
@@ -781,6 +853,12 @@
       "id": "edege_task_PreHeat_merge_2",
       "sourceId": "task_PreHeat",
       "targetId": "merge_2",
+      "args": {
+        "edgeSourcePointX": 477.49245689655174,
+        "edgeSourcePointY": 180,
+        "edgeTargetPointX": 503.79614626691165,
+        "edgeTargetPointY": 170.43689569610422
+      },
       "children": []
     },
     {
@@ -790,6 +868,12 @@
       "id": "edge_merge_2_join_1",
       "sourceId": "merge_2",
       "targetId": "join_1",
+      "args": {
+        "edgeSourcePointX": 524.1864130470989,
+        "edgeSourcePointY": 157.4794476448563,
+        "edgeTargetPointX": 560.5150734393876,
+        "edgeTargetPointY": 119.66798478757615
+      },
       "children": []
     },
     {
@@ -799,6 +883,12 @@
       "id": "edge_merge_1_join_1",
       "sourceId": "merge_1",
       "targetId": "join_1",
+      "args": {
+        "edgeSourcePointX": 524.3535533905932,
+        "edgeSourcePointY": 74.35355339059328,
+        "edgeTargetPointX": 560.4797799427402,
+        "edgeTargetPointY": 110.47977994274005
+      },
       "children": []
     },
     {
@@ -808,7 +898,425 @@
       "id": "edge_join_1_task_Brew",
       "sourceId": "join_1",
       "targetId": "task_Brew",
+      "args": {
+        "edgeSourcePointX": 570.5,
+        "edgeSourcePointY": 115,
+        "edgeTargetPointX": 600,
+        "edgeTargetPointY": 115
+      },
       "children": []
+    },
+    {
+      "cssClasses": [
+        "category"
+      ],
+      "type": "category",
+      "id": "16f71e69-dbd2-44e2-a3da-641118981419",
+      "layout": "vbox",
+      "layoutOptions": {
+        "hAlign": "center",
+        "hGrab": false,
+        "vGrab": false,
+        "prefWidth": 390,
+        "prefHeight": 350
+      },
+      "position": {
+        "x": 700,
+        "y": 210
+      },
+      "name": "Category0",
+      "args": {
+        "radiusTopLeft": 5,
+        "radiusBottomLeft": 5,
+        "radiusBottomRight": 5,
+        "radiusTopRight": 5
+      },
+      "size": {
+        "width": 390,
+        "height": 350
+      },
+      "children": [
+        {
+          "cssClasses": [],
+          "type": "comp:header",
+          "id": "16f71e69-dbd2-44e2-a3da-641118981419_header",
+          "layout": "hbox",
+          "layoutOptions": {},
+          "position": {
+            "x": 157.5966796875,
+            "y": 5
+          },
+          "size": {
+            "width": 74.806640625,
+            "height": 26
+          },
+          "children": [
+            {
+              "cssClasses": [],
+              "type": "label:heading",
+              "alignment": {
+                "x": 32.296875,
+                "y": 13
+              },
+              "id": "16f71e69-dbd2-44e2-a3da-641118981419_classname",
+              "text": "Category0",
+              "position": {
+                "x": 5,
+                "y": 5
+              },
+              "size": {
+                "width": 64.806640625,
+                "height": 16
+              },
+              "children": []
+            }
+          ]
+        },
+        {
+          "cssClasses": [],
+          "type": "struct",
+          "id": "16f71e69-dbd2-44e2-a3da-641118981419_struct",
+          "layout": "freeform",
+          "layoutOptions": {
+            "hAlign": "left",
+            "hGrab": true,
+            "vGrab": true
+          },
+          "position": {
+            "x": 5,
+            "y": 32
+          },
+          "size": {
+            "width": 380,
+            "height": 313
+          },
+          "children": [
+            {
+              "cssClasses": [
+                "task",
+                "automated"
+              ],
+              "type": "task:automated",
+              "id": "2a63a788-24af-4737-9c05-7cf1a4e5094b",
+              "layout": "hbox",
+              "args": {
+                "radiusTopLeft": 5,
+                "radiusBottomLeft": 5,
+                "radiusBottomRight": 5,
+                "radiusTopRight": 5
+              },
+              "position": {
+                "x": 15,
+                "y": 28
+              },
+              "name": "AutomatedTask8",
+              "taskType": "automated",
+              "layoutOptions": {
+                "paddingRight": 10
+              },
+              "size": {
+                "width": 146.49609375,
+                "height": 30
+              },
+              "children": [
+                {
+                  "cssClasses": [],
+                  "type": "icon",
+                  "id": "2a63a788-24af-4737-9c05-7cf1a4e5094b_icon",
+                  "position": {
+                    "x": 5,
+                    "y": 5
+                  },
+                  "size": {
+                    "width": 25,
+                    "height": 20
+                  },
+                  "children": []
+                },
+                {
+                  "cssClasses": [],
+                  "type": "label:heading",
+                  "alignment": {
+                    "x": 53.1484375,
+                    "y": 13
+                  },
+                  "id": "2a63a788-24af-4737-9c05-7cf1a4e5094b_classname",
+                  "text": "AutomatedTask8",
+                  "position": {
+                    "x": 31,
+                    "y": 7
+                  },
+                  "size": {
+                    "width": 105.49609375,
+                    "height": 16
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "cssClasses": [
+                "category"
+              ],
+              "type": "category",
+              "id": "217f7564-e8e9-4dd5-a344-27e8ce713027",
+              "layout": "vbox",
+              "layoutOptions": {
+                "hAlign": "center",
+                "hGrab": false,
+                "vGrab": false,
+                "prefWidth": 275,
+                "prefHeight": 184
+              },
+              "position": {
+                "x": 80,
+                "y": 100
+              },
+              "name": "Category1",
+              "args": {
+                "radiusTopLeft": 5,
+                "radiusBottomLeft": 5,
+                "radiusBottomRight": 5,
+                "radiusTopRight": 5
+              },
+              "size": {
+                "width": 275,
+                "height": 184
+              },
+              "children": [
+                {
+                  "cssClasses": [],
+                  "type": "comp:header",
+                  "id": "217f7564-e8e9-4dd5-a344-27e8ce713027_header",
+                  "layout": "hbox",
+                  "layoutOptions": {},
+                  "position": {
+                    "x": 100.203125,
+                    "y": 5
+                  },
+                  "size": {
+                    "width": 74.59375,
+                    "height": 26
+                  },
+                  "children": [
+                    {
+                      "cssClasses": [],
+                      "type": "label:heading",
+                      "alignment": {
+                        "x": 32.296875,
+                        "y": 13
+                      },
+                      "id": "217f7564-e8e9-4dd5-a344-27e8ce713027_classname",
+                      "text": "Category1",
+                      "position": {
+                        "x": 5,
+                        "y": 5
+                      },
+                      "size": {
+                        "width": 64.59375,
+                        "height": 16
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "cssClasses": [],
+                  "type": "struct",
+                  "id": "217f7564-e8e9-4dd5-a344-27e8ce713027_struct",
+                  "layout": "freeform",
+                  "layoutOptions": {
+                    "hAlign": "left",
+                    "hGrab": true,
+                    "vGrab": true
+                  },
+                  "position": {
+                    "x": 5,
+                    "y": 32
+                  },
+                  "size": {
+                    "width": 265,
+                    "height": 147
+                  },
+                  "children": [
+                    {
+                      "cssClasses": [
+                        "task",
+                        "automated"
+                      ],
+                      "type": "task:automated",
+                      "id": "7be9fa64-f740-4a02-920c-863da3d24d5a",
+                      "layout": "hbox",
+                      "args": {
+                        "radiusTopLeft": 5,
+                        "radiusBottomLeft": 5,
+                        "radiusBottomRight": 5,
+                        "radiusTopRight": 5
+                      },
+                      "position": {
+                        "x": 100,
+                        "y": 20
+                      },
+                      "name": "AutomatedTask9",
+                      "taskType": "automated",
+                      "layoutOptions": {
+                        "paddingRight": 10,
+                        "prefWidth": 146.49609375,
+                        "prefHeight": 30
+                      },
+                      "size": {
+                        "width": 146.49609375,
+                        "height": 30
+                      },
+                      "children": [
+                        {
+                          "cssClasses": [],
+                          "type": "icon",
+                          "id": "7be9fa64-f740-4a02-920c-863da3d24d5a_icon",
+                          "position": {
+                            "x": 5,
+                            "y": 5
+                          },
+                          "size": {
+                            "width": 25,
+                            "height": 20
+                          },
+                          "children": []
+                        },
+                        {
+                          "cssClasses": [],
+                          "type": "label:heading",
+                          "alignment": {
+                            "x": 53.1484375,
+                            "y": 13
+                          },
+                          "id": "7be9fa64-f740-4a02-920c-863da3d24d5a_classname",
+                          "text": "AutomatedTask9",
+                          "position": {
+                            "x": 31,
+                            "y": 7
+                          },
+                          "size": {
+                            "width": 105.49609375,
+                            "height": 16
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "cssClasses": [
+                        "category"
+                      ],
+                      "type": "category",
+                      "id": "fe2c6856-a893-4114-8118-3e5cb2bfaa95",
+                      "layout": "vbox",
+                      "layoutOptions": {
+                        "hAlign": "center",
+                        "hGrab": false,
+                        "vGrab": false,
+                        "prefWidth": 150,
+                        "prefHeight": 70
+                      },
+                      "position": {
+                        "x": 50,
+                        "y": 60
+                      },
+                      "name": "Category2",
+                      "args": {
+                        "radiusTopLeft": 5,
+                        "radiusBottomLeft": 5,
+                        "radiusBottomRight": 5,
+                        "radiusTopRight": 5
+                      },
+                      "size": {
+                        "width": 150,
+                        "height": 87
+                      },
+                      "children": [
+                        {
+                          "cssClasses": [],
+                          "type": "comp:header",
+                          "id": "fe2c6856-a893-4114-8118-3e5cb2bfaa95_header",
+                          "layout": "hbox",
+                          "layoutOptions": {},
+                          "position": {
+                            "x": 37.5966796875,
+                            "y": 5
+                          },
+                          "size": {
+                            "width": 74.806640625,
+                            "height": 26
+                          },
+                          "children": [
+                            {
+                              "cssClasses": [],
+                              "type": "label:heading",
+                              "alignment": {
+                                "x": 32.296875,
+                                "y": 13
+                              },
+                              "id": "fe2c6856-a893-4114-8118-3e5cb2bfaa95_classname",
+                              "text": "Category2",
+                              "position": {
+                                "x": 5,
+                                "y": 5
+                              },
+                              "size": {
+                                "width": 64.806640625,
+                                "height": 16
+                              },
+                              "children": []
+                            }
+                          ]
+                        },
+                        {
+                          "cssClasses": [],
+                          "type": "struct",
+                          "id": "fe2c6856-a893-4114-8118-3e5cb2bfaa95_struct",
+                          "layout": "freeform",
+                          "layoutOptions": {
+                            "hAlign": "left",
+                            "hGrab": true,
+                            "vGrab": true
+                          },
+                          "position": {
+                            "x": 5,
+                            "y": 32
+                          },
+                          "size": {
+                            "width": 140,
+                            "height": 50
+                          },
+                          "children": [
+                            {
+                              "cssClasses": [
+                                "forkOrJoin"
+                              ],
+                              "type": "activityNode:join",
+                              "id": "a1cd862d-a471-4e10-97d7-fb6c00f5d440",
+                              "position": {
+                                "x": 80,
+                                "y": 0
+                              },
+                              "nodeType": "joinNode",
+                              "size": {
+                                "width": 10,
+                                "height": 50
+                              },
+                              "children": []
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
     }
   ]
 }
