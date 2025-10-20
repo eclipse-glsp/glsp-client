@@ -21,6 +21,7 @@
     "lint:ci": "yarn lint --output-file eslint_report.json --format json",
     "lint:fix": " yarn lint --fix",
     "prepare": "yarn build",
+    "publish:latest": "lerna publish from-package --no-git-reset -y",
     "publish:next": "lerna publish preminor --exact --canary --preid next --dist-tag next --no-git-reset --no-git-tag-version --no-push --ignore-scripts --yes",
     "standalone": "yarn --cwd ./examples/workflow-standalone",
     "start:exampleServer": "yarn standalone start:exampleServer",
@@ -36,7 +37,7 @@
     "@types/lodash": "4.14.191",
     "@types/node": "20.x",
     "concurrently": "^8.2.2",
-    "lerna": "^7.1.1",
+    "lerna": "^9.0.0",
     "mocha-ctrf-json-reporter": "^0.0.9",
     "typescript": "^5.9.2"
   },
