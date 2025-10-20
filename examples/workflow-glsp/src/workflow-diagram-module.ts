@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2024 EclipseSource and others.
+ * Copyright (c) 2019-2025 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -30,6 +30,7 @@ import {
     GLabelView,
     IHelperLineOptions,
     LogLevel,
+    NoOverlapMovementRestrictor,
     RectangularNodeView,
     RevealNamedElementActionProvider,
     RoundedCornerNodeView,
@@ -64,7 +65,7 @@ export const workflowDiagramModule = new FeatureModule(
         bindOrRebind(context, TYPES.LogLevel).toConstantValue(LogLevel.warn);
         bindAsService(context, TYPES.ICommandPaletteActionProvider, RevealNamedElementActionProvider);
         bindAsService(context, TYPES.IContextMenuItemProvider, DeleteElementContextMenuItemProvider);
-
+        bind(TYPES.IMovementRestrictor).to(NoOverlapMovementRestrictor).inSingletonScope();
         configureDefaultModelElements(context);
         configureModelElement(context, 'task:automated', TaskNode, RoundedCornerNodeView);
         configureModelElement(context, 'task:manual', TaskNode, RoundedCornerNodeView);

@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2024 EclipseSource and others.
+ * Copyright (c) 2019-2025 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,11 +13,23 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Bounds, Dimension, GModelElement, GNode, GParentElement, Point, isBoundsAware, isMoveable } from '@eclipse-glsp/sprotty';
+import {
+    Bounds,
+    Dimension,
+    GChildElement,
+    GModelElement,
+    GNode,
+    GParentElement,
+    isBoundsAware,
+    isMoveable,
+    Point,
+    toTypeGuard
+} from '@eclipse-glsp/sprotty';
 import { injectable } from 'inversify';
-import { ModifyCSSFeedbackAction } from '../../base/feedback/css-feedback';
-import { BoundsAwareModelElement } from '../../utils/gmodel-util';
+import { CSS_GHOST_ELEMENT, ModifyCSSFeedbackAction } from '../../base/feedback/css-feedback';
+import { BoundsAwareModelElement, getChildren, getParents } from '../../utils/gmodel-util';
 import { toAbsoluteBounds } from '../../utils/viewpoint-util';
+import { ContainerElement, isContainable } from '../hints/model';
 import { GResizeHandle } from './model';
 
 /**
@@ -39,34 +51,75 @@ export interface IMovementRestrictor {
     cssClasses?: string[];
 }
 
+export interface MoveElementContext {
+    element: GModelElement;
+    elementAtNewLocation: BoundsAwareModelElement;
+    parentContainers: ContainerElement[];
+    childNodes: GNode[];
+}
+
 /**
  *  A `IMovementRestrictor` that checks for overlapping elements. Move operations
- *  are only valid if the element does not collide with another element after moving.
+ *  are only valid if the element does not collide with another element/node after moving.
  */
 @injectable()
 export class NoOverlapMovementRestrictor implements IMovementRestrictor {
     cssClasses = ['movement-not-allowed'];
 
     validate(element: GModelElement, newLocation?: Point): boolean {
-        if (!isMoveable(element) || !newLocation) {
+        if (!(element instanceof GChildElement) || !isMoveable(element) || !newLocation) {
             return false;
         }
-        // Create ghost element at the newLocation
-        const dimensions: Dimension = isBoundsAware(element) ? element.bounds : { width: 1, height: 1 };
-        const ghostElement = Object.create(element) as BoundsAwareModelElement;
-        ghostElement.bounds = { ...dimensions, ...newLocation };
-        ghostElement.type = 'Ghost';
-        ghostElement.id = element.id;
-        return !Array.from(
-            element.root.index
-                .all()
-                .filter(node => node.id !== ghostElement.id && node !== ghostElement.root && node instanceof GNode)
-                .map(node => node as BoundsAwareModelElement)
-        ).some(e => this.areOverlapping(e, ghostElement));
+
+        const moveContext = this.createMoveElementContext(element, newLocation);
+        const elementsToValidate = Array.from(element.root.index.all()).filter(e =>
+            this.isBoundsRelevant(e, moveContext)
+        ) as BoundsAwareModelElement[];
+
+        const valid = !elementsToValidate.some(e => this.areOverlapping(e, moveContext.elementAtNewLocation));
+        return valid;
     }
 
-    protected isBoundsRelevant(element: GModelElement, ghostElement: BoundsAwareModelElement): element is BoundsAwareModelElement {
-        return element.id !== ghostElement.id && element !== ghostElement.root && element instanceof GNode && isBoundsAware(element);
+    protected createMoveElementContext(element: GModelElement, newLocation: Point): MoveElementContext {
+        const parentContainers = getParents(element, isContainable);
+        const childNodes = getChildren(element, toTypeGuard(GNode));
+        // Create a mock element at the newLocation for overlap checking
+        const dimensions: Dimension = isBoundsAware(element) ? element.bounds : { width: 1, height: 1 };
+        const elementAtNewLocation = Object.create(element) as BoundsAwareModelElement as BoundsAwareModelElement;
+        elementAtNewLocation.bounds = { ...dimensions, ...newLocation };
+
+        return {
+            element,
+            elementAtNewLocation,
+            parentContainers,
+            childNodes
+        };
+    }
+
+    protected isBoundsRelevant(element: GModelElement, moveContext: MoveElementContext): element is BoundsAwareModelElement {
+        // Only consider GNodes that are not the element being moved (or one of its children)
+        if (
+            !(element instanceof GNode) ||
+            element.id === moveContext.element.id ||
+            moveContext.childNodes.some(child => child.id === element.id)
+        ) {
+            return false;
+        }
+
+        // Do not consider parent containers of the element being moved
+        if (moveContext.parentContainers.length > 0 && moveContext.parentContainers.some(container => container.id === element.id)) {
+            return false;
+        }
+
+        // If the element is a ghost element (node creation), don't consider overlap checks for potential parent containers
+        if (
+            moveContext.element.cssClasses?.includes(CSS_GHOST_ELEMENT) &&
+            isContainable(element) &&
+            element.isContainableElement(moveContext.element.type)
+        ) {
+            return false;
+        }
+        return true;
     }
 
     protected areOverlapping(element1: BoundsAwareModelElement, element2: BoundsAwareModelElement): boolean {

@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2024 EclipseSource and others.
+ * Copyright (c) 2019-2025 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -87,6 +87,63 @@ export function getMatchingElements<T>(index: ModelIndexImpl, predicate: ModelFi
 }
 
 /**
+ * Retrieves an array of all parent elements for the given element that match the given type guard.
+ * @param element The {@link GModelElement} for which the parent elements should be retrieved.
+ * @param guard The type guard that should be used.
+ * @returns An array of all parent elements that match the type guard
+ * (correctly casted to also include the additional type of the guard).
+ */
+export function getParents<T extends GParentElement>(element: GModelElement, guard: TypeGuard<T>): T[];
+/**
+ * Retrieves an array of all parent elements for the given element that match the given {@link ModelFilterPredicate}.
+ * @param element The {@link GModelElement} for which the parent elements should be retrieved.
+ * @param predicate The filter predicate that should be used.
+ * @returns An array of all parent elements that match the filter predicate
+ * (correctly casted to also include the additional type of the predicate).
+ */
+export function getParents<T>(element: GModelElement, predicate: ModelFilterPredicate<T>): (GParentElement & T)[];
+export function getParents(element: GModelElement, filterPredicate: (parent: GParentElement) => boolean): GParentElement[] {
+    const parents: GParentElement[] = [];
+    let current: GModelElement | undefined = element;
+    while (current instanceof GChildElement) {
+        const parent: GParentElement = current.parent;
+        if (filterPredicate(parent)) {
+            parents.push(parent);
+        }
+        current = parent;
+    }
+    return parents;
+}
+
+/** * Retrieves an array of all child elements for the given element that match the given type guard.
+ * @param element The {@link GModelElement} for which the child elements should be retrieved.
+ * @param guard The type guard that should be used.
+ * @returns An array of all child elements that match the type guard
+ * (correctly casted to also include the additional type of the guard).
+ */
+export function getChildren<T extends GChildElement>(element: GModelElement, guard: TypeGuard<T>): T[];
+/** * Retrieves an array of all child elements for the given element that match the given {@link ModelFilterPredicate}.
+ * @param element The {@link GModelElement} for which the child elements should be retrieved.
+ * @param predicate The filter predicate that should be used.
+ * @returns An array of all child elements that match the filter predicate
+ * (correctly casted to also include the additional type of the predicate).
+ */
+export function getChildren<T>(element: GModelElement, predicate: ModelFilterPredicate<T>): (GChildElement & T)[];
+export function getChildren(element: GModelElement, filterPredicate: (parent: GChildElement) => boolean): GChildElement[] {
+    const children: GChildElement[] = [];
+    if (element instanceof GParentElement) {
+        for (const child of element.children) {
+            if (filterPredicate(child)) {
+                children.push(child);
+            }
+            if (child instanceof GParentElement) {
+                children.push(...getChildren(child, filterPredicate as any));
+            }
+        }
+    }
+    return children;
+}
+/**
  * Invokes the given model index to retrieve the corresponding model elements for the given set of ids. Ids that
  * have no corresponding element in the index will be ignored.
  * @param index THe model index.
@@ -104,6 +161,7 @@ export function getElements<S extends GModelElement>(index: ModelIndexImpl, elem
     };
     return elementsIDs.map(id => index.getById(id)).filter(filterFn);
 }
+
 /**
  * Retrieves the amount of currently selected elements in the given {@link ModelIndexImpl}.
  * @param index The {@link ModelIndexImpl}.
