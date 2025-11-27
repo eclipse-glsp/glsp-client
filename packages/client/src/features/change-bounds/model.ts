@@ -23,11 +23,10 @@ import {
     Point,
     hoverFeedbackFeature,
     isBoundsAware,
-    isMoveable,
     isSelectable
 } from '@eclipse-glsp/sprotty';
 import { CursorCSS } from '../../base/feedback/css-feedback';
-import { BoundsAwareModelElement, MoveableElement, ResizableModelElement } from '../../utils/gmodel-util';
+import type { ResizableModelElement } from '../../utils/gmodel-util';
 
 export const resizeFeature = Symbol('resizeFeature');
 
@@ -103,10 +102,6 @@ export namespace ResizeHandleLocation {
                 return [Direction.Left];
         }
     }
-}
-
-export function isBoundsAwareMoveable(element: GModelElement): element is BoundsAwareModelElement & MoveableElement {
-    return isMoveable(element) && isBoundsAware(element);
 }
 
 export class GResizeHandle extends GChildElement implements Hoverable {

@@ -272,7 +272,7 @@ export class FeedbackEdgeRouteMovingMouseListener extends DragAwareMouseListener
             const routingHandle = findParentByFeature(target, isRoutingHandle);
             if (routingHandle !== undefined) {
                 result.push(SwitchRoutingModeAction.create({ elementsToActivate: [target.id] }));
-                this.tracker.startTracking();
+                this.tracker.startTracking(target.root);
             } else {
                 this.tracker.dispose();
             }
@@ -290,7 +290,7 @@ export class FeedbackEdgeRouteMovingMouseListener extends DragAwareMouseListener
 
     protected moveRoutingHandles(target: GModelElement, event: MouseEvent): Action[] {
         const routingHandlesToMove = this.getRoutingHandlesToMove(target);
-        const move = this.tracker.moveElements(routingHandlesToMove, { snap: event, restrict: event });
+        const move = this.tracker.moveElements(routingHandlesToMove, { snap: event, restrict: event, wrap: false });
         if (move.elementMoves.length === 0) {
             return [];
         }

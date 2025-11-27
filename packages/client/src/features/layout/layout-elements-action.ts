@@ -34,9 +34,9 @@ import {
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable, optional } from 'inversify';
 import { SelectionService } from '../../base/selection-service';
-import { BoundsAwareModelElement, getElements } from '../../utils/gmodel-util';
+import { BoundsAwareModelElement, getElements, isBoundsAwareMoveable } from '../../utils/gmodel-util';
 import { toValidElementAndBounds, toValidElementMove } from '../../utils/layout-utils';
-import { isBoundsAwareMoveable, isResizable } from '../change-bounds/model';
+import { isResizable } from '../change-bounds/model';
 import { IMovementRestrictor } from '../change-bounds/movement-restrictor';
 
 /**
