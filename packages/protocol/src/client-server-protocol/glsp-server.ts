@@ -15,6 +15,7 @@
  ********************************************************************************/
 
 import { ActionMessage } from '../action-protocol/base-protocol';
+import { MaybePromise } from '../utils/type-util';
 import { DisposeClientSessionParameters, InitializeClientSessionParameters, InitializeParameters, InitializeResult } from './types';
 
 /**
@@ -130,6 +131,23 @@ export interface GLSPServerListener {
     serverShutDown?(server: GLSPServer): void;
 }
 export const GLSPServerListener = Symbol('GLSPServerListener');
+
+/**
+ * Contribution interface for extending the server initialization process.
+ * Implementations can modify the {@link InitializeResult} based on the provided {@link InitializeParameters}.
+ */
+export interface GLSPServerInitContribution {
+    /**
+     * Handles the server initialization with the given parameters and allows to modify the initialization result.
+     *
+     * @param server The {@link GLSPServer} instance that is being initialized.
+     * @param params The {@link InitializeParameters} provided by the client.
+     * @param result The current {@link InitializeResult} that can be modified by the contribution.
+     * @returns The (possibly modified) {@link InitializeResult}.
+     */
+    initializeServer(server: GLSPServer, params: InitializeParameters, result: InitializeResult): MaybePromise<InitializeResult>;
+}
+export const GLSPServerInitContribution = Symbol('GLSPServerInitContribution');
 
 /**
  * Communication proxy interface used by the GLSP servers to send action messages to clients.
