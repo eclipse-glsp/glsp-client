@@ -92,6 +92,7 @@ export class MoveElementHandler implements IActionHandler {
         if (MoveElementRelativeAction.is(action) && action.elementIds.length > 0) {
             this.tracker.startTracking(this.editorContextService.modelRoot);
             this.handleMoveElement(action);
+            this.tracker.stopTracking();
         }
     }
 

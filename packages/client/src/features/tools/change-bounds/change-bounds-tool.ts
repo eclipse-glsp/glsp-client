@@ -333,7 +333,7 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
         if (this.tool.movementOptions.allElementsNeedToBeValid && elementsToMove.length !== affectedElementSet.size) {
             return [];
         }
-        return elementsToMove as any[];
+        return elementsToMove as SelectableBoundsAware[];
     }
 
     protected handleMoveElementsOnServer(elementsToMove: SelectableBoundsAware[]): Operation[] {
