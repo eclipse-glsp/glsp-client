@@ -22,7 +22,6 @@ import {
     SModelRootImpl as GModelRoot,
     ICommand,
     IActionDispatcher as SIActionDispatcher,
-    IActionHandler as SIActionHandler,
     IButtonHandler as SIButtonHandler,
     ICommandPaletteActionProvider as SICommandPaletteActionProvider,
     ICommandStack as SICommandStack,
@@ -42,14 +41,6 @@ import {
  * and export them instead.
  *
  */
-
-/**
- * An action handler accepts an action and reacts to it by returning either a command to be
- * executed, or another action to be dispatched.
- */
-export interface IActionHandler extends SIActionHandler {
-    handle(action: Action): ICommand | Action | void;
-}
 
 export interface IButtonHandler extends SIButtonHandler {
     buttonPressed(button: GButton): (Action | Promise<Action>)[];

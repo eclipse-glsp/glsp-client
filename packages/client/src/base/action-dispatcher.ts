@@ -16,11 +16,13 @@
 import {
     Action,
     ActionDispatcher,
+    ActionHandler,
     ActionHandlerRegistry,
     Deferred,
     EMPTY_ROOT,
     GModelRoot,
     IActionDispatcher,
+    RejectAction,
     RequestAction,
     ResponseAction,
     SetModelAction,
@@ -126,25 +128,70 @@ export class GLSPActionDispatcher extends ActionDispatcher implements IGModelRoo
     }
 
     protected override handleAction(action: Action): Promise<void> {
-        if (ResponseAction.hasValidResponseId(action)) {
-            // clear timeout
-            const timeout = this.timeouts.get(action.responseId);
-            if (timeout !== undefined) {
-                clearTimeout(timeout);
-                this.timeouts.delete(action.responseId);
-            }
+        return ResponseAction.hasValidResponseId(action) ? this.handleResponseAction(action) : this.doHandleAction(action);
+    }
 
-            // Check if we have a pending request for the response.
-            // If not the  we clear the responseId => action will be dispatched normally
-            const deferred = this.requests.get(action.responseId);
-            if (deferred === undefined) {
-                action.responseId = '';
+    protected async handleResponseAction(action: ResponseAction): Promise<void> {
+        // clear any pending timeout
+        const timeout = this.timeouts.get(action.responseId);
+        if (timeout !== undefined) {
+            clearTimeout(timeout);
+            this.timeouts.delete(action.responseId);
+        }
+
+        // check for matching request
+        const request = this.requests.get(action.responseId);
+        if (!request) {
+            // treat no matching request by dispatching action normally
+            this.logger.log(this, 'No matching request for response, dispatch normally', action);
+            action.responseId = '';
+            return this.handleAction(action);
+        }
+
+        this.requests.delete(action.responseId);
+        if (RejectAction.is(action)) {
+            // translation reject action to request rejection
+            request.reject(new Error(action.message));
+            this.logger.warn(this, `Request with id ${action.responseId} failed.`, action.message, action.detail);
+        } else {
+            request.resolve(action);
+        }
+    }
+
+    protected doHandleAction(action: Action): Promise<void> {
+        const handlers = this.actionHandlerRegistry.get(action.kind);
+        return handlers.length === 0 ? this.handleActionWithoutHandler(action) : this.handlerActionWithHandler(action, handlers);
+    }
+
+    protected async handleActionWithoutHandler(action: Action): Promise<void> {
+        if (OptionalAction.is(action) && !this.hasHandler(action)) {
+            return;
+        }
+        this.logger.warn(this, 'Missing handler for action', action);
+        const error = new Error(`Missing handler for action '${action.kind}'`);
+        if (!RequestAction.is(action)) {
+            throw error;
+        }
+        const request = this.requests.get(action.requestId);
+        if (request !== undefined) {
+            this.requests.delete(action.requestId);
+            request.reject(error);
+        }
+    }
+
+    protected async handlerActionWithHandler(action: Action, handlers: ActionHandler[]): Promise<any> {
+        this.logger.log(this, 'Handle', action);
+        const handlerResults: Promise<any>[] = [];
+        for (const handler of handlers) {
+            const result = await handler.handle(action);
+            if (Action.is(result)) {
+                handlerResults.push(this.dispatch(result));
+            } else if (result !== undefined) {
+                this.blockUntil = result.blockUntil;
+                handlerResults.push(this.commandStack.execute(result));
             }
         }
-        if (!this.hasHandler(action) && OptionalAction.is(action)) {
-            return Promise.resolve();
-        }
-        return super.handleAction(action);
+        return Promise.all(handlerResults) as Promise<any>;
     }
 
     override request<Res extends ResponseAction>(action: RequestAction<Res>): Promise<Res> {
@@ -193,7 +240,6 @@ export class GLSPActionDispatcher extends ActionDispatcher implements IGModelRoo
             }
         }, timeoutMs);
         this.timeouts.set(requestId, timeout);
-
         return super.request<Res>(action);
     }
 }

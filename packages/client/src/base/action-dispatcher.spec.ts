@@ -36,10 +36,10 @@ const testHandler: IActionHandler = {
     handle: action => {
         const request = action as RequestAction<ResponseAction>;
         new Promise(resolve => setTimeout(resolve, testHandlerDelay)).then(() =>
-            actionDispatcher.dispatch(<ResponseAction>{
+            actionDispatcher.dispatch({
                 kind: 'response',
                 responseId: request.requestId
-            })
+            } as ResponseAction)
         );
     }
 };
@@ -83,6 +83,184 @@ describe('GLSPActionDispatcher', () => {
                 err => false
             );
             expect(dispatchSuccessful, 'Promise of re-dispatch should resolve successfully').to.be.true;
+        });
+    });
+    describe('async action handlers', () => {
+        it('should handle async action handlers correctly', async () => {
+            let handlerExecuted = false;
+            const asyncHandler: IActionHandler = {
+                handle: async () => {
+                    await new Promise(resolve => setTimeout(resolve, 10));
+                    handlerExecuted = true;
+                }
+            };
+
+            registry.register('asyncTest1', asyncHandler);
+            await actionDispatcher.dispatch({ kind: 'asyncTest1' });
+
+            expect(handlerExecuted).to.be.true;
+        });
+
+        it('should execute multiple async handlers sequentially', async () => {
+            const executionOrder: number[] = [];
+            const asyncHandler1: IActionHandler = {
+                handle: async () => {
+                    await new Promise(resolve => setTimeout(resolve, 20));
+                    executionOrder.push(1);
+                }
+            };
+            const asyncHandler2: IActionHandler = {
+                handle: async () => {
+                    await new Promise(resolve => setTimeout(resolve, 10));
+                    executionOrder.push(2);
+                }
+            };
+
+            registry.register('multiAsyncTest', asyncHandler1);
+            registry.register('multiAsyncTest', asyncHandler2);
+            await actionDispatcher.dispatch({ kind: 'multiAsyncTest' });
+
+            expect(executionOrder).to.deep.equal([1, 2]);
+        });
+
+        it('should handle mixed sync and async handlers correctly', async () => {
+            const executionOrder: number[] = [];
+            const syncHandler: IActionHandler = {
+                handle: () => {
+                    executionOrder.push(1);
+                }
+            };
+            const asyncHandler: IActionHandler = {
+                handle: async () => {
+                    await new Promise(resolve => setTimeout(resolve, 10));
+                    executionOrder.push(2);
+                }
+            };
+
+            registry.register('mixedTest', syncHandler);
+            registry.register('mixedTest', asyncHandler);
+            await actionDispatcher.dispatch({ kind: 'mixedTest' });
+
+            expect(executionOrder).to.deep.equal([1, 2]);
+        });
+
+        it('should propagate errors from async handlers', async () => {
+            const errorMessage = 'Async handler error';
+            const errorHandler: IActionHandler = {
+                handle: async () => {
+                    await new Promise(resolve => setTimeout(resolve, 5));
+                    throw new Error(errorMessage);
+                }
+            };
+
+            registry.register('errorTest1', errorHandler);
+            let caughtError: Error | undefined;
+            try {
+                await actionDispatcher.dispatch({ kind: 'errorTest1' });
+            } catch (error) {
+                caughtError = error as Error;
+            }
+
+            expect(caughtError).to.not.be.undefined;
+            expect(caughtError?.message).to.equal(errorMessage);
+        });
+
+        it('should handle errors in one handler without affecting others when multiple handlers are registered', async () => {
+            const executionOrder: number[] = [];
+            const successHandler: IActionHandler = {
+                handle: async () => {
+                    await new Promise(resolve => setTimeout(resolve, 5));
+                    executionOrder.push(1);
+                }
+            };
+            const errorHandler: IActionHandler = {
+                handle: async () => {
+                    await new Promise(resolve => setTimeout(resolve, 5));
+                    throw new Error('Handler 2 error');
+                }
+            };
+
+            registry.register('multiHandlerErrorTest', successHandler);
+            registry.register('multiHandlerErrorTest', errorHandler);
+
+            let caughtError: Error | undefined;
+            try {
+                await actionDispatcher.dispatch({ kind: 'multiHandlerErrorTest' });
+            } catch (error) {
+                caughtError = error as Error;
+            }
+
+            // First handler should have executed successfully
+            expect(executionOrder).to.deep.equal([1]);
+            // Error should have been thrown
+            expect(caughtError).to.not.be.undefined;
+            expect(caughtError?.message).to.equal('Handler 2 error');
+        });
+
+        it('should handle synchronous errors in handlers', async () => {
+            const errorMessage = 'Sync handler error';
+            const syncErrorHandler: IActionHandler = {
+                handle: () => {
+                    throw new Error(errorMessage);
+                }
+            };
+
+            registry.register('syncErrorTest', syncErrorHandler);
+            let caughtError: Error | undefined;
+            try {
+                await actionDispatcher.dispatch({ kind: 'syncErrorTest' });
+            } catch (error) {
+                caughtError = error as Error;
+            }
+
+            expect(caughtError).to.not.be.undefined;
+            expect(caughtError?.message).to.equal(errorMessage);
+        });
+
+        it('should handle async handlers that return actions', async () => {
+            const dispatchedActions: string[] = [];
+            const returningHandler: IActionHandler = {
+                handle: async () => {
+                    await new Promise(resolve => setTimeout(resolve, 5));
+                    return { kind: 'returnedAction1' };
+                }
+            };
+            const receivingHandler: IActionHandler = {
+                handle: action => {
+                    dispatchedActions.push(action.kind);
+                }
+            };
+
+            registry.register('asyncReturnTest', returningHandler);
+            registry.register('returnedAction1', receivingHandler);
+            await actionDispatcher.dispatch({ kind: 'asyncReturnTest' });
+
+            expect(dispatchedActions).to.include('returnedAction1');
+        });
+
+        it('should wait for all async handlers to complete before resolving dispatch promise', async () => {
+            let handler1Completed = false;
+            let handler2Completed = false;
+            const asyncHandler1: IActionHandler = {
+                handle: async () => {
+                    await new Promise(resolve => setTimeout(resolve, 30));
+                    handler1Completed = true;
+                }
+            };
+            const asyncHandler2: IActionHandler = {
+                handle: async () => {
+                    await new Promise(resolve => setTimeout(resolve, 20));
+                    handler2Completed = true;
+                }
+            };
+
+            registry.register('completionTest', asyncHandler1);
+            registry.register('completionTest', asyncHandler2);
+            await actionDispatcher.dispatch({ kind: 'completionTest' });
+
+            // Both handlers should be completed when dispatch resolves
+            expect(handler1Completed).to.be.true;
+            expect(handler2Completed).to.be.true;
         });
     });
 });
