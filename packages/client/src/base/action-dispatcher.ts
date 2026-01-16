@@ -16,17 +16,20 @@
 import {
     Action,
     ActionDispatcher,
+    ActionHandler,
     ActionHandlerRegistry,
     Deferred,
     EMPTY_ROOT,
     GModelRoot,
     IActionDispatcher,
+    RejectAction,
     RequestAction,
     ResponseAction,
     SetModelAction,
     TYPES
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
+import * as sprotty from 'sprotty-protocol/lib/actions';
 import { GLSPActionHandlerRegistry } from './action-handler-registry';
 import { IGModelRootListener } from './editor-context-service';
 import { OptionalAction } from './model/glsp-model-source';
@@ -125,26 +128,96 @@ export class GLSPActionDispatcher extends ActionDispatcher implements IGModelRoo
         return result;
     }
 
-    protected override handleAction(action: Action): Promise<void> {
+    protected override async handleAction(action: Action): Promise<void> {
         if (ResponseAction.hasValidResponseId(action)) {
-            // clear timeout
-            const timeout = this.timeouts.get(action.responseId);
-            if (timeout !== undefined) {
-                clearTimeout(timeout);
-                this.timeouts.delete(action.responseId);
-            }
-
-            // Check if we have a pending request for the response.
-            // If not the  we clear the responseId => action will be dispatched normally
-            const deferred = this.requests.get(action.responseId);
-            if (deferred === undefined) {
-                action.responseId = '';
-            }
+            return this.handleResponseAction(action);
         }
-        if (!this.hasHandler(action) && OptionalAction.is(action)) {
+        if (OptionalAction.is(action) && !this.hasHandler(action)) {
             return Promise.resolve();
         }
-        return super.handleAction(action);
+        if (sprotty.UndoAction.KIND === action.kind) {
+            return this.handleUndoAction(action);
+        }
+        if (sprotty.RedoAction.KIND === action.kind) {
+            return this.handleRedoAction(action);
+        }
+        return this.doHandleAction(action);
+    }
+
+    protected handleResponseAction(action: ResponseAction): Promise<void> {
+        // clear any pending timeout
+        const timeout = this.timeouts.get(action.responseId);
+        if (timeout !== undefined) {
+            clearTimeout(timeout);
+            this.timeouts.delete(action.responseId);
+        }
+
+        // check for matching request
+        const request = this.requests.get(action.responseId);
+        if (!request) {
+            // treat no matching request by dispatching action normally
+            this.logger.log(this, 'No matching request for response, dispatch normally', action);
+            action.responseId = '';
+            return this.handleAction(action);
+        }
+
+        this.requests.delete(action.responseId);
+        if (RejectAction.is(action)) {
+            // translation reject action to request rejection
+            request.reject(new Error(action.message));
+            this.logger.warn(this, `Request with id ${action.responseId} failed.`, action.message, action.detail);
+        } else {
+            request.resolve(action);
+        }
+        return Promise.resolve();
+    }
+
+    protected handleUndoAction(action: Action): Promise<void> {
+        return this.commandStack.undo().then(() => {});
+    }
+
+    protected handleRedoAction(action: Action): Promise<void> {
+        return this.commandStack.redo().then(() => {});
+    }
+
+    protected async doHandleAction(action: Action): Promise<void> {
+        const handlers = this.actionHandlerRegistry.get(action.kind);
+        if (handlers.length === 0) {
+            return this.handleActionWithoutHandler(action);
+        } else {
+            return this.handlerActionWithHandler(action, handlers);
+        }
+    }
+
+    protected handleActionWithoutHandler(action: Action): Promise<void> {
+        this.logger.warn(this, 'Missing handler for action', action);
+        const error = new Error(`Missing handler for action '${action.kind}'`);
+        if (RequestAction.is(action)) {
+            const request = this.requests.get(action.requestId);
+            if (request !== undefined) {
+                this.requests.delete(action.requestId);
+                request.reject(error);
+            }
+        }
+        return Promise.reject(error);
+    }
+
+    protected async handlerActionWithHandler(action: Action, handlers: ActionHandler[]): Promise<any> {
+        this.logger.log(this, 'Handle', action);
+        const handlerResults: Promise<any>[] = [];
+        for (const handler of handlers) {
+            const handlerResult = Promise.resolve(handler.handle(action)).then<any>(result => {
+                if (Action.is(result)) {
+                    return this.dispatch(result);
+                } else if (result !== undefined) {
+                    this.blockUntil = result.blockUntil;
+                    return this.commandStack.execute(result);
+                }
+                return undefined;
+            });
+            handlerResults.push(handlerResult);
+        }
+        return Promise.all(handlerResults) as Promise<any>;
     }
 
     override request<Res extends ResponseAction>(action: RequestAction<Res>): Promise<Res> {
