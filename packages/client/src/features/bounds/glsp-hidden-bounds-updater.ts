@@ -33,6 +33,7 @@ import {
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable, optional } from 'inversify';
 import { VNode } from 'snabbdom';
+import { EditorContextService } from '../../base/editor-context-service';
 import { BoundsAwareModelElement, calcElementAndRoute, getDescendantIds, isRoutable } from '../../utils/gmodel-util';
 import { LayoutAware } from './layout-data';
 import { LocalComputedBoundsAction, LocalRequestBoundsAction } from './local-bounds';
@@ -49,6 +50,7 @@ export class BoundsDataExt extends BoundsData {
 @injectable()
 export class GLSPHiddenBoundsUpdater extends HiddenBoundsUpdater {
     @inject(EdgeRouterRegistry) @optional() protected readonly edgeRouterRegistry?: EdgeRouterRegistry;
+    @inject(EditorContextService) protected editorContext: EditorContextService;
 
     protected element2route: ElementAndRoutingPoints[] = [];
 
@@ -114,7 +116,17 @@ export class GLSPHiddenBoundsUpdater extends HiddenBoundsUpdater {
         // prepare and dispatch action
         const responseId = (cause as RequestBoundsAction).requestId;
         const revision = this.root !== undefined ? this.root.revision : undefined;
-        const computedBoundsAction = ComputedBoundsAction.create(resizes, { revision, alignments, layoutData, routes, responseId });
+        const canvasBounds = this.editorContext.canvasBounds;
+        const viewport = this.editorContext.viewportData;
+        const computedBoundsAction = ComputedBoundsAction.create(resizes, {
+            revision,
+            alignments,
+            layoutData,
+            routes,
+            responseId,
+            canvasBounds,
+            viewport
+        });
         if (LocalRequestBoundsAction.is(cause)) {
             LocalComputedBoundsAction.mark(computedBoundsAction);
         }

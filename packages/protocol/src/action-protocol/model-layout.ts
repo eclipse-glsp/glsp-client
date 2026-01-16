@@ -85,6 +85,16 @@ export interface ComputedBoundsAction extends ResponseAction, sprotty.ComputedBo
      * The layout data of hte model elements.
      */
     layoutData?: ElementAndLayoutData[];
+
+    /**
+     * The current bounds of the canvas at time of layout.
+     */
+    canvasBounds?: Bounds;
+
+    /**
+     * The current viewport information at time of layout.
+     */
+    viewport?: Viewport;
 }
 
 export namespace ComputedBoundsAction {
@@ -102,6 +112,8 @@ export namespace ComputedBoundsAction {
             alignments?: ElementAndAlignment[];
             routes?: ElementAndRoutingPoints[];
             layoutData?: ElementAndLayoutData[];
+            canvasBounds?: Bounds;
+            viewport?: Viewport;
         } = {}
     ): ComputedBoundsAction {
         return {
