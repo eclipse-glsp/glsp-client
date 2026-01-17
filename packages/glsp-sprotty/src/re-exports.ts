@@ -29,7 +29,13 @@ export * from '@eclipse-glsp/protocol/lib/di';
 // export * from 'sprotty/lib/base/actions/action';
 // Exclude IActionDispatcher and IActionDispatcherProvider. Exported via api-override module instead
 export { ActionDispatcher, PostponedAction } from 'sprotty/lib/base/actions/action-dispatcher';
-// export * from 'sprotty/lib/base/actions/action-handler';
+export {
+    ActionHandlerRegistration,
+    ActionHandlerRegistry,
+    configureActionHandler,
+    IActionHandlerInitializer,
+    onAction
+} from 'sprotty/lib/base/actions/action-handler';
 export * from 'sprotty/lib/base/actions/diagram-locker';
 
 export * from 'sprotty/lib/base/animations/animation';
