@@ -31,7 +31,7 @@ import {
     almostEquals,
     isViewport
 } from '@eclipse-glsp/sprotty';
-import { inject, postConstruct, preDestroy } from 'inversify';
+import { inject, injectable, postConstruct, preDestroy } from 'inversify';
 
 /**
  * Service that tracks changes to the model root and the viewport.
@@ -63,6 +63,7 @@ export interface ViewportChange {
     oldViewport?: Readonly<Viewport>;
 }
 
+@injectable()
 export class ModelChangeService implements IModelChangeService, Disposable {
     @inject(LazyInjector)
     protected lazyInjector: LazyInjector;
