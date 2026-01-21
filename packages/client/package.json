@@ -49,7 +49,7 @@
     "@eclipse-glsp/sprotty": "2.6.0-next",
     "autocompleter": "^9.1.2",
     "file-saver": "^2.0.5",
-    "lodash": "4.17.21",
+    "lodash": "4.17.23",
     "snabbdom": "~3.5.1",
     "vscode-jsonrpc": "8.2.0"
   },
