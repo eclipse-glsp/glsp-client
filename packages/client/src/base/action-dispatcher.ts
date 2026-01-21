@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2024 EclipseSource and others.
+ * Copyright (c) 2019-2026 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -160,7 +160,7 @@ export class GLSPActionDispatcher extends ActionDispatcher implements IGModelRoo
 
     protected doHandleAction(action: Action): Promise<void> {
         const handlers = this.actionHandlerRegistry.get(action.kind);
-        return handlers.length === 0 ? this.handleActionWithoutHandler(action) : this.handlerActionWithHandler(action, handlers);
+        return handlers.length === 0 ? this.handleActionWithoutHandler(action) : this.handleActionWithHandler(action, handlers);
     }
 
     protected async handleActionWithoutHandler(action: Action): Promise<void> {
@@ -179,7 +179,7 @@ export class GLSPActionDispatcher extends ActionDispatcher implements IGModelRoo
         }
     }
 
-    protected async handlerActionWithHandler(action: Action, handlers: ActionHandler[]): Promise<any> {
+    protected async handleActionWithHandler(action: Action, handlers: ActionHandler[]): Promise<void> {
         this.logger.log(this, 'Handle', action);
         const handlerResults: Promise<any>[] = [];
         for (const handler of handlers) {
@@ -191,7 +191,7 @@ export class GLSPActionDispatcher extends ActionDispatcher implements IGModelRoo
                 handlerResults.push(this.commandStack.execute(result));
             }
         }
-        return Promise.all(handlerResults) as Promise<any>;
+        await Promise.all(handlerResults);
     }
 
     override request<Res extends ResponseAction>(action: RequestAction<Res>): Promise<Res> {
