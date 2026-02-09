@@ -235,7 +235,7 @@ export class KeyboardToolPalette extends ToolPalette {
     }
 
     protected override createMouseDeleteToolButton(): HTMLElement {
-        const deleteToolButton = createIcon('chrome-close');
+        const deleteToolButton = createIcon('eraser');
         deleteToolButton.title = messages.tool_palette.delete_button;
         deleteToolButton.onclick = this.onClickStaticToolButton(deleteToolButton, MouseDeleteTool.ID);
         deleteToolButton.appendChild(this.createKeyboardShotcut(DELETION_TOOL_KEY[0]));

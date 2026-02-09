@@ -42,7 +42,7 @@
   },
   "devDependencies": {
     "@types/jsdom": "^21.1.3",
-    "@vscode/codicons": "^0.0.25",
+    "@vscode/codicons": "^0.0.44",
     "snabbdom-to-html": "^7.1.0"
   },
   "peerDependencies": {
