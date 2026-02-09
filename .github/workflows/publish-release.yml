@@ -1,0 +1,22 @@
+name: Publish Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to use for the release repo (default: default branch)'
+        required: false
+        type: string
+      draft:
+        description: 'Create draft GitHub release'
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  publish-release:
+    uses: eclipse-glsp/glsp/.github/workflows/publish-release.yml@master
+    with:
+      release_repo: glsp-client
+      branch: ${{ inputs.branch }}
+      draft: ${{ inputs.draft }}
