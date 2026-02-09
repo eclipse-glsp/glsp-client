@@ -4,7 +4,21 @@
 
 ### Changes
 
+-   [diagram] Fix overflow-behavior of command-palette [#449](https://github.com/eclipse-glsp/glsp-client/pull/449)
+-   [i18n] Add missing translation messages for context menu labels [#450](https://github.com/eclipse-glsp/glsp-client/pull/450)
+-   [diagram] Fix bugs with the export SVG feature [#451](https://github.com/eclipse-glsp/glsp-client/pull/451)
+-   [diagram] Add support for nested nodes to `NoOverlapMovementRestrictor` [#452](https://github.com/eclipse-glsp/glsp-client/pull/452)
+-   [api] Add optional viewport information to `ComputedBoundsAction` [#460](https://github.com/eclipse-glsp/glsp-client/pull/460)
+-   [diagram] Update to codicon 0.0.44 -> new icons are available [#465](https://github.com/eclipse-glsp/glsp-client/pull/465)
+
 ### Potentially Breaking Changes
+
+-   [api] Refactor menu item API [#450](https://github.com/eclipse-glsp/glsp-client/pull/450)
+    -   Ensure that `MenuItem` is serializable
+        -   Use boolean flags instead of functions
+    -   Use `ClientMenuItem` instead of `MenuItem` on client-side
+-   [api] Add support for asynchronous `ActionHandler` [#457](https://github.com/eclipse-glsp/glsp-client/pull/457)
+    -   Breaking changes in protected methods of `GlspActionDispatcher` (might affect adopter subclasses)
 
 ## [v2.5.0 - 07/09/2025](https://github.com/eclipse-glsp/glsp-client/releases/tag/v2.5.0)
 
