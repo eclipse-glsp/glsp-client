@@ -256,18 +256,18 @@
   resolved "https://registry.yarnpkg.com/@discoveryjs/json-ext/-/json-ext-0.5.7.tgz#1d572bfbbe14b7704e0ba0f39b74815b84870d70"
   integrity sha512-dBVuXR082gk3jsFp7Rd/JI4kytwGHecnCoTtXFb7DB6CNHp4rg5k1bhg0nWdLGLnOV71lmDzGQaLMy8iPLY0pw==
 
-"@eclipse-glsp/cli@2.6.0-next.185+9e4723e":
-  version "2.6.0-next.185"
-  resolved "https://registry.yarnpkg.com/@eclipse-glsp/cli/-/cli-2.6.0-next.185.tgz#accd035dd6b981bdb03fa7350535c5e293b3b67c"
-  integrity sha512-BI/nCNAaj+nhUhfyznlqHeh7xRYsYcjLG9MgueYHM8hLEtSbtQEJ4/EDfvOmwUVH1VG4/7OjQc0/d7GQMmVbgw==
+"@eclipse-glsp/cli@2.6.0":
+  version "2.6.0"
+  resolved "https://registry.yarnpkg.com/@eclipse-glsp/cli/-/cli-2.6.0.tgz#cfe59f5e52ad7e256d59376a3ccefe44c43d67a3"
+  integrity sha512-WMuUbpPdWIcGeKJRS5KH00N5dqPI51sdGEtcl4U1ULwf3JzDI0Zk4xnddbgx84uvVLAoDHHmcg098NLfd7E3ww==
 
-"@eclipse-glsp/config-test@2.6.0-next.185+9e4723e":
-  version "2.6.0-next.185"
-  resolved "https://registry.yarnpkg.com/@eclipse-glsp/config-test/-/config-test-2.6.0-next.185.tgz#8293975f2cfe41d2f8ac6a5769f18b583a8f4b0a"
-  integrity sha512-E82Ua6uN4AJTn/guP1kcV0Br5CJe+nmIvWaiYxO9iDv0i8O4f0jVSxATr7P1nozvFfMSNX9jGedhaxAkXflYmQ==
+"@eclipse-glsp/config-test@2.6.0":
+  version "2.6.0"
+  resolved "https://registry.yarnpkg.com/@eclipse-glsp/config-test/-/config-test-2.6.0.tgz#75012156579c4934a673cc856bc303cb9fdf3513"
+  integrity sha512-TJRIfEknDeVfqpSvB8oTr5KACqL7/IhetXwvy6qP5tz1Jcgfy3sLgiyEaEkvZ9eUDEIikjcfe7zEG+uJ5a7o8Q==
   dependencies:
-    "@eclipse-glsp/mocha-config" "2.6.0-next.185+9e4723e"
-    "@eclipse-glsp/nyc-config" "2.6.0-next.185+9e4723e"
+    "@eclipse-glsp/mocha-config" "2.6.0"
+    "@eclipse-glsp/nyc-config" "2.6.0"
     "@istanbuljs/nyc-config-typescript" "^1.0.2"
     "@types/chai" "^4.3.7"
     "@types/mocha" "^10.0.2"
@@ -275,20 +275,19 @@
     chai "^4.3.10"
     ignore-styles "^5.0.1"
     mocha "^10.2.0"
-    mocha-jenkins-reporter "^0.4.8"
     nyc "^15.1.0"
     reflect-metadata "^0.1.13"
     sinon "^15.1.0"
     ts-node "^10.9.1"
 
-"@eclipse-glsp/config@2.6.0-next.185+9e4723e":
-  version "2.6.0-next.185"
-  resolved "https://registry.yarnpkg.com/@eclipse-glsp/config/-/config-2.6.0-next.185.tgz#b2a05ea9cc6dfc186f308c63ba162c4caa41e463"
-  integrity sha512-kvMfEvLZNMLBXh4P5xMtUibGvcYORWp9zX7vqM+ZUG4wcaOSf9XR9mK1RmqI/PNmzVWEhsKrOg0s0CDXi8cxVQ==
+"@eclipse-glsp/config@2.6.0":
+  version "2.6.0"
+  resolved "https://registry.yarnpkg.com/@eclipse-glsp/config/-/config-2.6.0.tgz#1f6e70986315101a61f799eac899046b6056accd"
+  integrity sha512-HSJolxpoAn/qVSao84WXR+MoVp/6HtP30Z7PWHTFfIrfmXcdPz2iprX+O22JzKIj7swKv5GDXb8bTpCBvSD2ZQ==
   dependencies:
-    "@eclipse-glsp/eslint-config" "2.6.0-next.185+9e4723e"
-    "@eclipse-glsp/prettier-config" "2.6.0-next.185+9e4723e"
-    "@eclipse-glsp/ts-config" "2.6.0-next.185+9e4723e"
+    "@eclipse-glsp/eslint-config" "2.6.0"
+    "@eclipse-glsp/prettier-config" "2.6.0"
+    "@eclipse-glsp/ts-config" "2.6.0"
     "@typescript-eslint/eslint-plugin" "^6.7.5"
     "@typescript-eslint/parser" "^6.7.5"
     eslint "^8.51.0"
@@ -302,41 +301,41 @@
     reflect-metadata "^0.1.13"
     rimraf "^5.0.5"
 
-"@eclipse-glsp/dev@next":
-  version "2.6.0-next.185"
-  resolved "https://registry.yarnpkg.com/@eclipse-glsp/dev/-/dev-2.6.0-next.185.tgz#0688a2e82b2a228956e872ebae93a30846fb03f5"
-  integrity sha512-NrYFjxG0rlnmCxqFXD8NbhXA0Gm0bd0msLdUHqUlCoFwC4wIsIX8akE3mLtncQvWAv6aegAda7/zvAresTHLtg==
+"@eclipse-glsp/dev@2.6.0":
+  version "2.6.0"
+  resolved "https://registry.yarnpkg.com/@eclipse-glsp/dev/-/dev-2.6.0.tgz#d62ce151091bef711da6a54a0280cf2e5f7750b7"
+  integrity sha512-hqhS7ef2Z/UcU13HPi+wBgdLR/+8S15JWMjRz0iAOfWCUwCYUJ8qyd6/ODMQnylyB1VOrtVdnA3U9BeXiqBR+g==
   dependencies:
-    "@eclipse-glsp/cli" "2.6.0-next.185+9e4723e"
-    "@eclipse-glsp/config" "2.6.0-next.185+9e4723e"
-    "@eclipse-glsp/config-test" "2.6.0-next.185+9e4723e"
+    "@eclipse-glsp/cli" "2.6.0"
+    "@eclipse-glsp/config" "2.6.0"
+    "@eclipse-glsp/config-test" "2.6.0"
 
-"@eclipse-glsp/eslint-config@2.6.0-next.185+9e4723e":
-  version "2.6.0-next.185"
-  resolved "https://registry.yarnpkg.com/@eclipse-glsp/eslint-config/-/eslint-config-2.6.0-next.185.tgz#cf7872d1f7e9e3b6a545a56d34d7b7b1768ba816"
-  integrity sha512-dqZ7fD+kIelX1YBd9GyEEiecMWqYbWo6Ne8NlRlOAo6Wp8UpIfZNR306WsrsMO5upMOJorJ+EDiuSgWCFrUe5g==
+"@eclipse-glsp/eslint-config@2.6.0":
+  version "2.6.0"
+  resolved "https://registry.yarnpkg.com/@eclipse-glsp/eslint-config/-/eslint-config-2.6.0.tgz#c825431de3ad48447ea18c5daacc964f3fcbe215"
+  integrity sha512-riTZkeSSXvnrceedgPc+y7bujplymLkDn2m/dtS87aiejsAvQB2tQsWFZCA0BVoqe+uurTeI+HVgQtiHKF/z1w==
 
-"@eclipse-glsp/mocha-config@2.6.0-next.185+9e4723e":
-  version "2.6.0-next.185"
-  resolved "https://registry.yarnpkg.com/@eclipse-glsp/mocha-config/-/mocha-config-2.6.0-next.185.tgz#a4397cf50b7d6709338393c1d9a6e7fabb6fbdd5"
-  integrity sha512-ylg6IXSdWLp+CH0Cm0zm5D1ihbZnI41IG4hgimsrg+Zg4dMiCIi8t8Bf8ctADjfKU9Y5qQVVBASBfRu/8ypMFg==
+"@eclipse-glsp/mocha-config@2.6.0":
+  version "2.6.0"
+  resolved "https://registry.yarnpkg.com/@eclipse-glsp/mocha-config/-/mocha-config-2.6.0.tgz#bbe5dd11be48d88094248b34292bbeefef36da4f"
+  integrity sha512-zXukAEE22E9tohXRUm+Ed1geg0oFUQHba5pWpzni6PPkInFOiaTfY03iyYqwaNyfv0RWbE4igOgw/joMU1zWnw==
 
-"@eclipse-glsp/nyc-config@2.6.0-next.185+9e4723e":
-  version "2.6.0-next.185"
-  resolved "https://registry.yarnpkg.com/@eclipse-glsp/nyc-config/-/nyc-config-2.6.0-next.185.tgz#a25b5d21028eb43d5b50ffc9d11c0fdaeeecb02e"
-  integrity sha512-ImH0DG2Kj7F5pJo9A8CSGaZIozfjWJB8zKZN/BahiKEbEHKgUNJIT0lTsbSoQAFdHimyBMb2RptmwwdbStIOOg==
+"@eclipse-glsp/nyc-config@2.6.0":
+  version "2.6.0"
+  resolved "https://registry.yarnpkg.com/@eclipse-glsp/nyc-config/-/nyc-config-2.6.0.tgz#ca6bcf1b54885f5dd1d1e65c90cd8b515c04befd"
+  integrity sha512-OT4vuptY86vRnqc4LCRWrUMzSpLKrAir+KGvcezokj4mR7HaKKpYFBLBzEsWsscJwwTsbYRLpo2boI6QOWIObA==
 
-"@eclipse-glsp/prettier-config@2.6.0-next.185+9e4723e":
-  version "2.6.0-next.185"
-  resolved "https://registry.yarnpkg.com/@eclipse-glsp/prettier-config/-/prettier-config-2.6.0-next.185.tgz#ae389d96f9442a2d94691aa1c60e43526bd6d90b"
-  integrity sha512-x0zASeNQIGkxjh17A24NqaoJI6i21oK4BK/0X+SMO2f5cytJvNtcp3nOsQ+rJxhIxRdvkTjW9E0Vw9US4uzyfQ==
+"@eclipse-glsp/prettier-config@2.6.0":
+  version "2.6.0"
+  resolved "https://registry.yarnpkg.com/@eclipse-glsp/prettier-config/-/prettier-config-2.6.0.tgz#6e7b72791c154e582633fc967c25cad0e3ebd5bf"
+  integrity sha512-cq1ltXByyuEzgtDUGWsA+WfFQjOb3BeHVhI4JgoTByQmIqOBkUXY0vzMouuCmQooBh0MUOOoYboKIUGLOghFmw==
   dependencies:
     prettier-plugin-packagejson "~2.4.6"
 
-"@eclipse-glsp/ts-config@2.6.0-next.185+9e4723e":
-  version "2.6.0-next.185"
-  resolved "https://registry.yarnpkg.com/@eclipse-glsp/ts-config/-/ts-config-2.6.0-next.185.tgz#e4d488d4a1b3b321ebf79f5dacadb8349b15aef4"
-  integrity sha512-P4UD3TVEMENeMA5Ypmi6JxLm0q58e7G7cmrupySB+jnCmNHAjCSaLTEFkqwcBHu/qE4jxttcDl4AWUHt10DAng==
+"@eclipse-glsp/ts-config@2.6.0":
+  version "2.6.0"
+  resolved "https://registry.yarnpkg.com/@eclipse-glsp/ts-config/-/ts-config-2.6.0.tgz#c97b5e83f993f9969ce9db2be41b169ffb16d494"
+  integrity sha512-DPQOhnsxRgL8NQYS8J7mdxpKdzC+xXoodib2UW1HMZY2F8WOknSSWlFxNDEXNxUGvCeTdfuBlLo9RACx+TrbIw==
 
 "@emnapi/core@^1.1.0":
   version "1.5.0"
@@ -2839,11 +2838,6 @@ detect-newline@^4.0.0:
   resolved "https://registry.yarnpkg.com/detect-newline/-/detect-newline-4.0.1.tgz#fcefdb5713e1fb8cb2839b8b6ee22e6716ab8f23"
   integrity sha512-qE3Veg1YXzGHQhlA6jzebZN2qVf6NX+A7m7qlhCGG30dJixrAQhYOsJjsnBjJkCSmuOPpCk30145fr8FV0bzog==
 
-diff@4.0.1:
-  version "4.0.1"
-  resolved "https://registry.yarnpkg.com/diff/-/diff-4.0.1.tgz#0c667cb467ebbb5cea7f14f135cc2dba7780a8ff"
-  integrity sha512-s2+XdvhPCOF01LRQBC8hf4vhbVmI2CGS5aZnxLJlT5FtdhPCDFq80q++zK2KlrVorVDdL5BOGZ/VfLrVtYNF+Q==
-
 diff@5.0.0:
   version "5.0.0"
   resolved "https://registry.yarnpkg.com/diff/-/diff-5.0.0.tgz#7ed6ad76d859d030787ec35855f5b1daf31d852b"
@@ -5232,7 +5226,7 @@ minizlib@^3.0.1, minizlib@^3.1.0:
   dependencies:
     minipass "^7.1.2"
 
-mkdirp@^1.0.3, mkdirp@^1.0.4:
+mkdirp@^1.0.3:
   version "1.0.4"
   resolved "https://registry.yarnpkg.com/mkdirp/-/mkdirp-1.0.4.tgz#3eb5ed62622756d79a5f0e2a221dfebad75c2f7e"
   integrity sha512-vVqVZQyf3WLx2Shd0qJ9xuvqgAyKPLAiqITEtqW0oIUjzo3PePDd6fW9iFz30ef7Ysp/oiWqbhszeGWW2T6Gzw==
@@ -5243,15 +5237,6 @@ mocha-ctrf-json-reporter@^0.0.9:
   integrity sha512-9xMtcT7LujnIj84i58JFjrtCk/dRvMkYBSPUL6HdLqgKx9hO19QI+56VSYaGttMuNoBtO4v2dk99UWd8fufpjw==
   dependencies:
     md5 "^2.3.0"
-
-mocha-jenkins-reporter@^0.4.8:
-  version "0.4.8"
-  resolved "https://registry.yarnpkg.com/mocha-jenkins-reporter/-/mocha-jenkins-reporter-0.4.8.tgz#e602a7d655abaafdb0a4e02fdb9c320e2236aabe"
-  integrity sha512-1nz1Q+YgREUlh2kgFR+lrp+ufEFbdhCdtlEVEJR/5LhgqNLIg52+KG3X94hHpwWnf5SwYLS7udxgBbkWOUbyeQ==
-  dependencies:
-    diff "4.0.1"
-    mkdirp "^1.0.4"
-    xml "^1.0.1"
 
 mocha@^10.2.0:
   version "10.4.0"
@@ -7767,11 +7752,6 @@ xml2js@^0.4.23:
   dependencies:
     sax ">=0.6.0"
     xmlbuilder "~11.0.0"
-
-xml@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/xml/-/xml-1.0.1.tgz#78ba72020029c5bc87b8a81a3cfcd74b4a2fc1e5"
-  integrity sha512-huCv9IH9Tcf95zuYCsQraZtWnJvBtLVE0QHMOs8bWyZAFZNDcYjsPq1nEx8jKA9y+Beo9v+7OBPRisQTjinQMw==
 
 xmlbuilder@~11.0.0:
   version "11.0.1"
