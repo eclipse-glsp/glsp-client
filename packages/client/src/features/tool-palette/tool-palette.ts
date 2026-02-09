@@ -271,7 +271,7 @@ export class ToolPalette extends GLSPAbstractUIExtension implements IActionHandl
     }
 
     protected createMouseDeleteToolButton(): HTMLElement {
-        const deleteToolButton = createIcon('chrome-close');
+        const deleteToolButton = createIcon('eraser');
         deleteToolButton.title = messages.tool_palette.delete_button;
         deleteToolButton.onclick = this.onClickStaticToolButton(deleteToolButton, MouseDeleteTool.ID);
         deleteToolButton.ariaLabel = deleteToolButton.title;
