@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020-2024 EclipseSource and others.
+ * Copyright (c) 2020-2026 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -65,20 +65,19 @@ class MockSelectionListener implements ISelectionListener {
 
 function createContainer(): Container {
     const container = initializeContainer(new Container(), defaultModule);
-    // eslint-disable-next-line deprecation/deprecation
+
     container.rebind(TYPES.IFeedbackActionDispatcher).to(MockFeedbackActionDispatcher).inSingletonScope();
     return container;
 }
 
 describe('SelectionService', () => {
-    // eslint-disable-next-line deprecation/deprecation
     let root: GModelRoot;
     let selectionService: SelectionService;
     let feedbackDispatcher: MockFeedbackActionDispatcher;
 
     beforeEach(() => {
         const container = createContainer();
-        // eslint-disable-next-line deprecation/deprecation
+
         root = createRoot('node1', 'node2', 'node3', 'node4', 'node5');
         selectionService = container.get<SelectionService>(SelectionService);
         feedbackDispatcher = container.get<MockFeedbackActionDispatcher>(TYPES.IFeedbackActionDispatcher);

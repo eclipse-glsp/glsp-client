@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2023-2024 EclipseSource and others.
+ * Copyright (c) 2023-2026 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -105,7 +105,6 @@ export class FeatureModule extends ContainerModule {
         const missing = requires.filter(module => !module.isLoaded({ isBound }));
         if (missing.length > 0) {
             this.debugLog(
-                // eslint-disable-next-line max-len
                 `Could not load feature module. Required modules are not loaded. Feature ids: ${missing.map(m => m.featureId.toString()).join(', ')}`
             );
             return false;

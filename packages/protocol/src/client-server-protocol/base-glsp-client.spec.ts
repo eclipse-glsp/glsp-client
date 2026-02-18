@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2023-2024 EclipseSource and others.
+ * Copyright (c) 2023-2026 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -34,9 +34,9 @@ class StubGLSPServer implements GLSPServer {
     disposeClientSession(params: DisposeClientSessionParameters): Promise<void> {
         return Promise.resolve();
     }
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
+
     process(message: ActionMessage<Action>): void {}
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
+
     shutdown(): void {}
     addListener(listener: GLSPServerListener): boolean {
         return false;
@@ -155,7 +155,7 @@ describe('Node GLSP Client', () => {
             const expectedResult = { protocolVersion: '1.0.0', serverActions: {} };
             const params = { applicationId: 'id', protocolVersion: '1.0.0' };
             server.initialize.returns(Promise.resolve(expectedResult));
-            // eslint-disable-next-line @typescript-eslint/no-empty-function
+
             const eventHandler = (result: InitializeResult): void => {};
             const eventHandlerSpy = sinon.spy(eventHandler);
             client.onServerInitialized(eventHandlerSpy);
@@ -258,7 +258,6 @@ describe('Node GLSP Client', () => {
     });
 
     describe('onActionMessage', () => {
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
         const handler = sandbox.spy((_message: ActionMessage): void => {});
         it('should be properly registered if server is not configured', () => {
             resetClient(false);

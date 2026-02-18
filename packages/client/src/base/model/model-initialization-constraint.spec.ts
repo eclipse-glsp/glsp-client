@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2023 EclipseSource and others.
+ * Copyright (c) 2023-2026 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -22,7 +22,7 @@ import { DefaultModelInitializationConstraint, ModelInitializationConstraint } f
 const sandbox = sinon.createSandbox();
 const container = new Container();
 let constraint: ModelInitializationConstraint;
-// eslint-disable-next-line @typescript-eslint/no-empty-function
+
 const listener = sandbox.spy((): void => {});
 
 describe('DefaultModelInitializationConstraint', () => {

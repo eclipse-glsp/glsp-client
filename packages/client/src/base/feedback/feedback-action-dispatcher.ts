@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2024 EclipseSource and others.
+ * Copyright (c) 2019-2026 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -109,7 +109,7 @@ export class FeedbackActionDispatcher implements IFeedbackActionDispatcher, Disp
         if (feedbackEmitter instanceof GModelElement) {
             this.logger.log(
                 this,
-                // eslint-disable-next-line max-len
+
                 'GModelElements as feedback emitters are discouraged, as they usually change between model updates and are considered unstable.'
             );
         }

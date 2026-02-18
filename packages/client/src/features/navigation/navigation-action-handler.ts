@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020-2024 EclipseSource and others.
+ * Copyright (c) 2020-2026 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -141,10 +141,10 @@ export class NavigationActionHandler implements IActionHandler {
     @inject(TYPES.ILogger) protected logger: ILogger;
     @inject(TYPES.IActionDispatcher) protected dispatcher: IActionDispatcher;
     /** @deprecated No longer in used. The {@link ActionHandlerRegistry} is now directly injected */
-    // eslint-disable-next-line deprecation/deprecation
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     @inject(TYPES.ActionHandlerRegistryProvider) protected actionHandlerRegistryProvider: () => Promise<ActionHandlerRegistry>;
     /** @deprecated No longer in used. The {@link EditorContextService} is now directly injected */
-    // eslint-disable-next-line deprecation/deprecation
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     @inject(TYPES.IEditorContextServiceProvider) protected editorContextService: EditorContextServiceProvider;
     @inject(ActionHandlerRegistry) protected actionHandlerRegistry: ActionHandlerRegistry;
     @inject(NavigationTargetResolver) protected resolver: NavigationTargetResolver;

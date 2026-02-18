@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020-2023 EclipseSource and others.
+ * Copyright (c) 2020-2026 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -26,7 +26,6 @@ export namespace JsonrpcGLSPClient {
         connectionProvider: ConnectionProvider;
     }
 
-    // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
     export function isOptions(object: unknown): object is Options {
         return GLSPClient.isOptions(object) && 'connectionProvider' in object;
     }

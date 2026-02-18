@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020-2025 EclipseSource and others.
+ * Copyright (c) 2020-2026 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -61,7 +61,7 @@ export interface AutoCompleteWidgetOptions {
     selectedSuggestionChanged?: (suggestion?: LabeledAction) => void;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const configureAutocomplete: (settings: AutocompleteSettings<LabeledAction>) => AutocompleteResult = require('autocompleter');
 
 /**
@@ -91,7 +91,7 @@ export class AutoCompleteWidget {
         public autoSuggestionSettings: AutoCompleteSettings,
         public suggestionProvider: SuggestionProvider,
         public suggestionSubmitHandler: SuggestionSubmitHandler,
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
+
         protected notifyClose: (reason: CloseReason) => void = () => {},
         protected logger?: ILogger,
         protected options?: AutoCompleteWidgetOptions

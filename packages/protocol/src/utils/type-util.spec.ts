@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2022-2024 STMicroelectronics and others.
+ * Copyright (c) 2022-2026 STMicroelectronics and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -155,7 +155,6 @@ describe('TypeUtil', () => {
 
     describe('hasFunctionProp', () => {
         it('should return true for an object that has a property that matches the given key and type', () => {
-            // eslint-disable-next-line @typescript-eslint/no-empty-function
             expect(hasFunctionProp({ someProp: () => {} }, 'someProp')).to.be.true;
         });
         it('should return false for an object that has a property that matches the given but not the given type', () => {
@@ -174,7 +173,6 @@ describe('TypeUtil', () => {
             expect(hasFunctionProp({ someProp: undefined }, 'someProp', true)).to.be.true;
         });
         it('should return true for an object that has a property that matches the given key and type when using the optional flag', () => {
-            // eslint-disable-next-line @typescript-eslint/no-empty-function
             expect(hasFunctionProp({ someProp: () => {} }, 'someProp', true)).to.be.true;
         });
     });

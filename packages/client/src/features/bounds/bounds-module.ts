@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2022-2025 EclipseSource and others.
+ * Copyright (c) 2022-2026 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -60,7 +60,7 @@ export const boundsModule = new FeatureModule(
         configureActionHandler(context, MoveElementRelativeAction.KIND, MoveElementHandler);
 
         // backwards compatibility
-        // eslint-disable-next-line deprecation/deprecation
+        // eslint-disable-next-line @typescript-eslint/no-deprecated
         bind(PositionSnapper).toSelf();
     },
     { featureId: Symbol('bounds') }

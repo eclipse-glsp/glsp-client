@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2024 EclipseSource and others.
+ * Copyright (c) 2019-2026 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -24,7 +24,7 @@ export const contextMenuModule = new FeatureModule(
                 return ctx.container.get<IContextMenuService>(TYPES.IContextMenuService);
             }
             console.warn("'TYPES.IContextMenuService' is not bound. Use no-op implementation instead");
-            // eslint-disable-next-line @typescript-eslint/no-empty-function
+
             return { show: () => {} };
         });
 

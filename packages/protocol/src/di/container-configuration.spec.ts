@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2024 EclipseSource and others.
+ * Copyright (c) 2024-2026 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -56,7 +56,7 @@ describe('Container configuration', () => {
             const result = resolveContainerConfiguration(moduleA, moduleB, { replace: replaceModule });
             expect(result).to.deep.equal([replaceModule, moduleB]);
         });
-        // eslint-disable-next-line max-len
+
         it('should still resolve a module from a replace configuration if there is no prior added module with the same featureId to replace', () => {
             const replaceModule = new FeatureModule(() => {}, { featureId: Symbol('replaceModule') });
             const result = resolveContainerConfiguration(moduleA, moduleB, { replace: replaceModule });

@@ -18,3 +18,6 @@ eslint.xml
 report.xml
 **/ctrf
 examples/workflow-standalone/server
+
+.claude/local.settings.json
+.claude/plans

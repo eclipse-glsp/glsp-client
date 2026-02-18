@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2023-2024 EclipseSource and others.
+ * Copyright (c) 2023-2026 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-/* eslint-disable @typescript-eslint/no-empty-function */
+
 import { expect } from 'chai';
 import * as sinon from 'sinon';
 import { Disposable, Event, MessageConnection, NotificationHandler, ProgressType } from 'vscode-jsonrpc';
@@ -294,7 +294,6 @@ describe('Base JSON-RPC GLSP Client', () => {
     });
 
     describe('onActionMessage', () => {
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
         const handler = sandbox.spy((_message: ActionMessage): void => {});
 
         it('should be registered to message emitter if client is not running', async () => {
