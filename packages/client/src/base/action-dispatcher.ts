@@ -46,7 +46,7 @@ export class GLSPActionDispatcher extends ActionDispatcher implements IGModelRoo
     protected override actionHandlerRegistry: ActionHandlerRegistry;
 
     /** @deprecated No longer in used. The {@link ActionHandlerRegistry} is now directly injected */
-    // eslint-disable-next-line deprecation/deprecation
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     @inject(TYPES.ActionHandlerRegistryProvider) protected override actionHandlerRegistryProvider: () => Promise<ActionHandlerRegistry>;
     protected postUpdateQueue: Action[] = [];
 

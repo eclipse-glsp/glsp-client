@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2024 EclipseSource and others.
+ * Copyright (c) 2024-2026 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -46,7 +46,7 @@ describe('default-modules', () => {
         it('should throw an error if the base (default) module is removed via configuration', () => {
             expect(() => initializeDiagramContainer(container, { remove: defaultModule })).to.throw(/Invalid module configuration/);
         });
-        // eslint-disable-next-line max-len
+
         it('should throw an error if the base (default) module is not the first module of the resolved configured (removed and added again)', () => {
             expect(() => initializeDiagramContainer(container, { remove: defaultModule, add: defaultModule })).to.throw(
                 /Invalid module configuration/

@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2021-2025 EclipseSource and others.
+ * Copyright (c) 2021-2026 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -49,7 +49,7 @@ export interface Constructor<T, A extends any[] = any[]> {
  * all readonly modifiers of the type`s properties. Please use with care and only in instances
  * where you know that overwriting a readonly property is safe and doesn't cause unknown unintended side effects.
  */
-// eslint-disable-next-line @typescript-eslint/ban-types
+
 export type Writable<T> = { -readonly [P in keyof T]: Writable<T[P]> };
 
 /**
@@ -98,7 +98,7 @@ export function toTypeGuard<G>(constructor: Constructor<G>): TypeGuard<G> {
  * still allowing to also define any other string value.
  * @template T The type of the string proposal as union.
  */
-// eslint-disable-next-line @typescript-eslint/ban-types
+
 export type ProposalString<T extends string> = T | (string & {});
 
 /**

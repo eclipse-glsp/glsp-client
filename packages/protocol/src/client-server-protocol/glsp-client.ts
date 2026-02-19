@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020-2024 EclipseSource and others.
+ * Copyright (c) 2020-2026 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import * as uuid from 'uuid';
+import { v4 as uuid } from 'uuid';
 
 import { ActionMessage } from '../action-protocol/base-protocol';
 import { Disposable } from '../utils/disposable';
@@ -25,7 +25,7 @@ export class ApplicationIdProvider {
     private static _applicationId?: string;
     static get(): string {
         if (!ApplicationIdProvider._applicationId) {
-            ApplicationIdProvider._applicationId = uuid.v4();
+            ApplicationIdProvider._applicationId = uuid();
         }
         return ApplicationIdProvider._applicationId;
     }
@@ -166,7 +166,6 @@ export namespace GLSPClient {
         id: string;
     }
 
-    // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
     export function isOptions(object: unknown): object is Options {
         return AnyObject.is(object) && hasStringProp(object, 'id');
     }

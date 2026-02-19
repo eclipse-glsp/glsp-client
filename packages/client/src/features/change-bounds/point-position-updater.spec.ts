@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2022-2024 EclipseSource and others.
+ * Copyright (c) 2022-2026 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,8 +13,8 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-/* eslint-disable import/no-deprecated */
-/* eslint-disable deprecation/deprecation */
+/* eslint-disable import-x/no-deprecated */
+/* eslint-disable @typescript-eslint/no-deprecated */
 
 import { GModelElement } from '@eclipse-glsp/sprotty';
 import { expect } from 'chai';

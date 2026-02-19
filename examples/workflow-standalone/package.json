@@ -26,7 +26,7 @@
     "bundle": "webpack",
     "clean": "rimraf lib *.tsbuildinfo app/bundle.js app/bundle.js.map app/css",
     "compile": "tsc -b",
-    "lint": "eslint --ext .ts,.tsx ./src",
+    "lint": "eslint ./src",
     "start:exampleServer": "yarn ts-node ./scripts/start-example-server.ts",
     "watch": "tsc -w && yarn watch:bundle",
     "watch:bundle": "webpack -w"

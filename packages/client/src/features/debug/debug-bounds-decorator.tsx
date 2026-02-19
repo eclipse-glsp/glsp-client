@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2024 Axon Ivy AG and others.
+ * Copyright (c) 2024-2026 Axon Ivy AG and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-/* eslint-disable max-len */
+
 /** @jsx svg */
 import { Bounds, GModelElement, IVNodePostprocessor, Point, TYPES, isDecoration, isSizeable, setClass, svg } from '@eclipse-glsp/sprotty';
 import { inject, injectable, optional } from 'inversify';

@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2025 EclipseSource and others.
+ * Copyright (c) 2019-2026 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -21,7 +21,7 @@ import { messages } from '../../base/messages';
 @injectable()
 export class DeleteElementContextMenuItemProvider implements IContextMenuItemProvider {
     /** @deprecated No longer used. The {@link EditorContextService} is now directly injected.*/
-    // eslint-disable-next-line deprecation/deprecation
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     @inject(TYPES.IEditorContextServiceProvider) editorContextServiceProvider: EditorContextServiceProvider;
 
     @inject(EditorContextService)

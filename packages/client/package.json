@@ -39,7 +39,7 @@
     "build": "tsc -b",
     "clean": "rimraf lib *.tsbuildinfo  coverage .nyc_output",
     "generate:index": "glsp generateIndex src -f -s",
-    "lint": "eslint --ext .ts,.tsx ./src",
+    "lint": "eslint ./src",
     "test": "mocha --config ../../.mocharc \"./src/**/*.spec.?(ts|tsx)\"",
     "test:ci": "yarn test --reporter mocha-ctrf-json-reporter",
     "test:coverage": "nyc yarn test",

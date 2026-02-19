@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2023-2025 EclipseSource and others.
+ * Copyright (c) 2023-2026 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-/* eslint-disable no-restricted-imports */
+
 import { FeatureModule } from '@eclipse-glsp/protocol/lib/di';
 import sprottyDefaultModule from 'sprotty/lib/base/di.config';
 import sprottyButtonModule from 'sprotty/lib/features/button/di.config';

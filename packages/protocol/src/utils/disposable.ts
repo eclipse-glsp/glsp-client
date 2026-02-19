@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2023-2025 EclipseSource and others.
+ * Copyright (c) 2023-2026 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -37,7 +37,6 @@ export namespace Disposable {
      * @returns the newly created disposable
      */
     export function empty(): Disposable {
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
         return { dispose: () => {} };
     }
 
