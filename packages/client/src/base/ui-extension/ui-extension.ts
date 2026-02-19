@@ -53,7 +53,7 @@ export abstract class GLSPAbstractUIExtension extends AbstractUIExtension {
             this.initializeContainer(this.containerElement);
             this.initializeContents(this.containerElement);
         } catch (error) {
-            const msg = error instanceof Error ? error.message : `Could not retrieve container element for UI extension ${this.id}`;
+            const msg = error instanceof Error ? error.message : `Could not retrieve container element for UI extension ${this.id()}`;
             this.logger.error(this, msg);
             return false;
         }
@@ -73,7 +73,7 @@ export abstract class GLSPAbstractUIExtension extends AbstractUIExtension {
         // to create a container the parent container
         const parent = this.getParentContainer();
         if (!parent?.isConnected) {
-            throw new Error(`Could not obtain attached parent for initializing UI extension ${this.id}`);
+            throw new Error(`Could not obtain attached parent for initializing UI extension ${this.id()}`);
         }
         const container = this.createContainer(parent);
         this.insertContainerIntoParent(container, parent);
