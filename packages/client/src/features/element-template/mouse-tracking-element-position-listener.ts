@@ -34,7 +34,7 @@ import { getAbsolutePosition } from '../../utils/viewpoint-util';
 import { FeedbackAwareTool } from '../tools/base-tools';
 import { IChangeBoundsManager } from '../tools/change-bounds/change-bounds-manager';
 import { MoveFinishedEventAction } from '../tools/change-bounds/change-bounds-tool-feedback';
-import { ChangeBoundsTracker, TrackedMove } from '../tools/change-bounds/change-bounds-tracker';
+import { TrackedMove, type ChangeBoundsTracker } from '../tools/change-bounds/change-bounds-tracker';
 
 export interface PositioningTool extends FeedbackAwareTool {
     readonly changeBoundsManager: IChangeBoundsManager;
@@ -76,7 +76,13 @@ export class MouseTrackingElementPositionListener extends DragAwareMouseListener
         if (isInitializing) {
             this.initialize(element, ctx, event);
         }
-        const move = this.tracker.moveElements([element], { snap: event, restrict: event, skipStatic: !isInitializing });
+        const move = this.tracker.moveElements([element], {
+            snap: event,
+            restrict: event,
+            skipStatic: !isInitializing,
+            // Ghost element is feedback-only, so no need to consider wraps
+            wrap: false
+        });
         const elementMove = move.elementMoves[0];
         if (!elementMove) {
             return [];
@@ -94,7 +100,7 @@ export class MouseTrackingElementPositionListener extends DragAwareMouseListener
     }
 
     protected initialize(element: MoveableElement, target: GModelElement, event: MouseEvent): void {
-        this.tracker.startTracking();
+        this.tracker.startTracking(target.root);
         element.position = this.initializeElementPosition(element, target, event);
     }
 

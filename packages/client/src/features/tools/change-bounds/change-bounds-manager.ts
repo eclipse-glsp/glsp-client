@@ -98,14 +98,14 @@ export interface IChangeBoundsManager {
      * @param size - The size to check.
      * @returns True if the element has a valid size, false otherwise.
      */
-    hasValidSize(element: GModelElement, size?: Dimension): boolean;
+    hasValidSize(element: GModelElement, size?: Dimension, options?: ChangeBoundsManagerSizeOptions): boolean;
 
     /**
      * Get the minimum size of an element for changing bounds.
      * @param element - The element to get the minimum size for.
      * @returns The minimum size of the element.
      */
-    getMinimumSize(element: GModelElement): Dimension;
+    getMinimumSize(element: GModelElement, options?: ChangeBoundsManagerSizeOptions): Dimension;
 
     /**
      * Determine whether to use movement restriction for changing bounds.
@@ -177,6 +177,10 @@ export interface IChangeBoundsManager {
     createTracker(): ChangeBoundsTracker;
 }
 
+export interface ChangeBoundsManagerSizeOptions {
+    useComputedDimensions?: boolean;
+}
+
 /**
  * The default {@link IChangeBoundsManager} implementation. It is responsible for managing
  * the change of bounds for {@link GModelElement}s.
@@ -211,24 +215,24 @@ export class ChangeBoundsManager implements IChangeBoundsManager {
         return !isLocateable(element) || isValidMove(element, position ?? element.position, this.movementRestrictor);
     }
 
-    hasValidSize(element: GModelElement, size?: Dimension): boolean {
+    hasValidSize(element: GModelElement, size?: Dimension, options?: ChangeBoundsManagerSizeOptions): boolean {
         if (!isBoundsAware(element)) {
             return true;
         }
         const dimension: Dimension = size ?? element.bounds;
-        const minimum = this.getMinimumSize(element);
+        const minimum = this.getMinimumSize(element, options);
         if (dimension.width < minimum.width || dimension.height < minimum.height) {
             return false;
         }
         return true;
     }
 
-    getMinimumSize(element: GModelElement): Dimension {
+    getMinimumSize(element: GModelElement, options: ChangeBoundsManagerSizeOptions = { useComputedDimensions: true }): Dimension {
         if (!isBoundsAware(element)) {
             return Dimension.EMPTY;
         }
         const definedMinimum = minDimensions(element);
-        const computedMinimum = LayoutAware.getComputedDimensions(element);
+        const computedMinimum = options.useComputedDimensions ? LayoutAware.getComputedDimensions(element) : undefined;
         return computedMinimum
             ? {
                   width: Math.max(definedMinimum.width, computedMinimum.width),
@@ -269,6 +273,14 @@ export class ChangeBoundsManager implements IChangeBoundsManager {
         // restriction feedback on each element
         trackedMove.elementMoves.forEach(move => this.addMoveRestrictionFeedback(feedback, move, ctx, event));
 
+        // restriction feedback on each wrapped element (mostly ancestors)
+        Object.values(trackedMove.wrapResizes ?? {}).forEach(elementResize => {
+            this.addMoveRestrictionFeedback(feedback, elementResize, ctx, event);
+            feedback.add(
+                toggleCssClasses(elementResize.element, !elementResize.valid.size, CSS_RESTRICTED_RESIZE),
+                deleteCssClasses(elementResize.element, CSS_RESTRICTED_RESIZE)
+            );
+        });
         return feedback;
     }
 
@@ -296,6 +308,7 @@ export class ChangeBoundsManager implements IChangeBoundsManager {
                 deleteCssClasses(elementResize.element, CSS_RESTRICTED_RESIZE)
             );
         });
+
         return feedback;
     }
 
