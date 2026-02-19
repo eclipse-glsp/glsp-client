@@ -14,14 +14,24 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { EditLabelUI } from '@eclipse-glsp/sprotty';
-import { injectable } from 'inversify';
+import { inject, injectable } from 'inversify';
+import { EditorContextService } from '../../base/editor-context-service';
 import { CSS_HIDDEN_EXTENSION_CLASS, CSS_UI_EXTENSION_CLASS } from '../../base/ui-extension/ui-extension';
 
 @injectable()
 export class GlspEditLabelUI extends EditLabelUI {
+    @inject(EditorContextService)
+    protected editorContextService: EditorContextService;
+
     protected override initializeContents(containerElement: HTMLElement): void {
         super.initializeContents(containerElement);
         containerElement.classList.add(CSS_UI_EXTENSION_CLASS);
+        this.editorContextService.onViewportChanged(() => {
+            if (this.isActive && this.containerElement) {
+                this.setPosition(this.containerElement);
+                this.applyFontStyling();
+            }
+        });
     }
 
     protected override setContainerVisible(visible: boolean): void {
