@@ -230,6 +230,8 @@ export * from './features/viewport/viewport-tool';
 export * from './features/viewport/zoom-viewport-action';
 export * from './features/zorder/bring-to-front-command';
 export * from './features/zorder/zorder-module';
+export * from './mcp/mcp-get-selection';
+export * from './mcp/mcp-module';
 export * from './model';
 export * from './re-exports';
 export * from './standalone-modules';

@@ -25,6 +25,7 @@ export * from './action-protocol/element-selection';
 export * from './action-protocol/element-text-editing';
 export * from './action-protocol/element-type-hints';
 export * from './action-protocol/element-validation';
+export * from './action-protocol/mcp';
 export * from './action-protocol/model-data';
 export * from './action-protocol/model-edit-mode';
 export * from './action-protocol/model-layout';
