@@ -18,7 +18,8 @@ import {
     Action,
     CommandExecutionContext,
     CommandResult,
-    ExportMcpPngAction,
+    ExportPngMcpAction,
+    ExportPngMcpActionResult,
     GModelElement,
     GModelRoot,
     HiddenCommand,
@@ -27,12 +28,11 @@ import {
     isSelectable,
     isViewport,
     IVNodePostprocessor,
-    RequestExportMcpPngAction,
     TYPES
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
 import { VNode } from 'snabbdom';
-import { GLSPSvgExporter } from './glsp-svg-exporter';
+import { GLSPSvgExporter } from '../features/export/glsp-svg-exporter';
 
 /**
  * This class extends {@link GLSPSvgExporter} in order to make use of the SVG creation logic.
@@ -42,7 +42,11 @@ import { GLSPSvgExporter } from './glsp-svg-exporter';
  */
 @injectable()
 export class GLSPMcpPngExporter extends GLSPSvgExporter {
-    async exportPng(root: GModelRoot, request?: RequestExportMcpPngAction): Promise<void> {
+    async exportPng(root: GModelRoot, request?: ExportPngMcpAction): Promise<void> {
+        if (!request) {
+            return;
+        }
+
         return new Promise((resolve, reject) => {
             if (typeof document === 'undefined') {
                 reject(new Error('Failed to find document.'));
@@ -89,9 +93,11 @@ export class GLSPMcpPngExporter extends GLSPSvgExporter {
                         URL.revokeObjectURL(url);
                         const result = reader.result as string;
                         this.actionDispatcher.dispatch(
-                            ExportMcpPngAction.create(result.replace('data:image/png;base64,', ''), {
-                                options: request?.options ?? { sessionId: '' }
-                            })
+                            ExportPngMcpActionResult.create(
+                                result.replace('data:image/png;base64,', ''),
+                                request.mcpRequestId,
+                                request.options
+                            )
                         );
                         resolve();
                     };
@@ -114,10 +120,10 @@ export class GLSPMcpPngExporter extends GLSPSvgExporter {
 /**
  * See sprotty's `ExportSvgCommand`
  */
-export class ExportMcpPngCommand extends HiddenCommand {
-    static readonly KIND = RequestExportMcpPngAction.KIND;
+export class ExportPngMcpCommand extends HiddenCommand {
+    static readonly KIND = ExportPngMcpAction.KIND;
 
-    constructor(@inject(TYPES.Action) protected action: RequestExportMcpPngAction) {
+    constructor(@inject(TYPES.Action) protected action: ExportPngMcpAction) {
         super();
     }
 
@@ -155,7 +161,7 @@ export class ExportMcpPngCommand extends HiddenCommand {
  * See sprotty's `ExportSvgPostprocessor`
  */
 @injectable()
-export class ExportMcpPngPostprocessor implements IVNodePostprocessor {
+export class ExportPngMcpPostprocessor implements IVNodePostprocessor {
     protected root: GModelRoot;
 
     @inject(GLSPMcpPngExporter)
@@ -169,8 +175,8 @@ export class ExportMcpPngPostprocessor implements IVNodePostprocessor {
     }
 
     postUpdate(cause?: Action): void {
-        if (this.root && cause !== undefined && cause.kind === RequestExportMcpPngAction.KIND) {
-            this.pngExporter.exportPng(this.root, cause as RequestExportMcpPngAction);
+        if (this.root && cause !== undefined && cause.kind === ExportPngMcpAction.KIND) {
+            this.pngExporter.exportPng(this.root, cause as ExportPngMcpAction);
         }
     }
 }

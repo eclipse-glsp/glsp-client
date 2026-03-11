@@ -14,13 +14,18 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { configureCommand, FeatureModule } from '@eclipse-glsp/sprotty';
+import { configureCommand, FeatureModule, TYPES } from '@eclipse-glsp/sprotty';
+import { ExportPngMcpCommand, ExportPngMcpPostprocessor, GLSPMcpPngExporter } from './mcp-export-png';
 import { GetSelectionMcpCommand } from './mcp-get-selection';
 
 export const mcpModule = new FeatureModule(
     (bind, _unbind, isBound) => {
         configureCommand({ bind, isBound }, GetSelectionMcpCommand);
-        // TODO move export png here
+
+        bind(ExportPngMcpPostprocessor).toSelf().inSingletonScope();
+        bind(TYPES.HiddenVNodePostprocessor).toService(ExportPngMcpPostprocessor);
+        configureCommand({ bind, isBound }, ExportPngMcpCommand);
+        bind(GLSPMcpPngExporter).toSelf().inSingletonScope();
     },
     { featureId: Symbol('mcp') }
 );

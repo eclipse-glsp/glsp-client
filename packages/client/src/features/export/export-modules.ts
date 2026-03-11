@@ -26,7 +26,6 @@ import {
 } from '@eclipse-glsp/sprotty';
 import { ExportSvgActionHandler } from './export-svg-action-handler';
 import { GLSPSvgExporter } from './glsp-svg-exporter';
-import { ExportMcpPngCommand, ExportMcpPngPostprocessor, GLSPMcpPngExporter } from './mcp-png-export';
 
 export const exportModule = new FeatureModule(
     (bind, _unbind, isBound) => {
@@ -34,11 +33,6 @@ export const exportModule = new FeatureModule(
         bindAsService(context, TYPES.HiddenVNodePostprocessor, ExportSvgPostprocessor);
         configureCommand(context, ExportSvgCommand);
         bind(TYPES.SvgExporter).to(GLSPSvgExporter).inSingletonScope();
-
-        bind(ExportMcpPngPostprocessor).toSelf().inSingletonScope();
-        bind(TYPES.HiddenVNodePostprocessor).toService(ExportMcpPngPostprocessor);
-        configureCommand({ bind, isBound }, ExportMcpPngCommand);
-        bind(GLSPMcpPngExporter).toSelf().inSingletonScope();
     },
     { featureId: Symbol('export') }
 );

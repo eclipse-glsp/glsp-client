@@ -19,9 +19,9 @@ import {
     CommandExecutionContext,
     CommandReturn,
     GetSelectionMcpAction,
+    GetSelectionMcpResultAction,
     IActionDispatcher,
     isSelectable,
-    SelectionMcpResult,
     toArray,
     TYPES
 } from '@eclipse-glsp/sprotty';
@@ -43,7 +43,7 @@ export class GetSelectionMcpCommand extends Command {
             .all()
             .filter(e => isSelectable(e) && e.selected)
             .map(e => e.id);
-        const result = SelectionMcpResult.create(toArray(selection), this.action.mcpRequestId);
+        const result = GetSelectionMcpResultAction.create(toArray(selection), this.action.mcpRequestId);
         this.actionDispatcher.dispatch(result);
         return { model: context.root, modelChanged: false };
     }
