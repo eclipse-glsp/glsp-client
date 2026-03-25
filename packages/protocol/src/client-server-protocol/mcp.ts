@@ -16,6 +16,27 @@
 
 import { InitializeParameters, InitializeResult } from './types';
 
+export interface McpServerOptions {
+    /**
+     * Changes how resources are registered.
+     * This is relevant since some MCP clients are unable to deal with MCP resource endpoints
+     * and thus they must be provided as tools.
+     *
+     * true -> MCP resources
+     *
+     * false -> MCP tools
+     *
+     * @default false
+     */
+    resources?: boolean;
+    /**
+     * Changes string-based IDs to integer strings for MCP communication
+     *
+     * @default true
+     */
+    aliasIds?: boolean;
+}
+
 export interface McpServerConfiguration {
     /**
      * The host on which the MCP server should be started.
@@ -33,6 +54,10 @@ export interface McpServerConfiguration {
      * The name of the MCP server.
      */
     name?: string;
+    /**
+     * Additional features
+     */
+    options?: McpServerOptions;
 }
 
 export interface McpInitializeParameters extends InitializeParameters {

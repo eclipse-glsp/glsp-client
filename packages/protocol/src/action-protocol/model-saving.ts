@@ -108,7 +108,7 @@ export namespace RequestExportSvgAction {
     }
 }
 
-/** Configuration options for the {@link RequestExportSvgAction */
+/** Configuration options for the {@link RequestExportSvgAction} */
 export interface ExportSvgOptions extends sprotty.ExportSvgOptions {
     // If set to false applied diagram styles will not be copied to the exported SVG
     skipCopyStyles?: boolean;

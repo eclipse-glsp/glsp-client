@@ -63,6 +63,7 @@ import { toolFocusLossModule } from './features/tools/tool-focus-loss-module';
 import { markerNavigatorModule, validationModule } from './features/validation/validation-modules';
 import { viewportModule } from './features/viewport/viewport-modules';
 import { zorderModule } from './features/zorder/zorder-module';
+import { mcpModule } from './mcp/mcp-module';
 
 export const DEFAULT_MODULES = [
     defaultModule,
@@ -104,7 +105,8 @@ export const DEFAULT_MODULES = [
     statusModule,
     resizeModule,
     searchPaletteModule,
-    searchPaletteDefaultSuggestionsModule
+    searchPaletteDefaultSuggestionsModule,
+    mcpModule
 ] as const;
 
 /**
