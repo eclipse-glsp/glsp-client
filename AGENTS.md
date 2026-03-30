@@ -1,50 +1,26 @@
-# Repository Guidelines
+# CLAUDE.md
 
-## Project Structure & Module Organization
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-This repository is a Yarn workspaces/Lerna monorepo.
+## Project Overview
 
--   `packages/client`: main GLSP client framework (`src/`, `css/`, unit tests as `*.spec.ts`).
--   `packages/protocol`: client-server protocol types and JSON-RPC helpers.
--   `packages/glsp-sprotty`: GLSP-specific sprotty re-exports/overrides.
--   `examples/workflow-standalone`: browser demo app and example server launcher.
--   `examples/workflow-glsp`: workflow diagram example package used by the standalone app.
+Eclipse GLSP Client monorepo. Provides the sprotty-based client framework for the Graphical Language Server Platform (GLSP). Contains the core client packages and example applications. Uses Lerna with Yarn workspaces.
 
-Keep new code inside the relevant package `src/` folder and colocate tests with implementation.
+## Build & Development
 
-## Build, Test, and Development Commands
+-   **Package manager**: Yarn 1.x (classic) — do not use Yarn 2+/Berry or npm
+-   **Build**: `yarn` from root installs and compiles everything
+-   **Clean**: `yarn clean`
 
-Use Node `>=20` and Yarn `>=1.7.0 <2`.
+## Validation
 
--   `yarn install`: install all workspace dependencies.
--   `yarn build`: compile TypeScript and bundle the standalone example.
--   `yarn compile`: run TypeScript project builds only.
--   `yarn lint`: run ESLint on `.ts/.tsx` sources.
--   `yarn test`: run package test suites via Lerna.
--   `yarn test:coverage`: generate coverage with `nyc` per package.
--   `yarn watch`: run TypeScript/watch build flows.
--   `yarn start:exampleServer`: download/start workflow example server.
+-   **Tests**: `yarn test` (Mocha), single test: `yarn test --grep 'test name'`
 
-## Coding Style & Naming Conventions
+## Inter-Package Import Rules
 
-Code is TypeScript-first, formatted by Prettier (`@eclipse-glsp/prettier-config`) and linted by ESLint (`@eclipse-glsp`).
+These are enforced by ESLint and are easy to get wrong:
 
--   Follow existing formatting (4-space indentation, semicolons, single quotes).
--   Use `PascalCase` for classes/types, `camelCase` for functions/variables.
--   Use descriptive module filenames in kebab-case where established (e.g., `command-palette-tool.ts`).
--   Prefer GLSP re-exports (`@eclipse-glsp/client`) instead of direct `sprotty` imports.
-
-## Testing Guidelines
-
--   Framework: Mocha with `ts-node` (`.mocharc` at repo root).
--   Test files: `*.spec.ts` or `*.spec.tsx`, typically next to source files.
--   Run targeted tests from a package, e.g. `yarn --cwd packages/client test`.
--   Run `yarn test` and `yarn test:coverage` before opening a PR.
-
-## Commit & Pull Request Guidelines
-
--   Open/track an issue first in `https://github.com/eclipse-glsp/glsp`.
--   Branch naming: `issues/<issue_number>` (for committers).
--   Commit messages should be imperative and focused; reference the issue using an absolute URL (for auto-close).
--   PRs should include: problem statement, solution summary, linked issue, and screenshots/GIFs for UI-visible changes.
--   Before requesting review, run `yarn check:all`.
+-   **Never use relative imports** like `../` or `../index` — use package names
+-   **`@eclipse-glsp/protocol`**: Must NOT import from `sprotty`, `sprotty-protocol`, or `@eclipse-glsp/client`
+-   **`@eclipse-glsp/sprotty`**: Must NOT import directly from `sprotty-protocol` — use `sprotty` reexports instead
+-   **`@eclipse-glsp/client`**: Must NOT import directly from `sprotty` or `sprotty-protocol` — use `@eclipse-glsp/sprotty` reexports instead

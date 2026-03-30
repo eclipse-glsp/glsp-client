@@ -1,6 +1,7 @@
 {
     "$schema": "https://json.schemastore.org/mocharc",
     "extends": "@eclipse-glsp/mocha-config",
+    "node-option": ["no-experimental-strip-types"],
     "require": [
         "ts-node/register",
         "tsconfig-paths/register",
