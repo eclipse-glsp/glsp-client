@@ -19,6 +19,7 @@ import {
     Action,
     BoundsAware,
     ChangeBoundsOperation,
+    ChangeContainerOperation,
     ChangeRoutingPointsOperation,
     CompoundOperation,
     Dimension,
@@ -52,6 +53,7 @@ import {
     isNonRoutableSelectedMovableBoundsAware,
     toElementAndBounds
 } from '../../../utils/gmodel-util';
+import { getAbsolutePosition, toAbsolutePosition } from '../../../utils/viewpoint-util';
 import { LocalRequestBoundsAction } from '../../bounds/local-bounds';
 import { SetBoundsFeedbackAction } from '../../bounds/set-bounds-feedback-command';
 import { GResizeHandle, isResizable } from '../../change-bounds/model';
@@ -59,6 +61,7 @@ import { MoveElementKeyListener } from '../../change-bounds/move-element-key-lis
 import { IMovementRestrictor } from '../../change-bounds/movement-restrictor';
 import { Grid } from '../../grid/grid';
 import { BaseEditTool } from '../base-tools';
+import type { IContainerManager } from '../node-creation/container-manager';
 import { CSS_ACTIVE_HANDLE, IChangeBoundsManager } from './change-bounds-manager';
 import {
     HideChangeBoundsToolResizeFeedbackAction,
@@ -98,6 +101,7 @@ export class ChangeBoundsTool extends BaseEditTool {
     @inject(TYPES.IMovementOptions) @optional() readonly movementOptions: IMovementOptions = { allElementsNeedToBeValid: true };
     @inject(TYPES.Grid) @optional() readonly grid?: Grid;
     @inject(TYPES.IShortcutManager) protected readonly shortcutManager: IShortcutManager;
+    @inject(TYPES.IContainerManager) readonly containerManager: IContainerManager;
 
     get id(): string {
         return ChangeBoundsTool.ID;
@@ -276,12 +280,36 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
         const actions: Action[] = [];
         if (this.activeResizeHandle) {
             actions.push(...this.handleResizeOnServer(this.activeResizeHandle));
+        } else if (event.ctrlKey) {
+            actions.push(...this.handleChangeContainerOnServer(target, event));
         } else {
             // since the move feedback is handled by another class we just see whether there is something to move
             actions.push(...this.handleMoveOnServer(target));
         }
         this.disposeResize({ keepHandles: true });
         return actions;
+    }
+
+    protected handleChangeContainerOnServer(target: GModelElement, event: MouseEvent): Action[] {
+        const movedElements = this.getElementsToMove(target);
+        if (movedElements.length === 0) {
+            return [];
+        }
+        const cursorLocation = getAbsolutePosition(target, event);
+        const newContainer = this.tool.containerManager.findContainer(cursorLocation, target, event, movedElements);
+        if (!newContainer) {
+            return [];
+        }
+        const operations = movedElements.map(element => {
+            const elementLocation = toAbsolutePosition(element);
+            return ChangeContainerOperation.create({
+                elementId: element.id,
+                targetContainerId: newContainer.id,
+                location: elementLocation
+            });
+        });
+
+        return operations.length > 0 ? [CompoundOperation.create(operations)] : [];
     }
 
     override nonDraggingMouseUp(element: GModelElement, event: MouseEvent): Action[] {

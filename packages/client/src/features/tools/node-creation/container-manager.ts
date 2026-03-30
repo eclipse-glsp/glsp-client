@@ -47,7 +47,7 @@ export interface TrackedInsert {
 export interface IContainerManager {
     insert(proxy: GModelElement, location: Point, elementTypeId: string, opts?: Partial<InsertOptions>): TrackedInsert;
     isCreationAllowed(container: ContainerElement | undefined, elementTypeId: string, opts?: Partial<InsertOptions>): boolean;
-    findContainer(location: Point, ctx: GModelElement, evt?: MouseEvent): ContainerElement | undefined;
+    findContainer(location: Point, ctx: GModelElement, evt?: MouseEvent, exclude?: GModelElement[]): ContainerElement | undefined;
     addInsertFeedback(feedback: FeedbackEmitter, trackedInsert: TrackedInsert, ctx?: GModelElement, event?: MouseEvent): FeedbackEmitter;
 }
 
@@ -75,11 +75,13 @@ export class ContainerManager implements IContainerManager {
         return !container || container.isContainableElement(elementTypeId);
     }
 
-    findContainer(location: Point, ctx: GModelElement, evt?: MouseEvent): ContainerElement | undefined {
+    findContainer(location: Point, ctx: GModelElement, evt?: MouseEvent, exclude?: GModelElement[]): ContainerElement | undefined {
         // reverse order of children to find the innermost, top-rendered containers first
         return [ctx.root, ...findChildrenAtPosition(ctx.root, location)]
             .reverse()
-            .find(element => isContainable(element) && !element.cssClasses?.includes(CSS_GHOST_ELEMENT)) as ContainerElement | undefined;
+            .find(element => !exclude?.includes(element) && isContainable(element) && !element.cssClasses?.includes(CSS_GHOST_ELEMENT)) as
+            | ContainerElement
+            | undefined;
     }
 
     addInsertFeedback(feedback: FeedbackEmitter, trackedInsert: TrackedInsert, ctx?: GModelElement, event?: MouseEvent): FeedbackEmitter {

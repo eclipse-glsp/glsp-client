@@ -177,7 +177,7 @@ export class FeedbackActionDispatcher implements IFeedbackActionDispatcher, Disp
                 return;
             }
             await this.actionDispatcher.dispatchAll(actions);
-            this.logger.info(this, `Dispatched feedback actions for ${feedbackEmitter}`);
+            this.logger.info(this, `Dispatched feedback actions for`, feedbackEmitter);
         } catch (reason) {
             this.logger.error(this, 'Failed to dispatch feedback actions', reason);
         }

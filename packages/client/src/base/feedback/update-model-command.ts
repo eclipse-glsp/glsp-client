@@ -17,13 +17,16 @@ import {
     Animation,
     CommandExecutionContext,
     CommandReturn,
+    GChildElement,
+    GModelElement,
     GModelRoot,
     ILogger,
     MorphEdgesAnimation,
     TYPES,
     UpdateAnimationData,
     UpdateModelAction,
-    UpdateModelCommand
+    UpdateModelCommand,
+    isLocateable
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable, optional } from 'inversify';
 import { IFeedbackActionDispatcher } from './feedback-action-dispatcher';
@@ -52,6 +55,20 @@ export class FeedbackAwareUpdateModelCommand extends UpdateModelCommand {
         const tempContext: CommandExecutionContext = { ...context, root: newRoot };
         this.feedbackActionDispatcher?.applyFeedbackCommands(tempContext);
         return super.performUpdate(oldRoot, newRoot, context);
+    }
+
+    protected override updateElement(left: GModelElement, right: GModelElement, animationData: UpdateAnimationData): void {
+        // Skip move animation for elements whose parent changed (e.g., change container operations).
+        // The old position is relative to the old parent's coordinate system and meaningless in the new parent,
+        // so animating between them causes a visual glitch.
+        if (isLocateable(left) && isLocateable(right)) {
+            const leftParentId = left instanceof GChildElement ? left.parent.id : undefined;
+            const rightParentId = right instanceof GChildElement ? right.parent.id : undefined;
+            if (leftParentId !== rightParentId) {
+                left.position = right.position;
+            }
+        }
+        super.updateElement(left, right, animationData);
     }
 
     // Override the `createAnimations` implementation and remove the animation for edge morphing. Otherwise routing & reconnect

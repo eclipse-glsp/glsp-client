@@ -32,7 +32,8 @@
     "test:coverage": "lerna run test:coverage",
     "test:coverage:ci": "yarn glsp coverageReport",
     "upgrade:next": "glsp updateNext",
-    "watch": "concurrently --kill-others -n tsc,standalone -c red,yellow \"tsc -b -w --preserveWatchOutput\" \"yarn -s standalone watch:bundle\""
+    "watch": "concurrently --kill-others -n tsc,standalone -c red,yellow \"yarn watch:packages\" \"yarn -s standalone watch:bundle\"",
+    "watch:packages": "tsc -b -w --preserveWatchOutput"
   },
   "devDependencies": {
     "@eclipse-glsp/dev": "next",
