@@ -29,10 +29,23 @@ import {
     hasBooleanProp,
     hasObjectProp,
     isBoundsAware,
-    isMoveable
+    isMoveable,
+    type ElementAndBounds,
+    type GModelRoot
 } from '@eclipse-glsp/sprotty';
-import { BoundsAwareModelElement, MoveableElement, ResizableModelElement, getElements } from '../../../utils/gmodel-util';
-import { GResizeHandle, ResizeHandleLocation } from '../../change-bounds/model';
+import {
+    BoundsAwareModelElement,
+    MoveableElement,
+    ResizableModelElement,
+    buildAncestorOrder,
+    findAncestors,
+    findDescendants,
+    getElements,
+    getMatchingElements,
+    isBoundsAwareMoveable
+} from '../../../utils/gmodel-util';
+import { SetBoundsFeedbackAction } from '../../bounds/set-bounds-feedback-command';
+import { GResizeHandle, ResizeHandleLocation, isResizable } from '../../change-bounds/model';
 import { DiagramMovementCalculator } from '../../change-bounds/tracker';
 import { ChangeBoundsManager } from './change-bounds-manager';
 
@@ -43,6 +56,8 @@ export interface ElementTrackingOptions {
     restrict: boolean | MouseEvent | KeyboardEvent | any;
     /** Validate operation. Default: true */
     validate: boolean;
+    /** Wrap operation. Default: true */
+    wrap: boolean;
 
     /** Skip operations that do not trigger change. Default: true */
     skipStatic: boolean;
@@ -57,6 +72,7 @@ export const DEFAULT_MOVE_OPTIONS: MoveOptions = {
     snap: true,
     restrict: true,
     validate: true,
+    wrap: true,
 
     skipStatic: true,
     skipInvalid: false
@@ -93,11 +109,15 @@ export interface TrackedMove extends Movement {
     elementMoves: TrackedElementMove[];
     valid: boolean;
     options: MoveOptions;
+    wrapResizes?: Record<string, TrackedElementResize>;
 }
 
 export namespace TrackedMove {
     export function is(obj: any): obj is TrackedMove {
         return Movement.is(obj) && hasBooleanProp(obj, 'valid');
+    }
+    export function isValid(move: TrackedMove): boolean {
+        return move.valid && (!move.wrapResizes || TrackedElementResize.isValidMove(...Object.values(move.wrapResizes)));
     }
 }
 
@@ -128,6 +148,7 @@ export const DEFAULT_RESIZE_OPTIONS: ResizeOptions = {
     restrict: true,
     validate: true,
     symmetric: true,
+    wrap: true,
 
     constrainResize: true,
 
@@ -154,6 +175,27 @@ export namespace TrackedElementResize {
             isBoundsAware(obj.element) && hasObjectProp(obj, 'fromBounds') && hasObjectProp(obj, 'toBounds') && hasObjectProp(obj, 'valid')
         );
     }
+    export function toElementAndBounds(resize: TrackedElementResize): ElementAndBounds {
+        return {
+            elementId: resize.element.id,
+            newSize: resize.toBounds,
+            newPosition: resize.toBounds
+        };
+    }
+    export function createFeedbackActions(
+        resizes: TrackedElementResize[],
+        options: { validOnly: boolean } = { validOnly: true }
+    ): SetBoundsFeedbackAction {
+        // we do not want to resize elements beyond their valid size, not even for feedback, as the next layout cycle usually corrects this
+        const elementResizes = options.validOnly ? resizes.filter(elementResize => elementResize.valid.size) : resizes;
+        return SetBoundsFeedbackAction.create(elementResizes.map(TrackedElementResize.toElementAndBounds));
+    }
+    export function isValidMove(...resize: TrackedElementResize[]): boolean {
+        return resize.every(r => r.valid.move);
+    }
+    export function isValidSize(...resize: TrackedElementResize[]): boolean {
+        return resize.every(r => r.valid.size);
+    }
 }
 
 export interface TrackedResize extends Movement {
@@ -164,17 +206,63 @@ export interface TrackedResize extends Movement {
         move: boolean;
     };
     options: ResizeOptions;
+    wrapResizes?: Record<string, TrackedElementResize>;
+}
+
+export interface ChangeBoundsChanges {
+    element: GModelElement;
+    fromBounds: Bounds;
+    toBounds: Bounds;
+}
+
+export class InitialBoundsTracker {
+    protected readonly initialBounds = new Map<string, Bounds>();
+
+    process(root: GModelRoot): void {
+        const elements = getMatchingElements(root.index, isBoundsAware);
+
+        elements.forEach(element => {
+            this.initialBounds.set(element.id, element.bounds);
+        });
+    }
+
+    get(): Record<string, Bounds> {
+        return Object.fromEntries(this.initialBounds);
+    }
+
+    getElement(id: string): Bounds | undefined {
+        return this.initialBounds.get(id);
+    }
+
+    getElementAndBoundsById(id: string): ElementAndBounds | undefined {
+        const bounds = this.initialBounds.get(id);
+        return bounds ? { elementId: id, newSize: bounds, newPosition: bounds } : undefined;
+    }
+
+    getElementAndBounds(): ElementAndBounds[] {
+        return Array.from(this.initialBounds.entries()).map(([id, bounds]) => ({ elementId: id, newSize: bounds, newPosition: bounds }));
+    }
+
+    get isEmpty(): boolean {
+        return this.initialBounds.size === 0;
+    }
+
+    clear(): void {
+        this.initialBounds.clear();
+    }
 }
 
 export class ChangeBoundsTracker {
     protected diagramMovement: DiagramMovementCalculator;
+    protected initialBoundsTracker = new InitialBoundsTracker();
 
     constructor(readonly manager: ChangeBoundsManager) {
         this.diagramMovement = new DiagramMovementCalculator(manager.positionTracker);
     }
 
-    startTracking(): this {
+    startTracking(root: GModelRoot): this {
         this.diagramMovement.init();
+        this.initialBoundsTracker.process(root);
         return this;
     }
 
@@ -189,7 +277,12 @@ export class ChangeBoundsTracker {
 
     stopTracking(): this {
         this.diagramMovement.dispose();
+        this.initialBoundsTracker.clear();
         return this;
+    }
+
+    getInitialBoundsTracker(): InitialBoundsTracker {
+        return this.initialBoundsTracker;
     }
 
     //
@@ -215,6 +308,24 @@ export class ChangeBoundsTracker {
                 move.valid &&= elementMove.valid;
             }
         }
+
+        // if wrapping is enabled, calculate the required resize for all wrapping elements
+        if (options?.wrap && move.elementMoves.length > 0) {
+            move.wrapResizes = this.wrap(
+                move.elementMoves.map(m => ({
+                    element: m.element,
+                    fromBounds: {
+                        ...(isBoundsAware(m.element) ? m.element.bounds : Bounds.EMPTY),
+                        ...m.fromPosition
+                    },
+                    toBounds: { ...(isBoundsAware(m.element) ? m.element.bounds : Bounds.EMPTY), ...m.toPosition }
+                })),
+                options
+            );
+
+            move.valid = TrackedElementResize.isValidMove(...Object.values(move.wrapResizes));
+        }
+
         return move;
     }
 
@@ -257,6 +368,7 @@ export class ChangeBoundsTracker {
         }
 
         move.moveVector = Point.vector(move.fromPosition, move.toPosition);
+
         return move;
     }
 
@@ -282,6 +394,7 @@ export class ChangeBoundsTracker {
         const update = this.calculateDiagramMovement();
         const handleMove = this.calculateHandleMove(new MoveableResizeHandle(handle), update.vector, options);
         const resize: TrackedResize = { ...update, valid: { move: true, size: true }, options, handleMove, elementResizes: [] };
+
         if (Vector.isZero(handleMove.moveVector) && options.skipStatic) {
             // no movement detected so elements won't be moved, exit early
             return resize;
@@ -297,6 +410,27 @@ export class ChangeBoundsTracker {
                 resize.valid.size = resize.valid.size && elementResize.valid.size;
             }
         }
+
+        // if wrapping is enabled, calculate the required resize for all wrapping elements
+        if (options?.wrap && resize.elementResizes.length > 0) {
+            resize.wrapResizes = this.wrap(
+                resize.elementResizes.map(r => ({
+                    element: r.element,
+                    fromBounds: r.fromBounds,
+                    toBounds: r.toBounds
+                })),
+                options
+            );
+
+            const wrapResizes = Object.values(resize.wrapResizes);
+            if (wrapResizes.length > 0) {
+                resize.valid.move = TrackedElementResize.isValidMove(...wrapResizes);
+                resize.valid.size = TrackedElementResize.isValidSize(...wrapResizes);
+
+                resize.elementResizes = wrapResizes;
+            }
+        }
+
         return resize;
     }
 
@@ -440,6 +574,227 @@ export class ChangeBoundsTracker {
                 break;
         }
         return vector;
+    }
+
+    //
+    // WRAP
+    //
+
+    /**
+     * Automatically adjusts parent container bounds when their child elements are moved or resized.
+     * This ensures that parent elements (containers) expand or contract to properly contain their children
+     * after bounds changes.
+     *
+     * The method uses a four-pass algorithm:
+     *
+     * **First Pass - Collect Parents:**
+     * Identifies all resizable ancestor containers that might need adjustment and sorts them from
+     * inner to outer (children before parents in the hierarchy). This ordering is needed because
+     * inner containers must be processed first so their new bounds are known when processing outer containers.
+     *
+     * **Second Pass - Prepare Direct Element Moves:**
+     * Creates initial tracking records for elements being directly changed (moved/resized).
+     * Uses `initialBounds` (captured at tracking start) as the reference `fromBounds`.
+     * These records serve as the base for calculating how parents need to adjust.
+     *
+     * **Third Pass - Resize Parents Based on Children:**
+     * Calculates the minimum bounding box required to contain all children and computes new parent bounds.
+     * Ensures containers grow to accommodate children but don't unnecessarily shrink below their initial size.
+     *
+     * **Fourth Pass - Adjust Children Based on Parent Movement:**
+     * When a parent container moves (e.g., expands to the left), children have relative coordinates to the parent.
+     * This pass compensates for parent movement by adjusting child positions to maintain their intended
+     * absolute positions after parent adjustment.
+     *
+     * @param changes - An array of bounds changes for elements (the elements being moved/resized)
+     * @param options - Resize options controlling validation, snapping, etc.
+     * @returns A record mapping element IDs to their tracked resize information,
+     *          including both the changed elements and their affected parent containers.
+     */
+    wrap(changes: ChangeBoundsChanges[], options: Partial<ResizeOptions>): Record<string, TrackedElementResize> {
+        const trackedElementResizes: Record<string, TrackedElementResize> = {};
+        const initialBounds = this.initialBoundsTracker.get();
+
+        // First pass: Collect all parents that need to be processed.
+        const parentsToProcess = buildAncestorOrder(
+            changes.flatMap(change => change.element),
+            isResizable
+        );
+
+        if (parentsToProcess.length === 0) {
+            return trackedElementResizes;
+        }
+
+        // Second pass: Prepare all direct element moves.
+        for (const change of changes) {
+            if (!isBoundsAwareMoveable(change.element)) {
+                continue;
+            }
+
+            const element = change.element as BoundsAwareModelElement;
+            const fromBounds = initialBounds[element.id] ?? element.bounds;
+            const toBounds = {
+                ...(isBoundsAware(element) ? element.bounds : Bounds.EMPTY),
+                ...change.toBounds
+            };
+
+            trackedElementResizes[element.id] = {
+                element: element,
+                fromBounds: { ...fromBounds },
+                toBounds: { ...toBounds },
+                valid: { size: true, move: true }
+            };
+        }
+
+        // Third pass: Resize parents based on their children.
+        // Calculates the minimum bounding box required to contain all children and computes new parent bounds by:
+        // 1. Finding minX, minY, maxX, maxY across all children (using their toBounds)
+        // 2. Ensuring the parent doesn't shrink below its initial size
+        // 3. Expanding the parent's position/dimensions to encompass children that moved outside original bounds
+        // This ensures containers grow to accommodate children but don't unnecessarily shrink.
+        for (const parent of parentsToProcess) {
+            const ancestors = this.getWrapperAncenstors(parent);
+            const parentInitialBounds = this.getParentInitialBounds(parent, ancestors, initialBounds);
+            const parentBounds = trackedElementResizes[parent.id]?.toBounds ?? parent.bounds;
+
+            // Find bounding box around all children
+            let minX = Infinity;
+            let minY = Infinity;
+            let maxX = -Infinity;
+            let maxY = -Infinity;
+
+            const children = findDescendants(parent, isBoundsAwareMoveable, 1);
+
+            for (const child of children) {
+                const bounds = trackedElementResizes[child.id]?.toBounds ?? child.bounds;
+                minX = Math.min(minX, Bounds.left(bounds));
+                minY = Math.min(minY, Bounds.top(bounds));
+                maxX = Math.max(maxX, Bounds.right(bounds));
+                maxY = Math.max(maxY, Bounds.bottom(bounds));
+            }
+
+            const childrenBounds = {
+                x: minX,
+                y: minY,
+                width: maxX,
+                height: maxY
+            } as Bounds;
+
+            // newX/newY: Minimum of initial position and the child that moved furthest left/up
+            const newX = Math.min(parentInitialBounds.x, Bounds.left(parentBounds) + Bounds.left(childrenBounds));
+            const newY = Math.min(parentInitialBounds.y, Bounds.top(parentBounds) + Bounds.top(childrenBounds));
+            const newPos: Point = { x: newX, y: newY };
+
+            // newWidth/newHeight: Maximum of initial dimension and the space needed to contain the rightmost/bottommost child
+            const newWidth = Math.max(
+                parentInitialBounds.width,
+                parentInitialBounds.width + Bounds.left(parentInitialBounds) - Bounds.left({ ...parentBounds, ...newPos }),
+                childrenBounds.width
+            );
+            const newHeight = Math.max(
+                parentInitialBounds.height,
+                parentInitialBounds.height + Bounds.top(parentInitialBounds) - Bounds.top({ ...parentBounds, ...newPos }),
+                childrenBounds.height
+            );
+            const newDimension: Dimension = { width: newWidth, height: newHeight };
+
+            const toBounds: Bounds = {
+                x: newPos.x,
+                y: newPos.y,
+                width: newDimension.width,
+                height: newDimension.height
+            };
+
+            trackedElementResizes[parent.id] = {
+                element: parent,
+                fromBounds: { ...parent.bounds },
+                toBounds: { ...toBounds },
+                valid: { size: true, move: true }
+            };
+        }
+
+        // Fourth pass: Adjust all children based on the parent movement.
+        // When a parent container moves (e.g., expands to the left), children have relative coordinates to the parent.
+        // If the parent moves left by 10px, children would appear to move right by 10px in absolute terms.
+        // This pass compensates for parent movement by adjusting child positions.
+        // Ensures children maintain their intended absolute positions after parent adjustment.
+        for (const parent of parentsToProcess) {
+            const children = findDescendants(parent, isBoundsAwareMoveable, 1);
+            const trackedParent = trackedElementResizes[parent.id];
+
+            const parentFromBounds = trackedParent.fromBounds;
+            const parentToBounds = trackedParent.toBounds;
+
+            for (const child of children) {
+                const childInitialBounds = initialBounds[child.id] ?? child.bounds;
+                const childBounds = trackedElementResizes[child.id]?.toBounds ?? child.bounds;
+                // Calculate the delta movement of the parent
+                const deltaX = Bounds.left(parentToBounds) - Bounds.left(parentFromBounds);
+                const deltaY = Bounds.top(parentToBounds) - Bounds.top(parentFromBounds);
+
+                trackedElementResizes[child.id] = {
+                    element: child,
+                    fromBounds: { ...childInitialBounds },
+                    toBounds: {
+                        ...childBounds,
+                        // Subtract delta to keep children in same absolute position, prevent negative coordinates
+                        x: Math.max(childBounds.x - deltaX, 0),
+                        y: Math.max(childBounds.y - deltaY, 0)
+                    },
+                    valid: { size: true, move: true }
+                };
+            }
+        }
+
+        // Final validation: Validates that all calculated bounds (for both changed elements and parents) are valid.
+        // Checks both size validity (e.g., minimum size constraints) and position validity.
+        // Allows the caller to detect and handle invalid operations appropriately.
+        if (options.validate) {
+            for (const resize of Object.values(trackedElementResizes)) {
+                resize.valid.size = this.manager.hasValidSize(resize.element, resize.toBounds, { useComputedDimensions: false });
+                resize.valid.move = this.manager.hasValidPosition(resize.element, resize.toBounds);
+            }
+        }
+
+        return trackedElementResizes;
+    }
+
+    /**
+     * Returns the resizable elements that are wrapping the given element.
+     * It needs to be ordered from the inner to the outer element.
+     */
+    protected getWrapperAncenstors(element: GModelElement): ResizableModelElement[] {
+        return findAncestors(element, isResizable);
+    }
+
+    protected getParentInitialBounds(
+        parent: ResizableModelElement,
+        ancestors: ResizableModelElement[],
+        initialBounds: Record<string, Bounds>
+    ): Bounds {
+        const parentInitialBounds = structuredClone(initialBounds[parent.id] ?? parent.bounds);
+
+        if (ancestors.length === 0) {
+            return parentInitialBounds;
+        }
+
+        // If we have ancestors, we need to calculate the initial bounds based on the ancestors
+        let deltaX = 0;
+        let deltaY = 0;
+        for (const ancestor of ancestors) {
+            const ancestorInitialBounds = initialBounds[ancestor.id] ?? ancestor.bounds;
+            const ancestorBounds = ancestor.bounds;
+
+            deltaX += Bounds.left(ancestorBounds) - Bounds.left(ancestorInitialBounds);
+            deltaY += Bounds.top(ancestorBounds) - Bounds.top(ancestorInitialBounds);
+        }
+
+        return {
+            x: parentInitialBounds.x - deltaX,
+            y: parentInitialBounds.y - deltaY,
+            width: parentInitialBounds.width,
+            height: parentInitialBounds.height
+        };
     }
 
     dispose(): void {

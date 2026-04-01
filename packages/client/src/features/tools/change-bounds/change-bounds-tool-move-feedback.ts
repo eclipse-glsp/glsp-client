@@ -13,7 +13,17 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Action, ElementMove, GModelElement, GModelRoot, MoveAction, Point, TypeGuard, findParentByFeature } from '@eclipse-glsp/sprotty';
+import {
+    Action,
+    ElementMove,
+    GModelElement,
+    GModelRoot,
+    MoveAction,
+    Point,
+    TypeGuard,
+    findParentByFeature,
+    type ElementAndBounds
+} from '@eclipse-glsp/sprotty';
 
 import { DebouncedFunc, debounce } from 'lodash';
 import { DragAwareMouseListener } from '../../../base/drag-aware-mouse-listener';
@@ -23,15 +33,20 @@ import { ISelectionListener } from '../../../base/selection-service';
 import {
     MoveableElement,
     filter,
+    getBoundsChangedAncestorsAndElement,
     getElements,
+    isBoundsAwareMoveable,
     isNonRoutableMovableBoundsAware,
     isNonRoutableSelectedMovableBoundsAware,
-    removeDescendants
+    isNotUndefined,
+    removeDescendants,
+    type BoundsAwareModelElement
 } from '../../../utils/gmodel-util';
+import { SetBoundsFeedbackAction } from '../../bounds/set-bounds-feedback-command';
 import { GResizeHandle } from '../../change-bounds/model';
 import { ChangeBoundsTool } from './change-bounds-tool';
 import { MoveFinishedEventAction, MoveInitializedEventAction } from './change-bounds-tool-feedback';
-import { ChangeBoundsTracker, TrackedMove } from './change-bounds-tracker';
+import { TrackedElementResize, TrackedMove, type ChangeBoundsTracker } from './change-bounds-tracker';
 
 /**
  * This mouse listener provides visual feedback for moving by sending client-side
@@ -79,7 +94,7 @@ export class FeedbackMoveMouseListener extends DragAwareMouseListener implements
         }
         const moveable = findParentByFeature(target, this.isValidMoveable);
         if (moveable !== undefined) {
-            this.tracker.startTracking();
+            this.tracker.startTracking(target.root);
             this.scheduleMoveInitialized();
         } else {
             this.tracker.stopTracking();
@@ -91,7 +106,7 @@ export class FeedbackMoveMouseListener extends DragAwareMouseListener implements
         this.pendingMoveInitialized = debounce(() => {
             this.moveInitialized();
             this.pendingMoveInitialized = undefined;
-        }, 750);
+        }, this.moveInitializationTimeout());
         this.pendingMoveInitialized();
     }
 
@@ -143,6 +158,13 @@ export class FeedbackMoveMouseListener extends DragAwareMouseListener implements
         // cancel any pending move
         this.pendingMoveInitialized?.cancel();
         this.moveFeedback.add(this.createMoveAction(move), () => this.resetElementPositions(target));
+        this.moveFeedback.add(this.createWrapAction(move), () => {
+            if (move.wrapResizes === undefined) {
+                return [];
+            }
+
+            return this.resetElementWraps(elementsToMove);
+        });
         this.addMoveFeedback(move, target, event);
         this.tracker.updateTrackingPosition(move);
         this.moveFeedback.submit();
@@ -155,6 +177,10 @@ export class FeedbackMoveMouseListener extends DragAwareMouseListener implements
             trackedMove.elementMoves.map(move => ({ elementId: move.element.id, toPosition: move.toPosition })),
             { animate: false }
         );
+    }
+
+    protected createWrapAction(trackedMove: TrackedMove): Action {
+        return TrackedElementResize.createFeedbackActions(Object.values(trackedMove.wrapResizes ?? {}), { validOnly: false });
     }
 
     protected addMoveFeedback(trackedMove: TrackedMove, ctx: GModelElement, event: MouseEvent): void {
@@ -179,6 +205,37 @@ export class FeedbackMoveMouseListener extends DragAwareMouseListener implements
     protected resetElementPositions(context: GModelElement): MoveAction | undefined {
         const elementMoves: ElementMove[] = this.revertElementMoves(context);
         return MoveAction.create(elementMoves, { animate: false, finished: true });
+    }
+
+    /**
+     * Reset the bounds of all moved elements' ancestors and themselves that have changed their bounds during the move.
+     *
+     * If one of the affected elements is invalid, then all wrap operations will be reset.
+     * Otherwise no action is returned.
+     */
+    protected resetElementWraps(movedElements: MoveableElement[]): Action[] {
+        const initialBounds = this.tracker.getInitialBoundsTracker();
+        const actions: Action[] = [];
+
+        const affectedElements = Array.from(
+            new Set<BoundsAwareModelElement>(
+                movedElements
+                    .filter(isBoundsAwareMoveable)
+                    .flatMap(element => getBoundsChangedAncestorsAndElement(element, initialBounds.get()))
+            )
+        );
+
+        if (affectedElements.every(affected => this.tool.changeBoundsManager.isValid(affected))) {
+            return actions;
+        }
+
+        const elementsAndBounds: ElementAndBounds[] = affectedElements
+            .map(affected => initialBounds.getElementAndBoundsById(affected.id))
+            .filter(isNotUndefined);
+
+        actions.push(SetBoundsFeedbackAction.create(elementsAndBounds));
+
+        return actions;
     }
 
     protected revertElementMoves(context?: GModelElement): ElementMove[] {
@@ -220,7 +277,7 @@ export class FeedbackMoveMouseListener extends DragAwareMouseListener implements
         this.pendingMoveInitialized?.cancel();
         this.moveInitializedFeedback.dispose();
         this.moveFeedback.dispose();
-        this.tracker.dispose();
+        this.tracker.stopTracking();
         this.elementId2startPos.clear();
         super.dispose();
     }

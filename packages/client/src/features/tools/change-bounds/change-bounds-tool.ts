@@ -21,12 +21,10 @@ import {
     ChangeBoundsOperation,
     ChangeRoutingPointsOperation,
     CompoundOperation,
-    Dimension,
     Disposable,
     EdgeRouterRegistry,
     ElementAndBounds,
     ElementAndRoutingPoints,
-    GChildElement,
     GConnectableElement,
     GModelElement,
     GModelRoot,
@@ -34,7 +32,6 @@ import {
     KeyListener,
     MouseListener,
     Operation,
-    Point,
     TYPES,
     findParentByFeature
 } from '@eclipse-glsp/sprotty';
@@ -48,8 +45,11 @@ import {
     ResizableModelElement,
     SelectableBoundsAware,
     calcElementAndRoutingPoints,
+    getBoundsChangedAncestorsAndElement,
     getMatchingElements,
+    isDescendant,
     isNonRoutableSelectedMovableBoundsAware,
+    isNotUndefined,
     toElementAndBounds
 } from '../../../utils/gmodel-util';
 import { LocalRequestBoundsAction } from '../../bounds/local-bounds';
@@ -166,7 +166,6 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
     static readonly CSS_CLASS_ACTIVE = CSS_ACTIVE_HANDLE;
 
     // members for calculating the correct position change
-    protected initialBounds: ElementAndBounds | undefined;
     protected tracker: ChangeBoundsTracker;
 
     // members for resize mode
@@ -189,6 +188,7 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
         if (event.button !== 0 || target instanceof GModelRoot) {
             return [];
         }
+        this.tracker.startTracking(target.root);
         // check if we have a resize handle (only single-selection)
         this.updateResizeElement(target, event);
         return [];
@@ -198,14 +198,6 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
         this.activeResizeHandle = target instanceof GResizeHandle ? target : undefined;
         this.activeResizeElement = this.activeResizeHandle?.parent ?? this.findResizeElement(target);
         if (this.activeResizeElement) {
-            if (event) {
-                this.tracker.startTracking();
-            }
-            this.initialBounds = {
-                newSize: this.activeResizeElement.bounds,
-                newPosition: this.activeResizeElement.bounds,
-                elementId: this.activeResizeElement.id
-            };
             // we trigger the local bounds calculation once to get the correct layout information for reszing
             // for any sub-sequent calls the layout information will be updated automatically
             this.tool
@@ -235,10 +227,15 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
         // rely on the FeedbackMoveMouseListener to update the element bounds of selected elements
         // consider resize handles ourselves
         if (this.activeResizeHandle && this.tracker.isTracking()) {
-            const resize = this.tracker.resizeElements(this.activeResizeHandle, { snap: event, symmetric: event, restrict: event });
+            const resize = this.tracker.resizeElements(this.activeResizeHandle, {
+                snap: event,
+                symmetric: event,
+                restrict: event
+            });
             const resizeAction = this.resizeBoundsAction(resize);
             if (resizeAction.bounds.length > 0) {
-                this.resizeFeedback.add(resizeAction, () => this.resetBounds());
+                this.resizeFeedback.add(resizeAction, () => this.resetResizeBounds());
+                this.resizeFeedback.add(this.createWrapAction(resize));
                 this.tracker.updateTrackingPosition(resize.handleMove.moveVector);
                 this.addResizeFeedback(resize, target, event);
                 this.resizeFeedback.submit();
@@ -253,6 +250,10 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
         return SetBoundsFeedbackAction.create(elementResizes.map(elementResize => this.toElementAndBounds(elementResize)));
     }
 
+    protected createWrapAction(tracked: TrackedResize): SetBoundsFeedbackAction {
+        return TrackedElementResize.createFeedbackActions(Object.values(tracked.wrapResizes ?? {}));
+    }
+
     protected toElementAndBounds(elementResize: TrackedElementResize): ElementAndBounds {
         return {
             elementId: elementResize.element.id,
@@ -265,11 +266,26 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
         this.tool.changeBoundsManager.addResizeFeedback(this.resizeFeedback, resize, target, event);
     }
 
-    protected resetBounds(): Action[] {
+    /**
+     * Reset the bounds of all resized elements' ancestors and themselves that have changed their bounds during the resize.
+     *
+     * If one of the affected elements is invalid, then all resize operations will be reset.
+     * Otherwise no action is returned.
+     */
+    protected resetResizeBounds(): Action[] {
+        const initialBounds = this.tracker.getInitialBoundsTracker();
+
+        if (!this.activeResizeElement || initialBounds.isEmpty) {
+            return [MoveFinishedEventAction.create()];
+        }
+
         // reset the bounds to the initial bounds and ensure that we do not show helper line feedback anymore (MoveFinishedEventAction)
-        return this.initialBounds
-            ? [SetBoundsFeedbackAction.create([this.initialBounds]), MoveFinishedEventAction.create()]
-            : [MoveFinishedEventAction.create()];
+        const affectedElements = getBoundsChangedAncestorsAndElement(this.activeResizeElement, initialBounds.get());
+        const elementsAndBounds: ElementAndBounds[] = affectedElements
+            .map(element => initialBounds.getElementAndBoundsById(element.id))
+            .filter(isNotUndefined);
+
+        return [SetBoundsFeedbackAction.create(elementsAndBounds), MoveFinishedEventAction.create()];
     }
 
     override draggingMouseUp(target: GModelElement, event: MouseEvent): Action[] {
@@ -281,11 +297,13 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
             actions.push(...this.handleMoveOnServer(target));
         }
         this.disposeResize({ keepHandles: true });
+        this.disposeTracker();
         return actions;
     }
 
     override nonDraggingMouseUp(element: GModelElement, event: MouseEvent): Action[] {
         this.disposeResize({ keepHandles: true });
+        this.disposeTracker();
         return super.nonDraggingMouseUp(element, event);
     }
 
@@ -300,11 +318,22 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
     protected getElementsToMove(target: GModelElement): SelectableBoundsAware[] {
         const selectedElements = getMatchingElements(target.index, isNonRoutableSelectedMovableBoundsAware);
         const selectionSet: Set<BoundsAwareModelElement> = new Set(selectedElements);
-        const elementsToMove = selectedElements.filter(element => this.isValidMove(element, selectionSet));
-        if (this.tool.movementOptions.allElementsNeedToBeValid && elementsToMove.length !== selectionSet.size) {
+        // filter out children of selected elements to avoid duplicate move operations
+        // only the top-most selected elements are considered for move operations
+        const topElements = selectedElements.filter(element => !this.isChildOfSelected(selectionSet, element));
+        const affectedElementSet: Set<BoundsAwareModelElement> = new Set();
+
+        const initialBounds = this.tracker.getInitialBoundsTracker().get();
+        for (const topElement of topElements) {
+            const affectedElements = getBoundsChangedAncestorsAndElement(topElement, initialBounds);
+            affectedElements.forEach(element => affectedElementSet.add(element));
+        }
+
+        const elementsToMove = Array.from(affectedElementSet).filter(element => this.isValidMove(element));
+        if (this.tool.movementOptions.allElementsNeedToBeValid && elementsToMove.length !== affectedElementSet.size) {
             return [];
         }
-        return elementsToMove;
+        return elementsToMove as SelectableBoundsAware[];
     }
 
     protected handleMoveElementsOnServer(elementsToMove: SelectableBoundsAware[]): Operation[] {
@@ -312,20 +341,17 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
         return newBounds.length > 0 ? [ChangeBoundsOperation.create(newBounds)] : [];
     }
 
-    protected isValidMove(element: BoundsAwareModelElement, selectedElements: Set<BoundsAwareModelElement> = new Set()): boolean {
-        return this.tool.changeBoundsManager.hasValidPosition(element) && !this.isChildOfSelected(selectedElements, element);
+    protected isValidMove(element: BoundsAwareModelElement): boolean {
+        return this.tool.changeBoundsManager.hasValidPosition(element);
     }
 
     protected isChildOfSelected(selectedElements: Set<GModelElement>, element: GModelElement): boolean {
-        if (selectedElements.size === 0) {
-            return false;
-        }
-        while (element instanceof GChildElement) {
-            element = element.parent;
-            if (selectedElements.has(element)) {
+        for (const selectedElement of selectedElements) {
+            if (isDescendant(element, selectedElement)) {
                 return true;
             }
         }
+
         return false;
     }
 
@@ -349,20 +375,14 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
     }
 
     protected handleResizeOnServer(activeResizeHandle: GResizeHandle): Action[] {
-        if (this.initialBounds && this.isValidResize(activeResizeHandle.parent)) {
-            const elementAndBounds = toElementAndBounds(activeResizeHandle.parent);
-            if (!this.initialBounds.newPosition || !elementAndBounds.newPosition) {
-                return [];
-            }
-            if (
-                !Point.equals(this.initialBounds.newPosition, elementAndBounds.newPosition) ||
-                !Dimension.equals(this.initialBounds.newSize, elementAndBounds.newSize)
-            ) {
-                // UX: we do not want the element positions to be reset to their start as they will be moved to their start and
-                // only afterwards moved by the move action again, leading to a ping-pong movement.
-                // We therefore clear our element map so that they cannot be reset.
-                this.initialBounds = undefined;
-                return [ChangeBoundsOperation.create([elementAndBounds])];
+        const initialBounds = this.tracker.getInitialBoundsTracker();
+        if (!initialBounds.isEmpty) {
+            const affectedElements = getBoundsChangedAncestorsAndElement(activeResizeHandle.parent, initialBounds.get());
+
+            if (affectedElements.length > 0 && affectedElements.every(this.isValidResize.bind(this))) {
+                initialBounds.clear();
+                const newBounds: ElementAndBounds[] = affectedElements.map(toElementAndBounds);
+                return [ChangeBoundsOperation.create(newBounds)];
             }
         }
         return [];
@@ -397,14 +417,17 @@ export class ChangeBoundsListener extends DragAwareMouseListener implements ISel
             this.handleFeedback.dispose();
         }
         this.resizeFeedback.dispose();
-        this.tracker.dispose();
         this.activeResizeElement = undefined;
         this.activeResizeHandle = undefined;
-        this.initialBounds = undefined;
+    }
+
+    protected disposeTracker(): void {
+        this.tracker.dispose();
     }
 
     override dispose(): void {
         this.disposeResize();
+        this.disposeTracker();
         super.dispose();
     }
 }
