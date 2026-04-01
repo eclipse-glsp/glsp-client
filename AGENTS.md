@@ -1,7 +1,5 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
 ## Project Overview
 
 Eclipse GLSP Client monorepo. Provides the sprotty-based client framework for the Graphical Language Server Platform (GLSP). Contains the core client packages and example applications. Uses Lerna with Yarn workspaces.
@@ -10,11 +8,6 @@ Eclipse GLSP Client monorepo. Provides the sprotty-based client framework for th
 
 -   **Package manager**: Yarn 1.x (classic) — do not use Yarn 2+/Berry or npm
 -   **Build**: `yarn` from root installs and compiles everything
--   **Clean**: `yarn clean`
-
-## Validation
-
--   **Tests**: `yarn test` (Mocha), single test: `yarn test --grep 'test name'`
 
 ## Inter-Package Import Rules
 

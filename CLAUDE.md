@@ -8,11 +8,9 @@ Eclipse GLSP Client monorepo. Provides the sprotty-based client framework for th
 
 -   **Package manager**: Yarn 1.x (classic) — do not use Yarn 2+/Berry or npm
 -   **Build**: `yarn` from root installs and compiles everything
--   **Clean**: `yarn clean`
 
 ## Validation
 
--   **Tests**: `yarn test` (Mocha), single test: `yarn test --grep 'test name'`
 -   After completing any code changes, always run the `/verify` skill before reporting completion
 -   If verification fails, run the `/fix` skill to auto-fix issues, then re-run `/verify`
 
