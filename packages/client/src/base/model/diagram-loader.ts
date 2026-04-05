@@ -20,9 +20,9 @@ import {
     Args,
     GLSPClient,
     IActionDispatcher,
-    InitializeParameters,
     LazyInjector,
     MaybePromise,
+    McpInitializeParameters,
     RequestAction,
     RequestModelAction,
     StatusAction,
@@ -126,10 +126,10 @@ export interface DiagramLoadingOptions {
     requestModelOptions?: Args;
 
     /**
-     * Optional partial {@link InitializeParameters} that should be used for {@link GLSPClient.initializeServer} request if the underlying
-     * {@link GLSPClient} has not been initialized yet.
+     * Optional partial {@link McpInitializeParameters} that should be used for {@link GLSPClient.initializeServer} request if
+     * the underlying {@link GLSPClient} has not been initialized yet.
      */
-    initializeParameters?: Partial<InitializeParameters>;
+    initializeParameters?: Partial<McpInitializeParameters>;
 
     /**
      * Flag to enable/disable client side notifications during the loading process.
@@ -140,7 +140,7 @@ export interface DiagramLoadingOptions {
 
 export interface ResolvedDiagramLoadingOptions {
     requestModelOptions: Args;
-    initializeParameters: InitializeParameters;
+    initializeParameters: McpInitializeParameters;
     enableNotifications: boolean;
 }
 
