@@ -15,20 +15,20 @@
  ********************************************************************************/
 
 import {
-    Command,
     CommandExecutionContext,
     CommandReturn,
     GetSelectionMcpAction,
     GetSelectionMcpResultAction,
     IActionDispatcher,
     isSelectable,
+    SystemCommand,
     toArray,
     TYPES
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
 
 @injectable()
-export class GetSelectionMcpCommand extends Command {
+export class GetSelectionMcpCommand extends SystemCommand {
     static readonly KIND = GetSelectionMcpAction.KIND;
 
     @inject(TYPES.IActionDispatcher)

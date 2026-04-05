@@ -26,7 +26,7 @@ export interface GetSelectionMcpAction extends Action {
     mcpRequestId: string;
 }
 export namespace GetSelectionMcpAction {
-    export const KIND = 'GetSelectionMcpAction';
+    export const KIND = 'getSelectionMcpAction';
 
     export function is(object: unknown): object is GetSelectionMcpAction {
         return Action.hasKind(object, KIND);
@@ -49,7 +49,7 @@ export interface GetSelectionMcpResultAction extends Action {
     selectedElementsIDs: string[];
 }
 export namespace GetSelectionMcpResultAction {
-    export const KIND = 'GetSelectionMcpResultAction';
+    export const KIND = 'getSelectionMcpResultAction';
 
     export function is(object: unknown): object is GetSelectionMcpResultAction {
         return Action.hasKind(object, KIND);
@@ -76,7 +76,7 @@ export interface ExportPngMcpAction extends Action {
     options?: ExportPngOptions;
 }
 export namespace ExportPngMcpAction {
-    export const KIND = 'ExportPngMcpAction';
+    export const KIND = 'exportPngMcpAction';
 
     export function is(object: unknown): object is ExportPngMcpAction {
         return Action.hasKind(object, KIND);
@@ -86,7 +86,7 @@ export namespace ExportPngMcpAction {
         return {
             kind: KIND,
             mcpRequestId,
-            ...options
+            options
         };
     }
 }
@@ -108,7 +108,7 @@ export interface ExportPngMcpActionResult extends Action {
 }
 
 export namespace ExportPngMcpActionResult {
-    export const KIND = 'ExportPngMcpActionResult';
+    export const KIND = 'exportPngMcpActionResult';
 
     export function is(object: unknown): object is ExportPngMcpActionResult {
         return Action.hasKind(object, KIND) && hasStringProp(object, 'png');
@@ -119,7 +119,7 @@ export namespace ExportPngMcpActionResult {
             kind: KIND,
             mcpRequestId,
             png,
-            ...options
+            options
         };
     }
 }

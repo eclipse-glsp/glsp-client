@@ -79,6 +79,7 @@ export class GLSPMcpPngExporter extends GLSPSvgExporter {
                     const ctx = offscreen.getContext('2d');
 
                     if (!ctx) {
+                        URL.revokeObjectURL(url);
                         reject(new Error('Failed to get offscreen context.'));
                         return;
                     }
@@ -103,6 +104,7 @@ export class GLSPMcpPngExporter extends GLSPSvgExporter {
                     };
                     reader.readAsDataURL(outBlob);
                 } catch (err) {
+                    URL.revokeObjectURL(url);
                     reject(err);
                 }
             };
