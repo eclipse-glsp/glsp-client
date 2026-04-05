@@ -55,6 +55,12 @@ export interface McpServerOptions {
      * ```
      */
     agentPersona?: string;
+    /**
+     * The amount of time `DiagramPngMcpResourceHandler` waits for a response from the GLSP client in milliseconds.
+     *
+     * @default 5000
+     */
+    exportPngTimeout?: number;
 }
 
 export interface McpServerConfiguration {
