@@ -1,5 +1,17 @@
 # Eclipse GLSP Client Changelog
 
+## v2.7.0 - active
+
+### Changes
+
+-   [build] Switch to ESLint 9.x [#470](https://github.com/eclipse-glsp/glsp-client/pull/470)
+-   [diagram] Fix AbstractUIExtension error message [#469](https://github.com/eclipse-glsp/glsp-client/pull/469)
+-   [diagram] Fix edit label UI not resizing on graph zoom [#455](https://github.com/eclipse-glsp/glsp-client/pull/455)
+
+### Potentially Breaking Changes
+
+-   [node] Update minimum requirements for Node to >=22 [#476](https://github.com/eclipse-glsp/glsp-client/pull/476)
+
 ## [v2.6.0 - 09/02/2026](https://github.com/eclipse-glsp/glsp-client/releases/tag/v2.6.0)
 
 ### Changes
