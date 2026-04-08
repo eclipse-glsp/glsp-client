@@ -13,6 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { GetEditorContextAction } from '@eclipse-glsp/protocol';
 import {
     ActionHandlerRegistry,
     FeatureModule,
@@ -83,6 +84,7 @@ export const defaultModule = new FeatureModule(
 
         configureActionHandler(context, SetEditModeAction.KIND, EditorContextService);
         configureActionHandler(context, SetDirtyStateAction.KIND, EditorContextService);
+        configureActionHandler(context, GetEditorContextAction.KIND, EditorContextService);
 
         bind(FocusTracker).toSelf().inSingletonScope();
         bind(TYPES.IDiagramStartup).toService(FocusTracker);

@@ -83,6 +83,12 @@ export interface RequestAction<Res extends ResponseAction> extends Action, sprot
      */
     requestId: string;
     /**
+     * Optional timeout in milliseconds. When set, `requestUntil()` uses this value instead of its
+     * default timeout. This allows the sender to control how long the receiver waits for a response.
+     * Precedence: explicit `timeoutMs` parameter > `action.timeout` > default (2000ms).
+     */
+    timeout?: number;
+    /**
      * Used to ensure correct typing. Clients must not use this property
      */
     readonly _?: Res;

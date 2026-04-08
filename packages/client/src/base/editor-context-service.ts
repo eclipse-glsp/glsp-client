@@ -13,6 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { GetEditorContextAction, SetEditorContextAction } from '@eclipse-glsp/protocol';
 import {
     Action,
     Args,
@@ -189,12 +190,24 @@ export class EditorContextService implements IActionHandler, Disposable, IDiagra
         };
     }
 
-    handle(action: Action): void {
+    handle(action: Action): Action | void {
         if (SetEditModeAction.is(action)) {
             this.handleSetEditModeAction(action);
         } else if (SetDirtyStateAction.is(action)) {
             this.handleSetDirtyStateAction(action);
+        } else if (GetEditorContextAction.is(action)) {
+            return this.handleGetEditorContext(action);
         }
+    }
+
+    protected handleGetEditorContext(action: GetEditorContextAction): SetEditorContextAction {
+        return SetEditorContextAction.create({
+            selectedElementIds: this.selectionService.getSelectedElementIDs(),
+            lastMousePosition: this.mousePositionTracker.lastPositionOnDiagram,
+            viewport: this.viewportData,
+            canvasBounds: this.canvasBounds,
+            responseId: action.requestId
+        });
     }
 
     protected handleSetEditModeAction(action: SetEditModeAction): void {

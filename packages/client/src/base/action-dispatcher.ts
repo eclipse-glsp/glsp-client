@@ -13,6 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { RequestAction } from '@eclipse-glsp/protocol';
 import {
     Action,
     ActionDispatcher,
@@ -23,7 +24,6 @@ import {
     GModelRoot,
     IActionDispatcher,
     RejectAction,
-    RequestAction,
     ResponseAction,
     SetModelAction,
     TYPES
@@ -195,7 +195,7 @@ export class GLSPActionDispatcher extends ActionDispatcher implements IGModelRoo
     }
 
     override request<Res extends ResponseAction>(action: RequestAction<Res>): Promise<Res> {
-        if (!action.requestId && action.requestId === '') {
+        if (!action.requestId || action.requestId === '') {
             // No request id has been specified. So we use a generated one.
             action.requestId = RequestAction.generateRequestId();
         }
@@ -214,13 +214,16 @@ export class GLSPActionDispatcher extends ActionDispatcher implements IGModelRoo
      */
     requestUntil<Res extends ResponseAction>(
         action: RequestAction<Res>,
-        timeoutMs = 2000,
+        timeoutMs: number = action.timeout ?? 2000,
         rejectOnTimeout = false
     ): Promise<Res | undefined> {
-        if (!action.requestId && action.requestId === '') {
+        if (!action.requestId || action.requestId === '') {
             // No request id has been specified. So we use a generated one.
             action.requestId = RequestAction.generateRequestId();
         }
+        // Stamp the effective timeout onto the action so the receiving side
+        // (handleServerRequest/handleClientRequest) can respect it.
+        action.timeout = timeoutMs;
 
         const requestId = action.requestId;
         const timeout = setTimeout(() => {
