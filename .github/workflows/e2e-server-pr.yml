@@ -1,0 +1,124 @@
+name: 'E2E Server PR'
+
+concurrency:
+  group: e2e-server-pr-${{ github.event.inputs.server_pr }}
+  cancel-in-progress: true
+
+on:
+  workflow_dispatch:
+    inputs:
+      server_pr:
+        description: 'glsp-server-node PR number to test against'
+        required: true
+        type: string
+      client_pr:
+        description: 'glsp-client PR number (optional, defaults to master)'
+        required: false
+        type: string
+
+jobs:
+  resolve-server-ref:
+    name: Resolve Server PR
+    runs-on: ubuntu-latest
+    outputs:
+      server_ref: ${{ steps.resolve-server.outputs.server_ref }}
+      client_ref: ${{ steps.resolve-client.outputs.client_ref }}
+    steps:
+      - name: Resolve server PR branch
+        id: resolve-server
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          script: |
+            const prNumber = '${{ github.event.inputs.server_pr }}';
+            const { data: pr } = await github.rest.pulls.get({
+              owner: 'eclipse-glsp',
+              repo: 'glsp-server-node',
+              pull_number: parseInt(prNumber)
+            });
+            core.setOutput('server_ref', pr.head.ref);
+            core.info(`Resolved server PR #${prNumber} to branch: ${pr.head.ref}`);
+
+      - name: Resolve client PR branch
+        id: resolve-client
+        if: github.event.inputs.client_pr != ''
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          script: |
+            const prNumber = '${{ github.event.inputs.client_pr }}';
+            const { data: pr } = await github.rest.pulls.get({
+              owner: 'eclipse-glsp',
+              repo: 'glsp-client',
+              pull_number: parseInt(prNumber)
+            });
+            core.setOutput('client_ref', pr.head.ref);
+            core.info(`Resolved client PR #${prNumber} to branch: ${pr.head.ref}`);
+
+  integration-test:
+    name: E2E Server PR
+    needs: [resolve-server-ref]
+    timeout-minutes: 120
+    runs-on: ubuntu-latest
+    env:
+      STANDALONE_URL: 'file://${{ github.workspace }}/glsp-client/examples/workflow-standalone/app/diagram.html'
+      GLSP_SERVER_PORT: '8081'
+      GLSP_SERVER_PLAYWRIGHT_MANAGED: 'false'
+      GLSP_WEBSOCKET_PATH: 'workflow'
+      GLSP_SERVER_DEBUG: 'true'
+      GLSP_SERVER_TYPE: 'node'
+
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          ref: ${{ needs.resolve-server-ref.outputs.client_ref || 'master' }}
+          path: 'glsp-client'
+
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          repository: 'eclipse-glsp/glsp-server-node'
+          ref: ${{ needs.resolve-server-ref.outputs.server_ref }}
+          path: 'glsp-server-node'
+
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          repository: 'eclipse-glsp/glsp-playwright'
+          path: 'glsp-playwright'
+
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: '22'
+
+      - name: Build glsp-client
+        run: |
+          cd glsp-client
+          yarn
+
+      - name: Build glsp-server-node
+        run: |
+          cd glsp-server-node
+          yarn
+
+      - name: Start GLSP server
+        run: |
+          cd glsp-server-node
+          yarn start:websocket &
+          echo "Waiting for GLSP server to be ready on port 8081..."
+          timeout 60 bash -c 'until nc -z localhost 8081; do sleep 1; done'
+          echo "GLSP server is ready"
+
+      - name: Build glsp-playwright
+        run: |
+          cd glsp-playwright
+          yarn
+
+      - name: Run Playwright tests
+        id: run_playwright_tests
+        run: |
+          cd glsp-playwright
+          yarn test:standalone
+
+      - name: Upload Playwright report
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: always()
+        with:
+          name: playwright-report-integration
+          path: glsp-playwright/examples/workflow-test/playwright-report/
