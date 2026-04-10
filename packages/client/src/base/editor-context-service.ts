@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { GetEditorContextAction, SetEditorContextAction } from '@eclipse-glsp/protocol';
+import { EditorContext, EditorContextResult, GetEditorContextAction } from '@eclipse-glsp/protocol';
 import {
     Action,
     Args,
@@ -21,7 +21,6 @@ import {
     Disposable,
     DisposableCollection,
     EditMode,
-    EditorContext,
     Emitter,
     Event,
     findParentByFeature,
@@ -178,6 +177,8 @@ export class EditorContextService implements IActionHandler, Disposable, IDiagra
         return {
             selectedElementIds: Array.from(this.selectionService.getSelectedElementIDs()),
             lastMousePosition: this.mousePositionTracker.lastPositionOnDiagram,
+            viewport: this.viewportData,
+            canvasBounds: this.canvasBounds,
             args
         };
     }
@@ -186,6 +187,8 @@ export class EditorContextService implements IActionHandler, Disposable, IDiagra
         return {
             selectedElementIds,
             lastMousePosition: this.mousePositionTracker.lastPositionOnDiagram,
+            viewport: this.viewportData,
+            canvasBounds: this.canvasBounds,
             args
         };
     }
@@ -200,14 +203,8 @@ export class EditorContextService implements IActionHandler, Disposable, IDiagra
         }
     }
 
-    protected handleGetEditorContext(action: GetEditorContextAction): SetEditorContextAction {
-        return SetEditorContextAction.create({
-            selectedElementIds: this.selectionService.getSelectedElementIDs(),
-            lastMousePosition: this.mousePositionTracker.lastPositionOnDiagram,
-            viewport: this.viewportData,
-            canvasBounds: this.canvasBounds,
-            responseId: action.requestId
-        });
+    protected handleGetEditorContext(action: GetEditorContextAction): EditorContextResult {
+        return EditorContextResult.create(this.get(), { responseId: action.requestId });
     }
 
     protected handleSetEditModeAction(action: SetEditModeAction): void {

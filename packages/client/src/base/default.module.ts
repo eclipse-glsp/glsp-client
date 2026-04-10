@@ -17,6 +17,7 @@ import { GetEditorContextAction } from '@eclipse-glsp/protocol';
 import {
     ActionHandlerRegistry,
     FeatureModule,
+    GetSelectionAction,
     KeyTool,
     LocationPostprocessor,
     MousePositionTracker,
@@ -123,6 +124,7 @@ export const defaultModule = new FeatureModule(
         bind(SelectionService).toSelf().inSingletonScope();
         bind(TYPES.IGModelRootListener).toService(SelectionService);
         bind(TYPES.IDiagramStartup).toService(SelectionService);
+        configureActionHandler(context, GetSelectionAction.KIND, SelectionService);
 
         // Feedback Support ------------------------------------
         // Generic re-usable feedback modifying css classes

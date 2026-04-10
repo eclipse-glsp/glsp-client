@@ -23,6 +23,7 @@ import {
     DisposeClientSessionParameters,
     GLSPClient,
     GModelRootSchema,
+    IActionDispatcher,
     ILogger,
     InitializeClientSessionParameters,
     InitializeResult,
@@ -32,7 +33,6 @@ import {
     TYPES
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable, preDestroy } from 'inversify';
-import { GLSPActionDispatcher } from '../action-dispatcher';
 import { GLSPActionHandlerRegistry } from '../action-handler-registry';
 import { IDiagramOptions } from './diagram-loader';
 
@@ -98,7 +98,7 @@ export class GLSPModelSource extends ModelSource implements Disposable {
     @inject(TYPES.IDiagramOptions)
     protected options: IDiagramOptions;
 
-    declare readonly actionDispatcher: GLSPActionDispatcher;
+    declare readonly actionDispatcher: IActionDispatcher;
 
     protected toDispose = new DisposableCollection();
     clientId: string;
@@ -180,20 +180,25 @@ export class GLSPModelSource extends ModelSource implements Disposable {
     // Fire-and-forget: intentionally not awaited by messageReceived()
     protected async handleServerRequest(action: RequestAction<ResponseAction>): Promise<void> {
         try {
-            const response = action.timeout !== undefined
-                ? await this.actionDispatcher.requestUntil(action, action.timeout, true)
-                : await this.actionDispatcher.request(action);
+            const response =
+                action.timeout !== undefined
+                    ? await this.actionDispatcher.requestUntil(action, action.timeout, true)
+                    : await this.actionDispatcher.request(action);
             if (response) {
-                this.forwardToServer(response);
+                this.sendResponseToServer(response);
             }
         } catch (error) {
             this.logger.error(this, `Failed to handle server request '${action.kind}' (${action.requestId})`, error);
-            const reject = RejectAction.create(
-                `Failed to handle request '${action.kind}' (${action.requestId})`,
-                { responseId: action.requestId, detail: error?.toString?.() }
-            );
-            this.forwardToServer(reject);
+            const reject = RejectAction.create(`Failed to handle request '${action.kind}' (${action.requestId})`, {
+                responseId: action.requestId,
+                detail: error?.toString?.()
+            });
+            this.sendResponseToServer(reject);
         }
+    }
+
+    protected sendResponseToServer(response: ResponseAction): void {
+        this.forwardToServer(response);
     }
 
     override initialize(registry: GLSPActionHandlerRegistry): void {

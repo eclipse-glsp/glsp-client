@@ -23,12 +23,15 @@ import {
     Emitter,
     Event,
     GChildElement,
+    GetSelectionAction,
     GModelElement,
     GModelRoot,
+    IActionHandler,
     ILogger,
     LazyInjector,
     SelectAction,
     SelectAllAction,
+    SelectionResult,
     SprottySelectAllCommand,
     SprottySelectCommand,
     TYPES,
@@ -60,7 +63,7 @@ export interface SelectionChange {
 }
 
 @injectable()
-export class SelectionService implements IGModelRootListener, Disposable, IDiagramStartup {
+export class SelectionService implements IGModelRootListener, IActionHandler, Disposable, IDiagramStartup {
     @inject(TYPES.IFeedbackActionDispatcher)
     protected feedbackDispatcher: IFeedbackActionDispatcher;
 
@@ -82,6 +85,12 @@ export class SelectionService implements IGModelRootListener, Disposable, IDiagr
 
     preLoadDiagram(): void {
         this.lazyInjector.getAll<ISelectionListener>(TYPES.ISelectionListener).forEach(listener => this.addListener(listener));
+    }
+
+    handle(action: Action): Action | void {
+        if (GetSelectionAction.is(action)) {
+            return SelectionResult.create(this.getSelectedElementIDs(), action.requestId);
+        }
     }
 
     @preDestroy()

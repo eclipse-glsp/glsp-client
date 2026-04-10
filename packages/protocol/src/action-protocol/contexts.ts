@@ -14,7 +14,6 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { Bounds, Point, Viewport } from '../re-exports';
 import { hasArrayProp, hasObjectProp, hasStringProp } from '../utils/type-util';
 import { Action, RequestAction, ResponseAction } from './base-protocol';
 import { Args, EditorContext, LabeledAction } from './types';
@@ -95,10 +94,10 @@ export namespace SetContextActions {
  * There is no guarantee that the state has not changed by the time the server processes the response.
  *
  * If you only need a subset of the editor context, consider using a more specific action instead:
- * - For selected elements only, use {@link GetSelectionAction} (sprotty built-in).
- * - For viewport and canvas bounds only, use {@link GetViewportAction} (sprotty built-in).
+ * - For selected elements only, use `GetSelectionAction`.
+ * - For viewport and canvas bounds only, use `GetViewportAction`.
  */
-export interface GetEditorContextAction extends RequestAction<SetEditorContextAction> {
+export interface GetEditorContextAction extends RequestAction<EditorContextResult> {
     kind: typeof GetEditorContextAction.KIND;
 }
 
@@ -121,62 +120,31 @@ export namespace GetEditorContextAction {
 /**
  * Response to a {@link GetEditorContextAction} containing a snapshot of the client-side editor state.
  *
- * All fields reflect the state at the time of response generation. The server should not assume
- * that these values are still current when processing the response, as the client state may have
- * changed in the meantime.
+ * All fields in the {@link EditorContext} reflect the state at the time of response generation.
+ * The server should not assume that these values are still current when processing the response,
+ * as the client state may have changed in the meantime.
  */
-export interface SetEditorContextAction extends ResponseAction {
-    kind: typeof SetEditorContextAction.KIND;
+export interface EditorContextResult extends ResponseAction {
+    kind: typeof EditorContextResult.KIND;
 
     /**
-     * The list of currently selected element identifiers.
-     * For a dedicated selection query, use {@link GetSelectionAction} instead.
+     * The editor context snapshot.
      */
-    readonly selectedElementIds: string[];
-
-    /**
-     * The last recorded mouse position on the diagram, or `undefined` if no position has been recorded.
-     */
-    readonly lastMousePosition?: Point;
-
-    /**
-     * The current viewport (scroll position and zoom level).
-     * For a dedicated viewport query, use {@link GetViewportAction} instead.
-     */
-    readonly viewport: Viewport;
-
-    /**
-     * The bounds of the canvas element in the browser.
-     * For a dedicated viewport and canvas bounds query, use {@link GetViewportAction} instead.
-     */
-    readonly canvasBounds: Bounds;
-
-    /**
-     * Custom arguments for application-specific client state.
-     */
-    readonly args?: Args;
+    readonly editorContext: EditorContext;
 }
 
-export namespace SetEditorContextAction {
-    export const KIND = 'setEditorContext';
+export namespace EditorContextResult {
+    export const KIND = 'editorContextResult';
 
-    export function is(object: unknown): object is SetEditorContextAction {
-        return Action.hasKind(object, KIND) && hasArrayProp(object, 'selectedElementIds');
+    export function is(object: unknown): object is EditorContextResult {
+        return Action.hasKind(object, KIND) && hasObjectProp(object, 'editorContext');
     }
 
-    export function create(
-        options: {
-            selectedElementIds: string[];
-            lastMousePosition?: Point;
-            viewport: Viewport;
-            canvasBounds: Bounds;
-            args?: Args;
-            responseId?: string;
-        }
-    ): SetEditorContextAction {
+    export function create(editorContext: EditorContext, options: { responseId?: string } = {}): EditorContextResult {
         return {
             kind: KIND,
             responseId: '',
+            editorContext,
             ...options
         };
     }

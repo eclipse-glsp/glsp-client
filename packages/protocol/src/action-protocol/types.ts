@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import * as sprotty from 'sprotty-protocol';
-import { Dimension, Point } from 'sprotty-protocol';
+import { Bounds, Dimension, Point, Viewport } from 'sprotty-protocol';
 import { GModelElementSchema } from '../model/model-schema';
 import { AnyObject, hasArrayProp, hasStringProp } from '../utils/type-util';
 import { Action } from './base-protocol';
@@ -120,6 +120,16 @@ export interface EditorContext {
      * The last recorded mouse position.
      */
     readonly lastMousePosition?: Point;
+
+    /**
+     * The current viewport (scroll position and zoom level).
+     */
+    readonly viewport?: Viewport;
+
+    /**
+     * The bounds of the canvas element in the browser.
+     */
+    readonly canvasBounds?: Bounds;
 
     /**
      * Custom arguments.
