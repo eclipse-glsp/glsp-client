@@ -17,45 +17,8 @@ on:
         type: string
 
 jobs:
-  resolve-server-ref:
-    name: Resolve Server PR
-    runs-on: ubuntu-latest
-    outputs:
-      server_ref: ${{ steps.resolve-server.outputs.server_ref }}
-      client_ref: ${{ steps.resolve-client.outputs.client_ref }}
-    steps:
-      - name: Resolve server PR branch
-        id: resolve-server
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
-        with:
-          script: |
-            const prNumber = '${{ github.event.inputs.server_pr }}';
-            const { data: pr } = await github.rest.pulls.get({
-              owner: 'eclipse-glsp',
-              repo: 'glsp-server-node',
-              pull_number: parseInt(prNumber)
-            });
-            core.setOutput('server_ref', pr.head.ref);
-            core.info(`Resolved server PR #${prNumber} to branch: ${pr.head.ref}`);
-
-      - name: Resolve client PR branch
-        id: resolve-client
-        if: github.event.inputs.client_pr != ''
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
-        with:
-          script: |
-            const prNumber = '${{ github.event.inputs.client_pr }}';
-            const { data: pr } = await github.rest.pulls.get({
-              owner: 'eclipse-glsp',
-              repo: 'glsp-client',
-              pull_number: parseInt(prNumber)
-            });
-            core.setOutput('client_ref', pr.head.ref);
-            core.info(`Resolved client PR #${prNumber} to branch: ${pr.head.ref}`);
-
   integration-test:
     name: E2E Server PR
-    needs: [resolve-server-ref]
     timeout-minutes: 120
     runs-on: ubuntu-latest
     env:
@@ -65,17 +28,31 @@ jobs:
       GLSP_WEBSOCKET_PATH: 'workflow'
       GLSP_SERVER_DEBUG: 'true'
       GLSP_SERVER_TYPE: 'node'
+      GH_TOKEN: ${{ github.token }}
 
     steps:
+      - name: Resolve PR branches
+        id: resolve
+        run: |
+          SERVER_REF=$(gh pr view ${{ github.event.inputs.server_pr }} --repo eclipse-glsp/glsp-server-node --json headRefName --jq .headRefName)
+          echo "server_ref=$SERVER_REF" >> "$GITHUB_OUTPUT"
+          echo "Resolved server PR #${{ github.event.inputs.server_pr }} to branch: $SERVER_REF"
+
+          if [ -n "${{ github.event.inputs.client_pr }}" ]; then
+            CLIENT_REF=$(gh pr view ${{ github.event.inputs.client_pr }} --repo eclipse-glsp/glsp-client --json headRefName --jq .headRefName)
+            echo "client_ref=$CLIENT_REF" >> "$GITHUB_OUTPUT"
+            echo "Resolved client PR #${{ github.event.inputs.client_pr }} to branch: $CLIENT_REF"
+          fi
+
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
-          ref: ${{ needs.resolve-server-ref.outputs.client_ref || 'master' }}
+          ref: ${{ steps.resolve.outputs.client_ref || 'master' }}
           path: 'glsp-client'
 
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           repository: 'eclipse-glsp/glsp-server-node'
-          ref: ${{ needs.resolve-server-ref.outputs.server_ref }}
+          ref: ${{ steps.resolve.outputs.server_ref }}
           path: 'glsp-server-node'
 
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
@@ -91,6 +68,13 @@ jobs:
         run: |
           cd glsp-client
           yarn
+
+      - name: Link local protocol into server
+        run: |
+          cd glsp-client/packages/protocol
+          yarn link
+          cd ../../../glsp-server-node
+          yarn link @eclipse-glsp/protocol
 
       - name: Build glsp-server-node
         run: |
