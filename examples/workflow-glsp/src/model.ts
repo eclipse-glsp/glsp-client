@@ -18,6 +18,7 @@ import {
     EditableLabel,
     GChildElement,
     GEdge,
+    GLSPStickyManhattanEdgeRouter,
     GModelElement,
     GShapeElement,
     LayoutContainer,
@@ -76,7 +77,11 @@ export function isTaskNode(element: GModelElement): element is TaskNode {
     return element instanceof TaskNode || false;
 }
 
-export class WeightedEdge extends GEdge {
+export class StickyEdge extends GEdge {
+    override routerKind = GLSPStickyManhattanEdgeRouter.KIND;
+}
+
+export class WeightedEdge extends StickyEdge {
     probability?: string;
 }
 
