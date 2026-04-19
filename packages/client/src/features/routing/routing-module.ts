@@ -32,6 +32,8 @@ import {
     configureCommand
 } from '@eclipse-glsp/sprotty';
 import { GLSPBezierEdgeRouter, GLSPManhattanEdgeRouter, GLSPPolylineEdgeRouter } from './edge-router';
+import { StickyManhattanDiamondAnchor, StickyManhattanEllipticAnchor, StickyManhattanRectangularAnchor } from './sticky-manhattan-anchors';
+import { GLSPStickyManhattanEdgeRouter } from './sticky-manhattan-edge-router';
 
 export const routingModule = new FeatureModule(
     (bind, unbind, isBound, rebind) => {
@@ -53,6 +55,11 @@ export const routingModule = new FeatureModule(
         bindAsService(context, TYPES.IAnchorComputer, BezierEllipseAnchor);
         bindAsService(context, TYPES.IAnchorComputer, BezierRectangleAnchor);
         bindAsService(context, TYPES.IAnchorComputer, BezierDiamondAnchor);
+
+        bindAsService(context, TYPES.IEdgeRouter, GLSPStickyManhattanEdgeRouter);
+        bindAsService(context, TYPES.IAnchorComputer, StickyManhattanEllipticAnchor);
+        bindAsService(context, TYPES.IAnchorComputer, StickyManhattanRectangularAnchor);
+        bindAsService(context, TYPES.IAnchorComputer, StickyManhattanDiamondAnchor);
 
         configureCommand({ bind, isBound }, AddRemoveBezierSegmentCommand);
     },

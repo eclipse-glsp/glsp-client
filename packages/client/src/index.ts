@@ -165,6 +165,8 @@ export * from './features/navigation/navigation-target-resolver';
 export * from './features/reconnect/model';
 export * from './features/routing/edge-router';
 export * from './features/routing/routing-module';
+export * from './features/routing/sticky-manhattan-anchors';
+export * from './features/routing/sticky-manhattan-edge-router';
 export * from './features/save/save-keylistener';
 export * from './features/save/save-module';
 export * from './features/search-palette/search-palette';

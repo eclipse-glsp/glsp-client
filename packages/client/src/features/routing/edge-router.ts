@@ -114,7 +114,7 @@ export class GLSPBezierEdgeRouter extends BezierEdgeRouter {
     }
 }
 
-function ensureBounds(element?: GConnectableElement): boolean {
+export function ensureBounds(element?: GConnectableElement): boolean {
     if (!element) {
         return false;
     }
