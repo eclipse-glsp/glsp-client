@@ -59,11 +59,7 @@ export interface StickyManhattanRouterOptions extends LinearRouteOptions {
 export class GLSPStickyManhattanEdgeRouter extends GLSPAbstractEdgeRouter {
     static readonly KIND = 'sticky-manhattan';
 
-    /**
-     * Snapshot of the last known source/target bounds per edge, used to detect
-     * node moves between render cycles. A `WeakMap` keyed on the edge instance
-     * keeps entries tied to the model-element lifecycle.
-     */
+    /** Move-detection baseline: source/target bounds at the last persistence. */
     protected readonly elementPositions = new WeakMap<
         GRoutableElement,
         { sourceX: number; sourceY: number; targetX: number; targetY: number }
@@ -111,6 +107,23 @@ export class GLSPStickyManhattanEdgeRouter extends GLSPAbstractEdgeRouter {
         return sanitized;
     }
 
+    protected override commitRoute(edge: GRoutableElement, routedPoints: RoutedPoint[]): void {
+        super.commitRoute(edge, routedPoints);
+        this.captureBaseline(edge);
+    }
+
+    /** Snapshots current source/target bounds as the move-detection baseline. */
+    protected captureBaseline(edge: GRoutableElement): void {
+        if (edge.source?.bounds && edge.target?.bounds) {
+            this.elementPositions.set(edge, {
+                sourceX: edge.source.bounds.x,
+                sourceY: edge.source.bounds.y,
+                targetX: edge.target.bounds.x,
+                targetY: edge.target.bounds.y
+            });
+        }
+    }
+
     /**
      * Computes the intermediate corner points between source and target anchors.
      *
@@ -136,36 +149,42 @@ export class GLSPStickyManhattanEdgeRouter extends GLSPAbstractEdgeRouter {
                     lastPos.targetX !== tgtBounds.x ||
                     lastPos.targetY !== tgtBounds.y);
 
-            this.elementPositions.set(edge, {
-                sourceX: srcBounds.x,
-                sourceY: srcBounds.y,
-                targetX: tgtBounds.x,
-                targetY: tgtBounds.y
-            });
+            // Seed the baseline on first sight; later refreshes happen in
+            // commitRoute / cleanupRoutingPoints to keep route() pure.
+            if (lastPos === undefined) {
+                this.elementPositions.set(edge, {
+                    sourceX: srcBounds.x,
+                    sourceY: srcBounds.y,
+                    targetX: tgtBounds.x,
+                    targetY: tgtBounds.y
+                });
+            }
 
             const points = edge.routingPoints.slice();
+            const sourceAnchors = new DefaultAnchors(edge.source, edge.parent, 'source');
+            const targetAnchors = new DefaultAnchors(edge.target, edge.parent, 'target');
 
             if (elementMoved) {
-                // Slide the endpoints of the existing route to follow the moved node(s),
-                // then clean up without reintroducing corners.
-                this.applyFollowLogic(points, edge);
-                this.cleanupRoutingPoints(edge, points, false, false);
-                // Write back so subsequent route() calls in the same frame see the
-                // updated corner positions.
-                edge.routingPoints = points.map(p => ({ x: Math.round(p.x), y: Math.round(p.y) }));
+                // Follow-adjust endpoints; rendering-only, edge.routingPoints
+                // is persisted via commitRoute.
+                this.applyFollowLogic(points, edge, sourceAnchors);
+                this.cleanupRoutingPoints(edge, points, false, false, sourceAnchors, targetAnchors);
             } else {
-                this.cleanupRoutingPoints(edge, points, false, true);
+                this.cleanupRoutingPoints(edge, points, false, true, sourceAnchors, targetAnchors);
             }
 
             if (points.length > 0) {
                 return points.map((rp, index) => ({
                     kind: 'linear' as const,
                     pointIndex: index,
-                    x: Math.round(rp.x),
-                    y: Math.round(rp.y)
+                    x: rp.x,
+                    y: rp.y
                 }));
             }
         }
+
+        // Fresh-default fallback: drop the baseline so the next real route re-seeds.
+        this.elementPositions.delete(edge);
 
         const sourceAnchors = new DefaultAnchors(edge.source, edge.parent, 'source');
         const targetAnchors = new DefaultAnchors(edge.target, edge.parent, 'target');
@@ -175,8 +194,8 @@ export class GLSPStickyManhattanEdgeRouter extends GLSPAbstractEdgeRouter {
         return corners.map((corner, index) => ({
             kind: 'linear' as const,
             pointIndex: index,
-            x: Math.round(corner.x),
-            y: Math.round(corner.y)
+            x: corner.x,
+            y: corner.y
         }));
     }
 
@@ -185,7 +204,7 @@ export class GLSPStickyManhattanEdgeRouter extends GLSPAbstractEdgeRouter {
      * The corner adjacent to a moved endpoint slides along its constrained axis so
      * that the route stays orthogonal without discarding intermediate bend points.
      */
-    protected applyFollowLogic(points: Point[], edge: GRoutableElement): void {
+    protected applyFollowLogic(points: Point[], edge: GRoutableElement, sourceAnchors?: DefaultAnchors): void {
         const sourceAnchor = this.getTranslatedAnchor(edge.source!, points[0], edge.parent, edge, edge.sourceAnchorCorrection);
         const targetAnchor = this.getTranslatedAnchor(
             edge.target!,
@@ -203,30 +222,30 @@ export class GLSPStickyManhattanEdgeRouter extends GLSPAbstractEdgeRouter {
         if (points.length === 1) {
             // Classify the first segment via the source side closest to the bend — this
             // matches how the Manhattan anchor computer picks the source anchor.
-            const sourceAnchors = new DefaultAnchors(edge.source!, edge.parent, 'source');
+            sourceAnchors ??= new DefaultAnchors(edge.source!, edge.parent, 'source');
             const side = sourceAnchors.getNearestSide(points[0]);
             const isVertical = side === Side.TOP || side === Side.BOTTOM;
             if (isVertical) {
-                points[0] = { x: sourceAnchor.x, y: Math.round(Bounds.center(edge.target!.bounds).y) };
+                points[0] = { x: sourceAnchor.x, y: Bounds.center(edge.target!.bounds).y };
             } else {
-                points[0] = { x: Math.round(Bounds.center(edge.target!.bounds).x), y: sourceAnchor.y };
+                points[0] = { x: Bounds.center(edge.target!.bounds).x, y: sourceAnchor.y };
             }
             return;
         }
 
         // First corner follows the source element.
         if (Point.isVerticalAligned(points[0], points[1], axisTolerance)) {
-            points[0] = { x: points[0].x, y: Math.round(Bounds.center(edge.source!.bounds).y) };
+            points[0] = { x: points[0].x, y: Bounds.center(edge.source!.bounds).y };
         } else {
-            points[0] = { x: Math.round(Bounds.center(edge.source!.bounds).x), y: points[0].y };
+            points[0] = { x: Bounds.center(edge.source!.bounds).x, y: points[0].y };
         }
 
         // Last corner follows the target element.
         const last = points.length - 1;
         if (Point.isVerticalAligned(points[last], points[last - 1], axisTolerance)) {
-            points[last] = { x: points[last].x, y: Math.round(Bounds.center(edge.target!.bounds).y) };
+            points[last] = { x: points[last].x, y: Bounds.center(edge.target!.bounds).y };
         } else {
-            points[last] = { x: Math.round(Bounds.center(edge.target!.bounds).x), y: points[last].y };
+            points[last] = { x: Bounds.center(edge.target!.bounds).x, y: points[last].y };
         }
     }
 
@@ -301,13 +320,26 @@ export class GLSPStickyManhattanEdgeRouter extends GLSPAbstractEdgeRouter {
         });
     }
 
-    override cleanupRoutingPoints(edge: GRoutableElement, routingPoints: Point[], updateHandles: boolean, addRoutingPoints: boolean): void {
+    override cleanupRoutingPoints(
+        edge: GRoutableElement,
+        routingPoints: Point[],
+        updateHandles: boolean,
+        addRoutingPoints: boolean,
+        sourceAnchors?: DefaultAnchors,
+        targetAnchors?: DefaultAnchors
+    ): void {
         if (!ensureBounds(edge.source) || !ensureBounds(edge.target)) {
             return;
         }
-        const sourceAnchors = new DefaultAnchors(edge.source!, edge.parent, 'source');
-        const targetAnchors = new DefaultAnchors(edge.target!, edge.parent, 'target');
+        sourceAnchors ??= new DefaultAnchors(edge.source!, edge.parent, 'source');
+        targetAnchors ??= new DefaultAnchors(edge.target!, edge.parent, 'target');
         const options = this.getOptions(edge);
+
+        // Persistence-style cleanup (applyHandleMoves / applyReconnect): refresh
+        // baseline so route() doesn't re-follow the committed coordinates.
+        if (updateHandles) {
+            this.captureBaseline(edge);
+        }
 
         if (this.resetRoutingPointsOnReconnect(edge, routingPoints, updateHandles, sourceAnchors, targetAnchors)) {
             return;
@@ -512,7 +544,8 @@ export class GLSPStickyManhattanEdgeRouter extends GLSPAbstractEdgeRouter {
             return { source: Side.BOTTOM, target: Side.LEFT };
         }
 
-        // Two-corner connections (fallback).
+        // Two-corner fallback. Simpler than sprotty's equivalent: no distance
+        // gate on same-side candidates, no diagonal fallbacks.
         const srcTop = sourceAnchors.get(Side.TOP);
         const tgtTop = targetAnchors.get(Side.TOP);
         if (!Bounds.includes(targetAnchors.bounds, srcTop) && !Bounds.includes(sourceAnchors.bounds, tgtTop)) {
@@ -543,7 +576,7 @@ export class GLSPStickyManhattanEdgeRouter extends GLSPAbstractEdgeRouter {
                 switch (sides.target) {
                     case Side.LEFT: {
                         if (src.y !== tgt.y) {
-                            const midX = Math.round((src.x + tgt.x) / 2);
+                            const midX = (src.x + tgt.x) / 2;
                             return [
                                 { x: midX, y: src.y },
                                 { x: midX, y: tgt.y }
@@ -555,7 +588,7 @@ export class GLSPStickyManhattanEdgeRouter extends GLSPAbstractEdgeRouter {
                     case Side.BOTTOM:
                         return [{ x: tgt.x, y: src.y }];
                     case Side.RIGHT: {
-                        const maxX = Math.round(Math.max(src.x, tgt.x) + 1.5 * sd);
+                        const maxX = Math.max(src.x, tgt.x) + 1.5 * sd;
                         return [
                             { x: maxX, y: src.y },
                             { x: maxX, y: tgt.y }
@@ -568,7 +601,7 @@ export class GLSPStickyManhattanEdgeRouter extends GLSPAbstractEdgeRouter {
                 switch (sides.target) {
                     case Side.RIGHT: {
                         if (src.y !== tgt.y) {
-                            const midX = Math.round((src.x + tgt.x) / 2);
+                            const midX = (src.x + tgt.x) / 2;
                             return [
                                 { x: midX, y: src.y },
                                 { x: midX, y: tgt.y }
@@ -580,7 +613,7 @@ export class GLSPStickyManhattanEdgeRouter extends GLSPAbstractEdgeRouter {
                     case Side.BOTTOM:
                         return [{ x: tgt.x, y: src.y }];
                     default: {
-                        const minX = Math.round(Math.min(src.x, tgt.x) - 1.5 * sd);
+                        const minX = Math.min(src.x, tgt.x) - 1.5 * sd;
                         return [
                             { x: minX, y: src.y },
                             { x: minX, y: tgt.y }
@@ -592,7 +625,7 @@ export class GLSPStickyManhattanEdgeRouter extends GLSPAbstractEdgeRouter {
                 switch (sides.target) {
                     case Side.BOTTOM: {
                         if (src.x !== tgt.x) {
-                            const midY = Math.round((src.y + tgt.y) / 2);
+                            const midY = (src.y + tgt.y) / 2;
                             return [
                                 { x: src.x, y: midY },
                                 { x: tgt.x, y: midY }
@@ -601,7 +634,7 @@ export class GLSPStickyManhattanEdgeRouter extends GLSPAbstractEdgeRouter {
                         return [];
                     }
                     case Side.TOP: {
-                        const minY = Math.round(Math.min(src.y, tgt.y) - 1.5 * sd);
+                        const minY = Math.min(src.y, tgt.y) - 1.5 * sd;
                         return [
                             { x: src.x, y: minY },
                             { x: tgt.x, y: minY }
@@ -617,7 +650,7 @@ export class GLSPStickyManhattanEdgeRouter extends GLSPAbstractEdgeRouter {
                 switch (sides.target) {
                     case Side.TOP: {
                         if (src.x !== tgt.x) {
-                            const midY = Math.round((src.y + tgt.y) / 2);
+                            const midY = (src.y + tgt.y) / 2;
                             return [
                                 { x: src.x, y: midY },
                                 { x: tgt.x, y: midY }
@@ -626,7 +659,7 @@ export class GLSPStickyManhattanEdgeRouter extends GLSPAbstractEdgeRouter {
                         return [];
                     }
                     case Side.BOTTOM: {
-                        const maxY = Math.round(Math.max(src.y, tgt.y) + 1.5 * sd);
+                        const maxY = Math.max(src.y, tgt.y) + 1.5 * sd;
                         return [
                             { x: src.x, y: maxY },
                             { x: tgt.x, y: maxY }
@@ -639,7 +672,7 @@ export class GLSPStickyManhattanEdgeRouter extends GLSPAbstractEdgeRouter {
                 break;
         }
 
-        const midX = Math.round((src.x + tgt.x) / 2);
+        const midX = (src.x + tgt.x) / 2;
         return [
             { x: midX, y: src.y },
             { x: midX, y: tgt.y }
