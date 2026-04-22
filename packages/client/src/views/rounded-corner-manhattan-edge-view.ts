@@ -19,19 +19,16 @@ import { injectable } from 'inversify';
 import { GEdgeView } from './gedge-view';
 
 /**
- * An edge view for Manhattan-style routes that renders rounded corners at each
- * bend using quadratic Bézier curves.
+ * Manhattan edge view with rounded bends rendered as quadratic Béziers.
+ * Non-orthogonal inputs render as sharp corners, degrading to {@link GEdgeView}
+ * output. Radius is clamped per corner; override {@link cornerRadius} or
+ * {@link computeMaxRadius} to tune.
  *
- * The radius is clamped per corner so it never exceeds a fraction of either
- * adjacent segment. Set {@link cornerRadius} or override
- * {@link computeMaxRadius} to tune the look for a specific diagram.
- *
- * Based on the rounded-corner rendering in Ralph Soika's `BPMNEdgeView`,
- * contributed alongside the sticky Manhattan router via
+ * Based on Ralph Soika's `BPMNEdgeView`; see
  * https://github.com/eclipse-glsp/glsp/discussions/1642.
  */
 @injectable()
-export class RoundedCornerEdgeView extends GEdgeView {
+export class RoundedCornerManhattanEdgeView extends GEdgeView {
     /** Target corner radius in pixels. The effective radius is clamped per corner. */
     protected readonly cornerRadius: number = 10;
 
@@ -40,6 +37,12 @@ export class RoundedCornerEdgeView extends GEdgeView {
 
     /** Upper fraction of the shorter adjacent segment to use for the radius. */
     protected readonly maxRadiusFactor: number = 0.45;
+
+    /** Segment length (px) below which {@link shortSegmentRadiusFactor} tightens the radius further. */
+    protected readonly shortSegmentThreshold: number = 5;
+
+    /** Fraction of the shorter adjacent segment to use as the radius below {@link shortSegmentThreshold}. */
+    protected readonly shortSegmentRadiusFactor: number = 0.3;
 
     protected override createPathForSegments(segments: Point[]): string {
         if (segments.length === 0) {
@@ -61,13 +64,17 @@ export class RoundedCornerEdgeView extends GEdgeView {
         return path;
     }
 
-    /**
-     * Emits the SVG path fragment for a single rounded corner. Falls back to a
-     * straight `L` segment when the incoming and outgoing directions are not
-     * orthogonal (the bend is not a right angle).
-     */
+    /** SVG fragment for one rounded corner; falls back to `L` if not a right angle. */
     protected renderRoundedCorner(corner: Point, prev: Point, next: Point, radius: number): string {
-        // Axis-aligned right-angle bends only; any other corner is rendered sharp.
+        // Round only right-angle bends; diagonal / collinear inputs render sharp.
+        const horizIn = Point.isHorizontalAligned(prev, corner);
+        const vertIn = Point.isVerticalAligned(prev, corner);
+        const horizOut = Point.isHorizontalAligned(corner, next);
+        const vertOut = Point.isVerticalAligned(corner, next);
+        const isRightAngle = (horizIn && vertOut && !vertIn) || (vertIn && horizOut && !horizIn);
+        if (!isRightAngle) {
+            return ` L ${corner.x},${corner.y}`;
+        }
         if (prev.x < corner.x && corner.y < next.y) {
             // right → down
             return ` L ${corner.x - radius},${corner.y} Q ${corner.x},${corner.y} ${corner.x},${corner.y + radius}`;
@@ -112,11 +119,10 @@ export class RoundedCornerEdgeView extends GEdgeView {
         }
         const shortest = Math.min(segBefore, segAfter);
         let radius = Math.min(this.cornerRadius, shortest * this.maxRadiusFactor);
-        if (shortest < 5) {
-            radius = Math.min(radius, shortest * 0.3);
+        if (shortest < this.shortSegmentThreshold) {
+            radius = Math.min(radius, shortest * this.shortSegmentRadiusFactor);
         }
         radius = Math.min(radius, shortest / 2);
-        radius = Math.max(this.minCornerRadius, radius);
-        return Math.round(radius * 10) / 10;
+        return Math.max(this.minCornerRadius, radius);
     }
 }

@@ -18,7 +18,7 @@ import {
     GEdge,
     Point,
     RenderingContext,
-    RoundedCornerEdgeView,
+    RoundedCornerManhattanEdgeView,
     ShapeView,
     angleOfPoint,
     findParentByFeature,
@@ -32,7 +32,7 @@ import { VNode } from 'snabbdom';
 import { Icon, isTaskNode } from './model';
 
 @injectable()
-export class WorkflowEdgeView extends RoundedCornerEdgeView {
+export class WorkflowEdgeView extends RoundedCornerManhattanEdgeView {
     protected override renderAdditionals(edge: GEdge, segments: Point[], context: RenderingContext): VNode[] {
         const additionals = super.renderAdditionals(edge, segments, context);
         const p1 = segments[segments.length - 2];
