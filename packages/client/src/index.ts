@@ -249,6 +249,7 @@ export * from './views/ggraph-view';
 export * from './views/glsp-projection-view';
 export * from './views/issue-marker-view';
 export * from './views/rounded-corner';
+export * from './views/gedge-view-with-gaps-on-intersections';
 export * from './views/rounded-corner-manhattan-edge-view';
 export * from './views/rounded-corner-view';
 export * from './views/routing-point-handle-view';

@@ -14,21 +14,25 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Point } from '@eclipse-glsp/sprotty';
+import { IntersectingRoutedPoint, IViewArgs, Point, isIntersectingRoutedPoint } from '@eclipse-glsp/sprotty';
 import { injectable } from 'inversify';
-import { GEdgeView } from './gedge-view';
+import { GEdge } from '../model';
+import { GEdgeViewWithGapsOnIntersections } from './gedge-view-with-gaps-on-intersections';
 
 /**
  * Manhattan edge view with rounded bends rendered as quadratic Béziers.
- * Non-orthogonal inputs render as sharp corners, degrading to {@link GEdgeView}
- * output. Radius is clamped per corner; override {@link cornerRadius} or
- * {@link computeMaxRadius} to tune.
+ * Non-orthogonal inputs render as sharp corners. Radius is clamped per corner;
+ * override {@link cornerRadius} or {@link computeMaxRadius} to tune.
+ *
+ * Inherits gap / line-jump rendering from {@link GEdgeViewWithGapsOnIntersections}.
+ * The rendered line splices intersection fragments between points; the mouse-
+ * handle overlay skips them so the hit area stays contiguous.
  *
  * Based on Ralph Soika's `BPMNEdgeView`; see
  * https://github.com/eclipse-glsp/glsp/discussions/1642.
  */
 @injectable()
-export class RoundedCornerManhattanEdgeView extends GEdgeView {
+export class RoundedCornerManhattanEdgeView extends GEdgeViewWithGapsOnIntersections {
     /** Target corner radius in pixels. The effective radius is clamped per corner. */
     protected readonly cornerRadius: number = 10;
 
@@ -44,14 +48,24 @@ export class RoundedCornerManhattanEdgeView extends GEdgeView {
     /** Fraction of the shorter adjacent segment to use as the radius below {@link shortSegmentThreshold}. */
     protected readonly shortSegmentRadiusFactor: number = 0.3;
 
-    protected override createPathForSegments(segments: Point[]): string {
+    protected override createPathForSegments(
+        segments: Point[],
+        edge: GEdge,
+        addIntersectionPoints: boolean,
+        args?: IViewArgs
+    ): string {
         if (segments.length === 0) {
             return '';
         }
-        const first = segments[0];
-        let path = `M ${first.x},${first.y}`;
+        let path = `M ${segments[0].x},${segments[0].y}`;
         for (let i = 1; i < segments.length; i++) {
             const p = segments[i];
+            if (addIntersectionPoints && isIntersectingRoutedPoint(p)) {
+                const effective = this.filterCornerZoneIntersections(p, segments, i);
+                if (effective.intersections.length > 0) {
+                    path += this.intersectionPath(edge, segments, effective, args);
+                }
+            }
             if (i < segments.length - 1) {
                 const prev = segments[i - 1];
                 const next = segments[i + 1];
@@ -62,6 +76,40 @@ export class RoundedCornerManhattanEdgeView extends GEdgeView {
             }
         }
         return path;
+    }
+
+    /**
+     * Drops intersections inside either endpoint's rounded-corner zone (padded
+     * by the gap's skip-offset). The gap fragment can't be placed there without
+     * drawing backward into the curve on one side, and the crossing is hidden
+     * behind the curve anyway.
+     */
+    protected filterCornerZoneIntersections(
+        intersectingPoint: IntersectingRoutedPoint,
+        segments: Point[],
+        pointIndex: number
+    ): IntersectingRoutedPoint {
+        const p1 = segments[pointIndex - 1];
+        const p2 = segments[pointIndex];
+        const p1Threshold = this.getCornerRadius(segments, pointIndex - 1) + this.skipOffsetBefore;
+        const p2Threshold = this.getCornerRadius(segments, pointIndex) + this.skipOffsetAfter;
+        const filtered = intersectingPoint.intersections.filter(
+            intersection =>
+                Point.maxDistance(intersection.intersectionPoint, p1) > p1Threshold &&
+                Point.maxDistance(intersection.intersectionPoint, p2) > p2Threshold
+        );
+        return { ...intersectingPoint, intersections: filtered };
+    }
+
+    /** Curve radius at `segments[cornerIndex]`, or 0 for source / target. */
+    protected getCornerRadius(segments: Point[], cornerIndex: number): number {
+        if (cornerIndex <= 0 || cornerIndex >= segments.length - 1) {
+            return 0;
+        }
+        const corner = segments[cornerIndex];
+        const prev = segments[cornerIndex - 1];
+        const next = segments[cornerIndex + 1];
+        return this.computeMaxRadius(corner, prev, next);
     }
 
     /** SVG fragment for one rounded corner; falls back to `L` if not a right angle. */
