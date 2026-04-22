@@ -14,6 +14,12 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
+/**
+ * Default epsilon for loose numeric equality checks, matching the tolerance
+ * used by sprotty's `almostEquals` convention.
+ */
+export const ALMOST_EQUAL_EPSILON = 1e-3;
+
 export function equalUpTo(one: number, other: number, epsilon: number = Number.EPSILON): boolean {
     return Math.abs(one - other) <= epsilon;
 }

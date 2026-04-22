@@ -28,7 +28,14 @@ import {
 import { injectable } from 'inversify';
 import { GLSPAbstractEdgeRouter, ensureBounds } from './edge-router';
 
-export interface StickyManhattanRouterOptions extends LinearRouteOptions {}
+export interface StickyManhattanRouterOptions extends LinearRouteOptions {
+    /**
+     * Tolerance in pixels for deciding whether a segment is strictly vertical or
+     * horizontal. Defaults to `1` to accommodate the sub-pixel drift typical for
+     * Manhattan-routed coordinates.
+     */
+    axisTolerance: number;
+}
 
 /**
  * An alternative Manhattan-style edge router that preserves existing bend points.
@@ -40,6 +47,10 @@ export interface StickyManhattanRouterOptions extends LinearRouteOptions {}
  * diagrams.
  *
  * Opt-in per edge by setting `edge.routerKind = 'sticky-manhattan'`.
+ *
+ * @experimental The API surface and implementation details of this router may
+ * change in future releases, potentially in breaking ways, as we iterate on the
+ * initial implementation.
  *
  * Based on the original `BPMNManhattanRouter` by Ralph Soika (Imixs Software
  * Solutions GmbH), contributed via https://github.com/eclipse-glsp/glsp/discussions/1642.
@@ -66,7 +77,8 @@ export class GLSPStickyManhattanEdgeRouter extends GLSPAbstractEdgeRouter {
         return {
             standardDistance: 20,
             minimalPointDistance: 3,
-            selfEdgeOffset: 0.25
+            selfEdgeOffset: 0.25,
+            axisTolerance: 1
         };
     }
 
@@ -186,12 +198,11 @@ export class GLSPStickyManhattanEdgeRouter extends GLSPAbstractEdgeRouter {
             return;
         }
 
+        const { axisTolerance } = this.getOptions(edge);
+
         if (points.length === 1) {
             // Classify the first segment via the source side closest to the bend — this
             // matches how the Manhattan anchor computer picks the source anchor.
-            // The original `BPMNManhattanRouter` used a tolerance-based axis check
-            // (`|points[0].x - sourceAnchor.x| < 5`); we replaced it because
-            // `getNearestSide` is parameter-free and uses an existing sprotty primitive.
             const sourceAnchors = new DefaultAnchors(edge.source!, edge.parent, 'source');
             const side = sourceAnchors.getNearestSide(points[0]);
             const isVertical = side === Side.TOP || side === Side.BOTTOM;
@@ -204,7 +215,7 @@ export class GLSPStickyManhattanEdgeRouter extends GLSPAbstractEdgeRouter {
         }
 
         // First corner follows the source element.
-        if (Point.isVertical(points[0], points[1])) {
+        if (Point.isVerticalAligned(points[0], points[1], axisTolerance)) {
             points[0] = { x: points[0].x, y: Math.round(Bounds.center(edge.source!.bounds).y) };
         } else {
             points[0] = { x: Math.round(Bounds.center(edge.source!.bounds).x), y: points[0].y };
@@ -212,7 +223,7 @@ export class GLSPStickyManhattanEdgeRouter extends GLSPAbstractEdgeRouter {
 
         // Last corner follows the target element.
         const last = points.length - 1;
-        if (Point.isVertical(points[last], points[last - 1])) {
+        if (Point.isVerticalAligned(points[last], points[last - 1], axisTolerance)) {
             points[last] = { x: points[last].x, y: Math.round(Bounds.center(edge.target!.bounds).y) };
         } else {
             points[last] = { x: Math.round(Bounds.center(edge.target!.bounds).x), y: points[last].y };
@@ -244,7 +255,7 @@ export class GLSPStickyManhattanEdgeRouter extends GLSPAbstractEdgeRouter {
     protected applyInnerHandleMoves(edge: GRoutableElement, moves: ResolvedHandleMove[]): void {
         const route = this.route(edge);
         const routingPoints = edge.routingPoints;
-        const minimalPointDistance = this.getOptions(edge).minimalPointDistance;
+        const { minimalPointDistance, axisTolerance } = this.getOptions(edge);
 
         moves.forEach(move => {
             const handle = move.handle;
@@ -262,14 +273,14 @@ export class GLSPStickyManhattanEdgeRouter extends GLSPAbstractEdgeRouter {
                 if (routingPoints.length === 0) {
                     routingPoints.push({ x: correctedX, y: correctedY });
                     handle.pointIndex = 0;
-                } else if (Point.isVertical(route[0], route[1])) {
+                } else if (Point.isVerticalAligned(route[0], route[1], axisTolerance)) {
                     this.alignX(routingPoints, 0, correctedX);
                 } else {
                     this.alignY(routingPoints, 0, correctedY);
                 }
             } else if (index < routingPoints.length - 1) {
                 // Inner segment: move both endpoints of the segment in lockstep.
-                if (Point.isVertical(routingPoints[index], routingPoints[index + 1])) {
+                if (Point.isVerticalAligned(routingPoints[index], routingPoints[index + 1], axisTolerance)) {
                     this.alignX(routingPoints, index, correctedX);
                     this.alignX(routingPoints, index + 1, correctedX);
                 } else {
@@ -281,7 +292,7 @@ export class GLSPStickyManhattanEdgeRouter extends GLSPAbstractEdgeRouter {
                 if (routingPoints.length === 0) {
                     routingPoints.push({ x: correctedX, y: correctedY });
                     handle.pointIndex = 0;
-                } else if (Point.isVertical(route[route.length - 2], route[route.length - 1])) {
+                } else if (Point.isVerticalAligned(route[route.length - 2], route[route.length - 1], axisTolerance)) {
                     this.alignX(routingPoints, routingPoints.length - 1, correctedX);
                 } else {
                     this.alignY(routingPoints, routingPoints.length - 1, correctedY);
@@ -296,6 +307,7 @@ export class GLSPStickyManhattanEdgeRouter extends GLSPAbstractEdgeRouter {
         }
         const sourceAnchors = new DefaultAnchors(edge.source!, edge.parent, 'source');
         const targetAnchors = new DefaultAnchors(edge.target!, edge.parent, 'target');
+        const options = this.getOptions(edge);
 
         if (this.resetRoutingPointsOnReconnect(edge, routingPoints, updateHandles, sourceAnchors, targetAnchors)) {
             return;
@@ -328,7 +340,6 @@ export class GLSPStickyManhattanEdgeRouter extends GLSPAbstractEdgeRouter {
 
         // Collapse degenerate segments shorter than minimalPointDistance.
         if (routingPoints.length >= 2) {
-            const options = this.getOptions(edge);
             for (let i = routingPoints.length - 2; i >= 0; i--) {
                 if (Point.manhattanDistance(routingPoints[i], routingPoints[i + 1]) < options.minimalPointDistance) {
                     routingPoints.splice(i, 2);
@@ -344,7 +355,7 @@ export class GLSPStickyManhattanEdgeRouter extends GLSPAbstractEdgeRouter {
         if (addRoutingPoints) {
             this.addAdditionalCorner(edge, routingPoints, sourceAnchors, targetAnchors, updateHandles);
             this.addAdditionalCorner(edge, routingPoints, targetAnchors, sourceAnchors, updateHandles);
-            this.manhattanify(routingPoints);
+            this.manhattanify(routingPoints, edge);
         }
     }
 
@@ -382,12 +393,13 @@ export class GLSPStickyManhattanEdgeRouter extends GLSPAbstractEdgeRouter {
         const refPoint = isSource ? points[0] : points[points.length - 1];
         const insertIndex = isSource ? 0 : points.length;
         const shiftIndex = insertIndex - (isSource ? 1 : 0);
+        const { axisTolerance } = this.getOptions(edge);
 
         let isHorizontal: boolean;
         if (points.length > 1) {
             isHorizontal = isSource
-                ? Point.isVertical(points[0], points[1])
-                : Point.isVertical(points[points.length - 1], points[points.length - 2]);
+                ? Point.isVerticalAligned(points[0], points[1], axisTolerance)
+                : Point.isVerticalAligned(points[points.length - 1], points[points.length - 2], axisTolerance);
         } else {
             const nearestSide = otherAnchors.getNearestSide(refPoint);
             isHorizontal = nearestSide === Side.TOP || nearestSide === Side.BOTTOM;
@@ -427,9 +439,10 @@ export class GLSPStickyManhattanEdgeRouter extends GLSPAbstractEdgeRouter {
     }
 
     /** Inserts intermediate corner points so every segment is strictly orthogonal. */
-    protected manhattanify(points: Point[]): void {
+    protected manhattanify(points: Point[], edge: GRoutableElement): void {
+        const { axisTolerance } = this.getOptions(edge);
         for (let i = 1; i < points.length; i++) {
-            if (!Point.isVertical(points[i - 1], points[i]) && !Point.isHorizontal(points[i - 1], points[i])) {
+            if (!Point.isAxisAligned(points[i - 1], points[i], axisTolerance)) {
                 points.splice(i, 0, { x: points[i - 1].x, y: points[i].y });
                 i++;
             }

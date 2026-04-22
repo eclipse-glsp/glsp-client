@@ -128,31 +128,50 @@ describe('Point', () => {
         });
     });
 
-    describe('isVertical', () => {
+    describe('isVerticalAligned', () => {
         it('returns true when both points share the same x coordinate', () => {
-            expect(Point.isVertical({ x: 10, y: 0 }, { x: 10, y: 100 })).to.be.true;
+            expect(Point.isVerticalAligned({ x: 10, y: 0 }, { x: 10, y: 100 })).to.be.true;
         });
-        it('returns true within the default 1-pixel tolerance', () => {
-            expect(Point.isVertical({ x: 10, y: 0 }, { x: 10.4, y: 100 })).to.be.true;
+        it('returns true within the default tolerance', () => {
+            expect(Point.isVerticalAligned({ x: 10, y: 0 }, { x: 10.0001, y: 100 })).to.be.true;
         });
-        it('returns false when the x coordinates differ by more than the tolerance', () => {
-            expect(Point.isVertical({ x: 10, y: 0 }, { x: 12, y: 100 })).to.be.false;
+        it('returns false when the x coordinates differ beyond the default tolerance', () => {
+            expect(Point.isVerticalAligned({ x: 10, y: 0 }, { x: 10.5, y: 100 })).to.be.false;
         });
         it('honors an explicit epsilon', () => {
-            expect(Point.isVertical({ x: 10, y: 0 }, { x: 14, y: 100 }, 5)).to.be.true;
-            expect(Point.isVertical({ x: 10, y: 0 }, { x: 14, y: 100 }, 3)).to.be.false;
+            expect(Point.isVerticalAligned({ x: 10, y: 0 }, { x: 14, y: 100 }, 5)).to.be.true;
+            expect(Point.isVerticalAligned({ x: 10, y: 0 }, { x: 14, y: 100 }, 3)).to.be.false;
         });
     });
 
-    describe('isHorizontal', () => {
+    describe('isHorizontalAligned', () => {
         it('returns true when both points share the same y coordinate', () => {
-            expect(Point.isHorizontal({ x: 0, y: 50 }, { x: 200, y: 50 })).to.be.true;
+            expect(Point.isHorizontalAligned({ x: 0, y: 50 }, { x: 200, y: 50 })).to.be.true;
         });
-        it('returns false when the y coordinates differ by more than the tolerance', () => {
-            expect(Point.isHorizontal({ x: 0, y: 50 }, { x: 200, y: 53 })).to.be.false;
+        it('returns true within the default tolerance', () => {
+            expect(Point.isHorizontalAligned({ x: 0, y: 50 }, { x: 200, y: 50.0001 })).to.be.true;
+        });
+        it('returns false when the y coordinates differ beyond the default tolerance', () => {
+            expect(Point.isHorizontalAligned({ x: 0, y: 50 }, { x: 200, y: 50.5 })).to.be.false;
         });
         it('honors an explicit epsilon', () => {
-            expect(Point.isHorizontal({ x: 0, y: 50 }, { x: 200, y: 53 }, 5)).to.be.true;
+            expect(Point.isHorizontalAligned({ x: 0, y: 50 }, { x: 200, y: 53 }, 5)).to.be.true;
+        });
+    });
+
+    describe('isAxisAligned', () => {
+        it('returns true for vertically aligned points', () => {
+            expect(Point.isAxisAligned({ x: 10, y: 0 }, { x: 10, y: 100 })).to.be.true;
+        });
+        it('returns true for horizontally aligned points', () => {
+            expect(Point.isAxisAligned({ x: 0, y: 50 }, { x: 200, y: 50 })).to.be.true;
+        });
+        it('returns false for points that are neither vertically nor horizontally aligned', () => {
+            expect(Point.isAxisAligned({ x: 0, y: 0 }, { x: 50, y: 50 })).to.be.false;
+        });
+        it('honors an explicit epsilon', () => {
+            expect(Point.isAxisAligned({ x: 10, y: 0 }, { x: 14, y: 100 }, 5)).to.be.true;
+            expect(Point.isAxisAligned({ x: 10, y: 0 }, { x: 14, y: 100 }, 3)).to.be.false;
         });
     });
 });

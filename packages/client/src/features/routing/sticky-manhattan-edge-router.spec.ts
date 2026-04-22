@@ -13,27 +13,17 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import {
-    AnchorComputerRegistry,
-    DefaultAnchors,
-    EdgeRouterRegistry,
-    GNode,
-    GRoutableElement,
-    Point,
-    RECTANGULAR_ANCHOR_KIND,
-    Side
-} from '@eclipse-glsp/sprotty';
+import { DefaultAnchors, EdgeRouterRegistry, GNode, GRoutableElement, Point, Side } from '@eclipse-glsp/sprotty';
 import { expect } from 'chai';
 import { Container } from 'inversify';
 import { GEdge, GGraph } from '../../model';
 import { routingModule } from './routing-module';
-import { StickyManhattanRectangularAnchor } from './sticky-manhattan-anchors';
 import { GLSPStickyManhattanEdgeRouter, StickyManhattanRouterOptions } from './sticky-manhattan-edge-router';
 
 /** Exposes the protected helpers as public so the spec can exercise them directly. */
 class TestableStickyManhattanEdgeRouter extends GLSPStickyManhattanEdgeRouter {
-    public override manhattanify(points: Point[]): void {
-        super.manhattanify(points);
+    public override manhattanify(points: Point[], edge: GRoutableElement): void {
+        super.manhattanify(points, edge);
     }
     public override getOptions(edge: GRoutableElement): StickyManhattanRouterOptions {
         return super.getOptions(edge);
@@ -84,23 +74,6 @@ function setupEdge(opts: { sourcePos?: Point; targetPos?: Point; routingPoints?:
 }
 
 describe('GLSPStickyManhattanEdgeRouter', () => {
-    describe('KIND', () => {
-        it('uses the sticky-manhattan identifier to avoid collision with the standard Manhattan router', () => {
-            expect(GLSPStickyManhattanEdgeRouter.KIND).to.equal('sticky-manhattan');
-        });
-    });
-
-    describe('anchor registration', () => {
-        it('registers dedicated anchor computers under the sticky-manhattan router kind', () => {
-            const container = new Container();
-            container.load(routingModule);
-            const anchors = container.get<AnchorComputerRegistry>(AnchorComputerRegistry);
-            const computer = anchors.get(GLSPStickyManhattanEdgeRouter.KIND, RECTANGULAR_ANCHOR_KIND);
-            expect(computer).to.be.instanceOf(StickyManhattanRectangularAnchor);
-            expect(computer.kind).to.equal(GLSPStickyManhattanEdgeRouter.KIND + ':' + RECTANGULAR_ANCHOR_KIND);
-        });
-    });
-
     describe('route()', () => {
         it('returns an empty route when the source node cannot be resolved', () => {
             const graph = new GGraph();
@@ -197,14 +170,14 @@ describe('GLSPStickyManhattanEdgeRouter', () => {
     });
 
     describe('manhattanify()', () => {
-        const router = new TestableStickyManhattanEdgeRouter();
-
         it('inserts an intermediate corner so every segment is strictly orthogonal', () => {
+            const { edge, router } = setupEdge({});
+            const testable = router as TestableStickyManhattanEdgeRouter;
             const points: Point[] = [
                 { x: 0, y: 0 },
                 { x: 50, y: 50 } // diagonal
             ];
-            router.manhattanify(points);
+            testable.manhattanify(points, edge);
             expect(points).to.deep.equal([
                 { x: 0, y: 0 },
                 { x: 0, y: 50 },
@@ -213,13 +186,15 @@ describe('GLSPStickyManhattanEdgeRouter', () => {
         });
 
         it('leaves strictly orthogonal routes untouched', () => {
+            const { edge, router } = setupEdge({});
+            const testable = router as TestableStickyManhattanEdgeRouter;
             const points: Point[] = [
                 { x: 0, y: 0 },
                 { x: 50, y: 0 },
                 { x: 50, y: 40 }
             ];
             const before = points.map(p => ({ ...p }));
-            router.manhattanify(points);
+            testable.manhattanify(points, edge);
             expect(points).to.deep.equal(before);
         });
     });

@@ -18,7 +18,7 @@
 import { Point } from 'sprotty-protocol/lib/utils/geometry';
 import { Movement } from './utils/geometry-movement';
 import { Vector } from './utils/geometry-vector';
-import { equalUpTo } from './utils/math-util';
+import { ALMOST_EQUAL_EPSILON, equalUpTo } from './utils/math-util';
 import { AnyObject, hasNumberProp } from './utils/type-util';
 
 declare module 'sprotty-protocol/lib/utils/geometry' {
@@ -115,26 +115,35 @@ declare module 'sprotty-protocol/lib/utils/geometry' {
         function moveTowards(from: Point, vector: Vector): Movement;
 
         /**
-         * Returns whether the segment between two points is vertical, i.e. the
-         * points share (approximately) the same x coordinate.
+         * Returns whether the given points are vertically aligned, i.e. they
+         * share (approximately) the same x coordinate.
          *
          * @param a first point
          * @param b second point
-         * @param eps tolerance on the x axis (defaults to 1 to match the sub-pixel drift
-         * typical for Manhattan-routed coordinates)
+         * @param eps tolerance on the x axis (defaults to {@link ALMOST_EQUAL_EPSILON})
          */
-        function isVertical(a: Point, b: Point, eps?: number): boolean;
+        function isVerticalAligned(a: Point, b: Point, eps?: number): boolean;
 
         /**
-         * Returns whether the segment between two points is horizontal, i.e. the
-         * points share (approximately) the same y coordinate.
+         * Returns whether the given points are horizontally aligned, i.e. they
+         * share (approximately) the same y coordinate.
          *
          * @param a first point
          * @param b second point
-         * @param eps tolerance on the y axis (defaults to 1 to match the sub-pixel drift
-         * typical for Manhattan-routed coordinates)
+         * @param eps tolerance on the y axis (defaults to {@link ALMOST_EQUAL_EPSILON})
          */
-        function isHorizontal(a: Point, b: Point, eps?: number): boolean;
+        function isHorizontalAligned(a: Point, b: Point, eps?: number): boolean;
+
+        /**
+         * Returns whether the given points are axis-aligned, i.e. either
+         * {@link isVerticalAligned vertically} or
+         * {@link isHorizontalAligned horizontally} aligned.
+         *
+         * @param a first point
+         * @param b second point
+         * @param eps tolerance (defaults to {@link ALMOST_EQUAL_EPSILON})
+         */
+        function isAxisAligned(a: Point, b: Point, eps?: number): boolean;
     }
 }
 
@@ -175,7 +184,9 @@ Point.moveTowards = (from: Point, vector: Vector): Movement => {
 
 Point.equals = (one: Point, other: Point, eps?: number): boolean => equalUpTo(one.x, other.x, eps) && equalUpTo(one.y, other.y, eps);
 
-Point.isVertical = (a: Point, b: Point, eps: number = 1): boolean => equalUpTo(a.x, b.x, eps);
-Point.isHorizontal = (a: Point, b: Point, eps: number = 1): boolean => equalUpTo(a.y, b.y, eps);
+Point.isVerticalAligned = (a: Point, b: Point, eps: number = ALMOST_EQUAL_EPSILON): boolean => equalUpTo(a.x, b.x, eps);
+Point.isHorizontalAligned = (a: Point, b: Point, eps: number = ALMOST_EQUAL_EPSILON): boolean => equalUpTo(a.y, b.y, eps);
+Point.isAxisAligned = (a: Point, b: Point, eps: number = ALMOST_EQUAL_EPSILON): boolean =>
+    Point.isVerticalAligned(a, b, eps) || Point.isHorizontalAligned(a, b, eps);
 
 export { Point };
