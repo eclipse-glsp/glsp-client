@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2022 Imixs Software Solutions GmbH.
+ * Copyright (c) 2022-2026 Imixs Software Solutions GmbH.
  * Copyright (c) 2026 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the

@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2022 Imixs Software Solutions GmbH.
+ * Copyright (c) 2022-2026 Imixs Software Solutions GmbH.
  * Copyright (c) 2026 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
@@ -48,12 +48,7 @@ export class RoundedCornerManhattanEdgeView extends GEdgeViewWithGapsOnIntersect
     /** Fraction of the shorter adjacent segment to use as the radius below {@link shortSegmentThreshold}. */
     protected readonly shortSegmentRadiusFactor: number = 0.3;
 
-    protected override createPathForSegments(
-        segments: Point[],
-        edge: GEdge,
-        addIntersectionPoints: boolean,
-        args?: IViewArgs
-    ): string {
+    protected override createPathForSegments(segments: Point[], edge: GEdge, addIntersectionPoints: boolean, args?: IViewArgs): string {
         if (segments.length === 0) {
             return '';
         }
