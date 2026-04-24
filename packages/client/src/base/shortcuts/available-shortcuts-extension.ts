@@ -14,9 +14,8 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { GModelRoot, matchesKeystroke, TYPES } from '@eclipse-glsp/sprotty';
+import { GModelRoot, groupBy, matchesKeystroke, TYPES } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
-import { groupBy } from 'lodash';
 import { GLSPAbstractUIExtension } from '../../base/ui-extension/ui-extension';
 import { messages } from '../messages';
 import type { IShortcutManager, ShortcutRegistration } from './shortcuts-manager';
@@ -79,7 +78,7 @@ export class AvailableShortcutsUIExtension extends GLSPAbstractUIExtension {
         headerRow.appendChild(keybindingCell);
         tableHead.appendChild(headerRow);
 
-        for (const [group, shortcuts] of Object.entries(grouped)) {
+        for (const [group, shortcuts] of grouped.entries()) {
             tableBody.appendChild(this.createGroupHeader(group));
             shortcuts.forEach(s => {
                 tableBody.appendChild(this.createEntry(s));

@@ -55,7 +55,12 @@ jobs:
           # For 'next' dist-tag: check for changes when triggered by workflow_run or workflow_call
           # For 'latest' dist-tag or workflow_dispatch: always publish
           if [[ "$DIST_TAG" == "next" ]] && [[ "${{ github.event_name }}" != "workflow_dispatch" ]]; then
-            if git diff --name-only HEAD^ HEAD | grep -qE '^(packages|examples)'; then
+            # Skip publishing for dependabot PRs (dependency bumps)
+            COMMIT_AUTHOR=$(git log -1 --format='%an' HEAD)
+            if [[ "$COMMIT_AUTHOR" == "dependabot[bot]" ]]; then
+              echo "Skipping publish for dependabot commit"
+              echo "should_publish=false" >> $GITHUB_OUTPUT
+            elif git diff --name-only HEAD^ HEAD | grep -qE '^(packages|examples)'; then
               echo "should_publish=true" >> $GITHUB_OUTPUT
             else
               echo "should_publish=false" >> $GITHUB_OUTPUT

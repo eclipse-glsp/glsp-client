@@ -17,6 +17,7 @@
 import {
     Action,
     ChangeBoundsOperation,
+    DebouncedFunc,
     Dimension,
     ElementAndBounds,
     GModelElement,
@@ -27,10 +28,10 @@ import {
     ISnapper,
     Point,
     SetBoundsAction,
-    TYPES
+    TYPES,
+    debounce
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable, optional, postConstruct } from 'inversify';
-import { DebouncedFunc, debounce } from 'lodash';
 import { EditorContextService } from '../../../base/editor-context-service';
 import { IFeedbackActionDispatcher } from '../../../base/feedback/feedback-action-dispatcher';
 import { FeedbackEmitter } from '../../../base/feedback/feedback-emitter';
