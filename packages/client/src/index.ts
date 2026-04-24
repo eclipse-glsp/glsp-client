@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2024-2025 EclipseSource and others.
+ * Copyright (c) 2024-2026 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -165,6 +165,8 @@ export * from './features/navigation/navigation-target-resolver';
 export * from './features/reconnect/model';
 export * from './features/routing/edge-router';
 export * from './features/routing/routing-module';
+export * from './features/routing/sticky-manhattan-anchors';
+export * from './features/routing/sticky-manhattan-edge-router';
 export * from './features/save/save-keylistener';
 export * from './features/save/save-module';
 export * from './features/search-palette/search-palette';
@@ -243,9 +245,11 @@ export * from './utils/viewpoint-util';
 export * from './views/base-view-module';
 export * from './views/compartments';
 export * from './views/gedge-view';
+export * from './views/gedge-view-with-gaps-on-intersections';
 export * from './views/ggraph-view';
 export * from './views/glsp-projection-view';
 export * from './views/issue-marker-view';
 export * from './views/rounded-corner';
+export * from './views/rounded-corner-manhattan-edge-view';
 export * from './views/rounded-corner-view';
 export * from './views/routing-point-handle-view';

@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2024 EclipseSource and others.
+ * Copyright (c) 2024-2026 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -114,7 +114,7 @@ export class GLSPBezierEdgeRouter extends BezierEdgeRouter {
     }
 }
 
-function ensureBounds(element?: GConnectableElement): boolean {
+export function ensureBounds(element?: GConnectableElement): boolean {
     if (!element) {
         return false;
     }
