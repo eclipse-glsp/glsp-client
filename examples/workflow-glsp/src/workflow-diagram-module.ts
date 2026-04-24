@@ -23,6 +23,7 @@ import {
     FeatureModule,
     GCompartment,
     GCompartmentView,
+    GEdge,
     GGraph,
     GLSPProjectionView,
     GLabel,
@@ -51,7 +52,7 @@ import { Container } from 'inversify';
 import 'sprotty/css/edit-label.css';
 import '../css/diagram.css';
 import { taskEditorModule } from './direct-task-editing/task-editor-module';
-import { BranchingNode, CategoryNode, Icon, StickyEdge, SynchronizationNode, TaskNode, WeightedEdge } from './model';
+import { BranchingNode, CategoryNode, Icon, SynchronizationNode, TaskNode, WeightedEdge } from './model';
 import { WorkflowSnapper } from './workflow-snapper';
 import { WorkflowStartup } from './workflow-startup';
 import { IconView, WorkflowEdgeView } from './workflow-views';
@@ -71,7 +72,7 @@ export const workflowDiagramModule = new FeatureModule(
         configureModelElement(context, 'label:heading', GLabel, GLabelView, { enable: [editLabelFeature] });
         configureModelElement(context, 'comp:comp', GCompartment, GCompartmentView);
         configureModelElement(context, 'label:icon', GLabel, GLabelView);
-        overrideModelElement(context, DefaultTypes.EDGE, StickyEdge, WorkflowEdgeView);
+        overrideModelElement(context, DefaultTypes.EDGE, GEdge, WorkflowEdgeView);
         configureModelElement(context, 'edge:weighted', WeightedEdge, WorkflowEdgeView);
         configureModelElement(context, 'icon', Icon, IconView);
         configureModelElement(context, 'activityNode:merge', BranchingNode, DiamondNodeView);
