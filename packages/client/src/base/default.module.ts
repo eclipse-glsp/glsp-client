@@ -16,6 +16,8 @@
 import {
     ActionHandlerRegistry,
     FeatureModule,
+    GetEditorContextAction,
+    GetSelectionAction,
     KeyTool,
     LocationPostprocessor,
     MousePositionTracker,
@@ -83,6 +85,7 @@ export const defaultModule = new FeatureModule(
 
         configureActionHandler(context, SetEditModeAction.KIND, EditorContextService);
         configureActionHandler(context, SetDirtyStateAction.KIND, EditorContextService);
+        configureActionHandler(context, GetEditorContextAction.KIND, EditorContextService);
 
         bind(FocusTracker).toSelf().inSingletonScope();
         bind(TYPES.IDiagramStartup).toService(FocusTracker);
@@ -121,6 +124,7 @@ export const defaultModule = new FeatureModule(
         bind(SelectionService).toSelf().inSingletonScope();
         bind(TYPES.IGModelRootListener).toService(SelectionService);
         bind(TYPES.IDiagramStartup).toService(SelectionService);
+        configureActionHandler(context, GetSelectionAction.KIND, SelectionService);
 
         // Feedback Support ------------------------------------
         // Generic re-usable feedback modifying css classes

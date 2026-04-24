@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2021-2023 STMicroelectronics and others.
+ * Copyright (c) 2021-2026 STMicroelectronics and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -82,6 +82,12 @@ export interface RequestAction<Res extends ResponseAction> extends Action, sprot
      * Unique id for this request. In order to match a response to this request, the response needs to have the same id.
      */
     requestId: string;
+    /**
+     * Optional timeout in milliseconds. When set, `requestUntil()` uses this value instead of its
+     * default timeout. This allows the sender to control how long the receiver waits for a response.
+     * Precedence: explicit `timeoutMs` parameter > `action.timeout` > default (2000ms).
+     */
+    timeout?: number;
     /**
      * Used to ensure correct typing. Clients must not use this property
      */

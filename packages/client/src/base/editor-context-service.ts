@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020-2025 EclipseSource and others.
+ * Copyright (c) 2020-2026 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -21,14 +21,14 @@ import {
     DisposableCollection,
     EditMode,
     EditorContext,
+    EditorContextResult,
     Emitter,
     Event,
-    findParentByFeature,
     GModelElement,
     GModelRoot,
+    GetEditorContextAction,
     IActionDispatcher,
     IActionHandler,
-    isViewport,
     LazyInjector,
     MaybePromise,
     MousePositionTracker,
@@ -37,7 +37,9 @@ import {
     SetEditModeAction,
     TYPES,
     ValueChange,
-    Viewport
+    Viewport,
+    findParentByFeature,
+    isViewport
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable, postConstruct, preDestroy } from 'inversify';
 import { FocusChange, FocusTracker } from './focus/focus-tracker';
@@ -177,6 +179,8 @@ export class EditorContextService implements IActionHandler, Disposable, IDiagra
         return {
             selectedElementIds: Array.from(this.selectionService.getSelectedElementIDs()),
             lastMousePosition: this.mousePositionTracker.lastPositionOnDiagram,
+            viewport: this.viewportData,
+            canvasBounds: this.canvasBounds,
             args
         };
     }
@@ -185,16 +189,24 @@ export class EditorContextService implements IActionHandler, Disposable, IDiagra
         return {
             selectedElementIds,
             lastMousePosition: this.mousePositionTracker.lastPositionOnDiagram,
+            viewport: this.viewportData,
+            canvasBounds: this.canvasBounds,
             args
         };
     }
 
-    handle(action: Action): void {
+    handle(action: Action): Action | void {
         if (SetEditModeAction.is(action)) {
             this.handleSetEditModeAction(action);
         } else if (SetDirtyStateAction.is(action)) {
             this.handleSetDirtyStateAction(action);
+        } else if (GetEditorContextAction.is(action)) {
+            return this.handleGetEditorContext(action);
         }
+    }
+
+    protected handleGetEditorContext(action: GetEditorContextAction): EditorContextResult {
+        return EditorContextResult.create(this.get(), { responseId: action.requestId });
     }
 
     protected handleSetEditModeAction(action: SetEditModeAction): void {
