@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2023-2024 EclipseSource and others.
+ * Copyright (c) 2023-2026 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -14,7 +14,6 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { RequestAction } from '@eclipse-glsp/protocol';
 import {
     Action,
     ActionMessage,
@@ -29,6 +28,7 @@ import {
     InitializeResult,
     ModelSource,
     RejectAction,
+    RequestAction,
     ResponseAction,
     TYPES
 } from '@eclipse-glsp/sprotty';

@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020-2025 EclipseSource and others.
+ * Copyright (c) 2020-2026 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,7 +13,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { EditorContext, EditorContextResult, GetEditorContextAction } from '@eclipse-glsp/protocol';
 import {
     Action,
     Args,
@@ -21,14 +20,15 @@ import {
     Disposable,
     DisposableCollection,
     EditMode,
+    EditorContext,
+    EditorContextResult,
     Emitter,
     Event,
-    findParentByFeature,
     GModelElement,
     GModelRoot,
+    GetEditorContextAction,
     IActionDispatcher,
     IActionHandler,
-    isViewport,
     LazyInjector,
     MaybePromise,
     MousePositionTracker,
@@ -37,7 +37,9 @@ import {
     SetEditModeAction,
     TYPES,
     ValueChange,
-    Viewport
+    Viewport,
+    findParentByFeature,
+    isViewport
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable, postConstruct, preDestroy } from 'inversify';
 import { FocusChange, FocusTracker } from './focus/focus-tracker';
