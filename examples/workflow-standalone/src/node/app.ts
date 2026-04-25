@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2024 EclipseSource and others.
+ * Copyright (c) 2019-2026 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -25,17 +25,14 @@ import {
     StatusAction
 } from '@eclipse-glsp/client';
 import { Container } from 'inversify';
-import { join, resolve } from 'path';
 import { MessageConnection } from 'vscode-jsonrpc';
-import createContainer from './di.config';
+import createContainer from '../common/di.config';
 const host = GLSP_SERVER_HOST;
 const port = GLSP_SERVER_PORT;
 const id = 'workflow';
 const diagramType = 'workflow-diagram';
 
-const loc = window.location.pathname;
-const currentDir = loc.substring(0, loc.lastIndexOf('/'));
-const examplePath = resolve(join(currentDir, '../app/example1.wf'));
+const examplePath = GLSP_SOURCE_URI;
 const clientId = 'sprotty';
 
 const webSocketUrl = `ws://${host}:${port}/${id}`;

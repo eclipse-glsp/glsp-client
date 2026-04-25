@@ -13,6 +13,8 @@
     "check:all": "yarn install && yarn lint && yarn format:check && yarn headers:check",
     "clean": "lerna run clean && rimraf coverage .nyc_output",
     "compile": "tsc -b",
+    "dev": "yarn standalone dev",
+    "dev:browser": "yarn standalone dev:browser",
     "fix:all": "yarn lint:fix && yarn format && yarn headers:fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
@@ -26,19 +28,21 @@
     "publish:latest": "lerna publish from-package --no-git-reset -y",
     "publish:next": "lerna publish preminor --exact --canary --preid next --dist-tag next --no-git-reset --no-git-tag-version --no-push --ignore-scripts --yes",
     "standalone": "yarn --cwd ./examples/workflow-standalone",
-    "start:exampleServer": "yarn standalone start:exampleServer",
+    "start": "yarn standalone start",
+    "start:browser": "yarn standalone start:browser",
+    "start:exampleServer": "yarn standalone start:server",
     "test": "lerna run test --no-bail",
     "test:ci": "lerna run test:ci --no-bail",
     "test:coverage": "lerna run test:coverage",
     "test:coverage:ci": "yarn glsp coverageReport",
     "upgrade:next": "glsp updateNext",
-    "watch": "concurrently --kill-others -n tsc,standalone -c red,yellow \"tsc -b -w --preserveWatchOutput\" \"yarn -s standalone watch:bundle\""
+    "watch": "tsc -b -w --preserveWatchOutput"
   },
   "devDependencies": {
     "@eclipse-glsp/dev": "next",
     "@types/lodash": "4.14.191",
     "@types/node": "22.x",
-    "concurrently": "^8.2.2",
+    "concurrently": "^9.2.1",
     "lerna": "^9.0.0",
     "mocha-ctrf-json-reporter": "^0.0.9",
     "typescript": "^5.9.2"

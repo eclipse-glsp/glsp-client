@@ -26,7 +26,7 @@ jobs:
       - name: Install & Build
         run: yarn install
       - name: Bundle browser example
-        run: yarn --cwd examples/workflow-standalone-browser bundle
+        run: yarn standalone bundle:browser
       - name: Save PR number
         run: |
           mkdir -p ./pr-metadata
@@ -35,7 +35,7 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: preview-site
-          path: ./examples/workflow-standalone-browser/app
+          path: ./examples/workflow-standalone/app
       - name: Upload PR metadata
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
