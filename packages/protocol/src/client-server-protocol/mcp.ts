@@ -1,0 +1,129 @@
+/********************************************************************************
+ * Copyright (c) 2025 EclipseSource and others.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v. 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is available at
+ * https://www.gnu.org/software/classpath/license.html.
+ *
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ ********************************************************************************/
+
+import { InitializeParameters, InitializeResult } from './types';
+
+export interface McpServerOptions {
+    /**
+     * Changes how resources are registered.
+     * This is relevant since some MCP clients are unable to deal with MCP resource endpoints
+     * and thus they must be provided as tools.
+     *
+     * true -> MCP resources
+     *
+     * false -> MCP tools
+     *
+     * @default false
+     */
+    resources?: boolean;
+    /**
+     * Changes string-based IDs to integer strings for MCP communication
+     *
+     * @default true
+     */
+    aliasIds?: boolean;
+    /**
+     * The personality injected into MCP clients by reading the MCP server's instructions.
+     *
+     * @default
+     * ```"
+     * You are the GLSP Modeling Agent. Your primary goal is to assist in the creation and modification of graphical models using the
+     * GLSP MCP server. You have to adhere to the following principles:
+     * - MCP-Interaction: Any modeling related activity has to occur using the MCP server.
+     * - Real Data: The diagram model is the ground truth regarding the existing graphical model. Always query it
+     * before modifying the diagram.
+     * - Real Creation: Consult the available element types before creating elements.
+     * - Visual Proof: An image of the graphical model can be created, if you deem it useful for calculating or verifying layout decisions.
+     * - Precision: All IDs and types must be exact.
+     * - Visualization: When creating nodes, suggest sensible default positions and avoid visual overlapping.
+     * - Careful: Under no circumstances save the model without explicit instruction. If you deem it sensible,
+     * you may ask the user for permission. The same goes for Undo/Redo operations.
+     * - Layouting: If available, make use of automatic layouting when not given explicit custom layouting requirements.
+     * ```
+     */
+    agentPersona?: string;
+    /**
+     * The amount of time `DiagramPngMcpResourceHandler` waits for a response from the GLSP client in milliseconds.
+     *
+     * @default 5000
+     */
+    exportPngTimeout?: number;
+}
+
+export interface McpServerConfiguration {
+    /**
+     * The host on which the MCP server should be started.
+     */
+    host?: string;
+    /**
+     * The port on which the MCP server should be started. Use '0' or undefined for a random available port.
+     */
+    port?: number;
+    /**
+     * The route on which the MCP server should be started.
+     */
+    route?: string;
+    /**
+     * The name of the MCP server.
+     */
+    name?: string;
+    /**
+     * Additional features
+     */
+    options?: McpServerOptions;
+}
+
+export interface McpInitializeParameters extends InitializeParameters {
+    /**
+     * MCP server configuration parameters.
+     */
+    mcpServer?: McpServerConfiguration;
+}
+
+export function isMcpInitializeParameters(params?: InitializeParameters): params is McpInitializeParameters {
+    return !!params && (params as McpInitializeParameters).mcpServer !== undefined;
+}
+
+export function getMcpServerConfig(params?: InitializeParameters): McpServerConfiguration | undefined {
+    return isMcpInitializeParameters(params) ? params.mcpServer : undefined;
+}
+
+export interface McpServerResult {
+    /**
+     * The name of the MCP server.
+     */
+    name: string;
+
+    /**
+     * The URL at which the MCP server is accessible.
+     */
+    url: string;
+}
+
+export interface McpInitializeResult extends InitializeResult {
+    /**
+     * MCP server result information.
+     */
+    mcpServer: McpServerResult;
+}
+
+export function isMcpInitializeResult(result?: InitializeResult): result is McpInitializeResult {
+    return !!result && (result as McpInitializeResult).mcpServer !== undefined;
+}
+
+export function getMcpServerResult(result?: InitializeResult): McpServerResult | undefined {
+    return isMcpInitializeResult(result) ? result.mcpServer : undefined;
+}

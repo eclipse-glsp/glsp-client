@@ -50,7 +50,7 @@ async function initialize(connectionProvider: MessageConnection, isReconnecting 
     container = createContainer({ clientId, diagramType, glspClientProvider: async () => glspClient, sourceUri: examplePath });
     const actionDispatcher = container.get(GLSPActionDispatcher);
     const diagramLoader = container.get(DiagramLoader);
-    await diagramLoader.load({ requestModelOptions: { isReconnecting } });
+    await diagramLoader.load({ requestModelOptions: { isReconnecting }, initializeParameters: { mcpServer: {} } });
 
     if (isReconnecting) {
         const message = `Connection to the ${id} glsp server got closed. Connection was successfully re-established.`;
