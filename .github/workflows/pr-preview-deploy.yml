@@ -60,8 +60,10 @@ jobs:
           git add "pr/${PR_NUMBER}"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git commit -m "Deploy PR #${PR_NUMBER} preview"
-          git push
+          git diff --cached --quiet && echo "No changes to deploy" || {
+            git commit -m "Deploy PR #${PR_NUMBER} preview"
+            git push
+          }
 
   cleanup:
     name: Cleanup Preview
