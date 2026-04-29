@@ -25,7 +25,10 @@ jobs:
     runs-on: ubuntu-22.04
     permissions:
       contents: write
-      pull-requests: write
+      deployments: write
+    environment:
+      name: pr-preview
+      url: https://eclipse-glsp.github.io/glsp-client/pr/${{ steps.pr.outputs.number }}/diagram.html
     steps:
       - name: Download PR metadata
         uses: actions/download-artifact@c850b930e6ba138125429b7e5c93fc707a7f8427 # v4
@@ -59,34 +62,6 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git commit -m "Deploy PR #${PR_NUMBER} preview"
           git push
-      - name: Post preview link
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
-        with:
-          script: |
-            const prNumber = ${{ steps.pr.outputs.number }};
-            const previewUrl = `https://eclipse-glsp.github.io/glsp-client/pr/${prNumber}/diagram.html`;
-            const body = `**PR Preview:** [Open browser example](${previewUrl})`;
-            const { data: comments } = await github.rest.issues.listComments({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: prNumber
-            });
-            const existing = comments.find(c => c.body.includes('PR Preview:'));
-            if (existing) {
-              await github.rest.issues.updateComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                comment_id: existing.id,
-                body
-              });
-            } else {
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: prNumber,
-                body
-              });
-            }
 
   cleanup:
     name: Cleanup Preview
