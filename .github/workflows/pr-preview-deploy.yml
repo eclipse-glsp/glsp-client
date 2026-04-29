@@ -1,0 +1,108 @@
+name: PR Preview Deploy
+
+# SECURITY: This workflow runs in a trusted context with write permissions.
+# The build step (pr-preview-build.yml) runs untrusted PR code without secrets.
+# This workflow only processes build artifacts and never executes PR-controlled code.
+
+on:
+  workflow_run:
+    workflows: ['PR Preview Build']
+    types: [completed]
+  pull_request_target:
+    types: [closed]
+
+concurrency:
+  group: pr-preview-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy Preview
+    if: >
+      github.event_name == 'workflow_run' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'pull_request'
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Download PR metadata
+        uses: actions/download-artifact@c850b930e6ba138125429b7e5c93fc707a7f8427 # v4
+        with:
+          name: pr-metadata
+          path: ./pr-metadata
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event.workflow_run.id }}
+      - name: Read PR number
+        id: pr
+        run: echo "number=$(cat ./pr-metadata/pr-number)" >> "$GITHUB_OUTPUT"
+      - name: Download preview site
+        uses: actions/download-artifact@c850b930e6ba138125429b7e5c93fc707a7f8427 # v4
+        with:
+          name: preview-site
+          path: ./preview-site
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event.workflow_run.id }}
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          ref: gh-pages
+          path: gh-pages
+      - name: Deploy to gh-pages
+        run: |
+          PR_NUMBER=${{ steps.pr.outputs.number }}
+          cd gh-pages
+          mkdir -p "pr/${PR_NUMBER}"
+          cp -r ../preview-site/* "pr/${PR_NUMBER}/"
+          git add "pr/${PR_NUMBER}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git commit -m "Deploy PR #${PR_NUMBER} preview"
+          git push
+      - name: Post preview link
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          script: |
+            const prNumber = ${{ steps.pr.outputs.number }};
+            const previewUrl = `https://eclipse-glsp.github.io/glsp-client/pr/${prNumber}/diagram.html`;
+            const body = `**PR Preview:** [Open browser example](${previewUrl})`;
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber
+            });
+            const existing = comments.find(c => c.body.includes('PR Preview:'));
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                body
+              });
+            }
+
+  cleanup:
+    name: Cleanup Preview
+    if: github.event_name == 'pull_request_target' && github.event.action == 'closed'
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          ref: gh-pages
+      - name: Remove preview directory
+        run: |
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git rm -rf "pr/${PR_NUMBER}" || true
+          git commit -m "Remove PR #${PR_NUMBER} preview" --allow-empty
+          git push
