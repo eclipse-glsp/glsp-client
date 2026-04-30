@@ -22,19 +22,54 @@ https://github.com/eclipse-glsp/glsp-client/assets/2311075/7436ab37-a68d-448a-8c
 
 ### How to start the Workflow Diagram example?
 
+The example can be run in two modes:
+
+-   **Browser mode** – The GLSP server runs as a Web Worker directly in the browser. No external server process is needed. This is the quickest way to try out the example.
+-   **Node mode** – The client connects to an external GLSP server via WebSocket. By default a pre-built Node.js server is downloaded and started, but this mode can also be used with a [Java-based GLSP server](https://github.com/eclipse-glsp/glsp-server#workflow-diagram-example).
+
 Clone this repository and build the glsp-client packages:
 
 ```bash
 yarn install
 ```
 
-Next, download and start a pre-built version of the Workflow Example Node Diagram Server with:
+#### Browser mode (recommended for quick start)
 
 ```bash
-yarn start:exampleServer
+yarn start:browser
 ```
 
-Once the server is running, open the `glsp-client/examples/workflow-standalone/app/diagram.html` file in your favorite browser.
+This starts the webpack dev server with the bundled Web Worker GLSP server on `http://localhost:8083/diagram.html`.
+
+#### Node mode
+
+Start the GLSP server and the webpack dev server:
+
+```bash
+# Terminal 1 – start the GLSP server (downloads from npm on first run)
+yarn start:exampleServer
+
+# Terminal 2 – start the webpack dev server
+yarn start
+```
+
+The application opens at `http://localhost:8082/diagram.html`.
+
+Instead of the pre-built server, you can also run the GLSP server from source — either the [Java](https://github.com/eclipse-glsp/glsp-server#workflow-diagram-example) or [Node](https://github.com/eclipse-glsp/glsp-server-node#workflow-diagram-example) variant. In that case, skip `yarn start:exampleServer` and start the server from your IDE or terminal instead.
+
+**Legacy:** You can also skip the webpack dev server entirely and open `examples/workflow-standalone/app/diagram.html` directly in your browser after starting the GLSP server.
+
+### Development
+
+For active development, the `dev` scripts compile TypeScript in watch mode and start all necessary processes in parallel:
+
+```bash
+# Browser mode – watches sources, starts webpack dev server
+yarn dev:browser
+
+# Node mode – watches sources, starts GLSP server, starts webpack dev server
+yarn dev
+```
 
 ### How to start the Workflow Diagram example server from the sources
 

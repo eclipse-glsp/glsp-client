@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2024 EclipseSource & others
+ * Copyright (c) 2019-2026 EclipseSource & others
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -21,59 +21,91 @@ const appRoot = path.resolve(__dirname, 'app');
 var CircularDependencyPlugin = require('circular-dependency-plugin');
 
 /**
- * @type {import('webpack').Configuration}
+ * @param {{ mode?: string }} env
+ * @returns {import('webpack').Configuration}
  */
-module.exports = {
-    entry: [path.resolve(buildRoot, 'app')],
-    output: {
-        filename: 'bundle.js',
-        path: appRoot
-    },
-    mode: 'development',
-    devtool: 'source-map',
-    resolve: {
-        fallback: {
-            fs: false,
-            net: false,
-            path: require.resolve('path-browserify')
-        },
-        extensions: ['.ts', '.tsx', '.js']
-    },
-    module: {
-        rules: [
-            {
-                test: /\.tsx?$/,
-                use: ['ts-loader']
-            },
-            {
-                test: /\.js$/,
-                use: ['source-map-loader'],
-                enforce: 'pre'
-            },
-            {
-                test: /\.css$/,
-                exclude: /\.useable\.css$/,
-                use: ['style-loader', 'css-loader']
-            },
-            {
-                test: /\.(ttf)$/,
-                type: 'asset/resource'
-            }
-        ]
-    },
-    ignoreWarnings: [/Failed to parse source map/, /Can't resolve .* in '.*ws\/lib'/],
-    plugins: [
+module.exports = (env = {}) => {
+    const isBrowser = env.mode === 'browser';
+
+    const plugins = [
         new CircularDependencyPlugin({
             exclude: /(node_modules|examples)\/./,
             failOnError: false
-        }),
-        new webpack.ProvidePlugin({
-            process: 'process/browser'
-        }),
-        new webpack.WatchIgnorePlugin({ paths: [/\.js$/, /\.d\.ts$/] }),
-        new webpack.DefinePlugin({
-            GLSP_SERVER_HOST: JSON.stringify(process.env.GLSP_SERVER_HOST || 'localhost'),
-            GLSP_SERVER_PORT: JSON.stringify(process.env.GLSP_SERVER_PORT || '8081')
         })
-    ]
+    ];
+
+    if (isBrowser) {
+        const CopyWebpackPlugin = require('copy-webpack-plugin');
+        plugins.push(
+            new CopyWebpackPlugin({
+                patterns: [
+                    {
+                        from: require.resolve('@eclipse-glsp-examples/workflow-server-bundled-web'),
+                        to: path.resolve(appRoot, 'wf-glsp-server-webworker.js')
+                    }
+                ]
+            })
+        );
+    } else {
+        plugins.push(
+            new webpack.DefinePlugin({
+                GLSP_SERVER_HOST: JSON.stringify(process.env.GLSP_SERVER_HOST || 'localhost'),
+                GLSP_SERVER_PORT: JSON.stringify(process.env.GLSP_SERVER_PORT || '8081'),
+                GLSP_SOURCE_URI: JSON.stringify(path.resolve(__dirname, 'app/example1.wf'))
+            })
+        );
+    }
+
+    const fallback = {
+        fs: false,
+        net: false
+    };
+
+    const devServerStatic = isBrowser
+        ? [{ directory: appRoot }, { directory: path.dirname(require.resolve('@eclipse-glsp-examples/workflow-server-bundled-web')) }]
+        : [{ directory: appRoot, watch: { ignored: '**/*.wf' } }];
+
+    return {
+        entry: [path.resolve(buildRoot, isBrowser ? 'browser/app' : 'node/app')],
+        output: {
+            filename: 'bundle.js',
+            path: appRoot
+        },
+        mode: 'development',
+        devtool: 'source-map',
+        resolve: {
+            fallback,
+            extensions: ['.ts', '.tsx', '.js']
+        },
+        module: {
+            rules: [
+                {
+                    test: /\.tsx?$/,
+                    use: ['ts-loader']
+                },
+                {
+                    test: /\.js$/,
+                    use: ['source-map-loader'],
+                    enforce: 'pre'
+                },
+                {
+                    test: /\.css$/,
+                    exclude: /\.useable\.css$/,
+                    use: ['style-loader', 'css-loader']
+                },
+                {
+                    test: /\.(ttf)$/,
+                    type: 'asset/resource'
+                }
+            ]
+        },
+        ignoreWarnings: [/Failed to parse source map/, /Can't resolve .* in '.*ws\/lib'/],
+        plugins,
+        devServer: {
+            static: devServerStatic,
+            compress: true,
+            port: isBrowser ? 8083 : 8082,
+            open: '/diagram.html'
+        }
+    };
 };

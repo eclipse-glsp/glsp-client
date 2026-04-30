@@ -13,5 +13,19 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-declare const GLSP_SERVER_HOST: string;
-declare const GLSP_SERVER_PORT: string;
+
+import { taskEditorModule } from '@eclipse-glsp-examples/workflow-glsp';
+import { FeatureModule, TYPES, bindAsService } from '@eclipse-glsp/client';
+import '../../../../css/command-palette.css';
+import { TaskEditorKeyListener } from './task-editor-key-listener';
+
+export const standaloneTaskEditorModule = new FeatureModule(
+    (bind, unbind, isBound, rebind) => {
+        const context = { bind, unbind, isBound, rebind };
+        bindAsService(context, TYPES.KeyListener, TaskEditorKeyListener);
+    },
+    {
+        featureId: Symbol('standaloneTaskEditor'),
+        requires: taskEditorModule
+    }
+);

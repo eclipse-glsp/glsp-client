@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2024 EclipseSource and others.
+ * Copyright (c) 2019-2026 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -27,8 +27,7 @@ import {
     toolPaletteModule
 } from '@eclipse-glsp/client';
 import { Container } from 'inversify';
-import { makeLoggerMiddleware } from 'inversify-logger-middleware';
-import '../css/diagram.css';
+import '../../css/diagram.css';
 import { standaloneTaskEditorModule } from './features/direct-task-editing/standalone-task-editor-module';
 import { getParameters } from './url-parameters';
 export default function createContainer(options: IDiagramOptions): Container {
@@ -47,38 +46,5 @@ export default function createContainer(options: IDiagramOptions): Container {
     bindOrRebind(container, TYPES.ILogger).to(ConsoleLogger).inSingletonScope();
     bindOrRebind(container, TYPES.LogLevel).toConstantValue(LogLevel.warn);
     container.bind(TYPES.IMarqueeBehavior).toConstantValue({ entireEdge: true, entireElement: true });
-    if (parameters.inversifyLog) {
-        configureInversifyLogger(container);
-    }
     return container;
-}
-
-function configureInversifyLogger(container: Container): void {
-    const logOptions = {
-        request: {
-            bindings: {
-                activated: true,
-                cache: false,
-                constraint: false,
-                dynamicValue: false,
-                factory: false,
-                implementationType: true,
-                onActivation: false,
-                provider: false,
-                scope: true,
-                serviceIdentifier: true,
-                type: false
-            },
-            serviceIdentifier: true,
-            target: {
-                metadata: true,
-                name: false,
-                serviceIdentifier: true
-            }
-        },
-        time: true
-    };
-
-    const logger = makeLoggerMiddleware(logOptions);
-    container.applyMiddleware(logger);
 }
