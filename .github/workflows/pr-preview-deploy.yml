@@ -77,6 +77,25 @@ jobs:
         with:
           ref: gh-pages
           path: gh-pages
+      - name: Update PR comment (deploying)
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          script: |
+            const prNumber = ${{ needs.resolve-pr.outputs.pr-number }};
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber
+            });
+            const existing = comments.find(c => c.body.includes('**Preview:**'));
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body: '**Preview:** Redeploying...'
+              });
+            }
       - name: Create deployment
         id: deployment
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
