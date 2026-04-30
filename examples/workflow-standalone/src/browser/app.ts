@@ -27,6 +27,7 @@ const clientId = 'sprotty';
 let glspClient: GLSPClient;
 let container: Container;
 
+document.title = 'GLSP Workflow Example';
 const workerProvider = new GLSPWebWorkerProvider('wf-glsp-server-webworker.js');
 workerProvider.listen({ onConnection: initialize, logger: console });
 
