@@ -77,39 +77,26 @@ jobs:
         with:
           ref: gh-pages
           path: gh-pages
-      - name: Update PR comment (deploying)
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+      - name: Prepare deployment
+        id: prepare
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
             const prNumber = ${{ needs.resolve-pr.outputs.pr-number }};
-            const { data: comments } = await github.rest.issues.listComments({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: prNumber
-            });
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+
+            // Mark existing comment as redeploying
+            const { data: comments } = await github.rest.issues.listComments({ owner, repo, issue_number: prNumber });
             const existing = comments.find(c => c.body.includes('**Preview:**'));
             if (existing) {
-              await github.rest.issues.updateComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                comment_id: existing.id,
-                body: '**Preview:** Redeploying...'
-              });
+              await github.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body: '**Preview:** Redeploying...' });
             }
-      - name: Create deployment
-        id: deployment
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
-        with:
-          script: |
-            const prNumber = ${{ needs.resolve-pr.outputs.pr-number }};
-            const { data: pr } = await github.rest.pulls.get({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: prNumber
-            });
+
+            // Create deployment targeting the PR head SHA
+            const { data: pr } = await github.rest.pulls.get({ owner, repo, pull_number: prNumber });
             const { data: deployment } = await github.rest.repos.createDeployment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
+              owner, repo,
               ref: pr.head.sha,
               environment: 'pr-preview',
               auto_merge: false,
@@ -117,13 +104,13 @@ jobs:
               transient_environment: true
             });
             await github.rest.repos.createDeploymentStatus({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
+              owner, repo,
               deployment_id: deployment.id,
               state: 'in_progress',
-              log_url: `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
+              log_url: `${context.serverUrl}/${owner}/${repo}/actions/runs/${context.runId}`
             });
-            core.setOutput('id', deployment.id);
+
+            core.setOutput('deployment-id', deployment.id);
             core.setOutput('head-sha', pr.head.sha);
       - name: Deploy to gh-pages
         run: |
@@ -138,63 +125,46 @@ jobs:
             git commit -m "Deploy PR #${PR_NUMBER} preview"
             git push
           }
-      - name: Wait for GitHub Pages
-        run: |
-          URL="https://eclipse-glsp.github.io/glsp-client/pr/${{ needs.resolve-pr.outputs.pr-number }}/diagram.html"
-          for i in $(seq 1 30); do
-            if curl -sf -o /dev/null "$URL"; then
-              echo "Page is live"
-              exit 0
-            fi
-            echo "Waiting for GitHub Pages... (attempt $i/30)"
-            sleep 10
-          done
-          echo "::warning::Page did not become available within 5 minutes"
-      - name: Update deployment status
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+      - name: Finalize deployment
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
             const prNumber = ${{ needs.resolve-pr.outputs.pr-number }};
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
             const previewUrl = `https://eclipse-glsp.github.io/glsp-client/pr/${prNumber}/diagram.html`;
+
+            // Wait for GitHub Pages to serve the content
+            for (let i = 1; i <= 30; i++) {
+              const res = await fetch(previewUrl);
+              if (res.ok) { core.info('Page is live'); break; }
+              if (i === 30) { core.warning('Page did not become available within 5 minutes'); break; }
+              core.info(`Waiting for GitHub Pages... (attempt ${i}/30)`);
+              await new Promise(r => setTimeout(r, 10000));
+            }
+
+            // Mark deployment as success
             await github.rest.repos.createDeploymentStatus({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              deployment_id: ${{ steps.deployment.outputs.id }},
+              owner, repo,
+              deployment_id: ${{ steps.prepare.outputs.deployment-id }},
               state: 'success',
               environment_url: previewUrl,
-              log_url: `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
+              log_url: `${context.serverUrl}/${owner}/${repo}/actions/runs/${context.runId}`
             });
-      - name: Comment on PR
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
-        with:
-          script: |
-            const prNumber = ${{ needs.resolve-pr.outputs.pr-number }};
-            const previewUrl = `https://eclipse-glsp.github.io/glsp-client/pr/${prNumber}/diagram.html`;
+
+            // Create or update PR comment
+            const headSha = '${{ steps.prepare.outputs.head-sha }}';
             const body = [
               `**Preview:** [Open browser example](${previewUrl})`,
               '',
-              `Deployed from commit ${{ steps.deployment.outputs.head-sha }}.`
+              `Deployed from commit ${headSha.substring(0, 7)}.`
             ].join('\n');
-            const { data: comments } = await github.rest.issues.listComments({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: prNumber
-            });
+            const { data: comments } = await github.rest.issues.listComments({ owner, repo, issue_number: prNumber });
             const existing = comments.find(c => c.body.includes('**Preview:**'));
             if (existing) {
-              await github.rest.issues.updateComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                comment_id: existing.id,
-                body
-              });
+              await github.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body });
             } else {
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: prNumber,
-                body
-              });
+              await github.rest.issues.createComment({ owner, repo, issue_number: prNumber, body });
             }
 
   cleanup:
@@ -205,33 +175,36 @@ jobs:
       contents: write
       pull-requests: write
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-        with:
-          ref: gh-pages
-      - name: Remove preview directory
-        run: |
-          PR_NUMBER=${{ github.event.pull_request.number }}
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git rm -rf "pr/${PR_NUMBER}" || true
-          git commit -m "Remove PR #${PR_NUMBER} preview" --allow-empty
-          git push
-      - name: Update PR comment
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+      - name: Cleanup
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
-            const prNumber = ${{ github.event.pull_request.number }};
-            const { data: comments } = await github.rest.issues.listComments({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: prNumber
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const prNumber = context.payload.pull_request.number;
+
+            // Remove pr/<number>/ from gh-pages via the Git Data API
+            const { data: ref } = await github.rest.git.getRef({ owner, repo, ref: 'heads/gh-pages' });
+            const { data: baseCommit } = await github.rest.git.getCommit({ owner, repo, commit_sha: ref.object.sha });
+            const { data: tree } = await github.rest.git.getTree({ owner, repo, tree_sha: baseCommit.tree.sha, recursive: true });
+
+            const prefix = `pr/${prNumber}/`;
+            const kept = tree.tree
+              .filter(item => item.type !== 'tree' && !item.path.startsWith(prefix))
+              .map(({ path, mode, type, sha }) => ({ path, mode, type, sha }));
+
+            const { data: newTree } = await github.rest.git.createTree({ owner, repo, tree: kept });
+            const { data: newCommit } = await github.rest.git.createCommit({
+              owner, repo,
+              message: `Remove PR #${prNumber} preview`,
+              tree: newTree.sha,
+              parents: [ref.object.sha]
             });
+            await github.rest.git.updateRef({ owner, repo, ref: 'heads/gh-pages', sha: newCommit.sha });
+
+            // Update PR comment
+            const { data: comments } = await github.rest.issues.listComments({ owner, repo, issue_number: prNumber });
             const existing = comments.find(c => c.body.includes('**Preview:**'));
             if (existing) {
-              await github.rest.issues.updateComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                comment_id: existing.id,
-                body: '**Preview:** Removed (PR closed).'
-              });
+              await github.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body: '**Preview:** Removed (PR closed).' });
             }
