@@ -113,9 +113,9 @@ jobs:
             core.setOutput('deployment-id', deployment.id);
             core.setOutput('head-sha', pr.head.sha);
       - name: Deploy to gh-pages
+        working-directory: gh-pages
         run: |
           PR_NUMBER=${{ needs.resolve-pr.outputs.pr-number }}
-          cd gh-pages
           mkdir -p "pr/${PR_NUMBER}"
           cp -r ../preview-site/* "pr/${PR_NUMBER}/"
           git add "pr/${PR_NUMBER}"
