@@ -1,0 +1,48 @@
+name: Main Deploy
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'packages/**'
+      - 'examples/**'
+  workflow_dispatch:
+
+concurrency:
+  group: main-deploy
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    name: Build & Deploy
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+      deployments: write
+    environment:
+      name: main
+      url: https://eclipse-glsp.github.io/glsp-client/diagram.html
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: 22.x
+      - name: Install & Build
+        run: yarn install
+      - name: Bundle browser example
+        run: yarn standalone bundle:browser
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          ref: gh-pages
+          path: gh-pages
+      - name: Deploy to gh-pages
+        run: |
+          cd gh-pages
+          rsync -a --delete --exclude='pr' ../examples/workflow-standalone/app/ ./
+          git add -A
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git diff --cached --quiet && echo "No changes to deploy" || {
+            git commit -m "Deploy main (${GITHUB_SHA::7})"
+            git push
+          }

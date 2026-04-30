@@ -19,11 +19,11 @@ const isBrowser = process.argv.includes('--browser');
 
 const commands = isBrowser
     ? [
-          { command: 'tsc -w', name: 'tsc' },
+          { command: 'tsc -b -w', name: 'tsc' },
           { command: 'webpack serve --env mode=browser', name: 'web' }
       ]
     : [
-          { command: 'tsc -w', name: 'tsc' },
+          { command: 'tsc -b -w', name: 'tsc' },
           { command: 'yarn ts-node ./scripts/start-example-server.ts', name: 'server' },
           { command: 'webpack serve', name: 'web' }
       ];
