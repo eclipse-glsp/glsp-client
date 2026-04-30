@@ -1,0 +1,39 @@
+name: PR Preview Remove
+
+# SECURITY: This workflow uses pull_request_target which has access to secrets.
+# It is safe because:
+# 1. It only triggers on PR close (not open/sync)
+# 2. It only checks out the base branch (not PR code)
+# 3. It never executes any PR-controlled scripts
+
+on:
+  pull_request_target:
+    types: [closed]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: pr-preview-deploy
+  cancel-in-progress: false
+
+jobs:
+  remove:
+    name: Remove Preview
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - name: Remove preview
+        uses: rossjrw/pr-preview-action@ffa7509e91a3ec8dfc2e5536c4d5c1acdf7a6de9 # v1.8.1
+        with:
+          preview-branch: gh-pages
+          umbrella-dir: pr-previews
+          action: remove
+      - name: Update PR comment
+        uses: marocchino/sticky-pull-request-comment@0ea0beb66eb9baf113663a64ec522f60e49231c0 # v3.0.4
+        with:
+          header: pr-preview
+          number: ${{ github.event.pull_request.number }}
+          message: '**Preview:** Removed (PR closed).'
