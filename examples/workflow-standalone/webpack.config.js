@@ -36,12 +36,17 @@ module.exports = (env = {}) => {
 
     if (isBrowser) {
         const CopyWebpackPlugin = require('copy-webpack-plugin');
+        const serverBundlePath = require.resolve('@eclipse-glsp-examples/workflow-server-bundled-web');
         plugins.push(
             new CopyWebpackPlugin({
                 patterns: [
                     {
-                        from: require.resolve('@eclipse-glsp-examples/workflow-server-bundled-web'),
+                        from: serverBundlePath,
                         to: path.resolve(appRoot, 'wf-glsp-server-webworker.js')
+                    },
+                    {
+                        from: serverBundlePath + '.map',
+                        to: path.resolve(appRoot, 'wf-glsp-server-webworker.js.map')
                     }
                 ]
             })

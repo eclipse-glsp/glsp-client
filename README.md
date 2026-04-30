@@ -13,6 +13,8 @@ This project is built with `yarn` and is available from npm via [@eclipse-glsp/p
 
 ## Workflow Diagram Example
 
+> **[Try it online](https://eclipse-glsp.github.io/glsp-client/diagram.html)** – a live deployment of the browser example running on GitHub Pages.
+
 The workflow diagram is a consistent example provided by all GLSP components. The example implements a simple flow chart diagram editor with different types of nodes and edges (see screenshot below).
 The example can be used to try out different GLSP features, as well as several available integrations with IDE platforms (Theia, VSCode, Eclipse, Standalone).
 As the example is fully open source, you can also use it as a blueprint for a custom implementation of a GLSP diagram editor.
