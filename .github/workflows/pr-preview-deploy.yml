@@ -119,6 +119,18 @@ jobs:
             git commit -m "Deploy PR #${PR_NUMBER} preview"
             git push
           }
+      - name: Wait for GitHub Pages
+        run: |
+          URL="https://eclipse-glsp.github.io/glsp-client/pr/${{ needs.resolve-pr.outputs.pr-number }}/diagram.html"
+          for i in $(seq 1 30); do
+            if curl -sf -o /dev/null "$URL"; then
+              echo "Page is live"
+              exit 0
+            fi
+            echo "Waiting for GitHub Pages... (attempt $i/30)"
+            sleep 10
+          done
+          echo "::warning::Page did not become available within 5 minutes"
       - name: Update deployment status
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         with:
