@@ -29,9 +29,9 @@ import {
     Viewport,
     equalUpTo,
     isBoundsAware,
-    partition,
     isDecoration,
-    isViewport
+    isViewport,
+    partition
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
 import '../../../css/helper-lines.css';

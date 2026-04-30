@@ -14,6 +14,12 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
+/**
+ * Minimal lodash-compatible debounce subset.
+ * Compared to `lodash.DebouncedFunc<T>`:
+ * - The debounced call returns `void` instead of `ReturnType<T> | undefined`.
+ * - `flush()`, `pending()`, and `maxWait` are not supported.
+ */
 export interface DebouncedFunc<T extends (...args: any[]) => any> {
     (...args: Parameters<T>): void;
     cancel(): void;
@@ -24,6 +30,9 @@ export interface DebounceSettings {
     trailing?: boolean;
 }
 
+/**
+ * Minimal lodash-compatible debounce. See {@link DebouncedFunc} for intentional differences from `lodash.debounce`.
+ */
 export function debounce<T extends (...args: any[]) => any>(func: T, wait: number, options: DebounceSettings = {}): DebouncedFunc<T> {
     let timeout: ReturnType<typeof setTimeout> | undefined;
     let lastArgs: Parameters<T> | undefined;
