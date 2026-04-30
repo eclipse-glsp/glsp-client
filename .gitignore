@@ -6,7 +6,7 @@ node_modules/
 lib/
 artifacts/
 
-examples/workflow-standalone/app
+examples/workflow-standalone/app/*
 !examples/workflow-standalone/app/diagram.html
 !examples/workflow-standalone/app/example1.wf
 

@@ -38,7 +38,7 @@ jobs:
       - name: Deploy to gh-pages
         working-directory: gh-pages
         run: |
-          rsync -a --delete --exclude='pr' ../examples/workflow-standalone/app/ ./
+          rsync -a --delete --exclude='.git' --exclude='pr-previews' ../examples/workflow-standalone/app/ ./
           git add -A
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
