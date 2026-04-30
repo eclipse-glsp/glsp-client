@@ -40,7 +40,6 @@
   },
   "devDependencies": {
     "@eclipse-glsp/dev": "next",
-    "@types/lodash": "4.14.191",
     "@types/node": "22.x",
     "concurrently": "^9.2.1",
     "lerna": "^9.0.0",

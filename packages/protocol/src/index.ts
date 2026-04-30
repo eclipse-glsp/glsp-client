@@ -54,6 +54,7 @@ export * from './sprotty-geometry-point';
 export * from './utils/array-util';
 export * from './utils/disposable';
 export * from './utils/event';
+export * from './utils/function-util';
 export * from './utils/geometry-movement';
 export * from './utils/geometry-util';
 export * from './utils/geometry-vector';

@@ -202,3 +202,20 @@ export function partition<T>(source: T[], matchGuard: TypeGuard<T>): { match: T[
 export function arrayOf<T>(...values: (T | undefined)[]): T[] {
     return values.filter(element => element !== undefined) as T[];
 }
+
+export function groupBy<T, K>(array: T[], keyFn: (item: T) => K, sorted?: boolean): Map<K, T[]> {
+    const grouped = new Map<K, T[]>();
+    for (const item of array) {
+        const key = keyFn(item);
+        const values = grouped.get(key);
+        if (values) {
+            values.push(item);
+        } else {
+            grouped.set(key, [item]);
+        }
+    }
+    if (sorted) {
+        return new Map([...grouped.entries()].sort());
+    }
+    return grouped;
+}

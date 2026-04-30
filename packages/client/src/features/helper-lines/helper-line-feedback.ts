@@ -30,10 +30,10 @@ import {
     equalUpTo,
     isBoundsAware,
     isDecoration,
-    isViewport
+    isViewport,
+    partition
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
-import { partition } from 'lodash';
 import '../../../css/helper-lines.css';
 import { EditorContextService } from '../../base/editor-context-service';
 import { FeedbackCommand } from '../../base/feedback/feedback-command';
@@ -125,7 +125,9 @@ export class DrawHelperLinesFeedbackCommand extends FeedbackCommand {
         removeSelectionBounds(context.root);
         const alignableElements = getMatchingElements(context.root.index, this.isAlignableElementPredicate);
         this.log('All alignable elements: ', alignableElements);
-        const [referenceElements, elements] = partition(alignableElements, element => this.elementIds.includes(element.id));
+        const { match: referenceElements, rest: elements } = partition(alignableElements, (element): element is BoundsAwareModelElement =>
+            this.elementIds.includes(element.id)
+        );
         this.log('Split alignable elements into reference elements and other elements: ', referenceElements, elements);
         if (referenceElements.length === 0) {
             this.log('--> No helper lines as we do not have any reference elements.');

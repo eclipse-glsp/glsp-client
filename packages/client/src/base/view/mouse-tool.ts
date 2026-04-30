@@ -18,6 +18,7 @@ import {
     Disposable,
     GModelElement,
     GModelRoot,
+    groupBy,
     LazyInjector,
     MaybePromise,
     MouseListener,
@@ -51,7 +52,7 @@ export class GLSPMouseTool extends MouseTool implements IDiagramStartup {
 
     override register(mouseListener: MouseListener): void {
         super.register(mouseListener);
-        this.rankedMouseListeners = groupBy(this.mouseListeners, listener => Ranked.getRank(listener));
+        this.rankedMouseListeners = groupBy(this.mouseListeners, listener => Ranked.getRank(listener), true);
     }
 
     registerListener(mouseListener: MouseListener): Disposable {
@@ -61,7 +62,7 @@ export class GLSPMouseTool extends MouseTool implements IDiagramStartup {
 
     override deregister(mouseListener: MouseListener): void {
         super.deregister(mouseListener);
-        this.rankedMouseListeners = groupBy(this.mouseListeners, listener => Ranked.getRank(listener));
+        this.rankedMouseListeners = groupBy(this.mouseListeners, listener => Ranked.getRank(listener), true);
     }
 
     protected override handleEvent<K extends MouseListenerMethods>(methodName: K, model: GModelRoot, event: MouseEvent): void {
@@ -103,20 +104,4 @@ export class GLSPMouseTool extends MouseTool implements IDiagramStartup {
             }
         }
     }
-}
-
-function groupBy<K, T>(array: Array<T>, keyFunction: (x: T) => K): Map<K, T[]> {
-    const unsortedMap = array.reduce((result: Map<K, T[]>, item: T) => {
-        const key = keyFunction(item);
-        if (!result.has(key)) {
-            result.set(key, [item]);
-        } else {
-            const entries = result.get(key);
-            if (entries) {
-                entries.push(item);
-            }
-        }
-        return result;
-    }, new Map<K, T[]>());
-    return new Map<K, T[]>([...unsortedMap.entries()].sort());
 }

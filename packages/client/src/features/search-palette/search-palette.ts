@@ -14,9 +14,8 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { GModelElement, GModelRoot, GNode, LabeledAction, SelectAllAction, toArray, TYPES } from '@eclipse-glsp/sprotty';
+import { GModelElement, GModelRoot, GNode, LabeledAction, SelectAllAction, debounce, toArray, TYPES } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
-import { debounce, isEqual } from 'lodash';
 import {
     AutocompleteSuggestionProviderContext,
     type AutocompleteSuggestion,
@@ -150,7 +149,7 @@ export class SearchAutocompletePalette extends BaseAutocompletePalette {
     }
 
     protected getSuggestionsFromLabeledActions(labeledActions: LabeledAction[]): SearchAutocompleteSuggestion[] {
-        return this.cachedSuggestions.filter(c => labeledActions.find(s => isEqual(s, c.action)));
+        return this.cachedSuggestions.filter(c => labeledActions.find(s => s === c.action));
     }
 
     protected getHiddenElements(root: Readonly<GModelRoot>, suggestions: SearchAutocompleteSuggestion[]): GModelElement[] {
