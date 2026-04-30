@@ -189,18 +189,29 @@ jobs:
             const { data: tree } = await github.rest.git.getTree({ owner, repo, tree_sha: baseCommit.tree.sha, recursive: true });
 
             const prefix = `pr/${prNumber}/`;
-            const kept = tree.tree
-              .filter(item => item.type !== 'tree' && !item.path.startsWith(prefix))
-              .map(({ path, mode, type, sha }) => ({ path, mode, type, sha }));
+            const hadFiles = tree.tree.some(item => item.path.startsWith(prefix));
+            if (!hadFiles) {
+              core.info(`No preview found for PR #${prNumber}, skipping cleanup`);
+            } else {
+              const kept = tree.tree
+                .filter(item => item.type !== 'tree' && !item.path.startsWith(prefix))
+                .map(({ path, mode, type, sha }) => ({ path, mode, type, sha }));
 
-            const { data: newTree } = await github.rest.git.createTree({ owner, repo, tree: kept });
-            const { data: newCommit } = await github.rest.git.createCommit({
-              owner, repo,
-              message: `Remove PR #${prNumber} preview`,
-              tree: newTree.sha,
-              parents: [ref.object.sha]
-            });
-            await github.rest.git.updateRef({ owner, repo, ref: 'heads/gh-pages', sha: newCommit.sha });
+              // GitHub API requires at least one entry; use an empty .nojekyll as placeholder
+              if (kept.length === 0) {
+                const { data: blob } = await github.rest.git.createBlob({ owner, repo, content: '', encoding: 'utf-8' });
+                kept.push({ path: '.nojekyll', mode: '100644', type: 'blob', sha: blob.sha });
+              }
+
+              const { data: newTree } = await github.rest.git.createTree({ owner, repo, tree: kept });
+              const { data: newCommit } = await github.rest.git.createCommit({
+                owner, repo,
+                message: `Remove PR #${prNumber} preview`,
+                tree: newTree.sha,
+                parents: [ref.object.sha]
+              });
+              await github.rest.git.updateRef({ owner, repo, ref: 'heads/gh-pages', sha: newCommit.sha });
+            }
 
             // Update PR comment
             const { data: comments } = await github.rest.issues.listComments({ owner, repo, issue_number: prNumber });
