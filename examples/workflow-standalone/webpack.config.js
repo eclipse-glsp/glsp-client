@@ -36,7 +36,7 @@ module.exports = (env = {}) => {
 
     if (isBrowser) {
         const CopyWebpackPlugin = require('copy-webpack-plugin');
-        const serverBundlePath = require.resolve('@eclipse-glsp-examples/workflow-server-bundled-web');
+        const serverBundlePath = path.resolve(__dirname, 'server', 'wf-glsp-server-web.js');
         plugins.push(
             new CopyWebpackPlugin({
                 patterns: [
@@ -66,9 +66,7 @@ module.exports = (env = {}) => {
         net: false
     };
 
-    const devServerStatic = isBrowser
-        ? [{ directory: appRoot }, { directory: path.dirname(require.resolve('@eclipse-glsp-examples/workflow-server-bundled-web')) }]
-        : [{ directory: appRoot, watch: { ignored: '**/*.wf' } }];
+    const devServerStatic = isBrowser ? [{ directory: appRoot }] : [{ directory: appRoot, watch: { ignored: '**/*.wf' } }];
 
     return {
         entry: [path.resolve(buildRoot, isBrowser ? 'browser/app' : 'node/app')],

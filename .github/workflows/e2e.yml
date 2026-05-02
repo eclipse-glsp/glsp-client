@@ -41,6 +41,7 @@ jobs:
         run: |
           cd glsp-client
           yarn
+          yarn bundle
           cd ../glsp-playwright
           yarn
       - name: Run Playwright tests

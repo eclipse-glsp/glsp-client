@@ -30,7 +30,7 @@ jobs:
       - name: Install & Build
         run: yarn install
       - name: Bundle browser example
-        run: yarn standalone bundle:browser
+        run: yarn bundle:browser
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           ref: gh-pages

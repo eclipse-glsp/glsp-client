@@ -68,6 +68,7 @@ jobs:
         run: |
           cd glsp-client
           yarn
+          yarn bundle
 
       - name: Link local protocol into server
         run: |

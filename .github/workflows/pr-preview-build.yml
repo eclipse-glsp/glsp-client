@@ -26,7 +26,7 @@ jobs:
       - name: Install & Build
         run: yarn install
       - name: Bundle browser example
-        run: yarn standalone bundle:browser
+        run: yarn bundle:browser
       - name: Save PR number
         run: |
           mkdir -p ./pr-metadata
