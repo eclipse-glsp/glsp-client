@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2022-2024 EclipseSource and others.
+ * Copyright (c) 2022-2026 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -18,6 +18,7 @@ import {
     ExportSvgAction,
     ExportSvgOptions,
     GModelRoot,
+    RejectAction,
     RequestAction,
     RequestExportSvgAction,
     SvgExporter
@@ -28,17 +29,39 @@ import { v4 as uuid } from 'uuid';
 @injectable()
 export class GLSPSvgExporter extends SvgExporter {
     override export(root: GModelRoot, request?: RequestExportSvgAction): void {
-        if (typeof document !== 'undefined') {
-            let svgElement = this.findSvgElement();
-            if (svgElement) {
-                svgElement = this.prepareSvgElement(svgElement, root, request);
-                const serializedSvg = this.createSvg(svgElement, root, request?.options ?? {}, request);
-                const svgExport = this.getSvgExport(serializedSvg, svgElement, root, request);
-                // do not give request/response id here as otherwise the action is treated as an unrequested response
-                this.actionDispatcher.dispatch(
-                    ExportSvgAction.create(svgExport, { responseId: request?.requestId, options: request?.options })
-                );
-            }
+        try {
+            const svgExport = this.exportToString(root, request?.options, request);
+            this.actionDispatcher.dispatch(
+                ExportSvgAction.create(svgExport, { responseId: request?.requestId, options: request?.options })
+            );
+        } catch (err: unknown) {
+            this.dispatchRejectionIfRequested(request, err instanceof Error ? err.message : String(err));
+        }
+    }
+
+    /**
+     * Produce the serialised SVG string without dispatching any action. Throws on
+     * failure (no document, no SVG element). Used by the legacy `export()` path and
+     * by unified-export strategies (`DefaultSvgDiagramExporter`, `DefaultPngDiagramExporter`)
+     * that need the SVG bytes without the action-dispatch side effect.
+     */
+    exportToString(root: GModelRoot, options?: ExportSvgOptions, cause?: Action): string {
+        if (typeof document === 'undefined') {
+            throw new Error('SVG export failed: document is not available');
+        }
+        let svgElement = this.findSvgElement();
+        if (!svgElement) {
+            throw new Error('SVG export failed: SVG element not found');
+        }
+        const request = cause as RequestExportSvgAction | undefined;
+        svgElement = this.prepareSvgElement(svgElement, root, request);
+        const serializedSvg = this.createSvg(svgElement, root, options ?? {}, cause);
+        return this.getSvgExport(serializedSvg, svgElement, root, request);
+    }
+
+    protected dispatchRejectionIfRequested(request: RequestExportSvgAction | undefined, message: string): void {
+        if (request?.requestId) {
+            this.actionDispatcher.dispatch(RejectAction.create(message, { responseId: request.requestId }));
         }
     }
 

@@ -68,5 +68,6 @@ export const TYPES = {
      */
     IShortcutManager: Symbol('IShortcutManager'),
     IAutocompleteSuggestionProvider: Symbol('IAutocompleteSuggestionProvider'),
-    IAutocompleteSuggestionProviderRegistry: Symbol('IAutocompleteSuggestionProviderRegistry')
+    IAutocompleteSuggestionProviderRegistry: Symbol('IAutocompleteSuggestionProviderRegistry'),
+    IDiagramExporter: Symbol('IDiagramExporter')
 };

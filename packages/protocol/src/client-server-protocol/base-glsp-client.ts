@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2023-2024 EclipseSource and others.
+ * Copyright (c) 2023-2026 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -153,7 +153,8 @@ export class BaseGLSPClient implements GLSPClient {
         return this.checkedServer.disposeClientSession(params);
     }
 
-    shutdownServer(): void {
+    async shutdownServer(): Promise<void> {
+        // Fire-and-forget at the proxy boundary; subclasses with a flushable send override.
         this.checkedServer.shutdown();
     }
 

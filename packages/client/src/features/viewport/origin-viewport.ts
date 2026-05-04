@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2024-2025 Axon Ivy AG and others.
+ * Copyright (c) 2024-2026 Axon Ivy AG and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -14,30 +14,17 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { Action, Bounds, BoundsAwareViewportCommand, GModelRoot, TYPES, Viewport, limitViewport } from '@eclipse-glsp/sprotty';
+import {
+    Bounds,
+    BoundsAwareViewportCommand,
+    GModelRoot,
+    OriginViewportAction,
+    TYPES,
+    Viewport,
+    limitViewport
+} from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
 import { EditorContextService } from '../../base/editor-context-service';
-
-export interface OriginViewportAction extends Action {
-    kind: typeof OriginViewportAction.KIND;
-    animate: boolean;
-}
-
-export namespace OriginViewportAction {
-    export const KIND = 'originViewport';
-
-    export function is(object: any): object is OriginViewportAction {
-        return Action.hasKind(object, KIND);
-    }
-
-    export function create(options: { animate?: boolean } = {}): OriginViewportAction {
-        return {
-            kind: KIND,
-            animate: true,
-            ...options
-        };
-    }
-}
 
 @injectable()
 export class OriginViewportCommand extends BoundsAwareViewportCommand {

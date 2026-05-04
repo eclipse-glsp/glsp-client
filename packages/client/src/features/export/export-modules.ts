@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2024 EclipseSource and others.
+ * Copyright (c) 2019-2026 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -17,6 +17,7 @@ import {
     bindAsService,
     configureActionHandler,
     configureCommand,
+    ExportResultAction,
     ExportSvgAction,
     ExportSvgCommand,
     ExportSvgKeyListener,
@@ -24,15 +25,30 @@ import {
     FeatureModule,
     TYPES
 } from '@eclipse-glsp/sprotty';
+import { DefaultPngDiagramExporter } from './default-png-diagram-exporter';
+import { DefaultSvgDiagramExporter } from './default-svg-diagram-exporter';
+import { DiagramExportPostprocessor } from './diagram-export-postprocessor';
+import { ExportResultActionHandler } from './export-result-action-handler';
 import { ExportSvgActionHandler } from './export-svg-action-handler';
 import { GLSPSvgExporter } from './glsp-svg-exporter';
+import { RequestExportCommand } from './request-export-command';
 
 export const exportModule = new FeatureModule(
     (bind, _unbind, isBound) => {
         const context = { bind, isBound };
+        // Legacy SVG path — sprotty's `RequestExportSvgAction` / `ExportSvgAction` flow.
         bindAsService(context, TYPES.HiddenVNodePostprocessor, ExportSvgPostprocessor);
         configureCommand(context, ExportSvgCommand);
-        bind(TYPES.SvgExporter).to(GLSPSvgExporter).inSingletonScope();
+        bindAsService(context, TYPES.SvgExporter, GLSPSvgExporter);
+
+        // Unified export path — `RequestExportAction` / `ExportResultAction` + DiagramExporter registry.
+        // Default strategies are bound to themselves *and* to the multi-binding key so adopters can
+        // `rebind(DefaultPngDiagramExporter).to(...)` to swap a single shipped format without
+        // having to unbind the entire registry.
+        bindAsService(context, TYPES.HiddenVNodePostprocessor, DiagramExportPostprocessor);
+        configureCommand(context, RequestExportCommand);
+        bindAsService(context, TYPES.IDiagramExporter, DefaultSvgDiagramExporter);
+        bindAsService(context, TYPES.IDiagramExporter, DefaultPngDiagramExporter);
     },
     { featureId: Symbol('export') }
 );
@@ -48,6 +64,8 @@ export const standaloneExportModule = new FeatureModule(
         bindAsService(context, TYPES.KeyListener, ExportSvgKeyListener);
         bind(ExportSvgActionHandler).toSelf().inSingletonScope();
         configureActionHandler(context, ExportSvgAction.KIND, ExportSvgActionHandler);
+        bind(ExportResultActionHandler).toSelf().inSingletonScope();
+        configureActionHandler(context, ExportResultAction.KIND, ExportResultActionHandler);
     },
     { featureId: Symbol('standaloneExport'), requires: exportModule }
 );

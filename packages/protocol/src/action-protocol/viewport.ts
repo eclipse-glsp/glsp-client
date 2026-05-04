@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2021-2025 STMicroelectronics and others.
+ * Copyright (c) 2021-2026 STMicroelectronics and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -106,6 +106,38 @@ export namespace FitToScreenAction {
             kind: KIND,
             animate: true,
             elementIds,
+            ...options
+        };
+    }
+}
+
+/**
+ * Resets the viewport to its origin (zoom 1, scroll 0). This is typically dispatched by the
+ * client (e.g., from the tool palette) but can also be sent by the server to reset the viewport
+ * remotely.
+ * The corresponding namespace declares the action kind as constant and offers helper functions for type guard checks
+ * and creating new `OriginViewportActions`.
+ */
+export interface OriginViewportAction extends Action {
+    kind: typeof OriginViewportAction.KIND;
+
+    /**
+     * Indicate if the modification of the viewport should be realized with or without support of animations.
+     */
+    animate: boolean;
+}
+
+export namespace OriginViewportAction {
+    export const KIND = 'originViewport';
+
+    export function is(object: unknown): object is OriginViewportAction {
+        return Action.hasKind(object, KIND) && hasBooleanProp(object, 'animate');
+    }
+
+    export function create(options: { animate?: boolean } = {}): OriginViewportAction {
+        return {
+            kind: KIND,
+            animate: true,
             ...options
         };
     }

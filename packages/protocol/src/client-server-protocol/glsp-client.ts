@@ -18,7 +18,7 @@ import { v4 as uuid } from 'uuid';
 import { ActionMessage } from '../action-protocol/base-protocol';
 import { Disposable } from '../utils/disposable';
 import { Event } from '../utils/event';
-import { AnyObject, hasStringProp } from '../utils/type-util';
+import { AnyObject, MaybePromise, hasStringProp } from '../utils/type-util';
 import { DisposeClientSessionParameters, InitializeClientSessionParameters, InitializeParameters, InitializeResult } from './types';
 
 export class ApplicationIdProvider {
@@ -131,9 +131,13 @@ export interface GLSPClient {
     disposeClientSession(params: DisposeClientSessionParameters): Promise<void>;
 
     /**
-     * Send a `shutdown` notification to the server.
+     * Send a `shutdown` notification to the server. The return type is {@link MaybePromise} so
+     * pre-existing synchronous adopter implementations remain valid; new implementations should
+     * return a `Promise<void>` that resolves once the notification has been flushed to the wire,
+     * otherwise callers that dispose the connection immediately afterwards may race the pending
+     * notification and the server never sees the shutdown signal.
      */
-    shutdownServer(): void;
+    shutdownServer(): MaybePromise<void>;
 
     /**
      * Stops the client and disposes unknown resources. During the stop procedure the client is in the `Stopping` state and will

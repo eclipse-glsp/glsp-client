@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2023-2024 EclipseSource and others.
+ * Copyright (c) 2023-2026 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -117,7 +117,7 @@ export namespace IDiagramStartup {
     }
 }
 
-export interface DiagramLoadingOptions {
+export interface DiagramLoadingOptions<P extends InitializeParameters = InitializeParameters> {
     /**
      * Optional custom options that should be used the initial {@link RequestModelAction}.
      * These options will be merged with the default options (`diagramType` and `sourceUri`).
@@ -126,10 +126,12 @@ export interface DiagramLoadingOptions {
     requestModelOptions?: Args;
 
     /**
-     * Optional partial {@link InitializeParameters} that should be used for {@link GLSPClient.initializeServer} request if the underlying
-     * {@link GLSPClient} has not been initialized yet.
+     * Optional partial {@link InitializeParameters} that should be used for {@link GLSPClient.initializeServer}
+     * request if the underlying {@link GLSPClient} has not been initialized yet. The generic type parameter
+     * `P` lets callers narrow this to a more specific extension type (e.g., `McpInitializeParameters`)
+     * without leaking that extension into the base loader API.
      */
-    initializeParameters?: Partial<InitializeParameters>;
+    initializeParameters?: Partial<P>;
 
     /**
      * Flag to enable/disable client side notifications during the loading process.
@@ -171,7 +173,7 @@ export class DiagramLoader {
         return this.lazyInjector.getAll<IDiagramStartup>(TYPES.IDiagramStartup);
     }
 
-    async load(options: DiagramLoadingOptions = {}): Promise<void> {
+    async load<P extends InitializeParameters = InitializeParameters>(options: DiagramLoadingOptions<P> = {}): Promise<void> {
         this.diagramStartups.sort(Ranked.sort);
         await this.invokeStartupHook('preLoadDiagram');
         const resolvedOptions: ResolvedDiagramLoadingOptions = {

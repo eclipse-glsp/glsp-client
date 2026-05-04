@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2024 EclipseSource and others.
+ * Copyright (c) 2019-2026 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -125,8 +125,9 @@ export class BaseJsonrpcGLSPClient implements GLSPClient {
         this.checkedConnection.sendNotification(JsonrpcGLSPClient.ActionMessageNotification, message);
     }
 
-    shutdownServer(): void {
-        this.checkedConnection.sendNotification(JsonrpcGLSPClient.ShutdownNotification);
+    async shutdownServer(): Promise<void> {
+        // Await the send so callers can dispose the connection without racing the wire flush.
+        await this.checkedConnection.sendNotification(JsonrpcGLSPClient.ShutdownNotification);
     }
 
     stop(): Promise<void> {
