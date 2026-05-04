@@ -7,9 +7,8 @@
     "examples/*"
   ],
   "scripts": {
-    "all": "yarn clean && yarn install && yarn lint && yarn test",
-    "build": "yarn compile && yarn bundle",
     "bundle": "yarn standalone bundle",
+    "bundle:browser": "yarn standalone bundle:browser",
     "check:all": "yarn install && yarn lint && yarn format:check && yarn headers:check",
     "clean": "lerna run clean && rimraf coverage .nyc_output",
     "compile": "tsc -b",
@@ -24,7 +23,7 @@
     "lint": "eslint .",
     "lint:ci": "yarn lint --output-file eslint_report.json --format json",
     "lint:fix": " yarn lint --fix",
-    "prepare": "yarn build",
+    "prepare": "yarn compile",
     "publish:latest": "lerna publish from-package --no-git-reset -y",
     "publish:next": "lerna publish preminor --exact --canary --preid next --dist-tag next --no-git-reset --no-git-tag-version --no-push --ignore-scripts --yes",
     "standalone": "yarn --cwd ./examples/workflow-standalone",

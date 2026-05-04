@@ -15,59 +15,35 @@ yarn
 
 In this mode the client connects to an external GLSP server over a WebSocket. By default a pre-built Node.js server is downloaded and started, but this mode can also be used with a [Java-based GLSP server](https://github.com/eclipse-glsp/glsp-server#workflow-diagram-example).
 
-**Start the server and client together (recommended):**
-
 ```bash
-# from the repo root
-yarn dev
-```
-
-This compiles the TypeScript sources in watch mode, downloads and starts the GLSP server, and launches the webpack dev server on port **8082**.
-
-**Or start them separately:**
-
-```bash
-# Terminal 1 – start the GLSP server (downloads from npm on first run)
-yarn start:exampleServer
-
-# Terminal 2 – start the webpack dev server
 yarn start
 ```
 
+This downloads the GLSP server (on first run), starts it, and launches the webpack dev server on port **8082**.
 The application opens at `http://localhost:8082/diagram.html`.
+
+To use your own GLSP server running from source, start the client without the built-in server:
+
+```bash
+yarn start --client-only
+```
+
+You can also configure the server port and host:
+
+```bash
+yarn start --port 9090 --host 0.0.0.0
+```
 
 ## Browser Mode (Web Worker)
 
 In this mode the GLSP server is bundled as a Web Worker and runs directly in the browser. No external server process is needed.
 
-**Start the dev server:**
-
-```bash
-# from the repo root
-yarn dev:browser
-```
-
-This compiles in watch mode and launches the webpack dev server on port **8083**.
-
-**Or without watch mode:**
-
 ```bash
 yarn start:browser
 ```
 
+This downloads the Web Worker server bundle (on first run) and launches the webpack dev server on port **8083**.
 The application opens at `http://localhost:8083/diagram.html`.
-
-## Building
-
-```bash
-# Node bundle (default)
-yarn build
-
-# Browser bundle
-yarn build:browser
-```
-
-Both produce a `bundle.js` in the `app/` directory. The browser build additionally copies the Web Worker server script.
 
 ## Development (Watch Mode)
 
@@ -83,6 +59,25 @@ yarn dev:browser
 
 Changes to TypeScript sources are recompiled automatically. Reload the browser to pick up changes.
 
-## Legacy
+## Building
 
-The root-level scripts `yarn start` and `yarn start:exampleServer` continue to work as before for the Node mode. T
+```bash
+# Node bundle (default)
+yarn build
+
+# Browser bundle
+yarn build:browser
+```
+
+Both produce a `bundle.js` in the `app/` directory. The browser build additionally downloads the Web Worker server bundle and copies it into the app directory.
+
+## Additional Options
+
+All `start` and `dev` scripts support the following flags:
+
+-   `--client-only` – Skip server download/start (useful when running the server from source)
+-   `--no-open` – Don't open the browser automatically
+-   `--port <port>` – Set the GLSP server port (Node mode only, default: 8081)
+-   `--host <host>` – Set the GLSP server host (Node mode only, default: localhost)
+
+The server bundle download can also be skipped by setting the `SKIP_DOWNLOAD=true` environment variable.

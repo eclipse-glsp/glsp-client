@@ -25,20 +25,19 @@
     "build": "yarn compile && yarn bundle",
     "build:browser": "yarn compile && yarn bundle:browser",
     "bundle": "webpack",
-    "bundle:browser": "webpack --env mode=browser",
+    "bundle:browser": "yarn ts-node ./scripts/download-server.ts --browser && webpack --env mode=browser",
     "clean": "rimraf lib *.tsbuildinfo app/bundle.js app/bundle.js.map app/wf-glsp-server-webworker.js app/css",
     "compile": "tsc -b",
-    "dev": "yarn ts-node ./scripts/dev.ts",
-    "dev:browser": "yarn ts-node ./scripts/dev.ts --browser",
+    "dev": "yarn ts-node ./scripts/start.ts --dev",
+    "dev:browser": "yarn ts-node ./scripts/start.ts --dev --browser",
     "lint": "eslint ./src",
-    "start": "webpack serve",
-    "start:browser": "webpack serve --env mode=browser",
-    "start:server": "yarn ts-node ./scripts/start-example-server.ts",
+    "start": "yarn ts-node ./scripts/start.ts",
+    "start:browser": "yarn ts-node ./scripts/start.ts --browser",
+    "start:server": "yarn ts-node ./scripts/start-node-server.ts",
     "watch": "tsc -w"
   },
   "dependencies": {
     "@eclipse-glsp-examples/workflow-glsp": "2.7.0-next",
-    "@eclipse-glsp-examples/workflow-server-bundled-web": "next",
     "@eclipse-glsp/client": "2.7.0-next"
   },
   "devDependencies": {

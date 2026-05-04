@@ -5,11 +5,19 @@ A web-based diagram client framework for the [Graphical Language Server Platform
 ## Structure
 
 -   `@eclipse-glsp/protocol`: Generic client-server communication protocol
+-   `@eclipse-glsp/sprotty`: Sprotty integration layer providing base bindings and re-exports
 -   `@eclipse-glsp/client`: sprotty-based GLSP client
+-   `@eclipse-glsp-examples/workflow-glsp`: Workflow diagram specific client customizations
+-   `@eclipse-glsp-examples/workflow-standalone`: Standalone example application (Node & Browser mode)
 
 ## Building
 
-This project is built with `yarn` and is available from npm via [@eclipse-glsp/protocol](https://www.npmjs.com/package/@eclipse-glsp/protocol) and [@eclipse-glsp/client](https://www.npmjs.com/package/@eclipse-glsp/client).
+This project is built with `yarn`. The following packages are published to npm:
+
+-   [@eclipse-glsp/protocol](https://www.npmjs.com/package/@eclipse-glsp/protocol)
+-   [@eclipse-glsp/sprotty](https://www.npmjs.com/package/@eclipse-glsp/sprotty)
+-   [@eclipse-glsp/client](https://www.npmjs.com/package/@eclipse-glsp/client)
+-   [@eclipse-glsp-examples/workflow-glsp](https://www.npmjs.com/package/@eclipse-glsp-examples/workflow-glsp)
 
 ## Workflow Diagram Example
 
@@ -41,25 +49,21 @@ yarn install
 yarn start:browser
 ```
 
-This starts the webpack dev server with the bundled Web Worker GLSP server on `http://localhost:8083/diagram.html`.
+This downloads the bundled Web Worker GLSP server and starts the webpack dev server on `http://localhost:8083/diagram.html`.
 
 #### Node mode
 
-Start the GLSP server and the webpack dev server:
-
 ```bash
-# Terminal 1 – start the GLSP server (downloads from npm on first run)
-yarn start:exampleServer
-
-# Terminal 2 – start the webpack dev server
 yarn start
 ```
 
-The application opens at `http://localhost:8082/diagram.html`.
+This downloads and starts the GLSP server and launches the webpack dev server on `http://localhost:8082/diagram.html`.
 
-Instead of the pre-built server, you can also run the GLSP server from source — either the [Java](https://github.com/eclipse-glsp/glsp-server#workflow-diagram-example) or [Node](https://github.com/eclipse-glsp/glsp-server-node#workflow-diagram-example) variant. In that case, skip `yarn start:exampleServer` and start the server from your IDE or terminal instead.
+To use your own GLSP server (e.g. a [Java](https://github.com/eclipse-glsp/glsp-server#workflow-diagram-example) or [Node](https://github.com/eclipse-glsp/glsp-server-node#workflow-diagram-example) variant running from source), start the server separately and launch the client without the built-in server:
 
-**Legacy:** You can also skip the webpack dev server entirely and open `examples/workflow-standalone/app/diagram.html` directly in your browser after starting the GLSP server.
+```bash
+yarn start --client-only
+```
 
 ### Development
 
