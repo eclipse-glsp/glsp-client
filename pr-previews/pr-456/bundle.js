@@ -68468,7 +68468,7 @@ exports.GLSPWebSocketProvider = GLSPWebSocketProvider;
 /*!*****************************************************************!*\
   !*** ../../packages/protocol/lib/client-server-protocol/mcp.js ***!
   \*****************************************************************/
-(__unused_webpack_module, exports) {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -68488,58 +68488,70 @@ exports.GLSPWebSocketProvider = GLSPWebSocketProvider;
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.McpServerResult = void 0;
-exports.isMcpInitializeParameters = isMcpInitializeParameters;
-exports.getMcpServerConfig = getMcpServerConfig;
-exports.isMcpInitializeResult = isMcpInitializeResult;
-exports.getMcpServerResult = getMcpServerResult;
-exports.attachMcpServerResult = attachMcpServerResult;
-/**
- * Type guard that also doubles as the **opt-in check**: returns `true` iff `params.mcpServer`
- * is defined (regardless of its content). Server-side code uses this to decide whether to
- * start the MCP HTTP server at all. See {@link McpInitializeParameters.mcpServer} for the
- * opt-in semantics.
- */
-function isMcpInitializeParameters(params) {
-    return !!params && params.mcpServer !== undefined;
-}
-/**
- * Returns the {@link McpServerConfiguration} from the given initialize parameters, or
- * `undefined` if MCP is not opted in (i.e., `mcpServer` is missing). A return value of `{}`
- * (an empty object) means "MCP is enabled, use all defaults" — distinct from `undefined`
- * which means "MCP is not enabled."
- */
-function getMcpServerConfig(params) {
-    return isMcpInitializeParameters(params) ? params.mcpServer : undefined;
-}
+exports.McpInitializeResult = exports.McpServerResult = exports.McpInitializeParameters = void 0;
+const type_util_1 = __webpack_require__(/*! ../utils/type-util */ "../../packages/protocol/lib/utils/type-util.js");
+var McpInitializeParameters;
+(function (McpInitializeParameters) {
+    /**
+     * Type guard that also doubles as the **opt-in check**: returns `true` iff `params.mcpServer`
+     * is defined (regardless of its content). Server-side code uses this to decide whether to
+     * start the MCP HTTP server at all. See {@link McpInitializeParameters.mcpServer} for the
+     * opt-in semantics.
+     */
+    function is(params) {
+        return type_util_1.AnyObject.is(params) && (0, type_util_1.hasObjectProp)(params, 'mcpServer');
+    }
+    McpInitializeParameters.is = is;
+    /**
+     * Returns the {@link McpServerConfiguration} from the given initialize parameters, or
+     * `undefined` if MCP is not opted in (i.e., `mcpServer` is missing). A return value of `{}`
+     * (an empty object) means "MCP is enabled, use all defaults" — distinct from `undefined`
+     * which means "MCP is not enabled."
+     */
+    function getServerConfig(params) {
+        return is(params) ? params.mcpServer : undefined;
+    }
+    McpInitializeParameters.getServerConfig = getServerConfig;
+})(McpInitializeParameters || (exports.McpInitializeParameters = McpInitializeParameters = {}));
 var McpServerResult;
 (function (McpServerResult) {
     /** True when the candidate is shaped like {@link McpServerResult} — discriminator is `type === 'http'`. */
     function is(candidate) {
-        return !!candidate && candidate.type === 'http';
+        return (type_util_1.AnyObject.is(candidate) &&
+            (0, type_util_1.hasStringProp)(candidate, 'name') &&
+            (0, type_util_1.hasStringProp)(candidate, 'url') &&
+            (0, type_util_1.hasStringProp)(candidate, 'type') &&
+            candidate.type === 'http');
     }
     McpServerResult.is = is;
 })(McpServerResult || (exports.McpServerResult = McpServerResult = {}));
-/**
- * Narrows to `McpInitializeResult` *and* asserts `mcpServer` is populated. Use this when you
- * need both the type-cast and the runtime guarantee that the field is present.
- */
-function isMcpInitializeResult(result) {
-    return !!result && result.mcpServer !== undefined;
-}
-function getMcpServerResult(result) {
-    return isMcpInitializeResult(result) ? result.mcpServer : undefined;
-}
-/**
- * Attaches an {@link McpServerResult} announcement to a base {@link InitializeResult},
- * returning the augmented {@link McpInitializeResult}. Server-side handshake code uses this
- * instead of an in-place cast to keep the mutation typed.
- */
-function attachMcpServerResult(result, server) {
-    const augmented = result;
-    augmented.mcpServer = server;
-    return augmented;
-}
+var McpInitializeResult;
+(function (McpInitializeResult) {
+    /**
+     * Narrows to `McpInitializeResult` *and* asserts `mcpServer` is populated. Use this when you
+     * need both the type-cast and the runtime guarantee that the field is present.
+     */
+    function is(result) {
+        return type_util_1.AnyObject.is(result) && (0, type_util_1.hasObjectProp)(result, 'mcpServer');
+    }
+    McpInitializeResult.is = is;
+    /** Returns the {@link McpServerResult} from the given initialize result, or `undefined` if MCP is not announced. */
+    function getServer(result) {
+        return is(result) ? result.mcpServer : undefined;
+    }
+    McpInitializeResult.getServer = getServer;
+    /**
+     * Attaches an {@link McpServerResult} announcement to a base {@link InitializeResult},
+     * returning the augmented {@link McpInitializeResult}. Server-side handshake code uses this
+     * instead of an in-place cast to keep the mutation typed.
+     */
+    function attachServer(result, server) {
+        const augmented = result;
+        augmented.mcpServer = server;
+        return augmented;
+    }
+    McpInitializeResult.attachServer = attachServer;
+})(McpInitializeResult || (exports.McpInitializeResult = McpInitializeResult = {}));
 
 
 /***/ },
