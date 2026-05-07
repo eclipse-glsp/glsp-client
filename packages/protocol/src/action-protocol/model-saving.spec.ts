@@ -200,11 +200,12 @@ describe('Model saving actions', () => {
         });
 
         describe('create', () => {
-            it('should auto-generate a `requestId` when none is supplied', () => {
-                const action = RequestExportAction.create('svg');
-                expect(action.kind).to.equal('requestExport');
-                expect(action.format).to.equal('svg');
-                expect(action.requestId).to.match(/.+/);
+            it('should default `requestId` to empty when none is supplied', () => {
+                expect(RequestExportAction.create('svg')).to.deep.equals({
+                    kind: 'requestExport',
+                    format: 'svg',
+                    requestId: ''
+                });
             });
             it('should propagate caller-supplied formatOptions and requestId', () => {
                 const formatOptions = { width: 1024, skipCopyStyles: true };

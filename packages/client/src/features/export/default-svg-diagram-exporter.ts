@@ -22,7 +22,7 @@ import { GLSPSvgExporter } from './glsp-svg-exporter';
 /**
  * Default SVG strategy for the unified export registry. Wraps {@link GLSPSvgExporter} —
  * the same exporter that powers the legacy `RequestExportSvgAction` path — so adopter
- * overrides on the SVG renderer (extending `GLSPSvgExporter`) participate in unified
+ * overrides on the SVG renderer (extending {@link GLSPSvgExporter}) participate in unified
  * exports for free.
  */
 @injectable()

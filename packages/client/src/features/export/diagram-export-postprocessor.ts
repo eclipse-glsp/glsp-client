@@ -30,14 +30,10 @@ import { VNode } from 'snabbdom';
 import { DiagramExporter } from './diagram-exporter';
 
 /**
- * Postprocessor for the unified `RequestExportAction` flow. Captures the rendered model
+ * Postprocessor for the unified {@link RequestExportAction} flow. Captures the rendered model
  * root from the `decorate` pass, then on `postUpdate` looks up the matching
- * {@link DiagramExporter} by `format` and dispatches an `ExportResultAction` with the
+ * {@link DiagramExporter} by `format` and dispatches an {@link ExportResultAction} with the
  * produced bytes.
- *
- * Sits next to sprotty's `ExportSvgPostprocessor` (which keeps handling the legacy
- * `RequestExportSvgAction` kind). Strict separation between the two protocols means each
- * postprocessor only fires on its own `cause` kind — no double-dispatch.
  */
 @injectable()
 export class DiagramExportPostprocessor implements IVNodePostprocessor {

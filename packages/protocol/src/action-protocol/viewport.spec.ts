@@ -15,7 +15,7 @@
  ********************************************************************************/
 
 import { expect } from 'chai';
-import { CenterAction, FitToScreenAction, MoveViewportAction } from './viewport';
+import { CenterAction, FitToScreenAction, MoveViewportAction, OriginViewportAction } from './viewport';
 
 describe('Viewport Actions', () => {
     describe('CenterAction', () => {
@@ -130,6 +130,42 @@ describe('Viewport Actions', () => {
                 };
                 const { moveX, moveY } = expected;
                 expect(MoveViewportAction.create({ moveX, moveY })).to.deep.equals(expected);
+            });
+        });
+    });
+
+    describe('OriginViewportAction', () => {
+        describe('is', () => {
+            it('should return true for an object having the correct type and a value for all required interface properties', () => {
+                const action: OriginViewportAction = {
+                    kind: 'originViewport',
+                    animate: true
+                };
+                expect(OriginViewportAction.is(action)).to.be.true;
+            });
+            it('should return false for `undefined`', () => {
+                expect(OriginViewportAction.is(undefined)).to.be.false;
+            });
+            it('should return false for an object that does not have all required interface properties', () => {
+                expect(OriginViewportAction.is({ kind: 'notTheRightOne' })).to.be.false;
+            });
+        });
+
+        describe('create', () => {
+            it('should return an object conforming to the interface with default values for the optional arguments', () => {
+                const expected: OriginViewportAction = {
+                    kind: 'originViewport',
+                    animate: true
+                };
+                expect(OriginViewportAction.create()).to.deep.equals(expected);
+            });
+            it('should return an object conforming to the interface with matching properties for the given optional arguments', () => {
+                const expected: OriginViewportAction = {
+                    kind: 'originViewport',
+                    animate: false
+                };
+                const { animate } = expected;
+                expect(OriginViewportAction.create({ animate })).to.deep.equals(expected);
             });
         });
     });

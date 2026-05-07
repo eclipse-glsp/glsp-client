@@ -17,6 +17,9 @@
 import { AnyObject, hasObjectProp, hasStringProp } from '../utils/type-util';
 import { InitializeParameters, InitializeResult } from './types';
 
+/** Wire-protocol naming for the data-handler exposure mode (see {@link McpServerInitOptions.dataMode}). */
+export type McpDataMode = 'resources' | 'tools';
+
 /**
  * Behavioral and tuning options that an MCP-aware GLSP client may pass through the
  * `initialize` request. Every field here is safe for the IDE to control per-init: changing
@@ -27,11 +30,9 @@ import { InitializeParameters, InitializeResult } from './types';
  * split limits blast radius: behavioural fields like `port` may be negotiated by the IDE
  * over the wire, while security-sensitive bind/policy fields stay adopter-controlled and
  * cannot be widened by an MCP `initialize` payload.
+ *
+ * @experimental
  */
-/** Wire-protocol naming for the data-handler exposure mode (see {@link McpServerInitOptions.dataMode}). */
-export type McpDataMode = 'resources' | 'tools';
-
-/** @experimental */
 export interface McpServerInitOptions {
     /**
      * How the data handlers are exposed to the MCP client. `'tools'` registers them as tools
@@ -62,7 +63,7 @@ export interface McpServerInitOptions {
  * module. These fields are deliberately *not* part of the wire-protocol init schema — they
  * are not reachable from {@link McpServerConfiguration.options}, and the launcher reads
  * them only from the adopter-supplied defaults. The server-side runtime view that consumers
- * `@inject` (the holder named `McpServerOptions`) carries the merged combined shape
+ * `@inject` (the holder named {@link McpServerOptions}) carries the merged combined shape
  * {@link McpServerOptions} = init ∩ deploy.
  *
  * Why these are deploy-only: an MCP client driven by an LLM should not be able to widen the
@@ -205,9 +206,6 @@ export interface McpServerResult {
     /** The name of the MCP server. */
     name: string;
 
-    /** The transport type used to talk to the MCP server. */
-    type: 'http';
-
     /** The URL at which the MCP server is accessible. */
     url: string;
 
@@ -216,40 +214,28 @@ export interface McpServerResult {
 }
 
 export namespace McpServerResult {
-    /** True when the candidate is shaped like {@link McpServerResult} — discriminator is `type === 'http'`. */
+    /** True when the candidate is shaped like {@link McpServerResult}. */
     export function is(candidate: unknown): candidate is McpServerResult {
-        return (
-            AnyObject.is(candidate) &&
-            hasStringProp(candidate, 'name') &&
-            hasStringProp(candidate, 'url') &&
-            hasStringProp(candidate, 'type') &&
-            (candidate as McpServerResult).type === 'http'
-        );
+        return AnyObject.is(candidate) && hasStringProp(candidate, 'name') && hasStringProp(candidate, 'url');
     }
 }
 
 /**
- * Initialize-result extension carrying the MCP server's announced URL.
- *
- * `mcpServer` is optional because the GLSP server returns the same shape regardless of whether
- * MCP was opted into via `mcpServer` on the initialize parameters: when MCP is disabled the
- * result is a plain `InitializeResult` with no MCP fields. Callers that need the populated
- * field should narrow via {@link McpInitializeResult.is} or extract via
- * {@link McpInitializeResult.getServer}.
+ * Initialize-result extension carrying the MCP server's announced URL. Returned by the
+ * GLSP server's `initialize` handshake when (and only when) MCP was opted into via
+ * {@link McpInitializeParameters.mcpServer}; otherwise the server returns a plain
+ * {@link InitializeResult} and callers should narrow with {@link McpInitializeResult.is}.
  *
  * @experimental
  */
 export interface McpInitializeResult extends InitializeResult {
-    mcpServer?: McpServerResult;
+    mcpServer: McpServerResult;
 }
 
 export namespace McpInitializeResult {
-    /**
-     * Narrows to `McpInitializeResult` *and* asserts `mcpServer` is populated. Use this when you
-     * need both the type-cast and the runtime guarantee that the field is present.
-     */
-    export function is(result?: InitializeResult): result is McpInitializeResult & { mcpServer: McpServerResult } {
-        return AnyObject.is(result) && hasObjectProp(result, 'mcpServer');
+    /** Narrows to `McpInitializeResult` (i.e., asserts `mcpServer` is populated and well-shaped). */
+    export function is(result?: InitializeResult): result is McpInitializeResult {
+        return AnyObject.is(result) && hasObjectProp(result, 'mcpServer') && McpServerResult.is((result as McpInitializeResult).mcpServer);
     }
 
     /** Returns the {@link McpServerResult} from the given initialize result, or `undefined` if MCP is not announced. */

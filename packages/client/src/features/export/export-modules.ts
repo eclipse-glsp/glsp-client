@@ -20,7 +20,6 @@ import {
     ExportResultAction,
     ExportSvgAction,
     ExportSvgCommand,
-    ExportSvgKeyListener,
     ExportSvgPostprocessor,
     FeatureModule,
     TYPES
@@ -32,23 +31,23 @@ import { ExportResultActionHandler } from './export-result-action-handler';
 import { ExportSvgActionHandler } from './export-svg-action-handler';
 import { GLSPSvgExporter } from './glsp-svg-exporter';
 import { RequestExportCommand } from './request-export-command';
+import { RequestExportKeyListener } from './request-export-key-listener';
 
 export const exportModule = new FeatureModule(
     (bind, _unbind, isBound) => {
         const context = { bind, isBound };
-        // Legacy SVG path — sprotty's `RequestExportSvgAction` / `ExportSvgAction` flow.
-        bindAsService(context, TYPES.HiddenVNodePostprocessor, ExportSvgPostprocessor);
-        configureCommand(context, ExportSvgCommand);
         bindAsService(context, TYPES.SvgExporter, GLSPSvgExporter);
 
-        // Unified export path — `RequestExportAction` / `ExportResultAction` + DiagramExporter registry.
-        // Default strategies are bound to themselves *and* to the multi-binding key so adopters can
-        // `rebind(DefaultPngDiagramExporter).to(...)` to swap a single shipped format without
-        // having to unbind the entire registry.
+        // Unified export pipeline.
         bindAsService(context, TYPES.HiddenVNodePostprocessor, DiagramExportPostprocessor);
         configureCommand(context, RequestExportCommand);
         bindAsService(context, TYPES.IDiagramExporter, DefaultSvgDiagramExporter);
         bindAsService(context, TYPES.IDiagramExporter, DefaultPngDiagramExporter);
+
+        // Legacy SVG-only pipeline kept functional for adopters still dispatching the
+        // deprecated `RequestExportSvgAction` / `ExportSvgAction`.
+        bindAsService(context, TYPES.HiddenVNodePostprocessor, ExportSvgPostprocessor);
+        configureCommand(context, ExportSvgCommand);
     },
     { featureId: Symbol('export') }
 );
@@ -61,11 +60,13 @@ export const exportModule = new FeatureModule(
 export const standaloneExportModule = new FeatureModule(
     (bind, _unbind, isBound) => {
         const context = { bind, isBound };
-        bindAsService(context, TYPES.KeyListener, ExportSvgKeyListener);
-        bind(ExportSvgActionHandler).toSelf().inSingletonScope();
-        configureActionHandler(context, ExportSvgAction.KIND, ExportSvgActionHandler);
+        bindAsService(context, TYPES.KeyListener, RequestExportKeyListener);
         bind(ExportResultActionHandler).toSelf().inSingletonScope();
         configureActionHandler(context, ExportResultAction.KIND, ExportResultActionHandler);
+
+        // Legacy download path: bound so adopters dispatching `ExportSvgAction` still get a download.
+        bind(ExportSvgActionHandler).toSelf().inSingletonScope();
+        configureActionHandler(context, ExportSvgAction.KIND, ExportSvgActionHandler);
     },
     { featureId: Symbol('standaloneExport'), requires: exportModule }
 );

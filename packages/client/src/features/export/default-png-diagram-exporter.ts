@@ -19,19 +19,14 @@ import { inject, injectable } from 'inversify';
 import { DiagramExporter } from './diagram-exporter';
 import { GLSPSvgExporter } from './glsp-svg-exporter';
 
-/**
- * Default fallback width (in CSS px) when the request omits an explicit `width`.
- * Matches the previous MCP-specific PNG path so existing MCP consumers see no
- * behavioural change.
- */
+/** Default raster width (in CSS px) when neither `width` nor `height` is specified. */
 const DEFAULT_PNG_WIDTH = 1024;
 const DEFAULT_PNG_BACKGROUND = 'white';
 
 /**
  * Default PNG strategy for the unified export registry. Reuses {@link GLSPSvgExporter}'s
- * SVG-rendering pipeline and rasterises the result client-side via `OffscreenCanvas` —
- * browser-native, no extra dependencies. Adopters that need server-side rendering (e.g.
- * resvg, headless Chrome) replace this binding with their own strategy.
+ * SVG-rendering pipeline and rasterises the result client-side via `OffscreenCanvas`.
+ * Adopters that need server-side rendering replace this binding with their own strategy.
  */
 @injectable()
 export class DefaultPngDiagramExporter implements DiagramExporter<PngExportOptions> {
@@ -46,12 +41,9 @@ export class DefaultPngDiagramExporter implements DiagramExporter<PngExportOptio
             throw new Error('PNG export failed: requires a DOM environment with OffscreenCanvas support');
         }
         const svgString = this.svgExporter.exportToString(root, options, cause);
-        const { width, height } = await this.computeDimensions(svgString, options);
+        const { width, height } = this.computeDimensions(svgString, options);
         // Pin the SVG root to the target raster size BEFORE loading into `<img>` so the browser
-        // rasterises the vector content at full resolution. Without this the browser uses the
-        // SVG's intrinsic CSS-style size (emitted by the SVG exporter for viewer-friendly
-        // display), and `drawImage` then bitmap-upscales — producing a blurry result whenever
-        // the requested raster size differs from the SVG's intrinsic size.
+        // rasterises the vector content at full resolution.
         const sizedSvg = this.applyRasterSize(svgString, width, height);
         const blob = await this.rasterise(sizedSvg, width, height, options.background ?? DEFAULT_PNG_BACKGROUND);
         return this.blobToBase64(blob);
@@ -81,21 +73,35 @@ export class DefaultPngDiagramExporter implements DiagramExporter<PngExportOptio
         });
     }
 
-    protected async computeDimensions(svgString: string, options: PngExportOptions): Promise<{ width: number; height: number }> {
+    protected computeDimensions(svgString: string, options: PngExportOptions): { width: number; height: number } {
         const requestedWidth = options.width ?? DEFAULT_PNG_WIDTH;
         const requestedHeight = options.height;
         if (requestedHeight !== undefined) {
             return { width: requestedWidth, height: requestedHeight };
         }
-        // Preserve aspect ratio from the rendered bitmap.
-        const url = URL.createObjectURL(new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' }));
-        try {
-            const bitmap = await this.bitmapFromSvgUrl(url);
-            const aspect = bitmap.width / bitmap.height;
-            return { width: requestedWidth, height: requestedWidth / aspect };
-        } finally {
-            URL.revokeObjectURL(url);
+        // Read the aspect from the SVG attributes directly to avoid a redundant bitmap decode.
+        const aspect = this.parseAspectRatio(svgString);
+        return { width: requestedWidth, height: requestedWidth / aspect };
+    }
+
+    /**
+     * Read the aspect ratio from the root `<svg>` tag's `viewBox`, falling back to the
+     * `width`/`height` attributes. GLSP-emitted SVGs always carry a `viewBox` (set by the
+     * underlying sprotty exporter), so the fallback is a defensive safeguard.
+     */
+    protected parseAspectRatio(svgString: string): number {
+        const root = svgString.match(/<svg\b([^>]*)>/);
+        const attrs = root?.[1] ?? '';
+        const viewBox = attrs.match(/viewBox\s*=\s*"\s*[\d.eE+-]+\s+[\d.eE+-]+\s+([\d.eE+-]+)\s+([\d.eE+-]+)\s*"/);
+        if (viewBox) {
+            return parseFloat(viewBox[1]) / parseFloat(viewBox[2]);
         }
+        const widthAttr = attrs.match(/\swidth\s*=\s*"([\d.eE+-]+)/);
+        const heightAttr = attrs.match(/\sheight\s*=\s*"([\d.eE+-]+)/);
+        if (widthAttr && heightAttr) {
+            return parseFloat(widthAttr[1]) / parseFloat(heightAttr[1]);
+        }
+        throw new Error('PNG export failed: SVG missing viewBox/width/height — cannot determine aspect ratio');
     }
 
     protected async rasterise(svgString: string, width: number, height: number, background: string): Promise<Blob> {

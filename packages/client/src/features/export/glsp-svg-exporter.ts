@@ -28,6 +28,15 @@ import { v4 as uuid } from 'uuid';
 
 @injectable()
 export class GLSPSvgExporter extends SvgExporter {
+    /**
+     * Legacy entry point for the SVG-only export flow. New code should use the unified
+     * `RequestExportAction` flow (registered via the `DiagramExporter` registry);
+     * adopters that previously bound {@link RequestExportSvgAction} should migrate to
+     * `RequestExportAction` with `format: 'svg'`.
+     *
+     * @deprecated Use the unified export pipeline. Retained for backward compatibility
+     * with the legacy {@link RequestExportSvgAction} / {@link ExportSvgAction} flow.
+     */
     override export(root: GModelRoot, request?: RequestExportSvgAction): void {
         try {
             const svgExport = this.exportToString(root, request?.options, request);
@@ -53,7 +62,10 @@ export class GLSPSvgExporter extends SvgExporter {
         if (!svgElement) {
             throw new Error('SVG export failed: SVG element not found');
         }
-        const request = cause as RequestExportSvgAction | undefined;
+        // Only the legacy SVG-only flow carries a `RequestExportSvgAction`; under the unified
+        // export flow `cause` is a `RequestExportAction` and the legacy override hooks are
+        // intentionally invoked with `undefined`.
+        const request = RequestExportSvgAction.is(cause) ? cause : undefined;
         svgElement = this.prepareSvgElement(svgElement, root, request);
         const serializedSvg = this.createSvg(svgElement, root, options ?? {}, cause);
         return this.getSvgExport(serializedSvg, svgElement, root, request);

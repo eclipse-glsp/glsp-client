@@ -84,9 +84,12 @@ export namespace SetDirtyStateAction {
 }
 
 /**
- * A `RequestExportSvgAction` is sent by the client (or the server) to initiate the SVG export of the current diagram.
+ * A {@link RequestExportSvgAction} is sent by the client (or the server) to initiate the SVG export of the current diagram.
  * The handler of this action is expected to retrieve the diagram SVG and should send a {@link ExportSvgAction} as response.
  * Typically the {@link ExportSvgAction} is handled directly on client side.
+ *
+ * @deprecated Use the unified {@link RequestExportAction} (with `format: 'svg'`) and
+ * {@link ExportResultAction} pair instead.
  */
 export interface RequestExportSvgAction extends RequestAction<ExportSvgAction>, sprotty.RequestExportSvgAction {
     kind: typeof RequestExportSvgAction.KIND;
@@ -115,11 +118,14 @@ export interface ExportSvgOptions extends sprotty.ExportSvgOptions {
 }
 
 /**
- * The client sends an `ExportSvgAction` to indicate that the diagram, which represents the current model state,
+ * The client sends an {@link ExportSvgAction} to indicate that the diagram, which represents the current model state,
  * should be exported in SVG format. The action only provides the diagram SVG as plain string. The expected result of executing
- * an `ExportSvgAction` is a new file in SVG-format on the underlying filesystem. However, other details like the target destination,
+ * an {@link ExportSvgAction} is a new file in SVG-format on the underlying filesystem. However, other details like the target destination,
  * concrete file name, file extension etc. are not specified in the protocol. So it is the responsibility of the action handler to
  * process this information accordingly and export the result to the underlying filesystem.
+ *
+ * @deprecated Use {@link ExportResultAction} as the response to a unified
+ * {@link RequestExportAction} instead.
  */
 export interface ExportSvgAction extends ResponseAction, sprotty.ExportSvgAction {
     kind: typeof ExportSvgAction.KIND;
@@ -147,45 +153,39 @@ export namespace ExportSvgAction {
 /**
  * Format identifier for a diagram export. The package ships `'svg'` and `'png'`;
  * adopters add formats by registering a `DiagramExporter` strategy keyed on any string.
- * `ProposalString` gives autocomplete for the shipped values without closing the union —
- * same pattern as `MarkersReason` / `EditMode`.
  */
 export type ExportFormat = ProposalString<'svg' | 'png'>;
 
-/** MIME type returned alongside an export. `ProposalString` for the same reason as {@link ExportFormat}. */
+/** MIME type returned alongside an export. */
 export type ExportMimeType = ProposalString<'image/svg+xml' | 'image/png'>;
 
 /**
  * Encoding of the bytes carried in {@link ExportResultAction.data}. The package ships
  * `'text'` (UTF-8 markup, e.g. SVG) and `'base64'` (binary blobs, e.g. PNG); adopters
- * registering a strategy with a different runtime — hex, raw `data:` URLs, transport-specific
- * tokens — declare their own encoding tag. Receivers must reject encodings they don't
- * understand explicitly; silently treating an unknown value as one of the shipped ones
- * silently corrupts payloads. `ProposalString` keeps autocomplete on the shipped tags
- * without closing the union.
+ * registering a strategy with a different runtime declare their own encoding tag.
+ * Receivers must reject encodings they don't understand explicitly; silently treating an
+ * unknown value as one of the shipped ones corrupts payloads.
  */
 export type ExportEncoding = ProposalString<'text' | 'base64'>;
 
 /**
  * Options shared by every export strategy that renders through sprotty's SVG export pipeline.
  * Today honoured by SVG output and the canvas-based PNG rasteriser; future strategies that
- * also raster from SVG (PDF, PPTX, …) would extend this interface for the same knob. Lives at
- * the protocol level so server-side dispatchers (e.g. MCP resource handlers) can populate the
- * field with type safety.
+ * also raster from SVG (PDF, PPTX, ...) would extend this interface for the same knob.
  */
 export interface SvgRenderOptions {
     /**
      * Skip the per-element style-copy step. The default copy walk is expensive on large
      * diagrams; setting this flag skips it at the cost of losing CSS-driven styling in the
-     * exported output. Equivalent to sprotty's `ExportSvgOptions.skipCopyStyles`.
+     * exported output.
      */
     skipCopyStyles?: boolean;
 }
 
 /**
  * SVG-specific options carried inside {@link RequestExportAction.formatOptions} for the SVG
- * export strategy. Mirrors sprotty's `ExportSvgOptions` so callers migrating from the legacy
- * `RequestExportSvgAction` retain feature parity.
+ * export strategy. Mirrors {@link ExportSvgOptions} so callers migrating from the legacy
+ * {@link RequestExportSvgAction} retain feature parity.
  */
 export interface SvgExportOptions extends SvgRenderOptions {}
 
@@ -210,12 +210,12 @@ export interface PngExportOptions extends SvgRenderOptions {
  * {@link ExportResultAction} carrying the rendered bytes.
  *
  * `formatOptions` is opaque to the protocol — typed as `unknown` so the format-specific
- * overloads of {@link RequestExportAction.create} can narrow it to `SvgExportOptions`,
- * `PngExportOptions`, or an adopter's own shape without an index-signature dance. The
+ * overloads of {@link RequestExportAction.create} can narrow it to {@link SvgExportOptions},
+ * {@link PngExportOptions}, or an adopter's own shape without an index-signature dance. The
  * `DiagramExporter` for the given `format` validates the value at the strategy boundary.
  *
  * Coexists with the legacy {@link RequestExportSvgAction} under strict separation:
- * legacy kind (`requestExportSvg`) → legacy action (`ExportSvgAction`) only; new kind
+ * legacy kind (`requestExportSvg`) → legacy action ({@link ExportSvgAction}) only; new kind
  * (`requestExport`) → new action ({@link ExportResultAction}) only; never crossed.
  */
 export interface RequestExportAction extends RequestAction<ExportResultAction> {
@@ -237,12 +237,10 @@ export namespace RequestExportAction {
     /** General overload for adopter-registered formats; `formatOptions` is opaque. */
     export function create(format: ExportFormat, options?: { formatOptions?: unknown; requestId?: string }): RequestExportAction;
     export function create(format: ExportFormat, options: { formatOptions?: unknown; requestId?: string } = {}): RequestExportAction {
-        // Generated id by default (mirrors `RequestExportSvgAction.create`) so UI-direct
-        // callers get a usable `responseId` instead of an empty string.
         return {
             kind: KIND,
             format,
-            requestId: RequestAction.generateRequestId(),
+            requestId: '',
             ...options
         };
     }

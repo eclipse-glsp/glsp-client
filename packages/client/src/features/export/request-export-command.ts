@@ -28,10 +28,10 @@ import {
 import { inject } from 'inversify';
 
 /**
- * `HiddenCommand` for the unified `RequestExportAction` kind. Performs the same
+ * {@link HiddenCommand} for the unified {@link RequestExportAction} kind. Performs the same
  * pre-render preparation as sprotty's `ExportSvgCommand` (clone the root, reset
  * viewport, drop selection/hover) so the rendered SVG used by every
- * {@link DiagramExporter} strategy is independent of UI state.
+ * `DiagramExporter` strategy is independent of UI state.
  */
 export class RequestExportCommand extends HiddenCommand {
     static readonly KIND = RequestExportAction.KIND;

@@ -136,7 +136,7 @@ export const GLSPServerListener = Symbol('GLSPServerListener');
  * Contribution interface for extending the server initialization process.
  * Implementations can modify the {@link InitializeResult} based on the provided {@link InitializeParameters}.
  */
-export interface GLSPServerInitContribution {
+export interface GLSPServerInitializer {
     /**
      * Handles the server initialization with the given parameters and allows to modify the initialization result.
      *
@@ -147,7 +147,7 @@ export interface GLSPServerInitContribution {
      */
     initializeServer(server: GLSPServer, params: InitializeParameters, result: InitializeResult): MaybePromise<InitializeResult>;
 }
-export const GLSPServerInitContribution = Symbol('GLSPServerInitContribution');
+export const GLSPServerInitializer = Symbol('GLSPServerInitializer');
 
 /**
  * Communication proxy interface used by the GLSP servers to send action messages to clients.

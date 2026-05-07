@@ -19,14 +19,9 @@ import { saveAs } from 'file-saver';
 import { injectable } from 'inversify';
 
 /**
- * Default handler for the unified {@link ExportResultAction}. Triggers a browser file
- * download for client-originated UI flows (parallel to the legacy
- * `ExportSvgActionHandler` for the SVG-only path).
- *
- * Server-orchestrated flows (e.g. the MCP `diagram-png` resource handler) consume the
- * `ExportResultAction` via the action dispatcher's `requestUntil` and don't go through
- * this handler — so this binding lives in the `standaloneExportModule` and is omitted
- * by Theia/VS Code integrations that prefer their own download UX.
+ * Default handler for the unified {@link ExportResultAction} — triggers a browser file
+ * download for UI-driven flows. Bound by `standaloneExportModule`; integrations that
+ * provide their own download UX omit it.
  */
 @injectable()
 export class ExportResultActionHandler implements IActionHandler {

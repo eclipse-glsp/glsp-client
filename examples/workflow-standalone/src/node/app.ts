@@ -52,14 +52,10 @@ async function initialize(connectionProvider: MessageConnection, isReconnecting 
     const diagramLoader = container.get(DiagramLoader);
     await diagramLoader.load<McpInitializeParameters>({
         requestModelOptions: { isReconnecting },
-        initializeParameters: { mcpServer: { name: 'glsp-workflow' } }
+        initializeParameters: { mcpServer: { name: 'glsp-workflow', port: Number(GLSP_MCP_SERVER_PORT) } }
     });
 
-    // Surface the MCP server URL the GLSP server announced in its `InitializeResult`. The IDE
-    // integrations consume this programmatically; standalone has no native consumer, so log it
-    // and surface a toast for dev visibility. `MessageAction` falls through to the standalone's
-    // FallbackActionHandler (logs only); `ShowToastMessageAction` (from the accessibility module
-    // which is loaded in this standalone) renders a real UI toast that persists until dismissed.
+    // Surface the MCP server URL announced by the GLSP server for dev visibility.
     const mcpServer = McpInitializeResult.getServer(glspClient.initializeResult);
     if (mcpServer && !isReconnecting) {
         const message = `MCP server '${mcpServer.name}' available at ${mcpServer.url}`;
