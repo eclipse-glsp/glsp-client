@@ -42249,7 +42249,7 @@ exports.GViewRegistry = GViewRegistry = __decorate([
 "use strict";
 
 /********************************************************************************
- * Copyright (c) 2021-2026 EclipseSource and others.
+ * Copyright (c) 2021-2025 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -50352,18 +50352,13 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.DefaultPngDiagramExporter = void 0;
 const inversify_1 = __webpack_require__(/*! inversify */ "../../node_modules/inversify/lib/cjs/index.js");
 const glsp_svg_exporter_1 = __webpack_require__(/*! ./glsp-svg-exporter */ "../../packages/client/lib/features/export/glsp-svg-exporter.js");
-/**
- * Default fallback width (in CSS px) when the request omits an explicit `width`.
- * Matches the previous MCP-specific PNG path so existing MCP consumers see no
- * behavioural change.
- */
+/** Default raster width (in CSS px) when neither `width` nor `height` is specified. */
 const DEFAULT_PNG_WIDTH = 1024;
 const DEFAULT_PNG_BACKGROUND = 'white';
 /**
  * Default PNG strategy for the unified export registry. Reuses {@link GLSPSvgExporter}'s
- * SVG-rendering pipeline and rasterises the result client-side via `OffscreenCanvas` —
- * browser-native, no extra dependencies. Adopters that need server-side rendering (e.g.
- * resvg, headless Chrome) replace this binding with their own strategy.
+ * SVG-rendering pipeline and rasterises the result client-side via `OffscreenCanvas`.
+ * Adopters that need server-side rendering replace this binding with their own strategy.
  */
 let DefaultPngDiagramExporter = class DefaultPngDiagramExporter {
     constructor() {
@@ -50377,12 +50372,9 @@ let DefaultPngDiagramExporter = class DefaultPngDiagramExporter {
             throw new Error('PNG export failed: requires a DOM environment with OffscreenCanvas support');
         }
         const svgString = this.svgExporter.exportToString(root, options, cause);
-        const { width, height } = await this.computeDimensions(svgString, options);
+        const { width, height } = this.computeDimensions(svgString, options);
         // Pin the SVG root to the target raster size BEFORE loading into `<img>` so the browser
-        // rasterises the vector content at full resolution. Without this the browser uses the
-        // SVG's intrinsic CSS-style size (emitted by the SVG exporter for viewer-friendly
-        // display), and `drawImage` then bitmap-upscales — producing a blurry result whenever
-        // the requested raster size differs from the SVG's intrinsic size.
+        // rasterises the vector content at full resolution.
         const sizedSvg = this.applyRasterSize(svgString, width, height);
         const blob = await this.rasterise(sizedSvg, width, height, (_a = options.background) !== null && _a !== void 0 ? _a : DEFAULT_PNG_BACKGROUND);
         return this.blobToBase64(blob);
@@ -50410,23 +50402,36 @@ let DefaultPngDiagramExporter = class DefaultPngDiagramExporter {
             return `<svg${cleaned} width="${width}" height="${height}">`;
         });
     }
-    async computeDimensions(svgString, options) {
+    computeDimensions(svgString, options) {
         var _a;
         const requestedWidth = (_a = options.width) !== null && _a !== void 0 ? _a : DEFAULT_PNG_WIDTH;
         const requestedHeight = options.height;
         if (requestedHeight !== undefined) {
             return { width: requestedWidth, height: requestedHeight };
         }
-        // Preserve aspect ratio from the rendered bitmap.
-        const url = URL.createObjectURL(new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' }));
-        try {
-            const bitmap = await this.bitmapFromSvgUrl(url);
-            const aspect = bitmap.width / bitmap.height;
-            return { width: requestedWidth, height: requestedWidth / aspect };
+        // Read the aspect from the SVG attributes directly to avoid a redundant bitmap decode.
+        const aspect = this.parseAspectRatio(svgString);
+        return { width: requestedWidth, height: requestedWidth / aspect };
+    }
+    /**
+     * Read the aspect ratio from the root `<svg>` tag's `viewBox`, falling back to the
+     * `width`/`height` attributes. GLSP-emitted SVGs always carry a `viewBox` (set by the
+     * underlying sprotty exporter), so the fallback is a defensive safeguard.
+     */
+    parseAspectRatio(svgString) {
+        var _a;
+        const root = svgString.match(/<svg\b([^>]*)>/);
+        const attrs = (_a = root === null || root === void 0 ? void 0 : root[1]) !== null && _a !== void 0 ? _a : '';
+        const viewBox = attrs.match(/viewBox\s*=\s*"\s*[\d.eE+-]+\s+[\d.eE+-]+\s+([\d.eE+-]+)\s+([\d.eE+-]+)\s*"/);
+        if (viewBox) {
+            return parseFloat(viewBox[1]) / parseFloat(viewBox[2]);
         }
-        finally {
-            URL.revokeObjectURL(url);
+        const widthAttr = attrs.match(/\swidth\s*=\s*"([\d.eE+-]+)/);
+        const heightAttr = attrs.match(/\sheight\s*=\s*"([\d.eE+-]+)/);
+        if (widthAttr && heightAttr) {
+            return parseFloat(widthAttr[1]) / parseFloat(heightAttr[1]);
         }
+        throw new Error('PNG export failed: SVG missing viewBox/width/height — cannot determine aspect ratio');
     }
     async rasterise(svgString, width, height, background) {
         const url = URL.createObjectURL(new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' }));
@@ -50517,7 +50522,7 @@ const glsp_svg_exporter_1 = __webpack_require__(/*! ./glsp-svg-exporter */ "../.
 /**
  * Default SVG strategy for the unified export registry. Wraps {@link GLSPSvgExporter} —
  * the same exporter that powers the legacy `RequestExportSvgAction` path — so adopter
- * overrides on the SVG renderer (extending `GLSPSvgExporter`) participate in unified
+ * overrides on the SVG renderer (extending {@link GLSPSvgExporter}) participate in unified
  * exports for free.
  */
 let DefaultSvgDiagramExporter = class DefaultSvgDiagramExporter {
@@ -50579,14 +50584,10 @@ exports.DiagramExportPostprocessor = void 0;
 const sprotty_1 = __webpack_require__(/*! @eclipse-glsp/sprotty */ "../../packages/glsp-sprotty/lib/index.js");
 const inversify_1 = __webpack_require__(/*! inversify */ "../../node_modules/inversify/lib/cjs/index.js");
 /**
- * Postprocessor for the unified `RequestExportAction` flow. Captures the rendered model
+ * Postprocessor for the unified {@link RequestExportAction} flow. Captures the rendered model
  * root from the `decorate` pass, then on `postUpdate` looks up the matching
- * {@link DiagramExporter} by `format` and dispatches an `ExportResultAction` with the
+ * {@link DiagramExporter} by `format` and dispatches an {@link ExportResultAction} with the
  * produced bytes.
- *
- * Sits next to sprotty's `ExportSvgPostprocessor` (which keeps handling the legacy
- * `RequestExportSvgAction` kind). Strict separation between the two protocols means each
- * postprocessor only fires on its own `cause` kind — no double-dispatch.
  */
 let DiagramExportPostprocessor = class DiagramExportPostprocessor {
     decorate(vnode, element) {
@@ -50701,20 +50702,19 @@ const export_result_action_handler_1 = __webpack_require__(/*! ./export-result-a
 const export_svg_action_handler_1 = __webpack_require__(/*! ./export-svg-action-handler */ "../../packages/client/lib/features/export/export-svg-action-handler.js");
 const glsp_svg_exporter_1 = __webpack_require__(/*! ./glsp-svg-exporter */ "../../packages/client/lib/features/export/glsp-svg-exporter.js");
 const request_export_command_1 = __webpack_require__(/*! ./request-export-command */ "../../packages/client/lib/features/export/request-export-command.js");
+const request_export_key_listener_1 = __webpack_require__(/*! ./request-export-key-listener */ "../../packages/client/lib/features/export/request-export-key-listener.js");
 exports.exportModule = new sprotty_1.FeatureModule((bind, _unbind, isBound) => {
     const context = { bind, isBound };
-    // Legacy SVG path — sprotty's `RequestExportSvgAction` / `ExportSvgAction` flow.
-    (0, sprotty_1.bindAsService)(context, sprotty_1.TYPES.HiddenVNodePostprocessor, sprotty_1.ExportSvgPostprocessor);
-    (0, sprotty_1.configureCommand)(context, sprotty_1.ExportSvgCommand);
     (0, sprotty_1.bindAsService)(context, sprotty_1.TYPES.SvgExporter, glsp_svg_exporter_1.GLSPSvgExporter);
-    // Unified export path — `RequestExportAction` / `ExportResultAction` + DiagramExporter registry.
-    // Default strategies are bound to themselves *and* to the multi-binding key so adopters can
-    // `rebind(DefaultPngDiagramExporter).to(...)` to swap a single shipped format without
-    // having to unbind the entire registry.
+    // Unified export pipeline.
     (0, sprotty_1.bindAsService)(context, sprotty_1.TYPES.HiddenVNodePostprocessor, diagram_export_postprocessor_1.DiagramExportPostprocessor);
     (0, sprotty_1.configureCommand)(context, request_export_command_1.RequestExportCommand);
     (0, sprotty_1.bindAsService)(context, sprotty_1.TYPES.IDiagramExporter, default_svg_diagram_exporter_1.DefaultSvgDiagramExporter);
     (0, sprotty_1.bindAsService)(context, sprotty_1.TYPES.IDiagramExporter, default_png_diagram_exporter_1.DefaultPngDiagramExporter);
+    // Legacy SVG-only pipeline kept functional for adopters still dispatching the
+    // deprecated `RequestExportSvgAction` / `ExportSvgAction`.
+    (0, sprotty_1.bindAsService)(context, sprotty_1.TYPES.HiddenVNodePostprocessor, sprotty_1.ExportSvgPostprocessor);
+    (0, sprotty_1.configureCommand)(context, sprotty_1.ExportSvgCommand);
 }, { featureId: Symbol('export') });
 /**
  * Feature module that is intended for the standalone deployment of GLSP (i.e. plain webapp)
@@ -50723,11 +50723,12 @@ exports.exportModule = new sprotty_1.FeatureModule((bind, _unbind, isBound) => {
  */
 exports.standaloneExportModule = new sprotty_1.FeatureModule((bind, _unbind, isBound) => {
     const context = { bind, isBound };
-    (0, sprotty_1.bindAsService)(context, sprotty_1.TYPES.KeyListener, sprotty_1.ExportSvgKeyListener);
-    bind(export_svg_action_handler_1.ExportSvgActionHandler).toSelf().inSingletonScope();
-    (0, sprotty_1.configureActionHandler)(context, sprotty_1.ExportSvgAction.KIND, export_svg_action_handler_1.ExportSvgActionHandler);
+    (0, sprotty_1.bindAsService)(context, sprotty_1.TYPES.KeyListener, request_export_key_listener_1.RequestExportKeyListener);
     bind(export_result_action_handler_1.ExportResultActionHandler).toSelf().inSingletonScope();
     (0, sprotty_1.configureActionHandler)(context, sprotty_1.ExportResultAction.KIND, export_result_action_handler_1.ExportResultActionHandler);
+    // Legacy download path: bound so adopters dispatching `ExportSvgAction` still get a download.
+    bind(export_svg_action_handler_1.ExportSvgActionHandler).toSelf().inSingletonScope();
+    (0, sprotty_1.configureActionHandler)(context, sprotty_1.ExportSvgAction.KIND, export_svg_action_handler_1.ExportSvgActionHandler);
 }, { featureId: Symbol('standaloneExport'), requires: exports.exportModule });
 
 
@@ -50768,14 +50769,9 @@ const sprotty_1 = __webpack_require__(/*! @eclipse-glsp/sprotty */ "../../packag
 const file_saver_1 = __webpack_require__(/*! file-saver */ "../../node_modules/file-saver/dist/FileSaver.min.js");
 const inversify_1 = __webpack_require__(/*! inversify */ "../../node_modules/inversify/lib/cjs/index.js");
 /**
- * Default handler for the unified {@link ExportResultAction}. Triggers a browser file
- * download for client-originated UI flows (parallel to the legacy
- * `ExportSvgActionHandler` for the SVG-only path).
- *
- * Server-orchestrated flows (e.g. the MCP `diagram-png` resource handler) consume the
- * `ExportResultAction` via the action dispatcher's `requestUntil` and don't go through
- * this handler — so this binding lives in the `standaloneExportModule` and is omitted
- * by Theia/VS Code integrations that prefer their own download UX.
+ * Default handler for the unified {@link ExportResultAction} — triggers a browser file
+ * download for UI-driven flows. Bound by `standaloneExportModule`; integrations that
+ * provide their own download UX omit it.
  */
 let ExportResultActionHandler = class ExportResultActionHandler {
     handle(action) {
@@ -50837,7 +50833,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ExportSvgActionHandler = void 0;
 /********************************************************************************
- * Copyright (c) 2023 EclipseSource and others.
+ * Copyright (c) 2023-2026 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -50858,6 +50854,10 @@ const inversify_1 = __webpack_require__(/*! inversify */ "../../node_modules/inv
  * any GLSP project independent of the target platform. However, platform integration modules typically
  *  * this handler is rebound to an application specific handler in platform integration modules
  * (e.g. the Theia integration)
+ *
+ * @deprecated Use the unified export pipeline ({@link RequestExportAction} +
+ * {@link DiagramExporter}) and bind your own {@link IActionHandler} for
+ * {@link ExportResultAction} instead.
  */
 let ExportSvgActionHandler = class ExportSvgActionHandler {
     handle(action) {
@@ -50908,6 +50908,15 @@ const sprotty_1 = __webpack_require__(/*! @eclipse-glsp/sprotty */ "../../packag
 const inversify_1 = __webpack_require__(/*! inversify */ "../../node_modules/inversify/lib/cjs/index.js");
 const uuid_1 = __webpack_require__(/*! uuid */ "../../node_modules/uuid/dist/cjs-browser/index.js");
 let GLSPSvgExporter = class GLSPSvgExporter extends sprotty_1.SvgExporter {
+    /**
+     * Legacy entry point for the SVG-only export flow. New code should use the unified
+     * `RequestExportAction` flow (registered via the `DiagramExporter` registry);
+     * adopters that previously bound {@link RequestExportSvgAction} should migrate to
+     * `RequestExportAction` with `format: 'svg'`.
+     *
+     * @deprecated Use the unified export pipeline. Retained for backward compatibility
+     * with the legacy {@link RequestExportSvgAction} / {@link ExportSvgAction} flow.
+     */
     export(root, request) {
         try {
             const svgExport = this.exportToString(root, request === null || request === void 0 ? void 0 : request.options, request);
@@ -50931,7 +50940,10 @@ let GLSPSvgExporter = class GLSPSvgExporter extends sprotty_1.SvgExporter {
         if (!svgElement) {
             throw new Error('SVG export failed: SVG element not found');
         }
-        const request = cause;
+        // Only the legacy SVG-only flow carries a `RequestExportSvgAction`; under the unified
+        // export flow `cause` is a `RequestExportAction` and the legacy override hooks are
+        // intentionally invoked with `undefined`.
+        const request = sprotty_1.RequestExportSvgAction.is(cause) ? cause : undefined;
         svgElement = this.prepareSvgElement(svgElement, root, request);
         const serializedSvg = this.createSvg(svgElement, root, options !== null && options !== void 0 ? options : {}, cause);
         return this.getSvgExport(serializedSvg, svgElement, root, request);
@@ -51061,10 +51073,10 @@ exports.RequestExportCommand = void 0;
 const sprotty_1 = __webpack_require__(/*! @eclipse-glsp/sprotty */ "../../packages/glsp-sprotty/lib/index.js");
 const inversify_1 = __webpack_require__(/*! inversify */ "../../node_modules/inversify/lib/cjs/index.js");
 /**
- * `HiddenCommand` for the unified `RequestExportAction` kind. Performs the same
+ * {@link HiddenCommand} for the unified {@link RequestExportAction} kind. Performs the same
  * pre-render preparation as sprotty's `ExportSvgCommand` (clone the root, reset
  * viewport, drop selection/hover) so the rendered SVG used by every
- * {@link DiagramExporter} strategy is independent of UI state.
+ * `DiagramExporter` strategy is independent of UI state.
  */
 let RequestExportCommand = class RequestExportCommand extends sprotty_1.HiddenCommand {
     constructor(action) {
@@ -51100,6 +51112,56 @@ exports.RequestExportCommand = RequestExportCommand = __decorate([
     __param(0, (0, inversify_1.inject)(sprotty_1.TYPES.Action)),
     __metadata("design:paramtypes", [Object])
 ], RequestExportCommand);
+
+
+/***/ },
+
+/***/ "../../packages/client/lib/features/export/request-export-key-listener.js"
+/*!********************************************************************************!*\
+  !*** ../../packages/client/lib/features/export/request-export-key-listener.js ***!
+  \********************************************************************************/
+(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+/********************************************************************************
+ * Copyright (c) 2026 EclipseSource and others.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v. 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is available at
+ * https://www.gnu.org/software/classpath/license.html.
+ *
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ ********************************************************************************/
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.RequestExportKeyListener = void 0;
+const sprotty_1 = __webpack_require__(/*! @eclipse-glsp/sprotty */ "../../packages/glsp-sprotty/lib/index.js");
+const inversify_1 = __webpack_require__(/*! inversify */ "../../node_modules/inversify/lib/cjs/index.js");
+/** Dispatches a {@link RequestExportAction} (format `'svg'`) on `Ctrl+Shift+E`. */
+let RequestExportKeyListener = class RequestExportKeyListener extends sprotty_1.KeyListener {
+    keyDown(_element, event) {
+        if ((0, sprotty_1.matchesKeystroke)(event, 'KeyE', 'ctrlCmd', 'shift')) {
+            return [sprotty_1.RequestExportAction.create('svg')];
+        }
+        return [];
+    }
+};
+exports.RequestExportKeyListener = RequestExportKeyListener;
+exports.RequestExportKeyListener = RequestExportKeyListener = __decorate([
+    (0, inversify_1.injectable)()
+], RequestExportKeyListener);
 
 
 /***/ },
@@ -67174,12 +67236,10 @@ var RequestExportAction;
     }
     RequestExportAction.is = is;
     function create(format, options = {}) {
-        // Generated id by default (mirrors `RequestExportSvgAction.create`) so UI-direct
-        // callers get a usable `responseId` instead of an empty string.
         return {
             kind: RequestExportAction.KIND,
             format,
-            requestId: base_protocol_1.RequestAction.generateRequestId(),
+            requestId: '',
             ...options
         };
     }
@@ -67847,10 +67907,10 @@ var GLSPClient;
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.GLSPClientProxy = exports.GLSPServerInitContribution = exports.GLSPServerListener = exports.GLSPServer = void 0;
+exports.GLSPClientProxy = exports.GLSPServerInitializer = exports.GLSPServerListener = exports.GLSPServer = void 0;
 exports.GLSPServer = Symbol('GLSPServer');
 exports.GLSPServerListener = Symbol('GLSPServerListener');
-exports.GLSPServerInitContribution = Symbol('GLSPServerInitContribution');
+exports.GLSPServerInitializer = Symbol('GLSPServerInitializer');
 exports.GLSPClientProxy = Symbol('GLSPClientProxy');
 
 
@@ -68515,24 +68575,17 @@ var McpInitializeParameters;
 })(McpInitializeParameters || (exports.McpInitializeParameters = McpInitializeParameters = {}));
 var McpServerResult;
 (function (McpServerResult) {
-    /** True when the candidate is shaped like {@link McpServerResult} — discriminator is `type === 'http'`. */
+    /** True when the candidate is shaped like {@link McpServerResult}. */
     function is(candidate) {
-        return (type_util_1.AnyObject.is(candidate) &&
-            (0, type_util_1.hasStringProp)(candidate, 'name') &&
-            (0, type_util_1.hasStringProp)(candidate, 'url') &&
-            (0, type_util_1.hasStringProp)(candidate, 'type') &&
-            candidate.type === 'http');
+        return type_util_1.AnyObject.is(candidate) && (0, type_util_1.hasStringProp)(candidate, 'name') && (0, type_util_1.hasStringProp)(candidate, 'url');
     }
     McpServerResult.is = is;
 })(McpServerResult || (exports.McpServerResult = McpServerResult = {}));
 var McpInitializeResult;
 (function (McpInitializeResult) {
-    /**
-     * Narrows to `McpInitializeResult` *and* asserts `mcpServer` is populated. Use this when you
-     * need both the type-cast and the runtime guarantee that the field is present.
-     */
+    /** Narrows to `McpInitializeResult` (i.e., asserts `mcpServer` is populated and well-shaped). */
     function is(result) {
-        return type_util_1.AnyObject.is(result) && (0, type_util_1.hasObjectProp)(result, 'mcpServer');
+        return type_util_1.AnyObject.is(result) && (0, type_util_1.hasObjectProp)(result, 'mcpServer') && McpServerResult.is(result.mcpServer);
     }
     McpInitializeResult.is = is;
     /** Returns the {@link McpServerResult} from the given initialize result, or `undefined` if MCP is not announced. */
