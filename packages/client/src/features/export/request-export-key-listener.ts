@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2024-2026 EclipseSource and others.
+ * Copyright (c) 2026 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,7 +13,17 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-declare const GLSP_SERVER_HOST: string;
-declare const GLSP_SERVER_PORT: string;
-declare const GLSP_MCP_SERVER_PORT: string;
-declare const GLSP_SOURCE_URI: string;
+
+import { Action, GModelElement, KeyListener, RequestExportAction, matchesKeystroke } from '@eclipse-glsp/sprotty';
+import { injectable } from 'inversify';
+
+/** Dispatches a {@link RequestExportAction} (format `'svg'`) on `Ctrl+Shift+E`. */
+@injectable()
+export class RequestExportKeyListener extends KeyListener {
+    override keyDown(_element: GModelElement, event: KeyboardEvent): Action[] {
+        if (matchesKeystroke(event, 'KeyE', 'ctrlCmd', 'shift')) {
+            return [RequestExportAction.create('svg')];
+        }
+        return [];
+    }
+}

@@ -7,10 +7,20 @@
 -   [build] Switch to ESLint 9.x [#470](https://github.com/eclipse-glsp/glsp-client/pull/470)
 -   [diagram] Fix AbstractUIExtension error message [#469](https://github.com/eclipse-glsp/glsp-client/pull/469)
 -   [diagram] Fix edit label UI not resizing on graph zoom [#455](https://github.com/eclipse-glsp/glsp-client/pull/455)
+-   [mcp] Add Model Context Protocol client- and protocol-side support, paired with `@eclipse-glsp/server-mcp` [#456](https://github.com/eclipse-glsp/glsp-client/pull/456)
+    -   New optional `mcpServer?: McpServerConfiguration` field on `InitializeParameters` opts the GLSP server into starting an MCP server; the response carries an `McpServerResult` descriptor with the announced URL.
+    -   Configuration is split into init- and deploy-controllable parts (`McpServerInitOptions` / `McpServerDeployOptions`) so security-relevant fields stay under deployment control.
+-   [export] Generic, format-agnostic export pipeline [#456](https://github.com/eclipse-glsp/glsp-client/pull/456)
+    -   New `RequestExportAction` / `ExportResultAction` pair coexisting with the legacy `RequestExportSvgAction` / `ExportSvgAction` flow under strict separation.
+    -   Pluggable `DiagramExporter` registry with default SVG and PNG strategies and a shared post-processing step. PNG export is a new built-in capability.
+    -   Adopters register a custom `DiagramExporter` to add formats or override the defaults.
+-   [protocol] Move `OriginViewportAction` from the client package to `@eclipse-glsp/protocol` so it can be dispatched server-side as well. The action is still re-exported transitively via `@eclipse-glsp/sprotty`, so existing client-side imports continue to work. [#456](https://github.com/eclipse-glsp/glsp-client/pull/456)
 
 ### Potentially Breaking Changes
 
 -   [node] Update minimum requirements for Node to >=22 [#476](https://github.com/eclipse-glsp/glsp-client/pull/476)
+-   [protocol] `OriginViewportAction.is` now also requires the `animate` field (matching the shape of `CenterAction.is` and `FitToScreenAction.is`). Hand-rolled emitters that ship a bare `{kind: 'originViewport'}` will no longer pass the guard; use `OriginViewportAction.create()` (which defaults `animate: true`) or include `animate` explicitly. [#456](https://github.com/eclipse-glsp/glsp-client/pull/456)
+-   [protocol] `GLSPClient.shutdownServer()` now returns `MaybePromise<void>` instead of `void`. Pre-existing synchronous adopter implementations remain valid; callers that dispose the connection immediately after the shutdown signal MUST `await` the returned value to ensure the notification is flushed to the wire before the connection closes. [#456](https://github.com/eclipse-glsp/glsp-client/pull/456)
 
 ## [v2.6.0 - 09/02/2026](https://github.com/eclipse-glsp/glsp-client/releases/tag/v2.6.0)
 

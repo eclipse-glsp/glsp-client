@@ -21,7 +21,10 @@ import {
     GLSPActionDispatcher,
     GLSPClient,
     GLSPWebSocketProvider,
+    McpInitializeParameters,
+    McpInitializeResult,
     MessageAction,
+    ShowToastMessageAction,
     StatusAction
 } from '@eclipse-glsp/client';
 import { Container } from 'inversify';
@@ -47,7 +50,18 @@ async function initialize(connectionProvider: MessageConnection, isReconnecting 
     container = createContainer({ clientId, diagramType, glspClientProvider: async () => glspClient, sourceUri: examplePath });
     const actionDispatcher = container.get(GLSPActionDispatcher);
     const diagramLoader = container.get(DiagramLoader);
-    await diagramLoader.load({ requestModelOptions: { isReconnecting } });
+    await diagramLoader.load<McpInitializeParameters>({
+        requestModelOptions: { isReconnecting },
+        initializeParameters: { mcpServer: { name: 'glsp-workflow', port: Number(GLSP_MCP_SERVER_PORT) } }
+    });
+
+    // Surface the MCP server URL announced by the GLSP server for dev visibility.
+    const mcpServer = McpInitializeResult.getServer(glspClient.initializeResult);
+    if (mcpServer && !isReconnecting) {
+        const message = `MCP server '${mcpServer.name}' available at ${mcpServer.url}`;
+        console.info(`[GLSP-MCP] ${message}`);
+        actionDispatcher.dispatch(ShowToastMessageAction.createWithTimeout({ message, timeout: 10_000 }));
+    }
 
     if (isReconnecting) {
         const message = `Connection to the ${id} glsp server got closed. Connection was successfully re-established.`;

@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2024 EclipseSource and others.
+ * Copyright (c) 2019-2026 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -17,22 +17,37 @@ import {
     bindAsService,
     configureActionHandler,
     configureCommand,
+    ExportResultAction,
     ExportSvgAction,
     ExportSvgCommand,
-    ExportSvgKeyListener,
     ExportSvgPostprocessor,
     FeatureModule,
     TYPES
 } from '@eclipse-glsp/sprotty';
+import { DefaultPngDiagramExporter } from './default-png-diagram-exporter';
+import { DefaultSvgDiagramExporter } from './default-svg-diagram-exporter';
+import { DiagramExportPostprocessor } from './diagram-export-postprocessor';
+import { ExportResultActionHandler } from './export-result-action-handler';
 import { ExportSvgActionHandler } from './export-svg-action-handler';
 import { GLSPSvgExporter } from './glsp-svg-exporter';
+import { RequestExportCommand } from './request-export-command';
+import { RequestExportKeyListener } from './request-export-key-listener';
 
 export const exportModule = new FeatureModule(
     (bind, _unbind, isBound) => {
         const context = { bind, isBound };
+        bindAsService(context, TYPES.SvgExporter, GLSPSvgExporter);
+
+        // Unified export pipeline.
+        bindAsService(context, TYPES.HiddenVNodePostprocessor, DiagramExportPostprocessor);
+        configureCommand(context, RequestExportCommand);
+        bindAsService(context, TYPES.IDiagramExporter, DefaultSvgDiagramExporter);
+        bindAsService(context, TYPES.IDiagramExporter, DefaultPngDiagramExporter);
+
+        // Legacy SVG-only pipeline kept functional for adopters still dispatching the
+        // deprecated `RequestExportSvgAction` / `ExportSvgAction`.
         bindAsService(context, TYPES.HiddenVNodePostprocessor, ExportSvgPostprocessor);
         configureCommand(context, ExportSvgCommand);
-        bind(TYPES.SvgExporter).to(GLSPSvgExporter).inSingletonScope();
     },
     { featureId: Symbol('export') }
 );
@@ -45,7 +60,11 @@ export const exportModule = new FeatureModule(
 export const standaloneExportModule = new FeatureModule(
     (bind, _unbind, isBound) => {
         const context = { bind, isBound };
-        bindAsService(context, TYPES.KeyListener, ExportSvgKeyListener);
+        bindAsService(context, TYPES.KeyListener, RequestExportKeyListener);
+        bind(ExportResultActionHandler).toSelf().inSingletonScope();
+        configureActionHandler(context, ExportResultAction.KIND, ExportResultActionHandler);
+
+        // Legacy download path: bound so adopters dispatching `ExportSvgAction` still get a download.
         bind(ExportSvgActionHandler).toSelf().inSingletonScope();
         configureActionHandler(context, ExportSvgAction.KIND, ExportSvgActionHandler);
     },

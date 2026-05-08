@@ -262,7 +262,16 @@ describe('Base JSON-RPC GLSP Client', () => {
             await resetClient(false);
             const stateChangeHandler = sinon.spy();
             client.onCurrentStateChanged(stateChangeHandler);
-            expect(() => client.shutdownServer()).to.throw();
+            // `shutdownServer` is now async; the connection-state guard rejects the returned
+            // promise rather than throwing synchronously.
+            let rejection: unknown;
+            try {
+                await client.shutdownServer();
+            } catch (err) {
+                rejection = err;
+            }
+            expect(rejection).to.be.instanceOf(Error);
+            expect((rejection as Error).message).to.equal(JsonrpcGLSPClient.ClientNotReadyMsg);
             expect(connection.sendNotification.called).to.be.false;
             expect(stateChangeHandler.called).to.be.false;
         });

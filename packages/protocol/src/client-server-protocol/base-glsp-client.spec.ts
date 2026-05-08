@@ -220,20 +220,35 @@ describe('Node GLSP Client', () => {
     });
 
     describe('shutdownServer', () => {
-        it('should fail if server is not configured', () => {
+        it('should fail if server is not configured', async () => {
             resetClient(false);
-            expect(() => client.shutdownServer()).to.throw();
+            // `shutdownServer` is now async; guard failures surface as a rejected promise.
+            let rejection: unknown;
+            try {
+                await client.shutdownServer();
+            } catch (err) {
+                rejection = err;
+            }
+            expect(rejection).to.be.instanceOf(Error);
+            expect((rejection as Error).message).to.match(/not in 'Running' state/);
             expect(server.shutdown.called).to.be.false;
         });
-        it('should fail if client is not running', () => {
+        it('should fail if client is not running', async () => {
             resetClient(false);
             client.configureServer(server);
-            expect(() => client.shutdownServer()).to.throw();
+            let rejection: unknown;
+            try {
+                await client.shutdownServer();
+            } catch (err) {
+                rejection = err;
+            }
+            expect(rejection).to.be.instanceOf(Error);
+            expect((rejection as Error).message).to.match(/not in 'Running' state/);
             expect(server.shutdown.called).to.be.false;
         });
-        it('should invoke the corresponding server method', () => {
+        it('should invoke the corresponding server method', async () => {
             resetClient();
-            client.shutdownServer();
+            await client.shutdownServer();
             expect(server.shutdown.calledOnce).to.be.true;
         });
     });

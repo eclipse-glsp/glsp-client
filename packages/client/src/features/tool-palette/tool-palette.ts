@@ -20,6 +20,7 @@ import {
     IActionHandler,
     ICommand,
     MarkersReason,
+    OriginViewportAction,
     PaletteItem,
     RequestContextActions,
     RequestMarkersAction,
@@ -43,7 +44,6 @@ import { IDebugManager } from '../debug/debug-manager';
 import { IGridManager } from '../grid/grid-manager';
 import { MouseDeleteTool } from '../tools/deletion/delete-tool';
 import { MarqueeMouseTool } from '../tools/marquee-selection/marquee-mouse-tool';
-import { OriginViewportAction } from '../viewport/origin-viewport';
 
 const CLICKED_CSS_CLASS = 'clicked';
 const SEARCH_ICON_ID = 'search';

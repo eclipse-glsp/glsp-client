@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2023 EclipseSource and others.
+ * Copyright (c) 2023-2026 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -22,6 +22,10 @@ import { ExportSvgAction, IActionHandler } from '@eclipse-glsp/sprotty';
  * any GLSP project independent of the target platform. However, platform integration modules typically
  *  * this handler is rebound to an application specific handler in platform integration modules
  * (e.g. the Theia integration)
+ *
+ * @deprecated Use the unified export pipeline ({@link RequestExportAction} +
+ * {@link DiagramExporter}) and bind your own {@link IActionHandler} for
+ * {@link ExportResultAction} instead.
  */
 @injectable()
 export class ExportSvgActionHandler implements IActionHandler {

@@ -56,6 +56,7 @@ module.exports = (env = {}) => {
             new webpack.DefinePlugin({
                 GLSP_SERVER_HOST: JSON.stringify(process.env.GLSP_SERVER_HOST || 'localhost'),
                 GLSP_SERVER_PORT: JSON.stringify(process.env.GLSP_SERVER_PORT || '8081'),
+                GLSP_MCP_SERVER_PORT: JSON.stringify(process.env.GLSP_MCP_SERVER_PORT || '64577'),
                 GLSP_SOURCE_URI: JSON.stringify(path.resolve(__dirname, 'app/example1.wf'))
             })
         );

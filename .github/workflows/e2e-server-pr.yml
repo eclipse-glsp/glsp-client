@@ -24,6 +24,7 @@ jobs:
     env:
       STANDALONE_URL: 'file://${{ github.workspace }}/glsp-client/examples/workflow-standalone/app/diagram.html'
       GLSP_SERVER_PORT: '8081'
+      GLSP_MCP_SERVER_PORT: '64577'
       GLSP_SERVER_PLAYWRIGHT_MANAGED: 'false'
       GLSP_WEBSOCKET_PATH: 'workflow'
       GLSP_SERVER_DEBUG: 'true'
