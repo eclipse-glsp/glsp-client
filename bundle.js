@@ -40083,7 +40083,7 @@ module.exports = /*#__PURE__*/JSON.parse('{"autocomplete":{"no_suggestions":"No 
 "use strict";
 
 /********************************************************************************
- * Copyright (c) 2023-2024 EclipseSource and others.
+ * Copyright (c) 2023-2026 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -50316,6 +50316,359 @@ exports.RemoveTemplateElementsFeedbackCommand = RemoveTemplateElementsFeedbackCo
 
 /***/ },
 
+/***/ "../../packages/client/lib/features/export/default-png-diagram-exporter.js"
+/*!*********************************************************************************!*\
+  !*** ../../packages/client/lib/features/export/default-png-diagram-exporter.js ***!
+  \*********************************************************************************/
+(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+/********************************************************************************
+ * Copyright (c) 2026 EclipseSource and others.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v. 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is available at
+ * https://www.gnu.org/software/classpath/license.html.
+ *
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ ********************************************************************************/
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.DefaultPngDiagramExporter = void 0;
+const inversify_1 = __webpack_require__(/*! inversify */ "../../node_modules/inversify/lib/cjs/index.js");
+const glsp_svg_exporter_1 = __webpack_require__(/*! ./glsp-svg-exporter */ "../../packages/client/lib/features/export/glsp-svg-exporter.js");
+/** Default raster width (in CSS px) when neither `width` nor `height` is specified. */
+const DEFAULT_PNG_WIDTH = 1024;
+const DEFAULT_PNG_BACKGROUND = 'white';
+/**
+ * Default PNG strategy for the unified export registry. Reuses {@link GLSPSvgExporter}'s
+ * SVG-rendering pipeline and rasterises the result client-side via `OffscreenCanvas`.
+ * Adopters that need server-side rendering replace this binding with their own strategy.
+ */
+let DefaultPngDiagramExporter = class DefaultPngDiagramExporter {
+    constructor() {
+        this.format = 'png';
+        this.mimeType = 'image/png';
+        this.encoding = 'base64';
+    }
+    async export(root, options = {}, cause) {
+        var _a;
+        if (typeof document === 'undefined' || typeof OffscreenCanvas === 'undefined') {
+            throw new Error('PNG export failed: requires a DOM environment with OffscreenCanvas support');
+        }
+        const svgString = this.svgExporter.exportToString(root, options, cause);
+        const { width, height } = this.computeDimensions(svgString, options);
+        // Pin the SVG root to the target raster size BEFORE loading into `<img>` so the browser
+        // rasterises the vector content at full resolution.
+        const sizedSvg = this.applyRasterSize(svgString, width, height);
+        const blob = await this.rasterise(sizedSvg, width, height, (_a = options.background) !== null && _a !== void 0 ? _a : DEFAULT_PNG_BACKGROUND);
+        return this.blobToBase64(blob);
+    }
+    /**
+     * Rewrite the root `<svg>` tag so its rendered size matches the target raster dimensions.
+     * Replaces `width`/`height` attributes and strips conflicting `style` declarations
+     * (the SVG exporter emits `width: …px !important` on the inline style for viewer-friendly
+     * display, which would otherwise win over the attributes). The existing `viewBox`
+     * preserves the vector coordinate system so the content scales without distortion.
+     */
+    applyRasterSize(svgString, width, height) {
+        return svgString.replace(/<svg\b([^>]*)>/, (_, attrs) => {
+            const cleaned = attrs
+                .replace(/\swidth="[^"]*"/, '')
+                .replace(/\sheight="[^"]*"/, '')
+                .replace(/style="([^"]*)"/, (_match, styleBody) => {
+                const stripped = styleBody
+                    .replace(/(?:^|;)\s*width\s*:[^;]*/gi, '')
+                    .replace(/(?:^|;)\s*height\s*:[^;]*/gi, '')
+                    .replace(/^\s*;+/, '')
+                    .trim();
+                return stripped ? `style="${stripped}"` : '';
+            });
+            return `<svg${cleaned} width="${width}" height="${height}">`;
+        });
+    }
+    computeDimensions(svgString, options) {
+        var _a;
+        const requestedWidth = (_a = options.width) !== null && _a !== void 0 ? _a : DEFAULT_PNG_WIDTH;
+        const requestedHeight = options.height;
+        if (requestedHeight !== undefined) {
+            return { width: requestedWidth, height: requestedHeight };
+        }
+        // Read the aspect from the SVG attributes directly to avoid a redundant bitmap decode.
+        const aspect = this.parseAspectRatio(svgString);
+        return { width: requestedWidth, height: requestedWidth / aspect };
+    }
+    /**
+     * Read the aspect ratio from the root `<svg>` tag's `viewBox`, falling back to the
+     * `width`/`height` attributes. GLSP-emitted SVGs always carry a `viewBox` (set by the
+     * underlying sprotty exporter), so the fallback is a defensive safeguard.
+     */
+    parseAspectRatio(svgString) {
+        var _a;
+        const root = svgString.match(/<svg\b([^>]*)>/);
+        const attrs = (_a = root === null || root === void 0 ? void 0 : root[1]) !== null && _a !== void 0 ? _a : '';
+        const viewBox = attrs.match(/viewBox\s*=\s*"\s*[\d.eE+-]+\s+[\d.eE+-]+\s+([\d.eE+-]+)\s+([\d.eE+-]+)\s*"/);
+        if (viewBox) {
+            return parseFloat(viewBox[1]) / parseFloat(viewBox[2]);
+        }
+        const widthAttr = attrs.match(/\swidth\s*=\s*"([\d.eE+-]+)/);
+        const heightAttr = attrs.match(/\sheight\s*=\s*"([\d.eE+-]+)/);
+        if (widthAttr && heightAttr) {
+            return parseFloat(widthAttr[1]) / parseFloat(heightAttr[1]);
+        }
+        throw new Error('PNG export failed: SVG missing viewBox/width/height — cannot determine aspect ratio');
+    }
+    async rasterise(svgString, width, height, background) {
+        const url = URL.createObjectURL(new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' }));
+        try {
+            const bitmap = await this.bitmapFromSvgUrl(url);
+            const offscreen = new OffscreenCanvas(width, height);
+            const ctx = offscreen.getContext('2d');
+            if (!ctx) {
+                throw new Error('PNG export failed: 2D context unavailable on OffscreenCanvas');
+            }
+            ctx.fillStyle = background;
+            ctx.fillRect(0, 0, width, height);
+            ctx.drawImage(bitmap, 0, 0, width, height);
+            return offscreen.convertToBlob({ type: 'image/png' });
+        }
+        finally {
+            URL.revokeObjectURL(url);
+        }
+    }
+    bitmapFromSvgUrl(url) {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.onload = () => createImageBitmap(img).then(resolve, reject);
+            img.onerror = () => reject(new Error('PNG export failed: SVG could not be loaded into Image'));
+            img.src = url;
+        });
+    }
+    blobToBase64(blob) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                const result = reader.result;
+                resolve(result.replace(/^data:[^;]+;base64,/, ''));
+            };
+            reader.onerror = () => { var _a; return reject((_a = reader.error) !== null && _a !== void 0 ? _a : new Error('PNG export failed: FileReader error')); };
+            reader.readAsDataURL(blob);
+        });
+    }
+};
+exports.DefaultPngDiagramExporter = DefaultPngDiagramExporter;
+__decorate([
+    (0, inversify_1.inject)(glsp_svg_exporter_1.GLSPSvgExporter),
+    __metadata("design:type", glsp_svg_exporter_1.GLSPSvgExporter)
+], DefaultPngDiagramExporter.prototype, "svgExporter", void 0);
+exports.DefaultPngDiagramExporter = DefaultPngDiagramExporter = __decorate([
+    (0, inversify_1.injectable)()
+], DefaultPngDiagramExporter);
+
+
+/***/ },
+
+/***/ "../../packages/client/lib/features/export/default-svg-diagram-exporter.js"
+/*!*********************************************************************************!*\
+  !*** ../../packages/client/lib/features/export/default-svg-diagram-exporter.js ***!
+  \*********************************************************************************/
+(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+/********************************************************************************
+ * Copyright (c) 2026 EclipseSource and others.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v. 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is available at
+ * https://www.gnu.org/software/classpath/license.html.
+ *
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ ********************************************************************************/
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.DefaultSvgDiagramExporter = void 0;
+const inversify_1 = __webpack_require__(/*! inversify */ "../../node_modules/inversify/lib/cjs/index.js");
+const glsp_svg_exporter_1 = __webpack_require__(/*! ./glsp-svg-exporter */ "../../packages/client/lib/features/export/glsp-svg-exporter.js");
+/**
+ * Default SVG strategy for the unified export registry. Wraps {@link GLSPSvgExporter} —
+ * the same exporter that powers the legacy `RequestExportSvgAction` path — so adopter
+ * overrides on the SVG renderer (extending {@link GLSPSvgExporter}) participate in unified
+ * exports for free.
+ */
+let DefaultSvgDiagramExporter = class DefaultSvgDiagramExporter {
+    constructor() {
+        this.format = 'svg';
+        this.mimeType = 'image/svg+xml';
+        this.encoding = 'text';
+    }
+    async export(root, options = {}, cause) {
+        return this.svgExporter.exportToString(root, options, cause);
+    }
+};
+exports.DefaultSvgDiagramExporter = DefaultSvgDiagramExporter;
+__decorate([
+    (0, inversify_1.inject)(glsp_svg_exporter_1.GLSPSvgExporter),
+    __metadata("design:type", glsp_svg_exporter_1.GLSPSvgExporter)
+], DefaultSvgDiagramExporter.prototype, "svgExporter", void 0);
+exports.DefaultSvgDiagramExporter = DefaultSvgDiagramExporter = __decorate([
+    (0, inversify_1.injectable)()
+], DefaultSvgDiagramExporter);
+
+
+/***/ },
+
+/***/ "../../packages/client/lib/features/export/diagram-export-postprocessor.js"
+/*!*********************************************************************************!*\
+  !*** ../../packages/client/lib/features/export/diagram-export-postprocessor.js ***!
+  \*********************************************************************************/
+(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+/********************************************************************************
+ * Copyright (c) 2026 EclipseSource and others.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v. 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is available at
+ * https://www.gnu.org/software/classpath/license.html.
+ *
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ ********************************************************************************/
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.DiagramExportPostprocessor = void 0;
+const sprotty_1 = __webpack_require__(/*! @eclipse-glsp/sprotty */ "../../packages/glsp-sprotty/lib/index.js");
+const inversify_1 = __webpack_require__(/*! inversify */ "../../node_modules/inversify/lib/cjs/index.js");
+/**
+ * Postprocessor for the unified {@link RequestExportAction} flow. Captures the rendered model
+ * root from the `decorate` pass, then on `postUpdate` looks up the matching
+ * {@link DiagramExporter} by `format` and dispatches an {@link ExportResultAction} with the
+ * produced bytes.
+ */
+let DiagramExportPostprocessor = class DiagramExportPostprocessor {
+    decorate(vnode, element) {
+        if (element instanceof sprotty_1.GModelRoot) {
+            this.root = element;
+        }
+        return vnode;
+    }
+    postUpdate(cause) {
+        if (!this.root || !sprotty_1.RequestExportAction.is(cause)) {
+            return;
+        }
+        const request = cause;
+        this.runExport(request).catch(err => {
+            const message = err instanceof Error ? err.message : String(err);
+            this.actionDispatcher.dispatch(sprotty_1.RejectAction.create(message, { responseId: request.requestId }));
+        });
+    }
+    async runExport(request) {
+        var _a;
+        // First-bound-wins on duplicate formats: an adopter who registers a custom
+        // PNG exporter without `unbind`-ing the default will pick up the default. To
+        // override, rebind via `binding.rebind(DefaultPngDiagramExporter, MyPngExporter)`
+        // in your `DiagramExportModule` extension.
+        const exporter = this.exporters.find(candidate => candidate.format === request.format);
+        if (!exporter) {
+            throw new Error(`No DiagramExporter registered for format '${request.format}'`);
+        }
+        const data = await exporter.export(this.root, (_a = request.formatOptions) !== null && _a !== void 0 ? _a : {}, request);
+        this.actionDispatcher.dispatch(sprotty_1.ExportResultAction.create(exporter.format, data, {
+            mimeType: exporter.mimeType,
+            encoding: exporter.encoding,
+            responseId: request.requestId,
+            formatOptions: request.formatOptions
+        }));
+    }
+};
+exports.DiagramExportPostprocessor = DiagramExportPostprocessor;
+__decorate([
+    (0, inversify_1.multiInject)(sprotty_1.TYPES.IDiagramExporter),
+    __metadata("design:type", Array)
+], DiagramExportPostprocessor.prototype, "exporters", void 0);
+__decorate([
+    (0, inversify_1.inject)(sprotty_1.TYPES.IActionDispatcher),
+    __metadata("design:type", Object)
+], DiagramExportPostprocessor.prototype, "actionDispatcher", void 0);
+exports.DiagramExportPostprocessor = DiagramExportPostprocessor = __decorate([
+    (0, inversify_1.injectable)()
+], DiagramExportPostprocessor);
+
+
+/***/ },
+
+/***/ "../../packages/client/lib/features/export/diagram-exporter.js"
+/*!*********************************************************************!*\
+  !*** ../../packages/client/lib/features/export/diagram-exporter.js ***!
+  \*********************************************************************/
+(__unused_webpack_module, exports) {
+
+"use strict";
+
+/********************************************************************************
+ * Copyright (c) 2026 EclipseSource and others.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v. 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is available at
+ * https://www.gnu.org/software/classpath/license.html.
+ *
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ ********************************************************************************/
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+
+
+/***/ },
+
 /***/ "../../packages/client/lib/features/export/export-modules.js"
 /*!*******************************************************************!*\
   !*** ../../packages/client/lib/features/export/export-modules.js ***!
@@ -50327,7 +50680,7 @@ exports.RemoveTemplateElementsFeedbackCommand = RemoveTemplateElementsFeedbackCo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.standaloneExportModule = exports.exportModule = void 0;
 /********************************************************************************
- * Copyright (c) 2019-2024 EclipseSource and others.
+ * Copyright (c) 2019-2026 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -50342,13 +50695,26 @@ exports.standaloneExportModule = exports.exportModule = void 0;
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 const sprotty_1 = __webpack_require__(/*! @eclipse-glsp/sprotty */ "../../packages/glsp-sprotty/lib/index.js");
+const default_png_diagram_exporter_1 = __webpack_require__(/*! ./default-png-diagram-exporter */ "../../packages/client/lib/features/export/default-png-diagram-exporter.js");
+const default_svg_diagram_exporter_1 = __webpack_require__(/*! ./default-svg-diagram-exporter */ "../../packages/client/lib/features/export/default-svg-diagram-exporter.js");
+const diagram_export_postprocessor_1 = __webpack_require__(/*! ./diagram-export-postprocessor */ "../../packages/client/lib/features/export/diagram-export-postprocessor.js");
+const export_result_action_handler_1 = __webpack_require__(/*! ./export-result-action-handler */ "../../packages/client/lib/features/export/export-result-action-handler.js");
 const export_svg_action_handler_1 = __webpack_require__(/*! ./export-svg-action-handler */ "../../packages/client/lib/features/export/export-svg-action-handler.js");
 const glsp_svg_exporter_1 = __webpack_require__(/*! ./glsp-svg-exporter */ "../../packages/client/lib/features/export/glsp-svg-exporter.js");
+const request_export_command_1 = __webpack_require__(/*! ./request-export-command */ "../../packages/client/lib/features/export/request-export-command.js");
+const request_export_key_listener_1 = __webpack_require__(/*! ./request-export-key-listener */ "../../packages/client/lib/features/export/request-export-key-listener.js");
 exports.exportModule = new sprotty_1.FeatureModule((bind, _unbind, isBound) => {
     const context = { bind, isBound };
+    (0, sprotty_1.bindAsService)(context, sprotty_1.TYPES.SvgExporter, glsp_svg_exporter_1.GLSPSvgExporter);
+    // Unified export pipeline.
+    (0, sprotty_1.bindAsService)(context, sprotty_1.TYPES.HiddenVNodePostprocessor, diagram_export_postprocessor_1.DiagramExportPostprocessor);
+    (0, sprotty_1.configureCommand)(context, request_export_command_1.RequestExportCommand);
+    (0, sprotty_1.bindAsService)(context, sprotty_1.TYPES.IDiagramExporter, default_svg_diagram_exporter_1.DefaultSvgDiagramExporter);
+    (0, sprotty_1.bindAsService)(context, sprotty_1.TYPES.IDiagramExporter, default_png_diagram_exporter_1.DefaultPngDiagramExporter);
+    // Legacy SVG-only pipeline kept functional for adopters still dispatching the
+    // deprecated `RequestExportSvgAction` / `ExportSvgAction`.
     (0, sprotty_1.bindAsService)(context, sprotty_1.TYPES.HiddenVNodePostprocessor, sprotty_1.ExportSvgPostprocessor);
     (0, sprotty_1.configureCommand)(context, sprotty_1.ExportSvgCommand);
-    bind(sprotty_1.TYPES.SvgExporter).to(glsp_svg_exporter_1.GLSPSvgExporter).inSingletonScope();
 }, { featureId: Symbol('export') });
 /**
  * Feature module that is intended for the standalone deployment of GLSP (i.e. plain webapp)
@@ -50357,10 +50723,95 @@ exports.exportModule = new sprotty_1.FeatureModule((bind, _unbind, isBound) => {
  */
 exports.standaloneExportModule = new sprotty_1.FeatureModule((bind, _unbind, isBound) => {
     const context = { bind, isBound };
-    (0, sprotty_1.bindAsService)(context, sprotty_1.TYPES.KeyListener, sprotty_1.ExportSvgKeyListener);
+    (0, sprotty_1.bindAsService)(context, sprotty_1.TYPES.KeyListener, request_export_key_listener_1.RequestExportKeyListener);
+    bind(export_result_action_handler_1.ExportResultActionHandler).toSelf().inSingletonScope();
+    (0, sprotty_1.configureActionHandler)(context, sprotty_1.ExportResultAction.KIND, export_result_action_handler_1.ExportResultActionHandler);
+    // Legacy download path: bound so adopters dispatching `ExportSvgAction` still get a download.
     bind(export_svg_action_handler_1.ExportSvgActionHandler).toSelf().inSingletonScope();
     (0, sprotty_1.configureActionHandler)(context, sprotty_1.ExportSvgAction.KIND, export_svg_action_handler_1.ExportSvgActionHandler);
 }, { featureId: Symbol('standaloneExport'), requires: exports.exportModule });
+
+
+/***/ },
+
+/***/ "../../packages/client/lib/features/export/export-result-action-handler.js"
+/*!*********************************************************************************!*\
+  !*** ../../packages/client/lib/features/export/export-result-action-handler.js ***!
+  \*********************************************************************************/
+(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+/********************************************************************************
+ * Copyright (c) 2026 EclipseSource and others.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v. 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is available at
+ * https://www.gnu.org/software/classpath/license.html.
+ *
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ ********************************************************************************/
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.ExportResultActionHandler = void 0;
+const sprotty_1 = __webpack_require__(/*! @eclipse-glsp/sprotty */ "../../packages/glsp-sprotty/lib/index.js");
+const file_saver_1 = __webpack_require__(/*! file-saver */ "../../node_modules/file-saver/dist/FileSaver.min.js");
+const inversify_1 = __webpack_require__(/*! inversify */ "../../node_modules/inversify/lib/cjs/index.js");
+/**
+ * Default handler for the unified {@link ExportResultAction} — triggers a browser file
+ * download for UI-driven flows. Bound by `standaloneExportModule`; integrations that
+ * provide their own download UX omit it.
+ */
+let ExportResultActionHandler = class ExportResultActionHandler {
+    handle(action) {
+        if (!sprotty_1.ExportResultAction.is(action)) {
+            return;
+        }
+        const blob = this.toBlob(action);
+        (0, file_saver_1.saveAs)(blob, `diagram.${this.extensionFor(action.format)}`);
+    }
+    toBlob(action) {
+        // `encoding` is `ProposalString<'text' | 'base64'>` — an open union. Reject unknown
+        // tags explicitly: silently treating an arbitrary value as text would mojibake binary
+        // payloads, while treating it as base64 would corrupt text payloads.
+        switch (action.encoding) {
+            case 'text':
+                return new Blob([action.data], { type: `${action.mimeType};charset=utf-8` });
+            case 'base64':
+                return new Blob([this.decodeBase64(action.data)], { type: action.mimeType });
+            default:
+                throw new Error(`ExportResultActionHandler: unsupported encoding '${action.encoding}' for format '${action.format}'. ` +
+                    'Adopters that ship a custom encoding must also subclass this handler to decode it.');
+        }
+    }
+    extensionFor(format) {
+        return format.toLowerCase();
+    }
+    decodeBase64(data) {
+        const binary = atob(data);
+        const buffer = new ArrayBuffer(binary.length);
+        const view = new Uint8Array(buffer);
+        for (let i = 0; i < binary.length; ++i) {
+            view[i] = binary.charCodeAt(i);
+        }
+        return buffer;
+    }
+};
+exports.ExportResultActionHandler = ExportResultActionHandler;
+exports.ExportResultActionHandler = ExportResultActionHandler = __decorate([
+    (0, inversify_1.injectable)()
+], ExportResultActionHandler);
 
 
 /***/ },
@@ -50382,7 +50833,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ExportSvgActionHandler = void 0;
 /********************************************************************************
- * Copyright (c) 2023 EclipseSource and others.
+ * Copyright (c) 2023-2026 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -50403,6 +50854,10 @@ const inversify_1 = __webpack_require__(/*! inversify */ "../../node_modules/inv
  * any GLSP project independent of the target platform. However, platform integration modules typically
  *  * this handler is rebound to an application specific handler in platform integration modules
  * (e.g. the Theia integration)
+ *
+ * @deprecated Use the unified export pipeline ({@link RequestExportAction} +
+ * {@link DiagramExporter}) and bind your own {@link IActionHandler} for
+ * {@link ExportResultAction} instead.
  */
 let ExportSvgActionHandler = class ExportSvgActionHandler {
     handle(action) {
@@ -50435,7 +50890,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.GLSPSvgExporter = void 0;
 /********************************************************************************
- * Copyright (c) 2022-2024 EclipseSource and others.
+ * Copyright (c) 2022-2026 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -50453,17 +50908,49 @@ const sprotty_1 = __webpack_require__(/*! @eclipse-glsp/sprotty */ "../../packag
 const inversify_1 = __webpack_require__(/*! inversify */ "../../node_modules/inversify/lib/cjs/index.js");
 const uuid_1 = __webpack_require__(/*! uuid */ "../../node_modules/uuid/dist/cjs-browser/index.js");
 let GLSPSvgExporter = class GLSPSvgExporter extends sprotty_1.SvgExporter {
+    /**
+     * Legacy entry point for the SVG-only export flow. New code should use the unified
+     * `RequestExportAction` flow (registered via the `DiagramExporter` registry);
+     * adopters that previously bound {@link RequestExportSvgAction} should migrate to
+     * `RequestExportAction` with `format: 'svg'`.
+     *
+     * @deprecated Use the unified export pipeline. Retained for backward compatibility
+     * with the legacy {@link RequestExportSvgAction} / {@link ExportSvgAction} flow.
+     */
     export(root, request) {
-        var _a;
-        if (typeof document !== 'undefined') {
-            let svgElement = this.findSvgElement();
-            if (svgElement) {
-                svgElement = this.prepareSvgElement(svgElement, root, request);
-                const serializedSvg = this.createSvg(svgElement, root, (_a = request === null || request === void 0 ? void 0 : request.options) !== null && _a !== void 0 ? _a : {}, request);
-                const svgExport = this.getSvgExport(serializedSvg, svgElement, root, request);
-                // do not give request/response id here as otherwise the action is treated as an unrequested response
-                this.actionDispatcher.dispatch(sprotty_1.ExportSvgAction.create(svgExport, { responseId: request === null || request === void 0 ? void 0 : request.requestId, options: request === null || request === void 0 ? void 0 : request.options }));
-            }
+        try {
+            const svgExport = this.exportToString(root, request === null || request === void 0 ? void 0 : request.options, request);
+            this.actionDispatcher.dispatch(sprotty_1.ExportSvgAction.create(svgExport, { responseId: request === null || request === void 0 ? void 0 : request.requestId, options: request === null || request === void 0 ? void 0 : request.options }));
+        }
+        catch (err) {
+            this.dispatchRejectionIfRequested(request, err instanceof Error ? err.message : String(err));
+        }
+    }
+    /**
+     * Produce the serialised SVG string without dispatching any action. Throws on
+     * failure (no document, no SVG element). Used by the legacy `export()` path and
+     * by unified-export strategies (`DefaultSvgDiagramExporter`, `DefaultPngDiagramExporter`)
+     * that need the SVG bytes without the action-dispatch side effect.
+     */
+    exportToString(root, options, cause) {
+        if (typeof document === 'undefined') {
+            throw new Error('SVG export failed: document is not available');
+        }
+        let svgElement = this.findSvgElement();
+        if (!svgElement) {
+            throw new Error('SVG export failed: SVG element not found');
+        }
+        // Only the legacy SVG-only flow carries a `RequestExportSvgAction`; under the unified
+        // export flow `cause` is a `RequestExportAction` and the legacy override hooks are
+        // intentionally invoked with `undefined`.
+        const request = sprotty_1.RequestExportSvgAction.is(cause) ? cause : undefined;
+        svgElement = this.prepareSvgElement(svgElement, root, request);
+        const serializedSvg = this.createSvg(svgElement, root, options !== null && options !== void 0 ? options : {}, cause);
+        return this.getSvgExport(serializedSvg, svgElement, root, request);
+    }
+    dispatchRejectionIfRequested(request, message) {
+        if (request === null || request === void 0 ? void 0 : request.requestId) {
+            this.actionDispatcher.dispatch(sprotty_1.RejectAction.create(message, { responseId: request.requestId }));
         }
     }
     createSvg(svgElement, root, options, cause) {
@@ -50542,6 +51029,139 @@ exports.GLSPSvgExporter = GLSPSvgExporter;
 exports.GLSPSvgExporter = GLSPSvgExporter = __decorate([
     (0, inversify_1.injectable)()
 ], GLSPSvgExporter);
+
+
+/***/ },
+
+/***/ "../../packages/client/lib/features/export/request-export-command.js"
+/*!***************************************************************************!*\
+  !*** ../../packages/client/lib/features/export/request-export-command.js ***!
+  \***************************************************************************/
+(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+/********************************************************************************
+ * Copyright (c) 2026 EclipseSource and others.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v. 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is available at
+ * https://www.gnu.org/software/classpath/license.html.
+ *
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ ********************************************************************************/
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.RequestExportCommand = void 0;
+const sprotty_1 = __webpack_require__(/*! @eclipse-glsp/sprotty */ "../../packages/glsp-sprotty/lib/index.js");
+const inversify_1 = __webpack_require__(/*! inversify */ "../../node_modules/inversify/lib/cjs/index.js");
+/**
+ * {@link HiddenCommand} for the unified {@link RequestExportAction} kind. Performs the same
+ * pre-render preparation as sprotty's `ExportSvgCommand` (clone the root, reset
+ * viewport, drop selection/hover) so the rendered SVG used by every
+ * `DiagramExporter` strategy is independent of UI state.
+ */
+let RequestExportCommand = class RequestExportCommand extends sprotty_1.HiddenCommand {
+    constructor(action) {
+        super();
+        this.action = action;
+    }
+    execute(context) {
+        if (!(0, sprotty_1.isExportable)(context.root)) {
+            return { model: context.root, modelChanged: false };
+        }
+        const root = context.modelFactory.createRoot(context.root);
+        if (!(0, sprotty_1.isExportable)(root)) {
+            return { model: context.root, modelChanged: false };
+        }
+        if ((0, sprotty_1.isViewport)(root)) {
+            root.zoom = 1;
+            root.scroll = { x: 0, y: 0 };
+        }
+        root.index.all().forEach(element => {
+            if ((0, sprotty_1.isSelectable)(element) && element.selected) {
+                element.selected = false;
+            }
+            if ((0, sprotty_1.isHoverable)(element) && element.hoverFeedback) {
+                element.hoverFeedback = false;
+            }
+        });
+        return { model: root, modelChanged: true, cause: this.action };
+    }
+};
+exports.RequestExportCommand = RequestExportCommand;
+RequestExportCommand.KIND = sprotty_1.RequestExportAction.KIND;
+exports.RequestExportCommand = RequestExportCommand = __decorate([
+    __param(0, (0, inversify_1.inject)(sprotty_1.TYPES.Action)),
+    __metadata("design:paramtypes", [Object])
+], RequestExportCommand);
+
+
+/***/ },
+
+/***/ "../../packages/client/lib/features/export/request-export-key-listener.js"
+/*!********************************************************************************!*\
+  !*** ../../packages/client/lib/features/export/request-export-key-listener.js ***!
+  \********************************************************************************/
+(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+/********************************************************************************
+ * Copyright (c) 2026 EclipseSource and others.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v. 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is available at
+ * https://www.gnu.org/software/classpath/license.html.
+ *
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ ********************************************************************************/
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.RequestExportKeyListener = void 0;
+const sprotty_1 = __webpack_require__(/*! @eclipse-glsp/sprotty */ "../../packages/glsp-sprotty/lib/index.js");
+const inversify_1 = __webpack_require__(/*! inversify */ "../../node_modules/inversify/lib/cjs/index.js");
+/** Dispatches a {@link RequestExportAction} (format `'svg'`) on `Ctrl+Shift+E`. */
+let RequestExportKeyListener = class RequestExportKeyListener extends sprotty_1.KeyListener {
+    keyDown(_element, event) {
+        if ((0, sprotty_1.matchesKeystroke)(event, 'KeyE', 'ctrlCmd', 'shift')) {
+            return [sprotty_1.RequestExportAction.create('svg')];
+        }
+        return [];
+    }
+};
+exports.RequestExportKeyListener = RequestExportKeyListener;
+exports.RequestExportKeyListener = RequestExportKeyListener = __decorate([
+    (0, inversify_1.injectable)()
+], RequestExportKeyListener);
 
 
 /***/ },
@@ -55505,7 +56125,6 @@ const tool_1 = __webpack_require__(/*! ../../base/tool-manager/tool */ "../../pa
 const ui_extension_1 = __webpack_require__(/*! ../../base/ui-extension/ui-extension */ "../../packages/client/lib/base/ui-extension/ui-extension.js");
 const delete_tool_1 = __webpack_require__(/*! ../tools/deletion/delete-tool */ "../../packages/client/lib/features/tools/deletion/delete-tool.js");
 const marquee_mouse_tool_1 = __webpack_require__(/*! ../tools/marquee-selection/marquee-mouse-tool */ "../../packages/client/lib/features/tools/marquee-selection/marquee-mouse-tool.js");
-const origin_viewport_1 = __webpack_require__(/*! ../viewport/origin-viewport */ "../../packages/client/lib/features/viewport/origin-viewport.js");
 const CLICKED_CSS_CLASS = 'clicked';
 const SEARCH_ICON_ID = 'search';
 const PALETTE_ICON_ID = 'tools';
@@ -55712,7 +56331,7 @@ let ToolPalette = ToolPalette_1 = class ToolPalette extends ui_extension_1.GLSPA
         const resetViewportButton = createIcon('screen-normal');
         resetViewportButton.title = messages_1.messages.tool_palette.reset_viewport_button;
         resetViewportButton.onclick = _event => {
-            this.actionDispatcher.dispatch(origin_viewport_1.OriginViewportAction.create());
+            this.actionDispatcher.dispatch(sprotty_1.OriginViewportAction.create());
             resetViewportButton.focus();
         };
         resetViewportButton.ariaLabel = resetViewportButton.title;
@@ -60865,7 +61484,7 @@ exports.GLSPScrollMouseListener = GLSPScrollMouseListener = __decorate([
 "use strict";
 
 /********************************************************************************
- * Copyright (c) 2024-2025 Axon Ivy AG and others.
+ * Copyright (c) 2024-2026 Axon Ivy AG and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -60892,26 +61511,10 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.OriginViewportCommand = exports.OriginViewportAction = void 0;
+exports.OriginViewportCommand = void 0;
 const sprotty_1 = __webpack_require__(/*! @eclipse-glsp/sprotty */ "../../packages/glsp-sprotty/lib/index.js");
 const inversify_1 = __webpack_require__(/*! inversify */ "../../node_modules/inversify/lib/cjs/index.js");
 const editor_context_service_1 = __webpack_require__(/*! ../../base/editor-context-service */ "../../packages/client/lib/base/editor-context-service.js");
-var OriginViewportAction;
-(function (OriginViewportAction) {
-    OriginViewportAction.KIND = 'originViewport';
-    function is(object) {
-        return sprotty_1.Action.hasKind(object, OriginViewportAction.KIND);
-    }
-    OriginViewportAction.is = is;
-    function create(options = {}) {
-        return {
-            kind: OriginViewportAction.KIND,
-            animate: true,
-            ...options
-        };
-    }
-    OriginViewportAction.create = create;
-})(OriginViewportAction || (exports.OriginViewportAction = OriginViewportAction = {}));
 let OriginViewportCommand = class OriginViewportCommand extends sprotty_1.BoundsAwareViewportCommand {
     constructor(action) {
         super(action.animate);
@@ -60937,7 +61540,7 @@ let OriginViewportCommand = class OriginViewportCommand extends sprotty_1.Bounds
     }
 };
 exports.OriginViewportCommand = OriginViewportCommand;
-OriginViewportCommand.KIND = OriginViewportAction.KIND;
+OriginViewportCommand.KIND = sprotty_1.OriginViewportAction.KIND;
 __decorate([
     (0, inversify_1.inject)(editor_context_service_1.EditorContextService),
     __metadata("design:type", editor_context_service_1.EditorContextService)
@@ -61889,9 +62492,15 @@ __exportStar(__webpack_require__(/*! ./features/element-template/add-template-el
 __exportStar(__webpack_require__(/*! ./features/element-template/element-template-module */ "../../packages/client/lib/features/element-template/element-template-module.js"), exports);
 __exportStar(__webpack_require__(/*! ./features/element-template/mouse-tracking-element-position-listener */ "../../packages/client/lib/features/element-template/mouse-tracking-element-position-listener.js"), exports);
 __exportStar(__webpack_require__(/*! ./features/element-template/remove-template-element */ "../../packages/client/lib/features/element-template/remove-template-element.js"), exports);
+__exportStar(__webpack_require__(/*! ./features/export/default-png-diagram-exporter */ "../../packages/client/lib/features/export/default-png-diagram-exporter.js"), exports);
+__exportStar(__webpack_require__(/*! ./features/export/default-svg-diagram-exporter */ "../../packages/client/lib/features/export/default-svg-diagram-exporter.js"), exports);
+__exportStar(__webpack_require__(/*! ./features/export/diagram-export-postprocessor */ "../../packages/client/lib/features/export/diagram-export-postprocessor.js"), exports);
+__exportStar(__webpack_require__(/*! ./features/export/diagram-exporter */ "../../packages/client/lib/features/export/diagram-exporter.js"), exports);
 __exportStar(__webpack_require__(/*! ./features/export/export-modules */ "../../packages/client/lib/features/export/export-modules.js"), exports);
+__exportStar(__webpack_require__(/*! ./features/export/export-result-action-handler */ "../../packages/client/lib/features/export/export-result-action-handler.js"), exports);
 __exportStar(__webpack_require__(/*! ./features/export/export-svg-action-handler */ "../../packages/client/lib/features/export/export-svg-action-handler.js"), exports);
 __exportStar(__webpack_require__(/*! ./features/export/glsp-svg-exporter */ "../../packages/client/lib/features/export/glsp-svg-exporter.js"), exports);
+__exportStar(__webpack_require__(/*! ./features/export/request-export-command */ "../../packages/client/lib/features/export/request-export-command.js"), exports);
 __exportStar(__webpack_require__(/*! ./features/grid/grid */ "../../packages/client/lib/features/grid/grid.js"), exports);
 __exportStar(__webpack_require__(/*! ./features/grid/grid-manager */ "../../packages/client/lib/features/grid/grid-manager.js"), exports);
 __exportStar(__webpack_require__(/*! ./features/grid/grid-model */ "../../packages/client/lib/features/grid/grid-model.js"), exports);
@@ -65026,7 +65635,8 @@ exports.TYPES = {
      */
     IShortcutManager: Symbol('IShortcutManager'),
     IAutocompleteSuggestionProvider: Symbol('IAutocompleteSuggestionProvider'),
-    IAutocompleteSuggestionProviderRegistry: Symbol('IAutocompleteSuggestionProviderRegistry')
+    IAutocompleteSuggestionProviderRegistry: Symbol('IAutocompleteSuggestionProviderRegistry'),
+    IDiagramExporter: Symbol('IDiagramExporter')
 };
 
 
@@ -66551,7 +67161,7 @@ var TriggerLayoutAction;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.ExportSvgAction = exports.RequestExportSvgAction = exports.SetDirtyStateAction = exports.SaveModelAction = void 0;
+exports.ExportResultAction = exports.RequestExportAction = exports.ExportSvgAction = exports.RequestExportSvgAction = exports.SetDirtyStateAction = exports.SaveModelAction = void 0;
 const type_util_1 = __webpack_require__(/*! ../utils/type-util */ "../../packages/protocol/lib/utils/type-util.js");
 const base_protocol_1 = __webpack_require__(/*! ./base-protocol */ "../../packages/protocol/lib/action-protocol/base-protocol.js");
 var SaveModelAction;
@@ -66618,6 +67228,45 @@ var ExportSvgAction;
     }
     ExportSvgAction.create = create;
 })(ExportSvgAction || (exports.ExportSvgAction = ExportSvgAction = {}));
+var RequestExportAction;
+(function (RequestExportAction) {
+    RequestExportAction.KIND = 'requestExport';
+    function is(object) {
+        return base_protocol_1.RequestAction.hasKind(object, RequestExportAction.KIND) && (0, type_util_1.hasStringProp)(object, 'format');
+    }
+    RequestExportAction.is = is;
+    function create(format, options = {}) {
+        return {
+            kind: RequestExportAction.KIND,
+            format,
+            requestId: '',
+            ...options
+        };
+    }
+    RequestExportAction.create = create;
+})(RequestExportAction || (exports.RequestExportAction = RequestExportAction = {}));
+var ExportResultAction;
+(function (ExportResultAction) {
+    ExportResultAction.KIND = 'exportResult';
+    function is(object) {
+        return (base_protocol_1.Action.hasKind(object, ExportResultAction.KIND) &&
+            (0, type_util_1.hasStringProp)(object, 'format') &&
+            (0, type_util_1.hasStringProp)(object, 'data') &&
+            (0, type_util_1.hasStringProp)(object, 'mimeType') &&
+            (0, type_util_1.hasStringProp)(object, 'encoding'));
+    }
+    ExportResultAction.is = is;
+    function create(format, data, options) {
+        return {
+            kind: ExportResultAction.KIND,
+            format,
+            data,
+            responseId: '',
+            ...options
+        };
+    }
+    ExportResultAction.create = create;
+})(ExportResultAction || (exports.ExportResultAction = ExportResultAction = {}));
 
 
 /***/ },
@@ -66883,7 +67532,7 @@ var RedoAction;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.MoveViewportAction = exports.FitToScreenAction = exports.CenterAction = void 0;
+exports.MoveViewportAction = exports.OriginViewportAction = exports.FitToScreenAction = exports.CenterAction = void 0;
 const type_util_1 = __webpack_require__(/*! ../utils/type-util */ "../../packages/protocol/lib/utils/type-util.js");
 const base_protocol_1 = __webpack_require__(/*! ./base-protocol */ "../../packages/protocol/lib/action-protocol/base-protocol.js");
 var CenterAction;
@@ -66921,6 +67570,22 @@ var FitToScreenAction;
     }
     FitToScreenAction.create = create;
 })(FitToScreenAction || (exports.FitToScreenAction = FitToScreenAction = {}));
+var OriginViewportAction;
+(function (OriginViewportAction) {
+    OriginViewportAction.KIND = 'originViewport';
+    function is(object) {
+        return base_protocol_1.Action.hasKind(object, OriginViewportAction.KIND) && (0, type_util_1.hasBooleanProp)(object, 'animate');
+    }
+    OriginViewportAction.is = is;
+    function create(options = {}) {
+        return {
+            kind: OriginViewportAction.KIND,
+            animate: true,
+            ...options
+        };
+    }
+    OriginViewportAction.create = create;
+})(OriginViewportAction || (exports.OriginViewportAction = OriginViewportAction = {}));
 var MoveViewportAction;
 (function (MoveViewportAction) {
     MoveViewportAction.KIND = 'moveViewport';
@@ -66946,7 +67611,7 @@ var MoveViewportAction;
 "use strict";
 
 /********************************************************************************
- * Copyright (c) 2023-2024 EclipseSource and others.
+ * Copyright (c) 2023-2026 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -67078,7 +67743,8 @@ class BaseGLSPClient {
     disposeClientSession(params) {
         return this.checkedServer.disposeClientSession(params);
     }
-    shutdownServer() {
+    async shutdownServer() {
+        // Fire-and-forget at the proxy boundary; subclasses with a flushable send override.
         this.checkedServer.shutdown();
     }
     async stop() {
@@ -67226,7 +67892,7 @@ var GLSPClient;
 "use strict";
 
 /********************************************************************************
- * Copyright (c) 2022-2024 STMicroelectronics and others.
+ * Copyright (c) 2022-2026 STMicroelectronics and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -67241,9 +67907,10 @@ var GLSPClient;
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.GLSPClientProxy = exports.GLSPServerListener = exports.GLSPServer = void 0;
+exports.GLSPClientProxy = exports.GLSPServerInitializer = exports.GLSPServerListener = exports.GLSPServer = void 0;
 exports.GLSPServer = Symbol('GLSPServer');
 exports.GLSPServerListener = Symbol('GLSPServerListener');
+exports.GLSPServerInitializer = Symbol('GLSPServerInitializer');
 exports.GLSPClientProxy = Symbol('GLSPClientProxy');
 
 
@@ -67260,7 +67927,7 @@ exports.GLSPClientProxy = Symbol('GLSPClientProxy');
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.JsonrpcClientProxy = exports.BaseJsonrpcGLSPClient = void 0;
 /********************************************************************************
- * Copyright (c) 2019-2024 EclipseSource and others.
+ * Copyright (c) 2019-2026 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -67365,8 +68032,9 @@ class BaseJsonrpcGLSPClient {
     sendActionMessage(message) {
         this.checkedConnection.sendNotification(glsp_jsonrpc_client_1.JsonrpcGLSPClient.ActionMessageNotification, message);
     }
-    shutdownServer() {
-        this.checkedConnection.sendNotification(glsp_jsonrpc_client_1.JsonrpcGLSPClient.ShutdownNotification);
+    async shutdownServer() {
+        // Await the send so callers can dispose the connection without racing the wire flush.
+        await this.checkedConnection.sendNotification(glsp_jsonrpc_client_1.JsonrpcGLSPClient.ShutdownNotification);
     }
     stop() {
         if (!this.connectionPromise) {
@@ -67852,6 +68520,91 @@ class GLSPWebSocketProvider {
     }
 }
 exports.GLSPWebSocketProvider = GLSPWebSocketProvider;
+
+
+/***/ },
+
+/***/ "../../packages/protocol/lib/client-server-protocol/mcp.js"
+/*!*****************************************************************!*\
+  !*** ../../packages/protocol/lib/client-server-protocol/mcp.js ***!
+  \*****************************************************************/
+(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+/********************************************************************************
+ * Copyright (c) 2025-2026 EclipseSource and others.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v. 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is available at
+ * https://www.gnu.org/software/classpath/license.html.
+ *
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ ********************************************************************************/
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.McpInitializeResult = exports.McpServerResult = exports.McpInitializeParameters = void 0;
+const type_util_1 = __webpack_require__(/*! ../utils/type-util */ "../../packages/protocol/lib/utils/type-util.js");
+var McpInitializeParameters;
+(function (McpInitializeParameters) {
+    /**
+     * Type guard that also doubles as the **opt-in check**: returns `true` iff `params.mcpServer`
+     * is defined (regardless of its content). Server-side code uses this to decide whether to
+     * start the MCP HTTP server at all. See {@link McpInitializeParameters.mcpServer} for the
+     * opt-in semantics.
+     */
+    function is(params) {
+        return type_util_1.AnyObject.is(params) && (0, type_util_1.hasObjectProp)(params, 'mcpServer');
+    }
+    McpInitializeParameters.is = is;
+    /**
+     * Returns the {@link McpServerConfiguration} from the given initialize parameters, or
+     * `undefined` if MCP is not opted in (i.e., `mcpServer` is missing). A return value of `{}`
+     * (an empty object) means "MCP is enabled, use all defaults" — distinct from `undefined`
+     * which means "MCP is not enabled."
+     */
+    function getServerConfig(params) {
+        return is(params) ? params.mcpServer : undefined;
+    }
+    McpInitializeParameters.getServerConfig = getServerConfig;
+})(McpInitializeParameters || (exports.McpInitializeParameters = McpInitializeParameters = {}));
+var McpServerResult;
+(function (McpServerResult) {
+    /** True when the candidate is shaped like {@link McpServerResult}. */
+    function is(candidate) {
+        return type_util_1.AnyObject.is(candidate) && (0, type_util_1.hasStringProp)(candidate, 'name') && (0, type_util_1.hasStringProp)(candidate, 'url');
+    }
+    McpServerResult.is = is;
+})(McpServerResult || (exports.McpServerResult = McpServerResult = {}));
+var McpInitializeResult;
+(function (McpInitializeResult) {
+    /** Narrows to `McpInitializeResult` (i.e., asserts `mcpServer` is populated and well-shaped). */
+    function is(result) {
+        return type_util_1.AnyObject.is(result) && (0, type_util_1.hasObjectProp)(result, 'mcpServer') && McpServerResult.is(result.mcpServer);
+    }
+    McpInitializeResult.is = is;
+    /** Returns the {@link McpServerResult} from the given initialize result, or `undefined` if MCP is not announced. */
+    function getServer(result) {
+        return is(result) ? result.mcpServer : undefined;
+    }
+    McpInitializeResult.getServer = getServer;
+    /**
+     * Attaches an {@link McpServerResult} announcement to a base {@link InitializeResult},
+     * returning the augmented {@link McpInitializeResult}. Server-side handshake code uses this
+     * instead of an in-place cast to keep the mutation typed.
+     */
+    function attachServer(result, server) {
+        const augmented = result;
+        augmented.mcpServer = server;
+        return augmented;
+    }
+    McpInitializeResult.attachServer = attachServer;
+})(McpInitializeResult || (exports.McpInitializeResult = McpInitializeResult = {}));
 
 
 /***/ },
@@ -68406,6 +69159,7 @@ __exportStar(__webpack_require__(/*! ./client-server-protocol/jsonrpc/glsp-jsonr
 __exportStar(__webpack_require__(/*! ./client-server-protocol/jsonrpc/websocket-connection */ "../../packages/protocol/lib/client-server-protocol/jsonrpc/websocket-connection.js"), exports);
 __exportStar(__webpack_require__(/*! ./client-server-protocol/jsonrpc/worker-connection-provider */ "../../packages/protocol/lib/client-server-protocol/jsonrpc/worker-connection-provider.js"), exports);
 __exportStar(__webpack_require__(/*! ./client-server-protocol/jsonrpc/ws-connection-provider */ "../../packages/protocol/lib/client-server-protocol/jsonrpc/ws-connection-provider.js"), exports);
+__exportStar(__webpack_require__(/*! ./client-server-protocol/mcp */ "../../packages/protocol/lib/client-server-protocol/mcp.js"), exports);
 __exportStar(__webpack_require__(/*! ./client-server-protocol/types */ "../../packages/protocol/lib/client-server-protocol/types.js"), exports);
 __exportStar(__webpack_require__(/*! ./model/default-types */ "../../packages/protocol/lib/model/default-types.js"), exports);
 __exportStar(__webpack_require__(/*! ./model/model-schema */ "../../packages/protocol/lib/model/model-schema.js"), exports);
