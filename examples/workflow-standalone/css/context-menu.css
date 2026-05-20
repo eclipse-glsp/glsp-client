@@ -1,0 +1,95 @@
+/********************************************************************************
+ * Copyright (c) 2026 EclipseSource and others.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v. 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is available at
+ * https://www.gnu.org/software/classpath/license.html.
+ *
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ ********************************************************************************/
+
+.glsp-context-menu-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1000;
+}
+
+.glsp-context-menu {
+    position: fixed;
+    min-width: 160px;
+    background: var(--surface);
+    backdrop-filter: blur(var(--blur));
+    -webkit-backdrop-filter: blur(var(--blur));
+    border: 1px solid var(--overlay-border);
+    border-radius: 8px;
+    padding: 4px 0;
+    box-shadow: var(--overlay-shadow);
+    font-family: var(--font-body);
+    font-size: 13px;
+    z-index: 1001;
+}
+
+.glsp-context-menu-item {
+    display: flex;
+    align-items: center;
+    padding: 6px 12px;
+    cursor: pointer;
+    color: var(--text-1);
+    user-select: none;
+    position: relative;
+}
+
+.glsp-context-menu-item:hover {
+    background: var(--surface-hover);
+}
+
+.glsp-context-menu-item.disabled {
+    color: var(--text-3);
+    cursor: default;
+    pointer-events: none;
+}
+
+.glsp-context-menu-indicator {
+    width: 16px;
+    font-size: 11px;
+    text-align: center;
+    flex-shrink: 0;
+    color: var(--text-2);
+}
+
+.glsp-context-menu-label {
+    flex: 1;
+}
+
+.glsp-context-menu-chevron {
+    font-size: 10px;
+    color: var(--text-3);
+    margin-left: 8px;
+}
+
+.glsp-context-menu-separator {
+    height: 1px;
+    margin: 4px 0;
+    background: var(--hairline);
+}
+
+/* Submenus */
+.glsp-context-menu-submenu {
+    display: none;
+    position: absolute;
+    left: 100%;
+    top: -4px;
+}
+
+.glsp-context-menu-item.has-submenu:hover > .glsp-context-menu-submenu {
+    display: block;
+}

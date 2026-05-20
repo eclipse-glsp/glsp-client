@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { createWorkflowDiagramContainer } from '@eclipse-glsp-examples/workflow-glsp';
+import { GridDefaultVisible, createWorkflowDiagramContainer } from '@eclipse-glsp-examples/workflow-glsp';
 import {
     ConsoleLogger,
     EditMode,
@@ -27,8 +27,11 @@ import {
     toolPaletteModule
 } from '@eclipse-glsp/client';
 import { Container } from 'inversify';
-import '../../css/diagram.css';
+import '../../css/app.css';
+import { standaloneContextMenuModule } from './features/context-menu/standalone-context-menu-module';
 import { standaloneTaskEditorModule } from './features/direct-task-editing/standalone-task-editor-module';
+import { titleBarModule } from './features/title-bar/title-bar-module';
+import { windowResizeModule } from './features/window-resize/window-resize-module';
 import { hasParameter } from './url-parameters';
 export default function createContainer(options: IDiagramOptions): Container {
     if (hasParameter('readonly')) {
@@ -37,7 +40,7 @@ export default function createContainer(options: IDiagramOptions): Container {
     const container = createWorkflowDiagramContainer(
         createDiagramOptionsModule(options),
         {
-            add: [standaloneTaskEditorModule, accessibilityModule],
+            add: [standaloneTaskEditorModule, accessibilityModule, titleBarModule, standaloneContextMenuModule, windowResizeModule],
             remove: toolPaletteModule
         },
         STANDALONE_MODULE_CONFIG
@@ -45,5 +48,6 @@ export default function createContainer(options: IDiagramOptions): Container {
     bindOrRebind(container, TYPES.ILogger).to(ConsoleLogger).inSingletonScope();
     bindOrRebind(container, TYPES.LogLevel).toConstantValue(LogLevel.warn);
     container.bind(TYPES.IMarqueeBehavior).toConstantValue({ entireEdge: true, entireElement: true });
+    bindOrRebind(container, GridDefaultVisible).toConstantValue(hasParameter('grid'));
     return container;
 }

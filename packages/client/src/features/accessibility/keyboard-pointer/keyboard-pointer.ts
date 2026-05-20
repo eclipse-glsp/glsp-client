@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2023-2024 Business Informatics Group (TU Wien) and others.
+ * Copyright (c) 2023-2026 Business Informatics Group (TU Wien) and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -18,6 +18,7 @@ import { inject, injectable } from 'inversify';
 import { EditorContextService } from '../../../base/editor-context-service';
 import { CursorCSS } from '../../../base/feedback/css-feedback';
 import { GLSPAbstractUIExtension } from '../../../base/ui-extension/ui-extension';
+import { pageToCssPosition } from '../../../utils/viewpoint-util';
 import { ContainerManager } from '../../tools/node-creation/container-manager';
 import { KeyboardGridCellSelectedAction } from '../keyboard-grid/action';
 import { SetKeyboardPointerRenderPositionAction } from './actions';
@@ -50,8 +51,12 @@ export class KeyboardPointer extends GLSPAbstractUIExtension implements IActionH
         return this._triggerAction;
     }
 
+    /**
+     * Whether the pointer is currently shown. Reflects the `hidden` css class toggled by
+     * {@link GLSPAbstractUIExtension}, not the inline `visibility` style.
+     */
     get isVisible(): boolean {
-        return this.containerElement?.style.visibility === 'visible';
+        return !!this.containerElement && this.isContainerVisible();
     }
 
     get getPosition(): KeyboardPointerPosition {
@@ -92,9 +97,13 @@ export class KeyboardPointer extends GLSPAbstractUIExtension implements IActionH
         }
     }
 
+    /**
+     * Positions the pointer on the selected grid cell and colors it to indicate whether node creation
+     * is allowed at that location.
+     */
     render(): void {
         if (this.containerElement !== undefined) {
-            const { x, y } = this.position.renderPosition;
+            const { x, y } = pageToCssPosition(this.containerElement, this.position.renderPosition);
             this.containerElement.style.left = `${x}px`;
             this.containerElement.style.top = `${y}px`;
 

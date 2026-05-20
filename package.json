@@ -30,14 +30,13 @@
     "standalone": "yarn --cwd ./examples/workflow-standalone",
     "start": "yarn standalone start",
     "start:browser": "yarn standalone start:browser",
-    "start:mcp": "yarn standalone start:mcp",
     "start:exampleServer": "yarn standalone start:server",
+    "start:mcp": "yarn standalone start:mcp",
     "test": "lerna run test --no-bail",
     "test:ci": "lerna run test:ci --no-bail",
     "test:coverage": "lerna run test:coverage",
     "test:coverage:ci": "yarn glsp coverageReport",
-    "upgrade:next": "glsp updateNext",
-    "watch": "tsc -b -w --preserveWatchOutput"
+    "upgrade:next": "glsp updateNext"
   },
   "devDependencies": {
     "@eclipse-glsp/dev": "next",

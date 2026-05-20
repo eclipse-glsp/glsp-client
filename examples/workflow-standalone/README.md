@@ -100,3 +100,22 @@ All `start` and `dev` scripts support the following flags:
 -   `--client-port <port>` – Set the webpack dev server port (default: 8082 in Node mode, 8083 in Browser mode)
 
 The server bundle download can also be skipped by setting the `SKIP_DOWNLOAD=true` environment variable.
+
+## URL Parameters
+
+The running application reads the following query parameters from the diagram URL. They are independent and can be combined, e.g.:
+
+```
+http://localhost:8082/diagram.html?grid&theme=ember&mode=dark
+```
+
+| Parameter  | Values                                           | Default       | Description                                                                                    |
+| ---------- | ------------------------------------------------ | ------------- | ---------------------------------------------------------------------------------------------- |
+| `readonly` | _flag_ (presence only)                           | editable      | Open the diagram in read-only mode (editing disabled).                                         |
+| `grid`     | _flag_ (presence only)                           | off           | Show the background grid.                                                                      |
+| `theme`    | `tide`, `graphite`, `ember`, `orchid`, `verdant` | `tide`        | Set the color theme. Persisted in local storage, so it also updates the in-app theme switcher. |
+| `mode`     | `light`, `dark`                                  | OS preference | Set light or dark appearance. Persisted in local storage.                                      |
+| `mcp`      | _flag_ (presence only)                           | off           | Enable the MCP server integration (Node mode only). Also available via the `*:mcp` scripts.    |
+
+Flag parameters only need to be present (their value is ignored), e.g. `?grid` or `?readonly`.
+Invalid `theme`/`mode` values are ignored and fall back to the stored value or, for `mode`, the OS preference.

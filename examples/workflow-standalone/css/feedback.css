@@ -1,0 +1,79 @@
+/********************************************************************************
+ * Copyright (c) 2026 EclipseSource and others.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v. 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is available at
+ * https://www.gnu.org/software/classpath/license.html.
+ *
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ ********************************************************************************/
+
+/* Transient feedback UI: toasts, autocomplete palette, sprotty popups. */
+
+/* --- Toast --- */
+
+.toast {
+    left: 20px;
+    bottom: 20px;
+}
+
+.toast-container {
+    font-family: var(--font-body);
+    background: var(--surface);
+    backdrop-filter: blur(var(--blur));
+    -webkit-backdrop-filter: blur(var(--blur));
+    color: var(--text-1);
+    border: 1px solid var(--overlay-border);
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 12px;
+    box-shadow: var(--overlay-shadow);
+}
+
+/* --- Autocomplete Palette --- */
+
+.autocomplete-palette {
+    font-family: var(--font-body);
+}
+
+.autocomplete-palette input {
+    font-family: var(--font-body);
+    font-size: 14px;
+    padding: 10px 14px;
+    border: 1px solid var(--overlay-border);
+    border-radius: 10px;
+    outline: none;
+    color: var(--text-1);
+    background: var(--surface);
+    backdrop-filter: blur(var(--blur));
+    -webkit-backdrop-filter: blur(var(--blur));
+    box-shadow: var(--overlay-shadow);
+}
+
+.autocomplete-palette input:focus {
+    border-color: var(--accent);
+    box-shadow:
+        var(--overlay-shadow),
+        0 0 0 2px var(--accent-glow);
+}
+
+/* --- Sprotty Popup (Tooltip) --- */
+
+.sprotty-popup {
+    font-family: var(--font-body);
+    background: var(--surface);
+    backdrop-filter: blur(var(--blur));
+    -webkit-backdrop-filter: blur(var(--blur));
+    border: 1px solid var(--overlay-border);
+    border-radius: 8px;
+    box-shadow: var(--overlay-shadow);
+    color: var(--text-2);
+    font-size: 12px;
+    padding: 8px 12px;
+}

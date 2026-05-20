@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2017-2025 TypeFox and others.
+ * Copyright (c) 2017-2026 TypeFox and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -28,7 +28,9 @@ import {
     TYPES,
     ViewProjection,
     Writable,
+    getProjections,
     html,
+    isBoundsAware,
     setAttr,
     setClass
 } from '@eclipse-glsp/sprotty';
@@ -89,6 +91,61 @@ export class GLSPProjectionView extends ProjectedViewportView {
         const position = Point.multiplyScalar(Point.subtract(gridManager.grid, viewport.scroll), viewport.zoom);
         const size = Dimension.fromPoint(Point.multiplyScalar(gridManager.grid, viewport.zoom));
         return { ...position, ...size };
+    }
+
+    protected override renderProjections(model: Readonly<GViewportRootElement>, context: RenderingContext, args?: IViewArgs): VNode[] {
+        if (model.zoom <= 0) {
+            return [];
+        }
+        const modelBounds = this.getModelBounds(model);
+        if (!modelBounds) {
+            return [];
+        }
+        const projections = getProjections(model) ?? [];
+        return [
+            this.renderProjectionBar(projections, model, modelBounds, 'vertical'),
+            this.renderProjectionBar(projections, model, modelBounds, 'horizontal')
+        ];
+    }
+
+    /**
+     * Computes the total bounds that the projection bars map to, i.e. the union of the actual
+     * content bounds and the current viewport.
+     *
+     * This is a reimplementation of sprotty's `getModelBounds`, with two minor fixes
+     * - this intentionally derives the content bounds from the
+     * root's children instead of using {@link GViewportRootElement.bounds} directly.
+     * - We ignore bounds with invalid dimensions (e.g. from routable edges without bend points) to avoid pulling the
+     */
+    protected getModelBounds(model: Readonly<GViewportRootElement>): Bounds | undefined {
+        let minX = Number.POSITIVE_INFINITY;
+        let minY = Number.POSITIVE_INFINITY;
+        let maxX = Number.NEGATIVE_INFINITY;
+        let maxY = Number.NEGATIVE_INFINITY;
+
+        for (const element of model.children) {
+            if (isBoundsAware(element)) {
+                const b = element.bounds;
+                if (!Dimension.isValid(b)) {
+                    continue;
+                }
+                minX = Math.min(minX, b.x);
+                minY = Math.min(minY, b.y);
+                maxX = Math.max(maxX, b.x + b.width);
+                maxY = Math.max(maxY, b.y + b.height);
+            }
+        }
+
+        // enlarge the bounds by the current viewport to ensure it always fits into the projection
+        minX = Math.min(minX, model.scroll.x);
+        minY = Math.min(minY, model.scroll.y);
+        maxX = Math.max(maxX, model.scroll.x + model.canvasBounds.width / model.zoom);
+        maxY = Math.max(maxY, model.scroll.y + model.canvasBounds.height / model.zoom);
+
+        if (minX < maxX && minY < maxY) {
+            return { x: minX, y: minY, width: maxX - minX, height: maxY - minY };
+        }
+        return undefined;
     }
 
     protected override renderProjectionBar(

@@ -1,0 +1,131 @@
+/********************************************************************************
+ * Copyright (c) 2026 EclipseSource and others.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v. 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is available at
+ * https://www.gnu.org/software/classpath/license.html.
+ *
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ ********************************************************************************/
+
+/* Keyboard grid + keyboard-shortcuts overlay. */
+
+/* --- Keyboard Grid Overlay --- */
+
+.grid-item {
+    border-color: var(--overlay-border);
+}
+
+.grid-item-number {
+    background: var(--surface-solid);
+    border: 1.5px solid var(--overlay-border);
+    color: var(--text-2);
+    font-family: var(--font-mono);
+    font-weight: 600;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* --- Keyboard Shortcuts Overlay --- */
+
+.keyboard-shortcuts-menu {
+    font-family: var(--font-body);
+    background: var(--surface);
+    backdrop-filter: blur(var(--blur));
+    -webkit-backdrop-filter: blur(var(--blur));
+    border: 1px solid var(--overlay-border);
+    border-radius: 12px;
+    box-shadow: var(--overlay-shadow);
+    color: var(--text-1);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.keyboard-shortcuts-menu h3 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-1);
+    padding: 12px 16px;
+    margin: 0;
+    border-bottom: 1px solid var(--hairline);
+}
+
+.keyboard-shortcuts-container {
+    padding: 8px 16px 16px;
+    color: var(--text-2);
+    font-size: 13px;
+}
+
+.menu-header {
+    background: var(--surface-sunken);
+    padding: 6px 16px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-2);
+    border-bottom: 1px solid var(--hairline);
+}
+
+.shortcut-entry-container {
+    padding: 3px 0;
+    color: var(--text-2);
+    font-size: 13px;
+}
+
+.column-title {
+    font-weight: 700;
+    color: var(--text-1);
+    font-size: 13px;
+    padding-top: 8px;
+}
+
+.keyboard-shortcuts-menu kbd {
+    background: var(--surface-sunken);
+    border: 1px solid var(--overlay-border);
+    border-radius: 4px;
+    color: var(--text-2);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 500;
+    padding: 2px 6px;
+    box-shadow: none;
+    text-shadow: none;
+}
+
+#key-shortcut-close-btn {
+    top: 10px;
+    right: 10px;
+    background: transparent;
+    color: var(--text-3);
+    font-size: 18px;
+    border-radius: 6px;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+#key-shortcut-close-btn:hover {
+    background: var(--surface-hover);
+    color: var(--text-2);
+}
+
+.shortcut-table thead th {
+    border-bottom: 1px solid var(--overlay-border);
+    font-weight: 600;
+    color: var(--text-2);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}

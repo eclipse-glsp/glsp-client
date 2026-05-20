@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2024-2026 EclipseSource and others.
+ * Copyright (c) 2026 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -14,17 +14,17 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { taskEditorModule } from '@eclipse-glsp-examples/workflow-glsp';
-import { FeatureModule, TYPES, bindAsService } from '@eclipse-glsp/client';
-import { TaskEditorKeyListener } from './task-editor-key-listener';
+import { FeatureModule, TYPES, bindAsService, contextMenuModule } from '@eclipse-glsp/client';
+import { StandaloneContextMenuService } from './standalone-context-menu-service';
+import { WorkflowStandaloneContextMenuProvider } from './workflow-standalone-context-menu-provider';
 
-export const standaloneTaskEditorModule = new FeatureModule(
-    (bind, unbind, isBound, rebind) => {
-        const context = { bind, unbind, isBound, rebind };
-        bindAsService(context, TYPES.KeyListener, TaskEditorKeyListener);
+export const standaloneContextMenuModule = new FeatureModule(
+    bind => {
+        bind(TYPES.IContextMenuService).to(StandaloneContextMenuService).inSingletonScope();
+        bindAsService(bind, TYPES.IContextMenuItemProvider, WorkflowStandaloneContextMenuProvider);
     },
     {
-        featureId: Symbol('standaloneTaskEditor'),
-        requires: taskEditorModule
+        featureId: Symbol('standaloneContextMenu'),
+        requires: contextMenuModule
     }
 );

@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2024-2026 EclipseSource and others.
+ * Copyright (c) 2026 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -14,17 +14,15 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { taskEditorModule } from '@eclipse-glsp-examples/workflow-glsp';
 import { FeatureModule, TYPES, bindAsService } from '@eclipse-glsp/client';
-import { TaskEditorKeyListener } from './task-editor-key-listener';
+import { TitleBarToolbar } from './title-bar-toolbar';
 
-export const standaloneTaskEditorModule = new FeatureModule(
+export const titleBarModule = new FeatureModule(
     (bind, unbind, isBound, rebind) => {
         const context = { bind, unbind, isBound, rebind };
-        bindAsService(context, TYPES.KeyListener, TaskEditorKeyListener);
+        bindAsService(context, TYPES.IDiagramStartup, TitleBarToolbar);
     },
     {
-        featureId: Symbol('standaloneTaskEditor'),
-        requires: taskEditorModule
+        featureId: Symbol('titleBar')
     }
 );
