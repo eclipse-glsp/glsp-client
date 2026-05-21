@@ -183,7 +183,8 @@ export class GLSPActionDispatcher extends ActionDispatcher implements IGModelRoo
         this.logger.log(this, 'Handle', action);
         const handlerResults: Promise<any>[] = [];
         for (const handler of handlers) {
-            const result = await handler.handle(action);
+            const maybeResult = handler.handle(action);
+            const result = this.isPromiseLike(maybeResult) ? await maybeResult : maybeResult;
             if (Action.is(result)) {
                 handlerResults.push(this.dispatch(result));
             } else if (result !== undefined) {
@@ -192,6 +193,10 @@ export class GLSPActionDispatcher extends ActionDispatcher implements IGModelRoo
             }
         }
         await Promise.all(handlerResults);
+    }
+
+    protected isPromiseLike(value: unknown): value is PromiseLike<unknown> {
+        return typeof value === 'object' && value !== undefined && typeof (value as any).then === 'function';
     }
 
     override request<Res extends ResponseAction>(action: RequestAction<Res>): Promise<Res> {

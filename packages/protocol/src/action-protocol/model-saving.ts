@@ -13,6 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+/* eslint-disable @typescript-eslint/no-deprecated */
 import * as sprotty from 'sprotty-protocol/lib/actions';
 import { ProposalString, hasBooleanProp, hasStringProp } from '../utils/type-util';
 import { Action, RequestAction, ResponseAction } from './base-protocol';
