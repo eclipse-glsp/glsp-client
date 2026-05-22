@@ -22,6 +22,7 @@ import {
     EMPTY_ROOT,
     GModelRoot,
     IActionDispatcher,
+    MaybePromise,
     RejectAction,
     RequestAction,
     ResponseAction,
@@ -184,7 +185,7 @@ export class GLSPActionDispatcher extends ActionDispatcher implements IGModelRoo
         const handlerResults: Promise<any>[] = [];
         for (const handler of handlers) {
             const maybeResult = handler.handle(action);
-            const result = this.isPromiseLike(maybeResult) ? await maybeResult : maybeResult;
+            const result = MaybePromise.isPromise(maybeResult) ? await maybeResult : maybeResult;
             if (Action.is(result)) {
                 handlerResults.push(this.dispatch(result));
             } else if (result !== undefined) {
@@ -193,10 +194,6 @@ export class GLSPActionDispatcher extends ActionDispatcher implements IGModelRoo
             }
         }
         await Promise.all(handlerResults);
-    }
-
-    protected isPromiseLike(value: unknown): value is PromiseLike<unknown> {
-        return typeof value === 'object' && value !== undefined && typeof (value as any).then === 'function';
     }
 
     override request<Res extends ResponseAction>(action: RequestAction<Res>): Promise<Res> {
