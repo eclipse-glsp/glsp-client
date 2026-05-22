@@ -67,6 +67,17 @@ export type PropertiesOfType<T, V> = Pick<T, KeysOfType<T, V>>;
  */
 export type MaybePromise<T> = T | PromiseLike<T>;
 
+export namespace MaybePromise {
+    /**
+     * Type guard to check whether a given value is a {@link PromiseLike}.
+     * @param value The value to check.
+     * @returns `true` if the value is a `PromiseLike`.
+     */
+    export function isPromise<T = unknown>(value: MaybePromise<T>): value is PromiseLike<T> {
+        return AnyObject.is(value) && hasFunctionProp(value, 'then');
+    }
+}
+
 /**
  * Utility type to describe typeguard functions.
  */

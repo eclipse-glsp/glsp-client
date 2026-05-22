@@ -13,9 +13,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+/* eslint-disable @typescript-eslint/no-deprecated */
+import { ExportSvgAction, IActionHandler } from '@eclipse-glsp/sprotty';
 import { saveAs } from 'file-saver';
 import { injectable } from 'inversify';
-import { ExportSvgAction, IActionHandler } from '@eclipse-glsp/sprotty';
 
 /**
  * The default handler for {@link ExportSvgAction}s. This generic handler can be used in

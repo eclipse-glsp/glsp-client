@@ -22,6 +22,7 @@ import {
     EMPTY_ROOT,
     GModelRoot,
     IActionDispatcher,
+    MaybePromise,
     RejectAction,
     RequestAction,
     ResponseAction,
@@ -183,7 +184,8 @@ export class GLSPActionDispatcher extends ActionDispatcher implements IGModelRoo
         this.logger.log(this, 'Handle', action);
         const handlerResults: Promise<any>[] = [];
         for (const handler of handlers) {
-            const result = await handler.handle(action);
+            const maybeResult = handler.handle(action);
+            const result = MaybePromise.isPromise(maybeResult) ? await maybeResult : maybeResult;
             if (Action.is(result)) {
                 handlerResults.push(this.dispatch(result));
             } else if (result !== undefined) {
