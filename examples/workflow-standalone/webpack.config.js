@@ -108,7 +108,7 @@ module.exports = (env = {}) => {
         devServer: {
             static: devServerStatic,
             compress: true,
-            port: isBrowser ? 8083 : 8082,
+            port: parseInt(process.env.CLIENT_PORT || (isBrowser ? '8083' : '8082')),
             open: '/diagram.html'
         }
     };

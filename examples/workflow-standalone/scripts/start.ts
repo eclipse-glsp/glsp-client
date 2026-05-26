@@ -14,13 +14,20 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import concurrently from 'concurrently';
+import * as fs from 'fs';
 import * as path from 'path';
 import { downloadServerBundle, resolveVersion, SERVER_DIR_PATH } from './download-server';
 
 const isBrowser = process.argv.includes('--browser');
 const isDev = process.argv.includes('--dev');
-const isClientOnly = process.argv.includes('--client-only');
 const noOpen = process.argv.includes('--no-open');
+
+const externalServerIndex = process.argv.indexOf('--external-server');
+const hasExternalServer = externalServerIndex >= 0;
+const externalServerArg =
+    hasExternalServer && externalServerIndex + 1 < process.argv.length && !process.argv[externalServerIndex + 1].startsWith('--')
+        ? process.argv[externalServerIndex + 1]
+        : undefined;
 
 function argValue(flag: string, defaultValue: string): string {
     const index = process.argv.indexOf(flag);
@@ -28,7 +35,29 @@ function argValue(flag: string, defaultValue: string): string {
 }
 
 async function run(): Promise<void> {
-    if (!isClientOnly) {
+    if (hasExternalServer && externalServerArg) {
+        const bundlePath = path.resolve(externalServerArg);
+        if (!fs.existsSync(bundlePath)) {
+            console.error(`Error: Server bundle not found: ${bundlePath}`);
+            process.exit(1);
+        }
+        const stableName = isBrowser ? 'wf-glsp-server-web.js' : 'wf-glsp-server-node.js';
+        const targetPath = path.resolve(SERVER_DIR_PATH, stableName);
+        fs.mkdirSync(SERVER_DIR_PATH, { recursive: true });
+        fs.copyFileSync(bundlePath, targetPath);
+        const sourceMapPath = bundlePath + '.map';
+        if (fs.existsSync(sourceMapPath)) {
+            fs.copyFileSync(sourceMapPath, targetPath + '.map');
+        }
+        const versionFile = targetPath + '.version';
+        fs.rmSync(versionFile, { force: true });
+        console.log(`Using external server bundle: ${bundlePath}`);
+    } else if (hasExternalServer && isBrowser) {
+        console.error('Error: --external-server requires a path to the server bundle in browser mode.');
+        process.exit(1);
+    }
+
+    if (!hasExternalServer) {
         const bundle = isBrowser
             ? { npmPackage: '@eclipse-glsp-examples/workflow-server-bundled-web', stableName: 'wf-glsp-server-web.js' }
             : { npmPackage: '@eclipse-glsp-examples/workflow-server-bundled', stableName: 'wf-glsp-server-node.js' };
@@ -44,7 +73,10 @@ async function run(): Promise<void> {
         prefixColors.push('blue');
     }
 
-    if (!isBrowser && !isClientOnly) {
+    const clientPort = argValue('--client-port', isBrowser ? '8083' : '8082');
+    process.env.CLIENT_PORT = clientPort;
+
+    if (!isBrowser && !(hasExternalServer && !externalServerArg)) {
         const serverFile = path.resolve(SERVER_DIR_PATH, 'wf-glsp-server-node.js');
         const port = argValue('--port', '8081');
         const host = argValue('--host', 'localhost');
