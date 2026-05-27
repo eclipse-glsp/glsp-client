@@ -21,6 +21,7 @@ import {
     Deferred,
     EMPTY_ROOT,
     GModelRoot,
+    HandleActionResult,
     IActionDispatcher,
     MaybePromise,
     RejectAction,
@@ -133,17 +134,15 @@ export class GLSPActionDispatcher extends ActionDispatcher implements IGModelRoo
     }
 
     protected async handleResponseAction(action: ResponseAction): Promise<void> {
-        // clear any pending timeout
         const timeout = this.timeouts.get(action.responseId);
         if (timeout !== undefined) {
             clearTimeout(timeout);
             this.timeouts.delete(action.responseId);
         }
 
-        // check for matching request
         const request = this.requests.get(action.responseId);
         if (!request) {
-            // treat no matching request by dispatching action normally
+            // No pending request: re-dispatch as a normal action.
             this.logger.log(this, 'No matching request for response, dispatch normally', action);
             action.responseId = '';
             return this.handleAction(action);
@@ -151,7 +150,6 @@ export class GLSPActionDispatcher extends ActionDispatcher implements IGModelRoo
 
         this.requests.delete(action.responseId);
         if (RejectAction.is(action)) {
-            // translation reject action to request rejection
             request.reject(new Error(action.message));
             this.logger.warn(this, `Request with id ${action.responseId} failed.`, action.message, action.detail);
         } else {
@@ -170,35 +168,47 @@ export class GLSPActionDispatcher extends ActionDispatcher implements IGModelRoo
         }
         this.logger.warn(this, 'Missing handler for action', action);
         const error = new Error(`Missing handler for action '${action.kind}'`);
-        if (!RequestAction.is(action)) {
-            throw error;
+        if (RequestAction.is(action)) {
+            const request = this.requests.get(action.requestId);
+            if (request !== undefined) {
+                this.requests.delete(action.requestId);
+                request.reject(error);
+            }
         }
-        const request = this.requests.get(action.requestId);
-        if (request !== undefined) {
-            this.requests.delete(action.requestId);
-            request.reject(error);
-        }
+        throw error;
     }
 
     protected async handleActionWithHandler(action: Action, handlers: ActionHandler[]): Promise<void> {
         this.logger.log(this, 'Handle', action);
-        const handlerResults: Promise<any>[] = [];
+        // No `await` inside the loop: invoke handlers in one burst and await their results collectively.
+        const handlerResults: PromiseLike<unknown>[] = [];
         for (const handler of handlers) {
             const maybeResult = handler.handle(action);
-            const result = MaybePromise.isPromise(maybeResult) ? await maybeResult : maybeResult;
-            if (Action.is(result)) {
-                handlerResults.push(this.dispatch(result));
-            } else if (result !== undefined) {
-                this.blockUntil = result.blockUntil;
-                handlerResults.push(this.commandStack.execute(result));
+            if (MaybePromise.isPromise(maybeResult)) {
+                handlerResults.push(maybeResult.then(result => this.processHandlerResult(result)));
+            } else {
+                const resultPromise = this.processHandlerResult(maybeResult);
+                if (resultPromise) {
+                    handlerResults.push(resultPromise);
+                }
             }
         }
         await Promise.all(handlerResults);
     }
 
+    protected processHandlerResult(result: HandleActionResult): Promise<unknown> | undefined {
+        if (Action.is(result)) {
+            return this.dispatch(result);
+        }
+        if (result !== undefined) {
+            this.blockUntil = result.blockUntil;
+            return this.commandStack.execute(result);
+        }
+        return undefined;
+    }
+
     override request<Res extends ResponseAction>(action: RequestAction<Res>): Promise<Res> {
         if (!action.requestId || action.requestId === '') {
-            // No request id has been specified. So we use a generated one.
             action.requestId = RequestAction.generateRequestId();
         }
         return super.request(action);
@@ -220,7 +230,6 @@ export class GLSPActionDispatcher extends ActionDispatcher implements IGModelRoo
         rejectOnTimeout = false
     ): Promise<Res | undefined> {
         if (!action.requestId || action.requestId === '') {
-            // No request id has been specified. So we use a generated one.
             action.requestId = RequestAction.generateRequestId();
         }
         // Stamp the effective timeout onto the action so the receiving side
@@ -231,7 +240,6 @@ export class GLSPActionDispatcher extends ActionDispatcher implements IGModelRoo
         const timeout = setTimeout(() => {
             const deferred = this.requests.get(requestId);
             if (deferred !== undefined) {
-                // cleanup
                 clearTimeout(timeout);
                 this.requests.delete(requestId);
 
@@ -245,6 +253,18 @@ export class GLSPActionDispatcher extends ActionDispatcher implements IGModelRoo
             }
         }, timeoutMs);
         this.timeouts.set(requestId, timeout);
-        return super.request<Res>(action);
+
+        const result = super.request<Res>(action);
+        // handleResponseAction only clears the timeout on the response path; clear it here on every
+        // other settle path (timeout, rejection, missing handler) so the timer and map entry can't leak.
+        const clearRequestTimeout = (): void => {
+            const pending = this.timeouts.get(requestId);
+            if (pending !== undefined) {
+                clearTimeout(pending);
+                this.timeouts.delete(requestId);
+            }
+        };
+        result.then(clearRequestTimeout, clearRequestTimeout);
+        return result;
     }
 }
