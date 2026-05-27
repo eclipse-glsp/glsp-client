@@ -13,9 +13,12 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { ActionHandlerRegistry, IActionHandler, RequestAction, ResponseAction, TYPES } from '@eclipse-glsp/sprotty';
+import { ActionHandlerRegistry, Deferred, IActionHandler, RequestAction, ResponseAction, TYPES } from '@eclipse-glsp/sprotty';
 import { expect } from 'chai';
 import { Container } from 'inversify';
+
+/** Yields to the event loop long enough for pending microtasks (and already-queued timers) to run. */
+const flushMicrotasks = (): Promise<void> => new Promise(resolve => setTimeout(resolve, 0));
 
 import { GLSPActionDispatcher } from './action-dispatcher';
 import { defaultModule } from './default.module';
@@ -73,6 +76,21 @@ describe('GLSPActionDispatcher', () => {
             );
             expect(gotRejected, 'Response promise should be rejected').to.be.true;
         });
+        it('should not leak timeout entries once the request settles', async () => {
+            const timeouts = actionDispatcher['timeouts'] as Map<string, unknown>;
+
+            // resolved-within-timeout path
+            testHandlerDelay = 5;
+            await actionDispatcher.requestUntil({ kind: 'request', requestId: '' }, 150);
+            // timed-out path
+            testHandlerDelay = 50;
+            await actionDispatcher.requestUntil({ kind: 'request', requestId: '' }, 5);
+            // missing-handler path: rejects the request, must still clear the timeout
+            await actionDispatcher.requestUntil({ kind: 'noHandlerRequest', requestId: '' }, 50).catch(() => undefined);
+            await flushMicrotasks();
+
+            expect(timeouts.size, 'all timeout entries should be cleared after the requests settle').to.equal(0);
+        });
     });
     describe('request & re-dispatch', () => {
         it('should be possible to re-dispatch the response of a `request` call', async () => {
@@ -101,7 +119,9 @@ describe('GLSPActionDispatcher', () => {
             expect(handlerExecuted).to.be.true;
         });
 
-        it('should execute multiple async handlers sequentially', async () => {
+        it('should invoke all handlers in one synchronous burst (parallel-start), without serializing on async ones', async () => {
+            // asyncHandler1 (registered first) has the longer delay. Serial execution would yield [1, 2];
+            // parallel-start lets the shorter handler finish first, yielding [2, 1].
             const executionOrder: number[] = [];
             const asyncHandler1: IActionHandler = {
                 handle: async () => {
@@ -120,7 +140,87 @@ describe('GLSPActionDispatcher', () => {
             registry.register('multiAsyncTest', asyncHandler2);
             await actionDispatcher.dispatch({ kind: 'multiAsyncTest' });
 
-            expect(executionOrder).to.deep.equal([1, 2]);
+            expect(executionOrder).to.deep.equal([2, 1]);
+        });
+
+        it('should not let a slow async handler starve a synchronous sibling registered after it', async () => {
+            // Sync handler registered after the gated async one must run during the burst, before the
+            // async handler is released.
+            const executionOrder: number[] = [];
+            const gate = new Deferred<void>();
+            const slowAsyncHandler: IActionHandler = {
+                handle: async () => {
+                    await gate.promise;
+                    executionOrder.push(1);
+                }
+            };
+            const syncHandler: IActionHandler = {
+                handle: () => {
+                    executionOrder.push(2);
+                }
+            };
+
+            registry.register('starveTest', slowAsyncHandler);
+            registry.register('starveTest', syncHandler);
+            const dispatched = actionDispatcher.dispatch({ kind: 'starveTest' });
+
+            // Let the invocation burst run; the async handler is still gated.
+            await flushMicrotasks();
+            expect(executionOrder, 'sync sibling must run before the gated async handler resolves').to.deep.equal([2]);
+
+            gate.resolve();
+            await dispatched;
+            expect(executionOrder).to.deep.equal([2, 1]);
+        });
+
+        it('should not let a never-resolving async handler starve a synchronous sibling', async () => {
+            // A handler whose promise never resolves must not prevent other handlers from being invoked.
+            const executionOrder: number[] = [];
+            const stuckHandler: IActionHandler = {
+                handle: () => new Promise<void>(() => undefined) // never resolves
+            };
+            const syncHandler: IActionHandler = {
+                handle: () => {
+                    executionOrder.push(1);
+                }
+            };
+
+            registry.register('stuckTest', stuckHandler);
+            registry.register('stuckTest', syncHandler);
+            // Intentionally not awaited: the dispatch promise never resolves because of the stuck handler.
+            actionDispatcher.dispatch({ kind: 'stuckTest' });
+
+            await flushMicrotasks();
+            expect(executionOrder).to.deep.equal([1]);
+        });
+
+        it('should not deadlock when an async handler awaits a nested dispatch while a sibling is registered after it', async () => {
+            // A serial loop would block the sibling behind the async handler that awaits a nested dispatch,
+            // risking deadlock. Parallel-start invokes the sibling in the burst, so nothing waits its turn.
+            // Order: 'B' (burst) -> 'sub' (nested) -> 'A' (async tail).
+            const executionOrder: string[] = [];
+            registry.register('nestedSub', {
+                handle: () => {
+                    executionOrder.push('sub');
+                }
+            });
+            const nestedDispatchHandler: IActionHandler = {
+                handle: async () => {
+                    await actionDispatcher.dispatch({ kind: 'nestedSub' });
+                    executionOrder.push('A');
+                }
+            };
+            const siblingHandler: IActionHandler = {
+                handle: () => {
+                    executionOrder.push('B');
+                }
+            };
+
+            registry.register('nestedTest', nestedDispatchHandler);
+            registry.register('nestedTest', siblingHandler);
+            await actionDispatcher.dispatch({ kind: 'nestedTest' });
+
+            expect(executionOrder).to.deep.equal(['B', 'sub', 'A']);
         });
 
         it('should handle mixed sync and async handlers correctly', async () => {
