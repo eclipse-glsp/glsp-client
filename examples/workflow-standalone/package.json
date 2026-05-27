@@ -30,9 +30,11 @@
     "compile": "tsc -b",
     "dev": "yarn ts-node ./scripts/start.ts --dev",
     "dev:browser": "yarn ts-node ./scripts/start.ts --dev --browser",
+    "dev:mcp": "yarn ts-node ./scripts/start.ts --dev --mcp",
     "lint": "eslint ./src",
     "start": "yarn ts-node ./scripts/start.ts",
     "start:browser": "yarn ts-node ./scripts/start.ts --browser",
+    "start:mcp": "yarn ts-node ./scripts/start.ts --mcp",
     "start:server": "yarn ts-node ./scripts/start-node-server.ts",
     "watch": "tsc -w"
   },

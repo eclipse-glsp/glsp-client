@@ -26,6 +26,7 @@ var CircularDependencyPlugin = require('circular-dependency-plugin');
  */
 module.exports = (env = {}) => {
     const isBrowser = env.mode === 'browser';
+    const isMcp = Boolean(env.mcp);
 
     const plugins = [
         new CircularDependencyPlugin({
@@ -109,7 +110,7 @@ module.exports = (env = {}) => {
             static: devServerStatic,
             compress: true,
             port: parseInt(process.env.CLIENT_PORT || (isBrowser ? '8083' : '8082')),
-            open: '/diagram.html'
+            open: isMcp ? '/diagram.html?mcp' : '/diagram.html'
         }
     };
 };

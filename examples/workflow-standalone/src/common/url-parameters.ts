@@ -14,23 +14,6 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-export function getParameters(): Record<string, string> {
-    let search = window.location.search.substring(1);
-    const result: Record<string, string> = {};
-    while (search.length > 0) {
-        const nextParamIndex = search.indexOf('&');
-        let param: string;
-        if (nextParamIndex < 0) {
-            param = search;
-            search = '';
-        } else {
-            param = search.substring(0, nextParamIndex);
-            search = search.substring(nextParamIndex + 1);
-        }
-        const valueIndex = param.indexOf('=');
-        if (valueIndex > 0 && valueIndex < param.length - 1) {
-            result[param.substring(0, valueIndex)] = decodeURIComponent(param.substring(valueIndex + 1));
-        }
-    }
-    return result;
+export function hasParameter(name: string): boolean {
+    return new URLSearchParams(window.location.search).has(name);
 }
