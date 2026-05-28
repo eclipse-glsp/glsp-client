@@ -20,6 +20,7 @@ import { downloadServerBundle, resolveVersion, SERVER_DIR_PATH } from './downloa
 
 const isBrowser = process.argv.includes('--browser');
 const isDev = process.argv.includes('--dev');
+const isMcp = process.argv.includes('--mcp');
 const noOpen = process.argv.includes('--no-open');
 
 const externalServerIndex = process.argv.indexOf('--external-server');
@@ -64,7 +65,7 @@ async function run(): Promise<void> {
         await downloadServerBundle({ ...bundle, version: resolveVersion() });
     }
 
-    const webpackCmd = `webpack serve${isBrowser ? ' --env mode=browser' : ''}${noOpen ? ' --no-open' : ''}`;
+    const webpackCmd = `webpack serve${isBrowser ? ' --env mode=browser' : ''}${isMcp ? ' --env mcp' : ''}${noOpen ? ' --no-open' : ''}`;
     const commands: { command: string; name: string }[] = [];
     const prefixColors: string[] = [];
 

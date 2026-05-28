@@ -29,10 +29,9 @@ import {
 import { Container } from 'inversify';
 import '../../css/diagram.css';
 import { standaloneTaskEditorModule } from './features/direct-task-editing/standalone-task-editor-module';
-import { getParameters } from './url-parameters';
+import { hasParameter } from './url-parameters';
 export default function createContainer(options: IDiagramOptions): Container {
-    const parameters = getParameters();
-    if (parameters.readonly) {
+    if (hasParameter('readonly')) {
         options.editMode = EditMode.READONLY;
     }
     const container = createWorkflowDiagramContainer(
