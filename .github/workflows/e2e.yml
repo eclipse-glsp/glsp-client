@@ -7,8 +7,16 @@ on:
   workflow_dispatch:
   push:
     branches: [master]
+    paths-ignore:
+      - '**/*.md'
+      - 'LICENSE'
+      - '.vscode/**'
   pull_request:
     branches: [master]
+    paths-ignore:
+      - '**/*.md'
+      - 'LICENSE'
+      - '.vscode/**'
 
 jobs:
   playwright:
@@ -16,14 +24,9 @@ jobs:
     timeout-minutes: 120
     runs-on: ubuntu-latest
     env:
-      STANDALONE_URL: 'file://${{ github.workspace }}/glsp-client/examples/workflow-standalone/app/diagram.html'
+      GLSP_REPO_DIR: '${{ github.workspace }}'
       GLSP_SERVER_PORT: '8081'
-      GLSP_MCP_SERVER_PORT: '64577'
-      GLSP_SERVER_PLAYWRIGHT_MANAGED: 'true'
       GLSP_WEBSOCKET_PATH: 'workflow'
-      THEIA_URL: 'http://localhost:3000'
-      VSCODE_VSIX_ID: 'eclipse-glsp.workflow-vscode-example'
-      VSCODE_VSIX_PATH: '${{ github.workspace }}/.../vscode-example-2.3.0-next.vsix'
       GLSP_SERVER_DEBUG: 'true'
       GLSP_SERVER_TYPE: 'node'
 
@@ -35,6 +38,10 @@ jobs:
         with:
           repository: 'eclipse-glsp/glsp-playwright'
           path: 'glsp-playwright'
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          repository: 'eclipse-glsp/glsp-server-node'
+          path: 'glsp-server-node'
       - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
           node-version: '22'
@@ -42,14 +49,15 @@ jobs:
         run: |
           cd glsp-client
           yarn
-          yarn bundle
+          cd ../glsp-server-node
+          yarn
           cd ../glsp-playwright
           yarn
       - name: Run Playwright tests
         id: run_playwright_tests
         run: |
           cd glsp-playwright
-          yarn test:standalone
+          yarn test
       - name: Upload Playwright report
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: always()
