@@ -1,6 +1,6 @@
 {
   "name": "parent",
-  "version": "2.7.0-next",
+  "version": "2.7.0",
   "private": true,
   "workspaces": [
     "packages/*",
@@ -40,7 +40,7 @@
     "watch": "tsc -b -w --preserveWatchOutput"
   },
   "devDependencies": {
-    "@eclipse-glsp/dev": "next",
+    "@eclipse-glsp/dev": "2.7.0",
     "@types/node": "22.x",
     "concurrently": "^9.2.1",
     "lerna": "^9.0.0",
