@@ -1,6 +1,6 @@
 {
   "name": "workflow-standalone",
-  "version": "2.7.0",
+  "version": "2.8.0-next",
   "private": true,
   "description": "Standalone browser-app for the Workflow example",
   "homepage": "https://www.eclipse.org/glsp/",
@@ -39,8 +39,8 @@
     "watch": "tsc -w"
   },
   "dependencies": {
-    "@eclipse-glsp-examples/workflow-glsp": "2.7.0",
-    "@eclipse-glsp/client": "2.7.0"
+    "@eclipse-glsp-examples/workflow-glsp": "2.8.0-next",
+    "@eclipse-glsp/client": "2.8.0-next"
   },
   "devDependencies": {
     "@types/tar": "6.1.5",
