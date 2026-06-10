@@ -16,6 +16,17 @@ Eclipse GLSP Client monorepo. Provides the sprotty-based client framework for th
 -   After completing any code changes, always run the `/verify` skill before reporting completion
 -   If verification fails, run the `/fix` skill to auto-fix issues, then re-run `/verify`
 
+## Commenting Style
+
+-   **TSDoc (`/** ... \*/`) on the public API\*\*: document exported interfaces, types, classes, methods, and notable properties/getters. Describe intent and behavior, not the obvious signature.
+-   **Cross-reference with `{@link Symbol}`** instead of writing bare type/method names in prose.
+-   **Document non-trivial methods** with `@param`/`@returns` (and `@throws` where relevant). Skip them for self-explanatory one-liners.
+-   **Deprecations** use the fixed form `/** @deprecated Use {@link Replacement} instead */`.
+-   **Inline `//` comments explain _why_, not _what_** — keep them short and lowercase, and reserve them for non-obvious decisions or rationale.
+-   **Mark known limitations** with `// FIXME:` / `// TODO:`, and justify suppressions with `// eslint-disable-next-line <rule>`.
+-   Don't restate code in comments; let clear naming carry the _what_.
+-   Copyright headers are required on every file but are handled by `/verify` + `/fix` — don't add them manually.
+
 ## Inter-Package Import Rules
 
 These are enforced by ESLint and are easy to get wrong:

@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2023-2024 EclipseSource and others.
+ * Copyright (c) 2023-2026 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -45,8 +45,10 @@ export interface GLSPConnectionHandler {
 
 export class GLSPWebSocketProvider {
     protected webSocket: WebSocket;
-    protected reconnectTimer: NodeJS.Timeout;
+    protected reconnectTimer?: NodeJS.Timeout;
     protected reconnectAttempts = 0;
+    /** Whether a connection was ever successfully established; controls `onConnection` vs `onReconnect`. */
+    protected hasConnected = false;
 
     protected options: GLSPWebSocketOptions = {
         // default values
@@ -71,35 +73,23 @@ export class GLSPWebSocketProvider {
 
         this.webSocket.onerror = (): void => {
             handler.logger?.error('GLSPWebSocketProvider Connection to server errored. Please make sure that the server is running!');
-            clearInterval(this.reconnectTimer);
             this.webSocket.close();
         };
 
+        // reconnect on close. registered here - not only after `wrap` below - so a failed initial
+        // connection (where `onopen` never fires, e.g. a server that is not up yet) is retried too.
+        this.webSocket.onclose = (): void => this.scheduleReconnect(handler);
+
         return new Promise(resolve => {
             this.webSocket.onopen = (): void => {
-                clearInterval(this.reconnectTimer);
+                this.clearReconnect();
+                this.reconnectAttempts = 0;
                 const wrappedSocket = wrap(this.webSocket);
                 const wsConnection = createWebSocketConnection(wrappedSocket, handler.logger);
 
-                this.webSocket.onclose = (): void => {
-                    const { reconnecting, reconnectAttempts, reconnectDelay } = this.options;
-                    if (reconnecting) {
-                        if (this.reconnectAttempts >= reconnectAttempts!) {
-                            handler.logger?.error(
-                                'GLSPWebSocketProvider WebSocket reconnect failed - maximum number reconnect attempts ' +
-                                    `(${reconnectAttempts}) was exceeded!`
-                            );
-                        } else {
-                            this.reconnectTimer = setInterval(() => {
-                                handler.logger?.warn('GLSPWebSocketProvider reconnecting...');
-                                this.listen(handler, true);
-                                this.reconnectAttempts++;
-                            }, reconnectDelay!);
-                        }
-                    } else {
-                        handler.logger?.error('GLSPWebSocketProvider WebSocket will not reconnect - closing the connection now!');
-                    }
-                };
+                // `wrap` re-binds onclose to the message reader, so restore the reconnect handler to
+                // keep retrying after a drop that follows a previously established connection.
+                this.webSocket.onclose = (): void => this.scheduleReconnect(handler);
 
                 if (isReconnecting) {
                     handler.logger?.warn('GLSPWebSocketProvider Reconnecting!');
@@ -108,8 +98,37 @@ export class GLSPWebSocketProvider {
                     handler.logger?.warn('GLSPWebSocketProvider Initializing!');
                     handler.onConnection?.(wsConnection);
                 }
+                this.hasConnected = true;
                 resolve(wsConnection);
             };
         });
+    }
+
+    protected scheduleReconnect(handler: GLSPConnectionHandler): void {
+        const { reconnecting, reconnectAttempts, reconnectDelay } = this.options;
+        if (!reconnecting) {
+            handler.logger?.error('GLSPWebSocketProvider WebSocket will not reconnect - closing the connection now!');
+            return;
+        }
+        if (this.reconnectAttempts >= reconnectAttempts!) {
+            handler.logger?.error(
+                `GLSPWebSocketProvider WebSocket reconnect failed - maximum number reconnect attempts (${reconnectAttempts}) was exceeded!`
+            );
+            return;
+        }
+        this.clearReconnect();
+        this.reconnectTimer = setTimeout(() => {
+            this.reconnectAttempts++;
+            handler.logger?.warn('GLSPWebSocketProvider reconnecting...');
+            // once connected, retries are reconnects; before that they are still the initial connect
+            this.listen(handler, this.hasConnected);
+        }, reconnectDelay!);
+    }
+
+    protected clearReconnect(): void {
+        if (this.reconnectTimer) {
+            clearTimeout(this.reconnectTimer);
+            this.reconnectTimer = undefined;
+        }
     }
 }

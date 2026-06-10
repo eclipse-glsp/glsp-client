@@ -1,32 +1,488 @@
 <!doctype html>
-<html>
+<html lang="en" data-theme="tide" data-mode="light">
     <head>
         <meta charset="utf-8" />
-        <style>
-            html,
-            body {
-                width: 100%;
-                height: 100%;
-                overflow: hidden;
-            }
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>GLSP Workflow Editor</title>
 
-            #sprotty {
-                position: absolute;
-                top: 0;
-                bottom: 0;
-                left: 0;
-                right: 0;
-            }
+        <!-- Apply the persisted theme + mode before first paint to avoid a flash of the defaults.
+             When no mode was explicitly chosen, follow the OS light/dark preference. -->
+        <script>
+            (function () {
+                var THEMES = ['tide', 'graphite', 'ember', 'orchid', 'verdant'];
+                var MODES = ['light', 'dark'];
+                var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+                try {
+                    // url params (?theme=<name> &mode=light|dark) take precedence and are persisted so the
+                    // theme switcher and the rest of the page stay in sync
+                    var params = new URLSearchParams(window.location.search);
+                    var urlTheme = params.get('theme');
+                    var urlMode = params.get('mode');
+                    if (THEMES.indexOf(urlTheme) !== -1) {
+                        localStorage.setItem('glsp-wf-theme', urlTheme);
+                    }
+                    if (MODES.indexOf(urlMode) !== -1) {
+                        localStorage.setItem('glsp-wf-mode', urlMode);
+                    }
+                    var t = localStorage.getItem('glsp-wf-theme');
+                    var m = localStorage.getItem('glsp-wf-mode');
+                    if (THEMES.indexOf(t) !== -1) {
+                        document.documentElement.setAttribute('data-theme', t);
+                    }
+                    document.documentElement.setAttribute('data-mode', MODES.indexOf(m) !== -1 ? m : prefersDark ? 'dark' : 'light');
+                } catch (e) {
+                    /* ignore – fall back to the OS preference */
+                    document.documentElement.setAttribute('data-mode', prefersDark ? 'dark' : 'light');
+                }
+            })();
+        </script>
 
-            svg {
-                width: 100%;
-                height: 100%;
-            }
-        </style>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+        <!-- bundled app styles (extracted by webpack), render-blocking so themed before first paint -->
+        <link rel="stylesheet" href="bundle.css" />
     </head>
-
     <body>
-        <div id="sprotty"></div>
+        <div class="app-shell">
+            <div class="app-card">
+                <header class="card-header">
+                    <div class="app-logo">
+                        <svg viewBox="322 228 198 132" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M462.6,325.2H427c-4.5,0-8.2,3.7-8.2,8.2v6.5h-29.7c-0.9,0-1.5-0.5-1.5-0.9v-11.5h12.3c4.2,0,7.7-3.2,7.7-7.2v-5h26c4.1,0,7.5-3.6,7.5-8v-18.5h9.5c3.9,0,7-3,7-6.6v-14.4c0-3.6-3.1-6.6-7-6.6h-26c-3.9,0-7,3-7,6.6v14.4c0,3.6,3.1,6.6,7,6.6h9.5v18.5c0,0.7-0.4,1-0.5,1h-26V303c0-4-3.5-7.2-7.7-7.2h-31.6c-4.2,0-7.7,3.2-7.7,7.2v17.3c0,4,3.5,7.2,7.7,7.2h12.3V339c0,4.4,3.8,7.9,8.5,7.9h29.7v6.5c0,4.5,3.7,8.2,8.2,8.2h35.6c4.5,0,8.2-3.7,8.2-8.2v-20C470.8,328.9,467.1,325.2,462.6,325.2zM424.6,281.7v-13.6h26v13.6H424.6z M368.3,320.4c-0.4,0-0.7-0.2-0.7-0.2h0l0-17.2c0-0.1,0.3-0.3,0.7-0.3h31.6c0.4,0,0.7,0.2,0.7,0.2h0l0,17.2c0,0.1-0.3,0.3-0.7,0.3H368.3z M463.8,353.4c0,0.7-0.5,1.2-1.2,1.2H427c-0.7,0-1.2-0.5-1.2-1.2v-20c0-0.7,0.5-1.2,1.2-1.2h35.6c0.7,0,1.2,0.5,1.2,1.2V353.4z M484.5,280.4c-0.2,0-0.4,0-0.6,0c-0.6-25.9-21.9-46.7-47.9-46.7c-15.3,0-29.4,7.2-38.4,19.3c-4.2-2.5-9-3.8-14-3.8c-15.3,0-27.7,12.4-27.7,27.7c0,0.2,0,0.4,0,0.6c-17.7,1.6-31.6,16.5-31.6,34.6c0,19.1,15.6,34.7,34.7,34.7h8.8c1.9,0,3.5-1.6,3.5-3.5s-1.6-3.5-3.5-3.5h-8.8c-15.3,0-27.7-12.4-27.7-27.7c0-15.3,12.4-27.7,27.7-27.7c0.1,0,0.2,0,0.3,0l0.3,0c1,0,2-0.4,2.7-1.2c0.7-0.8,1-1.8,0.8-2.9c-0.2-1.2-0.3-2.3-0.3-3.4c0-11.4,9.3-20.7,20.7-20.7c4.7,0,9.1,1.5,12.8,4.4c0.8,0.6,1.8,0.9,2.8,0.7c1-0.2,1.8-0.7,2.4-1.6c7.6-11.9,20.5-19.1,34.6-19.1c22.5,0,40.9,18.3,40.9,40.9c0,0.7,0,1.5-0.1,2.4c-0.1,1,0.4,2.1,1.1,2.8c0.8,0.7,1.8,1,2.9,0.9c16.1-2.3,29.9,10.3,29.9,26c0,14.5-11.8,26.2-26.2,26.2c-1.9,0-3.5,1.6-3.5,3.5s1.6,3.5,3.5,3.5c18.3,0,33.2-14.9,33.2-33.2C517.7,295.3,502.8,280.4,484.5,280.4z"
+                            />
+                        </svg>
+                    </div>
+                    <div class="app-divider"></div>
+                    <span class="app-title">Workflow Editor</span>
+                    <span class="app-badge">Demo</span>
+                    <div class="app-divider"></div>
+                    <nav class="app-menubar">
+                        <button class="menubar-item" id="diagramMenuBtn" type="button">Diagram</button>
+                    </nav>
+                    <div class="title-bar-toolbar">
+                        <span class="dirty-indicator" id="dirtyIndicator" title="All changes saved"></span>
+                        <button class="toolbar-btn" id="undoBtn" title="Undo (Ctrl+Z)">
+                            <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M2 6l3-3M2 6l3 3M2 6h7a4 4 0 0 1 0 8H8"
+                                    stroke="currentColor"
+                                    stroke-width="1.5"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                />
+                            </svg>
+                        </button>
+                        <button class="toolbar-btn" id="redoBtn" title="Redo (Ctrl+Y)">
+                            <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M14 6l-3-3M14 6l-3 3M14 6H7a4 4 0 0 0 0 8h1"
+                                    stroke="currentColor"
+                                    stroke-width="1.5"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                />
+                            </svg>
+                        </button>
+                    </div>
+                    <span class="app-spacer"></span>
+
+                    <div class="theme-switcher" id="themeSwitcher">
+                        <button class="theme-trigger" id="themeTrigger" type="button" aria-haspopup="true" aria-expanded="false">
+                            <span class="theme-swatch" id="themeSwatch" data-theme="tide"></span>
+                            <span id="themeName">Tide</span>
+                            <svg
+                                class="theme-mode-glyph"
+                                id="themeModeGlyph"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                xmlns="http://www.w3.org/2000/svg"
+                            ></svg>
+                            <svg class="theme-caret" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M2.5 4.5 6 8l3.5-3.5"
+                                    stroke="currentColor"
+                                    stroke-width="1.5"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                />
+                            </svg>
+                        </button>
+                        <div class="theme-menu" id="themeMenu" role="menu">
+                            <div class="theme-menu-label">Appearance</div>
+                            <div class="mode-toggle" role="group" aria-label="Light or dark mode">
+                                <button class="mode-btn" data-mode="light" type="button">
+                                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.8" />
+                                        <path
+                                            d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"
+                                            stroke="currentColor"
+                                            stroke-width="1.8"
+                                            stroke-linecap="round"
+                                        />
+                                    </svg>
+                                    Light
+                                </button>
+                                <button class="mode-btn" data-mode="dark" type="button">
+                                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path
+                                            d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"
+                                            stroke="currentColor"
+                                            stroke-width="1.8"
+                                            stroke-linejoin="round"
+                                        />
+                                    </svg>
+                                    Dark
+                                </button>
+                            </div>
+                            <div class="theme-menu-label">Theme</div>
+                            <button class="theme-option selected" data-theme="tide" data-name="Tide" role="menuitemradio">
+                                <span class="theme-option-swatch"></span>
+                                <span class="theme-option-text">
+                                    <span class="theme-option-name">Tide</span>
+                                    <span class="theme-option-desc">Cool aqua · coral</span>
+                                </span>
+                                <svg class="theme-option-check" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path
+                                        d="M3 8.5 6.5 12 13 4.5"
+                                        stroke="currentColor"
+                                        stroke-width="1.8"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                    />
+                                </svg>
+                            </button>
+                            <button class="theme-option" data-theme="graphite" data-name="Graphite" role="menuitemradio">
+                                <span class="theme-option-swatch"></span>
+                                <span class="theme-option-text">
+                                    <span class="theme-option-name">Graphite</span>
+                                    <span class="theme-option-desc">Steel · sky blue</span>
+                                </span>
+                                <svg class="theme-option-check" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path
+                                        d="M3 8.5 6.5 12 13 4.5"
+                                        stroke="currentColor"
+                                        stroke-width="1.8"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                    />
+                                </svg>
+                            </button>
+                            <button class="theme-option" data-theme="ember" data-name="Ember" role="menuitemradio">
+                                <span class="theme-option-swatch"></span>
+                                <span class="theme-option-text">
+                                    <span class="theme-option-name">Ember</span>
+                                    <span class="theme-option-desc">Warm paper · terracotta</span>
+                                </span>
+                                <svg class="theme-option-check" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path
+                                        d="M3 8.5 6.5 12 13 4.5"
+                                        stroke="currentColor"
+                                        stroke-width="1.8"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                    />
+                                </svg>
+                            </button>
+                            <button class="theme-option" data-theme="orchid" data-name="Orchid" role="menuitemradio">
+                                <span class="theme-option-swatch"></span>
+                                <span class="theme-option-text">
+                                    <span class="theme-option-name">Orchid</span>
+                                    <span class="theme-option-desc">Neon violet · cyan</span>
+                                </span>
+                                <svg class="theme-option-check" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path
+                                        d="M3 8.5 6.5 12 13 4.5"
+                                        stroke="currentColor"
+                                        stroke-width="1.8"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                    />
+                                </svg>
+                            </button>
+                            <button class="theme-option" data-theme="verdant" data-name="Verdant" role="menuitemradio">
+                                <span class="theme-option-swatch"></span>
+                                <span class="theme-option-text">
+                                    <span class="theme-option-name">Verdant</span>
+                                    <span class="theme-option-desc">Emerald · honey</span>
+                                </span>
+                                <svg class="theme-option-check" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path
+                                        d="M3 8.5 6.5 12 13 4.5"
+                                        stroke="currentColor"
+                                        stroke-width="1.8"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                    />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="app-divider"></div>
+                    <div class="app-links">
+                        <a class="app-link" href="https://eclipse.dev/glsp/" target="_blank" rel="noopener">
+                            <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="8" cy="8" r="6.4" stroke="currentColor" stroke-width="1.3" />
+                                <path
+                                    d="M1.6 8h12.8M8 1.6c1.75 1.7 2.7 3.95 2.7 6.4S9.75 12.7 8 14.4C6.25 12.7 5.3 10.45 5.3 8S6.25 3.3 8 1.6z"
+                                    stroke="currentColor"
+                                    stroke-width="1.3"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                />
+                            </svg>
+                            Website
+                        </a>
+                        <a class="app-link" href="https://github.com/eclipse-glsp/" target="_blank" rel="noopener">
+                            <svg viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"
+                                />
+                            </svg>
+                            GitHub
+                        </a>
+                    </div>
+                </header>
+
+                <div class="card-canvas">
+                    <div id="sprotty"></div>
+                </div>
+
+                <footer class="card-footer">
+                    <div class="shortcuts-toggle" onclick="toggleShortcuts()">
+                        <span class="shortcuts-chevron" id="shortcutsChevron">&#x25B8;</span>
+                        Keyboard Shortcuts
+                    </div>
+                    <div class="shortcuts-panel" id="shortcutsPanel">
+                        <div class="shortcuts-inner">
+                            <div class="shortcuts-section">
+                                <span class="shortcuts-section-title">Navigate</span>
+                                <span class="shortcut-item"><kbd>Scroll</kbd> Zoom in / out</span>
+                                <span class="shortcut-item"><kbd>Middle Drag</kbd> Pan canvas</span>
+                                <span class="shortcut-item"><kbd>Arrow keys</kbd> Move viewport / element</span>
+                                <span class="shortcut-item"><kbd>Ctrl Shift F</kbd> Fit to screen</span>
+                                <span class="shortcut-item"><kbd>Ctrl Shift C</kbd> Center selected</span>
+                                <span class="shortcut-item"><kbd>N</kbd> Global navigation mode</span>
+                                <span class="shortcut-item"><kbd>Alt N</kbd> Local navigation mode</span>
+                            </div>
+                            <div class="shortcuts-section">
+                                <span class="shortcuts-section-title">Zoom</span>
+                                <span class="shortcut-item"><kbd>+</kbd> <kbd>-</kbd> Zoom viewport / element</span>
+                                <span class="shortcut-item"><kbd>Ctrl 0</kbd> Reset viewport</span>
+                                <span class="shortcut-item"><kbd>Ctrl +</kbd> Zoom in via grid</span>
+                            </div>
+                            <div class="shortcuts-section">
+                                <span class="shortcuts-section-title">Edit</span>
+                                <span class="shortcut-item"><kbd>Ctrl Z</kbd> Undo</span>
+                                <span class="shortcut-item"><kbd>Ctrl Y</kbd> Redo</span>
+                                <span class="shortcut-item"><kbd>Del</kbd> Delete</span>
+                                <span class="shortcut-item"><kbd>Ctrl A</kbd> Select all</span>
+                                <span class="shortcut-item"><kbd>Esc</kbd> Deselect all</span>
+                                <span class="shortcut-item"><kbd>Ctrl S</kbd> Save</span>
+                                <span class="shortcut-item"><kbd>Ctrl Shift E</kbd> Export SVG</span>
+                            </div>
+                            <div class="shortcuts-section">
+                                <span class="shortcuts-section-title">Resize (selected)</span>
+                                <span class="shortcut-item"><kbd>Alt A</kbd> Enter resize mode</span>
+                                <span class="shortcut-item"><kbd>+</kbd> <kbd>-</kbd> Grow / shrink</span>
+                                <span class="shortcut-item"><kbd>Ctrl 0</kbd> Reset size</span>
+                                <span class="shortcut-item"><kbd>Esc</kbd> Exit resize mode</span>
+                            </div>
+                            <div class="shortcuts-section">
+                                <span class="shortcuts-section-title">Tools & Accessibility</span>
+                                <span class="shortcut-item"><kbd>Alt P</kbd> Focus palette</span>
+                                <span class="shortcut-item"><kbd>Alt G</kbd> Focus diagram</span>
+                                <span class="shortcut-item"><kbd>Alt H</kbd> Show shortcut help</span>
+                                <span class="shortcut-item"><kbd>Ctrl Space</kbd> Command palette</span>
+                                <span class="shortcut-item"><kbd>Ctrl F</kbd> Search elements</span>
+                                <span class="shortcut-item"><kbd>Ctrl .</kbd> <kbd>Ctrl ,</kbd> Next / prev marker</span>
+                                <span class="shortcut-item"><kbd>1</kbd> Select tool</span>
+                                <span class="shortcut-item"><kbd>2</kbd> Eraser</span>
+                                <span class="shortcut-item"><kbd>3</kbd> Marquee</span>
+                                <span class="shortcut-item"><kbd>4</kbd> Validate</span>
+                                <span class="shortcut-item"><kbd>5</kbd> Search</span>
+                            </div>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </div>
+
         <script src="bundle.js"></script>
+        <script>
+            function toggleShortcuts() {
+                document.getElementById('shortcutsPanel').classList.toggle('open');
+                document.getElementById('shortcutsChevron').classList.toggle('open');
+            }
+
+            (function () {
+                var THEMES = ['tide', 'graphite', 'ember', 'orchid', 'verdant'];
+                var MODES = ['light', 'dark'];
+                var THEME_KEY = 'glsp-wf-theme';
+                var MODE_KEY = 'glsp-wf-mode';
+
+                var SUN =
+                    '<circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.8"/>' +
+                    '<path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>';
+                var MOON =
+                    '<path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>';
+
+                var switcher = document.getElementById('themeSwitcher');
+                var trigger = document.getElementById('themeTrigger');
+                var menu = document.getElementById('themeMenu');
+                var swatch = document.getElementById('themeSwatch');
+                var nameLabel = document.getElementById('themeName');
+                var modeGlyph = document.getElementById('themeModeGlyph');
+                var options = Array.prototype.slice.call(menu.querySelectorAll('.theme-option'));
+                var modeButtons = Array.prototype.slice.call(menu.querySelectorAll('.mode-btn'));
+
+                var current = { theme: 'tide', mode: 'light' };
+
+                function persist(key, value) {
+                    try {
+                        localStorage.setItem(key, value);
+                    } catch (e) {
+                        /* ignore – persistence is best-effort */
+                    }
+                }
+
+                function render() {
+                    document.documentElement.setAttribute('data-theme', current.theme);
+                    document.documentElement.setAttribute('data-mode', current.mode);
+                    swatch.setAttribute('data-theme', current.theme);
+                    modeGlyph.innerHTML = current.mode === 'dark' ? MOON : SUN;
+                    options.forEach(function (option) {
+                        var selected = option.dataset.theme === current.theme;
+                        option.classList.toggle('selected', selected);
+                        if (selected) {
+                            nameLabel.textContent = option.dataset.name;
+                        }
+                    });
+                    modeButtons.forEach(function (button) {
+                        button.classList.toggle('active', button.dataset.mode === current.mode);
+                    });
+                }
+
+                function setTheme(theme) {
+                    if (THEMES.indexOf(theme) === -1) {
+                        return;
+                    }
+                    current.theme = theme;
+                    persist(THEME_KEY, theme);
+                    render();
+                }
+
+                function setMode(mode) {
+                    if (MODES.indexOf(mode) === -1) {
+                        return;
+                    }
+                    current.mode = mode;
+                    persist(MODE_KEY, mode);
+                    render();
+                }
+
+                function closeMenu() {
+                    switcher.classList.remove('open');
+                    trigger.setAttribute('aria-expanded', 'false');
+                }
+
+                trigger.addEventListener('click', function (event) {
+                    event.stopPropagation();
+                    var willOpen = !switcher.classList.contains('open');
+                    switcher.classList.toggle('open', willOpen);
+                    trigger.setAttribute('aria-expanded', String(willOpen));
+                });
+
+                options.forEach(function (option) {
+                    option.addEventListener('click', function () {
+                        setTheme(option.dataset.theme);
+                        closeMenu();
+                    });
+                });
+
+                modeButtons.forEach(function (button) {
+                    button.addEventListener('click', function () {
+                        setMode(button.dataset.mode);
+                    });
+                });
+
+                document.addEventListener('click', function (event) {
+                    if (!switcher.contains(event.target)) {
+                        closeMenu();
+                    }
+                });
+
+                document.addEventListener('keydown', function (event) {
+                    if (event.key === 'Escape') {
+                        closeMenu();
+                    }
+                });
+
+                var darkQuery = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+                function systemMode() {
+                    return darkQuery && darkQuery.matches ? 'dark' : 'light';
+                }
+                function hasExplicitMode() {
+                    try {
+                        return MODES.indexOf(localStorage.getItem(MODE_KEY)) !== -1;
+                    } catch (e) {
+                        return false;
+                    }
+                }
+
+                try {
+                    var storedTheme = localStorage.getItem(THEME_KEY);
+                    var storedMode = localStorage.getItem(MODE_KEY);
+                    if (THEMES.indexOf(storedTheme) !== -1) {
+                        current.theme = storedTheme;
+                    }
+                    current.mode = MODES.indexOf(storedMode) !== -1 ? storedMode : systemMode();
+                } catch (e) {
+                    current.mode = systemMode();
+                }
+
+                // follow the OS preference live, until the user explicitly picks a mode
+                if (darkQuery) {
+                    var onSystemModeChange = function () {
+                        if (!hasExplicitMode()) {
+                            current.mode = systemMode();
+                            render();
+                        }
+                    };
+                    if (darkQuery.addEventListener) {
+                        darkQuery.addEventListener('change', onSystemModeChange);
+                    } else if (darkQuery.addListener) {
+                        darkQuery.addListener(onSystemModeChange); // Safari < 14
+                    }
+                }
+                render();
+            })();
+
+            // keep keyboard focus on the diagram when clicking non-interactive chrome (empty
+            // area, header gaps, shortcuts footer); the mousedown default would move it to <body>
+            document.addEventListener(
+                'mousedown',
+                function (event) {
+                    var target = event.target;
+                    if (!(target instanceof Element)) {
+                        return;
+                    }
+                    // let real controls and the diagram/palette manage their own focus
+                    if (target.closest('#sprotty, button, a, input, select, textarea, label, [contenteditable], [tabindex]')) {
+                        return;
+                    }
+                    // don't trap focus inside text fields, so palettes can still blur-close
+                    var active = document.activeElement;
+                    if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.isContentEditable)) {
+                        return;
+                    }
+                    event.preventDefault();
+                },
+                true
+            );
+        </script>
     </body>
 </html>

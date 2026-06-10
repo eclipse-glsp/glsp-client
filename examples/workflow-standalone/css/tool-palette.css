@@ -1,0 +1,203 @@
+/********************************************************************************
+ * Copyright (c) 2026 EclipseSource and others.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v. 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is available at
+ * https://www.gnu.org/software/classpath/license.html.
+ *
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ ********************************************************************************/
+
+/* Tool palette re-skin. */
+
+.tool-palette {
+    font-family: var(--font-body);
+    background: transparent;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border: none;
+    border-radius: 12px;
+    box-shadow: var(--overlay-shadow);
+    color: var(--text-1);
+    font-size: 13px;
+    right: 40px;
+    top: 32px;
+}
+
+.tool-palette.collapsible-palette {
+    overflow-x: visible;
+    overflow-y: clip;
+}
+
+.palette-header {
+    background: var(--surface);
+    backdrop-filter: blur(var(--blur));
+    -webkit-backdrop-filter: blur(var(--blur));
+    border: 1px solid var(--overlay-border);
+    border-bottom: 1px solid var(--hairline);
+    border-radius: 12px 12px 0 0;
+    padding: 8px 10px;
+}
+
+.header-icon {
+    color: var(--text-2);
+    font-weight: 600;
+    font-size: 12px;
+}
+
+.header-tools {
+    gap: 2px;
+}
+
+.header-tools i {
+    border: 1px solid transparent;
+    border-radius: 6px;
+    padding: 5px;
+    margin-right: 1px;
+    color: var(--text-2);
+}
+
+.header-tools i:hover {
+    background: var(--surface-hover);
+    color: var(--text-1);
+}
+
+.header-tools .clicked {
+    background: var(--accent-soft);
+    border: 1px solid transparent;
+    color: var(--accent);
+}
+
+.palette-body {
+    background: var(--surface);
+    backdrop-filter: blur(var(--blur));
+    -webkit-backdrop-filter: blur(var(--blur));
+    border: 1px solid var(--overlay-border);
+    border-top: none;
+    border-radius: 0 0 12px 12px;
+    padding: 4px 0;
+}
+
+.tool-group {
+    background: transparent;
+}
+
+.group-header {
+    background: var(--surface-sunken);
+    color: var(--text-2);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    padding: 6px 12px;
+    border-bottom: 1px solid var(--hairline);
+    margin-top: 2px;
+}
+
+.group-header:hover {
+    background: var(--surface-hover);
+}
+
+.group-header i {
+    padding: 0.2em;
+    color: var(--text-2);
+    font-size: 12px;
+}
+
+.tool-button {
+    background: transparent;
+    padding: 6px 12px 6px 24px;
+    border-radius: 6px;
+    margin: 1px 4px;
+    color: var(--text-1);
+    font-size: 13px;
+    position: relative;
+}
+
+.tool-button i {
+    color: var(--text-2);
+    margin-right: 8px;
+    display: inline-flex;
+    align-items: center;
+}
+
+.tool-button:hover {
+    background: var(--surface-hover);
+}
+
+.tool-button.clicked {
+    background: var(--accent-soft);
+    color: var(--accent);
+}
+
+.tool-button.clicked i {
+    color: var(--accent);
+}
+
+.search-input {
+    background: var(--surface-sunken);
+    border: 1px solid var(--overlay-border);
+    border-radius: 6px;
+    padding: 6px 8px;
+    font-family: inherit;
+    color: var(--text-1);
+    font-size: 13px;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-glow);
+}
+
+.minimize-palette-button .codicon::before {
+    font-size: 18px;
+}
+
+.accessibility-tool-palette .tool-button .key-shortcut,
+.accessibility-tool-palette .header-tools .key-shortcut {
+    background: var(--surface-solid);
+    border: 1.5px solid var(--overlay-border);
+    color: var(--text-2);
+    font-family: var(--font-mono);
+    font-weight: 600;
+    font-size: 0.7rem;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+.accessibility-show-shortcuts:focus-within .header-tools .key-shortcut,
+.accessibility-show-shortcuts:focus-within .tool-button .key-shortcut {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.minimize-palette-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: var(--surface);
+    backdrop-filter: blur(var(--blur));
+    -webkit-backdrop-filter: blur(var(--blur));
+    border: 1px solid var(--overlay-border);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    color: var(--text-2);
+    cursor: pointer;
+}
+
+.minimize-palette-button:hover {
+    color: var(--text-1);
+    background: var(--surface-hover);
+}
+
+.minimize-palette-button .codicon::before {
+    font-size: 16px;
+}

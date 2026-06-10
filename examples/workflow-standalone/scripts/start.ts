@@ -65,14 +65,12 @@ async function run(): Promise<void> {
         await downloadServerBundle({ ...bundle, version: resolveVersion() });
     }
 
-    const webpackCmd = `webpack serve${isBrowser ? ' --env mode=browser' : ''}${isMcp ? ' --env mcp' : ''}${noOpen ? ' --no-open' : ''}`;
+    // dev rebuilds + live-reloads on change; start just serves the freshly built bundle. esbuild
+    // transpiles src directly and watches the build graph itself - no separate tsc watch needed.
+    const clientMode = isDev ? '--watch' : '--serve';
+    const clientCmd = `node ./esbuild.js ${clientMode}${isBrowser ? ' --browser' : ''}${isMcp ? ' --mcp' : ''}${noOpen ? ' --no-open' : ''}`;
     const commands: { command: string; name: string }[] = [];
     const prefixColors: string[] = [];
-
-    if (isDev) {
-        commands.push({ command: 'tsc -b -w', name: 'tsc' });
-        prefixColors.push('blue');
-    }
 
     const clientPort = argValue('--client-port', isBrowser ? '8083' : '8082');
     process.env.CLIENT_PORT = clientPort;
@@ -85,7 +83,7 @@ async function run(): Promise<void> {
         prefixColors.push('green');
     }
 
-    commands.push({ command: webpackCmd, name: 'web' });
+    commands.push({ command: clientCmd, name: 'web' });
     prefixColors.push('yellow');
 
     const { result, commands: running } = concurrently(commands, {

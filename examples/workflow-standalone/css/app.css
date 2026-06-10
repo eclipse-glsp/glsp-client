@@ -1,0 +1,633 @@
+/********************************************************************************
+ * Copyright (c) 2026 EclipseSource and others.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v. 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is available at
+ * https://www.gnu.org/software/classpath/license.html.
+ *
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ ********************************************************************************/
+
+/*
+ * Application frame: shell, card, title bar, theme switcher, canvas, footer.
+ * Single CSS entry point — imports the theme layer and the diagram styling.
+ */
+
+@import './themes.css';
+@import './diagram.css';
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/*
+ * Respect the user's reduced-motion preference for the diagram surface. Besides being an
+ * accessibility nicety, this keeps the canvas and its elements geometrically stable immediately
+ * after rendering/interaction -> improves E2E testing reliability
+ */
+@media (prefers-reduced-motion: reduce) {
+    .app-card {
+        animation: none !important;
+    }
+
+    .sprotty-graph *,
+    .sprotty-resize-handle,
+    .sprotty-routing-handle {
+        transition: none !important;
+    }
+}
+
+html,
+body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: var(--font-body);
+    color: var(--text-1);
+    background: var(--app-bg);
+    -webkit-font-smoothing: antialiased;
+    transition:
+        background 0.4s ease,
+        color 0.4s ease;
+}
+
+/* --- App Shell + Atmosphere --- */
+
+.app-shell {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    padding: 14px;
+}
+
+.app-shell::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--atmosphere);
+    transition: background 0.4s ease;
+    pointer-events: none;
+}
+
+.app-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    max-width: 1600px;
+    max-height: 920px;
+    border-radius: 14px;
+    overflow: hidden;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    box-shadow: var(--card-shadow);
+    transition:
+        background 0.4s ease,
+        border-color 0.4s ease,
+        box-shadow 0.4s ease;
+    /* `backwards` not `both`: a lingering transform would offset position:fixed overlays */
+    animation: card-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+
+@keyframes card-in {
+    from {
+        opacity: 0;
+        transform: translateY(8px) scale(0.992);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+/* --- Window Resize Handles --- */
+
+/* Overlay sibling of the card; only the handles themselves capture pointer events. */
+.window-resize-layer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 40;
+}
+
+.window-resize-handle {
+    position: absolute;
+    pointer-events: auto;
+    touch-action: none;
+}
+
+/* Corners sit above the edge handles so their diagonal cursor wins at overlaps. */
+.window-resize-handle--nw,
+.window-resize-handle--ne,
+.window-resize-handle--sw,
+.window-resize-handle--se {
+    z-index: 1;
+}
+
+/* --- Card Header (Title Bar) --- */
+
+.card-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 13px 22px;
+    border-bottom: 1px solid var(--hairline);
+    flex-shrink: 0;
+    position: relative;
+    /* keep the header (and its theme dropdown) above the diagram tool palette */
+    z-index: 30;
+}
+
+.app-logo svg {
+    display: block;
+    height: 30px;
+    width: auto;
+}
+
+.app-logo svg path {
+    fill: var(--logo);
+    transition: fill 0.4s ease;
+}
+
+.app-divider {
+    width: 1px;
+    height: 20px;
+    background: var(--hairline);
+}
+
+.app-title {
+    font-family: var(--font-display);
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-1);
+    letter-spacing: -0.01em;
+}
+
+.app-badge {
+    font-family: var(--font-mono);
+    font-size: 9.5px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    background: var(--accent-soft);
+    padding: 3px 7px;
+    border-radius: 4px;
+}
+
+.app-spacer {
+    flex: 1;
+}
+
+.app-links {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.app-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-3);
+    text-decoration: none;
+    padding: 5px 9px;
+    border-radius: 6px;
+    transition:
+        color 0.15s,
+        background 0.15s;
+}
+
+.app-link:hover {
+    color: var(--text-2);
+    background: var(--surface-hover);
+}
+
+.app-link svg {
+    width: 13px;
+    height: 13px;
+    flex-shrink: 0;
+}
+
+/* --- Title Bar Menu Bar --- */
+
+.app-menubar {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.menubar-item {
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-2);
+    background: transparent;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition:
+        color 0.15s,
+        background 0.15s;
+}
+
+.menubar-item:hover,
+.menubar-item.active {
+    color: var(--text-1);
+    background: var(--surface-active);
+}
+
+/* --- Title Bar Toolbar --- */
+
+.title-bar-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    margin-right: 6px;
+}
+
+.toolbar-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--text-3);
+    cursor: pointer;
+    transition:
+        color 0.15s,
+        background 0.15s;
+}
+
+.toolbar-btn:hover {
+    color: var(--text-1);
+    background: var(--surface-hover);
+}
+
+.toolbar-btn:active {
+    background: var(--surface-active);
+}
+
+.toolbar-btn svg {
+    width: 14px;
+    height: 14px;
+}
+
+.dirty-indicator {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: transparent;
+    margin-right: 4px;
+    transition:
+        background 0.2s,
+        box-shadow 0.2s;
+}
+
+.dirty-indicator.active {
+    background: var(--warning);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--warning) 22%, transparent);
+}
+
+/* --- Theme Switcher --- */
+
+.theme-switcher {
+    position: relative;
+}
+
+.theme-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-2);
+    background: var(--surface-sunken);
+    border: 1px solid var(--hairline);
+    padding: 5px 8px 5px 7px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition:
+        color 0.15s,
+        background 0.15s,
+        border-color 0.15s;
+}
+
+.theme-trigger:hover {
+    color: var(--text-1);
+    background: var(--surface-hover);
+    border-color: var(--overlay-border);
+}
+
+.theme-swatch {
+    width: 16px;
+    height: 16px;
+    border-radius: 5px;
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12);
+    flex-shrink: 0;
+}
+
+.theme-trigger .theme-mode-glyph {
+    width: 13px;
+    height: 13px;
+    color: var(--text-3);
+}
+
+.theme-trigger .theme-caret {
+    width: 9px;
+    height: 9px;
+    color: var(--text-3);
+    transition: transform 0.2s ease;
+}
+
+.theme-switcher.open .theme-caret {
+    transform: rotate(180deg);
+}
+
+.theme-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    width: 250px;
+    background: var(--surface);
+    backdrop-filter: blur(var(--blur));
+    -webkit-backdrop-filter: blur(var(--blur));
+    border: 1px solid var(--overlay-border);
+    border-radius: 12px;
+    box-shadow: var(--overlay-shadow);
+    padding: 6px;
+    z-index: 100;
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+    transform-origin: top right;
+    pointer-events: none;
+    transition:
+        opacity 0.16s ease,
+        transform 0.16s ease;
+}
+
+.theme-switcher.open .theme-menu {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+}
+
+.theme-menu-label {
+    font-size: 9.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--text-3);
+    padding: 6px 8px 5px;
+}
+
+/* Light / dark segmented toggle */
+.mode-toggle {
+    display: flex;
+    gap: 4px;
+    padding: 2px;
+    margin: 0 4px 4px;
+    background: var(--surface-sunken);
+    border-radius: 9px;
+}
+
+.mode-btn {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-3);
+    background: transparent;
+    border: none;
+    padding: 6px 0;
+    border-radius: 7px;
+    cursor: pointer;
+    transition:
+        color 0.13s,
+        background 0.13s,
+        box-shadow 0.13s;
+}
+
+.mode-btn svg {
+    width: 14px;
+    height: 14px;
+}
+
+.mode-btn:hover {
+    color: var(--text-1);
+}
+
+.mode-btn.active {
+    color: var(--accent);
+    background: var(--card-bg);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+.theme-option {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    width: 100%;
+    text-align: left;
+    font-family: inherit;
+    background: transparent;
+    border: none;
+    border-radius: 9px;
+    padding: 8px;
+    cursor: pointer;
+    color: var(--text-1);
+    transition: background 0.13s;
+}
+
+.theme-option:hover {
+    background: var(--surface-hover);
+}
+
+.theme-option-swatch {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    flex-shrink: 0;
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12);
+    position: relative;
+}
+
+.theme-option-text {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    min-width: 0;
+}
+
+.theme-option-name {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+}
+
+.theme-option-desc {
+    font-size: 11px;
+    color: var(--text-3);
+}
+
+.theme-option-check {
+    margin-left: auto;
+    width: 16px;
+    height: 16px;
+    color: var(--accent);
+    opacity: 0;
+    flex-shrink: 0;
+}
+
+.theme-option.selected .theme-option-check {
+    opacity: 1;
+}
+
+.theme-option.selected .theme-option-name {
+    color: var(--accent);
+}
+
+/* --- Diagram Canvas --- */
+
+.card-canvas {
+    flex: 1;
+    position: relative;
+    background: var(--canvas-bg);
+    min-height: 0;
+    transition: background 0.4s ease;
+    /* own stacking context so the tool palette stays below the header dropdown */
+    z-index: 1;
+}
+
+#sprotty {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+#sprotty svg {
+    width: 100%;
+    height: 100%;
+}
+
+/* --- Card Footer (Shortcuts) --- */
+
+.card-footer {
+    flex-shrink: 0;
+    border-top: 1px solid var(--hairline);
+}
+
+.shortcuts-toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 22px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-3);
+    cursor: pointer;
+    user-select: none;
+}
+
+.shortcuts-toggle:hover {
+    color: var(--text-2);
+}
+
+.shortcuts-chevron {
+    display: inline-block;
+    font-size: 9px;
+    transition: transform 0.2s ease;
+}
+
+.shortcuts-chevron.open {
+    transform: rotate(90deg);
+}
+
+.shortcuts-panel {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.25s ease;
+}
+
+.shortcuts-panel.open {
+    max-height: 320px;
+    overflow-y: auto;
+}
+
+.shortcuts-inner {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 4px 28px;
+    padding: 0 22px 14px;
+}
+
+.shortcuts-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.shortcuts-section-title {
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-3);
+    padding-bottom: 2px;
+}
+
+.shortcut-item {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 11px;
+    color: var(--text-2);
+    line-height: 1.6;
+}
+
+.shortcut-item kbd {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    padding: 2px 5px;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    font-weight: 500;
+    color: var(--text-2);
+    background: var(--surface-sunken);
+    border: 1px solid var(--hairline);
+    border-radius: 4px;
+    white-space: nowrap;
+}
+
+:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+}

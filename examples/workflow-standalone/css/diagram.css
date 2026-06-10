@@ -13,70 +13,260 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-:root {
-    --glsp-info-foreground: blue;
+
+/*
+ * Diagram/SVG styling. Colors resolve to theme tokens from themes.css; this only
+ * re-skins the base @eclipse-glsp/client and workflow-glsp styles. Overlay
+ * components live in the sibling files imported below (kept first for cascade order).
+ */
+
+@import './tool-palette.css';
+@import './command-palette.css';
+@import './context-menu.css';
+@import './shortcuts.css';
+@import './feedback.css';
+
+.sprotty svg {
+    border: none;
+}
+
+.sprotty-graph {
+    font-family: var(--font-body);
+}
+
+.sprotty-text {
+    font-family: var(--font-body);
 }
 
 .sprotty-graph,
 .grid-background {
-    background: rgb(179, 196, 202);
+    background: var(--canvas-bg);
 }
 
+.grid-background .sprotty-graph,
+.grid-background.sprotty-graph {
+    /* feed the themed grid line color into the base grid.css variable */
+    --grid-color: var(--grid-line);
+}
+
+/* --- Nodes & Edges --- */
+
 .sprotty-node {
-    fill: #cdc;
-    stroke: rgb(0, 0, 0);
+    fill: var(--node-fill);
+    stroke: var(--node-stroke);
+    /* No SVG `filter` on nodes: under the viewport zoom transform a `drop-shadow`
+       filter gets clipped to its rectangular region and, worse, the browser leaves a
+       displaced copy of the filtered node (an offset "ghost" outline) on zoom/pan.
+       Depth/feedback is done with crisp strokes instead, which scale cleanly. */
+    filter: none;
+    transition:
+        stroke 0.15s ease,
+        stroke-width 0.15s ease,
+        opacity 0.15s ease;
 }
 
 .sprotty-edge {
-    stroke: black;
+    stroke: var(--edge);
+    stroke-linecap: round;
+    stroke-linejoin: round;
 }
 
 .sprotty-edge.arrow {
-    fill: black;
+    fill: var(--edge);
 }
 
 .sprotty-edge.selected {
-    stroke: #844;
+    stroke: var(--selection);
 }
 
 .sprotty-edge.selected > .arrow {
-    fill: #844;
-    stroke: #844;
+    fill: var(--selection);
+    stroke: var(--selection);
 }
 
 .forkOrJoin > .sprotty-node {
-    fill: black;
+    fill: var(--node-fork);
 }
 
 .forkOrJoin > .sprotty-node.selected {
-    stroke: rgb(87, 87, 214);
+    stroke: var(--selection);
 }
 
 polygon.sprotty-node {
-    stroke: black;
+    fill: var(--node-poly-fill);
+    stroke: var(--node-poly-stroke);
+    stroke-width: 1.25;
 }
 
+/* --- Selection & Hover Feedback --- */
+
+/* crisp stroke outlines (no SVG filters) so feedback stays sharp at any zoom level */
 .sprotty-node.selected {
-    stroke: rgb(87, 87, 214);
+    stroke: var(--selection);
+    stroke-width: 2.5px;
 }
+
+.sprotty-node.mouseover:not(.selected) {
+    /* dim on hover, matching the base client / master behavior; no SVG filter so nothing
+       ghosts or clips under the zoom transform (the opacity transition eases it in) */
+    opacity: 60%;
+}
+
+.sprotty-edge.mouseover:not(.selected) {
+    stroke: var(--accent);
+    opacity: 85%;
+}
+
+.sprotty-edge.mouseover:not(.selected) > .arrow {
+    fill: var(--accent);
+    stroke: var(--accent);
+}
+
+/* --- Resize & Routing Handles --- */
+
+.sprotty-resize-handle,
+.sprotty-edge > .sprotty-routing-handle {
+    fill: var(--handle);
+    stroke: var(--handle-ring);
+    stroke-width: 1.5px;
+    transition: r 0.12s ease;
+}
+
+.sprotty-resize-handle.selected,
+.sprotty-resize-handle.active,
+.sprotty-edge > .sprotty-routing-handle.selected {
+    fill: var(--handle);
+    r: 6px;
+}
+
+.sprotty-resize-handle.movement-not-allowed,
+.sprotty-resize-handle.resize-not-allowed {
+    fill: var(--glsp-error-foreground);
+    stroke: var(--handle-ring);
+}
+
+.sprotty-edge > .sprotty-routing-handle.mouseover {
+    stroke: var(--accent);
+    stroke-width: 1.5;
+}
+
+.sprotty-node.marquee {
+    fill: var(--accent);
+    opacity: 0.16;
+}
+
+/* --- Diagram Labels --- */
+
+.sprotty-graph .sprotty-label:not(.heading) {
+    fill: var(--diagram-label);
+}
+
+/* --- Workflow Node Theming (re-skins workflow-glsp node fills) --- */
+
+.task.automated > .sprotty-node {
+    fill: var(--node-automated);
+}
+
+.task.manual > .sprotty-node {
+    fill: var(--node-manual);
+}
+
+.category > .sprotty-node {
+    fill: var(--node-category);
+}
+
+.category .category > .sprotty-node {
+    fill: var(--node-category-nested);
+    stroke: var(--node-category-nested-stroke);
+    stroke-width: 1;
+}
+
+.task .sprotty-label,
+.category .sprotty-label {
+    fill: var(--node-label);
+}
+
+.task .sprotty-label.heading,
+.category .sprotty-label.heading {
+    fill: color-mix(in srgb, var(--node-label) 82%, transparent);
+}
+
+.icon path {
+    fill: color-mix(in srgb, var(--node-label) 95%, transparent);
+}
+
+.sprotty-edge.weighted.low:not(.selected, .navigable-element, .search-highlighted),
+.sprotty-edge.weighted.low:not(.selected, .navigable-element, .search-highlighted) .arrow {
+    stroke: var(--edge-low);
+}
+
+.sprotty-edge.weighted.low:not(.selected, .navigable-element, .search-highlighted) .arrow {
+    fill: var(--edge-low);
+}
+
+.sprotty-edge.weighted:not(.selected, .navigable-element, .search-highlighted),
+.sprotty-edge.weighted:not(.selected, .navigable-element, .search-highlighted) .arrow,
+.sprotty-edge.weighted.medium:not(.selected, .navigable-element, .search-highlighted),
+.sprotty-edge.weighted.medium:not(.selected, .navigable-element, .search-highlighted) .arrow {
+    stroke: var(--edge-medium);
+}
+
+.sprotty-edge.weighted:not(.selected, .navigable-element, .search-highlighted) .arrow,
+.sprotty-edge.weighted.medium:not(.selected, .navigable-element, .search-highlighted) .arrow {
+    fill: var(--edge-medium);
+}
+
+.sprotty-edge.weighted.high:not(.selected, .navigable-element, .search-highlighted),
+.sprotty-edge.weighted.high:not(.selected, .navigable-element, .search-highlighted) .arrow {
+    stroke: var(--edge-high);
+}
+
+.sprotty-edge.weighted.high:not(.selected, .navigable-element, .search-highlighted) .arrow {
+    fill: var(--edge-high);
+}
+
+/* --- Projection / Minimap Bars --- */
 
 .bordered-projection-bar {
-    border-color: #a1a1a1;
+    border-color: var(--hairline);
 }
 
 .sprotty-viewport {
     border-width: 1px;
-    border-color: #555555;
+    border-color: var(--node-stroke);
 }
 
 .sprotty-projection-bar.horizontal.bordered-projection-bar {
-    height: 15px;
+    height: 12px;
 }
 
 .sprotty-projection-bar.vertical.bordered-projection-bar {
-    width: 15px;
+    width: 12px;
 }
 
 .projection-scroll-bar {
-    background-color: #555555;
+    background-color: var(--text-3);
+    border-radius: 3px;
+    opacity: 0.6;
+}
+
+.glsp-projection {
+    background-color: var(--text-3);
+    border-radius: 2px;
+    opacity: 0.7;
+}
+
+.glsp-projection.sprotty-issue.sprotty-error {
+    background-color: var(--glsp-error-foreground);
+    opacity: 1;
+}
+
+.glsp-projection.sprotty-issue.sprotty-warning {
+    background-color: var(--glsp-warning-foreground);
+    opacity: 1;
+}
+
+.glsp-projection.sprotty-issue.sprotty-info {
+    background-color: var(--glsp-info-foreground);
+    opacity: 1;
 }

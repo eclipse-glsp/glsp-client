@@ -1,0 +1,261 @@
+/********************************************************************************
+ * Copyright (c) 2026 EclipseSource and others.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v. 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is available at
+ * https://www.gnu.org/software/classpath/license.html.
+ *
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ ********************************************************************************/
+
+/*
+ * Theme layer: all tokens, keyed on data-mode (light/dark) and data-theme (5 families).
+ * Each family's --selection sits outside its node palette so selected outlines stay visible.
+ */
+
+/* ---------- Cross-theme constants ---------- */
+
+:root {
+    /* Single external font (Outfit) for the whole app, shared across all themes; mono and the
+       fallbacks stay on system fonts so no other web fonts are loaded. */
+    --font-body: 'Outfit', system-ui, 'Segoe UI', sans-serif;
+    --font-display: var(--font-body);
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --node-label: #ffffff;
+    --handle: var(--selection);
+    --handle-ring: var(--card-bg);
+    --danger: #e11d48;
+    --warning: #f59e0b;
+    --info: var(--accent);
+}
+
+/* ---------- Mode neutrals ---------- */
+
+:root,
+[data-mode='light'] {
+    color-scheme: light;
+
+    /* neutral surfaces carry a few percent of the family accent for a cohesive tint */
+    --app-bg: color-mix(in srgb, var(--accent) 7%, #e9edf2);
+    --card-bg: color-mix(in srgb, var(--accent) 3%, #ffffff);
+    --card-border: rgba(15, 23, 42, 0.07);
+    --card-shadow: 0 1px 3px rgba(2, 6, 23, 0.08), 0 18px 44px -18px rgba(2, 6, 23, 0.22);
+    --hairline: rgba(15, 23, 42, 0.07);
+
+    --canvas-bg: color-mix(in srgb, var(--accent) 5%, #f5f7fa);
+    --grid-line: rgba(15, 23, 42, 0.055);
+
+    --surface: rgba(255, 255, 255, 0.86);
+    --surface-solid: color-mix(in srgb, var(--accent) 3%, #ffffff);
+    --surface-sunken: rgba(15, 23, 42, 0.04);
+    --surface-hover: rgba(15, 23, 42, 0.05);
+    --surface-active: rgba(15, 23, 42, 0.08);
+    --overlay-border: rgba(15, 23, 42, 0.09);
+    --overlay-shadow: 0 8px 32px rgba(2, 6, 23, 0.12), 0 2px 6px rgba(2, 6, 23, 0.05);
+    --blur: 16px;
+
+    --text-1: #0f172a;
+    --text-2: #475569;
+    --text-3: #94a3b8;
+    --text-4: #b4bdca;
+
+    --node-fill: #e2e8f0;
+    --node-stroke: #cbd5e1;
+    --node-poly-fill: #cbd5e1;
+    --node-poly-stroke: #94a3b8;
+    --node-fork: #334155;
+    --diagram-label: #1e293b;
+    --edge: #64748b;
+}
+
+[data-mode='dark'] {
+    color-scheme: dark;
+
+    /* tinted a touch more for a richer colored-dark feel */
+    --app-bg: color-mix(in srgb, var(--accent) 10%, #0a0d13);
+    --card-bg: color-mix(in srgb, var(--accent) 7%, #11151e);
+    --card-border: rgba(255, 255, 255, 0.08);
+    --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.5), 0 22px 50px -18px rgba(0, 0, 0, 0.7);
+    --hairline: rgba(255, 255, 255, 0.07);
+
+    --canvas-bg: color-mix(in srgb, var(--accent) 8%, #0c1017);
+    --grid-line: rgba(255, 255, 255, 0.045);
+
+    --surface: rgba(24, 30, 41, 0.84);
+    --surface-solid: color-mix(in srgb, var(--accent) 8%, #181e29);
+    --surface-sunken: rgba(255, 255, 255, 0.045);
+    --surface-hover: rgba(255, 255, 255, 0.07);
+    --surface-active: rgba(255, 255, 255, 0.11);
+    --overlay-border: rgba(255, 255, 255, 0.1);
+    --overlay-shadow: 0 12px 40px rgba(0, 0, 0, 0.55), 0 2px 6px rgba(0, 0, 0, 0.4);
+    --blur: 18px;
+
+    --text-1: #e7eaf0;
+    --text-2: #9aa4b3;
+    --text-3: #6b7585;
+    --text-4: #4d5664;
+
+    --node-fill: #232b39;
+    --node-stroke: #344052;
+    --node-poly-fill: #2a3344;
+    --node-poly-stroke: #3d4a5e;
+    --node-fork: #8a93a3;
+    --diagram-label: #cbd5e1;
+    --edge: #6b7585;
+}
+
+/* ---------- Family identity ---------- */
+
+:root,
+[data-theme='tide'] {
+    --accent: #0ea5b7;
+    --accent-strong: #0b8c9c;
+    --accent-soft: rgba(14, 165, 183, 0.12);
+    --accent-on: #ffffff;
+    --accent-glow: rgba(14, 165, 183, 0.34);
+    --logo: #0ea5b7;
+    --atmosphere: radial-gradient(900px 620px at 10% -5%, rgba(14, 165, 183, 0.14), transparent 60%),
+        radial-gradient(820px 600px at 102% 104%, rgba(84, 112, 184, 0.13), transparent 55%);
+
+    --node-automated: #0d9aac;
+    --node-manual: #f0795a;
+    --node-category: #5470b8;
+    --node-category-nested: #6f8fce;
+    --node-category-nested-stroke: #3f5fa0;
+    --edge-low: #9db4dc;
+    --edge-medium: #5570b5;
+    --edge-high: #3a58a8;
+
+    --selection: #7c5cff;
+    --selection-glow: rgba(124, 92, 255, 0.45);
+}
+
+[data-theme='graphite'] {
+    --accent: #3b9eff;
+    --accent-strong: #5cb0ff;
+    --accent-soft: rgba(59, 158, 255, 0.16);
+    --accent-on: #051321;
+    --accent-glow: rgba(59, 158, 255, 0.45);
+    --logo: #3b9eff;
+    --atmosphere: radial-gradient(1000px 720px at 0% -8%, rgba(59, 158, 255, 0.14), transparent 60%),
+        radial-gradient(900px 700px at 104% 106%, rgba(47, 159, 176, 0.1), transparent 55%);
+
+    --node-automated: #3187d4;
+    --node-manual: #2f9fb0;
+    --node-category: #5b82c5;
+    --node-category-nested: #6f95d6;
+    --node-category-nested-stroke: #3f63a0;
+    --edge-low: #8fa6cf;
+    --edge-medium: #5a78bd;
+    --edge-high: #3d5fb0;
+
+    --selection: #fb5fa0;
+    --selection-glow: rgba(251, 95, 160, 0.45);
+}
+
+[data-theme='ember'] {
+    --accent: #c2410c;
+    --accent-strong: #9a3412;
+    --accent-soft: rgba(194, 65, 12, 0.12);
+    --accent-on: #fff7ed;
+    --accent-glow: rgba(194, 65, 12, 0.34);
+    --logo: #c2410c;
+    --atmosphere: radial-gradient(900px 620px at 8% -5%, rgba(194, 65, 12, 0.14), transparent 60%),
+        radial-gradient(820px 600px at 104% 106%, rgba(202, 138, 4, 0.16), transparent 55%);
+
+    --node-automated: #c2410c;
+    --node-manual: #4f7d6e;
+    --node-category: #a16207;
+    --node-category-nested: #bd7e1f;
+    --node-category-nested-stroke: #825009;
+    --edge-low: #c2b08f;
+    --edge-medium: #a3814a;
+    --edge-high: #c2410c;
+
+    --selection: #0ea5e9;
+    --selection-glow: rgba(14, 165, 233, 0.45);
+}
+
+[data-theme='orchid'] {
+    --accent: #d946ef;
+    --accent-strong: #e879f9;
+    --accent-soft: rgba(217, 70, 239, 0.18);
+    --accent-on: #11061a;
+    --accent-glow: rgba(217, 70, 239, 0.5);
+    --logo: #d946ef;
+    --atmosphere: radial-gradient(1000px 720px at 14% -8%, rgba(217, 70, 239, 0.18), transparent 60%),
+        radial-gradient(900px 700px at 104% 108%, rgba(34, 206, 192, 0.13), transparent 55%);
+
+    --node-automated: #d437e8;
+    --node-manual: #22cec0;
+    --node-category: #7c7cf0;
+    --node-category-nested: #9a9af6;
+    --node-category-nested-stroke: #5b5be0;
+    --edge-low: #7c6f9e;
+    --edge-medium: #a855f7;
+    --edge-high: #d946ef;
+
+    --selection: #f5b313;
+    --selection-glow: rgba(245, 179, 19, 0.5);
+}
+
+[data-theme='verdant'] {
+    --accent: #10b981;
+    --accent-strong: #0e9f6e;
+    --accent-soft: rgba(16, 185, 129, 0.14);
+    --accent-on: #04231a;
+    --accent-glow: rgba(16, 185, 129, 0.4);
+    --logo: #10b981;
+    --atmosphere: radial-gradient(940px 660px at 10% -6%, rgba(16, 185, 129, 0.14), transparent 60%),
+        radial-gradient(840px 620px at 104% 106%, rgba(44, 122, 158, 0.13), transparent 55%);
+
+    --node-automated: #0e9f6e;
+    --node-manual: #d08700;
+    --node-category: #2c7a9e;
+    --node-category-nested: #3b93b8;
+    --node-category-nested-stroke: #236781;
+    --edge-low: #8fb8a6;
+    --edge-medium: #3f8f6e;
+    --edge-high: #0e7a52;
+
+    --selection: #8b5cf6;
+    --selection-glow: rgba(139, 92, 246, 0.46);
+}
+
+/* ---------- GLSP semantic-color bridge ---------- */
+
+:root {
+    --glsp-error-foreground: var(--danger, #e11d48);
+    --glsp-warning-foreground: var(--warning, #f59e0b);
+    --glsp-info-foreground: var(--info, #0ea5b7);
+    --glsp-navigation-highlight: var(--accent-glow, rgba(14, 165, 183, 0.25));
+    --glsp-search-highlight: var(--accent, #0ea5b7);
+}
+
+/* ---------- Theme-switcher swatch gradients ---------- */
+.theme-swatch[data-theme='tide'],
+.theme-option[data-theme='tide'] .theme-option-swatch {
+    background: linear-gradient(135deg, #0ea5b7 0%, #5470b8 55%, #f0795a 100%);
+}
+.theme-swatch[data-theme='graphite'],
+.theme-option[data-theme='graphite'] .theme-option-swatch {
+    background: linear-gradient(135deg, #3b9eff 0%, #2f9fb0 55%, #fb5fa0 100%);
+}
+.theme-swatch[data-theme='ember'],
+.theme-option[data-theme='ember'] .theme-option-swatch {
+    background: linear-gradient(135deg, #c2410c 0%, #a16207 55%, #4f7d6e 100%);
+}
+.theme-swatch[data-theme='orchid'],
+.theme-option[data-theme='orchid'] .theme-option-swatch {
+    background: linear-gradient(135deg, #d946ef 0%, #7c7cf0 55%, #22cec0 100%);
+}
+.theme-swatch[data-theme='verdant'],
+.theme-option[data-theme='verdant'] .theme-option-swatch {
+    background: linear-gradient(135deg, #10b981 0%, #2c7a9e 55%, #d08700 100%);
+}

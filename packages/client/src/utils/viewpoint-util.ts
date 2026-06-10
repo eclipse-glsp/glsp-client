@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2025 EclipseSource and others.
+ * Copyright (c) 2019-2026 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -23,6 +23,7 @@ import {
     Point,
     Viewport,
     findParentByFeature,
+    getWindowScroll,
     isAlignable,
     isBoundsAware,
     isViewport,
@@ -59,6 +60,27 @@ export function getAbsolutePositionByPoint(target: GModelElement, point: Point):
     }
 
     return position;
+}
+
+/**
+ * Computes the CSS `left`/`top` (in pixels) for placing {@link element} at the given point in page
+ * coordinates, accounting for its positioning context: relative to its `offsetParent` (the diagram
+ * container for absolutely positioned overlays) or, when there is none, relative to the viewport for
+ * fixed elements. This lets UI extensions be placed on the diagram canvas independently of where the
+ * diagram container sits within the page (e.g. below an application header).
+ *
+ * @param element the DOM-attached element to position
+ * @param pagePoint the target location in page coordinates
+ * @returns the `left`/`top` offset to assign to {@link element}'s style
+ */
+export function pageToCssPosition(element: HTMLElement, pagePoint: Point): Point {
+    const scroll = getWindowScroll();
+    const offsetParent = element.offsetParent as HTMLElement | null;
+    if (offsetParent) {
+        const bounds = offsetParent.getBoundingClientRect();
+        return { x: pagePoint.x - bounds.left - scroll.x, y: pagePoint.y - bounds.top - scroll.y };
+    }
+    return { x: pagePoint.x - scroll.x, y: pagePoint.y - scroll.y };
 }
 
 export function getViewportBounds(target: GModelElement, bounds: Bounds): Bounds {

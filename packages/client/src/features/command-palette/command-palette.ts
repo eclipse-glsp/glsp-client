@@ -18,6 +18,7 @@ import { Bounds, CommandPalette, getWindowScroll, GModelElement, GModelRoot } fr
 import { injectable } from 'inversify';
 import { CSS_HIDDEN_EXTENSION_CLASS, CSS_UI_EXTENSION_CLASS } from '../../base/ui-extension/ui-extension';
 import { getElements, isSelectableAndBoundsAware } from '../../utils/gmodel-util';
+import { pageToCssPosition } from '../../utils/viewpoint-util';
 
 @injectable()
 export class GlspCommandPalette extends CommandPalette {
@@ -49,8 +50,9 @@ export class GlspCommandPalette extends CommandPalette {
             x += bounds.x;
             y += bounds.y;
         }
-        containerElement.style.left = `${x}px`;
-        containerElement.style.top = `${y}px`;
+        const { x: cssX, y: cssY } = pageToCssPosition(containerElement, { x, y });
+        containerElement.style.left = `${cssX}px`;
+        containerElement.style.top = `${cssY}px`;
         containerElement.style.width = `${this.defaultWidth}px`;
     }
 

@@ -39,7 +39,7 @@
 
 .command-palette.validation.error input,
 .command-palette.validation.error input:focus {
-    color: var(--glsp-error-foregroundd);
+    color: var(--glsp-error-foreground);
     outline-color: var(--glsp-error-foreground);
 }
 
@@ -57,4 +57,60 @@
     border: 1px solid var(--glsp-warning-foreground);
     background-color: var(--glsp-warning-foreground);
     color: black;
+}
+
+/* --- Container, input & suggestions --- */
+
+.command-palette {
+    font-family: var(--font-body);
+    border-radius: 10px;
+    box-shadow: var(--overlay-shadow);
+    overflow: hidden;
+}
+
+.command-palette input {
+    font-family: var(--font-body);
+    font-size: 14px;
+    padding: 10px 14px;
+    border: none;
+    border-bottom: 1px solid var(--hairline);
+    outline: none;
+    color: var(--text-1);
+    background: var(--surface-solid);
+}
+
+.command-palette input::placeholder {
+    color: var(--text-3);
+}
+
+.command-palette-suggestions {
+    background: var(--surface-solid);
+    border: none;
+    border-radius: 0 0 10px 10px;
+    box-shadow: none;
+    font-size: 13px;
+    color: var(--text-2);
+}
+
+.command-palette-suggestions > div {
+    padding: 6px 14px;
+}
+
+.command-palette-suggestions .group {
+    background: var(--surface-sunken);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-2);
+    padding: 6px 14px;
+}
+
+.command-palette-suggestions > div:hover:not(.group) {
+    background: var(--surface-hover);
+}
+
+.command-palette-suggestions > div.selected {
+    background: var(--accent-soft);
+    color: var(--accent);
 }
