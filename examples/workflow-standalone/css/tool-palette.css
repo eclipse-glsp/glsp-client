@@ -22,7 +22,8 @@
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
     border: none;
-    box-shadow: none;
+    border-radius: 12px;
+    box-shadow: var(--overlay-shadow);
     color: var(--text-1);
     font-size: 13px;
     right: 40px;
@@ -80,7 +81,6 @@
     border: 1px solid var(--overlay-border);
     border-top: none;
     border-radius: 0 0 12px 12px;
-    box-shadow: var(--overlay-shadow);
     padding: 4px 0;
 }
 

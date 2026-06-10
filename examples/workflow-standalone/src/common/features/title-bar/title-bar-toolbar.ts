@@ -41,9 +41,12 @@ export class TitleBarToolbar implements IDiagramStartup {
         this.registerDiagramMenu();
 
         const dirtyIndicator = document.getElementById('dirtyIndicator');
-        this.editorContext.onDirtyStateChanged(change => {
-            dirtyIndicator?.classList.toggle('active', change.isDirty);
-        });
+        const updateDirtyIndicator = (isDirty: boolean): void => {
+            dirtyIndicator?.classList.toggle('active', isDirty);
+            dirtyIndicator?.setAttribute('title', isDirty ? 'Unsaved changes' : 'All changes saved');
+        };
+        updateDirtyIndicator(this.editorContext.isDirty);
+        this.editorContext.onDirtyStateChanged(change => updateDirtyIndicator(change.isDirty));
     }
 
     /** Wires the title bar `Diagram` menu button to a dropdown rendered via the context menu service. */
