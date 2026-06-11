@@ -22,29 +22,32 @@
   "main": "lib/node/app",
   "browser": "lib/browser/app",
   "scripts": {
-    "build": "yarn compile && yarn bundle",
-    "build:browser": "yarn compile && yarn bundle:browser",
+    "build": "pnpm compile && pnpm bundle",
+    "build:browser": "pnpm compile && pnpm bundle:browser",
     "bundle": "node ./esbuild.js",
-    "bundle:browser": "yarn ts-node ./scripts/download-server.ts --browser && node ./esbuild.js --browser",
+    "bundle:browser": "ts-node ./scripts/download-server.ts --browser && node ./esbuild.js --browser",
     "clean": "rimraf lib *.tsbuildinfo app/bundle.js app/bundle.js.map app/bundle.css app/bundle.css.map app/wf-glsp-server-webworker.js app/wf-glsp-server-webworker.js.map app/*.ttf",
     "compile": "tsc -b",
-    "dev": "yarn ts-node ./scripts/start.ts --dev",
-    "dev:browser": "yarn ts-node ./scripts/start.ts --dev --browser",
-    "dev:mcp": "yarn ts-node ./scripts/start.ts --dev --mcp",
+    "dev": "ts-node ./scripts/start.ts --dev",
+    "dev:browser": "ts-node ./scripts/start.ts --dev --browser",
+    "dev:mcp": "ts-node ./scripts/start.ts --dev --mcp",
     "lint": "eslint ./src",
-    "start": "yarn ts-node ./scripts/start.ts",
-    "start:browser": "yarn ts-node ./scripts/start.ts --browser",
-    "start:mcp": "yarn ts-node ./scripts/start.ts --mcp",
-    "start:server": "yarn ts-node ./scripts/start-node-server.ts"
+    "start": "ts-node ./scripts/start.ts",
+    "start:browser": "ts-node ./scripts/start.ts --browser",
+    "start:mcp": "ts-node ./scripts/start.ts --mcp",
+    "start:server": "ts-node ./scripts/start-node-server.ts"
   },
   "dependencies": {
-    "@eclipse-glsp-examples/workflow-glsp": "2.8.0-next",
-    "@eclipse-glsp/client": "2.8.0-next"
+    "@eclipse-glsp-examples/workflow-glsp": "workspace:*",
+    "@eclipse-glsp/client": "workspace:*",
+    "reflect-metadata": "^0.2.2",
+    "vscode-jsonrpc": "8.2.0"
   },
   "devDependencies": {
     "@types/tar": "6.1.5",
-    "esbuild": "^0.25.0",
-    "inversify": "^6.1.3"
+    "esbuild": "^0.28.1",
+    "inversify": "^6.1.3",
+    "tar": "7.5.16"
   },
   "publishConfig": {
     "access": "public"

@@ -102,42 +102,42 @@ Pick the most fitting tag from the vocabulary (Step 1.2) based on PR title and b
 
 **Formatting:**
 
--   Entry prefix: `-   ` (dash + exactly 3 spaces)
--   Sub-item indent: 4 spaces + `-   ` (4 spaces from parent dash)
--   Sub-sub-item indent: 8 spaces + `-   `
--   Single space between `[tag]` and description text
--   Single space before PR link at end of line
--   PR links are mandatory, full URLs: `[#123](https://github.com/OWNER/REPO/pull/123)`
+- Entry prefix: `-   ` (dash + exactly 3 spaces)
+- Sub-item indent: 4 spaces + `-   ` (4 spaces from parent dash)
+- Sub-sub-item indent: 8 spaces + `-   `
+- Single space between `[tag]` and description text
+- Single space before PR link at end of line
+- PR links are mandatory, full URLs: `[#123](https://github.com/OWNER/REPO/pull/123)`
 
 **Wording:**
 
--   Always start with a **present tense imperative verb** (not past tense)
--   Common verbs: Fix, Improve, Add, Update, Extend, Ensure, Introduce, Remove, Refactor, Rename, Provide, Allow, Support
--   **Bug fixes**: "Fix a bug that caused/prevented...", "Fix X behavior"
--   **Features**: "Introduce...", "Add support for...", "Provide..."
--   **Enhancements**: "Improve...", "Extend...", "Ensure that..."
--   **Refactors**: "Refactor...", "Rework...", "Rename..."
--   Be specific — never "Fix various issues"
+- Always start with a **present tense imperative verb** (not past tense)
+- Common verbs: Fix, Improve, Add, Update, Extend, Ensure, Introduce, Remove, Refactor, Rename, Provide, Allow, Support
+- **Bug fixes**: "Fix a bug that caused/prevented...", "Fix X behavior"
+- **Features**: "Introduce...", "Add support for...", "Provide..."
+- **Enhancements**: "Improve...", "Extend...", "Ensure that..."
+- **Refactors**: "Refactor...", "Rework...", "Rename..."
+- Be specific — never "Fix various issues"
 
 **Capitalization:**
 
--   Tags are always lowercase: `[diagram]`, not `[Diagram]`
--   Description starts lowercase after the tag (unless proper noun or code element)
--   Section headers: Title Case (`### Potentially Breaking Changes`)
+- Tags are always lowercase: `[diagram]`, not `[Diagram]`
+- Description starts lowercase after the tag (unless proper noun or code element)
+- Section headers: Title Case (`### Potentially Breaking Changes`)
 
 **Description cleanup from PR title:**
 
--   Remove issue tracker prefixes (e.g. `GLSP-1234:`, `GH-123:`, `ISSUE-456:`)
--   Remove conventional commit prefixes: `fix:`, `feat:`, `chore:`
--   Rephrase bug-report style to changelog style:
-    -   BAD: "Edit label UI does not resize on graph zoom"
-    -   GOOD: "Fix edit label UI not resizing on graph zoom"
--   Keep concise — one line
+- Remove issue tracker prefixes (e.g. `GLSP-1234:`, `GH-123:`, `ISSUE-456:`)
+- Remove conventional commit prefixes: `fix:`, `feat:`, `chore:`
+- Rephrase bug-report style to changelog style:
+    - BAD: "Edit label UI does not resize on graph zoom"
+    - GOOD: "Fix edit label UI not resizing on graph zoom"
+- Keep concise — one line
 
 **Breaking changes:**
 
--   Describe what changed, why it's breaking, and how to migrate
--   Extract migration sub-items from the PR body's "What it does" section
+- Describe what changed, why it's breaking, and how to migrate
+- Extract migration sub-items from the PR body's "What it does" section
 
 ---
 
@@ -149,35 +149,35 @@ Read `CHANGELOG.md` in the repository root.
 
 **Active section detection:**
 
--   An active section has the `- active` suffix (e.g. `## v2.7.0 - active`)
--   If an active section exists → merge new entries into it
--   If the topmost section is a released version (no `- active` suffix) → create a new active section above it
+- An active section has the `- active` suffix (e.g. `## v2.7.0 - active`)
+- If an active section exists → merge new entries into it
+- If the topmost section is a released version (no `- active` suffix) → create a new active section above it
 
 **Creating a new section:**
 
--   Bump the minor version of `LAST_TAG` (e.g. `v2.6.0` → `v2.7.0`)
--   Insert after the title line, before the first `## ` heading:
+- Bump the minor version of `LAST_TAG` (e.g. `v2.6.0` → `v2.7.0`)
+- Insert after the title line, before the first `## ` heading:
 
 ```markdown
 ## v2.7.0 - active
 
 ### Changes
 
--   [tag] Entry [#N](url)
+- [tag] Entry [#N](url)
 
 ### Potentially Breaking Changes
 
--   [tag] Entry [#N](url)
-    -   Sub-item detail
+- [tag] Entry [#N](url)
+    - Sub-item detail
 ```
 
 Only include "Potentially Breaking Changes" if there are breaking entries.
 
 **Merging into existing active section:**
 
--   Check PR numbers against existing entries to avoid duplicates
--   Append new entries to the appropriate subsection
--   Create missing subsections as needed
+- Check PR numbers against existing entries to avoid duplicates
+- Append new entries to the appropriate subsection
+- Create missing subsections as needed
 
 ### Step 2.2: Write the updated CHANGELOG.md
 
@@ -205,9 +205,9 @@ Even if nothing is uncertain, ask:
 
 ### Step 3.3: Collect user feedback
 
--   **Approve as-is** → done (or proceed to Phase 4 if PR was requested)
--   **Request edits** → apply changes, show updated diff, ask again
--   **Resolve uncertain items** → apply, show updated diff
+- **Approve as-is** → done (or proceed to Phase 4 if PR was requested)
+- **Request edits** → apply changes, show updated diff, ask again
+- **Resolve uncertain items** → apply, show updated diff
 
 **Do NOT proceed to Phase 4 unless the user explicitly requests a PR.**
 

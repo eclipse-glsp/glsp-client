@@ -8,24 +8,12 @@
       "detail": "Build all glsp-client packages & examples",
       "type": "shell",
       "group": "build",
-      "command": "yarn",
+      "command": "pnpm build",
       "presentation": {
         "reveal": "always",
         "panel": "new"
       },
       "problemMatcher": ["$tsc", "$eslint-stylish"]
-    },
-    {
-      "label": "[Client] Watch all",
-      "detail": "Watch all glsp-client packages & examples",
-      "type": "shell",
-      "group": "build",
-      "command": "yarn watch",
-      "presentation": {
-        "reveal": "always",
-        "panel": "new"
-      },
-      "problemMatcher": ["$tsc-watch"]
     },
     {
       "label": "[Client] Open Workflow Standalone example (Chrome)",

@@ -49,7 +49,6 @@ import {
 } from '@eclipse-glsp/client';
 import 'balloon-css/balloon.min.css';
 import { Container } from 'inversify';
-import 'sprotty/css/edit-label.css';
 import '../css/diagram.css';
 import { taskEditorModule } from './direct-task-editing/task-editor-module';
 import { BranchingNode, CategoryNode, Icon, SynchronizationNode, TaskNode, WeightedEdge } from './model';

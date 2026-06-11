@@ -4,7 +4,7 @@ A web-based diagram client framework for the [Graphical Language Server Platform
 
 ## Building
 
-This project is built with `yarn` and is available from npm via [@eclipse-glsp/client](https://www.npmjs.com/package/@eclipse-glsp/client).
+This project is built with `pnpm` and is available from npm via [@eclipse-glsp/client](https://www.npmjs.com/package/@eclipse-glsp/client).
 
 ## More information
 

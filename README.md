@@ -4,20 +4,37 @@ A web-based diagram client framework for the [Graphical Language Server Platform
 
 ## Structure
 
--   `@eclipse-glsp/protocol`: Generic client-server communication protocol
--   `@eclipse-glsp/sprotty`: Sprotty integration layer providing base bindings and re-exports
--   `@eclipse-glsp/client`: sprotty-based GLSP client
--   `@eclipse-glsp-examples/workflow-glsp`: Workflow diagram specific client customizations
--   `@eclipse-glsp-examples/workflow-standalone`: Standalone example application (Node & Browser mode)
+- `@eclipse-glsp/protocol`: Generic client-server communication protocol
+- `@eclipse-glsp/sprotty`: Sprotty integration layer providing base bindings and re-exports
+- `@eclipse-glsp/client`: sprotty-based GLSP client
+- `@eclipse-glsp-examples/workflow-glsp`: Workflow diagram specific client customizations
+- `@eclipse-glsp-examples/workflow-standalone`: Standalone example application (Node & Browser mode)
 
-## Building
+## Releases
 
-This project is built with `yarn`. The following packages are published to npm:
+[All available releases](https://github.com/eclipse-glsp/glsp-client/releases) are available on GitHub including changelogs.
 
--   [@eclipse-glsp/protocol](https://www.npmjs.com/package/@eclipse-glsp/protocol)
--   [@eclipse-glsp/sprotty](https://www.npmjs.com/package/@eclipse-glsp/sprotty)
--   [@eclipse-glsp/client](https://www.npmjs.com/package/@eclipse-glsp/client)
--   [@eclipse-glsp-examples/workflow-glsp](https://www.npmjs.com/package/@eclipse-glsp-examples/workflow-glsp)
+The following packages are published to npm:
+
+- [@eclipse-glsp/protocol](https://www.npmjs.com/package/@eclipse-glsp/protocol)
+- [@eclipse-glsp/sprotty](https://www.npmjs.com/package/@eclipse-glsp/sprotty)
+- [@eclipse-glsp/client](https://www.npmjs.com/package/@eclipse-glsp/client)
+- [@eclipse-glsp-examples/workflow-glsp](https://www.npmjs.com/package/@eclipse-glsp-examples/workflow-glsp)
+
+## Developer Documentation
+
+### First time setup
+
+- Install [node.js](https://nodejs.org/) (requires Node v22+)
+- Install pnpm: <https://pnpm.io/installation> (use pnpm 10+); a recent pnpm automatically switches to the version pinned in the `packageManager` field
+- Clone this repository
+- Install dependencies: `pnpm i` or `pnpm i --frozen-lockfile`
+
+### Build & Testing
+
+- Build (all packages): `pnpm build`
+- Test (all packages): `pnpm test`
+- Clean (all packages): `pnpm clean`
 
 ## Workflow Diagram Example
 
@@ -34,19 +51,19 @@ https://github.com/eclipse-glsp/glsp-client/assets/2311075/7436ab37-a68d-448a-8c
 
 The example can be run in two modes:
 
--   **Browser mode** – The GLSP server runs as a Web Worker directly in the browser. No external server process is needed. This is the quickest way to try out the example.
--   **Node mode** – The client connects to an external GLSP server via WebSocket. By default a pre-built Node.js server is downloaded and started, but this mode can also be used with a [Java-based GLSP server](https://github.com/eclipse-glsp/glsp-server#workflow-diagram-example).
+- **Browser mode** – The GLSP server runs as a Web Worker directly in the browser. No external server process is needed. This is the quickest way to try out the example.
+- **Node mode** – The client connects to an external GLSP server via WebSocket. By default a pre-built Node.js server is downloaded and started, but this mode can also be used with a [Java-based GLSP server](https://github.com/eclipse-glsp/glsp-server#workflow-diagram-example).
 
-Clone this repository and build the glsp-client packages:
+Clone this repository, then install the dependencies and build the glsp-client packages:
 
 ```bash
-yarn install
+pnpm build
 ```
 
 #### Browser mode (recommended for quick start)
 
 ```bash
-yarn start:browser
+pnpm start:browser
 ```
 
 This downloads the bundled Web Worker GLSP server and starts the webpack dev server on `http://localhost:8083/diagram.html`.
@@ -54,7 +71,7 @@ This downloads the bundled Web Worker GLSP server and starts the webpack dev ser
 #### Node mode
 
 ```bash
-yarn start
+pnpm start
 ```
 
 This downloads and starts the GLSP server and launches the webpack dev server on `http://localhost:8082/diagram.html`.
@@ -62,7 +79,7 @@ This downloads and starts the GLSP server and launches the webpack dev server on
 To use your own GLSP server (e.g. a [Java](https://github.com/eclipse-glsp/glsp-server#workflow-diagram-example) or [Node](https://github.com/eclipse-glsp/glsp-server-node#workflow-diagram-example) variant running from source), start the server separately and launch the client without the built-in server:
 
 ```bash
-yarn start --client-only
+pnpm start --client-only
 ```
 
 ### Development
@@ -71,10 +88,10 @@ For active development, the `dev` scripts compile TypeScript in watch mode and s
 
 ```bash
 # Browser mode – watches sources, starts webpack dev server
-yarn dev:browser
+pnpm dev:browser
 
 # Node mode – watches sources, starts GLSP server, starts webpack dev server
-yarn dev
+pnpm dev
 ```
 
 ### How to start the Workflow Diagram example server from the sources

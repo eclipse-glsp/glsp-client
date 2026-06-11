@@ -19,7 +19,8 @@
     --grid-stroke-width: calc(1px * var(--grid-background-zoom));
     --grid-stroke-width-half: calc(var(--grid-stroke-width) / 2);
     --grid-color: rgba(0, 0, 0, 0.1);
-    background-image: linear-gradient(to right, var(--grid-color) var(--grid-stroke-width), transparent var(--grid-stroke-width)),
+    background-image:
+        linear-gradient(to right, var(--grid-color) var(--grid-stroke-width), transparent var(--grid-stroke-width)),
         linear-gradient(to bottom, var(--grid-color) var(--grid-stroke-width), transparent var(--grid-stroke-width));
     background-size: var(--grid-background-width) var(--grid-background-height);
     background-position: calc(var(--grid-background-x) - var(--grid-stroke-width-half))

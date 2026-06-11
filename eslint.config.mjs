@@ -6,8 +6,8 @@ const restrictedBaseImports = ['..', '../index', '../..', '../../index', 'src'];
 
 export default [
     ...glspConfig,
-    // Ignore JS/MJS/CJS config/build files and scripts directory
-    { ignores: ['**/*.js', '**/*.mjs', '**/*.cjs', '**/scripts/'] },
+    // Ignore JS/MJS/CJS config/build files, scripts directory and local git worktrees
+    { ignores: ['**/*.js', '**/*.mjs', '**/*.cjs', '**/scripts/', '.worktrees/'] },
     // TypeScript parser options
     {
         files: ['**/*.{ts,tsx}'],
@@ -166,7 +166,7 @@ export default [
     // examples: only consume the public '@eclipse-glsp/client' API; the lower layers
     // (protocol, sprotty, raw sprotty/sprotty-protocol) are re-exported through it.
     {
-        files: ['examples/*/src/**/*.{ts,tsx}'],
+        files: ['examples/**/*.{ts,tsx}'],
         rules: {
             'no-restricted-imports': [
                 'warn',
