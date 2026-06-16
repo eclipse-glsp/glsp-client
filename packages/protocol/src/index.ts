@@ -61,3 +61,4 @@ export * from './utils/geometry-util';
 export * from './utils/geometry-vector';
 export * from './utils/math-util';
 export * from './utils/type-util';
+export * from './utils/uuid';

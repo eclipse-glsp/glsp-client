@@ -47,6 +47,14 @@ export default [
                     name: 'sprotty-protocol',
                     message:
                         "The sprotty-protocol default exports are customized and reexported by GLSP. Please use '@eclipse-glsp/client' instead"
+                },
+                {
+                    name: 'uuid',
+                    message: "Use the 'generateUuid'/'isUuid' helpers (from '@eclipse-glsp/protocol') instead of importing 'uuid' directly."
+                },
+                {
+                    name: 'uuid/*',
+                    message: "Use the 'generateUuid'/'isUuid' helpers (from '@eclipse-glsp/protocol') instead of importing 'uuid' directly."
                 }
             ],
             '@typescript-eslint/no-unused-vars': [
@@ -59,7 +67,7 @@ export default [
             ]
         }
     },
-    // packages/protocol: restrict sprotty and circular @eclipse-glsp/client imports
+    // packages/protocol: restrict sprotty and uuid direct imports
     {
         files: ['packages/protocol/src/**/*.{ts,tsx}'],
         rules: {
@@ -75,14 +83,14 @@ export default [
                     message: "The protocol package should not have any direct 'sprotty' dependencies. Try to use 'sprotty-protocol' instead"
                 },
                 {
-                    name: '@eclipse-glsp/client',
+                    name: 'uuid',
                     message:
-                        "Circular dependency! This package is consumed by '@eclipse-glsp' client. Consider moving the conflicting file into this package."
+                        "Use the 'generateUuid'/'isUuid' helpers (from this package's 'utils/uuid' module) instead of importing 'uuid' directly."
                 },
                 {
-                    name: '@eclipse-glsp/client/*',
+                    name: 'uuid/*',
                     message:
-                        "Circular dependency! This package is consumed by '@eclipse-glsp' client. Consider moving the conflicting file into this package."
+                        "Use the 'generateUuid'/'isUuid' helpers (from this package's 'utils/uuid' module) instead of importing 'uuid' directly."
                 }
             ]
         }
@@ -101,6 +109,14 @@ export default [
                 {
                     name: 'sprotty-protocol/*',
                     message: "Please use '@eclipse-glsp/protocol' instead"
+                },
+                {
+                    name: 'uuid',
+                    message: "Use the 'generateUuid'/'isUuid' helpers (from '@eclipse-glsp/protocol') instead of importing 'uuid' directly."
+                },
+                {
+                    name: 'uuid/*',
+                    message: "Use the 'generateUuid'/'isUuid' helpers (from '@eclipse-glsp/protocol') instead of importing 'uuid' directly."
                 }
             ]
         }
@@ -135,6 +151,65 @@ export default [
                 {
                     name: '@eclipse-glsp/protocol/*',
                     message: 'Please use @eclipse-glsp/sprotty instead'
+                },
+                {
+                    name: 'uuid',
+                    message: "Use the 'generateUuid'/'isUuid' helpers (from '@eclipse-glsp/sprotty') instead of importing 'uuid' directly."
+                },
+                {
+                    name: 'uuid/*',
+                    message: "Use the 'generateUuid'/'isUuid' helpers (from '@eclipse-glsp/sprotty') instead of importing 'uuid' directly."
+                }
+            ]
+        }
+    },
+    // examples: only consume the public '@eclipse-glsp/client' API; the lower layers
+    // (protocol, sprotty, raw sprotty/sprotty-protocol) are re-exported through it.
+    {
+        files: ['examples/*/src/**/*.{ts,tsx}'],
+        rules: {
+            'no-restricted-imports': [
+                'warn',
+                ...restrictedBaseImports,
+                {
+                    name: 'sprotty',
+                    message: 'Please use @eclipse-glsp/client instead'
+                },
+                {
+                    name: 'sprotty/*',
+                    message: 'Please use @eclipse-glsp/client instead'
+                },
+                {
+                    name: 'sprotty-protocol',
+                    message: 'Please use @eclipse-glsp/client instead'
+                },
+                {
+                    name: 'sprotty-protocol/*',
+                    message: 'Please use @eclipse-glsp/client instead'
+                },
+                {
+                    name: '@eclipse-glsp/protocol',
+                    message: 'Please use @eclipse-glsp/client instead'
+                },
+                {
+                    name: '@eclipse-glsp/protocol/*',
+                    message: 'Please use @eclipse-glsp/client instead'
+                },
+                {
+                    name: '@eclipse-glsp/sprotty',
+                    message: 'Please use @eclipse-glsp/client instead'
+                },
+                {
+                    name: '@eclipse-glsp/sprotty/*',
+                    message: 'Please use @eclipse-glsp/client instead'
+                },
+                {
+                    name: 'uuid',
+                    message: "Use the 'generateUuid'/'isUuid' helpers (from '@eclipse-glsp/client') instead of importing 'uuid' directly."
+                },
+                {
+                    name: 'uuid/*',
+                    message: "Use the 'generateUuid'/'isUuid' helpers (from '@eclipse-glsp/client') instead of importing 'uuid' directly."
                 }
             ]
         }

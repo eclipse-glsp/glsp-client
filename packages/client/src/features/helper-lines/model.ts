@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2023-2024 EclipseSource and others.
+ * Copyright (c) 2023-2026 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -14,8 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { Args, Bounds, Direction, GChildElement, GModelElement, GShapeElement, Point, Vector } from '@eclipse-glsp/sprotty';
-import { v4 as uuid } from 'uuid';
+import { Args, Bounds, Direction, GChildElement, GModelElement, GShapeElement, Point, Vector, generateUuid } from '@eclipse-glsp/sprotty';
 import { ArgsAware } from '../../base/args-feature';
 import { ResizeHandleLocation } from '../change-bounds/model';
 
@@ -46,7 +45,7 @@ export class HelperLine extends GChildElement implements ArgsAware {
         readonly lineType: HelperLineType = HelperLineType.Left
     ) {
         super();
-        this.id = uuid();
+        this.id = generateUuid();
         this.type = HELPER_LINE;
     }
 
@@ -86,7 +85,7 @@ export class SelectionBounds extends GShapeElement implements ArgsAware {
 
     constructor(bounds?: Bounds) {
         super();
-        this.id = uuid();
+        this.id = generateUuid();
         this.type = SELECTION_BOUNDS;
         if (bounds) {
             this.bounds = bounds;

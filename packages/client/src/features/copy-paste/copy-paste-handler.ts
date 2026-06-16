@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2024 EclipseSource and others.
+ * Copyright (c) 2019-2026 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -16,6 +16,7 @@
 import {
     ClipboardData,
     CutOperation,
+    generateUuid,
     IActionDispatcher,
     PasteOperation,
     RequestClipboardDataAction,
@@ -24,7 +25,6 @@ import {
     ViewerOptions
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
-import { v4 as uuid } from 'uuid';
 import { EditorContextService } from '../../base/editor-context-service';
 
 export interface ICopyPasteHandler {
@@ -107,7 +107,7 @@ export class ServerCopyPasteHandler implements ICopyPasteHandler {
 
     handleCopy(event: ClipboardEvent): void {
         if (event.clipboardData && this.shouldCopy(event)) {
-            const clipboardId = uuid();
+            const clipboardId = generateUuid();
             event.clipboardData.setData(CLIPBOARD_DATA_FORMAT, toClipboardId(clipboardId));
             this.actionDispatcher
                 .request<SetClipboardDataAction>(RequestClipboardDataAction.create(this.editorContext.get()))

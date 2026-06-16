@@ -13,19 +13,18 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { v4 as uuid } from 'uuid';
-
 import { ActionMessage } from '../action-protocol/base-protocol';
 import { Disposable } from '../utils/disposable';
 import { Event } from '../utils/event';
 import { AnyObject, MaybePromise, hasStringProp } from '../utils/type-util';
+import { generateUuid } from '../utils/uuid';
 import { DisposeClientSessionParameters, InitializeClientSessionParameters, InitializeParameters, InitializeResult } from './types';
 
 export class ApplicationIdProvider {
     private static _applicationId?: string;
     static get(): string {
         if (!ApplicationIdProvider._applicationId) {
-            ApplicationIdProvider._applicationId = uuid();
+            ApplicationIdProvider._applicationId = generateUuid();
         }
         return ApplicationIdProvider._applicationId;
     }
