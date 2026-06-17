@@ -14,8 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { IDiagramStartup, IGridManager } from '@eclipse-glsp/client';
-import { MaybePromise, TYPES } from '@eclipse-glsp/sprotty';
+import { IDiagramStartup, IGridManager, MaybePromise, TYPES } from '@eclipse-glsp/client';
 import { inject, injectable, optional } from 'inversify';
 
 /**

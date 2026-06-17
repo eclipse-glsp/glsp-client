@@ -18,6 +18,7 @@ import {
     Action,
     ExportSvgAction,
     ExportSvgOptions,
+    generateUuid,
     GModelRoot,
     RejectAction,
     RequestAction,
@@ -25,7 +26,6 @@ import {
     SvgExporter
 } from '@eclipse-glsp/sprotty';
 import { injectable } from 'inversify';
-import { v4 as uuid } from 'uuid';
 
 @injectable()
 export class GLSPSvgExporter extends SvgExporter {
@@ -82,7 +82,7 @@ export class GLSPSvgExporter extends SvgExporter {
         // createSvg requires the svg to have a non-empty id, so we generate one if necessary
         const originalId = svgElement.id;
         try {
-            svgElement.id = originalId || uuid();
+            svgElement.id = originalId || generateUuid();
             return super.createSvg(svgElement, root, options, cause);
         } finally {
             svgElement.id = originalId;

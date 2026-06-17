@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2024 EclipseSource and others.
+ * Copyright (c) 2024-2026 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -14,8 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { Args, Dimension, FeatureSet, GNode, boundsFeature, createFeatureSet, moveFeature } from '@eclipse-glsp/sprotty';
-import { v4 as uuid } from 'uuid';
+import { Args, Dimension, FeatureSet, GNode, boundsFeature, createFeatureSet, generateUuid, moveFeature } from '@eclipse-glsp/sprotty';
 import { ArgsAware, argsFeature } from '../../../base/args-feature';
 
 export const ARG_LENGTH = 'length';
@@ -25,7 +24,7 @@ export class InsertIndicator extends GNode implements ArgsAware {
 
     static TYPE = 'node:insert-indicator';
 
-    override id: string = uuid();
+    override id: string = generateUuid();
     override type: string = InsertIndicator.TYPE;
     override features?: FeatureSet = createFeatureSet(InsertIndicator.DEFAULT_FEATURES);
     override cssClasses: string[] = ['insert-indicator', 'sprotty-node'];
