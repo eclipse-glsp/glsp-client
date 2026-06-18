@@ -6,7 +6,7 @@ Separating this base configuration and the actual integration code means that it
 
 ## Building
 
-This package is built with `yarn` and is available from npm via [@eclipse-glsp-examples/workflow-glsp](https://www.npmjs.com/package/@eclipse-glsp-examples/worfklow-glsp)
+This package is built with `pnpm` and is available from npm via [@eclipse-glsp-examples/workflow-glsp](https://www.npmjs.com/package/@eclipse-glsp-examples/worfklow-glsp)
 
 ## More information
 

@@ -36,5 +36,5 @@ export abstract class FeedbackCommand extends Command implements Ranked {
 /** Used for backwards compatibility, otherwise use Ranked.getRank or Ranked sort functions. */
 export function getFeedbackRank(command: ICommand): number {
     const feedbackCommand = command as Partial<FeedbackCommand>;
-    return feedbackCommand?.priority ? -feedbackCommand.priority : feedbackCommand.rank ?? Ranked.DEFAULT_RANK;
+    return feedbackCommand?.priority ? -feedbackCommand.priority : (feedbackCommand.rank ?? Ranked.DEFAULT_RANK);
 }

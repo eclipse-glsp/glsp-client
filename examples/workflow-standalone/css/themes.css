@@ -120,7 +120,8 @@
     --accent-on: #ffffff;
     --accent-glow: rgba(14, 165, 183, 0.34);
     --logo: #0ea5b7;
-    --atmosphere: radial-gradient(900px 620px at 10% -5%, rgba(14, 165, 183, 0.14), transparent 60%),
+    --atmosphere:
+        radial-gradient(900px 620px at 10% -5%, rgba(14, 165, 183, 0.14), transparent 60%),
         radial-gradient(820px 600px at 102% 104%, rgba(84, 112, 184, 0.13), transparent 55%);
 
     --node-automated: #0d9aac;
@@ -143,7 +144,8 @@
     --accent-on: #051321;
     --accent-glow: rgba(59, 158, 255, 0.45);
     --logo: #3b9eff;
-    --atmosphere: radial-gradient(1000px 720px at 0% -8%, rgba(59, 158, 255, 0.14), transparent 60%),
+    --atmosphere:
+        radial-gradient(1000px 720px at 0% -8%, rgba(59, 158, 255, 0.14), transparent 60%),
         radial-gradient(900px 700px at 104% 106%, rgba(47, 159, 176, 0.1), transparent 55%);
 
     --node-automated: #3187d4;
@@ -166,7 +168,8 @@
     --accent-on: #fff7ed;
     --accent-glow: rgba(194, 65, 12, 0.34);
     --logo: #c2410c;
-    --atmosphere: radial-gradient(900px 620px at 8% -5%, rgba(194, 65, 12, 0.14), transparent 60%),
+    --atmosphere:
+        radial-gradient(900px 620px at 8% -5%, rgba(194, 65, 12, 0.14), transparent 60%),
         radial-gradient(820px 600px at 104% 106%, rgba(202, 138, 4, 0.16), transparent 55%);
 
     --node-automated: #c2410c;
@@ -189,7 +192,8 @@
     --accent-on: #11061a;
     --accent-glow: rgba(217, 70, 239, 0.5);
     --logo: #d946ef;
-    --atmosphere: radial-gradient(1000px 720px at 14% -8%, rgba(217, 70, 239, 0.18), transparent 60%),
+    --atmosphere:
+        radial-gradient(1000px 720px at 14% -8%, rgba(217, 70, 239, 0.18), transparent 60%),
         radial-gradient(900px 700px at 104% 108%, rgba(34, 206, 192, 0.13), transparent 55%);
 
     --node-automated: #d437e8;
@@ -212,7 +216,8 @@
     --accent-on: #04231a;
     --accent-glow: rgba(16, 185, 129, 0.4);
     --logo: #10b981;
-    --atmosphere: radial-gradient(940px 660px at 10% -6%, rgba(16, 185, 129, 0.14), transparent 60%),
+    --atmosphere:
+        radial-gradient(940px 660px at 10% -6%, rgba(16, 185, 129, 0.14), transparent 60%),
         radial-gradient(840px 620px at 104% 106%, rgba(44, 122, 158, 0.13), transparent 55%);
 
     --node-automated: #0e9f6e;

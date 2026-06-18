@@ -1,0 +1,47 @@
+packages:
+    - 'packages/*'
+    - 'examples/*'
+
+# Security overrides: force patched versions of transitive (dev-only) dependencies that upstream
+# tooling (concurrently, mocha, nyc) still pins to ranges flagged by `pnpm audit`.
+overrides:
+    shell-quote: '>=1.8.4'
+    serialize-javascript: '>=7.0.5'
+    diff: '>=8.0.3'
+    js-yaml: '>=4.1.2'
+
+# Tooling (eslint, prettier, mocha, ts-node, rimraf, @eclipse-glsp/*-config, ...) is provided
+# as transitive dependencies of the @eclipse-glsp/dev meta-package and must be resolvable from
+# the workspace root (tsconfig `extends`, lint/test/build script bins). Rather than flat-hoisting
+# everything (shamefullyHoist), only the dev tooling is public-hoisted; app/runtime deps stay
+# strictly isolated. pnpm >=11 no longer reads non-auth settings from .npmrc, so this lives here.
+publicHoistPattern:
+    - '@eclipse-glsp/*config*'
+    - '@eclipse-glsp/cli'
+    - 'eslint'
+    - 'eslint-*'
+    - '@typescript-eslint/*'
+    - 'prettier'
+    - 'prettier-plugin-*'
+    - 'mocha'
+    - 'chai'
+    - 'sinon'
+    - 'ts-node'
+    - 'rimraf'
+    - 'nyc'
+    # type stubs are compile-time-only dev tooling; hoist them all so `@types/<x>` resolves at the root
+    - '@types/*'
+
+# Dependencies allowed to run install/build scripts (pnpm >=11 replaces onlyBuiltDependencies).
+allowBuilds:
+    esbuild: true
+    unrs-resolver: true
+
+# The minimum age of dependency versions to be installed in minutes. 4320 minutes is 72h.
+# This is to avoid supply chain attacks where a new version of a dependency is published with malicious code.
+minimumReleaseAge: 4320
+minimumReleaseAgeIgnoreMissingTime: false
+# First-party @eclipse-glsp packages are consumed as fresh nightlies (next tag) and are not a
+# supply-chain risk, so exempt them from the minimumReleaseAge gate (third-party deps stay gated).
+minimumReleaseAgeExclude:
+    - '@eclipse-glsp/*'

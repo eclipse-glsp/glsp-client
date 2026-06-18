@@ -218,7 +218,7 @@ export class KeyboardToolPalette extends ToolPalette {
 
         // Create button for Search
         this.searchToolButton = this.createSearchButton();
-        this.headerToolsButtonMapping.set(mappingIndex++, this.searchToolButton);
+        this.headerToolsButtonMapping.set(mappingIndex, this.searchToolButton);
         headerTools.appendChild(this.searchToolButton);
 
         return headerTools;

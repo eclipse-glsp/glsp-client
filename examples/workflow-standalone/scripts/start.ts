@@ -86,15 +86,12 @@ async function run(): Promise<void> {
     commands.push({ command: clientCmd, name: 'web' });
     prefixColors.push('yellow');
 
-    const { result, commands: running } = concurrently(commands, {
+    // concurrently forwards SIGINT/SIGTERM to its children and tears them down itself, so no manual
+    // signal handling is needed - just mirror its outcome as the process exit code.
+    const { result } = concurrently(commands, {
         prefix: 'name',
         prefixColors,
         killOthersOn: ['failure', 'success']
-    });
-
-    process.on('SIGINT', () => {
-        running.forEach((cmd: any) => cmd.kill('SIGKILL'));
-        process.exit(0);
     });
 
     result.then(

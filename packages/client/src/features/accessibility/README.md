@@ -32,7 +32,7 @@ Below is a list of the keyboard only accessibility features:<br>
 
 #### Focus on the Graph
 
--   <kbd>ALT</kbd>+<kbd>G</kbd>: Use to set the focus on the graph.
+- <kbd>ALT</kbd>+<kbd>G</kbd>: Use to set the focus on the graph.
 
 #### Tool Palette
 
@@ -44,10 +44,10 @@ After selecting a node in the tool palette, the grid gets visible. The grid is f
 
 The following shortcuts are usable:
 
--   <kbd>1</kbd>- <kbd>9</kbd>: Position the pointer in the grid
--   Use arrow keys (<kbd>←</kbd> || <kbd>↑</kbd> || <kbd>→</kbd> || <kbd>↓</kbd>) to move the pointer to a direction
--   <kbd>ENTER</kbd>: Create the node
--   <kbd>CTRL</kbd> + <kbd>ENTER</kbd>: Create multiple nodes
+- <kbd>1</kbd>- <kbd>9</kbd>: Position the pointer in the grid
+- Use arrow keys (<kbd>←</kbd> || <kbd>↑</kbd> || <kbd>→</kbd> || <kbd>↓</kbd>) to move the pointer to a direction
+- <kbd>ENTER</kbd>: Create the node
+- <kbd>CTRL</kbd> + <kbd>ENTER</kbd>: Create multiple nodes
 
 #### Create Nodes
 
