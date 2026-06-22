@@ -15,7 +15,7 @@
  ********************************************************************************/
 import { execSync } from 'child_process';
 import * as path from 'path';
-import { downloadServerBundle, resolveVersion, SERVER_DIR_PATH } from './download-server';
+import { downloadServerBundle, resolveVersion, SERVER_DIR_PATH } from './download-server.mts';
 
 const NODE_SERVER_STABLE = 'wf-glsp-server-node.js';
 

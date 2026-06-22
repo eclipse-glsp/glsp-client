@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2022-2026 EclipseSource and others.
+ * Copyright (c) 2026 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,18 +13,17 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import glspVitestConfig, { defineConfig, mergeConfig } from '@eclipse-glsp/vitest-config';
 
-import { GModelElement } from '@eclipse-glsp/sprotty';
-import { describe, expect, it } from 'vitest';
-import { GridSnapper } from './grid-snapper';
-
-describe('GridSnapper', () => {
-    it('snap', () => {
-        const element = new GModelElement();
-        const snapper = new GridSnapper();
-        expect(snapper.snap({ x: 0, y: 0 }, element)).toEqual({ x: 0, y: 0 });
-        expect(snapper.snap({ x: 4, y: 5 }, element)).toEqual({ x: 0, y: 10 });
-        expect(snapper.snap({ x: 8, y: 11 }, element)).toEqual({ x: 10, y: 10 });
-        expect(snapper.snap({ x: -7, y: -4 }, element)).toEqual({ x: -10, y: -0 });
-    });
-});
+// Single flat config for the whole monorepo: the shared base globs every package's specs under
+// `src`, so one `vitest run --coverage` produces a merged report without per-package configs.
+// `reflect-metadata` is loaded globally for inversify-based DI specs (matching the former
+// .mocharc); it is harmless for the packages that don't use DI.
+export default mergeConfig(
+    glspVitestConfig,
+    defineConfig({
+        test: {
+            setupFiles: ['reflect-metadata']
+        }
+    })
+);

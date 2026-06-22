@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { DefaultAnchors, EdgeRouterRegistry, GNode, GRoutableElement, Point, Side } from '@eclipse-glsp/sprotty';
-import { expect } from 'chai';
+import { describe, expect, it } from 'vitest';
 import { Container } from 'inversify';
 import { GEdge, GGraph } from '../../model';
 import { routingModule } from './routing-module';
@@ -91,15 +91,15 @@ describe('GLSPStickyManhattanEdgeRouter', () => {
             const router = container
                 .get<EdgeRouterRegistry>(EdgeRouterRegistry)
                 .get(GLSPStickyManhattanEdgeRouter.KIND) as GLSPStickyManhattanEdgeRouter;
-            expect(router.route(edge)).to.deep.equal([]);
+            expect(router.route(edge)).toEqual([]);
         });
 
         it('produces a source-first, target-last sequence with intermediate linear points', () => {
             const { edge, router } = setupEdge({});
             const route = router.route(edge);
-            expect(route[0].kind).to.equal('source');
-            expect(route[route.length - 1].kind).to.equal('target');
-            expect(route.slice(1, -1).every(p => p.kind === 'linear')).to.equal(true);
+            expect(route[0].kind).toBe('source');
+            expect(route[route.length - 1].kind).toBe('target');
+            expect(route.slice(1, -1).every(p => p.kind === 'linear')).toBe(true);
         });
 
         it('computes a two-corner default route for horizontally separated nodes', () => {
@@ -107,9 +107,9 @@ describe('GLSPStickyManhattanEdgeRouter', () => {
             const route = router.route(edge);
             // source RIGHT -> target LEFT with different Y: two corners at midX.
             const interior = route.slice(1, -1);
-            expect(interior).to.have.lengthOf(2);
-            expect(interior[0].x).to.equal(interior[1].x);
-            expect(interior[0].y).to.not.equal(interior[1].y);
+            expect(interior).toHaveLength(2);
+            expect(interior[0].x).toBe(interior[1].x);
+            expect(interior[0].y).not.toBe(interior[1].y);
         });
     });
 
@@ -133,9 +133,9 @@ describe('GLSPStickyManhattanEdgeRouter', () => {
             const interior = route.slice(1, -1);
 
             // The shared x=150 spine must stay put — no recomputed midX.
-            expect(interior.every(p => p.x === 150)).to.equal(true);
+            expect(interior.every(p => p.x === 150)).toBe(true);
             // The target-side bend must not have moved.
-            expect(interior[interior.length - 1].y).to.equal(215);
+            expect(interior[interior.length - 1].y).toBe(215);
         });
     });
 
@@ -152,8 +152,8 @@ describe('GLSPStickyManhattanEdgeRouter', () => {
             });
             const points = edge.routingPoints.slice();
             router.cleanupRoutingPoints(edge, points, false, false);
-            expect(points).to.not.deep.include({ x: 10, y: 10 });
-            expect(points[0]).to.deep.equal({ x: 150, y: 20 });
+            expect(points).not.toContainEqual({ x: 10, y: 10 });
+            expect(points[0]).toEqual({ x: 150, y: 20 });
         });
 
         it('collapses degenerate segments shorter than minimalPointDistance', () => {
@@ -164,8 +164,8 @@ describe('GLSPStickyManhattanEdgeRouter', () => {
                 { x: 250, y: 20 }
             ];
             router.cleanupRoutingPoints(edge, points, false, false);
-            expect(points).to.have.lengthOf(1);
-            expect(points[0]).to.deep.equal({ x: 250, y: 20 });
+            expect(points).toHaveLength(1);
+            expect(points[0]).toEqual({ x: 250, y: 20 });
         });
     });
 
@@ -178,7 +178,7 @@ describe('GLSPStickyManhattanEdgeRouter', () => {
                 { x: 50, y: 50 } // diagonal
             ];
             testable.manhattanify(points, edge);
-            expect(points).to.deep.equal([
+            expect(points).toEqual([
                 { x: 0, y: 0 },
                 { x: 0, y: 50 },
                 { x: 50, y: 50 }
@@ -195,7 +195,7 @@ describe('GLSPStickyManhattanEdgeRouter', () => {
             ];
             const before = points.map(p => ({ ...p }));
             testable.manhattanify(points, edge);
-            expect(points).to.deep.equal(before);
+            expect(points).toEqual(before);
         });
     });
 
@@ -206,7 +206,7 @@ describe('GLSPStickyManhattanEdgeRouter', () => {
             const sourceAnchors = new DefaultAnchors(edge.source!, edge.parent, 'source');
             const targetAnchors = new DefaultAnchors(edge.target!, edge.parent, 'target');
             const result = router.getBestConnectionAnchors(sourceAnchors, targetAnchors, router.getOptions(edge));
-            expect(result).to.deep.equal({ source: Side.RIGHT, target: Side.LEFT });
+            expect(result).toEqual({ source: Side.RIGHT, target: Side.LEFT });
         });
     });
 });

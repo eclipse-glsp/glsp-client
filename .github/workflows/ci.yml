@@ -44,14 +44,7 @@ jobs:
           node-version: 22.x
           cache: pnpm
       - name: Test
-        run: pnpm test:ci
-      - name: Publish Test Report
-        uses: ctrf-io/github-test-reporter@0f299074936c32ccaab5be5230511f6b2b9080aa # v1.0.28
-        with:
-          report-path: 'packages/*/ctrf/*.json'
-          summary-report: true
-          file-report: true
-        if: always()
+        run: pnpm test
   lint:
     name: Lint
     timeout-minutes: 60
@@ -83,7 +76,7 @@ jobs:
           node-version: 22.x
           cache: pnpm
       - name: Run Coverage Tests
-        run: pnpm test:coverage:ci
+        run: pnpm test:coverage
       - name: Upload Coverage Report
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:

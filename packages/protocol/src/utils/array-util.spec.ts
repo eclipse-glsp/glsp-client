@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { expect } from 'chai';
+import { describe, expect, it } from 'vitest';
 import { TypeGuard } from './type-util';
 import {
     arrayOf,
@@ -37,17 +37,17 @@ describe('ArrayUtil', () => {
         it('should remove a present value and leave others intact', () => {
             const arr = [1, 2, 3, 4];
             remove(arr, 2, 4);
-            expect(arr).to.deep.equal([1, 3]);
+            expect(arr).toEqual([1, 3]);
         });
         it('should only remove the first occurrence', () => {
             const arr = [1, 2, 2, 3];
             remove(arr, 2);
-            expect(arr).to.deep.equal([1, 2, 3]);
+            expect(arr).toEqual([1, 2, 3]);
         });
         it('should do nothing for absent values', () => {
             const arr = [1, 2];
             remove(arr, 99);
-            expect(arr).to.deep.equal([1, 2]);
+            expect(arr).toEqual([1, 2]);
         });
     });
 
@@ -55,7 +55,7 @@ describe('ArrayUtil', () => {
         it('should push single values and nested arrays', () => {
             const arr: number[] = [1];
             flatPush(arr, [2, [3, 4], 5]);
-            expect(arr).to.deep.equal([1, 2, 3, 4, 5]);
+            expect(arr).toEqual([1, 2, 3, 4, 5]);
         });
     });
 
@@ -63,25 +63,25 @@ describe('ArrayUtil', () => {
         it('should add only values not already present', () => {
             const arr = [1, 2];
             distinctAdd(arr, 2, 3, 4, 1);
-            expect(arr).to.deep.equal([1, 2, 3, 4]);
+            expect(arr).toEqual([1, 2, 3, 4]);
         });
     });
 
     describe('first', () => {
         it('should return the first element without n', () => {
-            expect(first([10, 20, 30])).to.equal(10);
+            expect(first([10, 20, 30])).toBe(10);
         });
         it('should return first n elements', () => {
-            expect(first([10, 20, 30], 2)).to.deep.equal([10, 20]);
+            expect(first([10, 20, 30], 2)).toEqual([10, 20]);
         });
     });
 
     describe('last', () => {
         it('should return the last element without n', () => {
-            expect(last([10, 20, 30])).to.equal(30);
+            expect(last([10, 20, 30])).toBe(30);
         });
         it('should return last n elements', () => {
-            expect(last([10, 20, 30], 2)).to.deep.equal([20, 30]);
+            expect(last([10, 20, 30], 2)).toEqual([20, 30]);
         });
     });
 
@@ -91,17 +91,17 @@ describe('ArrayUtil', () => {
                 { id: 1, name: 'a' },
                 { id: 2, name: 'b' }
             ];
-            expect(pluck(items, 'name')).to.deep.equal(['a', 'b']);
+            expect(pluck(items, 'name')).toEqual(['a', 'b']);
         });
     });
 
     describe('asArray', () => {
         it('should wrap a single value in an array', () => {
-            expect(asArray(5)).to.deep.equal([5]);
+            expect(asArray(5)).toEqual([5]);
         });
         it('should return the array as-is', () => {
             const arr = [1, 2];
-            expect(asArray(arr)).to.equal(arr);
+            expect(asArray(arr)).toBe(arr);
         });
     });
 
@@ -109,34 +109,34 @@ describe('ArrayUtil', () => {
         const isNumber: TypeGuard<number> = (v: unknown): v is number => typeof v === 'number';
 
         it('should return true for a matching array', () => {
-            expect(isArrayOfType([1, 2, 3], isNumber)).to.be.true;
+            expect(isArrayOfType([1, 2, 3], isNumber)).toBe(true);
         });
         it('should return false for an empty array by default', () => {
-            expect(isArrayOfType([], isNumber)).to.be.false;
+            expect(isArrayOfType([], isNumber)).toBe(false);
         });
         it('should return true for an empty array with supportEmpty', () => {
-            expect(isArrayOfType([], isNumber, true)).to.be.true;
+            expect(isArrayOfType([], isNumber, true)).toBe(true);
         });
         it('should return false for a mixed array', () => {
-            expect(isArrayOfType([1, 'two'], isNumber)).to.be.false;
+            expect(isArrayOfType([1, 'two'], isNumber)).toBe(false);
         });
     });
 
     describe('isArrayOfClass', () => {
         it('should return true when all elements are instances of the class', () => {
-            expect(isArrayOfClass([new Date(), new Date()], Date)).to.be.true;
+            expect(isArrayOfClass([new Date(), new Date()], Date)).toBe(true);
         });
         it('should return false for non-instances', () => {
-            expect(isArrayOfClass([{}, new Date()], Date)).to.be.false;
+            expect(isArrayOfClass([{}, new Date()], Date)).toBe(false);
         });
     });
 
     describe('isStringArray', () => {
         it('should return true for a string array', () => {
-            expect(isStringArray(['a', 'b'])).to.be.true;
+            expect(isStringArray(['a', 'b'])).toBe(true);
         });
         it('should return false for a mixed array', () => {
-            expect(isStringArray(['a', 1])).to.be.false;
+            expect(isStringArray(['a', 1])).toBe(false);
         });
     });
 
@@ -145,27 +145,27 @@ describe('ArrayUtil', () => {
 
         it('should split elements by predicate', () => {
             const result = partition(['a', 1, 'b', 2] as (string | number)[], isString as TypeGuard<string | number>);
-            expect(result.match).to.deep.equal(['a', 'b']);
-            expect(result.rest).to.deep.equal([1, 2]);
+            expect(result.match).toEqual(['a', 'b']);
+            expect(result.rest).toEqual([1, 2]);
         });
         it('should handle all-match case', () => {
             const result = partition(['a', 'b'], isString as TypeGuard<string>);
-            expect(result.match).to.deep.equal(['a', 'b']);
-            expect(result.rest).to.deep.equal([]);
+            expect(result.match).toEqual(['a', 'b']);
+            expect(result.rest).toEqual([]);
         });
         it('should handle empty array', () => {
             const result = partition([], isString as TypeGuard<string>);
-            expect(result.match).to.deep.equal([]);
-            expect(result.rest).to.deep.equal([]);
+            expect(result.match).toEqual([]);
+            expect(result.rest).toEqual([]);
         });
     });
 
     describe('arrayOf', () => {
         it('should filter out undefined values', () => {
-            expect(arrayOf(1, undefined, 2, undefined, 3)).to.deep.equal([1, 2, 3]);
+            expect(arrayOf(1, undefined, 2, undefined, 3)).toEqual([1, 2, 3]);
         });
         it('should return empty array when all undefined', () => {
-            expect(arrayOf(undefined, undefined)).to.deep.equal([]);
+            expect(arrayOf(undefined, undefined)).toEqual([]);
         });
     });
 
@@ -177,17 +177,17 @@ describe('ArrayUtil', () => {
                 { type: 'fruit', name: 'banana' }
             ];
             const result = groupBy(items, i => i.type);
-            expect(result.size).to.equal(2);
-            expect(result.get('fruit')!.map(i => i.name)).to.deep.equal(['apple', 'banana']);
-            expect(result.get('veggie')!.map(i => i.name)).to.deep.equal(['carrot']);
+            expect(result.size).toBe(2);
+            expect(result.get('fruit')!.map(i => i.name)).toEqual(['apple', 'banana']);
+            expect(result.get('veggie')!.map(i => i.name)).toEqual(['carrot']);
         });
         it('should return an empty map for an empty array', () => {
-            expect(groupBy([], () => 'k').size).to.equal(0);
+            expect(groupBy([], () => 'k').size).toBe(0);
         });
         it('should support numeric keys', () => {
             const result = groupBy([1, 2, 3, 4, 5], n => n % 2);
-            expect(result.get(0)).to.deep.equal([2, 4]);
-            expect(result.get(1)).to.deep.equal([1, 3, 5]);
+            expect(result.get(0)).toEqual([2, 4]);
+            expect(result.get(1)).toEqual([1, 3, 5]);
         });
         it('should sort groups by key when sorted is true', () => {
             const items = [
@@ -198,8 +198,8 @@ describe('ArrayUtil', () => {
             ];
             const result = groupBy(items, i => i.rank, true);
             const keys = [...result.keys()];
-            expect(keys).to.deep.equal([1, 2, 3]);
-            expect(result.get(1)!.map(i => i.name)).to.deep.equal(['a', 'a2']);
+            expect(keys).toEqual([1, 2, 3]);
+            expect(result.get(1)!.map(i => i.name)).toEqual(['a', 'a2']);
         });
     });
 });

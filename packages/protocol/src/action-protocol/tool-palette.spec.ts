@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { expect } from 'chai';
+import { describe, expect, it } from 'vitest';
 import { TriggerEdgeCreationAction, TriggerNodeCreationAction } from './tool-palette';
 
 describe('Tool palette Actions', () => {
@@ -25,13 +25,13 @@ describe('Tool palette Actions', () => {
                     kind: 'triggerNodeCreation',
                     elementTypeId: ''
                 };
-                expect(TriggerNodeCreationAction.is(action)).to.be.true;
+                expect(TriggerNodeCreationAction.is(action)).toBe(true);
             });
             it('should return false for `undefined`', () => {
-                expect(TriggerNodeCreationAction.is(undefined)).to.be.false;
+                expect(TriggerNodeCreationAction.is(undefined)).toBe(false);
             });
             it('should return false for an object that does not have all required interface properties', () => {
-                expect(TriggerNodeCreationAction.is({ kind: 'notTheRightOne' })).to.be.false;
+                expect(TriggerNodeCreationAction.is({ kind: 'notTheRightOne' })).toBe(false);
             });
         });
 
@@ -42,7 +42,7 @@ describe('Tool palette Actions', () => {
                     elementTypeId: 'myElementType'
                 };
                 const { elementTypeId } = expected;
-                expect(TriggerNodeCreationAction.create(elementTypeId)).to.deep.equals(expected);
+                expect(TriggerNodeCreationAction.create(elementTypeId)).toEqual(expected);
             });
             it('should return an object conforming to the interface with matching properties for the given required and optional arguments', () => {
                 const expected: TriggerNodeCreationAction = {
@@ -51,7 +51,7 @@ describe('Tool palette Actions', () => {
                     args: { some: 'args' }
                 };
                 const { elementTypeId, args } = expected;
-                expect(TriggerNodeCreationAction.create(elementTypeId, { args })).to.deep.equals(expected);
+                expect(TriggerNodeCreationAction.create(elementTypeId, { args })).toEqual(expected);
             });
         });
     });
@@ -63,13 +63,13 @@ describe('Tool palette Actions', () => {
                     kind: 'triggerEdgeCreation',
                     elementTypeId: ''
                 };
-                expect(TriggerEdgeCreationAction.is(action)).to.be.true;
+                expect(TriggerEdgeCreationAction.is(action)).toBe(true);
             });
             it('should return false for `undefined`', () => {
-                expect(TriggerEdgeCreationAction.is(undefined)).to.be.false;
+                expect(TriggerEdgeCreationAction.is(undefined)).toBe(false);
             });
             it('should return false for an object that does not have all required interface properties', () => {
-                expect(TriggerEdgeCreationAction.is({ kind: 'notTheRightOne' })).to.be.false;
+                expect(TriggerEdgeCreationAction.is({ kind: 'notTheRightOne' })).toBe(false);
             });
         });
 
@@ -80,7 +80,7 @@ describe('Tool palette Actions', () => {
                     elementTypeId: 'myEdge'
                 };
                 const { elementTypeId } = expected;
-                expect(TriggerEdgeCreationAction.create(elementTypeId)).to.deep.equals(expected);
+                expect(TriggerEdgeCreationAction.create(elementTypeId)).toEqual(expected);
             });
             it('should return an object conforming to the interface with matching properties for the given required and optional arguments', () => {
                 const expected: TriggerEdgeCreationAction = {
@@ -89,7 +89,7 @@ describe('Tool palette Actions', () => {
                     args: { some: 'args' }
                 };
                 const { elementTypeId, args } = expected;
-                expect(TriggerEdgeCreationAction.create(elementTypeId, { args })).to.deep.equals(expected);
+                expect(TriggerEdgeCreationAction.create(elementTypeId, { args })).toEqual(expected);
             });
         });
     });

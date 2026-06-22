@@ -1,5 +1,4 @@
 .idea/
-.nyc_output/
 coverage
 
 node_modules/
@@ -16,10 +15,9 @@ examples/workflow-standalone/app/*
 *.jar
 
 !packages/client/src/lib
-tsconfig.tsbuildinfo
+*.tsbuildinfo
 eslint.xml
 report.xml
-**/ctrf
 examples/workflow-standalone/server
 
 .claude/local.settings.json

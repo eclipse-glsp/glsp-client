@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { expect } from 'chai';
+import { describe, expect, it } from 'vitest';
 import { DeleteMarkersAction, RequestMarkersAction, SetMarkersAction } from './element-validation';
 /**
  * Tests for the utility functions declared in the namespaces of the protocol
@@ -30,13 +30,13 @@ describe('Element validation actions', () => {
                     requestId: '',
                     elementsIDs: []
                 };
-                expect(RequestMarkersAction.is(action)).to.be.true;
+                expect(RequestMarkersAction.is(action)).toBe(true);
             });
             it('should return false for `undefined`', () => {
-                expect(RequestMarkersAction.is(undefined)).to.be.false;
+                expect(RequestMarkersAction.is(undefined)).toBe(false);
             });
             it('should return false for an object that does not have all required interface properties', () => {
-                expect(RequestMarkersAction.is({ kind: 'notTheRightOne' })).to.be.false;
+                expect(RequestMarkersAction.is({ kind: 'notTheRightOne' })).toBe(false);
             });
         });
 
@@ -49,7 +49,7 @@ describe('Element validation actions', () => {
                     reason: 'batch'
                 };
                 const { elementsIDs } = expected;
-                expect(RequestMarkersAction.create(elementsIDs)).to.deep.equals(expected);
+                expect(RequestMarkersAction.create(elementsIDs)).toEqual(expected);
             });
             it('should return an object conforming to the interface with matching properties for the given required and optional arguments', () => {
                 const expected: RequestMarkersAction = {
@@ -59,7 +59,7 @@ describe('Element validation actions', () => {
                     reason: 'batch'
                 };
                 const { elementsIDs, requestId } = expected;
-                expect(RequestMarkersAction.create(elementsIDs, { requestId })).to.deep.equals(expected);
+                expect(RequestMarkersAction.create(elementsIDs, { requestId })).toEqual(expected);
             });
         });
     });
@@ -72,13 +72,13 @@ describe('Element validation actions', () => {
                     responseId: '',
                     markers: []
                 };
-                expect(SetMarkersAction.is(action)).to.be.true;
+                expect(SetMarkersAction.is(action)).toBe(true);
             });
             it('should return false for `undefined`', () => {
-                expect(SetMarkersAction.is(undefined)).to.be.false;
+                expect(SetMarkersAction.is(undefined)).toBe(false);
             });
             it('should return false for an object that does not have all required interface properties', () => {
-                expect(SetMarkersAction.is({ kind: 'notTheRightOne' })).to.be.false;
+                expect(SetMarkersAction.is({ kind: 'notTheRightOne' })).toBe(false);
             });
         });
 
@@ -91,7 +91,7 @@ describe('Element validation actions', () => {
                     markers: [{ description: 'desc', elementId: 'myId', kind: 'info', label: 'string' }]
                 };
                 const { markers } = expected;
-                expect(SetMarkersAction.create(markers)).to.deep.equals(expected);
+                expect(SetMarkersAction.create(markers)).toEqual(expected);
             });
             it('should return an object conforming to the interface with matching properties for the given required and optional arguments', () => {
                 const expected: SetMarkersAction = {
@@ -101,7 +101,7 @@ describe('Element validation actions', () => {
                     markers: [{ description: 'desc', elementId: 'myId', kind: 'info', label: 'string' }]
                 };
                 const { markers, responseId } = expected;
-                expect(SetMarkersAction.create(markers, { responseId })).to.deep.equals(expected);
+                expect(SetMarkersAction.create(markers, { responseId })).toEqual(expected);
             });
         });
     });
@@ -113,13 +113,13 @@ describe('Element validation actions', () => {
                     kind: 'deleteMarkers',
                     markers: []
                 };
-                expect(DeleteMarkersAction.is(action)).to.be.true;
-                it('should return false for `undefined`', () => {
-                    expect(DeleteMarkersAction.is(undefined)).to.be.false;
-                });
-                it('should return false for an object that does not have all required interface properties', () => {
-                    expect(DeleteMarkersAction.is({ kind: 'notTheRightOne' })).to.be.false;
-                });
+                expect(DeleteMarkersAction.is(action)).toBe(true);
+            });
+            it('should return false for `undefined`', () => {
+                expect(DeleteMarkersAction.is(undefined)).toBe(false);
+            });
+            it('should return false for an object that does not have all required interface properties', () => {
+                expect(DeleteMarkersAction.is({ kind: 'notTheRightOne' })).toBe(false);
             });
 
             describe('create', () => {
@@ -129,7 +129,7 @@ describe('Element validation actions', () => {
                         markers: [{ description: 'desc', elementId: 'myId', kind: 'info', label: 'string' }]
                     };
                     const { markers } = expected;
-                    expect(DeleteMarkersAction.create(markers)).to.deep.equals(expected);
+                    expect(DeleteMarkersAction.create(markers)).toEqual(expected);
                 });
             });
         });

@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2023 EclipseSource and others.
+ * Copyright (c) 2023-2026 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -24,7 +24,7 @@ import {
     ResolvedHandleMove,
     RoutedPoint
 } from '@eclipse-glsp/sprotty';
-import { expect } from 'chai';
+import { describe, expect, it } from 'vitest';
 import { Container } from 'inversify';
 import { routingModule } from '../features/routing/routing-module';
 import { ALL_ROUTING_POINTS, ROUTE_KINDS, ROUTING_POINT_KINDS, calcRoute } from './gmodel-util';
@@ -110,7 +110,7 @@ describe('SModel Util', () => {
                 { x: 40, y: 40 }
             ];
             const route = calcRoute(edge, routerRegistry);
-            expect(route).to.deep.equal(<RoutedPoint[]>[
+            expect(route).toEqual(<RoutedPoint[]>[
                 { x: 0, y: 0, kind: 'source' },
                 { x: 20, y: 20, kind: 'linear', pointIndex: 0 },
                 { x: 30, y: 30, kind: 'linear', pointIndex: 1 },
@@ -131,7 +131,7 @@ describe('SModel Util', () => {
             ];
 
             const route = calcRoute(edge, routerRegistry);
-            expect(route).to.deep.equal(<RoutedPoint[]>[
+            expect(route).toEqual(<RoutedPoint[]>[
                 { x: 0, y: 0, kind: 'source' },
                 { x: 20, y: 20, kind: 'linear', pointIndex: 0 },
                 { x: 30, y: 30, kind: 'linear', pointIndex: 2 },
@@ -151,7 +151,7 @@ describe('SModel Util', () => {
             ];
 
             const route = calcRoute(edge, routerRegistry);
-            expect(route).to.deep.equal(<RoutedPoint[]>[
+            expect(route).toEqual(<RoutedPoint[]>[
                 { x: 0, y: 0, kind: 'source' },
                 { x: 20, y: 20, kind: 'linear', pointIndex: 0 },
                 { x: 30, y: 30, kind: 'linear', pointIndex: 1 },
@@ -172,7 +172,7 @@ describe('SModel Util', () => {
             ];
 
             const route = calcRoute(edge, routerRegistry, ALL_ROUTING_POINTS, 10);
-            expect(route).to.deep.equal(<RoutedPoint[]>[
+            expect(route).toEqual(<RoutedPoint[]>[
                 { x: 0, y: 0, kind: 'source' },
                 { x: 20, y: 20, kind: 'linear', pointIndex: 0 },
                 { x: 30, y: 30, kind: 'linear', pointIndex: 2 },
@@ -192,7 +192,7 @@ describe('SModel Util', () => {
             ];
 
             const route = calcRoute(edge, routerRegistry, ROUTE_KINDS);
-            expect(route).to.deep.equal(<RoutedPoint[]>[
+            expect(route).toEqual(<RoutedPoint[]>[
                 { x: 0, y: 0, kind: 'source' },
                 { x: 20, y: 20, kind: 'linear', pointIndex: 0 },
                 { x: 30, y: 30, kind: 'linear', pointIndex: 1 },
@@ -211,7 +211,7 @@ describe('SModel Util', () => {
             ];
 
             const route = calcRoute(edge, routerRegistry, ROUTING_POINT_KINDS);
-            expect(route).to.deep.equal(<RoutedPoint[]>[
+            expect(route).toEqual(<RoutedPoint[]>[
                 { x: 20, y: 20, kind: 'linear', pointIndex: 0 },
                 { x: 30, y: 30, kind: 'linear', pointIndex: 1 },
                 { x: 40, y: 40, kind: 'linear', pointIndex: 2 }

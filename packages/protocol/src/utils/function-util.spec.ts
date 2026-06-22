@@ -14,95 +14,92 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { expect } from 'chai';
-import * as sinon from 'sinon';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { debounce } from './function-util';
 
 describe('FunctionUtil', () => {
-    let clock: sinon.SinonFakeTimers;
-
     beforeEach(() => {
-        clock = sinon.useFakeTimers();
+        vi.useFakeTimers();
     });
 
     afterEach(() => {
-        clock.restore();
+        vi.useRealTimers();
     });
 
     describe('debounce', () => {
         it('should invoke the function after the wait period (trailing by default)', () => {
-            const spy = sinon.spy();
+            const spy = vi.fn();
             const debounced = debounce(spy, 100);
             debounced();
-            expect(spy.called).to.be.false;
-            clock.tick(100);
-            expect(spy.calledOnce).to.be.true;
+            expect(spy).not.toHaveBeenCalled();
+            vi.advanceTimersByTime(100);
+            expect(spy).toHaveBeenCalledOnce();
         });
 
         it('should reset the timer on rapid calls and only invoke once', () => {
-            const spy = sinon.spy();
+            const spy = vi.fn();
             const debounced = debounce(spy, 100);
             debounced();
-            clock.tick(50);
+            vi.advanceTimersByTime(50);
             debounced();
-            clock.tick(50);
-            expect(spy.called).to.be.false;
-            clock.tick(50);
-            expect(spy.calledOnce).to.be.true;
+            vi.advanceTimersByTime(50);
+            expect(spy).not.toHaveBeenCalled();
+            vi.advanceTimersByTime(50);
+            expect(spy).toHaveBeenCalledOnce();
         });
 
         it('should pass the latest arguments', () => {
-            const spy = sinon.spy();
+            const spy = vi.fn();
             const debounced = debounce(spy, 100);
             debounced('a');
             debounced('b');
-            clock.tick(100);
-            expect(spy.calledOnce).to.be.true;
-            expect(spy.firstCall.args).to.deep.equal(['b']);
+            vi.advanceTimersByTime(100);
+            expect(spy).toHaveBeenCalledOnce();
+            expect(spy.mock.calls[0]).toEqual(['b']);
         });
 
         it('should invoke immediately with leading: true', () => {
-            const spy = sinon.spy();
+            const spy = vi.fn();
             const debounced = debounce(spy, 100, { leading: true });
             debounced();
-            expect(spy.calledOnce).to.be.true;
+            expect(spy).toHaveBeenCalledOnce();
         });
 
         it('should not invoke trailing call when leading: true, trailing: false', () => {
-            const spy = sinon.spy();
+            const spy = vi.fn();
             const debounced = debounce(spy, 100, { leading: true, trailing: false });
             debounced();
             debounced();
-            expect(spy.calledOnce).to.be.true;
-            clock.tick(100);
-            expect(spy.calledOnce).to.be.true;
+            expect(spy).toHaveBeenCalledOnce();
+            vi.advanceTimersByTime(100);
+            expect(spy).toHaveBeenCalledOnce();
         });
 
         it('should invoke both leading and trailing when both are true', () => {
-            const spy = sinon.spy();
+            const spy = vi.fn();
             const debounced = debounce(spy, 100, { leading: true, trailing: true });
             debounced('first');
-            expect(spy.calledOnce).to.be.true;
+            expect(spy).toHaveBeenCalledOnce();
             debounced('second');
-            clock.tick(100);
-            expect(spy.calledTwice).to.be.true;
-            expect(spy.secondCall.args).to.deep.equal(['second']);
+            vi.advanceTimersByTime(100);
+            expect(spy).toHaveBeenCalledTimes(2);
+            expect(spy.mock.calls[1]).toEqual(['second']);
         });
 
         describe('cancel', () => {
             it('should prevent a pending trailing invocation', () => {
-                const spy = sinon.spy();
+                const spy = vi.fn();
                 const debounced = debounce(spy, 100);
                 debounced();
                 debounced.cancel();
-                clock.tick(100);
-                expect(spy.called).to.be.false;
+                vi.advanceTimersByTime(100);
+                expect(spy).not.toHaveBeenCalled();
             });
 
             it('should be safe to call when nothing is pending', () => {
-                const spy = sinon.spy();
+                const spy = vi.fn();
                 const debounced = debounce(spy, 100);
-                expect(() => debounced.cancel()).to.not.throw();
+                expect(() => debounced.cancel()).not.toThrow();
             });
         });
     });

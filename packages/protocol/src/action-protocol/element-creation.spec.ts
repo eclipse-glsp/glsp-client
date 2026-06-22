@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { expect } from 'chai';
+import { describe, expect, it } from 'vitest';
 import { Point } from 'sprotty-protocol';
 import { CreateEdgeOperation, CreateNodeOperation, CreateOperation, DeleteElementOperation } from './element-creation';
 /**
@@ -31,13 +31,13 @@ describe('Element creation operations', () => {
                     isOperation: true,
                     elementTypeId: 'someType'
                 };
-                expect(CreateOperation.is(operation)).to.be.true;
+                expect(CreateOperation.is(operation)).toBe(true);
             });
             it('should return false for `undefined`', () => {
-                expect(CreateOperation.is(undefined)).to.be.false;
+                expect(CreateOperation.is(undefined)).toBe(false);
             });
             it('should return false for an object that does not have all required interface properties', () => {
-                expect(CreateOperation.is({ kind: 'notTheRightOne' })).to.be.false;
+                expect(CreateOperation.is({ kind: 'notTheRightOne' })).toBe(false);
             });
         });
     });
@@ -50,13 +50,13 @@ describe('Element creation operations', () => {
                     isOperation: true,
                     elementTypeId: ''
                 };
-                expect(CreateNodeOperation.is(operation)).to.be.true;
+                expect(CreateNodeOperation.is(operation)).toBe(true);
             });
             it('should return false for `undefined`', () => {
-                expect(CreateNodeOperation.is(undefined)).to.be.false;
+                expect(CreateNodeOperation.is(undefined)).toBe(false);
             });
             it('should return false for an object that does not have all required interface properties', () => {
-                expect(CreateNodeOperation.is({ kind: 'notTheRightOne' })).to.be.false;
+                expect(CreateNodeOperation.is({ kind: 'notTheRightOne' })).toBe(false);
             });
         });
 
@@ -68,7 +68,7 @@ describe('Element creation operations', () => {
                     elementTypeId: 'someNode'
                 };
                 const { elementTypeId } = expected;
-                expect(CreateNodeOperation.create(elementTypeId)).to.deep.equals(expected);
+                expect(CreateNodeOperation.create(elementTypeId)).toEqual(expected);
             });
             it('should return an object conforming to the interface with matching properties for the given required and optional arguments', () => {
                 const expected: CreateNodeOperation = {
@@ -80,7 +80,7 @@ describe('Element creation operations', () => {
                     args: { some: 'args' }
                 };
                 const { elementTypeId, containerId, location, args } = expected;
-                expect(CreateNodeOperation.create(elementTypeId, { args, location, containerId })).to.deep.equals(expected);
+                expect(CreateNodeOperation.create(elementTypeId, { args, location, containerId })).toEqual(expected);
             });
         });
     });
@@ -95,13 +95,13 @@ describe('Element creation operations', () => {
                     sourceElementId: '',
                     targetElementId: ''
                 };
-                expect(CreateEdgeOperation.is(operation)).to.be.true;
+                expect(CreateEdgeOperation.is(operation)).toBe(true);
             });
             it('should return false for `undefined`', () => {
-                expect(CreateEdgeOperation.is(undefined)).to.be.false;
+                expect(CreateEdgeOperation.is(undefined)).toBe(false);
             });
             it('should return false for an object that does not have all required interface properties', () => {
-                expect(CreateEdgeOperation.is({ kind: 'notTheRightOne' })).to.be.false;
+                expect(CreateEdgeOperation.is({ kind: 'notTheRightOne' })).toBe(false);
             });
         });
 
@@ -115,7 +115,7 @@ describe('Element creation operations', () => {
                     targetElementId: 'target'
                 };
                 const { elementTypeId, sourceElementId, targetElementId } = expected;
-                expect(CreateEdgeOperation.create({ elementTypeId, sourceElementId, targetElementId })).to.deep.equals(expected);
+                expect(CreateEdgeOperation.create({ elementTypeId, sourceElementId, targetElementId })).toEqual(expected);
             });
             it('should return an object conforming to the interface with matching properties for the given required and optional arguments', () => {
                 const expected: CreateEdgeOperation = {
@@ -127,7 +127,7 @@ describe('Element creation operations', () => {
                     args: { some: 'args' }
                 };
                 const { elementTypeId, sourceElementId, targetElementId, args } = expected;
-                expect(CreateEdgeOperation.create({ elementTypeId, sourceElementId, targetElementId, args })).to.deep.equals(expected);
+                expect(CreateEdgeOperation.create({ elementTypeId, sourceElementId, targetElementId, args })).toEqual(expected);
             });
         });
     });
@@ -140,13 +140,13 @@ describe('Element creation operations', () => {
                     isOperation: true,
                     elementIds: []
                 };
-                expect(DeleteElementOperation.is(operation)).to.be.true;
+                expect(DeleteElementOperation.is(operation)).toBe(true);
             });
             it('should return false for `undefined`', () => {
-                expect(DeleteElementOperation.is(undefined)).to.be.false;
+                expect(DeleteElementOperation.is(undefined)).toBe(false);
             });
             it('should return false for an object that does not have all required interface properties', () => {
-                expect(DeleteElementOperation.is({ kind: 'notTheRightOne' })).to.be.false;
+                expect(DeleteElementOperation.is({ kind: 'notTheRightOne' })).toBe(false);
             });
         });
 
@@ -158,7 +158,7 @@ describe('Element creation operations', () => {
                     elementIds: ['deleteMe']
                 };
                 const { elementIds } = expected;
-                expect(DeleteElementOperation.create(elementIds)).to.deep.equals(expected);
+                expect(DeleteElementOperation.create(elementIds)).toEqual(expected);
             });
         });
     });

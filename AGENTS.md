@@ -14,7 +14,7 @@ Eclipse GLSP Client monorepo. Provides the sprotty-based client framework for th
 
 ## Validation
 
-- **Tests**: `pnpm test` (Mocha), single test: `pnpm test --grep 'test name'`
+- **Tests**: `pnpm test` (Vitest), single test: `pnpm test -t 'test name'`
 
 ## Inter-Package Import Rules
 

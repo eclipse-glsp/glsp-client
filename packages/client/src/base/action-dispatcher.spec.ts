@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { ActionHandlerRegistry, Deferred, IActionHandler, RequestAction, ResponseAction, TYPES } from '@eclipse-glsp/sprotty';
-import { expect } from 'chai';
+import { describe, expect, it } from 'vitest';
 import { Container } from 'inversify';
 
 /** Yields to the event loop long enough for pending microtasks (and already-queued timers) to run. */
@@ -59,13 +59,13 @@ describe('GLSPActionDispatcher', () => {
             testHandlerDelay = 15;
             const requestAction = { kind: 'request', requestId: '' };
             const response = await actionDispatcher.requestUntil(requestAction, 150);
-            expect(response?.responseId).to.be.equal(requestAction.requestId);
+            expect(response?.responseId).toBe(requestAction.requestId);
         });
         it('should resolve to `undefined` if no response dispatched within timeout & `rejectOnTimeout` flag is false', async () => {
             testHandlerDelay = 30;
             const requestAction = { kind: 'request', requestId: '' };
             const response = await actionDispatcher.requestUntil(requestAction, 5);
-            expect(response).to.be.undefined;
+            expect(response).toBeUndefined();
         });
         it('should be rejected if no response dispatched within timeout & `rejectOnTimeout` flag is true', async () => {
             testHandlerDelay = 30;
@@ -74,7 +74,7 @@ describe('GLSPActionDispatcher', () => {
                 () => false,
                 () => true
             );
-            expect(gotRejected, 'Response promise should be rejected').to.be.true;
+            expect(gotRejected, 'Response promise should be rejected').toBe(true);
         });
         it('should not leak timeout entries once the request settles', async () => {
             const timeouts = actionDispatcher['timeouts'] as Map<string, unknown>;
@@ -89,7 +89,7 @@ describe('GLSPActionDispatcher', () => {
             await actionDispatcher.requestUntil({ kind: 'noHandlerRequest', requestId: '' }, 50).catch(() => undefined);
             await flushMicrotasks();
 
-            expect(timeouts.size, 'all timeout entries should be cleared after the requests settle').to.equal(0);
+            expect(timeouts.size, 'all timeout entries should be cleared after the requests settle').toBe(0);
         });
     });
     describe('request & re-dispatch', () => {
@@ -100,7 +100,7 @@ describe('GLSPActionDispatcher', () => {
                 () => true,
                 err => false
             );
-            expect(dispatchSuccessful, 'Promise of re-dispatch should resolve successfully').to.be.true;
+            expect(dispatchSuccessful, 'Promise of re-dispatch should resolve successfully').toBe(true);
         });
     });
     describe('async action handlers', () => {
@@ -116,7 +116,7 @@ describe('GLSPActionDispatcher', () => {
             registry.register('asyncTest1', asyncHandler);
             await actionDispatcher.dispatch({ kind: 'asyncTest1' });
 
-            expect(handlerExecuted).to.be.true;
+            expect(handlerExecuted).toBe(true);
         });
 
         it('should invoke all handlers in one synchronous burst (parallel-start), without serializing on async ones', async () => {
@@ -140,7 +140,7 @@ describe('GLSPActionDispatcher', () => {
             registry.register('multiAsyncTest', asyncHandler2);
             await actionDispatcher.dispatch({ kind: 'multiAsyncTest' });
 
-            expect(executionOrder).to.deep.equal([2, 1]);
+            expect(executionOrder).toEqual([2, 1]);
         });
 
         it('should not let a slow async handler starve a synchronous sibling registered after it', async () => {
@@ -166,11 +166,11 @@ describe('GLSPActionDispatcher', () => {
 
             // Let the invocation burst run; the async handler is still gated.
             await flushMicrotasks();
-            expect(executionOrder, 'sync sibling must run before the gated async handler resolves').to.deep.equal([2]);
+            expect(executionOrder, 'sync sibling must run before the gated async handler resolves').toEqual([2]);
 
             gate.resolve();
             await dispatched;
-            expect(executionOrder).to.deep.equal([2, 1]);
+            expect(executionOrder).toEqual([2, 1]);
         });
 
         it('should not let a never-resolving async handler starve a synchronous sibling', async () => {
@@ -191,7 +191,7 @@ describe('GLSPActionDispatcher', () => {
             actionDispatcher.dispatch({ kind: 'stuckTest' });
 
             await flushMicrotasks();
-            expect(executionOrder).to.deep.equal([1]);
+            expect(executionOrder).toEqual([1]);
         });
 
         it('should not deadlock when an async handler awaits a nested dispatch while a sibling is registered after it', async () => {
@@ -220,7 +220,7 @@ describe('GLSPActionDispatcher', () => {
             registry.register('nestedTest', siblingHandler);
             await actionDispatcher.dispatch({ kind: 'nestedTest' });
 
-            expect(executionOrder).to.deep.equal(['B', 'sub', 'A']);
+            expect(executionOrder).toEqual(['B', 'sub', 'A']);
         });
 
         it('should handle mixed sync and async handlers correctly', async () => {
@@ -241,7 +241,7 @@ describe('GLSPActionDispatcher', () => {
             registry.register('mixedTest', asyncHandler);
             await actionDispatcher.dispatch({ kind: 'mixedTest' });
 
-            expect(executionOrder).to.deep.equal([1, 2]);
+            expect(executionOrder).toEqual([1, 2]);
         });
 
         it('should propagate errors from async handlers', async () => {
@@ -261,8 +261,8 @@ describe('GLSPActionDispatcher', () => {
                 caughtError = error as Error;
             }
 
-            expect(caughtError).to.not.be.undefined;
-            expect(caughtError?.message).to.equal(errorMessage);
+            expect(caughtError).toBeDefined();
+            expect(caughtError?.message).toBe(errorMessage);
         });
 
         it('should handle errors in one handler without affecting others when multiple handlers are registered', async () => {
@@ -291,10 +291,10 @@ describe('GLSPActionDispatcher', () => {
             }
 
             // First handler should have executed successfully
-            expect(executionOrder).to.deep.equal([1]);
+            expect(executionOrder).toEqual([1]);
             // Error should have been thrown
-            expect(caughtError).to.not.be.undefined;
-            expect(caughtError?.message).to.equal('Handler 2 error');
+            expect(caughtError).toBeDefined();
+            expect(caughtError?.message).toBe('Handler 2 error');
         });
 
         it('should handle synchronous errors in handlers', async () => {
@@ -313,8 +313,8 @@ describe('GLSPActionDispatcher', () => {
                 caughtError = error as Error;
             }
 
-            expect(caughtError).to.not.be.undefined;
-            expect(caughtError?.message).to.equal(errorMessage);
+            expect(caughtError).toBeDefined();
+            expect(caughtError?.message).toBe(errorMessage);
         });
 
         it('should handle async handlers that return actions', async () => {
@@ -335,7 +335,7 @@ describe('GLSPActionDispatcher', () => {
             registry.register('returnedAction1', receivingHandler);
             await actionDispatcher.dispatch({ kind: 'asyncReturnTest' });
 
-            expect(dispatchedActions).to.include('returnedAction1');
+            expect(dispatchedActions).toContain('returnedAction1');
         });
 
         it('should wait for all async handlers to complete before resolving dispatch promise', async () => {
@@ -359,8 +359,8 @@ describe('GLSPActionDispatcher', () => {
             await actionDispatcher.dispatch({ kind: 'completionTest' });
 
             // Both handlers should be completed when dispatch resolves
-            expect(handler1Completed).to.be.true;
-            expect(handler2Completed).to.be.true;
+            expect(handler1Completed).toBe(true);
+            expect(handler2Completed).toBe(true);
         });
     });
 });

@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2024 EclipseSource and others.
+ * Copyright (c) 2024-2026 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { Action, Command, CommandExecutionContext, Disposable } from '@eclipse-glsp/sprotty';
-import { expect } from 'chai';
+import { describe, expect, it } from 'vitest';
 import { IFeedbackActionDispatcher, IFeedbackEmitter } from './feedback-action-dispatcher';
 import { FeedbackEmitter } from './feedback-emitter';
 
@@ -53,7 +53,7 @@ describe('FeedbackEmitter', () => {
             const feedbackActionDispatcher = new MockFeedbackActionDispatcher();
             const feedback = feedbackActionDispatcher.createEmitter();
             feedback.submit();
-            expect(feedbackActionDispatcher['feedbackEmitters']).to.be.empty;
+            expect(feedbackActionDispatcher['feedbackEmitters'].size).toBe(0);
         });
     });
 
@@ -63,7 +63,7 @@ describe('FeedbackEmitter', () => {
             const feedback = feedbackActionDispatcher.createEmitter();
             const action: Action = { kind: 'action' };
             feedback.add(action);
-            expect(feedback['feedbackActions']).to.deep.equal([action]);
+            expect(feedback['feedbackActions']).toEqual([action]);
         });
 
         it('Should add an action and cleanup action as part of the emitter feedback.', () => {
@@ -72,8 +72,8 @@ describe('FeedbackEmitter', () => {
             const action: Action = { kind: 'action' };
             const cleanupAction: Action = { kind: 'cleanup' };
             feedback.add(action, cleanupAction);
-            expect(feedback['feedbackActions']).to.deep.equal([action]);
-            expect(feedback['cleanupActions']).to.deep.equal([cleanupAction]);
+            expect(feedback['feedbackActions']).toEqual([action]);
+            expect(feedback['cleanupActions']).toEqual([cleanupAction]);
         });
     });
 
@@ -87,7 +87,7 @@ describe('FeedbackEmitter', () => {
             feedback1.add(action1);
             feedback2.add(action2);
             feedback1.merge(feedback2);
-            expect(feedback1['feedbackActions']).to.deep.equal([action1, action2]);
+            expect(feedback1['feedbackActions']).toEqual([action1, action2]);
         });
     });
 
@@ -98,7 +98,7 @@ describe('FeedbackEmitter', () => {
             const action: Action = { kind: 'action' };
             feedback.add(action);
             feedback.remove(action);
-            expect(feedback['feedbackActions']).to.be.empty;
+            expect(feedback['feedbackActions']).toHaveLength(0);
         });
 
         it('Should remove the action together with the cleanup action from the emitter feedback.', () => {
@@ -108,8 +108,8 @@ describe('FeedbackEmitter', () => {
             const cleanupAction: Action = { kind: 'cleanup' };
             feedback.add(action, cleanupAction);
             feedback.remove(action);
-            expect(feedback['feedbackActions']).to.be.empty;
-            expect(feedback['cleanupActions']).to.be.empty;
+            expect(feedback['feedbackActions']).toHaveLength(0);
+            expect(feedback['cleanupActions']).toHaveLength(0);
         });
     });
 
@@ -121,8 +121,8 @@ describe('FeedbackEmitter', () => {
             const cleanupAction: Action = { kind: 'cleanup' };
             feedback.add(action, cleanupAction);
             feedback.clear();
-            expect(feedback['feedbackActions']).to.be.empty;
-            expect(feedback['cleanupActions']).to.be.empty;
+            expect(feedback['feedbackActions']).toHaveLength(0);
+            expect(feedback['cleanupActions']).toHaveLength(0);
         });
     });
 
@@ -133,8 +133,8 @@ describe('FeedbackEmitter', () => {
             const action: Action = { kind: 'action' };
             feedback.add(action);
             feedback.submit();
-            expect(feedbackActionDispatcher['feedbackEmitters'].size).to.equal(1);
-            expect(feedbackActionDispatcher['feedbackEmitters'].get(feedback)).to.deep.equal([action]);
+            expect(feedbackActionDispatcher['feedbackEmitters'].size).toBe(1);
+            expect(feedbackActionDispatcher['feedbackEmitters'].get(feedback)).toEqual([action]);
         });
     });
 
@@ -146,7 +146,7 @@ describe('FeedbackEmitter', () => {
             feedback.add(action);
             feedback.submit();
             feedback.discard();
-            expect(feedbackActionDispatcher['feedbackEmitters']).to.be.empty;
+            expect(feedbackActionDispatcher['feedbackEmitters'].size).toBe(0);
         });
     });
 
@@ -159,7 +159,7 @@ describe('FeedbackEmitter', () => {
             feedback.add(action, cleanupAction);
             feedback.submit();
             feedback.revert();
-            expect(feedbackActionDispatcher['feedbackEmitters']).to.be.empty;
+            expect(feedbackActionDispatcher['feedbackEmitters'].size).toBe(0);
         });
     });
 
@@ -170,7 +170,7 @@ describe('FeedbackEmitter', () => {
             const action: Action = { kind: 'action' };
             feedback.add(action);
             feedback.dispose();
-            expect(feedbackActionDispatcher['feedbackEmitters']).to.be.empty;
+            expect(feedbackActionDispatcher['feedbackEmitters'].size).toBe(0);
         });
     });
 });

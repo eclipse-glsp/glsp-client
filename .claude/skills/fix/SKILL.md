@@ -5,8 +5,8 @@ description: Run the fix-and-verify suite for the workspace (compile, auto-fix l
 
 Run the auto-fix and validation suite for the GLSP Client monorepo from the repository root.
 
-1. Build first. This is a hard gate: if the build fails, stop immediately, report the build errors, and do not run any of the following steps. 
-The build must pass before anything else runs. 
+1. Build first. This is a hard gate: if the build fails, stop immediately, report the build errors, and do not run any of the following steps.
+   The build must pass before anything else runs.
 
 ```bash
 pnpm build

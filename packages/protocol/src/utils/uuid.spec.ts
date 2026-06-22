@@ -13,20 +13,20 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { expect } from 'chai';
+import { describe, expect, it } from 'vitest';
 import { generateUuid, isUuid } from './uuid';
 
 describe('Uuid', () => {
     describe('isUuid', () => {
         it('should return true for a valid UUID', () => {
-            expect(isUuid('f47ac10b-58cc-4372-a567-0e02b2c3d479')).to.be.true;
+            expect(isUuid('f47ac10b-58cc-4372-a567-0e02b2c3d479')).toBe(true);
         });
         it('should return true for a generated UUID', () => {
-            expect(isUuid(generateUuid())).to.be.true;
+            expect(isUuid(generateUuid())).toBe(true);
         });
         it('should return false for a malformed UUID', () => {
-            expect(isUuid('not-a-uuid')).to.be.false;
-            expect(isUuid('')).to.be.false;
+            expect(isUuid('not-a-uuid')).toBe(false);
+            expect(isUuid('')).toBe(false);
         });
     });
 });

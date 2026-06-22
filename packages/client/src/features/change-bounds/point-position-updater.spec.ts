@@ -17,7 +17,7 @@
 /* eslint-disable @typescript-eslint/no-deprecated */
 
 import { GModelElement } from '@eclipse-glsp/sprotty';
-import { expect } from 'chai';
+import { describe, expect, it } from 'vitest';
 import { GridSnapper } from './../grid/grid-snapper';
 import { PointPositionUpdater } from './point-position-updater';
 
@@ -25,31 +25,31 @@ describe('PointPositionUpdater', () => {
     it('updatePosition with no last drag position', () => {
         const element = new GModelElement();
         const updater = new PointPositionUpdater();
-        expect(updater.updatePosition(element, { x: 0, y: 0 }, false)).to.be.undefined;
-        expect(updater.updatePosition(element, { x: 0, y: 0 }, true)).to.be.undefined;
+        expect(updater.updatePosition(element, { x: 0, y: 0 }, false)).toBeUndefined();
+        expect(updater.updatePosition(element, { x: 0, y: 0 }, true)).toBeUndefined();
     });
 
     it('update last position and reset', () => {
         const updater = new PointPositionUpdater();
-        expect(updater.isLastDragPositionUndefined()).to.be.true;
+        expect(updater.isLastDragPositionUndefined()).toBe(true);
         updater.updateLastDragPosition({ x: 0, y: 0 });
-        expect(updater.isLastDragPositionUndefined()).to.be.false;
+        expect(updater.isLastDragPositionUndefined()).toBe(false);
         updater.resetPosition();
-        expect(updater.isLastDragPositionUndefined()).to.be.true;
+        expect(updater.isLastDragPositionUndefined()).toBe(true);
     });
 
     it('updatePosition with no snapper', () => {
         const element = new GModelElement();
         const updater = new PointPositionUpdater();
         resetUpdater(updater);
-        expect(updater.updatePosition(element, { x: 0, y: 0 }, false)).to.be.undefined;
-        expect(updater.updatePosition(element, { x: 0, y: 0 }, true)).to.be.undefined;
+        expect(updater.updatePosition(element, { x: 0, y: 0 }, false)).toBeUndefined();
+        expect(updater.updatePosition(element, { x: 0, y: 0 }, true)).toBeUndefined();
 
         resetUpdater(updater);
-        expect(updater.updatePosition(element, { x: 5, y: 3 }, false)).to.be.deep.equals({ x: 5, y: 3 });
-        expect(updater.updatePosition(element, { x: 5, y: 3 }, true)).to.be.undefined;
-        expect(updater.updatePosition(element, { x: 11, y: 6 }, false)).to.be.deep.equals({ x: 6, y: 3 });
-        expect(updater.updatePosition(element, { x: -3, y: 2 }, true)).to.be.deep.equals({ x: -14, y: -4 });
+        expect(updater.updatePosition(element, { x: 5, y: 3 }, false)).toEqual({ x: 5, y: 3 });
+        expect(updater.updatePosition(element, { x: 5, y: 3 }, true)).toBeUndefined();
+        expect(updater.updatePosition(element, { x: 11, y: 6 }, false)).toEqual({ x: 6, y: 3 });
+        expect(updater.updatePosition(element, { x: -3, y: 2 }, true)).toEqual({ x: -14, y: -4 });
     });
 
     it('updatePosition with snapper', () => {
@@ -57,21 +57,21 @@ describe('PointPositionUpdater', () => {
         const snapper = new GridSnapper();
         const updater = new PointPositionUpdater(snapper);
         resetUpdater(updater);
-        expect(updater.updatePosition(element, { x: 0, y: 0 }, false)).to.be.undefined;
-        expect(updater.updatePosition(element, { x: 0, y: 0 }, true)).to.be.undefined;
+        expect(updater.updatePosition(element, { x: 0, y: 0 }, false)).toBeUndefined();
+        expect(updater.updatePosition(element, { x: 0, y: 0 }, true)).toBeUndefined();
 
         resetUpdater(updater);
-        expect(updater.updatePosition(element, { x: 5, y: 3 }, true)).to.be.deep.equals({ x: 10, y: 0 });
-        expect(updater.updatePosition(element, { x: 5, y: 3 }, true)).to.be.undefined;
-        expect(updater.updatePosition(element, { x: 11, y: 6 }, true)).to.be.deep.equals({ x: 0, y: 10 });
-        expect(updater.updatePosition(element, { x: -3, y: 2 }, true)).to.be.deep.equals({ x: -10, y: -10 });
+        expect(updater.updatePosition(element, { x: 5, y: 3 }, true)).toEqual({ x: 10, y: 0 });
+        expect(updater.updatePosition(element, { x: 5, y: 3 }, true)).toBeUndefined();
+        expect(updater.updatePosition(element, { x: 11, y: 6 }, true)).toEqual({ x: 0, y: 10 });
+        expect(updater.updatePosition(element, { x: -3, y: 2 }, true)).toEqual({ x: -10, y: -10 });
 
         // disable snapping (alt key)
         resetUpdater(updater);
-        expect(updater.updatePosition(element, { x: 5, y: 3 }, false)).to.be.deep.equals({ x: 5, y: 3 });
-        expect(updater.updatePosition(element, { x: 5, y: 3 }, false)).to.be.undefined;
-        expect(updater.updatePosition(element, { x: 11, y: 6 }, false)).to.be.deep.equals({ x: 6, y: 3 });
-        expect(updater.updatePosition(element, { x: -3, y: 2 }, false)).to.be.deep.equals({ x: -14, y: -4 });
+        expect(updater.updatePosition(element, { x: 5, y: 3 }, false)).toEqual({ x: 5, y: 3 });
+        expect(updater.updatePosition(element, { x: 5, y: 3 }, false)).toBeUndefined();
+        expect(updater.updatePosition(element, { x: 11, y: 6 }, false)).toEqual({ x: 6, y: 3 });
+        expect(updater.updatePosition(element, { x: -3, y: 2 }, false)).toEqual({ x: -14, y: -4 });
     });
 
     function resetUpdater(updater: PointPositionUpdater): void {

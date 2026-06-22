@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { expect } from 'chai';
+import { describe, expect, it } from 'vitest';
 import { RequestModelAction, SetModelAction, SourceModelChangedAction, UpdateModelAction } from './model-data';
 /**
  * Tests for the utility functions declared in the namespaces of the protocol
@@ -24,19 +24,17 @@ describe('Model data actions', () => {
     describe('RequestModelAction', () => {
         describe('is', () => {
             it('should return true for an object having the correct type and a value for all required interface properties', () => {
-                it('RequestModelAction.is with valid action type', () => {
-                    const action: RequestModelAction = {
-                        kind: 'requestModel',
-                        requestId: ''
-                    };
-                    expect(RequestModelAction.is(action)).to.be.true;
-                });
+                const action: RequestModelAction = {
+                    kind: 'requestModel',
+                    requestId: ''
+                };
+                expect(RequestModelAction.is(action)).toBe(true);
             });
             it('should return false for `undefined`', () => {
-                expect(RequestModelAction.is(undefined)).to.be.false;
+                expect(RequestModelAction.is(undefined)).toBe(false);
             });
             it('should return false for an object that does not have all required interface properties', () => {
-                expect(RequestModelAction.is({ kind: 'notTheRightOne' })).to.be.false;
+                expect(RequestModelAction.is({ kind: 'notTheRightOne' })).toBe(false);
             });
         });
 
@@ -47,7 +45,7 @@ describe('Model data actions', () => {
                     requestId: ''
                 };
 
-                expect(RequestModelAction.create()).to.deep.equals(expected);
+                expect(RequestModelAction.create()).toEqual(expected);
             });
             it('should return an object conforming to the interface with matching properties for the given required and optional arguments', () => {
                 const expected: RequestModelAction = {
@@ -56,7 +54,7 @@ describe('Model data actions', () => {
                     options: { some: 'option' }
                 };
                 const { requestId, options } = expected;
-                expect(RequestModelAction.create({ options, requestId })).to.deep.equals(expected);
+                expect(RequestModelAction.create({ options, requestId })).toEqual(expected);
             });
         });
     });
@@ -69,13 +67,13 @@ describe('Model data actions', () => {
                     responseId: '',
                     newRoot: { id: '', type: '' }
                 };
-                expect(SetModelAction.is(action)).to.be.true;
+                expect(SetModelAction.is(action)).toBe(true);
             });
             it('should return false for `undefined`', () => {
-                expect(SetModelAction.is(undefined)).to.be.false;
+                expect(SetModelAction.is(undefined)).toBe(false);
             });
             it('should return false for an object that does not have all required interface properties', () => {
-                expect(SetModelAction.is({ kind: 'notTheRightOne' })).to.be.false;
+                expect(SetModelAction.is({ kind: 'notTheRightOne' })).toBe(false);
             });
         });
 
@@ -87,7 +85,7 @@ describe('Model data actions', () => {
                     newRoot: { id: 'myId', type: 'myType' }
                 };
                 const { newRoot } = expected;
-                expect(SetModelAction.create(newRoot)).to.deep.equals(expected);
+                expect(SetModelAction.create(newRoot)).toEqual(expected);
             });
             it('should return an object conforming to the interface with matching properties for the given required and optional arguments', () => {
                 const expected: SetModelAction = {
@@ -96,7 +94,7 @@ describe('Model data actions', () => {
                     newRoot: { id: '', type: '' }
                 };
                 const { newRoot, responseId } = expected;
-                expect(SetModelAction.create(newRoot, { responseId })).to.deep.equals(expected);
+                expect(SetModelAction.create(newRoot, { responseId })).toEqual(expected);
             });
         });
     });
@@ -108,13 +106,13 @@ describe('Model data actions', () => {
                     kind: 'updateModel',
                     newRoot: { id: '', type: '' }
                 };
-                expect(UpdateModelAction.is(action)).to.be.true;
+                expect(UpdateModelAction.is(action)).toBe(true);
             });
             it('should return false for `undefined`', () => {
-                expect(UpdateModelAction.is(undefined)).to.be.false;
+                expect(UpdateModelAction.is(undefined)).toBe(false);
             });
             it('should return false for an object that does not have all required interface properties', () => {
-                expect(UpdateModelAction.is({ kind: 'notTheRightOne' })).to.be.false;
+                expect(UpdateModelAction.is({ kind: 'notTheRightOne' })).toBe(false);
             });
         });
 
@@ -126,7 +124,7 @@ describe('Model data actions', () => {
                     newRoot: { id: 'myId', type: 'myType' }
                 };
                 const { newRoot } = expected;
-                expect(UpdateModelAction.create(newRoot)).to.deep.equals(expected);
+                expect(UpdateModelAction.create(newRoot)).toEqual(expected);
             });
             it('should return an object conforming to the interface with matching properties for the given required and optional arguments', () => {
                 const expected: UpdateModelAction = {
@@ -135,7 +133,7 @@ describe('Model data actions', () => {
                     animate: false
                 };
                 const { newRoot, animate } = expected;
-                expect(UpdateModelAction.create(newRoot, { animate })).to.deep.equals(expected);
+                expect(UpdateModelAction.create(newRoot, { animate })).toEqual(expected);
             });
         });
     });
@@ -147,13 +145,13 @@ describe('Model data actions', () => {
                     kind: 'sourceModelChanged',
                     sourceModelName: ''
                 };
-                expect(SourceModelChangedAction.is(action)).to.be.true;
+                expect(SourceModelChangedAction.is(action)).toBe(true);
             });
             it('should return false for `undefined`', () => {
-                expect(SourceModelChangedAction.is(undefined)).to.be.false;
+                expect(SourceModelChangedAction.is(undefined)).toBe(false);
             });
             it('should return false for an object that does not have all required interface properties', () => {
-                expect(SourceModelChangedAction.is({ kind: 'notTheRightOne' })).to.be.false;
+                expect(SourceModelChangedAction.is({ kind: 'notTheRightOne' })).toBe(false);
             });
         });
 
@@ -164,7 +162,7 @@ describe('Model data actions', () => {
                     sourceModelName: 'myModelSource'
                 };
                 const { sourceModelName: sourceModelName } = expected;
-                expect(SourceModelChangedAction.create(sourceModelName)).to.deep.equals(expected);
+                expect(SourceModelChangedAction.create(sourceModelName)).toEqual(expected);
             });
         });
     });

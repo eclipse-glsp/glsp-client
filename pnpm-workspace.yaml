@@ -2,15 +2,15 @@ packages:
     - 'packages/*'
     - 'examples/*'
 
-# Security overrides: force patched versions of transitive (dev-only) dependencies that upstream
-# tooling (concurrently, mocha, nyc) still pins to ranges flagged by `pnpm audit`.
+# Security overrides: minimum floors that lift vulnerable transitive (dev-only) deps to patched
+# versions flagged by `pnpm audit`. They only raise versions that resolve below the patched range.
 overrides:
     shell-quote: '>=1.8.4'
     serialize-javascript: '>=7.0.5'
     diff: '>=8.0.3'
     js-yaml: '>=4.1.2'
 
-# Tooling (eslint, prettier, mocha, ts-node, rimraf, @eclipse-glsp/*-config, ...) is provided
+# Tooling (eslint, prettier, vitest, rimraf, @eclipse-glsp/*-config, ...) is provided
 # as transitive dependencies of the @eclipse-glsp/dev meta-package and must be resolvable from
 # the workspace root (tsconfig `extends`, lint/test/build script bins). Rather than flat-hoisting
 # everything (shamefullyHoist), only the dev tooling is public-hoisted; app/runtime deps stay
@@ -23,12 +23,9 @@ publicHoistPattern:
     - '@typescript-eslint/*'
     - 'prettier'
     - 'prettier-plugin-*'
-    - 'mocha'
-    - 'chai'
-    - 'sinon'
-    - 'ts-node'
+    - 'vitest'
+    - '@vitest/*'
     - 'rimraf'
-    - 'nyc'
     # type stubs are compile-time-only dev tooling; hoist them all so `@types/<x>` resolves at the root
     - '@types/*'
 

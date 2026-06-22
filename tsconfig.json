@@ -1,5 +1,5 @@
 {
-  "extends": "@eclipse-glsp/ts-config/mocha",
+  "extends": "@eclipse-glsp/ts-config",
   "include": [],
   "compilerOptions": {
     "composite": true,

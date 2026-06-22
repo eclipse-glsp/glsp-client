@@ -14,13 +14,11 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { expect } from 'chai';
-import * as sinon from 'sinon';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { Disposable, Event, MessageConnection, NotificationHandler, ProgressType } from 'vscode-jsonrpc';
 import { ActionMessage } from '../../action-protocol/base-protocol';
 import { remove } from '../../utils/array-util';
 import { Emitter } from '../../utils/event';
-import { expectToThrowAsync } from '../../utils/test-util';
 import { ClientState } from '../glsp-client';
 import { InitializeResult } from '../types';
 import { BaseJsonrpcGLSPClient } from './base-jsonrpc-glsp-client';
@@ -79,12 +77,41 @@ class TestJsonRpcClient extends BaseJsonrpcGLSPClient {
     lastListenerRemoved: boolean;
 }
 
+/**
+ * Spies on every method of the given object with a `vi.spyOn` mock that keeps the original
+ * implementation, mirroring the former `sandbox.stub(obj)` behavior. The preset's
+ * `restoreMocks: true` detaches spies between tests, so `setup()` must be re-invoked in a
+ * `beforeEach`. Returns the typed object plus `setup`/`reset` helpers.
+ */
+function spyOnAllMethods<T extends object>(obj: T): { mock: { [K in keyof T]: T[K] }; setup: () => void; reset: () => void } {
+    const methodNames = new Set<string>();
+    let proto: any = obj;
+    while (proto && proto !== Object.prototype) {
+        for (const key of Object.getOwnPropertyNames(proto)) {
+            if (key !== 'constructor' && typeof (obj as any)[key] === 'function') {
+                methodNames.add(key);
+            }
+        }
+        proto = Object.getPrototypeOf(proto);
+    }
+    // `mockImplementation(() => undefined)` mirrors Sinon's default stub: the original method body
+    // is suppressed and the stub returns `undefined` unless a test configures explicit behavior.
+    const eachSpy = (fn: (spy: ReturnType<typeof vi.spyOn>) => void): void =>
+        methodNames.forEach(name => fn(vi.spyOn(obj as any, name as any).mockImplementation(() => undefined as any)));
+    return {
+        mock: obj as any,
+        setup: () => eachSpy(() => {}),
+        reset: () => eachSpy(spy => spy.mockReset().mockImplementation(() => undefined as any))
+    };
+}
+
 describe('Base JSON-RPC GLSP Client', () => {
-    const sandbox = sinon.createSandbox();
-    const connection = sandbox.stub<StubMessageConnection>(new StubMessageConnection());
+    const connectionStub = spyOnAllMethods(new StubMessageConnection());
+    const connection = connectionStub.mock;
+    beforeEach(() => connectionStub.setup());
     let client = new TestJsonRpcClient({ id: 'test', connectionProvider: connection });
     async function resetClient(setRunning = true): Promise<void> {
-        sandbox.reset();
+        connectionStub.reset();
         client = new TestJsonRpcClient({ id: 'test', connectionProvider: connection });
         if (setRunning) {
             return client.start();
@@ -94,173 +121,171 @@ describe('Base JSON-RPC GLSP Client', () => {
     describe('start', () => {
         it('should successfully start & activate the connection', async () => {
             await resetClient(false);
-            const stateChangeHandler = sinon.spy();
+            const stateChangeHandler = vi.fn();
             client.onCurrentStateChanged(stateChangeHandler);
-            expect(client.currentState).to.be.equal(ClientState.Initial);
+            expect(client.currentState).toBe(ClientState.Initial);
             const startCompleted = client.start();
-            expect(client.currentState).to.be.equal(ClientState.Starting);
-            expect(stateChangeHandler.calledWith(ClientState.Starting)).to.be.true;
+            expect(client.currentState).toBe(ClientState.Starting);
+            expect(stateChangeHandler).toHaveBeenCalledWith(ClientState.Starting);
             await startCompleted;
-            expect(client.currentState).to.be.equal(ClientState.Running);
-            expect(client.isConnectionActive()).to.be.true;
-            expect(stateChangeHandler.calledWith(ClientState.Running)).to.be.true;
+            expect(client.currentState).toBe(ClientState.Running);
+            expect(client.isConnectionActive()).toBe(true);
+            expect(stateChangeHandler).toHaveBeenCalledWith(ClientState.Running);
         });
         it('should fail to start if connecting to the server fails', async () => {
             await resetClient(false);
-            const stateChangeHandler = sinon.spy();
+            const stateChangeHandler = vi.fn();
             client.onCurrentStateChanged(stateChangeHandler);
-            expect(client.currentState).to.be.equal(ClientState.Initial);
-            connection.listen.throws(new Error('Connection failed'));
+            expect(client.currentState).toBe(ClientState.Initial);
+            vi.mocked(connection.listen).mockImplementation(() => {
+                throw new Error('Connection failed');
+            });
             await client.start();
-            expect(client.currentState).to.be.equal(ClientState.StartFailed);
-            expect(stateChangeHandler.calledWith(ClientState.StartFailed)).to.be.true;
+            expect(client.currentState).toBe(ClientState.StartFailed);
+            expect(stateChangeHandler).toHaveBeenCalledWith(ClientState.StartFailed);
         });
         it('should not start another connection if another start is already in progress', async () => {
             await resetClient(false);
             client.start();
             await client.start();
-            expect(client.currentState).to.be.equal(ClientState.Running);
-            expect(client.isConnectionActive()).to.be.true;
-            expect(connection.listen.calledOnce).to.be.true;
+            expect(client.currentState).toBe(ClientState.Running);
+            expect(client.isConnectionActive()).toBe(true);
+            expect(connection.listen).toHaveBeenCalledOnce();
         });
     });
 
     describe('stop', () => {
         it('should successfully stop if the client was not running', async () => {
             await resetClient(false);
-            const stateChangeHandler = sinon.spy();
+            const stateChangeHandler = vi.fn();
             client.onCurrentStateChanged(stateChangeHandler);
-            expect(client.currentState).to.be.equal(ClientState.Initial);
+            expect(client.currentState).toBe(ClientState.Initial);
             await client.stop();
-            expect(client.currentState).to.be.equal(ClientState.Stopped);
-            expect(stateChangeHandler.calledWith(ClientState.Stopped)).to.be.true;
-            expect(connection.dispose.called).to.be.false;
+            expect(client.currentState).toBe(ClientState.Stopped);
+            expect(stateChangeHandler).toHaveBeenCalledWith(ClientState.Stopped);
+            expect(connection.dispose).not.toHaveBeenCalled();
         });
         it('should successfully stop if the client was running', async () => {
             await resetClient();
-            const stateChangeHandler = sinon.spy();
+            const stateChangeHandler = vi.fn();
             client.onCurrentStateChanged(stateChangeHandler);
             const stopped = client.stop();
-            expect(client.currentState).to.be.equal(ClientState.Stopping);
-            expect(stateChangeHandler.calledWith(ClientState.Stopping)).to.be.true;
+            expect(client.currentState).toBe(ClientState.Stopping);
+            expect(stateChangeHandler).toHaveBeenCalledWith(ClientState.Stopping);
             await stopped;
-            expect(client.currentState).to.be.equal(ClientState.Stopped);
-            expect(stateChangeHandler.calledWith(ClientState.Stopped)).to.be.true;
-            expect(connection.dispose.called).to.be.true;
+            expect(client.currentState).toBe(ClientState.Stopped);
+            expect(stateChangeHandler).toHaveBeenCalledWith(ClientState.Stopped);
+            expect(connection.dispose).toHaveBeenCalled();
         });
         it('should only stop a running client once, if stop is called multiple times', async () => {
             await resetClient();
             client.stop();
-            expect(client.currentState).to.be.equal(ClientState.Stopping);
+            expect(client.currentState).toBe(ClientState.Stopping);
             await client.stop();
-            expect(client.currentState).to.be.equal(ClientState.Stopped);
-            expect(connection.dispose.calledOnce).to.be.true;
+            expect(client.currentState).toBe(ClientState.Stopped);
+            expect(connection.dispose).toHaveBeenCalledOnce();
         });
     });
 
     describe('initialize', () => {
         it('should fail if client is not running', async () => {
             await resetClient(false);
-            const stateChangeHandler = sinon.spy();
+            const stateChangeHandler = vi.fn();
             client.onCurrentStateChanged(stateChangeHandler);
-            await expectToThrowAsync(() => client.initializeServer({ applicationId: '', protocolVersion: '' }));
-            expect(connection.sendRequest.called).to.be.false;
-            expect(stateChangeHandler.called).to.be.false;
+            await expect(client.initializeServer({ applicationId: '', protocolVersion: '' })).rejects.toThrow();
+            expect(connection.sendRequest).not.toHaveBeenCalled();
+            expect(stateChangeHandler).not.toHaveBeenCalled();
         });
         it('should forward the corresponding initialize request and cache result', async () => {
             await resetClient();
             const expectedResult = { protocolVersion: '1.0.0', serverActions: {} };
             const params = { applicationId: 'id', protocolVersion: '1.0.0' };
-            const initializeMock = connection.sendRequest.withArgs(JsonrpcGLSPClient.InitializeRequest, params);
-            initializeMock.returns(expectedResult);
-            expect(client.initializeResult).to.be.undefined;
+            vi.mocked(connection.sendRequest).mockReturnValue(expectedResult as any);
+            expect(client.initializeResult).toBeUndefined();
             const result = await client.initializeServer({ applicationId: 'id', protocolVersion: '1.0.0' });
-            expect(result).to.deep.equals(expectedResult);
-            expect(initializeMock.calledOnce).to.be.true;
-            expect(client.initializeResult).to.be.equal(result);
+            expect(result).toEqual(expectedResult);
+            expect(connection.sendRequest).toHaveBeenCalledExactlyOnceWith(JsonrpcGLSPClient.InitializeRequest, params);
+            expect(client.initializeResult).toBe(result);
         });
         it('should return cached result on consecutive invocation', async () => {
             await resetClient();
             const expectedResult = { protocolVersion: '1.0.0', serverActions: {} };
             const params = { applicationId: 'id', protocolVersion: '1.0.0' };
-            const initializeMock = connection.sendRequest.withArgs(JsonrpcGLSPClient.InitializeRequest, params);
-            initializeMock.returns(expectedResult);
+            vi.mocked(connection.sendRequest).mockReturnValue(expectedResult as any);
             client.initializeServer({ applicationId: 'id', protocolVersion: '1.0.0' });
             const result = await client.initializeServer({ applicationId: 'id', protocolVersion: '1.0.0' });
-            expect(result).to.be.deep.equal(client.initializeResult);
-            expect(initializeMock.calledOnce).to.be.true;
+            expect(result).toEqual(client.initializeResult);
+            expect(connection.sendRequest).toHaveBeenCalledExactlyOnceWith(JsonrpcGLSPClient.InitializeRequest, params);
         });
         it('should fire event on first invocation', async () => {
             await resetClient();
             const expectedResult = { protocolVersion: '1.0.0', serverActions: {} };
             const params = { applicationId: 'id', protocolVersion: '1.0.0' };
-            const initializeMock = connection.sendRequest.withArgs(JsonrpcGLSPClient.InitializeRequest, params);
-            initializeMock.returns(expectedResult);
-            const eventHandler = (result: InitializeResult): void => {};
-            const eventHandlerSpy = sinon.spy(eventHandler);
+            vi.mocked(connection.sendRequest).mockReturnValue(expectedResult as any);
+            const eventHandlerSpy = vi.fn((result: InitializeResult): void => {});
             client.onServerInitialized(eventHandlerSpy);
             await client.initializeServer(params);
             await client.initializeServer(params);
-            expect(eventHandlerSpy.calledOnceWith(expectedResult)).to.be.true;
+            expect(eventHandlerSpy).toHaveBeenCalledExactlyOnceWith(expectedResult);
         });
         it('should not use cached result on consecutive invocation if previous invocation errored', async () => {
             await resetClient();
             const expectedResult = { protocolVersion: '1.0.0', serverActions: {} };
             const params = { applicationId: 'id', protocolVersion: '1.0.0' };
-            const initializeMock = connection.sendRequest.withArgs(JsonrpcGLSPClient.InitializeRequest, params);
-            initializeMock.throws(new Error('SomeError'));
-            expectToThrowAsync(() => client.initializeServer(params));
-            expect(client.initializeResult).to.be.undefined;
-            initializeMock.returns(expectedResult);
+            vi.mocked(connection.sendRequest).mockImplementation(() => {
+                throw new Error('SomeError');
+            });
+            await expect(client.initializeServer(params)).rejects.toThrow();
+            expect(client.initializeResult).toBeUndefined();
+            vi.mocked(connection.sendRequest).mockReturnValue(expectedResult as any);
             const result = await client.initializeServer(params);
-            expect(result).to.be.deep.equal(expectedResult);
-            expect(initializeMock.calledTwice).to.be.true;
-            expect(client.initializeResult).to.be.equal(result);
+            expect(result).toEqual(expectedResult);
+            expect(connection.sendRequest).toHaveBeenCalledTimes(2);
+            expect(connection.sendRequest).toHaveBeenCalledWith(JsonrpcGLSPClient.InitializeRequest, params);
+            expect(client.initializeResult).toBe(result);
         });
     });
 
     describe('initializeClientSession', () => {
         it('should fail if client is not running', async () => {
             await resetClient(false);
-            const stateChangeHandler = sinon.spy();
+            const stateChangeHandler = vi.fn();
             client.onCurrentStateChanged(stateChangeHandler);
-            await expectToThrowAsync(() => client.initializeClientSession({ clientSessionId: '', diagramType: '', clientActionKinds: [] }));
-            expect(connection.sendRequest.called).to.be.false;
-            expect(stateChangeHandler.called).to.be.false;
+            expect(() => client.initializeClientSession({ clientSessionId: '', diagramType: '', clientActionKinds: [] })).toThrow();
+            expect(connection.sendRequest).not.toHaveBeenCalled();
+            expect(stateChangeHandler).not.toHaveBeenCalled();
         });
         it('should invoke the corresponding server method', async () => {
             await resetClient();
             const params = { clientSessionId: '', diagramType: '', clientActionKinds: [] };
-            const initializeSessionMock = connection.sendRequest.withArgs(JsonrpcGLSPClient.InitializeClientSessionRequest, params);
             const result = await client.initializeClientSession(params);
-            expect(result).to.be.undefined;
-            expect(initializeSessionMock.calledOnce).to.be.true;
+            expect(result).toBeUndefined();
+            expect(connection.sendRequest).toHaveBeenCalledExactlyOnceWith(JsonrpcGLSPClient.InitializeClientSessionRequest, params);
         });
     });
 
     describe('disposeClientSession', () => {
         it('should fail if client is not running', async () => {
             await resetClient(false);
-            const stateChangeHandler = sinon.spy();
+            const stateChangeHandler = vi.fn();
             client.onCurrentStateChanged(stateChangeHandler);
-            await expectToThrowAsync(() => client.disposeClientSession({ clientSessionId: '' }));
-            expect(connection.sendRequest.called).to.be.false;
-            expect(stateChangeHandler.called).to.be.false;
+            expect(() => client.disposeClientSession({ clientSessionId: '' })).toThrow();
+            expect(connection.sendRequest).not.toHaveBeenCalled();
+            expect(stateChangeHandler).not.toHaveBeenCalled();
         });
         it('should invoke the corresponding server method', async () => {
             await resetClient();
             const params = { clientSessionId: 'someClient' };
-            const disposeSessionMock = connection.sendRequest.withArgs(JsonrpcGLSPClient.DisposeClientSessionRequest, params);
             const result = await client.disposeClientSession(params);
-            expect(result).to.be.undefined;
-            expect(disposeSessionMock.calledOnce).to.be.true;
+            expect(result).toBeUndefined();
+            expect(connection.sendRequest).toHaveBeenCalledExactlyOnceWith(JsonrpcGLSPClient.DisposeClientSessionRequest, params);
         });
     });
 
     describe('shutdownServer', () => {
         it('should fail if client is not running', async () => {
             await resetClient(false);
-            const stateChangeHandler = sinon.spy();
+            const stateChangeHandler = vi.fn();
             client.onCurrentStateChanged(stateChangeHandler);
             // `shutdownServer` is now async; the connection-state guard rejects the returned
             // promise rather than throwing synchronously.
@@ -270,59 +295,58 @@ describe('Base JSON-RPC GLSP Client', () => {
             } catch (err) {
                 rejection = err;
             }
-            expect(rejection).to.be.instanceOf(Error);
-            expect((rejection as Error).message).to.equal(JsonrpcGLSPClient.ClientNotReadyMsg);
-            expect(connection.sendNotification.called).to.be.false;
-            expect(stateChangeHandler.called).to.be.false;
+            expect(rejection).toBeInstanceOf(Error);
+            expect((rejection as Error).message).toBe(JsonrpcGLSPClient.ClientNotReadyMsg);
+            expect(connection.sendNotification).not.toHaveBeenCalled();
+            expect(stateChangeHandler).not.toHaveBeenCalled();
         });
         it('should invoke the corresponding server method', async () => {
             await resetClient();
-            const shutdownMock = connection.sendNotification.withArgs(JsonrpcGLSPClient.ShutdownNotification);
             const result = await client.shutdownServer();
-            expect(result).to.be.undefined;
-            expect(shutdownMock.calledOnce).to.be.true;
+            expect(result).toBeUndefined();
+            expect(connection.sendNotification).toHaveBeenCalledExactlyOnceWith(JsonrpcGLSPClient.ShutdownNotification);
         });
     });
 
     describe('sendActionMessage', () => {
         it('should fail if client is not running', async () => {
             await resetClient(false);
-            const stateChangeHandler = sinon.spy();
+            const stateChangeHandler = vi.fn();
             client.onCurrentStateChanged(stateChangeHandler);
-            expect(() => client.sendActionMessage({ action: { kind: '' }, clientId: '' })).to.throw();
-            expect(connection.sendNotification.called).to.be.false;
-            expect(stateChangeHandler.called).to.be.false;
+            expect(() => client.sendActionMessage({ action: { kind: '' }, clientId: '' })).toThrow();
+            expect(connection.sendNotification).not.toHaveBeenCalled();
+            expect(stateChangeHandler).not.toHaveBeenCalled();
         });
         it('should invoke the corresponding server method', async () => {
             await resetClient();
             const message = { action: { kind: '' }, clientId: '' };
-            const messageMock = connection.sendNotification.withArgs(JsonrpcGLSPClient.ActionMessageNotification, message);
             client.sendActionMessage({ action: { kind: '' }, clientId: '' });
-            expect(messageMock.calledOnce).to.be.true;
+            expect(connection.sendNotification).toHaveBeenCalledExactlyOnceWith(JsonrpcGLSPClient.ActionMessageNotification, message);
         });
     });
 
     describe('onActionMessage', () => {
-        const handler = sandbox.spy((_message: ActionMessage): void => {});
+        const handler = vi.fn((_message: ActionMessage): void => {});
+        beforeEach(() => handler.mockClear());
 
         it('should be registered to message emitter if client is not running', async () => {
             await resetClient(false);
             client.onActionMessage(handler);
-            expect(client.firstListenerAdded).to.be.true;
+            expect(client.firstListenerAdded).toBe(true);
         });
 
         it('should be registered to message emitter if client is running', async () => {
             await resetClient();
             client.onActionMessage(handler, 'someId');
-            expect(client.firstListenerAdded).to.be.true;
+            expect(client.firstListenerAdded).toBe(true);
         });
         it('should unregister lister if dispose is invoked', () => {
             resetClient(false);
             const clientId = 'clientId';
             const toDispose = client.onActionMessage(handler, clientId);
-            expect(client.firstListenerAdded).to.be.true;
+            expect(client.firstListenerAdded).toBe(true);
             toDispose.dispose();
-            expect(client.lastListenerRemoved).to.be.true;
+            expect(client.lastListenerRemoved).toBe(true);
         });
     });
 
@@ -330,34 +354,34 @@ describe('Base JSON-RPC GLSP Client', () => {
         it('Should be in error state after connection error', async () => {
             // mock setup
             resetClient(false);
-            const stateChangeHandler = sinon.spy();
+            const stateChangeHandler = vi.fn();
             client.onCurrentStateChanged(stateChangeHandler);
             const listeners: ((e: unknown) => unknown)[] = [];
-            connection.onError.callsFake(listener => {
+            vi.mocked(connection.onError).mockImplementation((listener: any) => {
                 listeners.push(listener);
                 return Disposable.create(() => remove(listeners, listener));
             });
 
             await client.start();
             listeners.forEach(listener => listener(new Error('SomeError')));
-            expect(client.currentState).to.be.equal(ClientState.ServerError);
-            expect(stateChangeHandler.calledWith(ClientState.ServerError)).to.be.true;
+            expect(client.currentState).toBe(ClientState.ServerError);
+            expect(stateChangeHandler).toHaveBeenCalledWith(ClientState.ServerError);
         });
         it('Should be in error state after connection close while running', async () => {
             // mock setup
             resetClient(false);
-            const stateChangeHandler = sinon.spy();
+            const stateChangeHandler = vi.fn();
             client.onCurrentStateChanged(stateChangeHandler);
             const listeners: ((e: unknown) => unknown)[] = [];
-            connection.onClose.callsFake(listener => {
+            vi.mocked(connection.onClose).mockImplementation((listener: any) => {
                 listeners.push(listener);
                 return Disposable.create(() => remove(listeners, listener));
             });
 
             await client.start();
             listeners.forEach(listener => listener(undefined));
-            expect(client.currentState).to.be.equal(ClientState.ServerError);
-            expect(stateChangeHandler.calledWith(ClientState.ServerError)).to.be.true;
+            expect(client.currentState).toBe(ClientState.ServerError);
+            expect(stateChangeHandler).toHaveBeenCalledWith(ClientState.ServerError);
         });
     });
 });

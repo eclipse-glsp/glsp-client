@@ -14,11 +14,10 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { expect } from 'chai';
-import 'mocha';
+import { describe, expect, it } from 'vitest';
 import 'reflect-metadata';
 import { BoundsData, ConsoleLogger, Dimension, GModelElement, GNode } from '@eclipse-glsp/sprotty';
-import { createLabel, createNode, layout, setupLayoutRegistry } from './layouter-test-util.spec';
+import { createLabel, createNode, layout, setupLayoutRegistry } from '../test/layouter-test-util';
 
 describe('VBoxLayouter', () => {
     const layoutRegistry = setupLayoutRegistry();
@@ -39,10 +38,10 @@ describe('VBoxLayouter', () => {
     it('defaultParams', () => {
         const model = createModel();
         layout(layoutRegistry, log, map, model);
-        expect(map.get(model)!.bounds).to.deep.equal({ x: 0, y: 0, width: 13, height: 18 });
-        expect(map.get(model.children[0])!.bounds).to.deep.equal({ x: 6, y: 5, width: 1, height: 2 });
-        expect(map.get(model.children[1])!.bounds).to.deep.equal({ x: 5.5, y: 8, width: 2, height: 1 });
-        expect(map.get(model.children[2])!.bounds).to.deep.equal({ x: 5, y: 10, width: 3, height: 3 });
+        expect(map.get(model)!.bounds).toEqual({ x: 0, y: 0, width: 13, height: 18 });
+        expect(map.get(model.children[0])!.bounds).toEqual({ x: 6, y: 5, width: 1, height: 2 });
+        expect(map.get(model.children[1])!.bounds).toEqual({ x: 5.5, y: 8, width: 2, height: 1 });
+        expect(map.get(model.children[2])!.bounds).toEqual({ x: 5, y: 10, width: 3, height: 3 });
     });
 
     it('alignLeft', () => {
@@ -51,10 +50,10 @@ describe('VBoxLayouter', () => {
             hAlign: 'left'
         };
         layout(layoutRegistry, log, map, model);
-        expect(map.get(model)!.bounds).to.deep.equal({ x: 0, y: 0, width: 13, height: 18 });
-        expect(map.get(model.children[0])!.bounds).to.deep.equal({ x: 5, y: 5, width: 1, height: 2 });
-        expect(map.get(model.children[1])!.bounds).to.deep.equal({ x: 5, y: 8, width: 2, height: 1 });
-        expect(map.get(model.children[2])!.bounds).to.deep.equal({ x: 5, y: 10, width: 3, height: 3 });
+        expect(map.get(model)!.bounds).toEqual({ x: 0, y: 0, width: 13, height: 18 });
+        expect(map.get(model.children[0])!.bounds).toEqual({ x: 5, y: 5, width: 1, height: 2 });
+        expect(map.get(model.children[1])!.bounds).toEqual({ x: 5, y: 8, width: 2, height: 1 });
+        expect(map.get(model.children[2])!.bounds).toEqual({ x: 5, y: 10, width: 3, height: 3 });
     });
 
     it('alignCenter', () => {
@@ -63,10 +62,10 @@ describe('VBoxLayouter', () => {
             hAlign: 'center'
         };
         layout(layoutRegistry, log, map, model);
-        expect(map.get(model)!.bounds).to.deep.equal({ x: 0, y: 0, width: 13, height: 18 });
-        expect(map.get(model.children[0])!.bounds).to.deep.equal({ x: 6, y: 5, width: 1, height: 2 });
-        expect(map.get(model.children[1])!.bounds).to.deep.equal({ x: 5.5, y: 8, width: 2, height: 1 });
-        expect(map.get(model.children[2])!.bounds).to.deep.equal({ x: 5, y: 10, width: 3, height: 3 });
+        expect(map.get(model)!.bounds).toEqual({ x: 0, y: 0, width: 13, height: 18 });
+        expect(map.get(model.children[0])!.bounds).toEqual({ x: 6, y: 5, width: 1, height: 2 });
+        expect(map.get(model.children[1])!.bounds).toEqual({ x: 5.5, y: 8, width: 2, height: 1 });
+        expect(map.get(model.children[2])!.bounds).toEqual({ x: 5, y: 10, width: 3, height: 3 });
     });
 
     it('alignRight', () => {
@@ -75,10 +74,10 @@ describe('VBoxLayouter', () => {
             hAlign: 'right'
         };
         layout(layoutRegistry, log, map, model);
-        expect(map.get(model)!.bounds).to.deep.equal({ x: 0, y: 0, width: 13, height: 18 });
-        expect(map.get(model.children[0])!.bounds).to.deep.equal({ x: 7, y: 5, width: 1, height: 2 });
-        expect(map.get(model.children[1])!.bounds).to.deep.equal({ x: 6, y: 8, width: 2, height: 1 });
-        expect(map.get(model.children[2])!.bounds).to.deep.equal({ x: 5, y: 10, width: 3, height: 3 });
+        expect(map.get(model)!.bounds).toEqual({ x: 0, y: 0, width: 13, height: 18 });
+        expect(map.get(model.children[0])!.bounds).toEqual({ x: 7, y: 5, width: 1, height: 2 });
+        expect(map.get(model.children[1])!.bounds).toEqual({ x: 6, y: 8, width: 2, height: 1 });
+        expect(map.get(model.children[2])!.bounds).toEqual({ x: 5, y: 10, width: 3, height: 3 });
     });
 
     it('padding', () => {
@@ -90,10 +89,10 @@ describe('VBoxLayouter', () => {
             paddingRight: 10
         };
         layout(layoutRegistry, log, map, model);
-        expect(map.get(model)!.bounds).to.deep.equal({ x: 0, y: 0, width: 22, height: 23 });
-        expect(map.get(model.children[0])!.bounds).to.deep.equal({ x: 10, y: 7, width: 1, height: 2 });
-        expect(map.get(model.children[1])!.bounds).to.deep.equal({ x: 9.5, y: 10, width: 2, height: 1 });
-        expect(map.get(model.children[2])!.bounds).to.deep.equal({ x: 9, y: 12, width: 3, height: 3 });
+        expect(map.get(model)!.bounds).toEqual({ x: 0, y: 0, width: 22, height: 23 });
+        expect(map.get(model.children[0])!.bounds).toEqual({ x: 10, y: 7, width: 1, height: 2 });
+        expect(map.get(model.children[1])!.bounds).toEqual({ x: 9.5, y: 10, width: 2, height: 1 });
+        expect(map.get(model.children[2])!.bounds).toEqual({ x: 9, y: 12, width: 3, height: 3 });
     });
 
     it('vGap', () => {
@@ -102,10 +101,10 @@ describe('VBoxLayouter', () => {
             vGap: 4
         };
         layout(layoutRegistry, log, map, model);
-        expect(map.get(model)!.bounds).to.deep.equal({ x: 0, y: 0, width: 13, height: 24 });
-        expect(map.get(model.children[0])!.bounds).to.deep.equal({ x: 6, y: 5, width: 1, height: 2 });
-        expect(map.get(model.children[1])!.bounds).to.deep.equal({ x: 5.5, y: 11, width: 2, height: 1 });
-        expect(map.get(model.children[2])!.bounds).to.deep.equal({ x: 5, y: 16, width: 3, height: 3 });
+        expect(map.get(model)!.bounds).toEqual({ x: 0, y: 0, width: 13, height: 24 });
+        expect(map.get(model.children[0])!.bounds).toEqual({ x: 6, y: 5, width: 1, height: 2 });
+        expect(map.get(model.children[1])!.bounds).toEqual({ x: 5.5, y: 11, width: 2, height: 1 });
+        expect(map.get(model.children[2])!.bounds).toEqual({ x: 5, y: 16, width: 3, height: 3 });
     });
 
     it('paddingFactor', () => {
@@ -114,10 +113,10 @@ describe('VBoxLayouter', () => {
             paddingFactor: 2
         };
         layout(layoutRegistry, log, map, model);
-        expect(map.get(model)!.bounds).to.deep.equal({ x: 0, y: 0, width: 13, height: 18 });
-        expect(map.get(model.children[0])!.bounds).to.deep.equal({ x: 9, y: 9, width: 1, height: 2 });
-        expect(map.get(model.children[1])!.bounds).to.deep.equal({ x: 8.5, y: 12, width: 2, height: 1 });
-        expect(map.get(model.children[2])!.bounds).to.deep.equal({ x: 8, y: 14, width: 3, height: 3 });
+        expect(map.get(model)!.bounds).toEqual({ x: 0, y: 0, width: 13, height: 18 });
+        expect(map.get(model.children[0])!.bounds).toEqual({ x: 9, y: 9, width: 1, height: 2 });
+        expect(map.get(model.children[1])!.bounds).toEqual({ x: 8.5, y: 12, width: 2, height: 1 });
+        expect(map.get(model.children[2])!.bounds).toEqual({ x: 8, y: 14, width: 3, height: 3 });
     });
 
     it('minWidth', () => {
@@ -126,10 +125,10 @@ describe('VBoxLayouter', () => {
             minWidth: 25
         };
         layout(layoutRegistry, log, map, model);
-        expect(map.get(model)!.bounds).to.deep.equal({ x: 0, y: 0, width: 25, height: 18 });
-        expect(map.get(model.children[0])!.bounds).to.deep.equal({ x: 12, y: 5, width: 1, height: 2 });
-        expect(map.get(model.children[1])!.bounds).to.deep.equal({ x: 11.5, y: 8, width: 2, height: 1 });
-        expect(map.get(model.children[2])!.bounds).to.deep.equal({ x: 11, y: 10, width: 3, height: 3 });
+        expect(map.get(model)!.bounds).toEqual({ x: 0, y: 0, width: 25, height: 18 });
+        expect(map.get(model.children[0])!.bounds).toEqual({ x: 12, y: 5, width: 1, height: 2 });
+        expect(map.get(model.children[1])!.bounds).toEqual({ x: 11.5, y: 8, width: 2, height: 1 });
+        expect(map.get(model.children[2])!.bounds).toEqual({ x: 11, y: 10, width: 3, height: 3 });
     });
 
     it('minHeight', () => {
@@ -138,10 +137,10 @@ describe('VBoxLayouter', () => {
             minHeight: 25
         };
         layout(layoutRegistry, log, map, model);
-        expect(map.get(model)!.bounds).to.deep.equal({ x: 0, y: 0, width: 13, height: 25 });
-        expect(map.get(model.children[0])!.bounds).to.deep.equal({ x: 6, y: 5, width: 1, height: 2 });
-        expect(map.get(model.children[1])!.bounds).to.deep.equal({ x: 5.5, y: 8, width: 2, height: 1 });
-        expect(map.get(model.children[2])!.bounds).to.deep.equal({ x: 5, y: 10, width: 3, height: 3 });
+        expect(map.get(model)!.bounds).toEqual({ x: 0, y: 0, width: 13, height: 25 });
+        expect(map.get(model.children[0])!.bounds).toEqual({ x: 6, y: 5, width: 1, height: 2 });
+        expect(map.get(model.children[1])!.bounds).toEqual({ x: 5.5, y: 8, width: 2, height: 1 });
+        expect(map.get(model.children[2])!.bounds).toEqual({ x: 5, y: 10, width: 3, height: 3 });
     });
 
     it('prefWidth', () => {
@@ -150,10 +149,10 @@ describe('VBoxLayouter', () => {
             prefWidth: 20
         };
         layout(layoutRegistry, log, map, model);
-        expect(map.get(model)!.bounds).to.deep.equal({ x: 0, y: 0, width: 20, height: 18 });
-        expect(map.get(model.children[0])!.bounds).to.deep.equal({ x: 9.5, y: 5, width: 1, height: 2 });
-        expect(map.get(model.children[1])!.bounds).to.deep.equal({ x: 9, y: 8, width: 2, height: 1 });
-        expect(map.get(model.children[2])!.bounds).to.deep.equal({ x: 8.5, y: 10, width: 3, height: 3 });
+        expect(map.get(model)!.bounds).toEqual({ x: 0, y: 0, width: 20, height: 18 });
+        expect(map.get(model.children[0])!.bounds).toEqual({ x: 9.5, y: 5, width: 1, height: 2 });
+        expect(map.get(model.children[1])!.bounds).toEqual({ x: 9, y: 8, width: 2, height: 1 });
+        expect(map.get(model.children[2])!.bounds).toEqual({ x: 8.5, y: 10, width: 3, height: 3 });
     });
 
     it('prefHeight', () => {
@@ -162,9 +161,9 @@ describe('VBoxLayouter', () => {
             prefHeight: 20
         };
         layout(layoutRegistry, log, map, model);
-        expect(map.get(model)!.bounds).to.deep.equal({ x: 0, y: 0, width: 13, height: 20 });
-        expect(map.get(model.children[0])!.bounds).to.deep.equal({ x: 6, y: 5, width: 1, height: 2 });
-        expect(map.get(model.children[1])!.bounds).to.deep.equal({ x: 5.5, y: 8, width: 2, height: 1 });
-        expect(map.get(model.children[2])!.bounds).to.deep.equal({ x: 5, y: 10, width: 3, height: 3 });
+        expect(map.get(model)!.bounds).toEqual({ x: 0, y: 0, width: 13, height: 20 });
+        expect(map.get(model.children[0])!.bounds).toEqual({ x: 6, y: 5, width: 1, height: 2 });
+        expect(map.get(model.children[1])!.bounds).toEqual({ x: 5.5, y: 8, width: 2, height: 1 });
+        expect(map.get(model.children[2])!.bounds).toEqual({ x: 5, y: 10, width: 3, height: 3 });
     });
 });

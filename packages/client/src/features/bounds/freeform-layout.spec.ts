@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2022-2023 STMicroelectronics and others.
+ * Copyright (c) 2022-2026 STMicroelectronics and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,11 +13,11 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { expect } from 'chai';
-import 'mocha';
+
+import { describe, expect, it } from 'vitest';
 import 'reflect-metadata';
 import { BoundsData, ConsoleLogger, GModelElement } from '@eclipse-glsp/sprotty';
-import { createCompartment, createGraph, createLabel, createNode, layout, setupLayoutRegistry } from './layouter-test-util.spec';
+import { createCompartment, createGraph, createLabel, createNode, layout, setupLayoutRegistry } from '../test/layouter-test-util';
 
 describe('FreeFormLayouter', () => {
     const layoutRegistry = setupLayoutRegistry();
@@ -60,13 +60,13 @@ describe('FreeFormLayouter', () => {
             model.add(category);
             layout(layoutRegistry, log, map, model);
             // check category
-            expect(map.get(category)!.bounds).to.deep.equal({ x: 0, y: 0, width: 410.0, height: 215.0 });
+            expect(map.get(category)!.bounds).toEqual({ x: 0, y: 0, width: 410.0, height: 215.0 });
             // check header compartment
-            expect(map.get(category.children[0])!.bounds).to.deep.equal({ x: 0, y: 0, width: -1, height: -1 });
+            expect(map.get(category.children[0])!.bounds).toEqual({ x: 0, y: 0, width: -1, height: -1 });
             // check child freeform compartment
-            expect(map.get(category.children[1])!.bounds).to.deep.equal({ x: 5, y: 5, width: 400.0, height: 205.0 });
+            expect(map.get(category.children[1])!.bounds).toEqual({ x: 5, y: 5, width: 400.0, height: 205.0 });
             // check label compartment
-            expect(map.get(category.children[2])!.bounds).to.deep.equal({ x: 0, y: 0, width: -1, height: -1 });
+            expect(map.get(category.children[2])!.bounds).toEqual({ x: 0, y: 0, width: -1, height: -1 });
         });
     });
 
@@ -108,15 +108,15 @@ describe('FreeFormLayouter', () => {
             // layout graph
             layout(layoutRegistry, log, map, model);
             // check category
-            expect(map.get(category)!.bounds).to.deep.equal({ x: 0, y: 0, width: 500.0, height: 375.0 });
+            expect(map.get(category)!.bounds).toEqual({ x: 0, y: 0, width: 500.0, height: 375.0 });
             // check header compartment
-            expect(map.get(category.children[0])!.bounds).to.deep.equal({ x: 0, y: 0, width: -1, height: -1 });
+            expect(map.get(category.children[0])!.bounds).toEqual({ x: 0, y: 0, width: -1, height: -1 });
             // check child freeform compartment
-            expect(map.get(category.children[1])!.bounds).to.deep.equal({ x: 5.0, y: 5.0, width: 490.0, height: 365.0 });
+            expect(map.get(category.children[1])!.bounds).toEqual({ x: 5.0, y: 5.0, width: 490.0, height: 365.0 });
             // check child task node
-            expect(map.get(category.children[1].children[0])!.bounds).to.deep.equal({ x: 170.0, y: 190.0, width: 35.0, height: 30.0 });
+            expect(map.get(category.children[1].children[0])!.bounds).toEqual({ x: 170.0, y: 190.0, width: 35.0, height: 30.0 });
             // check label compartment
-            expect(map.get(category.children[2])!.bounds).to.deep.equal({ x: 0, y: 0, width: -1, height: -1 });
+            expect(map.get(category.children[2])!.bounds).toEqual({ x: 0, y: 0, width: -1, height: -1 });
         });
 
         it('Structure compartment (hGrab=true, vGrab=true)', () => {
@@ -152,13 +152,13 @@ describe('FreeFormLayouter', () => {
             // layout graph
             layout(layoutRegistry, log, map, model);
             // check category
-            expect(map.get(category)!.bounds).to.deep.equal({ x: 0, y: 0, width: 500.0, height: 375.0 });
+            expect(map.get(category)!.bounds).toEqual({ x: 0, y: 0, width: 500.0, height: 375.0 });
             // check header compartment
-            expect(map.get(category.children[0])!.bounds).to.deep.equal({ x: 0, y: 0, width: -1, height: -1 });
+            expect(map.get(category.children[0])!.bounds).toEqual({ x: 0, y: 0, width: -1, height: -1 });
             // check child freeform compartment
-            expect(map.get(category.children[1])!.bounds).to.deep.equal({ x: 5.0, y: 5.0, width: 490.0, height: 365.0 });
+            expect(map.get(category.children[1])!.bounds).toEqual({ x: 5.0, y: 5.0, width: 490.0, height: 365.0 });
             // check child task node
-            expect(map.get(category.children[1].children[0])!.bounds).to.deep.equal({ x: 55.0, y: 15.0, width: 60.0, height: 45.0 });
+            expect(map.get(category.children[1].children[0])!.bounds).toEqual({ x: 55.0, y: 15.0, width: 60.0, height: 45.0 });
         });
 
         it('Structure compartment (hGrab=true, vGrab=true, padding*=10)', () => {
@@ -204,13 +204,13 @@ describe('FreeFormLayouter', () => {
             // layout graph
             layout(layoutRegistry, log, map, model);
             // check category
-            expect(map.get(category)!.bounds).to.deep.equal({ x: 0, y: 0, width: 500.0, height: 375.0 });
+            expect(map.get(category)!.bounds).toEqual({ x: 0, y: 0, width: 500.0, height: 375.0 });
             // check header compartment
-            expect(map.get(category.children[0])!.bounds).to.deep.equal({ x: 0, y: 0, width: -1, height: -1 });
+            expect(map.get(category.children[0])!.bounds).toEqual({ x: 0, y: 0, width: -1, height: -1 });
             // check child freeform compartment
-            expect(map.get(category.children[1])!.bounds).to.deep.equal({ x: 10.0, y: 10.0, width: 480.0, height: 355.0 });
+            expect(map.get(category.children[1])!.bounds).toEqual({ x: 10.0, y: 10.0, width: 480.0, height: 355.0 });
             // check child task node
-            expect(map.get(category.children[1].children[0])!.bounds).to.deep.equal({ x: 55.0, y: 15.0, width: 70.0, height: 55.0 });
+            expect(map.get(category.children[1].children[0])!.bounds).toEqual({ x: 55.0, y: 15.0, width: 70.0, height: 55.0 });
         });
     });
 });
