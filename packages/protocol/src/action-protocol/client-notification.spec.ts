@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { expect } from 'chai';
+import { describe, expect, it } from 'vitest';
 import { EndProgressAction, MessageAction, StartProgressAction, StatusAction, UpdateProgressAction } from './client-notification';
 /**
  * Tests for the utility functions declared in the namespaces of the protocol
@@ -25,13 +25,13 @@ describe('Client notification actions', () => {
         describe('is', () => {
             it('should return true for an object having the correct type and a value for all required interface properties', () => {
                 const statusAction: StatusAction = { kind: StatusAction.KIND, message: 'Some', severity: 'INFO' };
-                expect(StatusAction.is(statusAction)).to.be.true;
+                expect(StatusAction.is(statusAction)).toBe(true);
             });
             it('should return false for `undefined`', () => {
-                expect(StatusAction.is(undefined)).to.be.false;
+                expect(StatusAction.is(undefined)).toBe(false);
             });
             it('should return false for an object that does not have all required interface properties', () => {
-                expect(StatusAction.is({ kind: 'notTheRightOne' })).to.be.false;
+                expect(StatusAction.is({ kind: 'notTheRightOne' })).toBe(false);
             });
         });
 
@@ -39,7 +39,7 @@ describe('Client notification actions', () => {
             it('should return an object conforming to the interface with matching properties for the given required arguments and default values for the optional arguments', () => {
                 const message = 'someMessage';
                 const expected: StatusAction = { kind: StatusAction.KIND, message, severity: 'INFO' };
-                expect(StatusAction.create(message)).to.deep.equals(expected);
+                expect(StatusAction.create(message)).toEqual(expected);
             });
             it('should return an object conforming to the interface with matching properties for the given required and optional arguments', () => {
                 const expected: StatusAction = {
@@ -49,7 +49,7 @@ describe('Client notification actions', () => {
                     timeout: 5
                 };
                 const { message, severity, timeout } = expected;
-                expect(StatusAction.create(message, { severity, timeout })).to.deep.equals(expected);
+                expect(StatusAction.create(message, { severity, timeout })).toEqual(expected);
             });
         });
     });
@@ -58,13 +58,13 @@ describe('Client notification actions', () => {
         describe('is', () => {
             it('should return true for an object having the correct type and a value for all required interface properties', () => {
                 const messageAction: MessageAction = { kind: MessageAction.KIND, message: '', severity: 'INFO' };
-                expect(MessageAction.is(messageAction)).to.be.true;
+                expect(MessageAction.is(messageAction)).toBe(true);
             });
             it('should return false for `undefined`', () => {
-                expect(MessageAction.is(undefined)).to.be.false;
+                expect(MessageAction.is(undefined)).toBe(false);
             });
             it('should return false for an object that does not have all required interface properties', () => {
-                expect(MessageAction.is({ kind: 'notTheRightOne' })).to.be.false;
+                expect(MessageAction.is({ kind: 'notTheRightOne' })).toBe(false);
             });
         });
 
@@ -72,7 +72,7 @@ describe('Client notification actions', () => {
             it('should return an object conforming to the interface with matching properties for the given required arguments and default values for the optional arguments', () => {
                 const message = 'someMessage';
                 const expected: MessageAction = { kind: MessageAction.KIND, message, severity: 'INFO' };
-                expect(MessageAction.create(message)).to.deep.equals(expected);
+                expect(MessageAction.create(message)).toEqual(expected);
             });
             it('should return an object conforming to the interface with matching properties for the given required and optional arguments', () => {
                 const expected: MessageAction = {
@@ -82,7 +82,7 @@ describe('Client notification actions', () => {
                     severity: 'ERROR'
                 };
                 const { message, severity, details } = expected;
-                expect(MessageAction.create(message, { severity, details })).to.deep.equals(expected);
+                expect(MessageAction.create(message, { severity, details })).toEqual(expected);
             });
         });
     });
@@ -91,13 +91,13 @@ describe('Client notification actions', () => {
         describe('is', () => {
             it('should return true for an object having the correct type and a value for all required interface properties', () => {
                 const messageAction: StartProgressAction = { kind: 'startProgress', progressId: '1', title: 'Progress title' };
-                expect(StartProgressAction.is(messageAction)).to.be.true;
+                expect(StartProgressAction.is(messageAction)).toBe(true);
             });
             it('should return false for `undefined`', () => {
-                expect(StartProgressAction.is(undefined)).to.be.false;
+                expect(StartProgressAction.is(undefined)).toBe(false);
             });
             it('should return false for an object that does not have all required interface properties', () => {
-                expect(StartProgressAction.is({ kind: 'notTheRightOne' })).to.be.false;
+                expect(StartProgressAction.is({ kind: 'notTheRightOne' })).toBe(false);
             });
         });
 
@@ -106,7 +106,7 @@ describe('Client notification actions', () => {
                 const progressId = '1';
                 const title = 'Progress title';
                 const expected: StartProgressAction = { kind: StartProgressAction.KIND, progressId, title };
-                expect(StartProgressAction.create({ progressId, title })).to.deep.equals(expected);
+                expect(StartProgressAction.create({ progressId, title })).toEqual(expected);
             });
             it('should return an object conforming to the interface with matching properties for the given required and optional arguments', () => {
                 const expected: StartProgressAction = {
@@ -117,7 +117,7 @@ describe('Client notification actions', () => {
                     percentage: 10
                 };
                 const { progressId, title, message, percentage } = expected;
-                expect(StartProgressAction.create({ progressId, title, message, percentage })).to.deep.equals(expected);
+                expect(StartProgressAction.create({ progressId, title, message, percentage })).toEqual(expected);
             });
         });
     });
@@ -126,13 +126,13 @@ describe('Client notification actions', () => {
         describe('is', () => {
             it('should return true for an object having the correct type and a value for all required interface properties', () => {
                 const messageAction: UpdateProgressAction = { kind: 'updateProgress', progressId: '1' };
-                expect(UpdateProgressAction.is(messageAction)).to.be.true;
+                expect(UpdateProgressAction.is(messageAction)).toBe(true);
             });
             it('should return false for `undefined`', () => {
-                expect(UpdateProgressAction.is(undefined)).to.be.false;
+                expect(UpdateProgressAction.is(undefined)).toBe(false);
             });
             it('should return false for an object that does not have all required interface properties', () => {
-                expect(UpdateProgressAction.is({ kind: 'notTheRightOne' })).to.be.false;
+                expect(UpdateProgressAction.is({ kind: 'notTheRightOne' })).toBe(false);
             });
         });
 
@@ -140,7 +140,7 @@ describe('Client notification actions', () => {
             it('should return an object conforming to the interface with matching properties for the given required arguments and default values for the optional arguments', () => {
                 const progressId = '1';
                 const expected: UpdateProgressAction = { kind: UpdateProgressAction.KIND, progressId };
-                expect(UpdateProgressAction.create(progressId)).to.deep.equals(expected);
+                expect(UpdateProgressAction.create(progressId)).toEqual(expected);
             });
             it('should return an object conforming to the interface with matching properties for the given required and optional arguments', () => {
                 const expected: UpdateProgressAction = {
@@ -150,7 +150,7 @@ describe('Client notification actions', () => {
                     percentage: 10
                 };
                 const { progressId, message, percentage } = expected;
-                expect(UpdateProgressAction.create(progressId, { message, percentage })).to.deep.equals(expected);
+                expect(UpdateProgressAction.create(progressId, { message, percentage })).toEqual(expected);
             });
         });
     });
@@ -159,13 +159,13 @@ describe('Client notification actions', () => {
         describe('is', () => {
             it('should return true for an object having the correct type and a value for all required interface properties', () => {
                 const messageAction: EndProgressAction = { kind: 'endProgress', progressId: '1' };
-                expect(EndProgressAction.is(messageAction)).to.be.true;
+                expect(EndProgressAction.is(messageAction)).toBe(true);
             });
             it('should return false for `undefined`', () => {
-                expect(EndProgressAction.is(undefined)).to.be.false;
+                expect(EndProgressAction.is(undefined)).toBe(false);
             });
             it('should return false for an object that does not have all required interface properties', () => {
-                expect(EndProgressAction.is({ kind: 'notTheRightOne' })).to.be.false;
+                expect(EndProgressAction.is({ kind: 'notTheRightOne' })).toBe(false);
             });
         });
 
@@ -173,7 +173,7 @@ describe('Client notification actions', () => {
             it('should return an object conforming to the interface with matching properties for the given required arguments and default values for the optional arguments', () => {
                 const progressId = '1';
                 const expected: EndProgressAction = { kind: EndProgressAction.KIND, progressId, message: undefined };
-                expect(EndProgressAction.create(progressId)).to.deep.equals(expected);
+                expect(EndProgressAction.create(progressId)).toEqual(expected);
             });
             it('should return an object conforming to the interface with matching properties for the given required and optional arguments', () => {
                 const expected: EndProgressAction = {
@@ -182,7 +182,7 @@ describe('Client notification actions', () => {
                     message: 'Some message'
                 };
                 const { progressId, message } = expected;
-                expect(EndProgressAction.create(progressId, message)).to.deep.equals(expected);
+                expect(EndProgressAction.create(progressId, message)).toEqual(expected);
             });
         });
     });

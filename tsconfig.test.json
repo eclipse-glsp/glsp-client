@@ -1,0 +1,13 @@
+{
+  "extends": "@eclipse-glsp/ts-config",
+  "compilerOptions": {
+    "composite": true,
+    "noEmit": true
+  },
+  "include": [],
+  "files": [],
+  "references": [
+    { "path": "./packages/protocol/tsconfig.test.json" },
+    { "path": "./packages/client/tsconfig.test.json" }
+  ]
+}

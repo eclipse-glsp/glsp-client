@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { expect } from 'chai';
+import { describe, expect, it } from 'vitest';
 import { Container } from 'inversify';
 import { resolveContainerConfiguration } from './container-configuration';
 import { FeatureModule } from './feature-module';
@@ -30,41 +30,41 @@ describe('Container configuration', () => {
     describe('resolveContainerConfiguration', () => {
         it('should resolve the given container modules in incoming order', () => {
             const result = resolveContainerConfiguration(moduleA, moduleB, moduleC);
-            expect(result).to.deep.equal([moduleA, moduleB, moduleC]);
+            expect(result).toEqual([moduleA, moduleB, moduleC]);
         });
         it('should resolve the same container module only once', () => {
             const result = resolveContainerConfiguration(moduleA, moduleA);
-            expect(result).to.deep.equal([moduleA]);
+            expect(result).toEqual([moduleA]);
         });
         it('should resolve the given container modules and add configurations', () => {
             const result = resolveContainerConfiguration(moduleA, { add: [moduleB, moduleC] });
-            expect(result).to.deep.equal([moduleA, moduleB, moduleC]);
+            expect(result).toEqual([moduleA, moduleB, moduleC]);
         });
         it('should resolve the given container modules/add configurations and not load modules from remove configurations', () => {
             const result = resolveContainerConfiguration(moduleA, {
                 add: [moduleB, moduleC],
                 remove: moduleA
             });
-            expect(result).to.deep.equal([moduleB, moduleC]);
+            expect(result).toEqual([moduleB, moduleC]);
         });
         it('should resolve a module from a remove configuration if it is re-added with a subsequent add configuration', () => {
             const result = resolveContainerConfiguration(moduleA, { remove: moduleA }, moduleA);
-            expect(result).to.deep.equal([moduleA]);
+            expect(result).toEqual([moduleA]);
         });
         it('should resolve a module from a replace configuration instead of a prior added module with the same feature id', () => {
             const replaceModule = new FeatureModule(() => {}, { featureId: moduleA.featureId });
             const result = resolveContainerConfiguration(moduleA, moduleB, { replace: replaceModule });
-            expect(result).to.deep.equal([replaceModule, moduleB]);
+            expect(result).toEqual([replaceModule, moduleB]);
         });
 
         it('should still resolve a module from a replace configuration if there is no prior added module with the same featureId to replace', () => {
             const replaceModule = new FeatureModule(() => {}, { featureId: Symbol('replaceModule') });
             const result = resolveContainerConfiguration(moduleA, moduleB, { replace: replaceModule });
-            expect(result).to.deep.equal([moduleA, moduleB, replaceModule]);
+            expect(result).toEqual([moduleA, moduleB, replaceModule]);
         });
         it('should throw an error for a configuration that resolves to multiple feature modules with the same featureId', () => {
             const duplicateModule = new FeatureModule(() => {}, { featureId: moduleA.featureId });
-            expect(() => resolveContainerConfiguration(moduleA, duplicateModule)).to.throw();
+            expect(() => resolveContainerConfiguration(moduleA, duplicateModule)).toThrow();
         });
     });
 });

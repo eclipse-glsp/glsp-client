@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2022 STMicroelectronics and others.
+ * Copyright (c) 2022-2026 STMicroelectronics and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { expect } from 'chai';
+import { describe, expect, it } from 'vitest';
 import { RedoAction, UndoAction } from './undo-redo';
 
 describe('Undo & Redo Actions', () => {
@@ -23,13 +23,13 @@ describe('Undo & Redo Actions', () => {
                 const action: UndoAction = {
                     kind: 'glspUndo'
                 };
-                expect(UndoAction.is(action)).to.be.true;
+                expect(UndoAction.is(action)).toBe(true);
             });
             it('should return false for `undefined`', () => {
-                expect(UndoAction.is(undefined)).to.be.false;
+                expect(UndoAction.is(undefined)).toBe(false);
             });
             it('should return false for an object that does not have all required interface properties', () => {
-                expect(UndoAction.is({ kind: 'notTheRightOne' })).to.be.false;
+                expect(UndoAction.is({ kind: 'notTheRightOne' })).toBe(false);
             });
         });
 
@@ -38,7 +38,7 @@ describe('Undo & Redo Actions', () => {
                 const expected: UndoAction = {
                     kind: 'glspUndo'
                 };
-                expect(UndoAction.create()).to.deep.equals(expected);
+                expect(UndoAction.create()).toEqual(expected);
             });
         });
     });
@@ -49,13 +49,13 @@ describe('Undo & Redo Actions', () => {
                 const action: RedoAction = {
                     kind: 'glspRedo'
                 };
-                expect(RedoAction.is(action)).to.be.true;
+                expect(RedoAction.is(action)).toBe(true);
             });
             it('should return false for `undefined`', () => {
-                expect(RedoAction.is(undefined)).to.be.false;
+                expect(RedoAction.is(undefined)).toBe(false);
             });
             it('should return false for an object that does not have all required interface properties', () => {
-                expect(RedoAction.is({ kind: 'notTheRightOne' })).to.be.false;
+                expect(RedoAction.is({ kind: 'notTheRightOne' })).toBe(false);
             });
         });
 
@@ -64,7 +64,7 @@ describe('Undo & Redo Actions', () => {
                 const expected: RedoAction = {
                     kind: 'glspRedo'
                 };
-                expect(RedoAction.create()).to.deep.equals(expected);
+                expect(RedoAction.create()).toEqual(expected);
             });
         });
     });

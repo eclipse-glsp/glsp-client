@@ -14,9 +14,8 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { FeatureModule } from '@eclipse-glsp/sprotty';
-import { expect } from 'chai';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Container } from 'inversify';
-import * as sinon from 'sinon';
 import { defaultModule } from './base/default.module';
 import { DEFAULT_MODULES, initializeDiagramContainer } from './default-modules';
 
@@ -24,31 +23,33 @@ describe('default-modules', () => {
     // InitializeDiagramContainer internally uses `resolveContainerConfiguration` so we only test functionality
     // that is not covered by the tests of `resolveContainerConfiguration`.
     describe('initializeDiagramContainer', () => {
-        const sandbox = sinon.createSandbox();
         const container = new Container();
-        const loadSpy = sandbox.spy(container, 'load');
+        let loadSpy: ReturnType<typeof vi.spyOn>;
         container.snapshot();
 
         beforeEach(() => {
-            sandbox.reset();
             container.restore();
             container.snapshot();
+            loadSpy = vi.spyOn(container, 'load');
+        });
+        afterEach(() => {
+            loadSpy.mockRestore();
         });
         it('should initialize the diagram container with the default modules in addition to the given config and load them first', () => {
             const extraModule = new FeatureModule(() => {});
             initializeDiagramContainer(container, { add: extraModule });
-            expect(loadSpy.calledOnce).to.be.true;
-            const callArgs = loadSpy.firstCall.args;
+            expect(loadSpy).toHaveBeenCalledOnce();
+            const callArgs = [...loadSpy.mock.calls[0]];
             const lastModule = callArgs.pop();
-            expect(callArgs).to.be.deep.equal(DEFAULT_MODULES).ordered;
-            expect(lastModule).to.be.equal(extraModule);
+            expect(callArgs).toEqual(DEFAULT_MODULES);
+            expect(lastModule).toBe(extraModule);
         });
         it('should throw an error if the base (default) module is removed via configuration', () => {
-            expect(() => initializeDiagramContainer(container, { remove: defaultModule })).to.throw(/Invalid module configuration/);
+            expect(() => initializeDiagramContainer(container, { remove: defaultModule })).toThrow(/Invalid module configuration/);
         });
 
         it('should throw an error if the base (default) module is not the first module of the resolved configured (removed and added again)', () => {
-            expect(() => initializeDiagramContainer(container, { remove: defaultModule, add: defaultModule })).to.throw(
+            expect(() => initializeDiagramContainer(container, { remove: defaultModule, add: defaultModule })).toThrow(
                 /Invalid module configuration/
             );
         });

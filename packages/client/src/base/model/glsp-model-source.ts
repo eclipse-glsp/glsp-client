@@ -34,7 +34,7 @@ import {
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable, preDestroy } from 'inversify';
 import { GLSPActionHandlerRegistry } from '../action-handler-registry';
-import { IDiagramOptions } from './diagram-loader';
+import type { IDiagramOptions } from './diagram-loader';
 
 /**
  * A helper interface that allows the client to mark actions that have been received from the server.

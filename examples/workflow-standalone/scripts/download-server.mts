@@ -17,9 +17,10 @@ import { execSync } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
 import { extract } from 'tar';
-import * as packageJson from '../../../package.json';
+import { fileURLToPath } from 'url';
+import packageJson from '../../../package.json' with { type: 'json' };
 
-export const SERVER_DIR_PATH = path.resolve(__dirname, '..', 'server');
+export const SERVER_DIR_PATH = path.resolve(import.meta.dirname, '..', 'server');
 
 const BUNDLES = {
     node: { npmPackage: '@eclipse-glsp-examples/workflow-server-bundled', stableName: 'wf-glsp-server-node.js' },
@@ -81,7 +82,7 @@ export function resolveVersion(): string {
 }
 
 // Direct invocation (e.g. prebundle:browser script) — skip when imported as a module by start.ts
-if (require.main === module) {
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
     const bundle = process.argv.includes('--browser') ? BUNDLES.browser : BUNDLES.node;
     downloadServerBundle({ ...bundle, version: resolveVersion() });
 }

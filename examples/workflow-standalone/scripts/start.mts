@@ -16,7 +16,7 @@
 import concurrently from 'concurrently';
 import * as fs from 'fs';
 import * as path from 'path';
-import { downloadServerBundle, resolveVersion, SERVER_DIR_PATH } from './download-server';
+import { downloadServerBundle, resolveVersion, SERVER_DIR_PATH } from './download-server.mts';
 
 const isBrowser = process.argv.includes('--browser');
 const isDev = process.argv.includes('--dev');

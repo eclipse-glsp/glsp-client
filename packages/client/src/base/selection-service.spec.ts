@@ -14,9 +14,8 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { Action, Command, CommandExecutionContext, Disposable, GModelRoot, GNode, TYPES, initializeContainer } from '@eclipse-glsp/sprotty';
-import { AssertionError, expect } from 'chai';
+import { afterEach, beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 import { Container, injectable } from 'inversify';
-import * as sinon from 'sinon';
 import { defaultModule } from './default.module';
 import { IFeedbackActionDispatcher, IFeedbackEmitter } from './feedback/feedback-action-dispatcher';
 import { FeedbackEmitter } from './feedback/feedback-emitter';
@@ -127,7 +126,8 @@ describe('SelectionService', () => {
         it('Selecting multiple elements should have the selection order in the dispatched feedback.', () => {
             assertSelectionAndFeedback([], []);
             selectionService.updateSelection(root, ['node2', 'node1'], []);
-            expect(() => assertSelectionAndFeedback(['node1', 'node2'], [])).to.throw(AssertionError, 'ordered members');
+            // assertion enforces order: expecting ['node1', 'node2'] must fail for the actual ['node2', 'node1']
+            expect(() => assertSelectionAndFeedback(['node1', 'node2'], [])).toThrow();
         });
         it('Selecting the same elements twice in one operation should not make a difference.', () => {
             assertSelectionAndFeedback([], []);
@@ -196,10 +196,10 @@ describe('SelectionService', () => {
         });
     });
     describe('Listeners', () => {
-        const sandbox = sinon.createSandbox();
-        const listener = sandbox.createStubInstance(MockSelectionListener);
+        const listener = { selectionChanged: vi.fn() } as unknown as MockSelectionListener;
 
         beforeEach(() => {
+            (listener.selectionChanged as Mock).mockClear();
             selectionService.onSelectionChanged(change =>
                 listener.selectionChanged(change.root, change.selectedElements, change.deselectedElements)
             );
@@ -207,7 +207,6 @@ describe('SelectionService', () => {
 
         afterEach(() => {
             selectionService.dispose();
-            sandbox.reset();
         });
         it('A registered listener should be notified of a single selection change.', () => {
             selectionService.updateSelection(root, ['node1', 'node1'], []);
@@ -249,7 +248,7 @@ describe('SelectionService', () => {
         });
         it('Bindings of TYPES.ISelectionListener should be registered as listener in `preLoadDiagram`', () => {
             const container = createContainer();
-            const selectionListener = sandbox.createStubInstance(MockSelectionListener);
+            const selectionListener = { selectionChanged: vi.fn() } as unknown as MockSelectionListener;
             container.bind(TYPES.ISelectionListener).toConstantValue(selectionListener);
             const testSelectionService = container.get<SelectionService>(SelectionService);
             testSelectionService.preLoadDiagram();
@@ -277,12 +276,12 @@ describe('SelectionService', () => {
     }
 
     function assertSelectionService(expectedSelection: string[]): void {
-        expect(selectionService.isSingleSelection()).to.equal(expectedSelection.length === 1);
-        expect(selectionService.isMultiSelection()).to.equal(expectedSelection.length > 1);
-        expect(selectionService.hasSelectedElements()).to.equal(expectedSelection.length > 0);
-        expect(selectionService.getSelectedElementIDs()).to.have.lengthOf(expectedSelection.length);
+        expect(selectionService.isSingleSelection()).toBe(expectedSelection.length === 1);
+        expect(selectionService.isMultiSelection()).toBe(expectedSelection.length > 1);
+        expect(selectionService.hasSelectedElements()).toBe(expectedSelection.length > 0);
+        expect(selectionService.getSelectedElementIDs()).toHaveLength(expectedSelection.length);
         if (expectedSelection.length > 0) {
-            expect(selectionService.getSelectedElementIDs()).to.have.ordered.members(expectedSelection);
+            expect(selectionService.getSelectedElementIDs()).toEqual(expectedSelection);
         }
     }
 
@@ -290,29 +289,31 @@ describe('SelectionService', () => {
         // a single feedback action reflects aggregated selection/deselection
         const hasFeedback = expectedSelection.length > 0 || expectedDeselection.length > 0;
         if (hasFeedback) {
-            expect(feedbackDispatcher.getRegisteredFeedback()).to.have.lengthOf(1);
-            expect(feedbackDispatcher.getSingleFeedbackAction()!.selectedElementsIDs).to.have.lengthOf(expectedSelection.length);
-            expect(feedbackDispatcher.getSingleFeedbackAction()!.selectedElementsIDs).to.have.ordered.members(expectedSelection);
-            expect(feedbackDispatcher.getSingleFeedbackAction()!.deselectedElementsIDs).to.have.lengthOf(expectedDeselection.length);
-            expect(feedbackDispatcher.getSingleFeedbackAction()!.deselectedElementsIDs).to.have.ordered.members(expectedDeselection);
+            expect(feedbackDispatcher.getRegisteredFeedback()).toHaveLength(1);
+            expect(feedbackDispatcher.getSingleFeedbackAction()!.selectedElementsIDs).toHaveLength(expectedSelection.length);
+            expect(feedbackDispatcher.getSingleFeedbackAction()!.selectedElementsIDs).toEqual(expectedSelection);
+            expect(feedbackDispatcher.getSingleFeedbackAction()!.deselectedElementsIDs).toHaveLength(expectedDeselection.length);
+            expect(feedbackDispatcher.getSingleFeedbackAction()!.deselectedElementsIDs).toEqual(expectedDeselection);
         } else {
-            expect(feedbackDispatcher.getRegisteredFeedback()).to.have.lengthOf(0);
-            expect(feedbackDispatcher.getSingleFeedbackAction()).to.be.undefined;
+            expect(feedbackDispatcher.getRegisteredFeedback()).toHaveLength(0);
+            expect(feedbackDispatcher.getSingleFeedbackAction()).toBeUndefined();
         }
     }
 
     function assertListener(
-        listener: sinon.SinonStubbedInstance<MockSelectionListener>,
+        listener: MockSelectionListener,
         expectedRoot: GModelRoot | undefined,
         expectedSelection: string[],
         expectedDeselection: string[],
         expectedCalled: number
     ): void {
-        expect(listener.selectionChanged.callCount).to.be.equal(expectedCalled);
+        const selectionChanged = listener.selectionChanged as Mock;
+        expect(selectionChanged.mock.calls.length).toBe(expectedCalled);
         if (expectedCalled > 0) {
-            expect(listener.selectionChanged.lastCall.args[0]).to.be.deep.equals(expectedRoot);
-            expect(listener.selectionChanged.lastCall.args[1]).to.be.deep.equals(expectedSelection);
-            expect(listener.selectionChanged.lastCall.args[2]).to.be.deep.equals(expectedDeselection);
+            const lastCallArgs = selectionChanged.mock.calls[selectionChanged.mock.calls.length - 1];
+            expect(lastCallArgs[0]).toEqual(expectedRoot);
+            expect(lastCallArgs[1]).toEqual(expectedSelection);
+            expect(lastCallArgs[2]).toEqual(expectedDeselection);
         }
     }
 });

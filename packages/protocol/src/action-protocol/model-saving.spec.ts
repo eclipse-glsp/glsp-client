@@ -15,7 +15,7 @@
  ********************************************************************************/
 /* eslint-disable @typescript-eslint/no-deprecated */
 
-import { expect } from 'chai';
+import { describe, expect, it } from 'vitest';
 import {
     ExportResultAction,
     ExportSvgAction,
@@ -36,13 +36,13 @@ describe('Model saving actions', () => {
                 const action: SaveModelAction = {
                     kind: 'saveModel'
                 };
-                expect(SaveModelAction.is(action)).to.be.true;
+                expect(SaveModelAction.is(action)).toBe(true);
             });
             it('should return false for `undefined`', () => {
-                expect(SaveModelAction.is(undefined)).to.be.false;
+                expect(SaveModelAction.is(undefined)).toBe(false);
             });
             it('should return false for an object that does not have all required interface properties', () => {
-                expect(SaveModelAction.is({ kind: 'notTheRightOne' })).to.be.false;
+                expect(SaveModelAction.is({ kind: 'notTheRightOne' })).toBe(false);
             });
         });
 
@@ -52,7 +52,7 @@ describe('Model saving actions', () => {
                     kind: 'saveModel'
                 };
 
-                expect(SaveModelAction.create()).to.deep.equals(expected);
+                expect(SaveModelAction.create()).toEqual(expected);
             });
             it('should return an object conforming to the interface with matching properties for the given required and optional arguments', () => {
                 const expected: SaveModelAction = {
@@ -60,7 +60,7 @@ describe('Model saving actions', () => {
                     fileUri: 'myUri'
                 };
                 const { fileUri } = expected;
-                expect(SaveModelAction.create({ fileUri })).to.deep.equals(expected);
+                expect(SaveModelAction.create({ fileUri })).toEqual(expected);
             });
         });
     });
@@ -72,13 +72,13 @@ describe('Model saving actions', () => {
                     kind: 'setDirtyState',
                     isDirty: true
                 };
-                expect(SetDirtyStateAction.is(action)).to.be.true;
+                expect(SetDirtyStateAction.is(action)).toBe(true);
             });
             it('should return false for `undefined`', () => {
-                expect(SetDirtyStateAction.is(undefined)).to.be.false;
+                expect(SetDirtyStateAction.is(undefined)).toBe(false);
             });
             it('should return false for an object that does not have all required interface properties', () => {
-                expect(SetDirtyStateAction.is({ kind: 'notTheRightOne' })).to.be.false;
+                expect(SetDirtyStateAction.is({ kind: 'notTheRightOne' })).toBe(false);
             });
         });
 
@@ -89,7 +89,7 @@ describe('Model saving actions', () => {
                     isDirty: true
                 };
                 const { isDirty } = expected;
-                expect(SetDirtyStateAction.create(isDirty)).to.deep.equals(expected);
+                expect(SetDirtyStateAction.create(isDirty)).toEqual(expected);
             });
             it('should return an object conforming to the interface with matching properties for the given required and optional arguments', () => {
                 const expected: SetDirtyStateAction = {
@@ -98,7 +98,7 @@ describe('Model saving actions', () => {
                     reason: 'save'
                 };
                 const { isDirty, reason } = expected;
-                expect(SetDirtyStateAction.create(isDirty, { reason })).to.deep.equals(expected);
+                expect(SetDirtyStateAction.create(isDirty, { reason })).toEqual(expected);
             });
         });
     });
@@ -110,13 +110,13 @@ describe('Model saving actions', () => {
                     kind: 'requestExportSvg',
                     requestId: ''
                 };
-                expect(RequestExportSvgAction.is(action)).to.be.true;
+                expect(RequestExportSvgAction.is(action)).toBe(true);
             });
             it('should return false for `undefined`', () => {
-                expect(RequestExportSvgAction.is(undefined)).to.be.false;
+                expect(RequestExportSvgAction.is(undefined)).toBe(false);
             });
             it('should return false for an object that does not have all required interface properties', () => {
-                expect(RequestExportSvgAction.is({ kind: 'notTheRightOne' })).to.be.false;
+                expect(RequestExportSvgAction.is({ kind: 'notTheRightOne' })).toBe(false);
             });
         });
 
@@ -126,7 +126,7 @@ describe('Model saving actions', () => {
                     kind: 'requestExportSvg',
                     requestId: ''
                 };
-                expect(RequestExportSvgAction.create()).to.deep.equals(expected);
+                expect(RequestExportSvgAction.create()).toEqual(expected);
             });
             it('should return an object conforming to the interface with matching properties for the given required and optional arguments', () => {
                 const expected: RequestExportSvgAction = {
@@ -134,7 +134,7 @@ describe('Model saving actions', () => {
                     requestId: 'myRequest'
                 };
                 const { requestId } = expected;
-                expect(RequestExportSvgAction.create({ requestId })).to.deep.equals(expected);
+                expect(RequestExportSvgAction.create({ requestId })).toEqual(expected);
             });
         });
     });
@@ -147,13 +147,13 @@ describe('Model saving actions', () => {
                     responseId: '',
                     svg: ''
                 };
-                expect(ExportSvgAction.is(action)).to.be.true;
+                expect(ExportSvgAction.is(action)).toBe(true);
             });
             it('should return false for `undefined`', () => {
-                expect(ExportSvgAction.is(undefined)).to.be.false;
+                expect(ExportSvgAction.is(undefined)).toBe(false);
             });
             it('should return false for an object that does not have all required interface properties', () => {
-                expect(ExportSvgAction.is({ kind: 'notTheRightOne' })).to.be.false;
+                expect(ExportSvgAction.is({ kind: 'notTheRightOne' })).toBe(false);
             });
         });
 
@@ -165,7 +165,7 @@ describe('Model saving actions', () => {
                     svg: 'someSvg'
                 };
                 const { svg } = expected;
-                expect(ExportSvgAction.create(svg)).to.deep.equals(expected);
+                expect(ExportSvgAction.create(svg)).toEqual(expected);
             });
             it('should return an object conforming to the interface with matching properties for the given required and optional arguments', () => {
                 const expected: ExportSvgAction = {
@@ -174,7 +174,7 @@ describe('Model saving actions', () => {
                     svg: 'someSvg'
                 };
                 const { svg, responseId } = expected;
-                expect(ExportSvgAction.create(svg, { responseId })).to.deep.equals(expected);
+                expect(ExportSvgAction.create(svg, { responseId })).toEqual(expected);
             });
         });
     });
@@ -187,22 +187,22 @@ describe('Model saving actions', () => {
                     requestId: '',
                     format: 'png'
                 };
-                expect(RequestExportAction.is(action)).to.be.true;
+                expect(RequestExportAction.is(action)).toBe(true);
             });
             it('should reject the legacy `requestExportSvg` kind to keep strict separation between the two protocols', () => {
-                expect(RequestExportAction.is({ kind: 'requestExportSvg', requestId: '' })).to.be.false;
+                expect(RequestExportAction.is({ kind: 'requestExportSvg', requestId: '' })).toBe(false);
             });
             it('should return false for an action missing the `format` discriminator', () => {
-                expect(RequestExportAction.is({ kind: 'requestExport', requestId: '' })).to.be.false;
+                expect(RequestExportAction.is({ kind: 'requestExport', requestId: '' })).toBe(false);
             });
             it('should return false for `undefined`', () => {
-                expect(RequestExportAction.is(undefined)).to.be.false;
+                expect(RequestExportAction.is(undefined)).toBe(false);
             });
         });
 
         describe('create', () => {
             it('should default `requestId` to empty when none is supplied', () => {
-                expect(RequestExportAction.create('svg')).to.deep.equals({
+                expect(RequestExportAction.create('svg')).toEqual({
                     kind: 'requestExport',
                     format: 'svg',
                     requestId: ''
@@ -210,7 +210,7 @@ describe('Model saving actions', () => {
             });
             it('should propagate caller-supplied formatOptions and requestId', () => {
                 const formatOptions = { width: 1024, skipCopyStyles: true };
-                expect(RequestExportAction.create('png', { formatOptions, requestId: 'abc' })).to.deep.equals({
+                expect(RequestExportAction.create('png', { formatOptions, requestId: 'abc' })).toEqual({
                     kind: 'requestExport',
                     format: 'png',
                     requestId: 'abc',
@@ -219,7 +219,7 @@ describe('Model saving actions', () => {
             });
             it('should accept an arbitrary string format (open registry)', () => {
                 const action = RequestExportAction.create('pdf');
-                expect(action.format).to.equal('pdf');
+                expect(action.format).toBe('pdf');
             });
         });
     });
@@ -235,7 +235,7 @@ describe('Model saving actions', () => {
                     encoding: 'text',
                     data: '<svg/>'
                 };
-                expect(ExportResultAction.is(action)).to.be.true;
+                expect(ExportResultAction.is(action)).toBe(true);
             });
             it('should return true for a well-formed base64-encoded result', () => {
                 const action: ExportResultAction = {
@@ -246,10 +246,10 @@ describe('Model saving actions', () => {
                     encoding: 'base64',
                     data: 'aGVsbG8='
                 };
-                expect(ExportResultAction.is(action)).to.be.true;
+                expect(ExportResultAction.is(action)).toBe(true);
             });
             it('should reject the legacy `exportSvg` kind to keep strict separation between the two protocols', () => {
-                expect(ExportResultAction.is({ kind: 'exportSvg', responseId: '', svg: '<svg/>' })).to.be.false;
+                expect(ExportResultAction.is({ kind: 'exportSvg', responseId: '', svg: '<svg/>' })).toBe(false);
             });
             it('should return false when `data` is missing', () => {
                 expect(
@@ -260,14 +260,14 @@ describe('Model saving actions', () => {
                         mimeType: 'image/svg+xml',
                         encoding: 'text'
                     })
-                ).to.be.false;
+                ).toBe(false);
             });
         });
 
         describe('create', () => {
             it('should round-trip an SVG payload', () => {
                 const created = ExportResultAction.create('svg', '<svg/>', { mimeType: 'image/svg+xml', encoding: 'text' });
-                expect(created).to.deep.equals({
+                expect(created).toEqual({
                     kind: 'exportResult',
                     responseId: '',
                     format: 'svg',
@@ -284,7 +284,7 @@ describe('Model saving actions', () => {
                     responseId: 'r-1',
                     formatOptions
                 });
-                expect(created).to.deep.equals({
+                expect(created).toEqual({
                     kind: 'exportResult',
                     responseId: 'r-1',
                     format: 'png',

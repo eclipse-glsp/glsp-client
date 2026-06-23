@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { expect } from 'chai';
+import { describe, expect, it } from 'vitest';
 import { Dimension, Point } from 'sprotty-protocol';
 import { ChangeBoundsOperation, ChangeContainerOperation } from './node-modification';
 
@@ -32,13 +32,13 @@ describe('Node modification actions', () => {
                 isOperation: true,
                 newBounds: []
             };
-            expect(ChangeBoundsOperation.is(operation)).to.be.true;
+            expect(ChangeBoundsOperation.is(operation)).toBe(true);
         });
         it('should return false for `undefined`', () => {
-            expect(ChangeBoundsOperation.is(undefined)).to.be.false;
+            expect(ChangeBoundsOperation.is(undefined)).toBe(false);
         });
         it('should return false for an object that does not have all required interface properties', () => {
-            expect(ChangeBoundsOperation.is({ kind: 'notTheRightOne' })).to.be.false;
+            expect(ChangeBoundsOperation.is({ kind: 'notTheRightOne' })).toBe(false);
         });
     });
 
@@ -50,7 +50,7 @@ describe('Node modification actions', () => {
                 newBounds: [{ elementId: 'someElement', newSize: Dimension.EMPTY, newPosition: Point.ORIGIN }]
             };
             const { newBounds } = expected;
-            expect(ChangeBoundsOperation.create(newBounds)).to.deep.equals(expected);
+            expect(ChangeBoundsOperation.create(newBounds)).toEqual(expected);
         });
     });
 });
@@ -64,13 +64,13 @@ describe('ChangeContainerOperation', () => {
                 elementId: '',
                 targetContainerId: ''
             };
-            expect(ChangeContainerOperation.is(action)).to.be.true;
+            expect(ChangeContainerOperation.is(action)).toBe(true);
         });
         it('should return false for `undefined`', () => {
-            expect(ChangeContainerOperation.is(undefined)).to.be.false;
+            expect(ChangeContainerOperation.is(undefined)).toBe(false);
         });
         it('should return false for an object that does not have all required interface properties', () => {
-            expect(ChangeContainerOperation.is({ kind: 'notTheRightOne' })).to.be.false;
+            expect(ChangeContainerOperation.is({ kind: 'notTheRightOne' })).toBe(false);
         });
     });
 
@@ -83,7 +83,7 @@ describe('ChangeContainerOperation', () => {
                 targetContainerId: 'myContainer'
             };
             const { elementId, targetContainerId } = expected;
-            expect(ChangeContainerOperation.create({ elementId, targetContainerId })).to.deep.equals(expected);
+            expect(ChangeContainerOperation.create({ elementId, targetContainerId })).toEqual(expected);
         });
         it('should return an object conforming to the interface with matching properties for the given required and optional arguments', () => {
             const expected: ChangeContainerOperation = {
@@ -94,7 +94,7 @@ describe('ChangeContainerOperation', () => {
                 location: Point.ORIGIN
             };
             const { elementId, targetContainerId, location } = expected;
-            expect(ChangeContainerOperation.create({ elementId, targetContainerId, location })).to.deep.equals(expected);
+            expect(ChangeContainerOperation.create({ elementId, targetContainerId, location })).toEqual(expected);
         });
     });
 });

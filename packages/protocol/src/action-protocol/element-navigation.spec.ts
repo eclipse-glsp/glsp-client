@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { expect } from 'chai';
+import { describe, expect, it } from 'vitest';
 import {
     NavigateToExternalTargetAction,
     NavigateToTargetAction,
@@ -36,24 +36,24 @@ describe('Element navigation actions', () => {
                 const target: NavigationTarget = {
                     uri: ''
                 };
-                expect(NavigationTarget.is(target)).to.be.true;
+                expect(NavigationTarget.is(target)).toBe(true);
             });
             it('should return false for `undefined`', () => {
-                expect(NavigationTarget.is(undefined)).to.be.false;
+                expect(NavigationTarget.is(undefined)).toBe(false);
             });
             it('should return false for an object that does not have all required interface properties', () => {
-                expect(NavigationTarget.is({ kind: 'notTheRightOne' })).to.be.false;
+                expect(NavigationTarget.is({ kind: 'notTheRightOne' })).toBe(false);
             });
         });
 
         describe('hasArguments', () => {
             it('should return true for an object having the correct type and a value for all required interface properties and a defined `args` property', () => {
                 const target: NavigationTarget = { uri: 'myuri', args: { some: 'args' } };
-                expect(NavigationTarget.hasArguments(target)).to.be.true;
+                expect(NavigationTarget.hasArguments(target)).toBe(true);
             });
             it('should return false for an object having the correct type and a value for all required interface properties and an undefined `args property', () => {
                 const target: NavigationTarget = { uri: 'myuri' };
-                expect(NavigationTarget.hasArguments(target)).to.be.false;
+                expect(NavigationTarget.hasArguments(target)).toBe(false);
             });
         });
 
@@ -61,7 +61,7 @@ describe('Element navigation actions', () => {
             it('should assign a new `args` property to the given target and add the given key-value pair to the args object', () => {
                 const target: NavigationTarget = { uri: 'myuri' };
                 NavigationTarget.addArgument(target, 'some', 'argument');
-                expect(target.args?.some).to.be.equal('argument');
+                expect(target.args?.some).toBe('argument');
             });
         });
         describe('getElementIds', () => {
@@ -70,14 +70,14 @@ describe('Element navigation actions', () => {
                 const id2 = 'anotherId';
                 const target: NavigationTarget = { uri: 'myuri', args: { [NavigationTarget.ELEMENT_IDS]: `${id1}&${id2}` } };
                 const elementIds = NavigationTarget.getElementIds(target);
-                expect(elementIds.length).to.be.equal(2);
-                expect(elementIds).to.include(id1);
-                expect(elementIds).to.include(id2);
+                expect(elementIds.length).toBe(2);
+                expect(elementIds).toContain(id1);
+                expect(elementIds).toContain(id2);
             });
             it('should return an empty array for the given target with an undefined args property', () => {
                 const target: NavigationTarget = { uri: 'myuri' };
                 const elementIds = NavigationTarget.getElementIds(target);
-                expect(elementIds.length).to.be.equal(0);
+                expect(elementIds.length).toBe(0);
             });
         });
 
@@ -87,7 +87,7 @@ describe('Element navigation actions', () => {
                 const id1 = 'someId';
                 const id2 = 'anotherId';
                 NavigationTarget.setElementIds(target, id1, id2);
-                expect(target.args?.[NavigationTarget.ELEMENT_IDS]).to.be.equal(`${id1}&${id2}`);
+                expect(target.args?.[NavigationTarget.ELEMENT_IDS]).toBe(`${id1}&${id2}`);
             });
         });
 
@@ -97,8 +97,8 @@ describe('Element navigation actions', () => {
                 const pos: NavigationTarget.TextPosition = { character: 5, line: 2 };
                 const { character: column, line } = pos;
                 NavigationTarget.setTextPosition(target, pos);
-                expect(target.args?.[NavigationTarget.TEXT_COLUMN]).to.be.equal(column);
-                expect(target.args?.[NavigationTarget.TEXT_LINE]).to.be.equal(line);
+                expect(target.args?.[NavigationTarget.TEXT_COLUMN]).toBe(column);
+                expect(target.args?.[NavigationTarget.TEXT_LINE]).toBe(line);
             });
         });
 
@@ -113,13 +113,13 @@ describe('Element navigation actions', () => {
                     args: { [NavigationTarget.TEXT_COLUMN]: position.character, [NavigationTarget.TEXT_LINE]: position.line }
                 };
                 const result = NavigationTarget.getTextPosition(target);
-                expect(result).to.be.not.undefined;
-                expect(result).to.be.deep.equal(position);
+                expect(result).toBeDefined();
+                expect(result).toEqual(position);
             });
             it('should return undefined for the given target with an undefined args property', () => {
                 const target: NavigationTarget = { uri: 'myuri' };
                 const result = NavigationTarget.getTextPosition(target);
-                expect(result).to.be.undefined;
+                expect(result).toBeUndefined();
             });
         });
     });
@@ -133,13 +133,13 @@ describe('Element navigation actions', () => {
                     editorContext: { selectedElementIds: [] },
                     targetTypeId: ''
                 };
-                expect(RequestNavigationTargetsAction.is(action)).to.be.true;
+                expect(RequestNavigationTargetsAction.is(action)).toBe(true);
             });
             it('should return false for `undefined`', () => {
-                expect(RequestNavigationTargetsAction.is(undefined)).to.be.false;
+                expect(RequestNavigationTargetsAction.is(undefined)).toBe(false);
             });
             it('should return false for an object that does not have all required interface properties', () => {
-                expect(RequestNavigationTargetsAction.is({ kind: 'notTheRightOne' })).to.be.false;
+                expect(RequestNavigationTargetsAction.is({ kind: 'notTheRightOne' })).toBe(false);
             });
         });
 
@@ -152,7 +152,7 @@ describe('Element navigation actions', () => {
                     targetTypeId: 'someId'
                 };
                 const { editorContext, targetTypeId } = expected;
-                expect(RequestNavigationTargetsAction.create({ editorContext, targetTypeId })).to.deep.equals(expected);
+                expect(RequestNavigationTargetsAction.create({ editorContext, targetTypeId })).toEqual(expected);
             });
             it('should return an object conforming to the interface with matching properties for the given required and optional arguments', () => {
                 const expected: RequestNavigationTargetsAction = {
@@ -162,7 +162,7 @@ describe('Element navigation actions', () => {
                     targetTypeId: 'someId'
                 };
                 const { editorContext, targetTypeId, requestId } = expected;
-                expect(RequestNavigationTargetsAction.create({ editorContext, targetTypeId, requestId })).to.deep.equals(expected);
+                expect(RequestNavigationTargetsAction.create({ editorContext, targetTypeId, requestId })).toEqual(expected);
             });
         });
     });
@@ -175,13 +175,13 @@ describe('Element navigation actions', () => {
                     responseId: '',
                     targets: []
                 };
-                expect(SetNavigationTargetsAction.is(action)).to.be.true;
+                expect(SetNavigationTargetsAction.is(action)).toBe(true);
             });
             it('should return false for `undefined`', () => {
-                expect(SetNavigationTargetsAction.is(undefined)).to.be.false;
+                expect(SetNavigationTargetsAction.is(undefined)).toBe(false);
             });
             it('should return false for an object that does not have all required interface properties', () => {
-                expect(SetNavigationTargetsAction.is({ kind: 'notTheRightOne' })).to.be.false;
+                expect(SetNavigationTargetsAction.is({ kind: 'notTheRightOne' })).toBe(false);
             });
         });
 
@@ -193,7 +193,7 @@ describe('Element navigation actions', () => {
                     targets: [{ uri: 'someUri' }]
                 };
                 const { targets } = expected;
-                expect(SetNavigationTargetsAction.create(targets)).to.deep.equals(expected);
+                expect(SetNavigationTargetsAction.create(targets)).toEqual(expected);
             });
             it('should return an object conforming to the interface with matching properties for the given required and optional arguments', () => {
                 const expected: SetNavigationTargetsAction = {
@@ -202,7 +202,7 @@ describe('Element navigation actions', () => {
                     targets: [{ uri: 'someUri' }]
                 };
                 const { targets, responseId } = expected;
-                expect(SetNavigationTargetsAction.create(targets, { responseId })).to.deep.equals(expected);
+                expect(SetNavigationTargetsAction.create(targets, { responseId })).toEqual(expected);
             });
         });
     });
@@ -214,14 +214,14 @@ describe('Element navigation actions', () => {
                     kind: 'navigateToTarget',
                     target: { uri: '' }
                 };
-                expect(NavigateToTargetAction.is(action)).to.be.true;
+                expect(NavigateToTargetAction.is(action)).toBe(true);
             });
         });
         it('should return false for `undefined`', () => {
-            expect(NavigateToTargetAction.is(undefined)).to.be.false;
+            expect(NavigateToTargetAction.is(undefined)).toBe(false);
         });
         it('should return false for an object that does not have all required interface properties', () => {
-            expect(NavigateToTargetAction.is({ kind: 'notTheRightOne' })).to.be.false;
+            expect(NavigateToTargetAction.is({ kind: 'notTheRightOne' })).toBe(false);
         });
 
         describe('create', () => {
@@ -231,7 +231,7 @@ describe('Element navigation actions', () => {
                     target: { uri: 'myUri' }
                 };
                 const { target } = expected;
-                expect(NavigateToTargetAction.create(target)).to.deep.equals(expected);
+                expect(NavigateToTargetAction.create(target)).toEqual(expected);
             });
         });
     });
@@ -244,13 +244,13 @@ describe('Element navigation actions', () => {
                     requestId: '',
                     navigationTarget: { uri: '' }
                 };
-                expect(ResolveNavigationTargetAction.is(action)).to.be.true;
+                expect(ResolveNavigationTargetAction.is(action)).toBe(true);
             });
             it('should return false for `undefined`', () => {
-                expect(ResolveNavigationTargetAction.is(undefined)).to.be.false;
+                expect(ResolveNavigationTargetAction.is(undefined)).toBe(false);
             });
             it('should return false for an object that does not have all required interface properties', () => {
-                expect(ResolveNavigationTargetAction.is({ kind: 'notTheRightOne' })).to.be.false;
+                expect(ResolveNavigationTargetAction.is({ kind: 'notTheRightOne' })).toBe(false);
             });
         });
 
@@ -262,7 +262,7 @@ describe('Element navigation actions', () => {
                     navigationTarget: { uri: '' }
                 };
                 const { navigationTarget } = expected;
-                expect(ResolveNavigationTargetAction.create(navigationTarget)).to.deep.equals(expected);
+                expect(ResolveNavigationTargetAction.create(navigationTarget)).toEqual(expected);
             });
             it('should return an object conforming to the interface with matching properties for the given required and optional arguments', () => {
                 const expected: ResolveNavigationTargetAction = {
@@ -271,7 +271,7 @@ describe('Element navigation actions', () => {
                     navigationTarget: { uri: '' }
                 };
                 const { navigationTarget, requestId } = expected;
-                expect(ResolveNavigationTargetAction.create(navigationTarget, { requestId })).to.deep.equals(expected);
+                expect(ResolveNavigationTargetAction.create(navigationTarget, { requestId })).toEqual(expected);
             });
         });
     });
@@ -284,13 +284,13 @@ describe('Element navigation actions', () => {
                     responseId: '',
                     elementIds: ['']
                 };
-                expect(SetResolvedNavigationTargetAction.is(action)).to.be.true;
+                expect(SetResolvedNavigationTargetAction.is(action)).toBe(true);
             });
             it('should return false for `undefined`', () => {
-                expect(SetResolvedNavigationTargetAction.is(undefined)).to.be.false;
+                expect(SetResolvedNavigationTargetAction.is(undefined)).toBe(false);
             });
             it('should return false for an object that does not have all required interface properties', () => {
-                expect(SetResolvedNavigationTargetAction.is({ kind: 'notTheRightOne' })).to.be.false;
+                expect(SetResolvedNavigationTargetAction.is({ kind: 'notTheRightOne' })).toBe(false);
             });
         });
 
@@ -302,7 +302,7 @@ describe('Element navigation actions', () => {
                     elementIds: ['']
                 };
                 const { elementIds } = expected;
-                expect(SetResolvedNavigationTargetAction.create(elementIds)).to.deep.equals(expected);
+                expect(SetResolvedNavigationTargetAction.create(elementIds)).toEqual(expected);
             });
             it('should return an object conforming to the interface with matching properties for the given required and optional arguments', () => {
                 const expected: SetResolvedNavigationTargetAction = {
@@ -311,7 +311,7 @@ describe('Element navigation actions', () => {
                     elementIds: ['']
                 };
                 const { elementIds, responseId } = expected;
-                expect(SetResolvedNavigationTargetAction.create(elementIds, { responseId })).to.deep.equals(expected);
+                expect(SetResolvedNavigationTargetAction.create(elementIds, { responseId })).toEqual(expected);
             });
         });
     });
@@ -323,13 +323,13 @@ describe('Element navigation actions', () => {
                     kind: 'navigateToExternalTarget',
                     target: { uri: '' }
                 };
-                expect(NavigateToExternalTargetAction.is(action)).to.be.true;
+                expect(NavigateToExternalTargetAction.is(action)).toBe(true);
             });
             it('should return false for `undefined`', () => {
-                expect(NavigateToExternalTargetAction.is(undefined)).to.be.false;
+                expect(NavigateToExternalTargetAction.is(undefined)).toBe(false);
             });
             it('should return false for an object that does not have all required interface properties', () => {
-                expect(NavigateToExternalTargetAction.is({ kind: 'notTheRightOne' })).to.be.false;
+                expect(NavigateToExternalTargetAction.is({ kind: 'notTheRightOne' })).toBe(false);
             });
         });
 
@@ -340,7 +340,7 @@ describe('Element navigation actions', () => {
                     target: { uri: '' }
                 };
                 const { target } = expected;
-                expect(NavigateToExternalTargetAction.create(target)).to.deep.equals(expected);
+                expect(NavigateToExternalTargetAction.create(target)).toEqual(expected);
             });
         });
     });

@@ -37,11 +37,9 @@ import {
     SetBoundsAction,
     SetBoundsCommand
 } from '@eclipse-glsp/sprotty';
-import { expect } from 'chai';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { Container } from 'inversify';
-import 'mocha';
 import 'reflect-metadata';
-import * as sinon from 'sinon';
 import { defaultModule } from '../../base/default.module';
 import { SelectionService } from '../../base/selection-service';
 import { GGraph } from '../../model';
@@ -139,7 +137,7 @@ function applyFeature(element: GChildElement, feature: symbol): void {
 
 const context: CommandExecutionContext = {
     root: model,
-    modelFactory: sinon.createStubInstance(GModelFactory),
+    modelFactory: {} as unknown as GModelFactory,
     duration: 0,
     modelChanged: undefined!,
     logger: new ConsoleLogger(),
@@ -382,17 +380,17 @@ function assertBounds(nodeId: string, bounds: Bounds): void {
 function assertBoundsInMoves(nodeId: string, bounds: Bounds): void {
     const moves = dispatchedElementMoves();
     const move = getMoveById(nodeId, moves);
-    expect(move.toPosition.x).to.be.equal(bounds.x);
-    expect(move.toPosition.y).to.be.equal(bounds.y);
+    expect(move.toPosition.x).toBe(bounds.x);
+    expect(move.toPosition.y).toBe(bounds.y);
 }
 
 function assertBoundsInChangeBoundsActions(nodeId: string, bounds: Bounds): void {
     const allChangeBounds = dispatchedChangeBounds();
     const changeBounds = getElementAndBoundsById(nodeId, allChangeBounds);
-    expect(changeBounds.newPosition!.x).to.be.equal(bounds.x);
-    expect(changeBounds.newPosition!.y).to.be.equal(bounds.y);
-    expect(changeBounds.newSize!.height).to.be.equal(bounds.height);
-    expect(changeBounds.newSize!.width).to.be.equal(bounds.width);
+    expect(changeBounds.newPosition!.x).toBe(bounds.x);
+    expect(changeBounds.newPosition!.y).toBe(bounds.y);
+    expect(changeBounds.newSize!.height).toBe(bounds.height);
+    expect(changeBounds.newSize!.width).toBe(bounds.width);
 }
 
 function getMoveById(id: string, moves: ElementMove[]): ElementMove {

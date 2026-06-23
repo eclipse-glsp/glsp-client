@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2024 EclipseSource and others.
+ * Copyright (c) 2024-2026 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { expect } from 'chai';
+import { describe, expect, it } from 'vitest';
 import { Movement } from './geometry-movement';
 import { Direction } from './geometry-util';
 
@@ -27,12 +27,12 @@ describe('Movement', () => {
                 direction: [Direction.Right, Direction.Up]
             };
             const result = Movement.is(movement);
-            expect(result).to.be.true;
+            expect(result).toBe(true);
         });
         it('should check if the given object is not a movement', () => {
             const obj = { x: 1, y: 2 };
             const result = Movement.is(obj);
-            expect(result).to.be.false;
+            expect(result).toBe(false);
         });
     });
 
@@ -45,7 +45,7 @@ describe('Movement', () => {
                 direction: []
             };
             const result = Movement.isStationary(movement);
-            expect(result).to.be.true;
+            expect(result).toBe(true);
         });
         it('should check if the movement is not stationary', () => {
             const movement: Movement = {
@@ -55,7 +55,7 @@ describe('Movement', () => {
                 direction: [Direction.Right, Direction.Up]
             };
             const result = Movement.isStationary(movement);
-            expect(result).to.be.false;
+            expect(result).toBe(false);
         });
     });
 
@@ -68,7 +68,7 @@ describe('Movement', () => {
                 direction: []
             };
             const result = Movement.isZero(movement);
-            expect(result).to.be.true;
+            expect(result).toBe(true);
         });
         it('should check if the movement is not zero', () => {
             const movement: Movement = {
@@ -78,7 +78,7 @@ describe('Movement', () => {
                 direction: [Direction.Right, Direction.Up]
             };
             const result = Movement.isZero(movement);
-            expect(result).to.be.false;
+            expect(result).toBe(false);
         });
     });
 
@@ -97,7 +97,7 @@ describe('Movement', () => {
                 direction: [Direction.Right, Direction.Up]
             };
             const result = Movement.equals(movement1, movement2);
-            expect(result).to.be.true;
+            expect(result).toBe(true);
         });
         it('should check if two movements are not equal', () => {
             const movement1: Movement = {
@@ -113,7 +113,7 @@ describe('Movement', () => {
                 direction: [Direction.Right, Direction.Up]
             };
             const result = Movement.equals(movement1, movement2);
-            expect(result).to.be.false;
+            expect(result).toBe(false);
         });
     });
 });

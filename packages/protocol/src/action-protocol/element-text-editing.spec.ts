@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { expect } from 'chai';
+import { describe, expect, it } from 'vitest';
 import {
     ApplyLabelEditOperation,
     RequestEditValidationAction,
@@ -37,13 +37,13 @@ describe('Element text editing actions', () => {
                     modelElementId: '',
                     text: ''
                 };
-                expect(RequestEditValidationAction.is(action)).to.be.true;
+                expect(RequestEditValidationAction.is(action)).toBe(true);
             });
             it('should return false for `undefined`', () => {
-                expect(RequestEditValidationAction.is(undefined)).to.be.false;
+                expect(RequestEditValidationAction.is(undefined)).toBe(false);
             });
             it('should return false for an object that does not have all required interface properties', () => {
-                expect(RequestEditValidationAction.is({ kind: 'notTheRightOne' })).to.be.false;
+                expect(RequestEditValidationAction.is({ kind: 'notTheRightOne' })).toBe(false);
             });
         });
 
@@ -57,7 +57,7 @@ describe('Element text editing actions', () => {
                     text: 'someText'
                 };
                 const { contextId, modelElementId, text } = expected;
-                expect(RequestEditValidationAction.create({ contextId, modelElementId, text })).to.deep.equals(expected);
+                expect(RequestEditValidationAction.create({ contextId, modelElementId, text })).toEqual(expected);
             });
             it('should return an object conforming to the interface with matching properties for the given required and optional arguments', () => {
                 const expected: RequestEditValidationAction = {
@@ -68,7 +68,7 @@ describe('Element text editing actions', () => {
                     text: 'someText'
                 };
                 const { contextId, modelElementId, text, requestId } = expected;
-                expect(RequestEditValidationAction.create({ contextId, modelElementId, text, requestId })).to.deep.equals(expected);
+                expect(RequestEditValidationAction.create({ contextId, modelElementId, text, requestId })).toEqual(expected);
             });
         });
     });
@@ -81,13 +81,13 @@ describe('Element text editing actions', () => {
                     responseId: '',
                     status: { severity: ValidationStatus.Severity.OK }
                 };
-                expect(SetEditValidationResultAction.is(action)).to.be.true;
+                expect(SetEditValidationResultAction.is(action)).toBe(true);
             });
             it('should return false for `undefined`', () => {
-                expect(SetEditValidationResultAction.is(undefined)).to.be.false;
+                expect(SetEditValidationResultAction.is(undefined)).toBe(false);
             });
             it('should return false for an object that does not have all required interface properties', () => {
-                expect(SetEditValidationResultAction.is({ kind: 'notTheRightOne' })).to.be.false;
+                expect(SetEditValidationResultAction.is({ kind: 'notTheRightOne' })).toBe(false);
             });
         });
 
@@ -99,7 +99,7 @@ describe('Element text editing actions', () => {
                     status: { severity: ValidationStatus.Severity.OK }
                 };
                 const { status } = expected;
-                expect(SetEditValidationResultAction.create(status)).to.deep.equals(expected);
+                expect(SetEditValidationResultAction.create(status)).toEqual(expected);
             });
             it('should return an object conforming to the interface with matching properties for the given required and optional arguments', () => {
                 const expected: SetEditValidationResultAction = {
@@ -109,7 +109,7 @@ describe('Element text editing actions', () => {
                     status: { severity: ValidationStatus.Severity.OK }
                 };
                 const { status, args, responseId } = expected;
-                expect(SetEditValidationResultAction.create(status, { args, responseId })).to.deep.equals(expected);
+                expect(SetEditValidationResultAction.create(status, { args, responseId })).toEqual(expected);
             });
         });
     });
@@ -123,13 +123,13 @@ describe('Element text editing actions', () => {
                     labelId: '',
                     text: ''
                 };
-                expect(ApplyLabelEditOperation.is(operation)).to.be.true;
+                expect(ApplyLabelEditOperation.is(operation)).toBe(true);
             });
             it('should return false for `undefined`', () => {
-                expect(ApplyLabelEditOperation.is(undefined)).to.be.false;
+                expect(ApplyLabelEditOperation.is(undefined)).toBe(false);
             });
             it('should return false for an object that does not have all required interface properties', () => {
-                expect(ApplyLabelEditOperation.is({ kind: 'notTheRightOne' })).to.be.false;
+                expect(ApplyLabelEditOperation.is({ kind: 'notTheRightOne' })).toBe(false);
             });
         });
 
@@ -142,7 +142,7 @@ describe('Element text editing actions', () => {
                     text: 'myText'
                 };
                 const { labelId, text } = expected;
-                expect(ApplyLabelEditOperation.create({ labelId, text })).to.deep.equals(expected);
+                expect(ApplyLabelEditOperation.create({ labelId, text })).toEqual(expected);
             });
         });
     });

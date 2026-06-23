@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020-2023 EclipseSource and others.
+ * Copyright (c) 2020-2026 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,8 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { expect } from 'chai';
-import 'mocha';
+import { describe, expect, it } from 'vitest';
 import 'reflect-metadata';
 import { NavigationTarget } from '@eclipse-glsp/sprotty';
 
@@ -22,35 +21,35 @@ describe('NavigationTarget', () => {
     it('should be able to set and get element IDs', () => {
         const navigationTarget: NavigationTarget = { uri: 'uri' };
         NavigationTarget.setElementIds(navigationTarget, 'id1', 'id2');
-        expect(NavigationTarget.getElementIds(navigationTarget)).to.be.eql(['id1', 'id2']);
+        expect(NavigationTarget.getElementIds(navigationTarget)).toEqual(['id1', 'id2']);
     });
 
     it('should be able to set and get textual positions', () => {
         const navigationTarget: NavigationTarget = { uri: 'uri' };
         NavigationTarget.setTextPosition(navigationTarget, { line: 1, character: 2 });
-        expect(NavigationTarget.getTextPosition(navigationTarget)).to.be.eql({ line: 1, character: 2 });
+        expect(NavigationTarget.getTextPosition(navigationTarget)).toEqual({ line: 1, character: 2 });
     });
 
     it('should be able to set and get custom query arguments', () => {
         const navigationTarget: NavigationTarget = { uri: 'uri' };
         NavigationTarget.addArgument(navigationTarget, 'name', 'test');
-        expect(navigationTarget.args!.name).to.be.eql('test');
+        expect(navigationTarget.args!.name).toEqual('test');
     });
 
     it('should specify whether it has arguments', () => {
         let navigationTarget: NavigationTarget = { uri: 'uri' };
-        expect(NavigationTarget.hasArguments(navigationTarget)).to.be.false;
+        expect(NavigationTarget.hasArguments(navigationTarget)).toBe(false);
         NavigationTarget.addArgument(navigationTarget, 'name', 'test');
-        expect(NavigationTarget.hasArguments(navigationTarget)).to.be.true;
+        expect(NavigationTarget.hasArguments(navigationTarget)).toBe(true);
 
         navigationTarget = { uri: 'uri' };
-        expect(NavigationTarget.hasArguments(navigationTarget)).to.be.false;
+        expect(NavigationTarget.hasArguments(navigationTarget)).toBe(false);
         NavigationTarget.setElementIds(navigationTarget, 'id1', 'id2');
-        expect(NavigationTarget.hasArguments(navigationTarget)).to.be.true;
+        expect(NavigationTarget.hasArguments(navigationTarget)).toBe(true);
 
         navigationTarget = { uri: 'uri' };
-        expect(NavigationTarget.hasArguments(navigationTarget)).to.be.false;
+        expect(NavigationTarget.hasArguments(navigationTarget)).toBe(false);
         NavigationTarget.setTextPosition(navigationTarget, { line: 1, character: 2 });
-        expect(NavigationTarget.hasArguments(navigationTarget)).to.be.true;
+        expect(NavigationTarget.hasArguments(navigationTarget)).toBe(true);
     });
 });

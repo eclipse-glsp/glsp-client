@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2022-2023 STMicroelectronics and others.
+ * Copyright (c) 2022-2026 STMicroelectronics and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -15,7 +15,6 @@
  ********************************************************************************/
 
 import { Container } from 'inversify';
-import 'mocha';
 import {
     BoundsData,
     ConsoleLogger,
@@ -32,7 +31,7 @@ import {
     layoutableChildFeature
 } from '@eclipse-glsp/sprotty';
 import { initializeDiagramContainer } from '../../default-modules';
-import { StatefulLayouterExt } from './layouter';
+import { StatefulLayouterExt } from '../bounds/layouter';
 import { GGraph } from '../../model';
 
 export function createGraph(): GGraph {

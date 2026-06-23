@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { expect } from 'chai';
+import { describe, expect, it } from 'vitest';
 import { CenterAction, FitToScreenAction, MoveViewportAction, OriginViewportAction } from './viewport';
 
 describe('Viewport Actions', () => {
@@ -27,13 +27,13 @@ describe('Viewport Actions', () => {
                     animate: true,
                     retainZoom: true
                 };
-                expect(CenterAction.is(action)).to.be.true;
+                expect(CenterAction.is(action)).toBe(true);
             });
             it('should return false for `undefined`', () => {
-                expect(CenterAction.is(undefined)).to.be.false;
+                expect(CenterAction.is(undefined)).toBe(false);
             });
             it('should return false for an object that does not have all required interface properties', () => {
-                expect(CenterAction.is({ kind: 'notTheRightOne' })).to.be.false;
+                expect(CenterAction.is({ kind: 'notTheRightOne' })).toBe(false);
             });
         });
 
@@ -46,7 +46,7 @@ describe('Viewport Actions', () => {
                     retainZoom: false
                 };
                 const { elementIds } = expected;
-                expect(CenterAction.create(elementIds)).to.deep.equals(expected);
+                expect(CenterAction.create(elementIds)).toEqual(expected);
             });
             it('should return an object conforming to the interface with matching properties for the given required and optional arguments', () => {
                 const expected: CenterAction = {
@@ -56,7 +56,7 @@ describe('Viewport Actions', () => {
                     retainZoom: true
                 };
                 const { elementIds, animate, retainZoom } = expected;
-                expect(CenterAction.create(elementIds, { animate, retainZoom })).to.deep.equals(expected);
+                expect(CenterAction.create(elementIds, { animate, retainZoom })).toEqual(expected);
             });
         });
     });
@@ -69,13 +69,13 @@ describe('Viewport Actions', () => {
                     elementIds: [],
                     animate: true
                 };
-                expect(FitToScreenAction.is(action)).to.be.true;
+                expect(FitToScreenAction.is(action)).toBe(true);
             });
             it('should return false for `undefined`', () => {
-                expect(FitToScreenAction.is(undefined)).to.be.false;
+                expect(FitToScreenAction.is(undefined)).toBe(false);
             });
             it('should return false for an object that does not have all required interface properties', () => {
-                expect(FitToScreenAction.is({ kind: 'notTheRightOne' })).to.be.false;
+                expect(FitToScreenAction.is({ kind: 'notTheRightOne' })).toBe(false);
             });
         });
 
@@ -87,7 +87,7 @@ describe('Viewport Actions', () => {
                     animate: true
                 };
                 const { elementIds } = expected;
-                expect(FitToScreenAction.create(elementIds)).to.deep.equals(expected);
+                expect(FitToScreenAction.create(elementIds)).toEqual(expected);
             });
             it('should return an object conforming to the interface with matching properties for the given required and optional arguments', () => {
                 const expected: FitToScreenAction = {
@@ -98,7 +98,7 @@ describe('Viewport Actions', () => {
                     padding: 12
                 };
                 const { elementIds, maxZoom, padding, animate } = expected;
-                expect(FitToScreenAction.create(elementIds, { maxZoom, padding, animate })).to.deep.equals(expected);
+                expect(FitToScreenAction.create(elementIds, { maxZoom, padding, animate })).toEqual(expected);
             });
         });
     });
@@ -111,13 +111,13 @@ describe('Viewport Actions', () => {
                     moveX: 0,
                     moveY: 0
                 };
-                expect(MoveViewportAction.is(action)).to.be.true;
+                expect(MoveViewportAction.is(action)).toBe(true);
             });
             it('should return false for `undefined`', () => {
-                expect(MoveViewportAction.is(undefined)).to.be.false;
+                expect(MoveViewportAction.is(undefined)).toBe(false);
             });
             it('should return false for an object that does not have all required interface properties', () => {
-                expect(MoveViewportAction.is({ kind: 'notTheRightOne' })).to.be.false;
+                expect(MoveViewportAction.is({ kind: 'notTheRightOne' })).toBe(false);
             });
         });
 
@@ -129,7 +129,7 @@ describe('Viewport Actions', () => {
                     moveY: 0
                 };
                 const { moveX, moveY } = expected;
-                expect(MoveViewportAction.create({ moveX, moveY })).to.deep.equals(expected);
+                expect(MoveViewportAction.create({ moveX, moveY })).toEqual(expected);
             });
         });
     });
@@ -141,13 +141,13 @@ describe('Viewport Actions', () => {
                     kind: 'originViewport',
                     animate: true
                 };
-                expect(OriginViewportAction.is(action)).to.be.true;
+                expect(OriginViewportAction.is(action)).toBe(true);
             });
             it('should return false for `undefined`', () => {
-                expect(OriginViewportAction.is(undefined)).to.be.false;
+                expect(OriginViewportAction.is(undefined)).toBe(false);
             });
             it('should return false for an object that does not have all required interface properties', () => {
-                expect(OriginViewportAction.is({ kind: 'notTheRightOne' })).to.be.false;
+                expect(OriginViewportAction.is({ kind: 'notTheRightOne' })).toBe(false);
             });
         });
 
@@ -157,7 +157,7 @@ describe('Viewport Actions', () => {
                     kind: 'originViewport',
                     animate: true
                 };
-                expect(OriginViewportAction.create()).to.deep.equals(expected);
+                expect(OriginViewportAction.create()).toEqual(expected);
             });
             it('should return an object conforming to the interface with matching properties for the given optional arguments', () => {
                 const expected: OriginViewportAction = {
@@ -165,7 +165,7 @@ describe('Viewport Actions', () => {
                     animate: false
                 };
                 const { animate } = expected;
-                expect(OriginViewportAction.create({ animate })).to.deep.equals(expected);
+                expect(OriginViewportAction.create({ animate })).toEqual(expected);
             });
         });
     });

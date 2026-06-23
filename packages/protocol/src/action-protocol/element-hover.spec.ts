@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { expect } from 'chai';
+import { describe, expect, it } from 'vitest';
 import { Bounds } from 'sprotty-protocol';
 import { RequestPopupModelAction, SetPopupModelAction } from './element-hover';
 /**
@@ -32,13 +32,13 @@ describe('Element hover actions', () => {
                     elementId: '',
                     bounds: Bounds.EMPTY
                 };
-                expect(RequestPopupModelAction.is(action)).to.be.true;
+                expect(RequestPopupModelAction.is(action)).toBe(true);
             });
             it('should return false for `undefined`', () => {
-                expect(RequestPopupModelAction.is(undefined)).to.be.false;
+                expect(RequestPopupModelAction.is(undefined)).toBe(false);
             });
             it('should return false for an object that does not have all required interface properties', () => {
-                expect(RequestPopupModelAction.is({ kind: 'notTheRightOne' })).to.be.false;
+                expect(RequestPopupModelAction.is({ kind: 'notTheRightOne' })).toBe(false);
             });
         });
 
@@ -51,7 +51,7 @@ describe('Element hover actions', () => {
                     bounds: Bounds.EMPTY
                 };
                 const { elementId, bounds } = expected;
-                expect(RequestPopupModelAction.create({ bounds, elementId })).to.deep.equals(expected);
+                expect(RequestPopupModelAction.create({ bounds, elementId })).toEqual(expected);
             });
             it('should return an object conforming to the interface with matching properties for the given required and optional arguments', () => {
                 const expected: RequestPopupModelAction = {
@@ -61,7 +61,7 @@ describe('Element hover actions', () => {
                     bounds: Bounds.EMPTY
                 };
                 const { elementId, bounds, requestId } = expected;
-                expect(RequestPopupModelAction.create({ bounds, elementId, requestId })).to.deep.equals(expected);
+                expect(RequestPopupModelAction.create({ bounds, elementId, requestId })).toEqual(expected);
             });
         });
     });
@@ -74,13 +74,13 @@ describe('Element hover actions', () => {
                     responseId: '',
                     newRoot: { id: '', type: '' }
                 };
-                expect(SetPopupModelAction.is(action)).to.be.true;
+                expect(SetPopupModelAction.is(action)).toBe(true);
             });
             it('should return false for `undefined`', () => {
-                expect(SetPopupModelAction.is(undefined)).to.be.false;
+                expect(SetPopupModelAction.is(undefined)).toBe(false);
             });
             it('should return false for an object that does not have all required interface properties', () => {
-                expect(SetPopupModelAction.is({ kind: 'notTheRightOne' })).to.be.false;
+                expect(SetPopupModelAction.is({ kind: 'notTheRightOne' })).toBe(false);
             });
         });
 
@@ -92,7 +92,7 @@ describe('Element hover actions', () => {
                     newRoot: { id: '', type: '' }
                 };
                 const { newRoot } = expected;
-                expect(SetPopupModelAction.create(newRoot)).to.deep.equals(expected);
+                expect(SetPopupModelAction.create(newRoot)).toEqual(expected);
             });
             it('should return an object conforming to the interface with matching properties for the given required and optional arguments', () => {
                 const expected: SetPopupModelAction = {
@@ -101,7 +101,7 @@ describe('Element hover actions', () => {
                     newRoot: { id: '', type: '' }
                 };
                 const { newRoot, responseId } = expected;
-                expect(SetPopupModelAction.create(newRoot, { responseId })).to.deep.equals(expected);
+                expect(SetPopupModelAction.create(newRoot, { responseId })).toEqual(expected);
             });
         });
     });

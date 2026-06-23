@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { expect } from 'chai';
+import { describe, expect, it } from 'vitest';
 import { CutOperation, PasteOperation, RequestClipboardDataAction, SetClipboardDataAction } from './clipboard';
 /**
  * Tests for the utility functions declared in the namespaces of the protocol
@@ -30,13 +30,13 @@ describe('Clipboard actions', () => {
 
         describe('is', () => {
             it('should return true for an object having the correct type and a value for all required interface properties', () => {
-                expect(RequestClipboardDataAction.is(requestClipboardDataAction)).to.be.true;
+                expect(RequestClipboardDataAction.is(requestClipboardDataAction)).toBe(true);
             });
             it('should return false for `undefined`', () => {
-                expect(RequestClipboardDataAction.is(undefined)).to.be.false;
+                expect(RequestClipboardDataAction.is(undefined)).toBe(false);
             });
             it('should return false for an object that does not have all required interface properties', () => {
-                expect(RequestClipboardDataAction.is({ kind: 'notTheRightOne' })).to.be.false;
+                expect(RequestClipboardDataAction.is({ kind: 'notTheRightOne' })).toBe(false);
             });
         });
 
@@ -48,7 +48,7 @@ describe('Clipboard actions', () => {
                     requestId: ''
                 };
                 const { editorContext } = expected;
-                expect(RequestClipboardDataAction.create(editorContext)).to.deep.equals(expected);
+                expect(RequestClipboardDataAction.create(editorContext)).toEqual(expected);
             });
             it('should return an object conforming to the interface with matching properties for the given required and optional arguments', () => {
                 const expected: RequestClipboardDataAction = {
@@ -57,7 +57,7 @@ describe('Clipboard actions', () => {
                     requestId: '100'
                 };
                 const { editorContext, requestId } = expected;
-                expect(RequestClipboardDataAction.create(editorContext, { requestId })).to.deep.equals(expected);
+                expect(RequestClipboardDataAction.create(editorContext, { requestId })).toEqual(expected);
             });
         });
     });
@@ -70,13 +70,13 @@ describe('Clipboard actions', () => {
                     kind: 'setClipboardData',
                     responseId: ''
                 };
-                expect(SetClipboardDataAction.is(action)).to.be.true;
+                expect(SetClipboardDataAction.is(action)).toBe(true);
             });
             it('should return false for `undefined`', () => {
-                expect(SetClipboardDataAction.is(undefined)).to.be.false;
+                expect(SetClipboardDataAction.is(undefined)).toBe(false);
             });
             it('should return false for an object that does not have all required interface properties', () => {
-                expect(SetClipboardDataAction.is({ kind: 'notTheRightOne' })).to.be.false;
+                expect(SetClipboardDataAction.is({ kind: 'notTheRightOne' })).toBe(false);
             });
         });
 
@@ -88,7 +88,7 @@ describe('Clipboard actions', () => {
                     responseId: ''
                 };
                 const { clipboardData } = expected;
-                expect(SetClipboardDataAction.create(clipboardData)).to.deep.equals(expected);
+                expect(SetClipboardDataAction.create(clipboardData)).toEqual(expected);
             });
             it('should return an object conforming to the interface with matching properties for the given required and optional arguments', () => {
                 const expected: SetClipboardDataAction = {
@@ -97,7 +97,7 @@ describe('Clipboard actions', () => {
                     responseId: '600'
                 };
                 const { clipboardData, responseId } = expected;
-                expect(SetClipboardDataAction.create(clipboardData, { responseId })).to.deep.equals(expected);
+                expect(SetClipboardDataAction.create(clipboardData, { responseId })).toEqual(expected);
             });
         });
     });
@@ -110,13 +110,13 @@ describe('Clipboard actions', () => {
                     isOperation: true,
                     editorContext: { selectedElementIds: [] }
                 };
-                expect(CutOperation.is(operation)).to.be.true;
+                expect(CutOperation.is(operation)).toBe(true);
             });
             it('should return false for `undefined`', () => {
-                expect(CutOperation.is(undefined)).to.be.false;
+                expect(CutOperation.is(undefined)).toBe(false);
             });
             it('should return false for an object that does not have all required interface properties', () => {
-                expect(CutOperation.is({ kind: 'notTheRightOne' })).to.be.false;
+                expect(CutOperation.is({ kind: 'notTheRightOne' })).toBe(false);
             });
         });
 
@@ -128,7 +128,7 @@ describe('Clipboard actions', () => {
                     editorContext: { selectedElementIds: ['element1'] }
                 };
                 const { editorContext } = expected;
-                expect(CutOperation.create(editorContext)).to.deep.equals(expected);
+                expect(CutOperation.create(editorContext)).toEqual(expected);
             });
         });
     });
@@ -142,13 +142,13 @@ describe('Clipboard actions', () => {
                     editorContext: { selectedElementIds: [] },
                     clipboardData: { format: '' }
                 };
-                expect(PasteOperation.is(operation)).to.be.true;
+                expect(PasteOperation.is(operation)).toBe(true);
             });
             it('should return false for `undefined`', () => {
-                expect(PasteOperation.is(undefined)).to.be.false;
+                expect(PasteOperation.is(undefined)).toBe(false);
             });
             it('should return false for an object that does not have all required interface properties', () => {
-                expect(PasteOperation.is({ kind: 'notTheRightOne' })).to.be.false;
+                expect(PasteOperation.is({ kind: 'notTheRightOne' })).toBe(false);
             });
         });
 
@@ -161,7 +161,7 @@ describe('Clipboard actions', () => {
                     editorContext: { selectedElementIds: ['element1'] }
                 };
                 const { editorContext, clipboardData } = expected;
-                expect(PasteOperation.create({ clipboardData, editorContext })).to.deep.equals(expected);
+                expect(PasteOperation.create({ clipboardData, editorContext })).toEqual(expected);
             });
         });
     });

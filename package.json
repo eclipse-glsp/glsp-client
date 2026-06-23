@@ -7,8 +7,9 @@
     "bundle": "pnpm standalone bundle",
     "bundle:browser": "pnpm standalone bundle:browser",
     "check:all": "pnpm build && pnpm lint && pnpm format:check && pnpm headers:check && pnpm test",
-    "clean": "pnpm -r run clean && rimraf coverage .nyc_output",
+    "clean": "pnpm -r run clean && rimraf coverage *.tsbuildinfo",
     "compile": "tsc -b",
+    "compile:test": "pnpm compile && tsc -b tsconfig.test.json",
     "dev": "pnpm standalone dev",
     "dev:browser": "pnpm standalone dev:browser",
     "dev:mcp": "pnpm standalone dev:mcp",
@@ -29,23 +30,20 @@
     "start:browser": "pnpm standalone start:browser",
     "start:exampleServer": "pnpm standalone start:server",
     "start:mcp": "pnpm standalone start:mcp",
-    "test": "pnpm compile && pnpm -r --no-bail test",
-    "test:ci": "pnpm compile && pnpm -r --no-bail test:ci",
-    "test:coverage": "pnpm compile && pnpm -r test:coverage",
-    "test:coverage:ci": "glsp coverageReport",
+    "test": "pnpm compile:test && vitest run",
+    "test:coverage": "pnpm compile:test && vitest run --coverage",
     "upgrade:next": "glsp updateNext"
   },
   "devDependencies": {
     "@eclipse-glsp/dev": "next",
     "@types/node": "22.x",
     "concurrently": "^9.2.1",
-    "mocha-ctrf-json-reporter": "^0.0.9",
-    "tsconfig-paths": "^4.2.0",
+    "reflect-metadata": "^0.2.2",
     "typescript": "^5.9.2"
   },
   "packageManager": "pnpm@11.7.0",
   "engines": {
-    "node": ">=22",
+    "node": ">=22.18",
     "pnpm": ">=11"
   }
 }

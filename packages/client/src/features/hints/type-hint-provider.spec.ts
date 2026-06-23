@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2023-2024 EclipseSource and others.
+ * Copyright (c) 2023-2026 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -32,9 +32,8 @@ import {
     isDeletable,
     isMoveable
 } from '@eclipse-glsp/sprotty';
-import { expect } from 'chai';
+import { describe, expect, it, vi, type Mock } from 'vitest';
 import { Container } from 'inversify';
-import * as sinon from 'sinon';
 import { GLSPActionDispatcher } from '../../base/action-dispatcher';
 import { FeedbackActionDispatcher } from '../../base/feedback/feedback-action-dispatcher';
 import { FeedbackEmitter } from '../../base/feedback/feedback-emitter';
@@ -45,10 +44,13 @@ import { Containable, isContainable, isReparentable } from './model';
 import { ApplyTypeHintsAction, ApplyTypeHintsCommand, ITypeHintProvider, TypeHintProvider } from './type-hint-provider';
 describe('TypeHintProvider', () => {
     const container = new Container();
-    container.bind(GLSPActionDispatcher).toConstantValue(sinon.createStubInstance(GLSPActionDispatcher));
+    container.bind(GLSPActionDispatcher).toConstantValue({} as unknown as GLSPActionDispatcher);
     container.bind(TYPES.IActionDispatcher).toService(GLSPActionDispatcher);
-    const stub = sinon.createStubInstance(FeedbackActionDispatcher);
-    stub.createEmitter.returns(new FeedbackEmitter(stub));
+    const stub = {
+        createEmitter: vi.fn(),
+        registerFeedback: vi.fn()
+    } as unknown as FeedbackActionDispatcher;
+    (stub.createEmitter as Mock).mockReturnValue(new FeedbackEmitter(stub));
     container.bind(TYPES.IFeedbackActionDispatcher).toConstantValue(stub);
     const typeHintProvider = container.resolve(TypeHintProvider);
 
@@ -69,23 +71,23 @@ describe('TypeHintProvider', () => {
         };
 
         it('should return `undefined` if no `SetTypeHintsAction` has been handled yet', () => {
-            expect(typeHintProvider.getShapeTypeHint('some')).to.be.undefined;
+            expect(typeHintProvider.getShapeTypeHint('some')).toBeUndefined();
         });
         it('should return `undefined` if no hint is registered for the given type (exact type match)', () => {
             typeHintProvider.handle(SetTypeHintsAction.create({ shapeHints: [nodeHint], edgeHints: [] }));
-            expect(typeHintProvider.getShapeTypeHint('port')).to.be.undefined;
+            expect(typeHintProvider.getShapeTypeHint('port')).toBeUndefined();
         });
         it('should return the corresponding type hint for the given type (exact type match)', () => {
             typeHintProvider.handle(SetTypeHintsAction.create({ shapeHints: [nodeHint, taskHint], edgeHints: [] }));
-            expect(typeHintProvider.getShapeTypeHint('node')).to.equal(nodeHint);
-            expect(typeHintProvider.getShapeTypeHint('node:task')).to.equal(taskHint);
+            expect(typeHintProvider.getShapeTypeHint('node')).toBe(nodeHint);
+            expect(typeHintProvider.getShapeTypeHint('node:task')).toBe(taskHint);
         });
         it('should return the corresponding type hint for the given type (sub type match)', () => {
             typeHintProvider.handle(SetTypeHintsAction.create({ shapeHints: [nodeHint, taskHint], edgeHints: [] }));
-            expect(typeHintProvider.getShapeTypeHint('node:task:manual')).to.equal(taskHint);
-            expect(typeHintProvider.getShapeTypeHint('node:task:manual:foo')).to.equal(taskHint);
-            expect(typeHintProvider.getShapeTypeHint('node:event')).to.equal(nodeHint);
-            expect(typeHintProvider.getShapeTypeHint('node:event:initial')).to.equal(nodeHint);
+            expect(typeHintProvider.getShapeTypeHint('node:task:manual')).toBe(taskHint);
+            expect(typeHintProvider.getShapeTypeHint('node:task:manual:foo')).toBe(taskHint);
+            expect(typeHintProvider.getShapeTypeHint('node:event')).toBe(nodeHint);
+            expect(typeHintProvider.getShapeTypeHint('node:event:initial')).toBe(nodeHint);
         });
     });
     describe('getEdgeTypeHint', () => {
@@ -104,23 +106,23 @@ describe('TypeHintProvider', () => {
             dynamic: true
         };
         it('should return `undefined` if no `SetTypeHintsAction` has been handled yet', () => {
-            expect(typeHintProvider.getEdgeTypeHint('some')).to.be.undefined;
+            expect(typeHintProvider.getEdgeTypeHint('some')).toBeUndefined();
         });
         it('should return `undefined` if no hint is registered for the given type (exact type match)', () => {
             typeHintProvider.handle(SetTypeHintsAction.create({ shapeHints: [], edgeHints: [edgeHint] }));
-            expect(typeHintProvider.getEdgeTypeHint('link')).to.be.undefined;
+            expect(typeHintProvider.getEdgeTypeHint('link')).toBeUndefined();
         });
         it('should return the corresponding type hint for the given type (exact type match)', () => {
             typeHintProvider.handle(SetTypeHintsAction.create({ shapeHints: [], edgeHints: [edgeHint, fooEdgeHint] }));
-            expect(typeHintProvider.getEdgeTypeHint('edge')).to.equal(edgeHint);
-            expect(typeHintProvider.getEdgeTypeHint('edge:foo')).to.equal(fooEdgeHint);
+            expect(typeHintProvider.getEdgeTypeHint('edge')).toBe(edgeHint);
+            expect(typeHintProvider.getEdgeTypeHint('edge:foo')).toBe(fooEdgeHint);
         });
         it('should return the corresponding type hint for the given type (sub type match)', () => {
             typeHintProvider.handle(SetTypeHintsAction.create({ shapeHints: [], edgeHints: [edgeHint, fooEdgeHint] }));
-            expect(typeHintProvider.getEdgeTypeHint('edge:foo:bar')).to.equal(fooEdgeHint);
-            expect(typeHintProvider.getEdgeTypeHint('edge:foo:bar:baz')).to.equal(fooEdgeHint);
-            expect(typeHintProvider.getEdgeTypeHint('edge:some')).to.equal(edgeHint);
-            expect(typeHintProvider.getEdgeTypeHint('edge:some:other')).to.equal(edgeHint);
+            expect(typeHintProvider.getEdgeTypeHint('edge:foo:bar')).toBe(fooEdgeHint);
+            expect(typeHintProvider.getEdgeTypeHint('edge:foo:bar:baz')).toBe(fooEdgeHint);
+            expect(typeHintProvider.getEdgeTypeHint('edge:some')).toBe(edgeHint);
+            expect(typeHintProvider.getEdgeTypeHint('edge:some:other')).toBe(edgeHint);
         });
     });
 });
@@ -156,23 +158,18 @@ describe('ApplyTypeHintCommand', () => {
         return edge;
     }
 
-    const sandbox = sinon.createSandbox();
     const container = new Container();
-    const modelFactory = sinon.createStubInstance(GModelFactory);
-    const typeHintProviderMock = sandbox.stub<ITypeHintProvider>({
-        getEdgeTypeHint: () => undefined,
-        getShapeTypeHint: () => undefined
-    });
-    container.bind(GLSPActionDispatcher).toConstantValue(sandbox.createStubInstance(GLSPActionDispatcher));
+    const modelFactory = {} as unknown as GModelFactory;
+    const typeHintProviderMock = {
+        getEdgeTypeHint: vi.fn(),
+        getShapeTypeHint: vi.fn()
+    } as unknown as ITypeHintProvider;
+    container.bind(GLSPActionDispatcher).toConstantValue({} as unknown as GLSPActionDispatcher);
     container.bind(TYPES.IActionDispatcher).toService(GLSPActionDispatcher);
-    container.bind(TYPES.IFeedbackActionDispatcher).toConstantValue(sandbox.createStubInstance(FeedbackActionDispatcher));
+    container.bind(TYPES.IFeedbackActionDispatcher).toConstantValue({} as unknown as FeedbackActionDispatcher);
     container.bind(TYPES.ITypeHintProvider).toConstantValue(typeHintProviderMock);
     bindOrRebind(container, TYPES.Action).toConstantValue(ApplyTypeHintsAction.create());
     const command = container.resolve(ApplyTypeHintsCommand);
-
-    beforeEach(() => {
-        sandbox.reset();
-    });
 
     describe('test hints to model feature translation (after command execution)`', () => {
         describe('ShapeTypeHint', () => {
@@ -193,31 +190,31 @@ describe('ApplyTypeHintCommand', () => {
                 containableElementTypeIds: []
             };
             it('should not modify feature set of model element with no applicable type hint', () => {
-                typeHintProviderMock.getShapeTypeHint.returns(undefined);
+                (typeHintProviderMock.getShapeTypeHint as Mock).mockReturnValue(undefined);
                 const result = command.execute(createCommandExecutionContext(createNode()));
                 const element = result.children[0];
-                expect(GNode.DEFAULT_FEATURES, 'Element should have default feature set').to.have.same.members([
-                    ...(element.features as Set<symbol>)
-                ]);
+                expect(new Set(GNode.DEFAULT_FEATURES), 'Element should have default feature set').toEqual(
+                    new Set(element.features as Set<symbol>)
+                );
             });
             it('should add all enabled (`true`) features, derived from the applied type hint, to the model', () => {
-                typeHintProviderMock.getShapeTypeHint.returns(allEnabledHint);
+                (typeHintProviderMock.getShapeTypeHint as Mock).mockReturnValue(allEnabledHint);
                 const result = command.execute(createCommandExecutionContext(createNode()));
                 const element = result.children[0];
-                expect(isDeletable(element), 'Element should have deletable feature').to.be.true;
-                expect(isReparentable(element), 'Element should have reparentable feature').to.be.true;
-                expect(isMoveable(element), 'Element should have moveable feature').to.be.true;
-                expect(isContainable(element), 'Element should have containable feature').to.be.true;
-                expect(isResizable(element), 'Element should have resizeable feature').to.be.true;
+                expect(isDeletable(element), 'Element should have deletable feature').toBe(true);
+                expect(isReparentable(element), 'Element should have reparentable feature').toBe(true);
+                expect(isMoveable(element), 'Element should have moveable feature').toBe(true);
+                expect(isContainable(element), 'Element should have containable feature').toBe(true);
+                expect(isResizable(element), 'Element should have resizeable feature').toBe(true);
             });
             it('should remove all disabled (`false`) features, derived from the applied type hint, from the model', () => {
-                typeHintProviderMock.getShapeTypeHint.returns(allDisabledHint);
+                (typeHintProviderMock.getShapeTypeHint as Mock).mockReturnValue(allDisabledHint);
                 const result = command.execute(createCommandExecutionContext(createNode()));
                 const element = result.children[0];
-                expect(isDeletable(element), 'Element should not have deletable feature').to.be.false;
-                expect(isReparentable(element), 'Element should  not have reparentable feature').to.be.false;
-                expect(isMoveable(element), 'Element should  not have moveable feature').to.be.false;
-                expect(isResizable(element), 'Element should not have resizeable feature').to.be.false;
+                expect(isDeletable(element), 'Element should not have deletable feature').toBe(false);
+                expect(isReparentable(element), 'Element should  not have reparentable feature').toBe(false);
+                expect(isMoveable(element), 'Element should  not have moveable feature').toBe(false);
+                expect(isResizable(element), 'Element should not have resizeable feature').toBe(false);
             });
             describe('`isConnectable` (after hint has been applied to element)', () => {
                 const shapeHint: Writable<ShapeTypeHint> = {
@@ -234,58 +231,58 @@ describe('ApplyTypeHintCommand', () => {
                     routable: false
                 };
                 it('should return `true` if source/target elements are not defined in edge hint', () => {
-                    typeHintProviderMock.getShapeTypeHint.returns(shapeHint);
-                    typeHintProviderMock.getEdgeTypeHint.returns(edgeHint);
+                    (typeHintProviderMock.getShapeTypeHint as Mock).mockReturnValue(shapeHint);
+                    (typeHintProviderMock.getEdgeTypeHint as Mock).mockReturnValue(edgeHint);
                     const result = command.execute(createCommandExecutionContext(createNode()));
                     const element = result.children[0] as GNode;
                     const edge = createEdge();
-                    expect(element.canConnect(edge, 'source')).to.be.true;
-                    expect(element.canConnect(edge, 'target')).to.be.true;
+                    expect(element.canConnect(edge, 'source')).toBe(true);
+                    expect(element.canConnect(edge, 'target')).toBe(true);
                 });
                 it('should return `false` if element type is not in source/target elements of edge hint', () => {
-                    typeHintProviderMock.getShapeTypeHint.returns(shapeHint);
-                    typeHintProviderMock.getEdgeTypeHint.returns(edgeHint);
+                    (typeHintProviderMock.getShapeTypeHint as Mock).mockReturnValue(shapeHint);
+                    (typeHintProviderMock.getEdgeTypeHint as Mock).mockReturnValue(edgeHint);
                     edgeHint.sourceElementTypeIds = [];
                     edgeHint.targetElementTypeIds = [];
                     const result = command.execute(createCommandExecutionContext(createNode()));
                     const element = result.children[0] as GNode;
                     const edge = createEdge();
-                    expect(element.canConnect(edge, 'source')).to.be.false;
-                    expect(element.canConnect(edge, 'target')).to.be.false;
+                    expect(element.canConnect(edge, 'source')).toBe(false);
+                    expect(element.canConnect(edge, 'target')).toBe(false);
                 });
                 it('should return `true` if element type is in source/target elements of edge hint (exact type)', () => {
-                    typeHintProviderMock.getShapeTypeHint.returns(shapeHint);
-                    typeHintProviderMock.getEdgeTypeHint.returns(edgeHint);
+                    (typeHintProviderMock.getShapeTypeHint as Mock).mockReturnValue(shapeHint);
+                    (typeHintProviderMock.getEdgeTypeHint as Mock).mockReturnValue(edgeHint);
                     edgeHint.sourceElementTypeIds = ['node'];
                     edgeHint.targetElementTypeIds = ['node'];
                     const result = command.execute(createCommandExecutionContext(createNode()));
                     const element = result.children[0] as GNode;
                     const edge = createEdge();
-                    expect(element.canConnect(edge, 'source')).to.be.true;
-                    expect(element.canConnect(edge, 'target')).to.be.true;
+                    expect(element.canConnect(edge, 'source')).toBe(true);
+                    expect(element.canConnect(edge, 'target')).toBe(true);
                 });
                 it('should return `true` if element super type is in source/target elements of edge hint (super type)', () => {
-                    typeHintProviderMock.getShapeTypeHint.returns(shapeHint);
-                    typeHintProviderMock.getEdgeTypeHint.returns(edgeHint);
+                    (typeHintProviderMock.getShapeTypeHint as Mock).mockReturnValue(shapeHint);
+                    (typeHintProviderMock.getEdgeTypeHint as Mock).mockReturnValue(edgeHint);
                     edgeHint.sourceElementTypeIds = ['node'];
                     edgeHint.targetElementTypeIds = ['node'];
                     const result = command.execute(createCommandExecutionContext(createNode('node:task:automated')));
                     const element = result.children[0] as GNode;
                     const edge = createEdge();
-                    expect(element.canConnect(edge, 'source')).to.be.true;
-                    expect(element.canConnect(edge, 'target')).to.be.true;
+                    expect(element.canConnect(edge, 'source')).toBe(true);
+                    expect(element.canConnect(edge, 'target')).toBe(true);
                 });
                 it('should fallback to class-level `canConnect` implementation if no edge hint is applicable to routable', () => {
-                    typeHintProviderMock.getEdgeTypeHint.returns(undefined);
-                    typeHintProviderMock.getShapeTypeHint.returns(shapeHint);
+                    (typeHintProviderMock.getEdgeTypeHint as Mock).mockReturnValue(undefined);
+                    (typeHintProviderMock.getShapeTypeHint as Mock).mockReturnValue(shapeHint);
                     const node = createNode();
-                    const originalCanConnectSpy = sinon.spy(node, 'canConnect');
+                    const originalCanConnectSpy = vi.spyOn(node, 'canConnect');
                     const result = command.execute(createCommandExecutionContext(node));
                     const element = result.children[0] as GNode;
                     const edge = createEdge();
-                    expect(element.canConnect(edge, 'source')).to.be.true;
-                    expect(element.canConnect(edge, 'target')).to.be.true;
-                    expect(originalCanConnectSpy.called).to.be.true;
+                    expect(element.canConnect(edge, 'source')).toBe(true);
+                    expect(element.canConnect(edge, 'target')).toBe(true);
+                    expect(originalCanConnectSpy).toHaveBeenCalled();
                 });
             });
             describe('`isContainable` (after hint has been applied to element)', () => {
@@ -297,24 +294,24 @@ describe('ApplyTypeHintCommand', () => {
                     resizable: false
                 };
                 it('should return `false` if corresponding hint has no containable elements defined', () => {
-                    typeHintProviderMock.getShapeTypeHint.returns(shapeHint);
+                    (typeHintProviderMock.getShapeTypeHint as Mock).mockReturnValue(shapeHint);
                     const result = command.execute(createCommandExecutionContext(createNode('node')));
                     const element = result.children[0] as GNode & Containable;
-                    expect(element.isContainableElement('other')).to.be.false;
+                    expect(element.isContainableElement('other')).toBe(false);
                 });
                 it('should return `true` if corresponding hint has containable element with matching type', () => {
-                    typeHintProviderMock.getShapeTypeHint.returns(shapeHint);
+                    (typeHintProviderMock.getShapeTypeHint as Mock).mockReturnValue(shapeHint);
                     shapeHint.containableElementTypeIds = ['node'];
                     const result = command.execute(createCommandExecutionContext(createNode('node')));
                     const element = result.children[0] as GNode & Containable;
-                    expect(element.isContainableElement('node')).to.be.true;
+                    expect(element.isContainableElement('node')).toBe(true);
                 });
                 it('should return `true` if corresponding hint as has containable element with matching super type', () => {
-                    typeHintProviderMock.getShapeTypeHint.returns(shapeHint);
+                    (typeHintProviderMock.getShapeTypeHint as Mock).mockReturnValue(shapeHint);
                     shapeHint.containableElementTypeIds = ['node'];
                     const result = command.execute(createCommandExecutionContext(createNode('node')));
                     const element = result.children[0] as GNode & Containable;
-                    expect(element.isContainableElement('node:task:automated')).to.be.true;
+                    expect(element.isContainableElement('node:task:automated')).toBe(true);
                 });
             });
         });
@@ -332,28 +329,28 @@ describe('ApplyTypeHintCommand', () => {
                 routable: false
             };
             it('should not modify feature set of model element with no applicable type hint', () => {
-                typeHintProviderMock.getEdgeTypeHint.returns(undefined);
+                (typeHintProviderMock.getEdgeTypeHint as Mock).mockReturnValue(undefined);
                 const result = command.execute(createCommandExecutionContext(createEdge()));
                 const element = result.children[0];
-                expect(GEdge.DEFAULT_FEATURES, 'Element should have default feature set').to.have.same.members([
-                    ...(element.features as Set<symbol>)
-                ]);
+                expect(new Set(GEdge.DEFAULT_FEATURES), 'Element should have default feature set').toEqual(
+                    new Set(element.features as Set<symbol>)
+                );
             });
             it('should add all enabled (`true`) features, derived from the applied type hint, to the model', () => {
-                typeHintProviderMock.getEdgeTypeHint.returns(allEnabledHint);
+                (typeHintProviderMock.getEdgeTypeHint as Mock).mockReturnValue(allEnabledHint);
                 const result = command.execute(createCommandExecutionContext(createEdge()));
                 const element = result.children[0];
-                expect(isDeletable(element), 'Element should have deletable feature').to.be.true;
-                expect(element.hasFeature(editFeature), 'Element should have edit feature').to.be.true;
-                expect(isReconnectable(element), 'Element should have reconnectable feature').to.be.true;
+                expect(isDeletable(element), 'Element should have deletable feature').toBe(true);
+                expect(element.hasFeature(editFeature), 'Element should have edit feature').toBe(true);
+                expect(isReconnectable(element), 'Element should have reconnectable feature').toBe(true);
             });
             it('should remove all disabled (`false`) features, derived from the applied type hint, from the model', () => {
-                typeHintProviderMock.getEdgeTypeHint.returns(allDisabledHint);
+                (typeHintProviderMock.getEdgeTypeHint as Mock).mockReturnValue(allDisabledHint);
                 const result = command.execute(createCommandExecutionContext(createEdge()));
                 const element = result.children[0];
-                expect(isDeletable(element), 'Element should not have deletable feature').to.be.false;
-                expect(element.hasFeature(editFeature), 'Element should  not have edit feature').to.be.false;
-                expect(isReconnectable(element), 'Element should  not have reconnectable feature').to.be.false;
+                expect(isDeletable(element), 'Element should not have deletable feature').toBe(false);
+                expect(element.hasFeature(editFeature), 'Element should  not have edit feature').toBe(false);
+                expect(isReconnectable(element), 'Element should  not have reconnectable feature').toBe(false);
             });
         });
     });

@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { expect } from 'chai';
+import { describe, expect, it } from 'vitest';
 import { Dimension, Point } from 'sprotty-protocol';
 import { ComputedBoundsAction, LayoutOperation, RequestBoundsAction, TriggerLayoutAction } from './model-layout';
 /**
@@ -31,13 +31,13 @@ describe('Model layout actions', () => {
                     requestId: '',
                     newRoot: { id: '', type: '' }
                 };
-                expect(RequestBoundsAction.is(action)).to.be.true;
+                expect(RequestBoundsAction.is(action)).toBe(true);
             });
             it('should return false for `undefined`', () => {
-                expect(RequestBoundsAction.is(undefined)).to.be.false;
+                expect(RequestBoundsAction.is(undefined)).toBe(false);
             });
             it('should return false for an object that does not have all required interface properties', () => {
-                expect(RequestBoundsAction.is({ kind: 'notTheRightOne' })).to.be.false;
+                expect(RequestBoundsAction.is({ kind: 'notTheRightOne' })).toBe(false);
             });
         });
 
@@ -49,7 +49,7 @@ describe('Model layout actions', () => {
                     newRoot: { id: 'myId', type: 'myType' }
                 };
                 const { newRoot } = expected;
-                expect(RequestBoundsAction.create(newRoot)).to.deep.equals(expected);
+                expect(RequestBoundsAction.create(newRoot)).toEqual(expected);
             });
             it('should return an object conforming to the interface with matching properties for the given required and optional arguments', () => {
                 const expected: RequestBoundsAction = {
@@ -58,7 +58,7 @@ describe('Model layout actions', () => {
                     newRoot: { id: 'myId', type: 'myType' }
                 };
                 const { newRoot, requestId } = expected;
-                expect(RequestBoundsAction.create(newRoot, { requestId })).to.deep.equals(expected);
+                expect(RequestBoundsAction.create(newRoot, { requestId })).toEqual(expected);
             });
         });
     });
@@ -71,13 +71,13 @@ describe('Model layout actions', () => {
                     responseId: '',
                     bounds: []
                 };
-                expect(ComputedBoundsAction.is(action)).to.be.true;
+                expect(ComputedBoundsAction.is(action)).toBe(true);
             });
             it('should return false for `undefined`', () => {
-                expect(ComputedBoundsAction.is(undefined)).to.be.false;
+                expect(ComputedBoundsAction.is(undefined)).toBe(false);
             });
             it('should return false for an object that does not have all required interface properties', () => {
-                expect(ComputedBoundsAction.is({ kind: 'notTheRightOne' })).to.be.false;
+                expect(ComputedBoundsAction.is({ kind: 'notTheRightOne' })).toBe(false);
             });
         });
 
@@ -89,7 +89,7 @@ describe('Model layout actions', () => {
                     bounds: [{ elementId: '', newSize: Dimension.EMPTY, newPosition: Point.ORIGIN }]
                 };
                 const { bounds } = expected;
-                expect(ComputedBoundsAction.create(bounds)).to.deep.equals(expected);
+                expect(ComputedBoundsAction.create(bounds)).toEqual(expected);
             });
             it('should return an object conforming to the interface with matching properties for the given required and optional arguments', () => {
                 const expected: ComputedBoundsAction = {
@@ -101,7 +101,7 @@ describe('Model layout actions', () => {
                     routes: [{ elementId: 'myEdge', newRoutingPoints: [{ x: 42, y: 1337 }] }]
                 };
                 const { bounds, responseId, alignments, revision, routes } = expected;
-                expect(ComputedBoundsAction.create(bounds, { responseId, alignments, revision, routes })).to.deep.equals(expected);
+                expect(ComputedBoundsAction.create(bounds, { responseId, alignments, revision, routes })).toEqual(expected);
             });
         });
     });
@@ -112,13 +112,13 @@ describe('Model layout actions', () => {
                 const action: TriggerLayoutAction = {
                     kind: 'triggerLayout'
                 };
-                expect(TriggerLayoutAction.is(action)).to.be.true;
+                expect(TriggerLayoutAction.is(action)).toBe(true);
             });
             it('should return false for `undefined`', () => {
-                expect(TriggerLayoutAction.is(undefined)).to.be.false;
+                expect(TriggerLayoutAction.is(undefined)).toBe(false);
             });
             it('should return false for an object that does not have all required interface properties', () => {
-                expect(TriggerLayoutAction.is({ kind: 'notTheRightOne' })).to.be.false;
+                expect(TriggerLayoutAction.is({ kind: 'notTheRightOne' })).toBe(false);
             });
         });
 
@@ -128,7 +128,7 @@ describe('Model layout actions', () => {
                     kind: 'triggerLayout',
                     args: { customArg: 'argValue' }
                 };
-                expect(TriggerLayoutAction.create({ args: { customArg: 'argValue' } })).to.deep.equals(expected);
+                expect(TriggerLayoutAction.create({ args: { customArg: 'argValue' } })).toEqual(expected);
             });
         });
     });
@@ -140,13 +140,13 @@ describe('Model layout actions', () => {
                     kind: 'layout',
                     isOperation: true
                 };
-                expect(LayoutOperation.is(action)).to.be.true;
+                expect(LayoutOperation.is(action)).toBe(true);
             });
             it('should return false for `undefined`', () => {
-                expect(LayoutOperation.is(undefined)).to.be.false;
+                expect(LayoutOperation.is(undefined)).toBe(false);
             });
             it('should return false for an object that does not have all required interface properties', () => {
-                expect(LayoutOperation.is({ kind: 'notTheRightOne' })).to.be.false;
+                expect(LayoutOperation.is({ kind: 'notTheRightOne' })).toBe(false);
             });
         });
 
@@ -158,7 +158,7 @@ describe('Model layout actions', () => {
                     elementIds: ['myElements']
                 };
                 const { elementIds } = expected;
-                expect(LayoutOperation.create(elementIds)).to.deep.equals(expected);
+                expect(LayoutOperation.create(elementIds)).toEqual(expected);
             });
         });
     });

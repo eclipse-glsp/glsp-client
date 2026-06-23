@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { expect } from 'chai';
+import { describe, expect, it } from 'vitest';
 import { CheckEdgeResultAction, RequestCheckEdgeAction, RequestTypeHintsAction, SetTypeHintsAction } from './element-type-hints';
 /**
  * Tests for the utility functions declared in the namespaces of the protocol
@@ -28,13 +28,13 @@ describe('Element type hints actions', () => {
                     kind: 'requestTypeHints',
                     requestId: ''
                 };
-                expect(RequestTypeHintsAction.is(action)).to.be.true;
+                expect(RequestTypeHintsAction.is(action)).toBe(true);
             });
             it('should return false for `undefined`', () => {
-                expect(RequestTypeHintsAction.is(undefined)).to.be.false;
+                expect(RequestTypeHintsAction.is(undefined)).toBe(false);
             });
             it('should return false for an object that does not have all required interface properties', () => {
-                expect(RequestTypeHintsAction.is({ kind: 'notTheRightOne' })).to.be.false;
+                expect(RequestTypeHintsAction.is({ kind: 'notTheRightOne' })).toBe(false);
             });
         });
 
@@ -45,7 +45,7 @@ describe('Element type hints actions', () => {
                     requestId: ''
                 };
 
-                expect(RequestTypeHintsAction.create()).to.deep.equals(expected);
+                expect(RequestTypeHintsAction.create()).toEqual(expected);
             });
             it('should return an object conforming to the interface with matching properties for the given required and optional arguments', () => {
                 const expected: RequestTypeHintsAction = {
@@ -53,7 +53,7 @@ describe('Element type hints actions', () => {
                     requestId: 'myRequest'
                 };
                 const { requestId } = expected;
-                expect(RequestTypeHintsAction.create({ requestId })).to.deep.equals(expected);
+                expect(RequestTypeHintsAction.create({ requestId })).toEqual(expected);
             });
         });
     });
@@ -67,13 +67,13 @@ describe('Element type hints actions', () => {
                     edgeHints: [],
                     shapeHints: []
                 };
-                expect(SetTypeHintsAction.is(action)).to.be.true;
+                expect(SetTypeHintsAction.is(action)).toBe(true);
             });
             it('should return false for `undefined`', () => {
-                expect(SetTypeHintsAction.is(undefined)).to.be.false;
+                expect(SetTypeHintsAction.is(undefined)).toBe(false);
             });
             it('should return false for an object that does not have all required interface properties', () => {
-                expect(SetTypeHintsAction.is({ kind: 'notTheRightOne' })).to.be.false;
+                expect(SetTypeHintsAction.is({ kind: 'notTheRightOne' })).toBe(false);
             });
         });
 
@@ -104,7 +104,7 @@ describe('Element type hints actions', () => {
                     ]
                 };
                 const { edgeHints, shapeHints } = expected;
-                expect(SetTypeHintsAction.create({ edgeHints, shapeHints })).to.deep.equals(expected);
+                expect(SetTypeHintsAction.create({ edgeHints, shapeHints })).toEqual(expected);
             });
             it('should return an object conforming to the interface with matching properties for the given required and optional arguments', () => {
                 const expected: SetTypeHintsAction = {
@@ -132,7 +132,7 @@ describe('Element type hints actions', () => {
                     ]
                 };
                 const { edgeHints, shapeHints, responseId } = expected;
-                expect(SetTypeHintsAction.create({ edgeHints, shapeHints, responseId })).to.deep.equals(expected);
+                expect(SetTypeHintsAction.create({ edgeHints, shapeHints, responseId })).toEqual(expected);
             });
         });
     });
@@ -145,7 +145,7 @@ describe('Element type hints actions', () => {
                     sourceElementId: 'source',
                     requestId: ''
                 };
-                expect(RequestCheckEdgeAction.is(action)).to.be.true;
+                expect(RequestCheckEdgeAction.is(action)).toBe(true);
             });
             it('should return true for an object having the correct type and a value for all required interface & optional properties', () => {
                 const action: RequestCheckEdgeAction = {
@@ -155,13 +155,13 @@ describe('Element type hints actions', () => {
                     targetElementId: 'target',
                     requestId: ''
                 };
-                expect(RequestCheckEdgeAction.is(action)).to.be.true;
+                expect(RequestCheckEdgeAction.is(action)).toBe(true);
             });
             it('should return false for `undefined`', () => {
-                expect(RequestCheckEdgeAction.is(undefined)).to.be.false;
+                expect(RequestCheckEdgeAction.is(undefined)).toBe(false);
             });
             it('should return false for an object that does not have all required interface properties', () => {
-                expect(RequestCheckEdgeAction.is({ kind: 'notTheRightOne' })).to.be.false;
+                expect(RequestCheckEdgeAction.is({ kind: 'notTheRightOne' })).toBe(false);
             });
         });
 
@@ -175,7 +175,7 @@ describe('Element type hints actions', () => {
                     targetElementId: undefined
                 };
 
-                expect(RequestCheckEdgeAction.create({ edgeType: 'edge', sourceElement: 'source' })).to.deep.equals(expected);
+                expect(RequestCheckEdgeAction.create({ edgeType: 'edge', sourceElement: 'source' })).toEqual(expected);
             });
             it('should return an object conforming to the interface with matching properties for the given required and optional arguments', () => {
                 const expected: RequestCheckEdgeAction = {
@@ -193,7 +193,7 @@ describe('Element type hints actions', () => {
                         targetElement: 'target',
                         requestId: 'myRequest'
                     })
-                ).to.deep.equals(expected);
+                ).toEqual(expected);
             });
         });
     });
@@ -207,7 +207,7 @@ describe('Element type hints actions', () => {
                     sourceElementId: 'source',
                     responseId: ''
                 };
-                expect(CheckEdgeResultAction.is(action)).to.be.true;
+                expect(CheckEdgeResultAction.is(action)).toBe(true);
             });
             it('should return true for an object having the correct type and a value for all required interface & optional properties', () => {
                 const action: CheckEdgeResultAction = {
@@ -218,13 +218,13 @@ describe('Element type hints actions', () => {
                     targetElementId: 'target',
                     responseId: 'myResponse'
                 };
-                expect(CheckEdgeResultAction.is(action)).to.be.true;
+                expect(CheckEdgeResultAction.is(action)).toBe(true);
             });
             it('should return false for `undefined`', () => {
-                expect(CheckEdgeResultAction.is(undefined)).to.be.false;
+                expect(CheckEdgeResultAction.is(undefined)).toBe(false);
             });
             it('should return false for an object that does not have all required interface properties', () => {
-                expect(CheckEdgeResultAction.is({ kind: 'notTheRightOne' })).to.be.false;
+                expect(CheckEdgeResultAction.is({ kind: 'notTheRightOne' })).toBe(false);
             });
         });
 
@@ -237,9 +237,7 @@ describe('Element type hints actions', () => {
                     sourceElementId: 'source',
                     responseId: ''
                 };
-                expect(CheckEdgeResultAction.create({ edgeType: 'edge', isValid: true, sourceElementId: 'source' })).to.deep.equals(
-                    expected
-                );
+                expect(CheckEdgeResultAction.create({ edgeType: 'edge', isValid: true, sourceElementId: 'source' })).toEqual(expected);
             });
             it('should return an object conforming to the interface with matching properties for the given required and optional arguments', () => {
                 const expected: CheckEdgeResultAction = {
@@ -259,7 +257,7 @@ describe('Element type hints actions', () => {
                         targetElementId: 'target',
                         responseId: 'myResponse'
                     })
-                ).to.deep.equals(expected);
+                ).toEqual(expected);
             });
         });
     });

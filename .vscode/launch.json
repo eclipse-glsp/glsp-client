@@ -5,29 +5,23 @@
       "type": "node",
       "request": "launch",
       "name": "Run current test",
-      "program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
-      "args": ["--config", "${workspaceRoot}/.mocharc", "--timeout", "0", "${file}"],
+      "autoAttachChildProcesses": true,
+      "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
+      "program": "${workspaceFolder}/node_modules/vitest/vitest.mjs",
+      "args": ["run", "${relativeFile}"],
+      "smartStep": true,
       "console": "integratedTerminal",
-      "internalConsoleOptions": "neverOpen",
-      "env": {
-        "TS_NODE_PROJECT": "${workspaceFolder}/tsconfig.json"
-      }
+      "internalConsoleOptions": "neverOpen"
     },
     {
       "type": "node",
       "request": "launch",
       "name": "Run tests",
-      "program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
-      "args": [
-        "--config",
-        "${workspaceRoot}/.mocharc",
-        "--timeout",
-        "0",
-        "${workspaceFolder}/packages/client/src/**/*.spec.ts"
-      ],
-      "env": {
-        "TS_NODE_PROJECT": "${workspaceFolder}/tsconfig.json"
-      },
+      "autoAttachChildProcesses": true,
+      "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
+      "program": "${workspaceFolder}/node_modules/vitest/vitest.mjs",
+      "args": ["run", "packages/client/src"],
+      "smartStep": true,
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen"
     },
@@ -35,17 +29,11 @@
       "type": "node",
       "request": "launch",
       "name": "Run tests (protocol)",
-      "program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
-      "args": [
-        "--config",
-        "${workspaceRoot}/.mocharc",
-        "--timeout",
-        "0",
-        "${workspaceFolder}/packages/protocol/src/**/*.spec.ts"
-      ],
-      "env": {
-        "TS_NODE_PROJECT": "${workspaceFolder}/tsconfig.json"
-      },
+      "autoAttachChildProcesses": true,
+      "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
+      "program": "${workspaceFolder}/node_modules/vitest/vitest.mjs",
+      "args": ["run", "packages/protocol/src"],
+      "smartStep": true,
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen"
     }

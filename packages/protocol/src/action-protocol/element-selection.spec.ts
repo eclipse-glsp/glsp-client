@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { expect } from 'chai';
+import { describe, expect, it } from 'vitest';
 import { SelectAction, SelectAllAction } from './element-selection';
 /**
  * Tests for the utility functions declared in the namespaces of the protocol
@@ -30,13 +30,13 @@ describe('Element selection actions', () => {
                     selectedElementsIDs: [],
                     deselectedElementsIDs: []
                 };
-                expect(SelectAction.is(action)).to.be.true;
+                expect(SelectAction.is(action)).toBe(true);
             });
             it('should return false for `undefined`', () => {
-                expect(SelectAction.is(undefined)).to.be.false;
+                expect(SelectAction.is(undefined)).toBe(false);
             });
             it('should return false for an object that does not have all required interface properties', () => {
-                expect(SelectAction.is({ kind: 'notTheRightOne' })).to.be.false;
+                expect(SelectAction.is({ kind: 'notTheRightOne' })).toBe(false);
             });
         });
 
@@ -48,7 +48,7 @@ describe('Element selection actions', () => {
                     deselectedElementsIDs: [],
                     deselectAll: false
                 };
-                expect(SelectAction.create()).to.deep.equals(expected);
+                expect(SelectAction.create()).toEqual(expected);
             });
             it('should return an object conforming to the interface with matching properties for the given required and optional arguments', () => {
                 const expected: SelectAction = {
@@ -58,7 +58,7 @@ describe('Element selection actions', () => {
                     deselectAll: false
                 };
                 const { selectedElementsIDs, deselectedElementsIDs } = expected;
-                expect(SelectAction.create({ deselectedElementsIDs, selectedElementsIDs })).to.deep.equals(expected);
+                expect(SelectAction.create({ deselectedElementsIDs, selectedElementsIDs })).toEqual(expected);
             });
             it('should return an object conforming to the interface with matching properties for the given required and optional arguments: deselectAll', () => {
                 const expected: SelectAction = {
@@ -68,7 +68,7 @@ describe('Element selection actions', () => {
                     deselectAll: true
                 };
                 const { selectedElementsIDs } = expected;
-                expect(SelectAction.create({ deselectedElementsIDs: true, selectedElementsIDs })).to.deep.equals(expected);
+                expect(SelectAction.create({ deselectedElementsIDs: true, selectedElementsIDs })).toEqual(expected);
             });
         });
         describe('addSelection', () => {
@@ -80,7 +80,7 @@ describe('Element selection actions', () => {
                     deselectAll: false
                 };
                 const { selectedElementsIDs } = expected;
-                expect(SelectAction.addSelection(selectedElementsIDs)).to.deep.equals(expected);
+                expect(SelectAction.addSelection(selectedElementsIDs)).toEqual(expected);
             });
         });
         describe('removeSelection', () => {
@@ -92,7 +92,7 @@ describe('Element selection actions', () => {
                     deselectAll: false
                 };
                 const { deselectedElementsIDs } = expected;
-                expect(SelectAction.removeSelection(deselectedElementsIDs)).to.deep.equals(expected);
+                expect(SelectAction.removeSelection(deselectedElementsIDs)).toEqual(expected);
             });
         });
         describe('setSelection', () => {
@@ -104,7 +104,7 @@ describe('Element selection actions', () => {
                     deselectAll: true
                 };
                 const { selectedElementsIDs } = expected;
-                expect(SelectAction.setSelection(selectedElementsIDs)).to.deep.equals(expected);
+                expect(SelectAction.setSelection(selectedElementsIDs)).toEqual(expected);
             });
         });
     });
@@ -116,13 +116,13 @@ describe('Element selection actions', () => {
                     kind: 'allSelected',
                     select: true
                 };
-                expect(SelectAllAction.is(action)).to.be.true;
+                expect(SelectAllAction.is(action)).toBe(true);
             });
             it('should return false for `undefined`', () => {
-                expect(SelectAllAction.is(undefined)).to.be.false;
+                expect(SelectAllAction.is(undefined)).toBe(false);
             });
             it('should return false for an object that does not have all required interface properties', () => {
-                expect(SelectAllAction.is({ kind: 'notTheRightOne' })).to.be.false;
+                expect(SelectAllAction.is({ kind: 'notTheRightOne' })).toBe(false);
             });
         });
 
@@ -132,7 +132,7 @@ describe('Element selection actions', () => {
                     kind: 'allSelected',
                     select: true
                 };
-                expect(SelectAllAction.create()).to.deep.equals(expected);
+                expect(SelectAllAction.create()).toEqual(expected);
             });
             it('should return an object conforming to the interface with matching properties for the given required and optional arguments', () => {
                 const expected: SelectAllAction = {
@@ -140,7 +140,7 @@ describe('Element selection actions', () => {
                     select: false
                 };
                 const { select } = expected;
-                expect(SelectAllAction.create(select)).to.deep.equals(expected);
+                expect(SelectAllAction.create(select)).toEqual(expected);
             });
         });
     });

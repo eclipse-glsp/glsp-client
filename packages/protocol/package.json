@@ -32,17 +32,17 @@
   "types": "lib/index",
   "files": [
     "lib",
-    "src"
+    "src",
+    "!**/*.spec.ts",
+    "!**/*.spec.tsx",
+    "!**/test/**"
   ],
   "scripts": {
     "build": "tsc -b",
-    "clean": "rimraf lib *.tsbuildinfo  coverage .nyc_output",
+    "clean": "rimraf lib *.tsbuildinfo coverage",
     "generate:index": "glsp generateIndex src/di src -f -s",
     "lint": "eslint ./src",
     "prepublishOnly": "pnpm build",
-    "test": "mocha --config ../../.mocharc \"./src/**/*.spec.?(ts|tsx)\"",
-    "test:ci": "pnpm test --reporter mocha-ctrf-json-reporter",
-    "test:coverage": "nyc pnpm test",
     "watch": "tsc -w"
   },
   "dependencies": {

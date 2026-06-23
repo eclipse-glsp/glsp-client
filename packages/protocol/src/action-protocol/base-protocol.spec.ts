@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { expect } from 'chai';
+import { describe, expect, it } from 'vitest';
 import { Action, ActionMessage, CompoundOperation, Operation, RejectAction, RequestAction, ResponseAction } from './base-protocol';
 import { AnyObject } from '../utils/type-util';
 
@@ -29,30 +29,30 @@ describe('Base Protocol Actions', () => {
         describe('is', () => {
             it('should return true for an object having a `kind` property with string type', () => {
                 const action = { kind: 'myAction' };
-                expect(Action.is(action)).to.be.true;
+                expect(Action.is(action)).toBe(true);
             });
             it('should return false for `undefined`', () => {
-                expect(Action.is(undefined)).to.be.false;
+                expect(Action.is(undefined)).toBe(false);
             });
             it('should return false for an object having a `kind` property with incorrect type', () => {
                 const notAnAction = { kind: 5 };
-                expect(Action.is(notAnAction)).to.be.false;
+                expect(Action.is(notAnAction)).toBe(false);
             });
         });
         describe('hasKind', () => {
             it('should return true for an object having a `kind` property that matches the given value', () => {
                 const action = { kind: 'myAction' };
-                expect(Action.hasKind(action, 'myAction')).to.be.true;
+                expect(Action.hasKind(action, 'myAction')).toBe(true);
             });
             it('should return false for undefined', () => {
-                expect(Action.hasKind(undefined, '')).to.be.false;
+                expect(Action.hasKind(undefined, '')).toBe(false);
             });
             it('should return false for an object having a "kind" property that does not match the given value', () => {
                 const action = { kind: 'myAction' };
-                expect(Action.hasKind(action, 'someOtherKind')).to.be.false;
+                expect(Action.hasKind(action, 'someOtherKind')).toBe(false);
             });
             it('should return false for an object not having a `kind` property', () => {
-                expect(Action.hasKind({ I: 'm not an action' }, '')).to.be.false;
+                expect(Action.hasKind({ I: 'm not an action' }, '')).toBe(false);
             });
         });
     });
@@ -61,22 +61,22 @@ describe('Base Protocol Actions', () => {
         describe('is', () => {
             it('should return true for an object having the correct type and a value for all required interface properties', () => {
                 const message: ActionMessage = { action: { kind: 'myAction' }, clientId: 'someId' };
-                expect(ActionMessage.is(message)).to.be.true;
+                expect(ActionMessage.is(message)).toBe(true);
             });
             it('should return false for undefined', () => {
-                expect(ActionMessage.is(undefined)).to.be.false;
+                expect(ActionMessage.is(undefined)).toBe(false);
             });
             it('should return false for an object that does have all required interface properties', () => {
                 const notAnActionMessage = 'notAnActionMessage';
-                expect(ActionMessage.is(notAnActionMessage)).to.be.false;
+                expect(ActionMessage.is(notAnActionMessage)).toBe(false);
             });
             it('should return true for an object that has all required interface properties an `action` property that passes the typeguard check', () => {
                 const message: ActionMessage = { action: customAction, clientId: 'someId' };
-                expect(ActionMessage.is(message, isSomeCustomAction)).to.be.true;
+                expect(ActionMessage.is(message, isSomeCustomAction)).toBe(true);
             });
             it('should return false for an object that has all required interface properties but does not have an `action` property that passes the typeguard check  ', () => {
                 const message: ActionMessage = { action: { kind: 'myAction' }, clientId: 'someId' };
-                expect(ActionMessage.is(message, isSomeCustomAction)).to.be.false;
+                expect(ActionMessage.is(message, isSomeCustomAction)).toBe(false);
             });
         });
     });
@@ -86,28 +86,28 @@ describe('Base Protocol Actions', () => {
     describe('RequestAction', () => {
         describe('is', () => {
             it('should return true for an object having the correct type and a value for all required interface properties', () => {
-                expect(RequestAction.is(requestAction)).to.be.true;
+                expect(RequestAction.is(requestAction)).toBe(true);
             });
             it('should return false for undefined', () => {
-                expect(RequestAction.is(undefined)).to.be.false;
+                expect(RequestAction.is(undefined)).toBe(false);
             });
             it('should return false for an object that does not have all required interface properties', () => {
-                expect(RequestAction.is(customAction)).to.be.false;
+                expect(RequestAction.is(customAction)).toBe(false);
             });
         });
 
         describe('hasKind', () => {
             it('should return true for an object having the correct type and a value for all required interface properties and a `kind` property that matches the given value', () => {
-                expect(RequestAction.hasKind(requestAction, 'someRequest')).to.be.true;
+                expect(RequestAction.hasKind(requestAction, 'someRequest')).toBe(true);
             });
             it('should return false for `undefined`', () => {
-                expect(RequestAction.hasKind(undefined, '')).to.be.false;
+                expect(RequestAction.hasKind(undefined, '')).toBe(false);
             });
             it('should return false for an object having the correct type and a value for all required interface properties but having a `kind` property that does not match the given value', () => {
-                expect(RequestAction.hasKind(requestAction, 'someOtherKind')).to.be.false;
+                expect(RequestAction.hasKind(requestAction, 'someOtherKind')).toBe(false);
             });
             it('should return for an object not having the correct type and value for all required interface properties', () => {
-                expect(RequestAction.hasKind({ I: 'm not an action' }, '')).to.be.false;
+                expect(RequestAction.hasKind({ I: 'm not an action' }, '')).toBe(false);
             });
         });
     });
@@ -116,26 +116,26 @@ describe('Base Protocol Actions', () => {
     describe('ResponseAction', () => {
         describe('is', () => {
             it('should return true for an object having the correct type and a value for all required interface properties', () => {
-                expect(ResponseAction.is(responseAction)).to.be.true;
+                expect(ResponseAction.is(responseAction)).toBe(true);
             });
             it('should return false for undefined', () => {
-                expect(ResponseAction.is(undefined)).to.be.false;
+                expect(ResponseAction.is(undefined)).toBe(false);
             });
             it('should return false for an object that does not have all required interface properties', () => {
-                expect(ResponseAction.is(customAction)).to.be.false;
+                expect(ResponseAction.is(customAction)).toBe(false);
             });
         });
 
         describe('hasValidResponseId', () => {
             it('should return true for an object having the correct type and a value for all required interface properties and a non-empty value for `requestId`', () => {
                 const nonEmptyResponse = { ...responseAction, responseId: 'nonempty' };
-                expect(ResponseAction.hasValidResponseId(nonEmptyResponse)).to.be.true;
+                expect(ResponseAction.hasValidResponseId(nonEmptyResponse)).toBe(true);
             });
             it('should return false for an object having the correct type and a value for all required interface properties and an empty value for `requestId`', () => {
-                expect(ResponseAction.hasValidResponseId(responseAction)).to.be.false;
+                expect(ResponseAction.hasValidResponseId(responseAction)).toBe(false);
             });
             it('should return false for `undefined`', () => {
-                expect(ResponseAction.hasValidResponseId(undefined)).to.be.false;
+                expect(ResponseAction.hasValidResponseId(undefined)).toBe(false);
             });
         });
     });
@@ -144,13 +144,13 @@ describe('Base Protocol Actions', () => {
     describe('RejectAction', () => {
         describe('is', () => {
             it('should return true for an object having the correct type and a value for all required interface properties', () => {
-                expect(RejectAction.is(rejectAction)).to.be.true;
+                expect(RejectAction.is(rejectAction)).toBe(true);
             });
             it('should return false for undefined', () => {
-                expect(RejectAction.is(undefined)).to.be.false;
+                expect(RejectAction.is(undefined)).toBe(false);
             });
             it('should return false for an object that does not have all required interface properties', () => {
-                expect(RejectAction.is(customAction)).to.be.false;
+                expect(RejectAction.is(customAction)).toBe(false);
             });
         });
 
@@ -158,12 +158,12 @@ describe('Base Protocol Actions', () => {
             it('should return an object conforming to the interface with matching properties for the given required arguments and default values for the optional arguments', () => {
                 const expected = { kind: RejectAction.KIND, responseId: '', message: 'someMessage' };
                 const { message } = expected;
-                expect(RejectAction.create(message)).to.deep.equals(expected);
+                expect(RejectAction.create(message)).toEqual(expected);
             });
             it('should return an object conforming to the interface with matching properties for the given required and optional arguments', () => {
                 const expected = { kind: RejectAction.KIND, responseId: 'someId', message: 'someMessage', detail: 'details' };
                 const { detail, responseId, message } = expected;
-                expect(RejectAction.create(message, { detail, responseId })).to.deep.equals(expected);
+                expect(RejectAction.create(message, { detail, responseId })).toEqual(expected);
             });
         });
     });
@@ -172,28 +172,28 @@ describe('Base Protocol Actions', () => {
     describe('Operation', () => {
         describe('is', () => {
             it('should return true for an object having the correct type and a value for all required interface properties', () => {
-                expect(Operation.is(operation)).to.be.true;
+                expect(Operation.is(operation)).toBe(true);
             });
             it('should return false for undefined', () => {
-                expect(Operation.is(undefined)).to.be.false;
+                expect(Operation.is(undefined)).toBe(false);
             });
             it('should return false for an object that does not have all required interface properties', () => {
-                expect(Operation.is(customAction)).to.be.false;
+                expect(Operation.is(customAction)).toBe(false);
             });
         });
 
         describe('hasKind', () => {
             it('should return true for an object having the correct type and a value for all required interface properties and a `kind` property that matches the given value', () => {
-                expect(Operation.hasKind(operation, operation.kind)).to.be.true;
+                expect(Operation.hasKind(operation, operation.kind)).toBe(true);
             });
             it('should return false for `undefined`', () => {
-                expect(Operation.hasKind(undefined, '')).to.be.false;
+                expect(Operation.hasKind(undefined, '')).toBe(false);
             });
             it('should return false for an object having the correct type and a value for all required interface properties but having a `kind` property that does not match the given value', () => {
-                expect(Operation.hasKind(operation, 'someOtherKind')).to.be.false;
+                expect(Operation.hasKind(operation, 'someOtherKind')).toBe(false);
             });
             it('should return false for an object not having the correct type and value for all required interface properties', () => {
-                expect(Operation.hasKind({ I: 'm not an action' }, '')).to.be.false;
+                expect(Operation.hasKind({ I: 'm not an action' }, '')).toBe(false);
             });
         });
     });
@@ -202,20 +202,20 @@ describe('Base Protocol Actions', () => {
     describe('CompoundOperation', () => {
         describe('is', () => {
             it('should return true for an object having the correct type and a value for all required interface properties', () => {
-                expect(CompoundOperation.is(compoundOperation)).to.be.true;
+                expect(CompoundOperation.is(compoundOperation)).toBe(true);
             });
             it('should return false for undefined', () => {
-                expect(CompoundOperation.is(undefined)).to.be.false;
+                expect(CompoundOperation.is(undefined)).toBe(false);
             });
             it('should return false for an object that does not have all required interface properties', () => {
-                expect(CompoundOperation.is(customAction)).to.be.false;
+                expect(CompoundOperation.is(customAction)).toBe(false);
             });
         });
         describe('create', () => {
             it('should return an object conforming to the interface with matching properties for the given required arguments', () => {
                 const operationList = [operation];
                 const expected = { kind: CompoundOperation.KIND, isOperation: true, operationList };
-                expect(CompoundOperation.create(operationList)).to.deep.equals(expected);
+                expect(CompoundOperation.create(operationList)).toEqual(expected);
             });
         });
     });

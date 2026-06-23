@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { expect } from 'chai';
+import { describe, expect, it } from 'vitest';
 import { RequestContextActions, SetContextActions } from './contexts';
 /**
  * Tests for the utility functions declared in the namespaces of the protocol
@@ -30,13 +30,13 @@ describe('Context Actions', () => {
                     kind: 'requestContextActions',
                     requestId: ''
                 };
-                expect(RequestContextActions.is(action)).to.be.true;
+                expect(RequestContextActions.is(action)).toBe(true);
             });
             it('should return false for `undefined`', () => {
-                expect(RequestContextActions.is(undefined)).to.be.false;
+                expect(RequestContextActions.is(undefined)).toBe(false);
             });
             it('should return false for an object that does not have all required interface properties', () => {
-                expect(RequestContextActions.is({ kind: 'notTheRightOne' })).to.be.false;
+                expect(RequestContextActions.is({ kind: 'notTheRightOne' })).toBe(false);
             });
         });
 
@@ -49,7 +49,7 @@ describe('Context Actions', () => {
                     requestId: ''
                 };
                 const { contextId, editorContext } = expected;
-                expect(RequestContextActions.create({ contextId, editorContext })).to.deep.equals(expected);
+                expect(RequestContextActions.create({ contextId, editorContext })).toEqual(expected);
             });
             it('should return an object conforming to the interface with matching properties for the given required and optional arguments', () => {
                 const expected: RequestContextActions = {
@@ -59,7 +59,7 @@ describe('Context Actions', () => {
                     requestId: 'myRequest'
                 };
                 const { contextId, editorContext, requestId } = expected;
-                expect(RequestContextActions.create({ contextId, editorContext, requestId })).to.deep.equals(expected);
+                expect(RequestContextActions.create({ contextId, editorContext, requestId })).toEqual(expected);
             });
         });
     });
@@ -72,13 +72,13 @@ describe('Context Actions', () => {
                     actions: [],
                     responseId: ''
                 };
-                expect(SetContextActions.is(action)).to.be.true;
+                expect(SetContextActions.is(action)).toBe(true);
             });
             it('should return false for `undefined`', () => {
-                expect(SetContextActions.is(undefined)).to.be.false;
+                expect(SetContextActions.is(undefined)).toBe(false);
             });
             it('should return false for an object that does not have all required interface properties', () => {
-                expect(SetContextActions.is({ kind: 'notTheRightOne' })).to.be.false;
+                expect(SetContextActions.is({ kind: 'notTheRightOne' })).toBe(false);
             });
         });
 
@@ -90,7 +90,7 @@ describe('Context Actions', () => {
                     responseId: ''
                 };
                 const { actions } = expected;
-                expect(SetContextActions.create(actions)).to.deep.equals(expected);
+                expect(SetContextActions.create(actions)).toEqual(expected);
             });
             it('should return an object conforming to the interface with matching properties for the given required and optional arguments', () => {
                 const expected: SetContextActions = {
@@ -100,7 +100,7 @@ describe('Context Actions', () => {
                     args: { some: 'args' }
                 };
                 const { actions, args, responseId } = expected;
-                expect(SetContextActions.create(actions, { args, responseId })).to.deep.equals(expected);
+                expect(SetContextActions.create(actions, { args, responseId })).toEqual(expected);
             });
         });
     });

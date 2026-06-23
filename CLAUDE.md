@@ -12,7 +12,7 @@ Eclipse GLSP Client monorepo. Provides the sprotty-based client framework for th
 
 ## Validation
 
-- **Tests**: `pnpm test` (Mocha), single test: `pnpm test --grep 'test name'`
+- **Tests**: `pnpm test` (Vitest), single test: `pnpm test -t 'test name'`
 - After completing any code changes, always run the `/fix` skill before reporting completion. It auto-fixes lint/format/header issues and runs the tests; manually resolve anything it could not auto-fix (remaining lint errors, test failures) and re-run it.
 
 ## Commenting Style

@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { expect } from 'chai';
+import { describe, expect, it } from 'vitest';
 import { Point } from 'sprotty-protocol';
 import { ChangeRoutingPointsOperation, ReconnectEdgeOperation } from './edge-modification';
 /**
@@ -33,13 +33,13 @@ describe('Edge modification operations', () => {
                     sourceElementId: '2',
                     targetElementId: '3'
                 };
-                expect(ReconnectEdgeOperation.is(operation)).to.be.true;
+                expect(ReconnectEdgeOperation.is(operation)).toBe(true);
             });
             it('should return false for `undefined`', () => {
-                expect(ReconnectEdgeOperation.is(undefined)).to.be.false;
+                expect(ReconnectEdgeOperation.is(undefined)).toBe(false);
             });
             it('should return false for an object that does not have all required interface properties', () => {
-                expect(ReconnectEdgeOperation.is({ kind: 'notTheRightOne' })).to.be.false;
+                expect(ReconnectEdgeOperation.is({ kind: 'notTheRightOne' })).toBe(false);
             });
         });
 
@@ -53,7 +53,7 @@ describe('Edge modification operations', () => {
                     targetElementId: 'target'
                 };
                 const { edgeElementId, sourceElementId, targetElementId } = expected;
-                expect(ReconnectEdgeOperation.create({ edgeElementId, sourceElementId, targetElementId })).to.deep.equals(expected);
+                expect(ReconnectEdgeOperation.create({ edgeElementId, sourceElementId, targetElementId })).toEqual(expected);
             });
             it('should return an object conforming to the interface with matching properties for the given required and optional arguments', () => {
                 const expected: ReconnectEdgeOperation = {
@@ -65,7 +65,7 @@ describe('Edge modification operations', () => {
                     args: { some: 'args' }
                 };
                 const { edgeElementId, sourceElementId, targetElementId, args } = expected;
-                expect(ReconnectEdgeOperation.create({ edgeElementId, sourceElementId, targetElementId, args })).to.deep.equals(expected);
+                expect(ReconnectEdgeOperation.create({ edgeElementId, sourceElementId, targetElementId, args })).toEqual(expected);
             });
         });
     });
@@ -78,36 +78,35 @@ describe('Edge modification operations', () => {
                     isOperation: true,
                     newRoutingPoints: []
                 };
-                expect(ChangeRoutingPointsOperation.is(operation)).to.be.true;
+                expect(ChangeRoutingPointsOperation.is(operation)).toBe(true);
             });
             it('should return false for `undefined`', () => {
-                expect(ChangeRoutingPointsOperation.is(undefined)).to.be.false;
+                expect(ChangeRoutingPointsOperation.is(undefined)).toBe(false);
             });
             it('should return false for an object that does not have all required interface properties', () => {
-                expect(ChangeRoutingPointsOperation.is({ kind: 'notTheRightOne' })).to.be.false;
+                expect(ChangeRoutingPointsOperation.is({ kind: 'notTheRightOne' })).toBe(false);
             });
         });
 
         describe('create', () => {
             it('should return an object conforming to the interface with matching properties for the given required arguments and default values for the optional arguments', () => {
-                const expected: ReconnectEdgeOperation = {
-                    kind: 'reconnectEdge',
-                    isOperation: true,
-                    edgeElementId: 'edgeElement',
-                    sourceElementId: 'source',
-                    targetElementId: 'target'
-                };
-                const { edgeElementId, sourceElementId, targetElementId } = expected;
-                expect(ReconnectEdgeOperation.create({ edgeElementId, sourceElementId, targetElementId })).to.deep.equals(expected);
-            });
-            it('should return an object conforming to the interface with matching properties for the given required args', () => {
                 const expected: ChangeRoutingPointsOperation = {
                     kind: 'changeRoutingPoints',
                     isOperation: true,
                     newRoutingPoints: [{ elementId: 'element', newRoutingPoints: [Point.ORIGIN] }]
                 };
                 const { newRoutingPoints } = expected;
-                expect(ChangeRoutingPointsOperation.create(newRoutingPoints)).to.deep.equals(expected);
+                expect(ChangeRoutingPointsOperation.create(newRoutingPoints)).toEqual(expected);
+            });
+            it('should return an object conforming to the interface with matching properties for the given required and optional arguments', () => {
+                const expected: ChangeRoutingPointsOperation = {
+                    kind: 'changeRoutingPoints',
+                    isOperation: true,
+                    newRoutingPoints: [{ elementId: 'element', newRoutingPoints: [Point.ORIGIN] }],
+                    args: { some: 'args' }
+                };
+                const { newRoutingPoints, args } = expected;
+                expect(ChangeRoutingPointsOperation.create(newRoutingPoints, { args })).toEqual(expected);
             });
         });
     });
