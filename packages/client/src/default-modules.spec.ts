@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { FeatureModule } from '@eclipse-glsp/sprotty';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Container } from 'inversify';
 import { defaultModule } from './base/default.module';
 import { DEFAULT_MODULES, initializeDiagramContainer } from './default-modules';
@@ -31,6 +31,9 @@ describe('default-modules', () => {
             container.restore();
             container.snapshot();
             loadSpy = vi.spyOn(container, 'load');
+        });
+        afterEach(() => {
+            loadSpy.mockRestore();
         });
         it('should initialize the diagram container with the default modules in addition to the given config and load them first', () => {
             const extraModule = new FeatureModule(() => {});
