@@ -90,17 +90,6 @@ describe('Edge modification operations', () => {
 
         describe('create', () => {
             it('should return an object conforming to the interface with matching properties for the given required arguments and default values for the optional arguments', () => {
-                const expected: ReconnectEdgeOperation = {
-                    kind: 'reconnectEdge',
-                    isOperation: true,
-                    edgeElementId: 'edgeElement',
-                    sourceElementId: 'source',
-                    targetElementId: 'target'
-                };
-                const { edgeElementId, sourceElementId, targetElementId } = expected;
-                expect(ReconnectEdgeOperation.create({ edgeElementId, sourceElementId, targetElementId })).toEqual(expected);
-            });
-            it('should return an object conforming to the interface with matching properties for the given required args', () => {
                 const expected: ChangeRoutingPointsOperation = {
                     kind: 'changeRoutingPoints',
                     isOperation: true,
@@ -108,6 +97,16 @@ describe('Edge modification operations', () => {
                 };
                 const { newRoutingPoints } = expected;
                 expect(ChangeRoutingPointsOperation.create(newRoutingPoints)).toEqual(expected);
+            });
+            it('should return an object conforming to the interface with matching properties for the given required and optional arguments', () => {
+                const expected: ChangeRoutingPointsOperation = {
+                    kind: 'changeRoutingPoints',
+                    isOperation: true,
+                    newRoutingPoints: [{ elementId: 'element', newRoutingPoints: [Point.ORIGIN] }],
+                    args: { some: 'args' }
+                };
+                const { newRoutingPoints, args } = expected;
+                expect(ChangeRoutingPointsOperation.create(newRoutingPoints, { args })).toEqual(expected);
             });
         });
     });
