@@ -18,20 +18,6 @@ export default [
             }
         }
     },
-    // Disable @typescript-eslint/no-unused-expressions (chai-friendly rule handles this)
-    {
-        files: ['**/*.{ts,tsx}'],
-        rules: {
-            '@typescript-eslint/no-unused-expressions': 'off'
-        }
-    },
-    // Disable import-x/namespace for test files (sinon namespace not resolved correctly)
-    {
-        files: ['**/*.spec.{ts,tsx}'],
-        rules: {
-            'import-x/namespace': 'off'
-        }
-    },
     // Default rules for all TS files
     {
         files: ['**/*.{ts,tsx}'],

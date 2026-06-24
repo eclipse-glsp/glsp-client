@@ -580,11 +580,9 @@ export function createToolGroup(item: PaletteItem): HTMLElement {
 }
 
 export function changeCSSClass(element: Element, css: string): void {
-    element.classList.contains(css) ? element.classList.remove(css) : element.classList.add(css);
+    element.classList.toggle(css);
 }
 
 export function changeCodiconClass(element: Element, codiconId: string): void {
-    element.classList.contains(codiconCSSClasses(codiconId)[1])
-        ? element.classList.remove(codiconCSSClasses(codiconId)[1])
-        : element.classList.add(codiconCSSClasses(codiconId)[1]);
+    element.classList.toggle(codiconCSSClasses(codiconId)[1]);
 }

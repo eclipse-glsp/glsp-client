@@ -2,6 +2,8 @@ packages:
     - 'packages/*'
     - 'examples/*'
 
+auto-install-peers: false
+
 # Security overrides: minimum floors that lift vulnerable transitive (dev-only) deps to patched
 # versions flagged by `pnpm audit`. They only raise versions that resolve below the patched range.
 overrides:
