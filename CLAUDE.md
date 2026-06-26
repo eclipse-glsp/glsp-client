@@ -15,6 +15,10 @@ Eclipse GLSP Client monorepo. Provides the sprotty-based client framework for th
 - **Tests**: `pnpm test` (Vitest), single test: `pnpm test -t 'test name'`
 - After completing any code changes, always run the `/fix` skill before reporting completion. It auto-fixes lint/format/header issues and runs the tests; manually resolve anything it could not auto-fix (remaining lint errors, test failures) and re-run it.
 
+## Changelog
+
+- Do not hand-edit `CHANGELOG.md`. Entries are produced collectively before each release via the `/generate-changelog` skill, so skip manual changelog updates when implementing a change.
+
 ## Commenting Style
 
 - **TSDoc (`/** ... \*/`) on the public API\*\*: document exported interfaces, types, classes, methods, and notable properties/getters. Describe intent and behavior, not the obvious signature.

@@ -13,16 +13,4 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-
-import { FeatureModule, TYPES, bindAsService } from '@eclipse-glsp/client';
-import { WindowResizer } from './window-resize';
-
-export const windowResizeModule = new FeatureModule(
-    (bind, unbind, isBound, rebind) => {
-        const context = { bind, unbind, isBound, rebind };
-        bindAsService(context, TYPES.IDiagramStartup, WindowResizer);
-    },
-    {
-        featureId: Symbol('windowResize')
-    }
-);
+export * from './gmodel-demo-diagram-module';

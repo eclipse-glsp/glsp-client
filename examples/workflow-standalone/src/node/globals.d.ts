@@ -16,4 +16,4 @@
 declare const GLSP_SERVER_HOST: string;
 declare const GLSP_SERVER_PORT: string;
 declare const GLSP_MCP_SERVER_PORT: string;
-declare const GLSP_SOURCE_URI: string;
+declare const GLSP_SOURCE_URI_BASE: string;

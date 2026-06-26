@@ -16,6 +16,10 @@ Eclipse GLSP Client monorepo. Provides the sprotty-based client framework for th
 
 - **Tests**: `pnpm test` (Vitest), single test: `pnpm test -t 'test name'`
 
+## Changelog
+
+- Do not hand-edit `CHANGELOG.md`. Entries are produced collectively before each release via the `/generate-changelog` skill, so skip manual changelog updates when implementing a change.
+
 ## Inter-Package Import Rules
 
 These are enforced by ESLint and are easy to get wrong:

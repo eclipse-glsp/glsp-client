@@ -38,6 +38,7 @@
     "start:server": "node ./scripts/start-node-server.mts"
   },
   "dependencies": {
+    "@eclipse-glsp-examples/gmodel-demo-glsp": "workspace:*",
     "@eclipse-glsp-examples/workflow-glsp": "workspace:*",
     "@eclipse-glsp/client": "workspace:*",
     "reflect-metadata": "^0.2.2",

@@ -30,28 +30,50 @@ import {
 import { Container } from 'inversify';
 import { MessageConnection } from 'vscode-jsonrpc';
 import createContainer from '../common/di.config';
+import { ExampleEntry } from '../common/examples-manifest';
+import { AppShell } from '../common/features/app-shell/app-shell';
+import { ExampleLoadContext, ExampleSwitcher } from '../common/features/app-shell/example-switcher';
 import { hasParameter } from '../common/url-parameters';
+
 const host = GLSP_SERVER_HOST;
 const port = GLSP_SERVER_PORT;
+// Single websocket endpoint that hosts both languages; the diagramType selects the language per session.
 const id = 'workflow';
-const diagramType = 'workflow-diagram';
-
-const examplePath = GLSP_SOURCE_URI;
 const clientId = 'sprotty';
-
 const webSocketUrl = `ws://${host}:${port}/${id}`;
+const mcpEnabled = hasParameter('mcp');
 
 let glspClient: GLSPClient;
-let container: Container;
+
+const appShell = new AppShell();
+const switcher = new ExampleSwitcher(appShell, loadExample);
+
 const wsProvider = new GLSPWebSocketProvider(webSocketUrl);
 wsProvider.listen({ onConnection: initialize, onReconnect: reconnect, logger: console });
 
 async function initialize(connectionProvider: MessageConnection, isReconnecting = false): Promise<void> {
     glspClient = new BaseJsonrpcGLSPClient({ id, connectionProvider });
-    container = createContainer({ clientId, diagramType, glspClientProvider: async () => glspClient, sourceUri: examplePath });
-    const actionDispatcher = container.get(GLSPActionDispatcher);
+    await switcher.reload({ isReconnecting });
+
+    if (isReconnecting) {
+        const message = `Connection to the ${id} glsp server got closed. Connection was successfully re-established.`;
+        const dispatcher = switcher.currentContainer?.get(GLSPActionDispatcher);
+        dispatcher?.dispatchAll([
+            StatusAction.create(message, { severity: 'WARNING', timeout: 5000 }),
+            MessageAction.create(message, { severity: 'WARNING' })
+        ]);
+    }
+}
+
+/**
+ * Creates and loads a diagram container for the example, reusing the shared GLSP connection. The
+ * `sourceUri` is an absolute file path the node server reads from disk.
+ */
+async function loadExample(entry: ExampleEntry, context: ExampleLoadContext): Promise<Container> {
+    const isReconnecting = context.isReconnecting ?? false;
+    const sourceUri = `${GLSP_SOURCE_URI_BASE}/${entry.file}`;
+    const container = createContainer({ clientId, diagramType: entry.diagramType, glspClientProvider: async () => glspClient, sourceUri });
     const diagramLoader = container.get(DiagramLoader);
-    const mcpEnabled = hasParameter('mcp');
 
     if (mcpEnabled) {
         await diagramLoader.load<McpInitializeParameters>({
@@ -62,19 +84,12 @@ async function initialize(connectionProvider: MessageConnection, isReconnecting 
         if (mcpServer && !isReconnecting) {
             const message = `MCP server '${mcpServer.name}' available at ${mcpServer.url}`;
             console.info(`[GLSP-MCP] ${message}`);
-            actionDispatcher.dispatch(ShowToastMessageAction.createWithTimeout({ message, timeout: 10_000 }));
+            container.get(GLSPActionDispatcher).dispatch(ShowToastMessageAction.createWithTimeout({ message, timeout: 10_000 }));
         }
     } else {
         await diagramLoader.load({ requestModelOptions: { isReconnecting } });
     }
-
-    if (isReconnecting) {
-        const message = `Connection to the ${id} glsp server got closed. Connection was successfully re-established.`;
-        const timeout = 5000;
-        const severity = 'WARNING';
-        actionDispatcher.dispatchAll([StatusAction.create(message, { severity, timeout }), MessageAction.create(message, { severity })]);
-        return;
-    }
+    return container;
 }
 
 async function reconnect(connectionProvider: MessageConnection): Promise<void> {

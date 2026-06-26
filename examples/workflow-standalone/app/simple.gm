@@ -1,0 +1,66 @@
+{
+  "type": "graph",
+  "id": "sprotty",
+  "revision": 1,
+  "cssClasses": [],
+  "position": { "x": 0, "y": 0 },
+  "children": [
+    {
+      "type": "node",
+      "id": "node_a",
+      "layout": "vbox",
+      "cssClasses": [],
+      "position": { "x": 80, "y": 80 },
+      "size": { "width": 120, "height": 50 },
+      "layoutOptions": { "paddingLeft": 12, "paddingRight": 12, "paddingTop": 8, "paddingBottom": 8 },
+      "children": [
+        {
+          "type": "label",
+          "id": "node_a_label",
+          "text": "Node A",
+          "cssClasses": [],
+          "position": { "x": 0, "y": 0 },
+          "children": []
+        }
+      ]
+    },
+    {
+      "type": "node",
+      "id": "node_b",
+      "layout": "vbox",
+      "cssClasses": [],
+      "position": { "x": 360, "y": 220 },
+      "size": { "width": 120, "height": 50 },
+      "layoutOptions": { "paddingLeft": 12, "paddingRight": 12, "paddingTop": 8, "paddingBottom": 8 },
+      "children": [
+        {
+          "type": "label",
+          "id": "node_b_label",
+          "text": "Node B",
+          "cssClasses": [],
+          "position": { "x": 0, "y": 0 },
+          "children": []
+        }
+      ]
+    },
+    {
+      "type": "edge",
+      "id": "edge_a_b",
+      "sourceId": "node_a",
+      "targetId": "node_b",
+      "routingPoints": [],
+      "cssClasses": [],
+      "children": [
+        {
+          "type": "label",
+          "id": "edge_a_b_label",
+          "text": "connects",
+          "cssClasses": [],
+          "edgePlacement": { "position": 0.5, "side": "top", "rotate": false },
+          "position": { "x": 0, "y": 0 },
+          "children": []
+        }
+      ]
+    }
+  ]
+}

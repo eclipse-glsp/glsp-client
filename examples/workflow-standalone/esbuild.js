@@ -73,7 +73,9 @@ const nodeDefine = {
     GLSP_SERVER_HOST: JSON.stringify(process.env.GLSP_SERVER_HOST || 'localhost'),
     GLSP_SERVER_PORT: JSON.stringify(process.env.GLSP_SERVER_PORT || '8081'),
     GLSP_MCP_SERVER_PORT: JSON.stringify(process.env.GLSP_MCP_SERVER_PORT || '64577'),
-    GLSP_SOURCE_URI: JSON.stringify(path.resolve(appRoot, 'example1.wf'))
+    // Base directory the node server reads example files from; the selected example's file name is
+    // appended at runtime (see node/app.ts) so a single build serves every manifest entry.
+    GLSP_SOURCE_URI_BASE: JSON.stringify(appRoot)
 };
 
 /** @type {import('esbuild').BuildOptions} */

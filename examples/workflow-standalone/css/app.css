@@ -113,28 +113,10 @@ body {
     }
 }
 
-/* --- Window Resize Handles --- */
-
-/* Overlay sibling of the card; only the handles themselves capture pointer events. */
-.window-resize-layer {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: 40;
-}
-
-.window-resize-handle {
-    position: absolute;
-    pointer-events: auto;
-    touch-action: none;
-}
-
-/* Corners sit above the edge handles so their diagonal cursor wins at overlaps. */
-.window-resize-handle--nw,
-.window-resize-handle--ne,
-.window-resize-handle--sw,
-.window-resize-handle--se {
-    z-index: 1;
+/* Full screen: drop the card's size caps so it fills the shell, leaving only its padding as margin. */
+.app-shell.fullscreen .app-card {
+    max-width: none;
+    max-height: none;
 }
 
 /* --- Card Header (Title Bar) --- */
@@ -287,9 +269,14 @@ body {
     background: var(--surface-active);
 }
 
-.toolbar-btn svg {
-    width: 14px;
-    height: 14px;
+/* Toggled-on state, e.g. the full screen button while full screen is active. */
+.toolbar-btn.active {
+    color: var(--accent);
+    background: var(--accent-soft);
+}
+
+.toolbar-btn .codicon {
+    font-size: 15px;
 }
 
 .dirty-indicator {
@@ -513,6 +500,13 @@ body {
 
 /* --- Diagram Canvas --- */
 
+/* Row holding the example selector beside the diagram canvas. */
+.card-body {
+    flex: 1;
+    display: flex;
+    min-height: 0;
+}
+
 .card-canvas {
     flex: 1;
     position: relative;
@@ -521,6 +515,151 @@ body {
     transition: background 0.4s ease;
     /* own stacking context so the tool palette stays below the header dropdown */
     z-index: 1;
+}
+
+/* --- Example selector (left rail) ---
+   Per-language accent: workflow = teal, gmodel-demo = violet. */
+.example-selector {
+    --es-workflow: #0e9aa7;
+    --es-gmodel-demo: #8b5cf6;
+    /* hidden until populated, so deployments without a selector (e.g. webworker mode) are unaffected */
+    display: none;
+    flex-direction: column;
+    width: 210px;
+    flex-shrink: 0;
+    overflow-y: auto;
+    padding: 10px 8px;
+    background: var(--surface-sunken);
+    border-right: 1px solid var(--hairline);
+    font-size: 12px;
+    transition: width 0.18s ease;
+}
+
+.example-selector--ready {
+    display: flex;
+}
+
+.es-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 2px 4px 8px 8px;
+}
+
+.es-title {
+    flex: 1;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-3);
+}
+
+.es-collapse,
+.es-expand {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: none;
+    cursor: pointer;
+    color: var(--text-3);
+    font-size: 15px;
+    line-height: 1;
+    padding: 4px 6px;
+    border-radius: 6px;
+}
+
+.es-collapse:hover,
+.es-expand:hover {
+    background: var(--surface-hover);
+    color: var(--text-1);
+}
+
+/* The expand button only appears in the collapsed rail. */
+.es-expand {
+    display: none;
+    margin: 0 auto;
+}
+
+/* Collapsed rail: just wide enough for the expand button. */
+.example-selector--collapsed {
+    width: 40px;
+    padding: 8px 4px;
+    overflow: hidden;
+}
+
+.example-selector--collapsed .es-header,
+.example-selector--collapsed .es-groups {
+    display: none;
+}
+
+.example-selector--collapsed .es-expand {
+    display: flex;
+}
+
+/* Non-interactive section label for each language. */
+.es-group-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 8px 4px;
+    color: var(--text-3);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.es-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 2px;
+    flex-shrink: 0;
+    background: var(--text-3);
+}
+
+.es-group[data-language='workflow'] .es-dot {
+    background: var(--es-workflow);
+}
+
+.es-group[data-language='gmodel-demo'] .es-dot {
+    background: var(--es-gmodel-demo);
+}
+
+.es-group-name {
+    flex: 1;
+}
+
+.es-list {
+    display: flex;
+    flex-direction: column;
+    margin: 2px 0 6px;
+}
+
+.es-row {
+    display: block;
+    padding: 5px 8px 5px 22px;
+    border-radius: 6px;
+    color: var(--text-2);
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    text-decoration: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    box-shadow: inset 2px 0 0 transparent;
+}
+
+.es-row:hover {
+    background: var(--surface-hover);
+    color: var(--text-1);
+}
+
+.es-row--active {
+    background: var(--surface-active);
+    color: var(--text-1);
+    box-shadow: inset 2px 0 0 var(--accent);
 }
 
 #sprotty {

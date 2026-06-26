@@ -65,26 +65,13 @@
                     <div class="title-bar-toolbar">
                         <span class="dirty-indicator" id="dirtyIndicator" title="All changes saved"></span>
                         <button class="toolbar-btn" id="undoBtn" title="Undo (Ctrl+Z)">
-                            <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path
-                                    d="M2 6l3-3M2 6l3 3M2 6h7a4 4 0 0 1 0 8H8"
-                                    stroke="currentColor"
-                                    stroke-width="1.5"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                />
-                            </svg>
+                            <span class="codicon codicon-discard"></span>
                         </button>
                         <button class="toolbar-btn" id="redoBtn" title="Redo (Ctrl+Y)">
-                            <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path
-                                    d="M14 6l-3-3M14 6l-3 3M14 6H7a4 4 0 0 0 0 8h1"
-                                    stroke="currentColor"
-                                    stroke-width="1.5"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                />
-                            </svg>
+                            <span class="codicon codicon-redo"></span>
+                        </button>
+                        <button class="toolbar-btn" id="fullscreenBtn" title="Full screen">
+                            <span class="codicon codicon-screen-full"></span>
                         </button>
                     </div>
                     <span class="app-spacer"></span>
@@ -247,8 +234,11 @@
                     </div>
                 </header>
 
-                <div class="card-canvas">
-                    <div id="sprotty"></div>
+                <div class="card-body">
+                    <aside class="example-selector" id="exampleSelector" aria-label="Example diagrams"></aside>
+                    <div class="card-canvas">
+                        <div id="sprotty"></div>
+                    </div>
                 </div>
 
                 <footer class="card-footer">
@@ -388,6 +378,13 @@
                     switcher.classList.remove('open');
                     trigger.setAttribute('aria-expanded', 'false');
                 }
+
+                // keep the diagram focused while using the theme switcher: like the title-bar
+                // command buttons, these are chrome (no text input), so suppressing the mousedown
+                // default blocks the focus shift that would blur the graph. click still fires.
+                switcher.addEventListener('mousedown', function (event) {
+                    event.preventDefault();
+                });
 
                 trigger.addEventListener('click', function (event) {
                     event.stopPropagation();

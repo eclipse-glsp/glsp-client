@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2023-2025 Business Informatics Group (TU Wien) and others.
+ * Copyright (c) 2023-2026 Business Informatics Group (TU Wien) and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -58,27 +58,27 @@ export class FocusTrackerTool implements Tool {
         let message: string | undefined;
         const target = event.target;
 
-        if (target instanceof HTMLElement) {
+        // Any focusable Element, not just HTMLElement: the graph root is an <svg> (SVGElement),
+        // so restricting to HTMLElement would report its `aria-label` as 'unknown'.
+        if (target instanceof Element) {
             const parent = this.parentWithAriaLabel(target);
             const textMessage = this.handleTextNode(target);
-            // eslint-disable-next-line no-null/no-null
-            if (target.ariaLabel !== null) {
-                message = this.handleAriaLabel(target);
-            } else {
-                if (parent === undefined && textMessage !== undefined) {
-                    message = textMessage;
-                } else if (parent !== undefined && textMessage === undefined) {
-                    message = `${messages.focus.focus_within} ${parent.ariaLabel}`;
-                } else if (parent !== undefined && textMessage !== undefined) {
-                    message = `${parent.ariaLabel} -> ${textMessage}`;
-                }
+            const ariaLabel = this.handleAriaLabel(target);
+            if (ariaLabel !== undefined) {
+                message = ariaLabel;
+            } else if (parent === undefined && textMessage !== undefined) {
+                message = textMessage;
+            } else if (parent !== undefined && textMessage === undefined) {
+                message = `${messages.focus.focus_within} ${this.handleAriaLabel(parent)}`;
+            } else if (parent !== undefined && textMessage !== undefined) {
+                message = `${this.handleAriaLabel(parent)} -> ${textMessage}`;
             }
         }
 
         await this.showToast(message);
     }
 
-    protected handleTextNode(target: HTMLElement): string | undefined {
+    protected handleTextNode(target: Element): string | undefined {
         const textNode = Array.prototype.filter
             .call(target.childNodes, element => element.nodeType === Node.TEXT_NODE)
             .map(element => element.textContent)
@@ -91,9 +91,9 @@ export class FocusTrackerTool implements Tool {
         return undefined;
     }
 
-    protected handleAriaLabel(target: HTMLElement): string | undefined {
-        // eslint-disable-next-line no-null/no-null
-        return target.ariaLabel === null ? undefined : target.ariaLabel;
+    // Read the attribute rather than the `ariaLabel` IDL property so it also works for SVG elements.
+    protected handleAriaLabel(target: Element): string | undefined {
+        return target.getAttribute('aria-label') ?? undefined;
     }
 
     protected showToast(message?: string): Promise<void> {
@@ -105,7 +105,7 @@ export class FocusTrackerTool implements Tool {
             })
         ]);
     }
-    protected parentWithAriaLabel(target: HTMLElement): HTMLElement | undefined {
+    protected parentWithAriaLabel(target: Element): Element | undefined {
         let current = target.parentElement;
 
         while (
@@ -113,8 +113,7 @@ export class FocusTrackerTool implements Tool {
             current !== null &&
             current !== document.body &&
             current !== document.getElementById(this.viewerOptions.baseDiv) &&
-            // eslint-disable-next-line no-null/no-null
-            current.ariaLabel === null
+            !current.hasAttribute('aria-label')
         ) {
             current = current.parentElement;
         }

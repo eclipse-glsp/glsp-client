@@ -30,6 +30,24 @@ importers:
         specifier: ^5.9.2
         version: 5.9.2
 
+  examples/gmodel-demo-glsp:
+    dependencies:
+      '@eclipse-glsp/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      balloon-css:
+        specifier: ^0.5.0
+        version: 0.5.2
+      inversify:
+        specifier: ^6.1.3
+        version: 6.2.0(reflect-metadata@0.2.2)
+      reflect-metadata:
+        specifier: ^0.2.2
+        version: 0.2.2
+      snabbdom:
+        specifier: ~3.5.1
+        version: 3.5.1
+
   examples/workflow-glsp:
     dependencies:
       '@eclipse-glsp/client':
@@ -50,6 +68,9 @@ importers:
 
   examples/workflow-standalone:
     dependencies:
+      '@eclipse-glsp-examples/gmodel-demo-glsp':
+        specifier: workspace:*
+        version: link:../gmodel-demo-glsp
       '@eclipse-glsp-examples/workflow-glsp':
         specifier: workspace:*
         version: link:../workflow-glsp

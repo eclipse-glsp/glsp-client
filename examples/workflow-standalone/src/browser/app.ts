@@ -19,25 +19,32 @@ import { BaseJsonrpcGLSPClient, DiagramLoader, GLSPClient, GLSPWebWorkerProvider
 import { Container } from 'inversify';
 import { MessageConnection } from 'vscode-jsonrpc';
 import createContainer from '../common/di.config';
+import { ExampleEntry } from '../common/examples-manifest';
+import { AppShell } from '../common/features/app-shell/app-shell';
+import { ExampleSwitcher } from '../common/features/app-shell/example-switcher';
 
+// One web worker server hosts both languages; the diagramType selects the language per session.
 const id = 'workflow';
-const diagramType = 'workflow-diagram';
 const clientId = 'sprotty';
 
 let glspClient: GLSPClient;
-let container: Container;
+
+const appShell = new AppShell();
+const switcher = new ExampleSwitcher(appShell, loadExample);
 
 const workerProvider = new GLSPWebWorkerProvider('wf-glsp-server-webworker.js');
 workerProvider.listen({ onConnection: initialize, logger: console });
 
 async function initialize(connectionProvider: MessageConnection): Promise<void> {
     glspClient = new BaseJsonrpcGLSPClient({ id, connectionProvider });
-    container = createContainer({
-        clientId,
-        diagramType,
-        glspClientProvider: async () => glspClient,
-        sourceUri: 'example1.wf'
-    });
-    const diagramLoader = container.get(DiagramLoader);
-    await diagramLoader.load();
+    await switcher.reload();
+}
+
+/** Creates and loads a diagram container for the example, reusing the shared worker connection. */
+async function loadExample(entry: ExampleEntry): Promise<Container> {
+    // Absolute URL so the worker can fetch the file verbatim; it has no notion of the page origin.
+    const sourceUri = new URL(entry.file, document.baseURI).href;
+    const container = createContainer({ clientId, diagramType: entry.diagramType, glspClientProvider: async () => glspClient, sourceUri });
+    await container.get(DiagramLoader).load();
+    return container;
 }

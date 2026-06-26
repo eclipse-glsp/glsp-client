@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2024 EclipseSource and others.
+ * Copyright (c) 2024-2026 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,9 +13,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { Bounds, Dimension, Point, RenderingContext, SGraphImpl, SGraphView, TYPES, Writable } from '@eclipse-glsp/sprotty';
+import { Bounds, Dimension, Point, RenderingContext, SGraphImpl, SGraphView, TYPES, Writable, setAttr } from '@eclipse-glsp/sprotty';
 import { inject, injectable, optional } from 'inversify';
 import { VNode } from 'snabbdom';
+import { messages } from '../base/messages';
 import { GridStyle, IGridManager } from '../features/grid/grid-manager';
 import { GridProperty } from '../features/grid/grid-style';
 
@@ -28,6 +29,7 @@ export class GGraphView extends SGraphView {
         if (graph.data) {
             graph.data.style = { ...graph.data.style, ...this.getGridStyle(model, context) };
         }
+        setAttr(graph, 'aria-label', messages.diagram.label);
         return graph;
     }
 

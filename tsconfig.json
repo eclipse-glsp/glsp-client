@@ -19,6 +19,9 @@
       "path": "./examples/workflow-glsp"
     },
     {
+      "path": "./examples/gmodel-demo-glsp"
+    },
+    {
       "path": "./examples/workflow-standalone"
     }
   ]
