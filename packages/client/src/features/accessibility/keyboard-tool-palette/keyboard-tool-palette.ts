@@ -29,6 +29,7 @@ import { injectable } from 'inversify';
 import { messages } from '../../../base/messages';
 import { EnableDefaultToolsAction, EnableToolsAction } from '../../../base/tool-manager/tool';
 import { compare, createIcon, createToolGroup, EnableToolPaletteAction, ToolPalette } from '../../tool-palette/tool-palette';
+import { ChangeContainerTool } from '../../tools/change-container/change-container-tool';
 import { MouseDeleteTool } from '../../tools/deletion/delete-tool';
 import { MarqueeMouseTool } from '../../tools/marquee-selection/marquee-mouse-tool';
 import { FocusDomAction } from '../actions';
@@ -41,8 +42,9 @@ const SEARCH_ICON_ID = 'search';
 const SELECTION_TOOL_KEY: KeyCode[] = ['Digit1', 'Numpad1'];
 const DELETION_TOOL_KEY: KeyCode[] = ['Digit2', 'Numpad2'];
 const MARQUEE_TOOL_KEY: KeyCode[] = ['Digit3', 'Numpad3'];
-const VALIDATION_TOOL_KEY: KeyCode[] = ['Digit4', 'Numpad4'];
-const SEARCH_TOOL_KEY: KeyCode[] = ['Digit5', 'Numpad5'];
+const CHANGE_CONTAINER_TOOL_KEY: KeyCode[] = ['Digit4', 'Numpad4'];
+const VALIDATION_TOOL_KEY: KeyCode[] = ['Digit5', 'Numpad5'];
+const SEARCH_TOOL_KEY: KeyCode[] = ['Digit6', 'Numpad6'];
 const SHOW_SHORTCUTS_CLASS = 'accessibility-show-shortcuts';
 
 const AVAILABLE_KEYS: KeyCode[] = [
@@ -73,12 +75,20 @@ const AVAILABLE_KEYS: KeyCode[] = [
     'KeyZ'
 ];
 
-const HEADER_TOOL_KEYS: KeyCode[][] = [SELECTION_TOOL_KEY, DELETION_TOOL_KEY, MARQUEE_TOOL_KEY, VALIDATION_TOOL_KEY, SEARCH_TOOL_KEY];
+const HEADER_TOOL_KEYS: KeyCode[][] = [
+    SELECTION_TOOL_KEY,
+    DELETION_TOOL_KEY,
+    MARQUEE_TOOL_KEY,
+    CHANGE_CONTAINER_TOOL_KEY,
+    VALIDATION_TOOL_KEY,
+    SEARCH_TOOL_KEY
+];
 
 @injectable()
 export class KeyboardToolPalette extends ToolPalette {
     protected deleteToolButton: HTMLElement;
     protected marqueeToolButton: HTMLElement;
+    protected changeContainerToolButton: HTMLElement;
     protected validateToolButton: HTMLElement;
     protected searchToolButton: HTMLElement;
 
@@ -196,6 +206,10 @@ export class KeyboardToolPalette extends ToolPalette {
         this.headerToolsButtonMapping.set(mappingIndex++, this.marqueeToolButton);
         headerTools.appendChild(this.marqueeToolButton);
 
+        this.changeContainerToolButton = this.createChangeContainerToolButton();
+        this.headerToolsButtonMapping.set(mappingIndex++, this.changeContainerToolButton);
+        headerTools.appendChild(this.changeContainerToolButton);
+
         this.validateToolButton = this.createValidateButton();
         this.headerToolsButtonMapping.set(mappingIndex++, this.validateToolButton);
         headerTools.appendChild(this.validateToolButton);
@@ -254,6 +268,15 @@ export class KeyboardToolPalette extends ToolPalette {
         marqueeToolButton.appendChild(this.createKeyboardShotcut(MARQUEE_TOOL_KEY[0]));
 
         return marqueeToolButton;
+    }
+
+    protected override createChangeContainerToolButton(): HTMLElement {
+        const changeContainerToolButton = createIcon('move');
+        changeContainerToolButton.title = messages.tool_palette.change_container_button;
+        changeContainerToolButton.onclick = this.onClickStaticToolButton(changeContainerToolButton, ChangeContainerTool.ID);
+        changeContainerToolButton.appendChild(this.createKeyboardShotcut(CHANGE_CONTAINER_TOOL_KEY[0]));
+
+        return changeContainerToolButton;
     }
 
     protected override createValidateButton(): HTMLElement {

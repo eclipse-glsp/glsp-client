@@ -1,0 +1,21 @@
+.sprotty g .change-container-target-allowed > .sprotty-node {
+    stroke: var(--glsp-success-foreground, #4caf50);
+    stroke-width: 2px;
+    stroke-dasharray: 6 3;
+}
+
+.sprotty g .change-container-target-not-allowed > .sprotty-node {
+    stroke: var(--glsp-error-foreground);
+    stroke-width: 2px;
+    stroke-dasharray: 6 3;
+}
+
+.sprotty g .change-container-element-allowed > .sprotty-node {
+    stroke: var(--glsp-success-foreground, #4caf50);
+    stroke-width: 1.5px;
+}
+
+.sprotty g .change-container-element-not-allowed > .sprotty-node {
+    stroke: var(--glsp-error-foreground);
+    stroke-width: 1.5px;
+}

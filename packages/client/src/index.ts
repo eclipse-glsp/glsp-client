@@ -199,6 +199,8 @@ export * from './features/tools/change-bounds/change-bounds-tool-module';
 export * from './features/tools/change-bounds/change-bounds-tool-move-feedback';
 export * from './features/tools/change-bounds/change-bounds-tracker';
 export * from './features/tools/change-bounds/view';
+export * from './features/tools/change-container/change-container-tool';
+export * from './features/tools/change-container/change-container-tool-module';
 export * from './features/tools/deletion/delete-tool';
 export * from './features/tools/deletion/deletion-tool-module';
 export * from './features/tools/edge-creation/dangling-edge-feedback';

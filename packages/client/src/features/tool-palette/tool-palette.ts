@@ -42,6 +42,7 @@ import { EnableDefaultToolsAction, EnableToolsAction } from '../../base/tool-man
 import { GLSPAbstractUIExtension } from '../../base/ui-extension/ui-extension';
 import { IDebugManager } from '../debug/debug-manager';
 import { IGridManager } from '../grid/grid-manager';
+import { ChangeContainerTool } from '../tools/change-container/change-container-tool';
 import { MouseDeleteTool } from '../tools/deletion/delete-tool';
 import { MarqueeMouseTool } from '../tools/marquee-selection/marquee-mouse-tool';
 
@@ -237,6 +238,9 @@ export class ToolPalette extends GLSPAbstractUIExtension implements IActionHandl
         const marqueeToolButton = this.createMarqueeToolButton();
         headerTools.appendChild(marqueeToolButton);
 
+        const changeContainerToolButton = this.createChangeContainerToolButton();
+        headerTools.appendChild(changeContainerToolButton);
+
         const validateActionButton = this.createValidateButton();
         headerTools.appendChild(validateActionButton);
 
@@ -286,6 +290,15 @@ export class ToolPalette extends GLSPAbstractUIExtension implements IActionHandl
         marqueeToolButton.ariaLabel = marqueeToolButton.title;
         marqueeToolButton.tabIndex = 1;
         return marqueeToolButton;
+    }
+
+    protected createChangeContainerToolButton(): HTMLElement {
+        const changeContainerToolButton = createIcon('move');
+        changeContainerToolButton.title = messages.tool_palette.change_container_button;
+        changeContainerToolButton.onclick = this.onClickStaticToolButton(changeContainerToolButton, ChangeContainerTool.ID);
+        changeContainerToolButton.ariaLabel = changeContainerToolButton.title;
+        changeContainerToolButton.tabIndex = 1;
+        return changeContainerToolButton;
     }
 
     protected createValidateButton(): HTMLElement {

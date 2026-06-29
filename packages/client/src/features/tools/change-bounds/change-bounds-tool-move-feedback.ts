@@ -39,9 +39,21 @@ import {
     removeDescendants
 } from '../../../utils/gmodel-util';
 import { GResizeHandle } from '../../change-bounds/model';
-import { ChangeBoundsTool } from './change-bounds-tool';
+import { FeedbackAwareTool } from '../base-tools';
+import { IChangeBoundsManager } from './change-bounds-manager';
+import { IMovementOptions } from './change-bounds-tool';
 import { MoveFinishedEventAction, MoveInitializedEventAction } from './change-bounds-tool-feedback';
 import { ChangeBoundsTracker, TrackedMove } from './change-bounds-tracker';
+
+/**
+ * Interface for tools that provide move feedback via the {@link FeedbackMoveMouseListener}.
+ * Extracted to allow reuse by both {@link ChangeBoundsTool} and other tools like the change container tool.
+ */
+export interface MoveFeedbackTool extends FeedbackAwareTool {
+    readonly changeBoundsManager: IChangeBoundsManager;
+    readonly movementOptions: IMovementOptions;
+    createChangeBoundsTracker(): ChangeBoundsTracker;
+}
 
 /**
  * This mouse listener provides visual feedback for moving by sending client-side
@@ -60,7 +72,7 @@ export class FeedbackMoveMouseListener extends DragAwareMouseListener implements
     protected moveInitializedFeedback: FeedbackEmitter;
     protected moveFeedback: FeedbackEmitter;
 
-    constructor(protected tool: ChangeBoundsTool) {
+    constructor(protected tool: MoveFeedbackTool) {
         super();
         this.tracker = tool.createChangeBoundsTracker();
         this.moveInitializedFeedback = tool.createFeedbackEmitter();

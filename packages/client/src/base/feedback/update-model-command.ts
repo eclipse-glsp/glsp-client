@@ -17,6 +17,7 @@ import {
     Animation,
     CommandExecutionContext,
     CommandReturn,
+    GChildElement,
     GModelRoot,
     ILogger,
     MorphEdgesAnimation,
@@ -57,7 +58,30 @@ export class FeedbackAwareUpdateModelCommand extends UpdateModelCommand {
     // Override the `createAnimations` implementation and remove the animation for edge morphing. Otherwise routing & reconnect
     // handles flicker after each server update.
     protected override createAnimations(data: UpdateAnimationData, root: GModelRoot, context: CommandExecutionContext): Animation[] {
+        this.fixReparentedElementMoves(data);
         const animations = super.createAnimations(data, root, context);
         return animations.filter(animation => !(animation instanceof MorphEdgesAnimation));
+    }
+
+    /**
+     * Fixes move animation data for reparented elements. When an element changes parent during a model update,
+     * sprotty's `updateElement` compares positions across different coordinate spaces (old position relative to old parent
+     * vs new position relative to new parent) and creates an incorrect animation. This method detects reparented elements,
+     * resets their position to the correct target value, and removes them from the animation data.
+     */
+    protected fixReparentedElementMoves(data: UpdateAnimationData): void {
+        if (!this.oldRoot || !data.moves) {
+            return;
+        }
+        data.moves = data.moves.filter(move => {
+            const oldElement = this.oldRoot.index.getById(move.element.id);
+            if (oldElement instanceof GChildElement && move.element instanceof GChildElement) {
+                if (oldElement.parent.id !== move.element.parent.id) {
+                    move.element.position = move.toPosition;
+                    return false;
+                }
+            }
+            return true;
+        });
     }
 }

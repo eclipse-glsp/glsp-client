@@ -88,6 +88,7 @@
     "search_placeholder": "Search...",
     "selection_button": "Enable selection tool",
     "toggle_grid_button": "Toggle Grid",
+    "change_container_button": "Enable change container tool",
     "validate_button": "Validate model"
   },
   "viewport": {
