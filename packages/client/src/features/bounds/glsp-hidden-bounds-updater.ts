@@ -67,74 +67,81 @@ export class GLSPHiddenBoundsUpdater extends HiddenBoundsUpdater {
     }
 
     override postUpdate(cause?: Action): void {
-        if (cause === undefined || cause.kind !== RequestBoundsAction.KIND) {
-            return;
-        }
+        try {
+            if (cause === undefined || cause.kind !== RequestBoundsAction.KIND) {
+                return;
+            }
 
-        if (LocalRequestBoundsAction.is(cause) && cause.elementIDs) {
-            this.focusOnElements(cause.elementIDs);
-        }
+            if (LocalRequestBoundsAction.is(cause) && cause.elementIDs) {
+                this.focusOnElements(cause.elementIDs);
+            }
 
-        // collect bounds and layout data in element2BoundsData
-        this.getBoundsFromDOM();
-        this.layouter.layout(this.getElement2BoundsData());
+            // collect bounds and layout data in element2BoundsData
+            this.getBoundsFromDOM();
+            this.layouter.layout(this.getElement2BoundsData());
 
-        // prepare data for action
-        const resizes: ElementAndBounds[] = [];
-        const alignments: ElementAndAlignment[] = [];
-        const layoutData: ElementAndLayoutData[] = [];
-        this.getElement2BoundsData().forEach((boundsData, element) => {
-            if (boundsData.boundsChanged && boundsData.bounds !== undefined) {
-                const resize: ElementAndBounds = {
-                    elementId: element.id,
-                    newSize: {
-                        width: boundsData.bounds.width,
-                        height: boundsData.bounds.height
-                    }
-                };
-                // don't copy position if the element is layouted by the server
-                if (element instanceof GChildElement && isLayoutContainer(element.parent)) {
-                    resize.newPosition = {
-                        x: boundsData.bounds.x,
-                        y: boundsData.bounds.y
+            // prepare data for action
+            const resizes: ElementAndBounds[] = [];
+            const alignments: ElementAndAlignment[] = [];
+            const layoutData: ElementAndLayoutData[] = [];
+            this.getElement2BoundsData().forEach((boundsData, element) => {
+                if (boundsData.boundsChanged && boundsData.bounds !== undefined) {
+                    const resize: ElementAndBounds = {
+                        elementId: element.id,
+                        newSize: {
+                            width: boundsData.bounds.width,
+                            height: boundsData.bounds.height
+                        }
                     };
+                    // don't copy position if the element is layouted by the server
+                    if (element instanceof GChildElement && isLayoutContainer(element.parent)) {
+                        resize.newPosition = {
+                            x: boundsData.bounds.x,
+                            y: boundsData.bounds.y
+                        };
+                    }
+                    resizes.push(resize);
                 }
-                resizes.push(resize);
-            }
-            if (boundsData.alignmentChanged && boundsData.alignment !== undefined) {
-                alignments.push({
-                    elementId: element.id,
-                    newAlignment: boundsData.alignment
-                });
-            }
-            if (LayoutAware.is(boundsData)) {
-                layoutData.push({ elementId: element.id, layoutData: boundsData.layoutData });
-            }
-        });
-        const routes = this.element2route.length === 0 ? undefined : this.element2route;
+                if (boundsData.alignmentChanged && boundsData.alignment !== undefined) {
+                    alignments.push({
+                        elementId: element.id,
+                        newAlignment: boundsData.alignment
+                    });
+                }
+                if (LayoutAware.is(boundsData)) {
+                    layoutData.push({ elementId: element.id, layoutData: boundsData.layoutData });
+                }
+            });
+            const routes = this.element2route.length === 0 ? undefined : this.element2route;
 
-        // prepare and dispatch action
-        const responseId = (cause as RequestBoundsAction).requestId;
-        const revision = this.root !== undefined ? this.root.revision : undefined;
-        const canvasBounds = this.editorContext.canvasBounds;
-        const viewport = this.editorContext.viewportData;
-        const computedBoundsAction = ComputedBoundsAction.create(resizes, {
-            revision,
-            alignments,
-            layoutData,
-            routes,
-            responseId,
-            canvasBounds,
-            viewport
-        });
-        if (LocalRequestBoundsAction.is(cause)) {
-            LocalComputedBoundsAction.mark(computedBoundsAction);
+            // prepare and dispatch action
+            const responseId = (cause as RequestBoundsAction).requestId;
+            const revision = this.root !== undefined ? this.root.revision : undefined;
+            const canvasBounds = this.editorContext.canvasBounds;
+            const viewport = this.editorContext.viewportData;
+            const computedBoundsAction = ComputedBoundsAction.create(resizes, {
+                revision,
+                alignments,
+                layoutData,
+                routes,
+                responseId,
+                canvasBounds,
+                viewport
+            });
+            if (LocalRequestBoundsAction.is(cause)) {
+                LocalComputedBoundsAction.mark(computedBoundsAction);
+            }
+            this.actionDispatcher.dispatch(computedBoundsAction);
+        } finally {
+            // always reset collected data so hidden renderings with other causes (e.g. exports/failures) do not leak into the next run
+            this.cleanUp();
         }
-        this.actionDispatcher.dispatch(computedBoundsAction);
+    }
 
-        // cleanup
+    protected cleanUp(): void {
         this.getElement2BoundsData().clear();
         this.element2route = [];
+        this.root = undefined;
     }
 
     protected focusOnElements(elementIDs: string[]): void {
