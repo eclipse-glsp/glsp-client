@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2021-2025 EclipseSource and others.
+ * Copyright (c) 2021-2026 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -54,6 +54,7 @@ import { statusModule } from './features/status/status-module';
 import { svgMetadataModule } from './features/svg-metadata/svg-metadata-module';
 import { toolPaletteModule } from './features/tool-palette/tool-palette-module';
 import { changeBoundsToolModule } from './features/tools/change-bounds/change-bounds-tool-module';
+import { changeContainerToolModule } from './features/tools/change-container/change-container-tool-module';
 import { deletionToolModule } from './features/tools/deletion/deletion-tool-module';
 import { edgeCreationToolModule } from './features/tools/edge-creation/edege-creation-module';
 import { edgeEditToolModule } from './features/tools/edge-edit/edge-edit-module';
@@ -96,6 +97,7 @@ export const DEFAULT_MODULES = [
     elementTemplateModule,
     nodeCreationToolModule,
     changeBoundsToolModule,
+    changeContainerToolModule,
     marqueeSelectionToolModule,
     toolFocusLossModule,
     validationModule,
