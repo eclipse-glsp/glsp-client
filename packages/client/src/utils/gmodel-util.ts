@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2025 EclipseSource and others.
+ * Copyright (c) 2019-2026 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -248,6 +248,28 @@ export function removeCssClassOfElements(elements: GModelElement[], ...cssClasse
  */
 export function toggleCssClass(element: GModelElement, cssClass: string, toggle: boolean): void {
     return toggle ? addCssClasses(element, cssClass) : removeCssClasses(element, cssClass);
+}
+
+/**
+ * Enables the given model features on a single {@link GModelElement}.
+ *
+ * The feature set is established once per registered element type and is therefore shared by all
+ * its instances, so the element is given a copy of it rather than having the shared one extended.
+ * Elements with a feature set that is not a `Set`, i.e. a hand-written `FeatureSet`, are left
+ * untouched as their features cannot be enumerated.
+ *
+ * @param element The element for which the features should be enabled.
+ * @param features The features to enable.
+ */
+export function enableFeatures(element: GModelElement, features: symbol[]): void;
+export function enableFeatures(element: GModelElement, ...features: symbol[]): void;
+export function enableFeatures(element: GModelElement, ...features: symbol[] | [symbol[]]): void {
+    const toEnable = Array.isArray(features[0]) ? features[0] : (features as symbol[]);
+    if (element.features === undefined) {
+        element.features = new Set<symbol>(toEnable);
+    } else if (element.features instanceof Set) {
+        element.features = new Set<symbol>([...element.features, ...toEnable]);
+    }
 }
 
 export function isNonRoutableSelectedMovableBoundsAware(element: GModelElement): element is SelectableBoundsAware {

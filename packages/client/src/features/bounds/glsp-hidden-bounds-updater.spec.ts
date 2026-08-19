@@ -30,13 +30,16 @@ import {
     RequestBoundsAction,
     RequestExportAction,
     ResponseAction,
-    Viewport
+    Viewport,
+    createFeatureSet
 } from '@eclipse-glsp/sprotty';
 import { h } from 'snabbdom';
 import { describe, expect, it } from 'vitest';
 import { EditorContextService } from '../../base/editor-context-service';
+import { feedbackFeature } from '../../base/feedback/feedback-action-dispatcher';
 import { ServerAction } from '../../base/model/glsp-model-source';
-import { GGraph } from '../../model';
+import { GEdge, GGraph } from '../../model';
+import { enableFeatures } from '../../utils/gmodel-util';
 import { getOrCreateGIssueMarker } from '../validation/issue-marker';
 import { GLSPHiddenBoundsUpdater } from './glsp-hidden-bounds-updater';
 import { LocalRequestBoundsAction } from './local-bounds';
@@ -147,6 +150,17 @@ function createRoot(nodeId: string): GModelRoot {
     return root;
 }
 
+/** Stand-in for the dangling edge the edge-creation tool draws while the user is connecting. */
+function addFeedbackEdge(root: GModelRoot): GEdge {
+    const edge = new GEdge();
+    edge.id = 'feedback_edge';
+    edge.type = 'edge';
+    edge.features = createFeatureSet(GEdge.DEFAULT_FEATURES);
+    enableFeatures(edge, feedbackFeature);
+    root.add(edge);
+    return edge;
+}
+
 function serverBoundsRequest(root: GModelRoot): RequestBoundsAction {
     const action = RequestBoundsAction.create(root as unknown as GModelRootSchema);
     // the model source marks every inbound action, which is what makes it a non-local request
@@ -154,10 +168,18 @@ function serverBoundsRequest(root: GModelRoot): RequestBoundsAction {
     return action;
 }
 
+function computedBounds(dispatcher: RecordingActionDispatcher): ComputedBoundsAction {
+    const dispatched = dispatcher.dispatched.filter(ComputedBoundsAction.is);
+    expect(dispatched).toHaveLength(1);
+    return dispatched[0];
+}
+
 function computedBoundsIds(dispatcher: RecordingActionDispatcher): string[] {
-    const computedBounds = dispatcher.dispatched.filter(ComputedBoundsAction.is);
-    expect(computedBounds).toHaveLength(1);
-    return computedBounds[0].bounds.map(bounds => bounds.elementId);
+    return computedBounds(dispatcher).bounds.map(bounds => bounds.elementId);
+}
+
+function computedRouteIds(dispatcher: RecordingActionDispatcher): string[] {
+    return (computedBounds(dispatcher).routes ?? []).map(route => route.elementId);
 }
 
 describe('GLSPHiddenBoundsUpdater', () => {
@@ -184,6 +206,32 @@ describe('GLSPHiddenBoundsUpdater', () => {
         updater.postUpdate(serverBoundsRequest(model));
 
         expect(computedBoundsIds(dispatcher)).toEqual(['node0']);
+    });
+
+    it('does not report the route of a feedback edge for a server bounds request', () => {
+        const dispatcher = new RecordingActionDispatcher();
+        const updater = new TestHiddenBoundsUpdater(dispatcher);
+
+        const model = createRoot('node0');
+        const feedbackEdge = addFeedbackEdge(model);
+
+        updater.renderHidden(model);
+        updater.postUpdate(serverBoundsRequest(model));
+
+        expect(computedRouteIds(dispatcher)).not.toContain(feedbackEdge.id);
+    });
+
+    it('reports the route of a feedback edge for a local bounds request', () => {
+        const dispatcher = new RecordingActionDispatcher();
+        const updater = new TestHiddenBoundsUpdater(dispatcher);
+
+        const model = createRoot('node0');
+        const feedbackEdge = addFeedbackEdge(model);
+
+        updater.renderHidden(model);
+        updater.postUpdate(LocalRequestBoundsAction.create(model));
+
+        expect(computedRouteIds(dispatcher)).toContain(feedbackEdge.id);
     });
 
     it('does not report client-side issue marker bounds to the server after an export (GLSP-1717)', () => {
