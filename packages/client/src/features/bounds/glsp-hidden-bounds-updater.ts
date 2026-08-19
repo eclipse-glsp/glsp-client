@@ -25,6 +25,7 @@ import {
     ElementAndRoutingPoints,
     GChildElement,
     GModelElement,
+    GModelRoot,
     HiddenBoundsUpdater,
     LayoutData,
     ModelIndexImpl,
@@ -34,6 +35,8 @@ import {
 import { inject, injectable, optional } from 'inversify';
 import { VNode } from 'snabbdom';
 import { EditorContextService } from '../../base/editor-context-service';
+import { feedbackFeature } from '../../base/feedback/feedback-action-dispatcher';
+import { ServerAction } from '../../base/model/glsp-model-source';
 import { BoundsAwareModelElement, calcElementAndRoute, getDescendantIds, isRoutable } from '../../utils/gmodel-util';
 import { LayoutAware } from './layout-data';
 import { LocalComputedBoundsAction, LocalRequestBoundsAction } from './local-bounds';
@@ -54,16 +57,36 @@ export class GLSPHiddenBoundsUpdater extends HiddenBoundsUpdater {
 
     protected element2route: ElementAndRoutingPoints[] = [];
 
+    /** Root of the hidden rendering currently being collected, used to detect the start of the next one. */
+    protected collectingForRoot?: GModelRoot;
+
     protected getElement2BoundsData(): Map<BoundsAwareModelElement, BoundsDataExt> {
         return this['element2boundsData'];
     }
 
     override decorate(vnode: VNode, element: GModelElement): VNode {
+        this.resetOnNewRendering(element);
         super.decorate(vnode, element);
         if (isRoutable(element)) {
             this.element2route.push(calcElementAndRoute(element, this.edgeRouterRegistry));
         }
         return vnode;
+    }
+
+    /**
+     * Drops the data collected for the previous hidden rendering as soon as a new one starts.
+     * {@link postUpdate} cleans up on its way out, but it is not guaranteed to be reached at all:
+     * a failing view or vdom patch aborts the rendering before the viewer calls it, which would
+     * leave the collected bounds behind and report them with the next `ComputedBoundsAction`.
+     *
+     * Elements are decorated bottom-up, so the root cannot serve as the marker for a new rendering.
+     * Instead every element reports the root it belongs to, which changes with the rendering.
+     */
+    protected resetOnNewRendering(element: GModelElement): void {
+        if (this.collectingForRoot !== element.root) {
+            this.cleanUp();
+            this.collectingForRoot = element.root;
+        }
     }
 
     override postUpdate(cause?: Action): void {
@@ -80,11 +103,17 @@ export class GLSPHiddenBoundsUpdater extends HiddenBoundsUpdater {
             this.getBoundsFromDOM();
             this.layouter.layout(this.getElement2BoundsData());
 
+            // the server can only resolve elements it sent us itself
+            const skipFeedback = ServerAction.is(cause);
+
             // prepare data for action
             const resizes: ElementAndBounds[] = [];
             const alignments: ElementAndAlignment[] = [];
             const layoutData: ElementAndLayoutData[] = [];
             this.getElement2BoundsData().forEach((boundsData, element) => {
+                if (skipFeedback && this.isFeedbackElement(element)) {
+                    return;
+                }
                 if (boundsData.boundsChanged && boundsData.bounds !== undefined) {
                     const resize: ElementAndBounds = {
                         elementId: element.id,
@@ -112,7 +141,10 @@ export class GLSPHiddenBoundsUpdater extends HiddenBoundsUpdater {
                     layoutData.push({ elementId: element.id, layoutData: boundsData.layoutData });
                 }
             });
-            const routes = this.element2route.length === 0 ? undefined : this.element2route;
+            const relevantRoutes = skipFeedback
+                ? this.element2route.filter(route => !this.isFeedbackElementId(route.elementId))
+                : this.element2route;
+            const routes = relevantRoutes.length === 0 ? undefined : relevantRoutes;
 
             // prepare and dispatch action
             const responseId = (cause as RequestBoundsAction).requestId;
@@ -142,6 +174,20 @@ export class GLSPHiddenBoundsUpdater extends HiddenBoundsUpdater {
         this.getElement2BoundsData().clear();
         this.element2route = [];
         this.root = undefined;
+    }
+
+    /**
+     * Whether the given element only exists as client-side feedback, such as a validation marker.
+     * Those elements are not part of the graphical model the server sent us, so reporting their
+     * bounds would make the server fail to resolve their ids.
+     */
+    protected isFeedbackElement(element: GModelElement): boolean {
+        return element.hasFeature(feedbackFeature);
+    }
+
+    protected isFeedbackElementId(elementId: string): boolean {
+        const element = this.root?.index.getById(elementId);
+        return element !== undefined && this.isFeedbackElement(element);
     }
 
     protected focusOnElements(elementIDs: string[]): void {

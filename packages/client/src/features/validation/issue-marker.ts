@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2024 EclipseSource and others.
+ * Copyright (c) 2019-2026 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -25,11 +25,14 @@ import {
     SIssueMarkerImpl,
     isBoundsAware
 } from '@eclipse-glsp/sprotty';
+import { feedbackFeature } from '../../base/feedback/feedback-action-dispatcher';
 
 export class GIssueMarker extends SIssueMarkerImpl implements Projectable {
     constructor() {
         super();
-        this.features = new Set<symbol>(GDecoration.DEFAULT_FEATURES);
+        // markers are established as client-side feedback and are unknown to the server,
+        // so they are marked as such to keep them out of server-bound requests
+        this.features = new Set<symbol>([...GDecoration.DEFAULT_FEATURES, feedbackFeature]);
     }
     projectionCssClasses: string[];
     projectedBounds?: Bounds;
