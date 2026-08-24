@@ -410,13 +410,17 @@ export function calcElementAndRoutingPoints(element: GRoutableElement, routerReg
  * Helper function to calculate the route for a given {@link GRoutableElement}.
  * If client layout is activated, i.e., the edge routing registry is given and has a router for the element, then the points
  * from the calculated route are used, otherwise we use the already specified routing points of the {@link GRoutableElement}.
+ * A route of less than two points cannot describe an edge and is treated like a missing route.
  * @param element The element to translate.
  * @param routerRegistry the edge router registry.
- * @returns The corresponding route for the given element.
+ * @returns The corresponding route for the given element, with at least a source and a target point.
  */
 export function calcElementAndRoute(element: GRoutableElement, routerRegistry?: EdgeRouterRegistry): ElementAndRoutingPoints {
     let route: Point[] | undefined = routerRegistry ? calcRoute(element, routerRegistry, ROUTE_KINDS) : undefined;
-    if (!route) {
+    // routers report that they cannot route an edge by returning an empty route, e.g. when an endpoint
+    // is not part of the model or has no anchor yet. an empty array is truthy, so the length is what
+    // distinguishes an unroutable edge from a routed one here
+    if (!route || route.length < 2) {
         // add source and target to the routing points
         route = [...element.routingPoints];
         route.splice(0, 0, element.source?.position || Point.ORIGIN);

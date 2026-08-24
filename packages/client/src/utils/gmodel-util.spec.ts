@@ -27,7 +27,7 @@ import {
 import { describe, expect, it } from 'vitest';
 import { Container } from 'inversify';
 import { routingModule } from '../features/routing/routing-module';
-import { ALL_ROUTING_POINTS, ROUTE_KINDS, ROUTING_POINT_KINDS, calcRoute } from './gmodel-util';
+import { ALL_ROUTING_POINTS, ROUTE_KINDS, ROUTING_POINT_KINDS, calcElementAndRoute, calcRoute } from './gmodel-util';
 import { GEdge, GGraph } from '../model';
 
 class TestRouter extends AbstractEdgeRouter {
@@ -67,6 +67,36 @@ class TestRouter extends AbstractEdgeRouter {
     }
 
     protected applyInnerHandleMoves(edge: GRoutableElement, moves: ResolvedHandleMove[]): void {
+        // do nothing
+    }
+}
+
+/** Router that reports whatever route the test needs, including the empty one of an unroutable edge. */
+class DegenerateRouter extends AbstractEdgeRouter {
+    kind = 'degenerate-router';
+    nextRoute: RoutedPoint[] = [];
+
+    route(): RoutedPoint[] {
+        return this.nextRoute;
+    }
+
+    createRoutingHandles(): void {
+        // do nothing
+    }
+
+    protected getOptions(): LinearRouteOptions {
+        return {
+            minimalPointDistance: 0,
+            selfEdgeOffset: 0,
+            standardDistance: 0
+        };
+    }
+
+    protected getInnerHandlePosition(): Point | undefined {
+        return undefined;
+    }
+
+    protected applyInnerHandleMoves(): void {
         // do nothing
     }
 }
@@ -215,6 +245,66 @@ describe('SModel Util', () => {
                 { x: 20, y: 20, kind: 'linear', pointIndex: 0 },
                 { x: 30, y: 30, kind: 'linear', pointIndex: 1 },
                 { x: 40, y: 40, kind: 'linear', pointIndex: 2 }
+            ]);
+        });
+    });
+
+    describe('calcElementAndRoute', () => {
+        const graph = new GGraph();
+
+        const source = new GNode();
+        source.id = 'node0';
+        source.position = { x: 10, y: 10 };
+        source.size = { width: 0, height: 0 };
+        graph.add(source);
+
+        const target = new GNode();
+        target.id = 'node1';
+        target.position = { x: 200, y: 200 };
+        target.size = { width: 0, height: 0 };
+        graph.add(target);
+
+        const edge = new GEdge();
+        edge.id = 'edge0';
+        edge.sourceId = 'node0';
+        edge.targetId = 'node1';
+        edge.routerKind = 'degenerate-router';
+        graph.add(edge);
+
+        const router = new DegenerateRouter();
+        const container = new Container();
+        container.load(routingModule);
+
+        const routerRegistry = container.get<EdgeRouterRegistry>(EdgeRouterRegistry);
+        routerRegistry.register('degenerate-router', router);
+
+        it('should fall back to source and target if the edge cannot be routed', () => {
+            router.nextRoute = [];
+
+            expect(calcElementAndRoute(edge, routerRegistry).newRoutingPoints).toEqual([
+                { x: 10, y: 10 },
+                { x: 200, y: 200 }
+            ]);
+        });
+
+        it('should fall back to source and target if the route has a single point', () => {
+            router.nextRoute = [{ kind: 'source', x: 10, y: 10 }];
+
+            expect(calcElementAndRoute(edge, routerRegistry).newRoutingPoints).toEqual([
+                { x: 10, y: 10 },
+                { x: 200, y: 200 }
+            ]);
+        });
+
+        it('should keep a route that describes an edge', () => {
+            router.nextRoute = [
+                { kind: 'source', x: 10, y: 10 },
+                { kind: 'target', x: 200, y: 200 }
+            ];
+
+            expect(calcElementAndRoute(edge, routerRegistry).newRoutingPoints).toEqual([
+                { x: 10, y: 10, kind: 'source' },
+                { x: 200, y: 200, kind: 'target' }
             ]);
         });
     });
