@@ -31,6 +31,7 @@ import {
     RoutedPoint,
     Selectable,
     TypeGuard,
+    createFeatureSet,
     distinctAdd,
     getAbsoluteBounds,
     getZoom,
@@ -266,9 +267,9 @@ export function enableFeatures(element: GModelElement, ...features: symbol[]): v
 export function enableFeatures(element: GModelElement, ...features: symbol[] | [symbol[]]): void {
     const toEnable = Array.isArray(features[0]) ? features[0] : (features as symbol[]);
     if (element.features === undefined) {
-        element.features = new Set<symbol>(toEnable);
+        element.features = createFeatureSet(toEnable);
     } else if (element.features instanceof Set) {
-        element.features = new Set<symbol>([...element.features, ...toEnable]);
+        element.features = createFeatureSet([...element.features], { enable: toEnable });
     }
 }
 

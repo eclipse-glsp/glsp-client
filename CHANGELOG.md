@@ -5,7 +5,7 @@
 ### Changes
 
 - [layout] Fix bounds computation error after diagram export [#525](https://github.com/eclipse-glsp/glsp-client/pull/525)
-- [layout] Keep client-side feedback elements, such as validation markers, out of the bounds reported to the server [#1725](https://github.com/eclipse-glsp/glsp/issues/1725)
+- [layout] Keep client-side feedback elements, such as validation markers, out of the bounds reported to the server [#531](https://github.com/eclipse-glsp/glsp-client/pull/531)
     - Adds the `enableFeatures` model utility to enable model features on a single element without modifying the feature set shared by its element type
 
 ### Potentially Breaking Changes

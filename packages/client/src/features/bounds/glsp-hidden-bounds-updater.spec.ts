@@ -17,7 +17,10 @@ import {
     Action,
     Bounds,
     ComputedBoundsAction,
+    DefaultTypes,
     GModelElement,
+    GModelElementRegistration,
+    GModelFactory,
     GModelRoot,
     GModelRootSchema,
     GNode,
@@ -30,17 +33,24 @@ import {
     RequestBoundsAction,
     RequestExportAction,
     ResponseAction,
+    TYPES,
     Viewport,
     createFeatureSet
 } from '@eclipse-glsp/sprotty';
+import { Container } from 'inversify';
+import 'reflect-metadata';
 import { h } from 'snabbdom';
 import { describe, expect, it } from 'vitest';
 import { EditorContextService } from '../../base/editor-context-service';
 import { feedbackFeature } from '../../base/feedback/feedback-action-dispatcher';
 import { ServerAction } from '../../base/model/glsp-model-source';
+import { GModelRegistry } from '../../base/model/model-registry';
 import { GEdge, GGraph } from '../../model';
 import { enableFeatures } from '../../utils/gmodel-util';
-import { getOrCreateGIssueMarker } from '../validation/issue-marker';
+import { MARQUEE } from '../tools/marquee-selection/marquee-tool-feedback';
+import { MarqueeNode } from '../tools/marquee-selection/model';
+import { InsertIndicator } from '../tools/node-creation/insert-indicator';
+import { GIssueMarker, getOrCreateGIssueMarker } from '../validation/issue-marker';
 import { GLSPHiddenBoundsUpdater } from './glsp-hidden-bounds-updater';
 import { LocalRequestBoundsAction } from './local-bounds';
 
@@ -150,6 +160,25 @@ function createRoot(nodeId: string): GModelRoot {
     return root;
 }
 
+/**
+ * Wires the real model factory the way the client does, so a model built through it is subject to
+ * the same feature handling as in production, i.e. every element of a type shares the feature set
+ * derived from its registration.
+ */
+function createModelFactory(): GModelFactory {
+    const container = new Container();
+    const registrations: GModelElementRegistration[] = [
+        { type: DefaultTypes.GRAPH, constr: GGraph },
+        { type: DefaultTypes.NODE, constr: GNode },
+        { type: DefaultTypes.ISSUE_MARKER, constr: GIssueMarker },
+        { type: MARQUEE, constr: MarqueeNode }
+    ];
+    registrations.forEach(registration => container.bind(TYPES.SModelElementRegistration).toConstantValue(registration));
+    container.bind(TYPES.SModelRegistry).to(GModelRegistry).inSingletonScope();
+    container.bind(TYPES.IModelFactory).to(GModelFactory).inSingletonScope();
+    return container.get<GModelFactory>(TYPES.IModelFactory);
+}
+
 /** Stand-in for the dangling edge the edge-creation tool draws while the user is connecting. */
 function addFeedbackEdge(root: GModelRoot): GEdge {
     const edge = new GEdge();
@@ -201,6 +230,45 @@ describe('GLSPHiddenBoundsUpdater', () => {
         const model = createRoot('node0');
         const marker = getOrCreateGIssueMarker(model.children[0] as GNode);
         marker.issues.push({ message: 'invalid', severity: 'error' });
+
+        updater.renderHidden(model);
+        updater.postUpdate(serverBoundsRequest(model));
+
+        expect(computedBoundsIds(dispatcher)).toEqual(['node0']);
+    });
+
+    it('does not report issue marker bounds of a factory-built hidden model for a server bounds request', () => {
+        const dispatcher = new RecordingActionDispatcher();
+        const updater = new TestHiddenBoundsUpdater(dispatcher);
+
+        const liveModel = createRoot('node0');
+        const marker = getOrCreateGIssueMarker(liveModel.children[0] as GNode);
+        marker.issues.push({ message: 'invalid', severity: 'error' });
+
+        // the hidden rendering runs on a factory copy of the live root, and the marker registration
+        // contributes no feedback feature, so the marking only survives because the factory takes
+        // over the features of the element it is handed
+        const hiddenModel = createModelFactory().createRoot(liveModel);
+        const copiedMarker = (hiddenModel.children[0] as GParentElement).children.find(child => child instanceof GIssueMarker);
+        expect(copiedMarker?.hasFeature(feedbackFeature)).toBe(true);
+
+        updater.renderHidden(hiddenModel);
+        updater.postUpdate(serverBoundsRequest(hiddenModel));
+
+        expect(computedBoundsIds(dispatcher)).toEqual(['node0']);
+    });
+
+    it('does not report the bounds of the client-only elements the tools add for a server bounds request', () => {
+        const dispatcher = new RecordingActionDispatcher();
+        const updater = new TestHiddenBoundsUpdater(dispatcher);
+
+        const model = createRoot('node0');
+        const indicator = new InsertIndicator();
+        indicator.id = 'insert-indicator';
+        model.add(indicator);
+        // the marquee gets its features from its registration, just like in a running client
+        const marquee = createModelFactory().createElement({ type: MARQUEE, id: 'marquee' });
+        model.add(marquee);
 
         updater.renderHidden(model);
         updater.postUpdate(serverBoundsRequest(model));

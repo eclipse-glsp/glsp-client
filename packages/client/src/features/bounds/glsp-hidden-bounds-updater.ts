@@ -57,6 +57,13 @@ export class GLSPHiddenBoundsUpdater extends HiddenBoundsUpdater {
 
     protected element2route: ElementAndRoutingPoints[] = [];
 
+    /**
+     * Ids of the routable elements of {@link element2route} that only exist as client-side feedback.
+     * Recorded while decorating, where the element itself is at hand, because the routes outlive the
+     * root they were collected from.
+     */
+    protected feedbackRouteIds = new Set<string>();
+
     /** Root of the hidden rendering currently being collected, used to detect the start of the next one. */
     protected collectingForRoot?: GModelRoot;
 
@@ -69,6 +76,9 @@ export class GLSPHiddenBoundsUpdater extends HiddenBoundsUpdater {
         super.decorate(vnode, element);
         if (isRoutable(element)) {
             this.element2route.push(calcElementAndRoute(element, this.edgeRouterRegistry));
+            if (this.isFeedbackElement(element)) {
+                this.feedbackRouteIds.add(element.id);
+            }
         }
         return vnode;
     }
@@ -142,7 +152,7 @@ export class GLSPHiddenBoundsUpdater extends HiddenBoundsUpdater {
                 }
             });
             const relevantRoutes = skipFeedback
-                ? this.element2route.filter(route => !this.isFeedbackElementId(route.elementId))
+                ? this.element2route.filter(route => !this.feedbackRouteIds.has(route.elementId))
                 : this.element2route;
             const routes = relevantRoutes.length === 0 ? undefined : relevantRoutes;
 
@@ -173,21 +183,12 @@ export class GLSPHiddenBoundsUpdater extends HiddenBoundsUpdater {
     protected cleanUp(): void {
         this.getElement2BoundsData().clear();
         this.element2route = [];
+        this.feedbackRouteIds.clear();
         this.root = undefined;
     }
 
-    /**
-     * Whether the given element only exists as client-side feedback, such as a validation marker.
-     * Those elements are not part of the graphical model the server sent us, so reporting their
-     * bounds would make the server fail to resolve their ids.
-     */
     protected isFeedbackElement(element: GModelElement): boolean {
         return element.hasFeature(feedbackFeature);
-    }
-
-    protected isFeedbackElementId(elementId: string): boolean {
-        const element = this.root?.index.getById(elementId);
-        return element !== undefined && this.isFeedbackElement(element);
     }
 
     protected focusOnElements(elementIDs: string[]): void {
