@@ -289,6 +289,24 @@ describe('GLSPHiddenBoundsUpdater', () => {
         expect(computedRouteIds(dispatcher)).not.toContain(feedbackEdge.id);
     });
 
+    it('leaves out the routes an overridden calcElementRoute declines', () => {
+        const dispatcher = new RecordingActionDispatcher();
+        const updater = new (class extends TestHiddenBoundsUpdater {
+            protected override calcElementRoute(): undefined {
+                return undefined;
+            }
+        })(dispatcher);
+
+        const model = createRoot('node0');
+        addFeedbackEdge(model);
+
+        updater.renderHidden(model);
+        updater.postUpdate(LocalRequestBoundsAction.create(model));
+
+        // a local request reports feedback routes, so an empty result is down to the override alone
+        expect(computedBounds(dispatcher).routes).toBeUndefined();
+    });
+
     it('reports the route of a feedback edge for a local bounds request', () => {
         const dispatcher = new RecordingActionDispatcher();
         const updater = new TestHiddenBoundsUpdater(dispatcher);

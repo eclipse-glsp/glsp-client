@@ -26,6 +26,7 @@ import {
     GChildElement,
     GModelElement,
     GModelRoot,
+    GRoutableElement,
     HiddenBoundsUpdater,
     LayoutData,
     ModelIndexImpl,
@@ -75,12 +76,30 @@ export class GLSPHiddenBoundsUpdater extends HiddenBoundsUpdater {
         this.resetOnNewRendering(element);
         super.decorate(vnode, element);
         if (isRoutable(element)) {
-            this.element2route.push(calcElementAndRoute(element, this.edgeRouterRegistry));
-            if (this.isFeedbackElement(element)) {
-                this.feedbackRouteIds.add(element.id);
+            const route = this.calcElementRoute(element);
+            if (route) {
+                this.element2route.push(route);
+                if (this.isFeedbackElement(element)) {
+                    this.feedbackRouteIds.add(element.id);
+                }
             }
         }
         return vnode;
+    }
+
+    /**
+     * The route reported for the given element, or `undefined` to leave it out of the
+     * {@link ComputedBoundsAction} of this rendering.
+     *
+     * Override to substitute or to skip a route. Skipping is lossless as long as a later rendering
+     * reports it, which is what makes this the place to opt out of routing an element whose geometry
+     * has not been measured yet: the first hidden rendering of a model still carries the placeholder
+     * size `Dimension.EMPTY`, so a router either declines to route at all or works from geometry that
+     * the visible rendering immediately supersedes. `Dimension.isValid` on the endpoint sizes detects
+     * that state.
+     */
+    protected calcElementRoute(element: GRoutableElement): ElementAndRoutingPoints | undefined {
+        return calcElementAndRoute(element, this.edgeRouterRegistry);
     }
 
     /**
