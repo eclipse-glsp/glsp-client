@@ -26,13 +26,12 @@ import {
     isBoundsAware
 } from '@eclipse-glsp/sprotty';
 import { feedbackFeature } from '../../base/feedback/feedback-action-dispatcher';
+import { enableFeatures } from '../../utils/gmodel-util';
 
 export class GIssueMarker extends SIssueMarkerImpl implements Projectable {
     constructor() {
         super();
-        // markers are established as client-side feedback and are unknown to the server,
-        // so they are marked as such to keep them out of server-bound requests
-        this.features = new Set<symbol>([...GDecoration.DEFAULT_FEATURES, feedbackFeature]);
+        this.features = new Set<symbol>(GDecoration.DEFAULT_FEATURES);
     }
     projectionCssClasses: string[];
     projectedBounds?: Bounds;
@@ -48,7 +47,7 @@ export class GIssueMarker extends SIssueMarkerImpl implements Projectable {
 /**
  * Retrieves the `GIssueMarker` contained by the provided model element as
  * direct child or a newly instantiated `GIssueMarker` if no child
- * `GIssueMarker` exists.
+ * `GIssueMarker` exists. A newly created marker is marked as client-side feedback.
  * @param modelElement for which the `GIssueMarker` should be retrieved or created.
  * @returns the child `GIssueMarker` or a new `GIssueMarker` if no such child exists.
  */
@@ -59,6 +58,9 @@ export function getOrCreateGIssueMarker(modelElement: GParentElement): GIssueMar
 
     if (issueMarker === undefined) {
         issueMarker = new GIssueMarker();
+        // a marker created here is unknown to the server, so it is kept out of server-bound
+        // requests. markers the server sends as part of the model keep reporting their bounds
+        enableFeatures(issueMarker, feedbackFeature);
         if (isBoundsAware(modelElement)) {
             issueMarker.projectedBounds = modelElement.parentToLocal(modelElement.bounds);
         }

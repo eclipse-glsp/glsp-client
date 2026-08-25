@@ -254,10 +254,9 @@ export function toggleCssClass(element: GModelElement, cssClass: string, toggle:
 /**
  * Enables the given model features on a single {@link GModelElement}.
  *
- * The feature set is established once per registered element type and is therefore shared by all
- * its instances, so the element is given a copy of it rather than having the shared one extended.
- * Elements with a feature set that is not a `Set`, i.e. a hand-written `FeatureSet`, are left
- * untouched as their features cannot be enumerated.
+ * The feature set is shared by all instances of a registered element type, so the element is given
+ * a copy of it rather than having the shared one extended. A feature set that is not a `Set` cannot
+ * be enumerated and is left untouched.
  *
  * @param element The element for which the features should be enabled.
  * @param features The features to enable.
@@ -410,17 +409,13 @@ export function calcElementAndRoutingPoints(element: GRoutableElement, routerReg
  * Helper function to calculate the route for a given {@link GRoutableElement}.
  * If client layout is activated, i.e., the edge routing registry is given and has a router for the element, then the points
  * from the calculated route are used, otherwise we use the already specified routing points of the {@link GRoutableElement}.
- * A route of less than two points cannot describe an edge and is treated like a missing route.
  * @param element The element to translate.
  * @param routerRegistry the edge router registry.
- * @returns The corresponding route for the given element, with at least a source and a target point.
+ * @returns The corresponding route for the given element.
  */
 export function calcElementAndRoute(element: GRoutableElement, routerRegistry?: EdgeRouterRegistry): ElementAndRoutingPoints {
     let route: Point[] | undefined = routerRegistry ? calcRoute(element, routerRegistry, ROUTE_KINDS) : undefined;
-    // routers report that they cannot route an edge by returning an empty route, e.g. when an endpoint
-    // is not part of the model or has no anchor yet. an empty array is truthy, so the length is what
-    // distinguishes an unroutable edge from a routed one here
-    if (!route || route.length < 2) {
+    if (!route) {
         // add source and target to the routing points
         route = [...element.routingPoints];
         route.splice(0, 0, element.source?.position || Point.ORIGIN);

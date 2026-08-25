@@ -60,13 +60,15 @@ export class GLSPHiddenBoundsUpdater extends HiddenBoundsUpdater {
 
     /**
      * Ids of the routable elements of {@link element2route} that only exist as client-side feedback.
-     * Recorded while decorating, where the element itself is at hand, because the routes outlive the
-     * root they were collected from.
+     * Recorded while decorating, as the routes outlive the root they were collected from.
      */
     protected feedbackRouteIds = new Set<string>();
 
-    /** Root of the hidden rendering currently being collected, used to detect the start of the next one. */
-    protected collectingForRoot?: GModelRoot;
+    /**
+     * Root of the hidden rendering currently being collected, used to detect the start of the next
+     * one. Referenced weakly, as a hidden root is a throwaway copy of the whole model.
+     */
+    protected collectingForRoot?: WeakRef<GModelRoot>;
 
     protected getElement2BoundsData(): Map<BoundsAwareModelElement, BoundsDataExt> {
         return this['element2boundsData'];
@@ -89,32 +91,29 @@ export class GLSPHiddenBoundsUpdater extends HiddenBoundsUpdater {
 
     /**
      * The route reported for the given element, or `undefined` to leave it out of the
-     * {@link ComputedBoundsAction} of this rendering.
+     * {@link ComputedBoundsAction} of this rendering. Override to substitute or to skip a route,
+     * which a later rendering reports again as soon as the edge can be routed.
      *
-     * Override to substitute or to skip a route. Skipping is lossless as long as a later rendering
-     * reports it, which is what makes this the place to opt out of routing an element whose geometry
-     * has not been measured yet: the first hidden rendering of a model still carries the placeholder
-     * size `Dimension.EMPTY`, so a router either declines to route at all or works from geometry that
-     * the visible rendering immediately supersedes. `Dimension.isValid` on the endpoint sizes detects
-     * that state.
+     * A route of fewer than two points, which is how a router reports an edge it cannot route, is
+     * skipped: approximating it from the endpoint positions would overwrite the route on the server.
      */
     protected calcElementRoute(element: GRoutableElement): ElementAndRoutingPoints | undefined {
-        return calcElementAndRoute(element, this.edgeRouterRegistry);
+        const elementAndRoute = calcElementAndRoute(element, this.edgeRouterRegistry);
+        return (elementAndRoute.newRoutingPoints?.length ?? 0) < 2 ? undefined : elementAndRoute;
     }
 
     /**
      * Drops the data collected for the previous hidden rendering as soon as a new one starts.
-     * {@link postUpdate} cleans up on its way out, but it is not guaranteed to be reached at all:
-     * a failing view or vdom patch aborts the rendering before the viewer calls it, which would
-     * leave the collected bounds behind and report them with the next `ComputedBoundsAction`.
+     * {@link postUpdate} cleans up on its way out, but a failing view or vdom patch aborts the
+     * rendering before the viewer gets there, leaving the collected bounds behind.
      *
-     * Elements are decorated bottom-up, so the root cannot serve as the marker for a new rendering.
-     * Instead every element reports the root it belongs to, which changes with the rendering.
+     * Elements are decorated bottom-up, so the rendering is recognized by the root of the element
+     * at hand rather than by the root element itself.
      */
     protected resetOnNewRendering(element: GModelElement): void {
-        if (this.collectingForRoot !== element.root) {
+        if (this.collectingForRoot?.deref() !== element.root) {
             this.cleanUp();
-            this.collectingForRoot = element.root;
+            this.collectingForRoot = new WeakRef(element.root);
         }
     }
 
@@ -203,6 +202,7 @@ export class GLSPHiddenBoundsUpdater extends HiddenBoundsUpdater {
         this.getElement2BoundsData().clear();
         this.element2route = [];
         this.feedbackRouteIds.clear();
+        this.collectingForRoot = undefined;
         this.root = undefined;
     }
 

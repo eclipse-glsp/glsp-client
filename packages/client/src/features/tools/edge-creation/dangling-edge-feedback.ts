@@ -162,8 +162,7 @@ export function drawFeedbackEdge(
 
     const feedbackEdge = context.modelFactory.createElement(edgeSchema);
     if (isRoutable(feedbackEdge)) {
-        // the edge is created from the adopter's own edge type, so it needs to be marked explicitly
-        // to be recognizable as client-side feedback
+        // created from the adopter's own edge type, so it needs to be marked as feedback explicitly
         enableFeatures(feedbackEdge, feedbackFeature);
         edgeEnd.feedbackEdge = feedbackEdge;
         root.add(edgeEnd);

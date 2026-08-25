@@ -18,6 +18,7 @@ import {
     Bounds,
     ComputedBoundsAction,
     DefaultTypes,
+    EdgeRouterRegistry,
     GModelElement,
     GModelElementRegistration,
     GModelFactory,
@@ -47,6 +48,7 @@ import { ServerAction } from '../../base/model/glsp-model-source';
 import { GModelRegistry } from '../../base/model/model-registry';
 import { GEdge, GGraph } from '../../model';
 import { enableFeatures } from '../../utils/gmodel-util';
+import { routingModule } from '../routing/routing-module';
 import { MARQUEE } from '../tools/marquee-selection/marquee-tool-feedback';
 import { MarqueeNode } from '../tools/marquee-selection/model';
 import { InsertIndicator } from '../tools/node-creation/insert-indicator';
@@ -146,18 +148,45 @@ class TestHiddenBoundsUpdater extends GLSPHiddenBoundsUpdater {
     }
 }
 
+/** Bounds updater wired with the real routers, so an edge is routed as it is in a running client. */
+class RoutingTestHiddenBoundsUpdater extends TestHiddenBoundsUpdater {
+    protected override readonly edgeRouterRegistry = createRouterRegistry();
+}
+
 function createRoot(nodeId: string): GModelRoot {
     const root = new GGraph();
     root.id = 'root';
     root.type = 'graph';
     root.features = new Set<symbol>(GGraph.DEFAULT_FEATURES);
+    addNode(root, nodeId);
+    return root;
+}
+
+function addNode(root: GModelRoot, nodeId: string, position: Point = Point.ORIGIN): GNode {
     const node = new GNode();
     node.id = nodeId;
     node.type = 'node';
     node.features = new Set<symbol>(GNode.DEFAULT_FEATURES);
-    node.bounds = { x: 0, y: 0, width: 10, height: 10 };
+    node.bounds = { ...position, width: 10, height: 10 };
     root.add(node);
-    return root;
+    return node;
+}
+
+function addEdge(root: GModelRoot, sourceId: string, targetId: string): GEdge {
+    const edge = new GEdge();
+    edge.id = `${sourceId}-${targetId}`;
+    edge.type = 'edge';
+    edge.features = createFeatureSet(GEdge.DEFAULT_FEATURES);
+    edge.sourceId = sourceId;
+    edge.targetId = targetId;
+    root.add(edge);
+    return edge;
+}
+
+function createRouterRegistry(): EdgeRouterRegistry {
+    const container = new Container();
+    container.load(routingModule);
+    return container.get<EdgeRouterRegistry>(EdgeRouterRegistry);
 }
 
 /**
@@ -287,6 +316,34 @@ describe('GLSPHiddenBoundsUpdater', () => {
         updater.postUpdate(serverBoundsRequest(model));
 
         expect(computedRouteIds(dispatcher)).not.toContain(feedbackEdge.id);
+    });
+
+    it('leaves out the route of an edge the router cannot route', () => {
+        const dispatcher = new RecordingActionDispatcher();
+        const updater = new RoutingTestHiddenBoundsUpdater(dispatcher);
+
+        const model = createRoot('node0');
+        // the target is not part of the model, so the router reports an empty route
+        const edge = addEdge(model, 'node0', 'missing');
+
+        updater.renderHidden(model);
+        updater.postUpdate(serverBoundsRequest(model));
+
+        expect(computedRouteIds(dispatcher)).not.toContain(edge.id);
+    });
+
+    it('reports the route of an edge the router can route', () => {
+        const dispatcher = new RecordingActionDispatcher();
+        const updater = new RoutingTestHiddenBoundsUpdater(dispatcher);
+
+        const model = createRoot('node0');
+        addNode(model, 'node1', { x: 100, y: 100 });
+        const edge = addEdge(model, 'node0', 'node1');
+
+        updater.renderHidden(model);
+        updater.postUpdate(serverBoundsRequest(model));
+
+        expect(computedRouteIds(dispatcher)).toContain(edge.id);
     });
 
     it('leaves out the routes an overridden calcElementRoute declines', () => {

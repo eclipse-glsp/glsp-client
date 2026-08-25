@@ -78,9 +78,8 @@ export class AddTemplateElementsFeedbackCommand extends FeedbackCommand {
     }
 
     /**
-     * Marks the given template element as client-side feedback so it is kept out of the bounds
-     * reported to the server, which cannot resolve its id. A template is a tree and the bounds pass
-     * tests every element on its own, so the whole subtree is marked rather than just its root.
+     * Marks the given template element as feedback to keep it out of the bounds reported to the
+     * server. The bounds pass tests every element on its own, so the whole subtree is marked.
      */
     protected markAsFeedback(element: GChildElement): GChildElement {
         enableFeatures(element, feedbackFeature);
