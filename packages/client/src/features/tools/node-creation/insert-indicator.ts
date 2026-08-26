@@ -16,11 +16,12 @@
 
 import { Args, Dimension, FeatureSet, GNode, boundsFeature, createFeatureSet, generateUuid, moveFeature } from '@eclipse-glsp/sprotty';
 import { ArgsAware, argsFeature } from '../../../base/args-feature';
+import { feedbackFeature } from '../../../base/feedback/feedback-action-dispatcher';
 
 export const ARG_LENGTH = 'length';
 
 export class InsertIndicator extends GNode implements ArgsAware {
-    static override readonly DEFAULT_FEATURES = [boundsFeature, moveFeature, argsFeature];
+    static override readonly DEFAULT_FEATURES = [boundsFeature, moveFeature, argsFeature, feedbackFeature];
 
     static TYPE = 'node:insert-indicator';
 

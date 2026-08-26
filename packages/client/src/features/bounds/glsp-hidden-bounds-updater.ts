@@ -25,6 +25,8 @@ import {
     ElementAndRoutingPoints,
     GChildElement,
     GModelElement,
+    GModelRoot,
+    GRoutableElement,
     HiddenBoundsUpdater,
     LayoutData,
     ModelIndexImpl,
@@ -34,6 +36,8 @@ import {
 import { inject, injectable, optional } from 'inversify';
 import { VNode } from 'snabbdom';
 import { EditorContextService } from '../../base/editor-context-service';
+import { feedbackFeature } from '../../base/feedback/feedback-action-dispatcher';
+import { ServerAction } from '../../base/model/glsp-model-source';
 import { BoundsAwareModelElement, calcElementAndRoute, getDescendantIds, isRoutable } from '../../utils/gmodel-util';
 import { LayoutAware } from './layout-data';
 import { LocalComputedBoundsAction, LocalRequestBoundsAction } from './local-bounds';
@@ -54,16 +58,63 @@ export class GLSPHiddenBoundsUpdater extends HiddenBoundsUpdater {
 
     protected element2route: ElementAndRoutingPoints[] = [];
 
+    /**
+     * Ids of the routable elements of {@link element2route} that only exist as client-side feedback.
+     * Recorded while decorating, as the routes outlive the root they were collected from.
+     */
+    protected feedbackRouteIds = new Set<string>();
+
+    /**
+     * Root of the hidden rendering currently being collected, used to detect the start of the next
+     * one. Referenced weakly, as a hidden root is a throwaway copy of the whole model.
+     */
+    protected collectingForRoot?: WeakRef<GModelRoot>;
+
     protected getElement2BoundsData(): Map<BoundsAwareModelElement, BoundsDataExt> {
         return this['element2boundsData'];
     }
 
     override decorate(vnode: VNode, element: GModelElement): VNode {
+        this.resetOnNewRendering(element);
         super.decorate(vnode, element);
         if (isRoutable(element)) {
-            this.element2route.push(calcElementAndRoute(element, this.edgeRouterRegistry));
+            const route = this.calcElementRoute(element);
+            if (route) {
+                this.element2route.push(route);
+                if (this.isFeedbackElement(element)) {
+                    this.feedbackRouteIds.add(element.id);
+                }
+            }
         }
         return vnode;
+    }
+
+    /**
+     * The route reported for the given element, or `undefined` to leave it out of the
+     * {@link ComputedBoundsAction} of this rendering. Override to substitute or to skip a route,
+     * which a later rendering reports again as soon as the edge can be routed.
+     *
+     * A route of fewer than two points, which is how a router reports an edge it cannot route, is
+     * skipped: approximating it from the endpoint positions would overwrite the route on the server.
+     */
+    protected calcElementRoute(element: GRoutableElement): ElementAndRoutingPoints | undefined {
+        const elementAndRoute = calcElementAndRoute(element, this.edgeRouterRegistry);
+        return (elementAndRoute.newRoutingPoints?.length ?? 0) < 2 ? undefined : elementAndRoute;
+    }
+
+    /**
+     * Drops the data collected for the previous hidden rendering as soon as a new one starts.
+     * {@link postUpdate} cleans up on its way out, but a failing view or vdom patch aborts the
+     * rendering before the viewer gets there, leaving the collected bounds behind.
+     *
+     * Elements are decorated bottom-up, so the rendering is recognized by the root of the element
+     * at hand rather than by the root element itself.
+     */
+    protected resetOnNewRendering(element: GModelElement): void {
+        if (this.collectingForRoot?.deref() !== element.root) {
+            this.cleanUp();
+            this.collectingForRoot = new WeakRef(element.root);
+        }
     }
 
     override postUpdate(cause?: Action): void {
@@ -80,11 +131,17 @@ export class GLSPHiddenBoundsUpdater extends HiddenBoundsUpdater {
             this.getBoundsFromDOM();
             this.layouter.layout(this.getElement2BoundsData());
 
+            // the server can only resolve elements it sent us itself
+            const skipFeedback = ServerAction.is(cause);
+
             // prepare data for action
             const resizes: ElementAndBounds[] = [];
             const alignments: ElementAndAlignment[] = [];
             const layoutData: ElementAndLayoutData[] = [];
             this.getElement2BoundsData().forEach((boundsData, element) => {
+                if (skipFeedback && this.isFeedbackElement(element)) {
+                    return;
+                }
                 if (boundsData.boundsChanged && boundsData.bounds !== undefined) {
                     const resize: ElementAndBounds = {
                         elementId: element.id,
@@ -112,7 +169,10 @@ export class GLSPHiddenBoundsUpdater extends HiddenBoundsUpdater {
                     layoutData.push({ elementId: element.id, layoutData: boundsData.layoutData });
                 }
             });
-            const routes = this.element2route.length === 0 ? undefined : this.element2route;
+            const relevantRoutes = skipFeedback
+                ? this.element2route.filter(route => !this.feedbackRouteIds.has(route.elementId))
+                : this.element2route;
+            const routes = relevantRoutes.length === 0 ? undefined : relevantRoutes;
 
             // prepare and dispatch action
             const responseId = (cause as RequestBoundsAction).requestId;
@@ -141,7 +201,13 @@ export class GLSPHiddenBoundsUpdater extends HiddenBoundsUpdater {
     protected cleanUp(): void {
         this.getElement2BoundsData().clear();
         this.element2route = [];
+        this.feedbackRouteIds.clear();
+        this.collectingForRoot = undefined;
         this.root = undefined;
+    }
+
+    protected isFeedbackElement(element: GModelElement): boolean {
+        return element.hasFeature(feedbackFeature);
     }
 
     protected focusOnElements(elementIDs: string[]): void {

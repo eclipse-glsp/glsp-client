@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2023-2024 EclipseSource and others.
+ * Copyright (c) 2023-2026 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -21,14 +21,16 @@ import {
     ElementTemplate,
     GChildElement,
     GModelElementSchema,
+    GParentElement,
     IActionDispatcher,
     TYPES,
     distinctAdd,
     remove
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
+import { feedbackFeature } from '../../base/feedback/feedback-action-dispatcher';
 import { FeedbackCommand } from '../../base/feedback/feedback-command';
-import { isNotUndefined } from '../../utils/gmodel-util';
+import { enableFeatures, isNotUndefined } from '../../utils/gmodel-util';
 import { LocalRequestBoundsAction } from '../bounds/local-bounds';
 
 export interface AddTemplateElementsAction extends Action {
@@ -68,10 +70,23 @@ export class AddTemplateElementsFeedbackCommand extends FeedbackCommand {
             .map(template => templateToSchema(template, context))
             .filter(isNotUndefined)
             .map(schema => context.modelFactory.createElement(schema))
+            .map(element => this.markAsFeedback(element))
             .map(element => this.applyRootCssClasses(element, this.action.addClasses, this.action.removeClasses));
         templateElements.forEach(templateElement => context.root.add(templateElement));
         const templateElementIDs = templateElements.map(element => element.id);
         return LocalRequestBoundsAction.fromCommand(context, this.actionDispatcher, this.action, templateElementIDs);
+    }
+
+    /**
+     * Marks the given template element as feedback to keep it out of the bounds reported to the
+     * server. The bounds pass tests every element on its own, so the whole subtree is marked.
+     */
+    protected markAsFeedback(element: GChildElement): GChildElement {
+        enableFeatures(element, feedbackFeature);
+        if (element instanceof GParentElement) {
+            element.children.forEach(child => this.markAsFeedback(child));
+        }
+        return element;
     }
 
     protected applyRootCssClasses(element: GChildElement, addClasses?: string[], removeClasses?: string[]): GChildElement {

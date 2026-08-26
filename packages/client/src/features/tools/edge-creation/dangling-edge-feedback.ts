@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2024 EclipseSource and others.
+ * Copyright (c) 2019-2026 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -34,7 +34,7 @@ import {
 import { inject, injectable } from 'inversify';
 import { feedbackFeature } from '../../../base/feedback/feedback-action-dispatcher';
 import { FeedbackCommand } from '../../../base/feedback/feedback-command';
-import { isRoutable } from '../../../utils/gmodel-util';
+import { enableFeatures, isRoutable } from '../../../utils/gmodel-util';
 import { toAbsolutePosition } from '../../../utils/viewpoint-util';
 import { FeedbackEdgeEndView } from './view';
 
@@ -162,6 +162,8 @@ export function drawFeedbackEdge(
 
     const feedbackEdge = context.modelFactory.createElement(edgeSchema);
     if (isRoutable(feedbackEdge)) {
+        // created from the adopter's own edge type, so it needs to be marked as feedback explicitly
+        enableFeatures(feedbackEdge, feedbackFeature);
         edgeEnd.feedbackEdge = feedbackEdge;
         root.add(edgeEnd);
         root.add(feedbackEdge);

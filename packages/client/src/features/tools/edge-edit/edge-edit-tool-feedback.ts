@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2024 EclipseSource and others.
+ * Copyright (c) 2019-2026 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -42,10 +42,10 @@ import {
 } from '@eclipse-glsp/sprotty';
 import { inject, injectable } from 'inversify';
 import { DragAwareMouseListener } from '../../../base/drag-aware-mouse-listener';
-import { IFeedbackActionDispatcher } from '../../../base/feedback/feedback-action-dispatcher';
+import { IFeedbackActionDispatcher, feedbackFeature } from '../../../base/feedback/feedback-action-dispatcher';
 import { FeedbackCommand } from '../../../base/feedback/feedback-command';
 import { FeedbackEmitter } from '../../../base/feedback/feedback-emitter';
-import { forEachElement, getMatchingElements, isRoutable, isRoutingHandle } from '../../../utils/gmodel-util';
+import { enableFeatures, forEachElement, getMatchingElements, isRoutable, isRoutingHandle } from '../../../utils/gmodel-util';
 import { getAbsolutePosition, toAbsoluteBounds } from '../../../utils/viewpoint-util';
 import { addReconnectHandles, removeReconnectHandles } from '../../reconnect/model';
 import { IChangeBoundsManager } from '../change-bounds/change-bounds-manager';
@@ -375,6 +375,8 @@ export function drawFeedbackEdgeSource(context: CommandExecutionContext, targetI
 
     const feedbackEdge = context.modelFactory.createElement(feedbackEdgeSchema);
     if (isRoutable(feedbackEdge)) {
+        // created from the adopter's own edge type, so it needs to be marked as feedback explicitly
+        enableFeatures(feedbackEdge, feedbackFeature);
         edgeEnd.feedbackEdge = feedbackEdge;
         root.add(edgeEnd);
         root.add(feedbackEdge);
