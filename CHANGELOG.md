@@ -4,11 +4,20 @@
 
 ### Changes
 
+- [diagram] Fix scrollbar computation of the GLSP projection view for diagrams that do not start at the origin [#504](https://github.com/eclipse-glsp/glsp-client/pull/504)
+- [diagram] Add the `pageToCssPosition` utility and use it to place UI extensions relative to their positioning context, so overlays are positioned correctly when the diagram container does not sit at the page origin [#504](https://github.com/eclipse-glsp/glsp-client/pull/504)
+- [build] Migrate the build from yarn and lerna to pnpm workspaces [#517](https://github.com/eclipse-glsp/glsp-client/pull/517)
+- [protocol] Introduce a shared `uuid` utility, so consuming packages no longer depend on their own `uuid` version [#519](https://github.com/eclipse-glsp/glsp-client/pull/519)
+    - The ESLint configuration now restricts direct `uuid` imports in favor of the new helper
+- [build] Migrate the test framework from Mocha to Vitest [#522](https://github.com/eclipse-glsp/glsp-client/pull/522)
 - [layout] Fix bounds computation error after diagram export [#525](https://github.com/eclipse-glsp/glsp-client/pull/525)
 - [layout] Keep client-side feedback elements, such as validation markers, out of the bounds reported to the server [#531](https://github.com/eclipse-glsp/glsp-client/pull/531)
     - Adds the `enableFeatures` model utility to enable model features on a single element without modifying the feature set shared by its element type
 
 ### Potentially Breaking Changes
+
+- [websocket] Fix `GLSPWebSocketProvider` not retrying when it is launched before the server is available [#504](https://github.com/eclipse-glsp/glsp-client/pull/504)
+    - Reconnect attempts are now also scheduled for a connection that was never established, so adopters that relied on retries only kicking in after a first successful connection may observe additional connect attempts
 
 ## [v2.7.0 - 01/06/2026](https://github.com/eclipse-glsp/glsp-client/releases/tag/v2.7.0)
 
