@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2019-2025 EclipseSource and others.
+ * Copyright (c) 2019-2026 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -70,6 +70,15 @@ export interface IToolManager {
      */
     enableDefaultTools(): void;
 
+    /**
+     * Re-evaluates and enables the default tools based on the currently available server actions.
+     * In contrast to {@link enableDefaultTools}, this always re-enables the default tools so that
+     * tools whose {@link Tool.requiredServerActions} are (no longer) supported are filtered out.
+     * Typically invoked once the server actions have become available (i.e. from the `preRequestModel`
+     * startup hook onwards).
+     */
+    enableServerBasedDefaultTools(): void;
+
     /** Disables all currently active tools. After this call, no tool will be active anymore. */
     disableActiveTools(): void;
 
@@ -107,6 +116,12 @@ export class ToolManager implements IToolManager, IDiagramStartup, IEditModeList
         this.enableDefaultTools();
     }
 
+    preRequestModel(): void {
+        // the EditorContextService (lower rank) has already populated the server actions at this point,
+        // so re-evaluate the default tools to filter out those with unsupported requiredServerActions
+        this.enableServerBasedDefaultTools();
+    }
+
     get managedTools(): Tool[] {
         return this.defaultTools.concat(this.tools);
     }
@@ -141,18 +156,34 @@ export class ToolManager implements IToolManager, IDiagramStartup, IEditModeList
         this._defaultToolsEnabled = true;
     }
 
+    enableServerBasedDefaultTools(): void {
+        // force a re-enable so that default tools whose requiredServerActions are (now) unsupported
+        // get filtered out and those that are supported get (re-)enabled
+        this.enableDefaultTools(true);
+    }
+
     enable(toolIds: string[]): void {
         this.disableActiveTools();
         let tools = toolIds.map(id => this.tool(id));
         if (this.editorContext && this.editorContext.isReadonly) {
             tools = tools.filter(tool => !tool?.isEditTool);
         }
+        tools = tools.filter(tool => this.isServerSupported(tool));
         tools.forEach(tool => {
             if (tool !== undefined) {
                 tool.enable();
                 this.actives.push(tool);
             }
         });
+    }
+
+    protected isServerSupported(tool: Tool | undefined): boolean {
+        const required = tool?.requiredServerActions;
+        if (!required || required.length === 0) {
+            return true;
+        }
+        const serverActions = this.editorContext?.serverActions;
+        return !!serverActions && required.every(action => serverActions.includes(action));
     }
 
     tool(toolId: string): Tool | undefined {

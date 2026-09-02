@@ -15,6 +15,7 @@
  ********************************************************************************/
 import {
     Action,
+    ChangeContainerOperation,
     ICommand,
     KeyCode,
     matchesKeystroke,
@@ -29,6 +30,7 @@ import { injectable } from 'inversify';
 import { messages } from '../../../base/messages';
 import { EnableDefaultToolsAction, EnableToolsAction } from '../../../base/tool-manager/tool';
 import { compare, createIcon, createToolGroup, EnableToolPaletteAction, ToolPalette } from '../../tool-palette/tool-palette';
+import { ChangeContainerTool } from '../../tools/change-container/change-container-tool';
 import { MouseDeleteTool } from '../../tools/deletion/delete-tool';
 import { MarqueeMouseTool } from '../../tools/marquee-selection/marquee-mouse-tool';
 import { FocusDomAction } from '../actions';
@@ -38,11 +40,6 @@ import { KeyboardNodeGridMetadata } from '../keyboard-grid/constants';
 import { ShowToastMessageAction } from '../toast/toast-handler';
 
 const SEARCH_ICON_ID = 'search';
-const SELECTION_TOOL_KEY: KeyCode[] = ['Digit1', 'Numpad1'];
-const DELETION_TOOL_KEY: KeyCode[] = ['Digit2', 'Numpad2'];
-const MARQUEE_TOOL_KEY: KeyCode[] = ['Digit3', 'Numpad3'];
-const VALIDATION_TOOL_KEY: KeyCode[] = ['Digit4', 'Numpad4'];
-const SEARCH_TOOL_KEY: KeyCode[] = ['Digit5', 'Numpad5'];
 const SHOW_SHORTCUTS_CLASS = 'accessibility-show-shortcuts';
 
 const AVAILABLE_KEYS: KeyCode[] = [
@@ -73,17 +70,36 @@ const AVAILABLE_KEYS: KeyCode[] = [
     'KeyZ'
 ];
 
-const HEADER_TOOL_KEYS: KeyCode[][] = [SELECTION_TOOL_KEY, DELETION_TOOL_KEY, MARQUEE_TOOL_KEY, VALIDATION_TOOL_KEY, SEARCH_TOOL_KEY];
+/**
+ * Digit/Numpad key codes for the header tools, indexed by their position in the header.
+ * The shortcut a header tool gets is derived from the order in which the buttons are actually
+ * added (see {@link KeyboardToolPalette.createHeaderTools}), so tools that are omitted (e.g. an
+ * unsupported change container tool) do not reserve a slot and the following tools shift up.
+ */
+const HEADER_TOOL_DIGIT_KEYS: KeyCode[][] = [
+    ['Digit1', 'Numpad1'],
+    ['Digit2', 'Numpad2'],
+    ['Digit3', 'Numpad3'],
+    ['Digit4', 'Numpad4'],
+    ['Digit5', 'Numpad5'],
+    ['Digit6', 'Numpad6'],
+    ['Digit7', 'Numpad7'],
+    ['Digit8', 'Numpad8'],
+    ['Digit9', 'Numpad9']
+];
 
 @injectable()
 export class KeyboardToolPalette extends ToolPalette {
     protected deleteToolButton: HTMLElement;
     protected marqueeToolButton: HTMLElement;
+    protected changeContainerToolButton: HTMLElement;
     protected validateToolButton: HTMLElement;
     protected searchToolButton: HTMLElement;
 
     protected keyboardIndexButtonMapping = new Map<number, HTMLElement>();
     protected headerToolsButtonMapping = new Map<number, HTMLElement>();
+    // running index of shortcut-bearing header tools, used to assign consecutive digit shortcuts
+    protected headerToolIndex = 0;
 
     protected get interactablePaletteItems(): PaletteItem[] {
         return this.paletteItems
@@ -179,49 +195,66 @@ export class KeyboardToolPalette extends ToolPalette {
 
     protected override createHeaderTools(): HTMLElement {
         this.headerToolsButtonMapping.clear();
-        let mappingIndex = 0;
+        this.headerToolIndex = 0;
 
         const headerTools = document.createElement('div');
         headerTools.classList.add('header-tools');
 
         this.defaultToolsButton = this.createDefaultToolButton();
-        this.headerToolsButtonMapping.set(mappingIndex++, this.defaultToolsButton);
-        headerTools.appendChild(this.defaultToolsButton);
+        this.addHeaderTool(headerTools, this.defaultToolsButton);
 
         this.deleteToolButton = this.createMouseDeleteToolButton();
-        this.headerToolsButtonMapping.set(mappingIndex++, this.deleteToolButton);
-        headerTools.appendChild(this.deleteToolButton);
+        this.addHeaderTool(headerTools, this.deleteToolButton);
 
         this.marqueeToolButton = this.createMarqueeToolButton();
-        this.headerToolsButtonMapping.set(mappingIndex++, this.marqueeToolButton);
-        headerTools.appendChild(this.marqueeToolButton);
+        this.addHeaderTool(headerTools, this.marqueeToolButton);
+
+        // only offer the change container tool if the server actually handles the corresponding operation;
+        // if it is omitted no slot is reserved, so the subsequent shortcut tools shift up and take its shortcut
+        if (this.editorContext.serverActions.includes(ChangeContainerOperation.KIND)) {
+            this.changeContainerToolButton = this.createChangeContainerToolButton();
+            this.addHeaderTool(headerTools, this.changeContainerToolButton);
+        }
 
         this.validateToolButton = this.createValidateButton();
-        this.headerToolsButtonMapping.set(mappingIndex++, this.validateToolButton);
-        headerTools.appendChild(this.validateToolButton);
+        this.addHeaderTool(headerTools, this.validateToolButton);
 
+        // reset/grid/debug intentionally have no keyboard shortcut and are appended without a mapping slot
         const resetViewportButton = this.createResetViewportButton();
-        this.headerToolsButtonMapping.set(mappingIndex++, resetViewportButton);
         headerTools.appendChild(resetViewportButton);
 
         if (this.gridManager) {
             const toggleGridButton = this.createToggleGridButton();
-            this.headerToolsButtonMapping.set(mappingIndex++, toggleGridButton);
             headerTools.appendChild(toggleGridButton);
         }
 
         if (this.debugManager) {
             const toggleDebugButton = this.createToggleDebugButton();
-            this.headerToolsButtonMapping.set(mappingIndex++, toggleDebugButton);
             headerTools.appendChild(toggleDebugButton);
         }
 
         // Create button for Search
         this.searchToolButton = this.createSearchButton();
-        this.headerToolsButtonMapping.set(mappingIndex, this.searchToolButton);
-        headerTools.appendChild(this.searchToolButton);
+        this.addHeaderTool(headerTools, this.searchToolButton);
 
         return headerTools;
+    }
+
+    /**
+     * Registers a header tool button at the next free header index, assigns it the corresponding
+     * digit/numpad shortcut (both as a visible hint and in the {@link headerToolsButtonMapping}) and
+     * appends it to the given `headerTools` container. Because the index is derived from the actual
+     * insertion order, omitting a tool (e.g. an unsupported change container tool) does not leave a
+     * gap: the following shortcut tools shift up and take over the freed shortcut.
+     */
+    protected addHeaderTool(headerTools: HTMLElement, button: HTMLElement): void {
+        const index = this.headerToolIndex++;
+        const shortcut = HEADER_TOOL_DIGIT_KEYS[index];
+        if (shortcut) {
+            button.appendChild(this.createKeyboardShotcut(shortcut[0]));
+        }
+        this.headerToolsButtonMapping.set(index, button);
+        headerTools.appendChild(button);
     }
 
     protected override createDefaultToolButton(): HTMLElement {
@@ -229,7 +262,6 @@ export class KeyboardToolPalette extends ToolPalette {
         button.id = 'btn_default_tools';
         button.title = messages.tool_palette.selection_button;
         button.onclick = this.onClickStaticToolButton(button);
-        button.appendChild(this.createKeyboardShotcut(SELECTION_TOOL_KEY[0]));
 
         return button;
     }
@@ -238,7 +270,6 @@ export class KeyboardToolPalette extends ToolPalette {
         const deleteToolButton = createIcon('eraser');
         deleteToolButton.title = messages.tool_palette.delete_button;
         deleteToolButton.onclick = this.onClickStaticToolButton(deleteToolButton, MouseDeleteTool.ID);
-        deleteToolButton.appendChild(this.createKeyboardShotcut(DELETION_TOOL_KEY[0]));
 
         return deleteToolButton;
     }
@@ -251,9 +282,16 @@ export class KeyboardToolPalette extends ToolPalette {
             message: messages.tool_palette.marquee_message
         });
         marqueeToolButton.onclick = this.onClickStaticToolButton(marqueeToolButton, MarqueeMouseTool.ID, toastMessageAction);
-        marqueeToolButton.appendChild(this.createKeyboardShotcut(MARQUEE_TOOL_KEY[0]));
 
         return marqueeToolButton;
+    }
+
+    protected override createChangeContainerToolButton(): HTMLElement {
+        const changeContainerToolButton = createIcon('move');
+        changeContainerToolButton.title = messages.tool_palette.change_container_button;
+        changeContainerToolButton.onclick = this.onClickStaticToolButton(changeContainerToolButton, ChangeContainerTool.ID);
+
+        return changeContainerToolButton;
     }
 
     protected override createValidateButton(): HTMLElement {
@@ -263,7 +301,6 @@ export class KeyboardToolPalette extends ToolPalette {
             const modelIds: string[] = [this.modelRootId];
             this.actionDispatcher.dispatch(RequestMarkersAction.create(modelIds));
         };
-        validateToolButton.appendChild(this.createKeyboardShotcut(VALIDATION_TOOL_KEY[0]));
 
         return validateToolButton;
     }
@@ -297,7 +334,6 @@ export class KeyboardToolPalette extends ToolPalette {
         };
         searchIcon.classList.add('search-icon');
         searchIcon.title = messages.tool_palette.search_button;
-        searchIcon.appendChild(this.createKeyboardShotcut(SEARCH_TOOL_KEY[0]));
 
         return searchIcon;
     }
@@ -432,9 +468,9 @@ export class KeyboardToolPalette extends ToolPalette {
     protected triggerHeaderToolsByKey(event: KeyboardEvent): void {
         let index: number | undefined = undefined;
 
-        for (let i = 0; i < HEADER_TOOL_KEYS.length; i++) {
-            for (let j = 0; j < HEADER_TOOL_KEYS[i].length; j++) {
-                const keycode = HEADER_TOOL_KEYS[i][j];
+        for (let i = 0; i < HEADER_TOOL_DIGIT_KEYS.length; i++) {
+            for (let j = 0; j < HEADER_TOOL_DIGIT_KEYS[i].length; j++) {
+                const keycode = HEADER_TOOL_DIGIT_KEYS[i][j];
 
                 if (matchesKeystroke(event, keycode)) {
                     event.stopPropagation();

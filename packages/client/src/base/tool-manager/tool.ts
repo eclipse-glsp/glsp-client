@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2023 EclipseSource and others.
+ * Copyright (c) 2023-2026 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -70,6 +70,12 @@ export interface Tool {
      *  Edit tools are inactive when a diagram is in `readonly` edit mode.
      */
     isEditTool?: boolean;
+    /**
+     * Optional list of server action kinds that the server must support for this tool to be enabled.
+     * If set, the {@link IToolManager} will skip enabling this tool when the server does not handle
+     * all of the listed action kinds.
+     */
+    requiredServerActions?: string[];
 }
 
 export namespace Tool {
