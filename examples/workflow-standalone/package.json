@@ -30,6 +30,7 @@
     "compile": "tsc -b",
     "dev": "node ./scripts/start.mts --dev",
     "dev:browser": "node ./scripts/start.mts --dev --browser",
+    "dev:external": "node ./scripts/start.mts --dev --external-server",
     "dev:mcp": "node ./scripts/start.mts --dev --mcp",
     "lint": "eslint ./src",
     "start": "node ./scripts/start.mts",

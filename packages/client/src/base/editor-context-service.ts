@@ -45,6 +45,7 @@ import { inject, injectable, postConstruct, preDestroy } from 'inversify';
 import { FocusChange, FocusTracker } from './focus/focus-tracker';
 import { IDiagramOptions, IDiagramStartup } from './model/diagram-loader';
 import { IModelChangeService, ViewportChange } from './model/model-change-service';
+import { Ranked } from './ranked';
 import { SelectionChange, SelectionService } from './selection-service';
 
 /**
@@ -103,6 +104,8 @@ export class EditorContextService implements IActionHandler, Disposable, IDiagra
 
     @inject(FocusTracker)
     protected focusTracker: FocusTracker;
+
+    protected _serverActions: string[] = [];
 
     protected _editMode: string;
     protected onEditModeChangedEmitter = new Emitter<ValueChange<string>>();
@@ -173,6 +176,19 @@ export class EditorContextService implements IActionHandler, Disposable, IDiagra
         this.lazyInjector.getAll<IEditModeListener>(TYPES.IEditModeListener).forEach(listener => {
             this.onEditModeChanged(event => listener.editModeChanged(event.newValue, event.oldValue));
         });
+    }
+
+    /**
+     * Runs before the {@link ToolManager} (which uses a rank of `DEFAULT_RANK - 100`) so that
+     * {@link serverActions} is populated before any server-capability-based tool filtering happens.
+     */
+    get rank(): number {
+        return Ranked.DEFAULT_RANK - 200;
+    }
+
+    async preRequestModel(): Promise<void> {
+        const client = await this.diagramOptions.glspClientProvider();
+        this._serverActions = client.initializeResult?.serverActions[this.diagramOptions.diagramType] ?? [];
     }
 
     get(args?: Args): EditorContext {
@@ -273,6 +289,15 @@ export class EditorContextService implements IActionHandler, Disposable, IDiagra
 
     get isDirty(): boolean {
         return this._isDirty;
+    }
+
+    /**
+     * The action kinds handled by the server for this diagram type.
+     * Populated after the GLSP client has been initialized (i.e. from the `preRequestModel` startup hook onwards).
+     * Returns an empty array before initialization.
+     */
+    get serverActions(): string[] {
+        return this._serverActions;
     }
 }
 
