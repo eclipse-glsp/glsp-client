@@ -1,5 +1,11 @@
 # Eclipse GLSP - Client [![CI](https://github.com/eclipse-glsp/glsp-client/actions/workflows/ci.yml/badge.svg?ref=master)](https://github.com/eclipse-glsp/glsp-client/actions/workflows/ci.yml) [![E2E](https://github.com/eclipse-glsp/glsp-client/actions/workflows/e2e.yml/badge.svg)](https://github.com/eclipse-glsp/glsp-client/actions/workflows/e2e.yml)
 
+> [!IMPORTANT]
+> **This repository is deprecated and will be archived soon.**
+> Development has moved to the consolidated [`glsp-core`](https://github.com/eclipse-glsp/glsp-core) monorepo.
+> Starting with version `2.9.0`, all packages of this repository are developed and published from there.
+> Please report issues in the [GLSP umbrella repository](https://github.com/eclipse-glsp/glsp/issues) and open pull requests against `glsp-core`.
+
 A web-based diagram client framework for the [Graphical Language Server Platform (GLSP)](https://github.com/eclipse-glsp/glsp) based on [Eclipse Sprotty](https://github.com/eclipse/sprotty).
 
 ## Structure
@@ -13,6 +19,7 @@ A web-based diagram client framework for the [Graphical Language Server Platform
 ## Releases
 
 [All available releases](https://github.com/eclipse-glsp/glsp-client/releases) are available on GitHub including changelogs.
+Releases from version `2.9.0` on are published from [glsp-core/releases](https://github.com/eclipse-glsp/glsp-core/releases); the npm links below stay valid.
 
 The following packages are published to npm:
 
@@ -101,7 +108,8 @@ Checkout the [`glsp-server`](https://github.com/eclipse-glsp/glsp-server#workflo
 
 ### Where to find the sources?
 
-In addition to this repository, the source code of the Workflow Diagram server example can be found here: <https://github.com/eclipse-glsp/glsp-server/tree/master/examples/org.eclipse.glsp.example.workflow>
+The sources of `@eclipse-glsp/client`, `@eclipse-glsp/protocol`, `@eclipse-glsp/sprotty` and the Workflow Diagram client example have moved to the [`glsp-core`](https://github.com/eclipse-glsp/glsp-core) monorepo (`packages/client/client`, `packages/common/protocol`, `packages/client/glsp-sprotty` and `examples/workflow-glsp`/`examples/workflow-standalone`).
+The source code of the Workflow Diagram server example can be found here: <https://github.com/eclipse-glsp/glsp-server/tree/master/examples/org.eclipse.glsp.example.workflow>
 
 ## More information
 

@@ -1,11 +1,11 @@
 name: 'Publish to NPM'
 
+# This repository is deprecated. Publishing moved to the consolidated glsp-core monorepo
+# (https://github.com/eclipse-glsp/glsp-core); starting with 2.9.0 all packages are published from there.
+# The automatic `workflow_run` trigger (nightly publish after a successful CI run on master) has been
+# removed so that changes to this repository no longer publish to npm. Only manual runs remain possible
+# for emergency publishes.
 on:
-  workflow_run:
-    workflows: ['CI']
-    types:
-      - completed
-    branches: [master]
   workflow_call:
     inputs:
       ref:
@@ -40,11 +40,11 @@ jobs:
   publish:
     name: Build & Publish
     runs-on: ubuntu-22.04
-    if: github.repository == 'eclipse-glsp/glsp-client' && (github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call' || (github.event.workflow_run.conclusion == 'success'))
+    if: github.repository == 'eclipse-glsp/glsp-client' && (github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call')
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
-          ref: ${{ inputs.ref || github.event.inputs.ref || github.event.workflow_run.head_commit.id || github.sha }}
+          ref: ${{ inputs.ref || github.event.inputs.ref || github.sha }}
           # Fetch all history to determine the canary version (commits since last tag)
           fetch-depth: 0
 

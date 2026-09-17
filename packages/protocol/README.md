@@ -1,5 +1,9 @@
 # Eclipse GLSP - Protocol
 
+> [!IMPORTANT]
+> Starting with version `2.9.0`, this package is developed and published from the
+> [`glsp-core`](https://github.com/eclipse-glsp/glsp-core) monorepo (`packages/common/protocol`). This repository is deprecated and will be archived.
+
 The generic client-server communication protocol for the [Graphical Language Server Platform (GLSP)](https://github.com/eclipse-glsp/glsp) and a json-rpc based default implementation.
 In addition, this package provides shared common code and utility libraries for GLSP components.
 

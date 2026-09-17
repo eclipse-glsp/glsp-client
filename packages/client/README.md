@@ -1,5 +1,9 @@
 # Eclipse GLSP - Client
 
+> [!IMPORTANT]
+> Starting with version `2.9.0`, this package is developed and published from the
+> [`glsp-core`](https://github.com/eclipse-glsp/glsp-core) monorepo (`packages/client/client`). This repository is deprecated and will be archived.
+
 A web-based diagram client framework for the [Graphical Language Server Platform (GLSP)](https://github.com/eclipse-glsp/glsp) based on [Eclipse Sprotty](https://github.com/eclipse/sprotty).
 
 ## Building

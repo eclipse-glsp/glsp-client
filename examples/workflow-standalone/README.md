@@ -1,5 +1,9 @@
 # Workflow Standalone Example
 
+> [!IMPORTANT]
+> Starting with version `2.9.0`, this package is developed and published from the
+> [`glsp-core`](https://github.com/eclipse-glsp/glsp-core) monorepo (`examples/workflow-standalone`). This repository is deprecated and will be archived.
+
 Standalone browser application for the GLSP Workflow example diagram.
 This package supports two modes: a **Node** mode that connects to an external GLSP server via WebSocket (Node.js or Java), and a **Browser** mode that runs the GLSP server entirely in-browser as a Web Worker.
 

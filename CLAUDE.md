@@ -1,5 +1,7 @@
 # CLAUDE.md
 
+> **Deprecated:** This repository is deprecated and will be archived; active development happens in [`glsp-core`](https://github.com/eclipse-glsp/glsp-core) — do not implement changes here.
+
 ## Project Overview
 
 Eclipse GLSP Client monorepo. Provides the sprotty-based client framework for the Graphical Language Server Platform (GLSP). Contains the core client packages and example applications. Uses pnpm workspaces.

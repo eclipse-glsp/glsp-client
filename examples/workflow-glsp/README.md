@@ -1,5 +1,9 @@
 # workflow-glsp
 
+> [!IMPORTANT]
+> Starting with version `2.9.0`, this package is developed and published from the
+> [`glsp-core`](https://github.com/eclipse-glsp/glsp-core) monorepo (`examples/workflow-glsp`). This repository is deprecated and will be archived.
+
 This package contains the configuration for the GLSP diagrams of the Workflow example language.
 It contains the base code that is independent from the actual application framework and integration variant.
 Separating this base configuration and the actual integration code means that it can be reused for various different integration variants of the GLSP Workflow example language e.g in a Theia application, Standalone application, VS Code plugin or integrated into the Eclipse IDE.

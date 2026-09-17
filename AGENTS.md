@@ -1,5 +1,7 @@
 # CLAUDE.md
 
+> **Deprecated:** This repository is deprecated and will be archived; active development happens in [`glsp-core`](https://github.com/eclipse-glsp/glsp-core) — do not implement changes here.
+
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Project Overview
