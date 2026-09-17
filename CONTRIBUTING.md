@@ -1,5 +1,10 @@
 # Contributing to Eclipse GLSP
 
+> [!IMPORTANT]
+> This repository is deprecated and will be archived soon.
+> Please contribute to the consolidated [`glsp-core`](https://github.com/eclipse-glsp/glsp-core) monorepo instead
+> and follow its [CONTRIBUTING.md](https://github.com/eclipse-glsp/glsp-core/blob/main/CONTRIBUTING.md).
+
 Thank you for your interest in the GLSP project!
 The following is a set of guidelines for contributing to GLSP.
 

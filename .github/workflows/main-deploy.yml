@@ -1,11 +1,10 @@
 name: Main Deploy
 
+# This repository is deprecated. The standalone example is deployed from the consolidated glsp-core
+# monorepo (https://github.com/eclipse-glsp/glsp-core), which has its own `main-deploy.yml` publishing
+# the same GitHub Pages site. The `push` trigger has been removed so that both deployments do not
+# overwrite each other; the workflow can still be triggered manually if needed.
 on:
-  push:
-    branches: [master]
-    paths:
-      - 'packages/**'
-      - 'examples/**'
   workflow_dispatch:
 
 concurrency:
